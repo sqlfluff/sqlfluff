@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6fa832eb7e39e9c5e081a7a3d16bf261df413b2a1fcb9444cefe866934da4a3
+_hash: 66312a5e693507962599d07c4e0de0c145c1e25fa50436c59a28055f2f9bc39a
 file:
 - batch:
   - statement:
@@ -11,13 +11,12 @@ file:
       - keyword: GRANT
       - keyword: SELECT
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: Person
-          - dot: .
-          - naked_identifier: Address
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: Person
+        - dot: .
+        - naked_identifier: Address
       - keyword: TO
       - role_reference:
           naked_identifier: RosaQdM
@@ -27,13 +26,12 @@ file:
       - keyword: GRANT
       - keyword: EXECUTE
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: HumanResources
-          - dot: .
-          - naked_identifier: uspUpdateEmployeeHireInfo
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: uspUpdateEmployeeHireInfo
       - keyword: TO
       - role_reference:
           naked_identifier: Recruiting11
@@ -48,13 +46,12 @@ file:
             naked_identifier: BusinessEntityID
           end_bracket: )
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: HumanResources
-          - dot: .
-          - naked_identifier: vEmployee
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: vEmployee
       - keyword: TO
       - role_reference:
           naked_identifier: Wanida
@@ -67,11 +64,10 @@ file:
       - keyword: GRANT
       - keyword: SELECT
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: Person
-          - dot: .
-          - naked_identifier: Address
+      - object_reference:
+        - naked_identifier: Person
+        - dot: .
+        - naked_identifier: Address
       - keyword: TO
       - role_reference:
           naked_identifier: RosaQdM
@@ -81,11 +77,10 @@ file:
       - keyword: GRANT
       - keyword: SELECT
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: Person
-          - dot: .
-          - naked_identifier: Address
+      - object_reference:
+        - naked_identifier: Person
+        - dot: .
+        - naked_identifier: Address
       - keyword: TO
       - role_reference:
           quoted_identifier: '[AdventureWorks2012\RosaQdM]'
@@ -95,11 +90,10 @@ file:
       - keyword: GRANT
       - keyword: EXECUTE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: uspGetBillOfMaterials
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetBillOfMaterials
       - keyword: TO
       - role_reference:
           naked_identifier: newrole
@@ -109,11 +103,10 @@ file:
       - keyword: GRANT
       - keyword: SELECT
       - keyword: 'ON'
-      - securable:
-          keyword: SCHEMA
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: Sales
+      - keyword: SCHEMA
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: Sales
       - keyword: TO
       - role_reference:
           naked_identifier: Vendors
@@ -123,11 +116,10 @@ file:
       - keyword: REVOKE
       - keyword: SELECT
       - keyword: 'ON'
-      - securable:
-          keyword: SCHEMA
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: Sales
+      - keyword: SCHEMA
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: Sales
       - keyword: TO
       - role_reference:
           naked_identifier: Vendors
@@ -137,13 +129,12 @@ file:
       - keyword: DENY
       - keyword: SELECT
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: Person
-          - dot: .
-          - naked_identifier: Address
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: Person
+        - dot: .
+        - naked_identifier: Address
       - keyword: TO
       - role_reference:
           naked_identifier: RosaQdM
@@ -153,13 +144,12 @@ file:
       - keyword: DENY
       - keyword: EXECUTE
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: HumanResources
-          - dot: .
-          - naked_identifier: uspUpdateEmployeeHireInfo
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: uspUpdateEmployeeHireInfo
       - keyword: TO
       - role_reference:
           naked_identifier: Recruiting11
@@ -174,13 +164,12 @@ file:
             naked_identifier: BusinessEntityID
           end_bracket: )
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: HumanResources
-          - dot: .
-          - naked_identifier: vEmployee
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: vEmployee
       - keyword: TO
       - role_reference:
           naked_identifier: Wanida
@@ -194,9 +183,8 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          object_reference:
-            naked_identifier: SomeObject
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -207,9 +195,8 @@ file:
       - keyword: ALL
       - keyword: PRIVILEGES
       - keyword: 'ON'
-      - securable:
-          object_reference:
-            naked_identifier: SomeObject
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           quoted_identifier: '[AdventureWorks2012\RosaQdM]'
@@ -223,11 +210,10 @@ file:
       - comma: ','
       - keyword: UPDATE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeObject
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -248,11 +234,10 @@ file:
             naked_identifier: Column2
         - end_bracket: )
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTable
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
       - keyword: TO
       - role_reference:
           naked_identifier: SomeUser
@@ -277,11 +262,10 @@ file:
             naked_identifier: Column2
           end_bracket: )
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTable
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
       - keyword: TO
       - role_reference:
           naked_identifier: SomeUser
@@ -291,11 +275,10 @@ file:
       - keyword: GRANT
       - keyword: EXECUTE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTableType
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTableType
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -308,11 +291,10 @@ file:
       - keyword: GRANT
       - keyword: EXECUTE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTableType
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTableType
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -325,13 +307,12 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: TYPE
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTableType
+      - keyword: TYPE
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTableType
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -341,11 +322,10 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -358,11 +338,10 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: ASSEMBLY
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: ASSEMBLY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -372,12 +351,11 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: ASYMMETRIC
-        - keyword: KEY
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: ASYMMETRIC
+      - keyword: KEY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -387,11 +365,10 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: CERTIFICATE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: CERTIFICATE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -401,11 +378,10 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: TYPE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: TYPE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -415,11 +391,10 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: DATABASE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: DATABASE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -429,12 +404,11 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: FULLTEXT
-        - keyword: CATALOG
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: FULLTEXT
+      - keyword: CATALOG
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -444,12 +418,11 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: FULLTEXT
-        - keyword: STOPLIST
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -459,11 +432,10 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: ROLE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: ROLE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -473,13 +445,12 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: SEARCH
-        - keyword: PROPERTY
-        - keyword: LIST
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: SEARCH
+      - keyword: PROPERTY
+      - keyword: LIST
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -489,12 +460,11 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: SYMMETRIC
-        - keyword: KEY
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -504,13 +474,12 @@ file:
       - keyword: GRANT
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: XML
-        - keyword: SCHEMA
-        - keyword: COLLECTION
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -527,13 +496,12 @@ file:
             naked_identifier: Column1
           end_bracket: )
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeObject
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeUser
@@ -555,9 +523,8 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          object_reference:
-            naked_identifier: SomeObject
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -568,9 +535,8 @@ file:
       - keyword: ALL
       - keyword: PRIVILEGES
       - keyword: 'ON'
-      - securable:
-          object_reference:
-            naked_identifier: SomeObject
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           quoted_identifier: '[AdventureWorks2012\RosaQdM]'
@@ -584,11 +550,10 @@ file:
       - comma: ','
       - keyword: UPDATE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeObject
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -609,11 +574,10 @@ file:
             naked_identifier: Column2
         - end_bracket: )
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTable
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
       - keyword: TO
       - role_reference:
           naked_identifier: SomeUser
@@ -638,11 +602,10 @@ file:
             naked_identifier: Column2
           end_bracket: )
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTable
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
       - keyword: TO
       - role_reference:
           naked_identifier: SomeUser
@@ -652,11 +615,10 @@ file:
       - keyword: DENY
       - keyword: EXECUTE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTableType
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTableType
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -667,11 +629,10 @@ file:
       - keyword: DENY
       - keyword: EXECUTE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTableType
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTableType
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -684,13 +645,12 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: TYPE
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTableType
+      - keyword: TYPE
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTableType
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -700,11 +660,10 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -717,11 +676,10 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: ASSEMBLY
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: ASSEMBLY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -731,12 +689,11 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: ASYMMETRIC
-        - keyword: KEY
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: ASYMMETRIC
+      - keyword: KEY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -746,11 +703,10 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: CERTIFICATE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: CERTIFICATE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -760,11 +716,10 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: TYPE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: TYPE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -774,11 +729,10 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: DATABASE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: DATABASE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -788,12 +742,11 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: FULLTEXT
-        - keyword: CATALOG
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: FULLTEXT
+      - keyword: CATALOG
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -803,12 +756,11 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: FULLTEXT
-        - keyword: STOPLIST
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -818,11 +770,10 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: ROLE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: ROLE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -832,13 +783,12 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: SEARCH
-        - keyword: PROPERTY
-        - keyword: LIST
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: SEARCH
+      - keyword: PROPERTY
+      - keyword: LIST
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -848,12 +798,11 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: SYMMETRIC
-        - keyword: KEY
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -863,13 +812,12 @@ file:
       - keyword: DENY
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: XML
-        - keyword: SCHEMA
-        - keyword: COLLECTION
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -886,13 +834,12 @@ file:
             naked_identifier: Column1
           end_bracket: )
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeObject
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeUser
@@ -912,9 +859,8 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          object_reference:
-            naked_identifier: SomeObject
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -924,9 +870,8 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          object_reference:
-            naked_identifier: SomeObject
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: FROM
       - role_reference:
           naked_identifier: SomeRole
@@ -937,9 +882,8 @@ file:
       - keyword: ALL
       - keyword: PRIVILEGES
       - keyword: 'ON'
-      - securable:
-          object_reference:
-            naked_identifier: SomeObject
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           quoted_identifier: '[AdventureWorks2012\RosaQdM]'
@@ -953,11 +897,10 @@ file:
       - comma: ','
       - keyword: UPDATE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeObject
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -978,11 +921,10 @@ file:
             naked_identifier: Column2
         - end_bracket: )
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTable
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
       - keyword: TO
       - role_reference:
           naked_identifier: SomeUser
@@ -1007,11 +949,10 @@ file:
             naked_identifier: Column2
           end_bracket: )
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTable
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
       - keyword: TO
       - role_reference:
           naked_identifier: SomeUser
@@ -1021,11 +962,10 @@ file:
       - keyword: REVOKE
       - keyword: EXECUTE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTableType
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTableType
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1036,11 +976,10 @@ file:
       - keyword: REVOKE
       - keyword: EXECUTE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTableType
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTableType
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1056,11 +995,10 @@ file:
       - keyword: FOR
       - keyword: EXECUTE
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTableType
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTableType
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1073,13 +1011,12 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: TYPE
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeTableType
+      - keyword: TYPE
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTableType
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1089,11 +1026,10 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1106,11 +1042,10 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: ASSEMBLY
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: ASSEMBLY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1120,12 +1055,11 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: ASYMMETRIC
-        - keyword: KEY
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: ASYMMETRIC
+      - keyword: KEY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1135,11 +1069,10 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: CERTIFICATE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: CERTIFICATE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1149,11 +1082,10 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: TYPE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: TYPE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1163,11 +1095,10 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: DATABASE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: DATABASE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1177,12 +1108,11 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: FULLTEXT
-        - keyword: CATALOG
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: FULLTEXT
+      - keyword: CATALOG
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1192,12 +1122,11 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: FULLTEXT
-        - keyword: STOPLIST
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1207,11 +1136,10 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-          keyword: ROLE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: ROLE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1221,13 +1149,12 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: SEARCH
-        - keyword: PROPERTY
-        - keyword: LIST
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: SEARCH
+      - keyword: PROPERTY
+      - keyword: LIST
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1237,12 +1164,11 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: SYMMETRIC
-        - keyword: KEY
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1252,13 +1178,12 @@ file:
       - keyword: REVOKE
       - keyword: ALL
       - keyword: 'ON'
-      - securable:
-        - keyword: XML
-        - keyword: SCHEMA
-        - keyword: COLLECTION
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
@@ -1278,13 +1203,12 @@ file:
             naked_identifier: Column1
           end_bracket: )
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeObject
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: SomeUser

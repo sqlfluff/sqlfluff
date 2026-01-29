@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70beb69cd3556399b78b0d4c82bbcfb1650145936b7fb8182c92f98f7136bc8e
+_hash: 657b9b3556b2dfaa8119f7a6126d52f44f5470b2457fd0ca319344509cd68f6a
 file:
   batch:
   - statement:
@@ -11,9 +11,8 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          object_reference:
-            naked_identifier: SomeObject
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: dbo
@@ -23,11 +22,10 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeObject
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: dbo
@@ -37,11 +35,10 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          keyword: SCHEMA
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeSchema
+      - keyword: SCHEMA
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeSchema
       - keyword: TO
       - role_reference:
           naked_identifier: dbo
@@ -51,11 +48,10 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          keyword: SCHEMA
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeSchema
+      - keyword: SCHEMA
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeSchema
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -65,9 +61,8 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          object_reference:
-            naked_identifier: SomeObject
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - role_reference:
           naked_identifier: dbo
@@ -77,9 +72,8 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          object_reference:
-            naked_identifier: SomeObject
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -89,11 +83,10 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          keyword: OBJECT
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -103,11 +96,10 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          keyword: ASSEMBLY
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: ASSEMBLY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -117,12 +109,11 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-        - keyword: ASYMMETRIC
-        - keyword: KEY
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: ASYMMETRIC
+      - keyword: KEY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -132,11 +123,10 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          keyword: CERTIFICATE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: CERTIFICATE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -146,11 +136,10 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          keyword: TYPE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: TYPE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -160,11 +149,10 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          keyword: DATABASE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: DATABASE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -174,12 +162,11 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-        - keyword: FULLTEXT
-        - keyword: CATALOG
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: FULLTEXT
+      - keyword: CATALOG
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -189,12 +176,11 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-        - keyword: FULLTEXT
-        - keyword: STOPLIST
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -204,11 +190,10 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-          keyword: ROLE
-          casting_operator: '::'
-          object_reference:
-            naked_identifier: SomeObject
+      - keyword: ROLE
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -218,13 +203,12 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-        - keyword: SEARCH
-        - keyword: PROPERTY
-        - keyword: LIST
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: SEARCH
+      - keyword: PROPERTY
+      - keyword: LIST
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -234,12 +218,11 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-        - keyword: SYMMETRIC
-        - keyword: KEY
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER
@@ -249,13 +232,12 @@ file:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
-      - securable:
-        - keyword: XML
-        - keyword: SCHEMA
-        - keyword: COLLECTION
-        - casting_operator: '::'
-        - object_reference:
-            naked_identifier: SomeObject
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeObject
       - keyword: TO
       - keyword: SCHEMA
       - keyword: OWNER

@@ -6636,11 +6636,58 @@ class LabelStatementSegment(BaseSegment):
     )
 
 
-class SecurableSegment(BaseSegment):
-    """securable used by GRANT, DENY, REVOKE & ALTER AUTHORIZATION."""
+class AlterAuthorizationStatementSegment(BaseSegment):
+    """alter authorization statement.
 
-    type = "securable"
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-authorization-transact-sql
+    """
+
+    type = "alter_authorization_statement"
+
+    _securable = Sequence(
+        Sequence(
+            OneOf(
+                "ASSEMBLY",
+                Sequence("ASYMMETRIC", "KEY"),
+                "CERTIFICATE",
+                "DATABASE",
+                Sequence("FULLTEXT", "CATALOG"),
+                Sequence("FULLTEXT", "STOPLIST"),
+                "OBJECT",
+                "ROLE",
+                "SCHEMA",
+                Sequence("SEARCH", "PROPERTY", "LIST"),
+                Sequence("SYMMETRIC", "KEY"),
+                "TYPE",
+                Sequence("XML", "SCHEMA", "COLLECTION"),
+            ),
+            Ref("CastOperatorSegment"),
+            optional=True,
+        ),
+        Ref("ObjectReferenceSegment"),
+    )
+
     match_grammar: Matchable = Sequence(
+        "ALTER",
+        "AUTHORIZATION",
+        "ON",
+        _securable,
+        "TO",
+        OneOf(Ref("RoleReferenceSegment"), Sequence("SCHEMA", "OWNER")),
+    )
+
+
+class AccessStatementSegment(BaseSegment):
+    """A `GRANT`, `DENY` or `REVOKE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/deny-transact-sql
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/revoke-transact-sql
+    """
+
+    type = "access_statement"
+
+    _securable = Sequence(
         Sequence(
             OneOf(
                 "ASSEMBLY",
@@ -6664,34 +6711,6 @@ class SecurableSegment(BaseSegment):
         ),
         Ref("ObjectReferenceSegment"),
     )
-
-
-class AlterAuthorizationStatementSegment(BaseSegment):
-    """alter authorization statement.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-authorization-transact-sql
-    """
-
-    type = "alter_authorization_statement"
-    match_grammar: Matchable = Sequence(
-        "ALTER",
-        "AUTHORIZATION",
-        "ON",
-        Ref("SecurableSegment"),
-        "TO",
-        OneOf(Ref("RoleReferenceSegment"), Sequence("SCHEMA", "OWNER")),
-    )
-
-
-class AccessStatementSegment(BaseSegment):
-    """A `GRANT`, `DENY` or `REVOKE` statement.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/deny-transact-sql
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/revoke-transact-sql
-    """
-
-    type = "access_statement"
 
     _permissions = Sequence(
         OneOf(
@@ -6848,7 +6867,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
             ),
             "ON",
-            Ref("SecurableSegment"),
+            _securable,
             "TO",
             Delimited(Ref("RoleReferenceSegment")),
             Sequence(
@@ -6873,7 +6892,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
             ),
             "ON",
-            Ref("SecurableSegment"),
+            _securable,
             "TO",
             Delimited(
                 Ref("RoleReferenceSegment"),
@@ -6900,7 +6919,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
             ),
             "ON",
-            Ref("SecurableSegment"),
+            _securable,
             OneOf("TO", "FROM"),
             Delimited(
                 Ref("RoleReferenceSegment"),
