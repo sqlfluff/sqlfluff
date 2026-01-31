@@ -1679,7 +1679,8 @@ class TableOptionsSegment(BaseSegment):
                 Ref("EqualsSegment", optional=True),
                 Ref("QuotedLiteralSegment"),
             ),
-            # ROW_FORMAT [=] {DEFAULT | DYNAMIC | FIXED | COMPRESSED | REDUNDANT | COMPACT}
+            # ROW_FORMAT [=] {DEFAULT | DYNAMIC | FIXED
+            # | COMPRESSED | REDUNDANT | COMPACT}
             Sequence(
                 "ROW_FORMAT",
                 Ref("EqualsSegment", optional=True),
