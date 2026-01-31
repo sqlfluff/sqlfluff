@@ -396,11 +396,6 @@ def test__api__immutable_config():
     assert config.get("dialect") == "ansi"
 
 
-"""Test glob path resolution functionality."""
-
-import pytest
-
-
 def test_resolve_path_glob_patterns(tmp_path):
     """Test that _resolve_path function supports glob patterns."""
     from sqlfluff.core.config.file import _resolve_path
