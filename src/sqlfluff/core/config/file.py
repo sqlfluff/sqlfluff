@@ -76,11 +76,13 @@ def _resolve_paths_in_config(
                 val, str
             ), f"Value for {key} in {log_filename} must be a string not {type(val)}."
             paths = split_comma_separated_string(val)
-            config[key] = ",".join(
+            resolved_paths = [
                 resolved_path
                 for path in paths
                 for resolved_path in _resolve_path(filepath, path)
-            )
+            ]
+            # If no paths resolved, keep the original patterns
+            config[key] = ",".join(resolved_paths) if resolved_paths else val
         # It it's a single path key, resolve it.
         elif key.lower().endswith(RESOLVE_PATH_SUFFIXES):
             assert isinstance(
