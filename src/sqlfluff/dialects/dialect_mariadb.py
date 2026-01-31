@@ -884,7 +884,15 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
             Sequence(
                 "ROW_FORMAT",
                 Ref("EqualsSegment", optional=True),
-                OneOf("DEFAULT", "DYNAMIC", "FIXED", "COMPRESSED", "REDUNDANT", "COMPACT", "PAGE"),
+                OneOf(
+                    "DEFAULT",
+                    "DYNAMIC",
+                    "FIXED",
+                    "COMPRESSED",
+                    "REDUNDANT",
+                    "COMPACT",
+                    "PAGE",
+                ),
             ),
             # SEQUENCE [=] {0|1}
             Sequence(
@@ -944,4 +952,3 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
             ),
         ),
     )
-

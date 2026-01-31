@@ -1683,7 +1683,9 @@ class TableOptionsSegment(BaseSegment):
             Sequence(
                 "ROW_FORMAT",
                 Ref("EqualsSegment", optional=True),
-                OneOf("DEFAULT", "DYNAMIC", "FIXED", "COMPRESSED", "REDUNDANT", "COMPACT"),
+                OneOf(
+                    "DEFAULT", "DYNAMIC", "FIXED", "COMPRESSED", "REDUNDANT", "COMPACT"
+                ),
             ),
             # SECONDARY_ENGINE_ATTRIBUTE [=] 'string'
             Sequence(
