@@ -317,7 +317,12 @@ postgres_dialect.patch_lexer_matchers(
         # )
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+(_\d+)*\.\d+(_\d+)*|\d+\.(?![\.\w])|\.\d+(_\d+)*|\d+(_\d+)*)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            r"(?>\d+(_\d+)*\.\d+(_\d+)*"  # Decimal numbers with underscores
+            r"|\d+(_\d+)*\.(?![\.\w])"  # Integer with trailing dot
+            r"|\.\d+(_\d+)*"  # Decimal starting with dot
+            r"|\d+(_\d+)*)"  # Integer with underscores
+            r"(\.?[eE][+-]?\d+)?"  # Optional exponential
+            r"((?<=\.)|(?=\b))",  # Word boundary check
             LiteralSegment,
         ),
     ]
