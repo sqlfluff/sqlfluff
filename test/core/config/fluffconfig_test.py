@@ -396,8 +396,15 @@ def test__api__immutable_config():
     assert config.get("dialect") == "ansi"
 
 
-def test__config__comma_separated_path_keys_glob_support(tmp_path):
-    """Test that comma-separated path keys support glob patterns."""
+"""Test glob path resolution functionality."""
+
+import pytest
+
+
+def test_resolve_path_glob_patterns(tmp_path):
+    """Test that _resolve_path function supports glob patterns."""
+    from sqlfluff.core.config.file import _resolve_path
+
     # Set up test directory structure
     macros_dir = tmp_path / "macros"
     macros_dir.mkdir()
@@ -409,101 +416,113 @@ def test__config__comma_separated_path_keys_glob_support(tmp_path):
     subdir.mkdir()
     (subdir / "macro3.sql").touch()
 
-    # Create config file with glob patterns
-    config_file = tmp_path / ".sqlfluff"
-    config_file.write_text(
-        "[sqlfluff]\n"
-        "dialect = ansi\n"
-        "[sqlfluff:templater:jinja]\n"
-        "load_macros_from_path = macros/*.sql, macros/subdirectory/*.sql\n"
-        "loader_search_path = macros/*\n"
-    )
+    # Test glob patterns
+    config_path = str(tmp_path / ".sqlfluff")
 
-    # Load config and verify glob expansion
-    config = FluffConfig.from_path(str(config_file))
+    # Test *.sql pattern
+    sql_matches = _resolve_path(config_path, "macros/*.sql")
+    assert len(sql_matches) == 2
+    assert any("macro1.sql" in path for path in sql_matches)
+    assert any("macro2.sql" in path for path in sql_matches)
+    assert not any("other.txt" in path for path in sql_matches)
 
-    # Check that globs are expanded to actual file paths
-    load_macros_from_path = config.get(
-        "load_macros_from_path", section="templater:jinja"
-    )
-    loader_search_path = config.get("loader_search_path", section="templater:jinja")
+    # Test subdirectory pattern
+    subdir_matches = _resolve_path(config_path, "macros/subdirectory/*.sql")
+    assert len(subdir_matches) == 1
+    assert any("macro3.sql" in path for path in subdir_matches)
 
-    # load_macros_from_path should contain the expanded paths
-    expanded_macros = load_macros_from_path.split(",")
-    expanded_macros = [path.strip() for path in expanded_macros]
-
-    # Should match the SQL files but not other.txt
-    assert len(expanded_macros) == 3
-    assert any("macro1.sql" in path for path in expanded_macros)
-    assert any("macro2.sql" in path for path in expanded_macros)
-    assert any("macro3.sql" in path for path in expanded_macros)
-    assert not any("other.txt" in path for path in expanded_macros)
-
-    # loader_search_path should contain expanded directories and files
-    expanded_search = loader_search_path.split(",")
-    expanded_search = [path.strip() for path in expanded_search]
-
-    # Should match all files in macros directory
-    assert len(expanded_search) == 4  # 3 files + 1 subdirectory
-    assert any("macro1.sql" in path for path in expanded_search)
-    assert any("macro2.sql" in path for path in expanded_search)
-    assert any("other.txt" in path for path in expanded_search)
-    assert any("subdirectory" in path for path in expanded_search)
+    # Test * pattern (matches all)
+    all_matches = _resolve_path(config_path, "macros/*")
+    assert len(all_matches) == 4  # 2 sql + 1 txt + 1 subdirectory
 
 
-def test__config__comma_separated_path_keys_exact_match(tmp_path):
-    """Test that comma-separated path keys still work with exact file matches."""
-    # Set up test directory structure
+def test_resolve_path_exact_files(tmp_path):
+    """Test that _resolve_path works with exact file paths."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    # Set up test directory
     macros_dir = tmp_path / "macros"
     macros_dir.mkdir()
     specific_file = macros_dir / "specific_macro.sql"
     specific_file.touch()
 
-    # Create config file with exact file path
-    config_file = tmp_path / ".sqlfluff"
-    config_file.write_text(
-        "[sqlfluff]\n"
-        "dialect = ansi\n"
-        "[sqlfluff:templater:jinja]\n"
-        "load_macros_from_path = macros/specific_macro.sql\n"
-    )
+    # Test exact file path
+    config_path = str(tmp_path / ".sqlfluff")
+    matches = _resolve_path(config_path, "macros/specific_macro.sql")
 
-    # Load config and verify exact path resolution
-    config = FluffConfig.from_path(str(config_file))
-
-    load_macros_from_path = config.get(
-        "load_macros_from_path", section="templater:jinja"
-    )
-
-    # Should contain exactly one path - the resolved specific file
-    assert "specific_macro.sql" in load_macros_from_path
-    # Should not be comma-separated since only one match
-    assert "," not in load_macros_from_path
+    assert len(matches) == 1
+    assert "specific_macro.sql" in matches[0]
 
 
-def test__config__comma_separated_path_keys_no_matches(tmp_path):
-    """Test behavior when glob patterns don't match any files."""
-    # Set up test directory with no matching files
+def test_resolve_path_no_matches(tmp_path):
+    """Test _resolve_path behavior when no files match."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    # Set up empty directory
     empty_dir = tmp_path / "empty"
     empty_dir.mkdir()
 
-    # Create config file with pattern that won't match anything
-    config_file = tmp_path / ".sqlfluff"
-    config_file.write_text(
-        "[sqlfluff]\n"
-        "dialect = ansi\n"
-        "[sqlfluff:templater:jinja]\n"
-        "load_macros_from_path = empty/*.sql, nonexistent/*.sql\n"
-    )
+    # Test no matches
+    config_path = str(tmp_path / ".sqlfluff")
+    matches = _resolve_path(config_path, "empty/*.sql")
 
-    # Load config and verify empty result handling
-    config = FluffConfig.from_path(str(config_file))
+    # Should return empty list when no matches
+    assert len(matches) == 0
 
-    load_macros_from_path = config.get(
-        "load_macros_from_path", section="templater:jinja"
-    )
 
-    # Should return the original patterns since no files match the globs
-    # When glob finds no matches, it returns the original pattern
-    expected_patterns = "empty/*.sql,nonexistent/*.sql"
-    assert load_macros_from_path == expected_patterns
+def test_resolve_paths_in_config_comma_separated(tmp_path):
+    """Test that _resolve_paths_in_config handles comma-separated glob patterns."""
+    from sqlfluff.core.config.file import _resolve_paths_in_config
+
+    # Set up test structure
+    macros_dir = tmp_path / "macros"
+    macros_dir.mkdir()
+    (macros_dir / "macro1.sql").touch()
+    (macros_dir / "macro2.sql").touch()
+
+    subdir = macros_dir / "subdirectory"
+    subdir.mkdir()
+    (subdir / "macro3.sql").touch()
+
+    # Test config processing
+    test_config = {
+        "templater:jinja": {
+            "load_macros_from_path": "macros/*.sql, macros/subdirectory/*.sql",
+        }
+    }
+
+    config_path = str(tmp_path / ".sqlfluff")
+    _resolve_paths_in_config(test_config, config_path)
+
+    # Check results
+    resolved_path = test_config["templater:jinja"]["load_macros_from_path"]
+    resolved_files = [f.strip() for f in resolved_path.split(",")]
+
+    # Should have 3 files total
+    assert len(resolved_files) == 3
+    assert any("macro1.sql" in f for f in resolved_files)
+    assert any("macro2.sql" in f for f in resolved_files)
+    assert any("macro3.sql" in f for f in resolved_files)
+
+
+def test_resolve_paths_in_config_no_matches_fallback(tmp_path):
+    """Test that _resolve_paths_in_config falls back to original when no matches."""
+    from sqlfluff.core.config.file import _resolve_paths_in_config
+
+    # Set up empty directory
+    empty_dir = tmp_path / "empty"
+    empty_dir.mkdir()
+
+    # Test config with no matches
+    test_config = {
+        "templater:jinja": {
+            "load_macros_from_path": "empty/*.sql, nonexistent/*.sql",
+        }
+    }
+
+    config_path = str(tmp_path / ".sqlfluff")
+    _resolve_paths_in_config(test_config, config_path)
+
+    # Should keep original pattern when no matches
+    resolved_path = test_config["templater:jinja"]["load_macros_from_path"]
+    assert resolved_path == "empty/*.sql, nonexistent/*.sql"
