@@ -503,5 +503,7 @@ def test__config__comma_separated_path_keys_no_matches(tmp_path):
         "load_macros_from_path", section="templater:jinja"
     )
 
-    # Should be empty since no files match the glob patterns
-    assert load_macros_from_path == ""
+    # Should return the original patterns since no files match the globs
+    # When glob finds no matches, it returns the original pattern
+    expected_patterns = "empty/*.sql,nonexistent/*.sql"
+    assert load_macros_from_path == expected_patterns
