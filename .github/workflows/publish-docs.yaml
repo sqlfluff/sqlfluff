@@ -38,6 +38,16 @@ jobs:
 
       - name: 📄 Setup Pages
         uses: actions/configure-pages@v5
+        if: ${{ !env.ACT }}
+
+      - name: � Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: 📦 Install SQLFluff
+        run: pip install -e .
 
       - name: 📦 Install dependencies
         working-directory: docsv
@@ -48,7 +58,8 @@ jobs:
         run: pnpm run docs:build
 
       - name: ⬆️ Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
+        if: ${{ !env.ACT }}
         with:
           path: docsv/.vitepress/dist
 
@@ -62,5 +73,6 @@ jobs:
     name: ✅ Deploy Docs
     steps:
       - name: ✅ Deploy to GitHub Pages
+        if: ${{ !env.ACT }}
         id: deployment
         uses: actions/deploy-pages@v4
