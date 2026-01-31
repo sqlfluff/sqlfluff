@@ -42,7 +42,7 @@ def _load_raw_file_as_dict(filepath: str) -> ConfigMappingType:
         return load_ini_string(file.read())
 
 
-def _resolve_path(filepath: str, val: str) -> str:
+def _resolve_path(filepath: str, val: str) -> list[str]:
     """Resolves a path relative to the directory of filepath.
 
     Handles both exact paths and wildcard patterns.
