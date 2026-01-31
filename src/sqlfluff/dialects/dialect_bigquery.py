@@ -133,6 +133,12 @@ bigquery_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r"\\([\\`\"'?])", r"\1")],
             },
         ),
+        RegexLexer(
+            "numeric_literal",
+            r"(0[xX][0-9a-fA-F]+|(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)"
+            r"(\.?[eE][+-]?\d+)?)((?<=\.)|(?=\b))",
+            LiteralSegment,
+        ),
     ]
 )
 
