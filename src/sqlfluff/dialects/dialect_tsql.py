@@ -4303,10 +4303,10 @@ class JsonValueFunctionContentsSegment(BaseSegment):
     match_grammar = Bracketed(
         Ref("ExpressionSegment"),  # JSON expression
         Ref("CommaSegment"),
-        Ref("ExpressionSegment"),  # JSON path
+        Ref("ExpressionSegment", terminators=["RETURNING"]),  # JSON path
         Sequence(
             "RETURNING",
-            "JSON",
+            Ref("DatatypeSegment"),
             optional=True,
         ),
     )
@@ -4476,6 +4476,8 @@ class FunctionSegment(BaseSegment):
                         Ref("DatePartFunctionNameSegment"),
                         Ref("WithinGroupFunctionNameSegment"),
                         Ref("RankFunctionNameSegment"),
+                        Ref("JsonScalarFunctionNameSegment"),
+                        Ref("JsonAggFunctionNameSegment"),
                     ),
                 ),
                 Ref("ReservedKeywordFunctionNameSegment"),

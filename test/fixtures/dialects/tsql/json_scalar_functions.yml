@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa173278ae321a9be527437137bd0c94666683ddbbb82b3e443d4d0925d8d89c
+_hash: 2243de46c4d9a8040a866130a6e407449b4fda7d751b0a460086b72d844dd44d
 file:
   batch:
   - statement:
@@ -13,7 +13,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: ISJSON
+                keyword: ISJSON
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -28,7 +28,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: ISJSON
+                keyword: ISJSON
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -51,7 +51,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: ISJSON
+                keyword: ISJSON
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -66,17 +66,15 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: ISJSON
+                keyword: ISJSON
               function_contents:
                 bracketed:
-                - start_bracket: (
-                - expression:
+                  start_bracket: (
+                  expression:
                     quoted_literal: "'{\"name\":\"John\"}'"
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: VALUE
-                - end_bracket: )
+                  comma: ','
+                  keyword: VALUE
+                  end_bracket: )
   - statement_terminator: ;
   - statement:
       select_statement:
@@ -85,17 +83,15 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: ISJSON
+                keyword: ISJSON
               function_contents:
                 bracketed:
-                - start_bracket: (
-                - expression:
+                  start_bracket: (
+                  expression:
                     quoted_literal: "'[1,2,3]'"
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: ARRAY
-                - end_bracket: )
+                  comma: ','
+                  keyword: ARRAY
+                  end_bracket: )
   - statement_terminator: ;
   - statement:
       select_statement:
@@ -104,17 +100,15 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: ISJSON
+                keyword: ISJSON
               function_contents:
                 bracketed:
-                - start_bracket: (
-                - expression:
+                  start_bracket: (
+                  expression:
                     quoted_literal: "'{\"key\":\"value\"}'"
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: OBJECT
-                - end_bracket: )
+                  comma: ','
+                  keyword: OBJECT
+                  end_bracket: )
   - statement_terminator: ;
   - statement:
       select_statement:
@@ -123,17 +117,15 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: ISJSON
+                keyword: ISJSON
               function_contents:
                 bracketed:
-                - start_bracket: (
-                - expression:
+                  start_bracket: (
+                  expression:
                     quoted_literal: "'\"scalar\"'"
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: SCALAR
-                - end_bracket: )
+                  comma: ','
+                  keyword: SCALAR
+                  end_bracket: )
   - statement_terminator: ;
   - statement:
       select_statement:
@@ -155,7 +147,7 @@ file:
           expression:
             function:
               function_name:
-                function_name_identifier: ISJSON
+                keyword: ISJSON
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -180,7 +172,7 @@ file:
                 - expression:
                     function:
                       function_name:
-                        function_name_identifier: ISJSON
+                        keyword: ISJSON
                       function_contents:
                         bracketed:
                           start_bracket: (
@@ -214,7 +206,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -232,7 +224,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -258,7 +250,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -276,55 +268,29 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
-                - expression:
-                    quoted_literal: "'{\"age\":30}'"
-                - comma: ','
-                - expression:
-                    quoted_literal: "'$.age'"
-                - expression:
-                    column_reference:
-                      naked_identifier: RETURNING
-                - expression:
-                    column_reference:
-                      naked_identifier: int
-                - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-      select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: JSON_VALUE
-              function_contents:
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'{\"price\":99.99}'"
-                - comma: ','
-                - expression:
-                    quoted_literal: "'$.price'"
-                - expression:
-                    column_reference:
-                      naked_identifier: RETURNING
                 - expression:
                     function:
                       function_name:
-                        function_name_identifier: decimal
+                        keyword: CONVERT
                       function_contents:
                         bracketed:
-                        - start_bracket: (
-                        - expression:
-                            integer_literal: '10'
-                        - comma: ','
-                        - expression:
-                            integer_literal: '2'
-                        - end_bracket: )
+                          start_bracket: (
+                          data_type:
+                            keyword: JSON
+                          comma: ','
+                          expression:
+                            quoted_literal: "'{\"age\":30}'"
+                          end_bracket: )
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.age'"
+                - keyword: RETURNING
+                - data_type:
+                    keyword: int
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -334,21 +300,38 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    quoted_literal: "'{\"created\":\"2024-01-01\"}'"
+                    function:
+                      function_name:
+                        keyword: CONVERT
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          data_type:
+                            keyword: JSON
+                          comma: ','
+                          expression:
+                            quoted_literal: "'{\"price\":99.99}'"
+                          end_bracket: )
                 - comma: ','
                 - expression:
-                    quoted_literal: "'$.created'"
-                - expression:
-                    column_reference:
-                      naked_identifier: RETURNING
-                - expression:
-                    column_reference:
-                      naked_identifier: datetime2
+                    quoted_literal: "'$.price'"
+                - keyword: RETURNING
+                - data_type:
+                    keyword: decimal
+                    bracketed_arguments:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          integer_literal: '10'
+                      - comma: ','
+                      - expression:
+                          integer_literal: '2'
+                      - end_bracket: )
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -358,7 +341,39 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    function:
+                      function_name:
+                        keyword: CONVERT
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          data_type:
+                            keyword: JSON
+                          comma: ','
+                          expression:
+                            quoted_literal: "'{\"created\":\"2024-01-01\"}'"
+                          end_bracket: )
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.created'"
+                - keyword: RETURNING
+                - data_type:
+                    keyword: datetime2
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -381,7 +396,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -400,7 +415,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -430,7 +445,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_QUERY
+                keyword: JSON_QUERY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -448,7 +463,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_QUERY
+                keyword: JSON_QUERY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -474,7 +489,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_QUERY
+                keyword: JSON_QUERY
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -489,7 +504,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_QUERY
+                keyword: JSON_QUERY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -528,7 +543,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_QUERY
+                keyword: JSON_QUERY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -546,7 +561,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_MODIFY
+                keyword: JSON_MODIFY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -575,7 +590,7 @@ file:
             expression:
               function:
                 function_name:
-                  function_name_identifier: JSON_MODIFY
+                  keyword: JSON_MODIFY
                 function_contents:
                   bracketed:
                   - start_bracket: (
@@ -597,7 +612,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_MODIFY
+                keyword: JSON_MODIFY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -618,7 +633,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_MODIFY
+                keyword: JSON_MODIFY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -639,7 +654,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_MODIFY
+                keyword: JSON_MODIFY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -660,7 +675,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_MODIFY
+                keyword: JSON_MODIFY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -681,7 +696,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_MODIFY
+                keyword: JSON_MODIFY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -702,7 +717,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_MODIFY
+                keyword: JSON_MODIFY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -723,7 +738,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_PATH_EXISTS
+                keyword: JSON_PATH_EXISTS
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -741,7 +756,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_PATH_EXISTS
+                keyword: JSON_PATH_EXISTS
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -767,7 +782,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_PATH_EXISTS
+                keyword: JSON_PATH_EXISTS
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -798,7 +813,7 @@ file:
           expression:
             function:
               function_name:
-                function_name_identifier: JSON_PATH_EXISTS
+                keyword: JSON_PATH_EXISTS
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -820,7 +835,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_PATH_EXISTS
+                keyword: JSON_PATH_EXISTS
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -838,7 +853,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_PATH_EXISTS
+                keyword: JSON_PATH_EXISTS
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -860,7 +875,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: ISJSON
+                keyword: ISJSON
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -876,7 +891,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -895,7 +910,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_QUERY
+                keyword: JSON_QUERY
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -914,7 +929,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_PATH_EXISTS
+                keyword: JSON_PATH_EXISTS
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -944,14 +959,14 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
                 - expression:
                     function:
                       function_name:
-                        function_name_identifier: JSON_MODIFY
+                        keyword: JSON_MODIFY
                       function_contents:
                         bracketed:
                         - start_bracket: (
@@ -982,7 +997,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -1003,7 +1018,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -1055,7 +1070,7 @@ file:
           expression:
             function:
               function_name:
-                function_name_identifier: ISJSON
+                keyword: ISJSON
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -1076,7 +1091,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -1151,7 +1166,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_VALUE
+                keyword: JSON_VALUE
               function_contents:
                 bracketed:
                 - start_bracket: (
@@ -1187,7 +1202,7 @@ file:
           - select_clause_element:
               function:
                 function_name:
-                  function_name_identifier: JSON_VALUE
+                  keyword: JSON_VALUE
                 function_contents:
                   bracketed:
                   - start_bracket: (
@@ -1206,7 +1221,7 @@ file:
           - select_clause_element:
               function:
                 function_name:
-                  function_name_identifier: JSON_VALUE
+                  keyword: JSON_VALUE
                 function_contents:
                   bracketed:
                   - start_bracket: (
