@@ -186,3 +186,11 @@ test_fail_ansi_not_equal_to_tsql:
     rules:
       convention.not_equal:
         preferred_not_equal_style: "ansi"
+
+# Skip Teradata as != is not supported
+test_pass_teradata_not_equal_to:
+  pass_str: |
+    SELECT * FROM X WHERE 1 <> 2
+  configs:
+    core:
+      dialect: teradata
