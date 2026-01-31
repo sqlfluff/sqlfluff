@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 171d4e89bd347fe0866284fbeecc858432d31a78464565c3d07c44077d156616
+_hash: a4197408a0e4521c53c9da3524cf5008403797a8b5b7c17b67fdae1f85560c82
 file:
   batch:
   - statement:
@@ -486,8 +486,7 @@ file:
                     column_reference:
                       naked_identifier: prop_value
                 - keyword: RETURNING
-                - data_type:
-                    keyword: json
+                - keyword: json
                 - end_bracket: )
         from_clause:
           keyword: FROM
