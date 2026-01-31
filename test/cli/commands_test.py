@@ -1717,7 +1717,7 @@ def test__cli__command_lint_nocolor(
 
 @pytest.mark.parametrize(
     "serialize",
-    ["human", "yaml", "json", "github-annotation", "github-annotation-native", "none"],
+    ["human", "yaml", "json", "sarif", "github-annotation", "github-annotation-native", "none"],
 )
 @pytest.mark.parametrize("write_file", [None, "outfile"])
 def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
@@ -1774,6 +1774,17 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     elif serialize == "yaml":
         result = yaml.safe_load(result_payload)
         assert len(result) == 2
+    elif serialize == "sarif":
+        result = json.loads(result_payload)
+        # Verify SARIF structure
+        assert result["$schema"].startswith("https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/")
+        assert result["version"] == "2.1.0"
+        assert len(result["runs"]) == 1
+        run = result["runs"][0]
+        assert run["tool"]["driver"]["name"] == "SQLFluff"
+        # Should have results from 2 files
+        filepaths = {r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"] for r in run["results"]}
+        assert len(filepaths) == 2
     elif serialize == "github-annotation":
         result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
