@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a4197408a0e4521c53c9da3524cf5008403797a8b5b7c17b67fdae1f85560c82
+_hash: b626c56f4d7624d0ba715e0c7e33750ce7dfbf41ae94cb7f2623df882a27df07
 file:
   batch:
   - statement:
@@ -13,7 +13,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_ARRAYAGG
+                keyword: JSON_ARRAYAGG
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -36,7 +36,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_ARRAYAGG
+                keyword: JSON_ARRAYAGG
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -111,19 +111,15 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_ARRAYAGG
+                keyword: JSON_ARRAYAGG
               function_contents:
                 bracketed:
                 - start_bracket: (
                 - expression:
                     column_reference:
                       naked_identifier: product_id
-                - expression:
-                    column_reference:
-                      naked_identifier: RETURNING
-                - expression:
-                    column_reference:
-                      naked_identifier: json
+                - keyword: RETURNING
+                - keyword: json
                 - end_bracket: )
         from_clause:
           keyword: FROM
@@ -140,7 +136,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_ARRAYAGG
+                keyword: JSON_ARRAYAGG
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -291,7 +287,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_ARRAYAGG
+                keyword: JSON_ARRAYAGG
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -776,7 +772,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_ARRAYAGG
+                keyword: JSON_ARRAYAGG
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -828,7 +824,7 @@ file:
           select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_ARRAYAGG
+                keyword: JSON_ARRAYAGG
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -984,7 +980,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: JSON_ARRAYAGG
+                keyword: JSON_ARRAYAGG
               function_contents:
                 bracketed:
                   start_bracket: (
@@ -1056,7 +1052,7 @@ file:
                 - colon: ':'
                 - function:
                     function_name:
-                      function_name_identifier: JSON_ARRAYAGG
+                      keyword: JSON_ARRAYAGG
                     function_contents:
                       bracketed:
                         start_bracket: (
