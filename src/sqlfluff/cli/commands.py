@@ -7,7 +7,7 @@ import sys
 import time
 from itertools import chain
 from logging import LogRecord
-from typing import Any, Callable, Dict, List, Optional, Union, cast
+from typing import Any, Callable, Dict, List, Optional, cast
 
 import click
 
@@ -779,7 +779,7 @@ def lint(
                         "defaultConfiguration": {
                             "level": "note" if violation["warning"] else "error"
                         },
-                        "helpUri": f"https://docs.sqlfluff.com/en/stable/rules.html#{str(rule_id).lower()}",
+                        "helpUri": f"https://docs.sqlfluff.com/en/stable/rules.html#{str(rule_id).lower()}",  # noqa: E501
                     }
                     sarif_rules.append(rule_info)
                     rules_seen.add(rule_id)
@@ -827,7 +827,7 @@ def lint(
 
         # Build complete SARIF document
         sarif_output = {
-            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",  # noqa: E501
             "version": "2.1.0",
             "runs": [
                 {
