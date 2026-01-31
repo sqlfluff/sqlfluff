@@ -7890,7 +7890,7 @@ class AlterUserStatementSegment(BaseSegment):
         Sequence(
             "DEFAULT_SCHEMA",
             Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
+            OneOf(Ref("ObjectReferenceSegment"), "NULL"),
         ),
         Sequence("LOGIN", Ref("EqualsSegment"), Ref("RoleReferenceSegment")),
         Sequence(

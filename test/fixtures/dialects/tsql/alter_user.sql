@@ -1,6 +1,9 @@
 ALTER USER SomeUser WITH LOGIN = SomeUser;
 
 ALTER USER SomeUser WITH
+    DEFAULT_SCHEMA = NULL;
+
+ALTER USER SomeUser WITH
     Name = NewName,
     DEFAULT_SCHEMA = dbo,
     PASSWORD = 'password',
