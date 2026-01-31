@@ -774,16 +774,12 @@ def lint(
                     rule_info = {
                         "id": rule_id,
                         "name": rule_id,
-                        "shortDescription": {
-                            "text": violation["name"] or rule_id
-                        },
-                        "fullDescription": {
-                            "text": violation["description"]
-                        },
+                        "shortDescription": {"text": violation["name"] or rule_id},
+                        "fullDescription": {"text": violation["description"]},
                         "defaultConfiguration": {
                             "level": "note" if violation["warning"] else "error"
                         },
-                        "helpUri": f"https://docs.sqlfluff.com/en/stable/rules.html#{str(rule_id).lower()}"
+                        "helpUri": f"https://docs.sqlfluff.com/en/stable/rules.html#{str(rule_id).lower()}",
                     }
                     sarif_rules.append(rule_info)
                     rules_seen.add(rule_id)
@@ -792,34 +788,38 @@ def lint(
                 sarif_result: Dict[str, Any] = {
                     "ruleId": rule_id,
                     "level": "note" if violation["warning"] else "error",
-                    "message": {
-                        "text": f"{rule_id}: {violation['description']}"
-                    },
-                    "locations": [{
-                        "physicalLocation": {
-                            "artifactLocation": {
-                                "uri": filepath,
-                                "uriBaseId": "%SRCROOT%"
-                            },
-                            "region": {
-                                "startLine": violation["start_line_no"],
-                                "startColumn": violation["start_line_pos"]
+                    "message": {"text": f"{rule_id}: {violation['description']}"},
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": filepath,
+                                    "uriBaseId": "%SRCROOT%",
+                                },
+                                "region": {
+                                    "startLine": violation["start_line_no"],
+                                    "startColumn": violation["start_line_pos"],
+                                },
                             }
                         }
-                    }]
+                    ],
                 }
 
                 # Add end position if available
                 if "end_line_no" in violation:
                     # Type-safe access to nested dict structure
                     location = cast(Dict[str, Any], sarif_result["locations"][0])
-                    physical_location = cast(Dict[str, Any], location["physicalLocation"])
+                    physical_location = cast(
+                        Dict[str, Any], location["physicalLocation"]
+                    )
                     region = cast(Dict[str, Any], physical_location["region"])
                     region["endLine"] = violation["end_line_no"]
                 if "end_line_pos" in violation:
                     # Type-safe access to nested dict structure
                     location = cast(Dict[str, Any], sarif_result["locations"][0])
-                    physical_location = cast(Dict[str, Any], location["physicalLocation"])
+                    physical_location = cast(
+                        Dict[str, Any], location["physicalLocation"]
+                    )
                     region = cast(Dict[str, Any], physical_location["region"])
                     region["endColumn"] = violation["end_line_pos"]
 
@@ -829,22 +829,26 @@ def lint(
         sarif_output = {
             "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
             "version": "2.1.0",
-            "runs": [{
-                "tool": {
-                    "driver": {
-                        "name": "SQLFluff",
-                        "version": get_package_version(),
-                        "informationUri": "https://sqlfluff.com/",
-                        "rules": sarif_rules
-                    }
-                },
-                "results": sarif_results,
-                "invocations": [{
-                    "executionSuccessful": True,
-                    "startTimeUtc": datetime.now(timezone.utc).isoformat(),
-                    "endTimeUtc": datetime.now(timezone.utc).isoformat()
-                }]
-            }]
+            "runs": [
+                {
+                    "tool": {
+                        "driver": {
+                            "name": "SQLFluff",
+                            "version": get_package_version(),
+                            "informationUri": "https://sqlfluff.com/",
+                            "rules": sarif_rules,
+                        }
+                    },
+                    "results": sarif_results,
+                    "invocations": [
+                        {
+                            "executionSuccessful": True,
+                            "startTimeUtc": datetime.now(timezone.utc).isoformat(),
+                            "endTimeUtc": datetime.now(timezone.utc).isoformat(),
+                        }
+                    ],
+                }
+            ],
         }
 
         file_output = json.dumps(sarif_output, indent=2)
