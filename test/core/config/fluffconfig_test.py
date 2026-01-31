@@ -394,3 +394,114 @@ def test__api__immutable_config():
         "-- sqlfluff:dialect: postgres\nSELECT * FROM table1\n", config=config
     )
     assert config.get("dialect") == "ansi"
+
+
+def test__config__comma_separated_path_keys_glob_support(tmp_path):
+    """Test that comma-separated path keys support glob patterns."""
+    # Set up test directory structure
+    macros_dir = tmp_path / "macros"
+    macros_dir.mkdir()
+    (macros_dir / "macro1.sql").touch()
+    (macros_dir / "macro2.sql").touch()
+    (macros_dir / "other.txt").touch()
+
+    subdir = macros_dir / "subdirectory"
+    subdir.mkdir()
+    (subdir / "macro3.sql").touch()
+
+    # Create config file with glob patterns
+    config_file = tmp_path / ".sqlfluff"
+    config_file.write_text(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "[sqlfluff:templater:jinja]\n"
+        "load_macros_from_path = macros/*.sql, macros/subdirectory/*.sql\n"
+        "loader_search_path = macros/*\n"
+    )
+
+    # Load config and verify glob expansion
+    config = FluffConfig.from_path(str(config_file))
+
+    # Check that globs are expanded to actual file paths
+    load_macros_from_path = config.get(
+        "load_macros_from_path", section="templater:jinja"
+    )
+    loader_search_path = config.get("loader_search_path", section="templater:jinja")
+
+    # load_macros_from_path should contain the expanded paths
+    expanded_macros = load_macros_from_path.split(",")
+    expanded_macros = [path.strip() for path in expanded_macros]
+
+    # Should match the SQL files but not other.txt
+    assert len(expanded_macros) == 3
+    assert any("macro1.sql" in path for path in expanded_macros)
+    assert any("macro2.sql" in path for path in expanded_macros)
+    assert any("macro3.sql" in path for path in expanded_macros)
+    assert not any("other.txt" in path for path in expanded_macros)
+
+    # loader_search_path should contain expanded directories and files
+    expanded_search = loader_search_path.split(",")
+    expanded_search = [path.strip() for path in expanded_search]
+
+    # Should match all files in macros directory
+    assert len(expanded_search) == 4  # 3 files + 1 subdirectory
+    assert any("macro1.sql" in path for path in expanded_search)
+    assert any("macro2.sql" in path for path in expanded_search)
+    assert any("other.txt" in path for path in expanded_search)
+    assert any("subdirectory" in path for path in expanded_search)
+
+
+def test__config__comma_separated_path_keys_exact_match(tmp_path):
+    """Test that comma-separated path keys still work with exact file matches."""
+    # Set up test directory structure
+    macros_dir = tmp_path / "macros"
+    macros_dir.mkdir()
+    specific_file = macros_dir / "specific_macro.sql"
+    specific_file.touch()
+
+    # Create config file with exact file path
+    config_file = tmp_path / ".sqlfluff"
+    config_file.write_text(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "[sqlfluff:templater:jinja]\n"
+        "load_macros_from_path = macros/specific_macro.sql\n"
+    )
+
+    # Load config and verify exact path resolution
+    config = FluffConfig.from_path(str(config_file))
+
+    load_macros_from_path = config.get(
+        "load_macros_from_path", section="templater:jinja"
+    )
+
+    # Should contain exactly one path - the resolved specific file
+    assert "specific_macro.sql" in load_macros_from_path
+    # Should not be comma-separated since only one match
+    assert "," not in load_macros_from_path
+
+
+def test__config__comma_separated_path_keys_no_matches(tmp_path):
+    """Test behavior when glob patterns don't match any files."""
+    # Set up test directory with no matching files
+    empty_dir = tmp_path / "empty"
+    empty_dir.mkdir()
+
+    # Create config file with pattern that won't match anything
+    config_file = tmp_path / ".sqlfluff"
+    config_file.write_text(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "[sqlfluff:templater:jinja]\n"
+        "load_macros_from_path = empty/*.sql, nonexistent/*.sql\n"
+    )
+
+    # Load config and verify empty result handling
+    config = FluffConfig.from_path(str(config_file))
+
+    load_macros_from_path = config.get(
+        "load_macros_from_path", section="templater:jinja"
+    )
+
+    # Should be empty since no files match the glob patterns
+    assert load_macros_from_path == ""

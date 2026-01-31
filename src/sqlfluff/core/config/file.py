@@ -11,6 +11,7 @@ to `nested_combine` either immediately, or eventually after returning
 which should negate this effect.
 """
 
+import glob
 import os.path
 from functools import cache
 from typing import Optional
@@ -42,11 +43,18 @@ def _load_raw_file_as_dict(filepath: str) -> ConfigMappingType:
 
 
 def _resolve_path(filepath: str, val: str) -> str:
-    """Try to resolve a path found in a config value."""
-    # Make the referenced path.
-    ref_path = os.path.join(os.path.dirname(filepath), val)
-    # Check if it exists, and if it does, replace the value with the path.
-    return ref_path if os.path.exists(ref_path) else val
+    """Resolves a path relative to the directory of filepath.
+
+    Handles both exact paths and wildcard patterns.
+    """
+    directory = os.path.dirname(filepath)
+    search_path = os.path.join(directory, val)
+
+    # Use glob which handles both wildcard patterns and exact matches
+    matches = glob.glob(search_path)
+
+    # Return the matches if any were found
+    return matches
 
 
 def _resolve_paths_in_config(
@@ -68,7 +76,11 @@ def _resolve_paths_in_config(
                 val, str
             ), f"Value for {key} in {log_filename} must be a string not {type(val)}."
             paths = split_comma_separated_string(val)
-            config[key] = ",".join(_resolve_path(filepath, path) for path in paths)
+            config[key] = ",".join(
+                resolved_path
+                for path in paths
+                for resolved_path in _resolve_path(filepath, path)
+            )
         # It it's a single path key, resolve it.
         elif key.lower().endswith(RESOLVE_PATH_SUFFIXES):
             assert isinstance(
