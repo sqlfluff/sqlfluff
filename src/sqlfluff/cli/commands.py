@@ -7,7 +7,7 @@ import sys
 import time
 from itertools import chain
 from logging import LogRecord
-from typing import Callable, Optional
+from typing import Any, Callable, Dict, List, Optional, Union, cast
 
 import click
 
@@ -760,8 +760,8 @@ def lint(
         # https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
         from datetime import datetime, timezone
 
-        sarif_rules = []
-        sarif_results = []
+        sarif_rules: List[Dict[str, Any]] = []
+        sarif_results: List[Dict[str, Any]] = []
         rules_seen = set()
 
         for record in result.as_records():
@@ -783,13 +783,13 @@ def lint(
                         "defaultConfiguration": {
                             "level": "note" if violation["warning"] else "error"
                         },
-                        "helpUri": f"https://docs.sqlfluff.com/en/stable/rules.html#{rule_id.lower()}"
+                        "helpUri": f"https://docs.sqlfluff.com/en/stable/rules.html#{str(rule_id).lower()}"
                     }
                     sarif_rules.append(rule_info)
                     rules_seen.add(rule_id)
 
                 # Create result for this violation
-                sarif_result = {
+                sarif_result: Dict[str, Any] = {
                     "ruleId": rule_id,
                     "level": "note" if violation["warning"] else "error",
                     "message": {
@@ -811,9 +811,17 @@ def lint(
 
                 # Add end position if available
                 if "end_line_no" in violation:
-                    sarif_result["locations"][0]["physicalLocation"]["region"]["endLine"] = violation["end_line_no"]
+                    # Type-safe access to nested dict structure
+                    location = cast(Dict[str, Any], sarif_result["locations"][0])
+                    physical_location = cast(Dict[str, Any], location["physicalLocation"])
+                    region = cast(Dict[str, Any], physical_location["region"])
+                    region["endLine"] = violation["end_line_no"]
                 if "end_line_pos" in violation:
-                    sarif_result["locations"][0]["physicalLocation"]["region"]["endColumn"] = violation["end_line_pos"]
+                    # Type-safe access to nested dict structure
+                    location = cast(Dict[str, Any], sarif_result["locations"][0])
+                    physical_location = cast(Dict[str, Any], location["physicalLocation"])
+                    region = cast(Dict[str, Any], physical_location["region"])
+                    region["endColumn"] = violation["end_line_pos"]
 
                 sarif_results.append(sarif_result)
 
