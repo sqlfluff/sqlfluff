@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0cb963b53f2fa31526a616181c1f190315dc4c1c0e8ba540fa8cfdc9463f0286
+_hash: f4e18aa7dc80aab705208de9ed8e21ffc2d0ca87559ff6a978dd977f29cb1c78
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -22,4 +22,73 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: foo
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '0x01'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: hex1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '0xFF'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: hex2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '0xDEADBEEF'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: hex3
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  boolean_literal: 'TRUE'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '0x01'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0x00'
+            - keyword: END
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '0x01'
+          - binary_operator:
+              pipe: '|'
+          - numeric_literal: '0x02'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: bitwise_or
+- statement_terminator: ;

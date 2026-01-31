@@ -3997,16 +3997,52 @@ class ReplicateFunctionNameSegment(BaseSegment):
 
 
 class JsonFunctionNameSegment(BaseSegment):
-    """JSON functions name segment.
+    """JSON functions name segment for JSON_OBJECT and JSON_ARRAY.
 
-    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-object-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-functions-transact-sql
 
     Need to be able to specify this as type function_name
     so that linting rules identify it properly
     """
 
     type = "function_name"
-    match_grammar = OneOf("JSON_ARRAY", "JSON_OBJECT")
+    match_grammar = OneOf(
+        "JSON_ARRAY",
+        "JSON_OBJECT",
+    )
+
+
+class JsonScalarFunctionNameSegment(BaseSegment):
+    """JSON scalar function name segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-functions-transact-sql
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "ISJSON",
+        "JSON_VALUE",
+        "JSON_QUERY",
+        "JSON_MODIFY",
+        "JSON_PATH_EXISTS",
+    )
+
+
+class JsonAggFunctionNameSegment(BaseSegment):
+    """JSON aggregate function name segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-functions-transact-sql
+
+    For aggregation functions that use the WITHIN GROUP clause.
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf("JSON_ARRAYAGG", "JSON_OBJECTAGG")
 
 
 class RankFunctionNameSegment(BaseSegment):
@@ -4185,7 +4221,7 @@ class ReplicateFunctionContentsSegment(BaseSegment):
 
 
 class JsonFunctionContentsSegment(BaseSegment):
-    """JSON function contents."""
+    """JSON function contents for JSON_OBJECT and JSON_ARRAY."""
 
     type = "function_contents"
 
@@ -4232,6 +4268,146 @@ class JsonFunctionContentsSegment(BaseSegment):
         ),
         Bracketed(
             Delimited(_json_key_value, _json_null_clause),
+        ),
+    )
+
+
+class IsjsonFunctionContentsSegment(BaseSegment):
+    """ISJSON function contents.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/isjson-transact-sql
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # JSON expression
+        Sequence(
+            Ref("CommaSegment"),
+            OneOf(
+                "VALUE",
+                "ARRAY",
+                "OBJECT",
+                "SCALAR",
+            ),  # json_type_constraint
+            optional=True,
+        ),
+    )
+
+
+class JsonValueFunctionContentsSegment(BaseSegment):
+    """JSON_VALUE function contents.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-value-transact-sql
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # JSON expression
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment", terminators=["RETURNING"]),  # JSON path
+        Sequence(
+            "RETURNING",
+            Ref("DatatypeSegment"),
+            optional=True,
+        ),
+    )
+
+
+class JsonQueryFunctionContentsSegment(BaseSegment):
+    """JSON_QUERY function contents.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-query-transact-sql
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # JSON expression
+        Sequence(
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),  # JSON path
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            "ARRAY",
+            "WRAPPER",
+            optional=True,
+        ),
+    )
+
+
+class JsonModifyFunctionContentsSegment(BaseSegment):
+    """JSON_MODIFY function contents.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-modify-transact-sql
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # JSON expression
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),  # JSON path
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),  # new value
+    )
+
+
+class JsonPathExistsFunctionContentsSegment(BaseSegment):
+    """JSON_PATH_EXISTS function contents.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-path-exists-transact-sql
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # value_expression
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),  # sql_json_path
+    )
+
+
+class JsonAggFunctionContentsSegment(BaseSegment):
+    """JSON aggregate function contents for JSON_ARRAYAGG and JSON_OBJECTAGG.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-functions-transact-sql
+    """
+
+    type = "function_contents"
+
+    _json_null_clause = OneOf(
+        Sequence("NULL", "ON", "NULL"),
+        Sequence("ABSENT", "ON", "NULL"),
+        optional=True,
+    )
+
+    match_grammar = Bracketed(
+        Sequence(
+            # Single expression OR two expressions separated by colon
+            Ref("ExpressionSegment"),
+            Sequence(
+                Ref("ColonSegment"),
+                Ref("ExpressionSegment"),
+                # Optional for JSON_ARRAYAGG, required for JSON_OBJECTAGG
+                optional=True,
+            ),
+            # Only available for JSON_ARRAYAGG
+            Sequence(
+                "ORDER",
+                "BY",
+                Ref("ColumnReferenceSegment"),
+                optional=True,
+            ),
+            _json_null_clause,
+            Sequence(
+                "RETURNING",
+                "JSON",
+                optional=True,
+            ),
         ),
     )
 
@@ -4303,6 +4479,8 @@ class FunctionSegment(BaseSegment):
                         Ref("DatePartFunctionNameSegment"),
                         Ref("WithinGroupFunctionNameSegment"),
                         Ref("RankFunctionNameSegment"),
+                        Ref("JsonScalarFunctionNameSegment"),
+                        Ref("JsonAggFunctionNameSegment"),
                     ),
                 ),
                 Ref("ReservedKeywordFunctionNameSegment"),
@@ -4311,8 +4489,23 @@ class FunctionSegment(BaseSegment):
             Ref("PostFunctionGrammar", optional=True),
         ),
         Sequence(
+            Ref("JsonScalarFunctionNameSegment"),
+            OneOf(
+                Ref("IsjsonFunctionContentsSegment"),
+                Ref("JsonValueFunctionContentsSegment"),
+                Ref("JsonQueryFunctionContentsSegment"),
+                Ref("JsonModifyFunctionContentsSegment"),
+                Ref("JsonPathExistsFunctionContentsSegment"),
+            ),
+        ),
+        Sequence(
             Ref("JsonFunctionNameSegment"),
             Ref("JsonFunctionContentsSegment"),
+        ),
+        Sequence(
+            Ref("JsonAggFunctionNameSegment"),
+            Ref("JsonAggFunctionContentsSegment"),
+            Ref("WithinGroupClause", optional=True),
         ),
     )
 
