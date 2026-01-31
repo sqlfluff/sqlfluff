@@ -86,7 +86,7 @@ def _resolve_paths_in_config(
             assert isinstance(
                 val, str
             ), f"Value for {key} in {log_filename} must be a string not {type(val)}."
-            config[key] = _resolve_path(filepath, val)
+            config[key] = _resolve_path(filepath, val)[0]
 
 
 @cache
