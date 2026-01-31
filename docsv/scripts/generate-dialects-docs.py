@@ -3,14 +3,14 @@
 
 This script:
 1. Extracts all SQLFluff dialects using the dialect system
-2. Converts RST docstrings to Markdown using pandoc
+2. Converts RST docstrings to Markdown
 3. Generates markdown files for each dialect
 4. Creates VitePress sidebar configuration
 """
 
+import inspect
 import json
 import re
-import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +18,7 @@ from sqlfluff.core.dialects import dialect_readout
 
 
 def rst_to_markdown(rst_text: str) -> str:
-    """Convert RST docstring to Markdown using pandoc.
+    """Convert RST docstring to Markdown.
 
     Args:
         rst_text: RST-formatted text
@@ -29,67 +29,110 @@ def rst_to_markdown(rst_text: str) -> str:
     if not rst_text:
         return ""
 
-    # Remove common leading indentation
-    # Python docstrings often have an unindented summary line followed by indented body
-    lines = rst_text.split("\n")
-    cleaned_lines = []
-    for line in lines:
-        # Remove up to 4 leading spaces (common Python docstring indentation)
-        if line.startswith("    "):
-            cleaned_lines.append(line[4:])
+    # Use inspect.cleandoc to properly clean Python docstrings
+    # This removes leading indentation while preserving intentional indentation
+    md = inspect.cleandoc(rst_text)
+
+    # First, collect RST reference-style link definitions and build a mapping
+    # Pattern: .. _`Link Name`: URL
+    link_defs = {}
+
+    def collect_link_def(match):
+        link_name = match.group(1)
+        url = match.group(2)
+        link_defs[link_name] = url
+        return ""  # Remove the definition line
+
+    md = re.sub(r"\.\.\s+_`([^`]+)`:\s+(\S+)", collect_link_def, md)
+
+    # Convert RST links to Markdown BEFORE converting backticks
+    # Pattern: `Link Text <URL>`_ (with or without trailing underscore)
+    md = re.sub(r"`([^`<]+)\s+<(https?://[^>]+)>`_", r"[\1](\2)", md)
+    md = re.sub(r"`([^`<]+)\s+<(https?://[^>]+)>`", r"[\1](\2)", md)
+
+    # Convert RST reference-style links to Markdown
+    # Pattern: `Link Text`_ → [Link Text](URL) using collected definitions
+    def replace_ref_link(match):
+        link_text = match.group(1)
+        if link_text in link_defs:
+            return f"[{link_text}]({link_defs[link_text]})"
         else:
-            cleaned_lines.append(line)
-    rst_text = "\n".join(cleaned_lines)
+            # If no definition found, just return as plain text
+            return link_text
 
-    try:
-        # Use pandoc to convert RST to Markdown
-        result = subprocess.run(
-            ["pandoc", "--from", "rst", "--to", "markdown", "--wrap=none"],
-            input=rst_text,
-            capture_output=True,
-            text=True,
-            check=True,
+    md = re.sub(r"`([^`]+)`_", replace_ref_link, md)
+
+    # Convert RST double-backtick literals to single backticks (Markdown inline code)
+    # This must be done AFTER link conversion
+    md = re.sub(r"``([^`]+)``", r"`\1`", md)
+
+    # Convert RST code-block directives to Markdown code fences
+    # Pattern: .. code-block:: language\n\n   indented code
+    pattern = r"\.\.\s+code-block::\s*(\w+)\s*\n\n((?:[ \t]+.+\n?)+)"
+
+    def replace_code_block(match):
+        language = match.group(1)
+        code = match.group(2)
+        # Remove common indentation from code lines
+        lines = code.split("\n")
+        # Find minimum indentation (excluding empty lines)
+        min_indent = min(
+            (len(line) - len(line.lstrip()) for line in lines if line.strip()),
+            default=0,
         )
+        # Remove that indentation from all lines
+        dedented_lines = [line[min_indent:] if line.strip() else "" for line in lines]
+        code_content = "\n".join(dedented_lines).strip()
 
-        md = result.stdout
+        # Convert 'cfg' language to 'ini' for better syntax highlighting
+        if language == "cfg":
+            language = "ini"
 
-        # Post-process the markdown
-        # Convert cfg code blocks to ini (handle both with and without space)
-        md = re.sub(r"```\s*cfg", "```ini", md)
+        return f"```{language}\n{code_content}\n```"
 
-        # Fix inline code that pandoc might convert
-        md = re.sub(r":code:`([^`]+)`", r"`\1`", md)
-        md = re.sub(r":ref:`([^`]+)`", r"`\1`", md)
-        md = re.sub(r":sqlfluff:ref:`([^`]+)`", r"`\1`", md)
+    md = re.sub(pattern, replace_code_block, md)
 
-        # Convert RST note/warning/important directives to VitePress format
-        pattern = (
-            r"::: note\s*\n::: title\s*\n"
-            r"(?:Note|Warning|Important)\s*\n:::\s*\n(.*?)\n:::"
+    # Convert RST inline code to Markdown
+    md = re.sub(r":code:`([^`]+)`", r"`\1`", md)
+    md = re.sub(r":ref:`([^`]+)`", r"`\1`", md)
+    md = re.sub(r":sqlfluff:ref:`([^`]+)`", r"`\1`", md)
+
+    # Convert RST substitution references (|text|) to plain text
+    # Common ones like |back_quotes| become backticks
+    md = re.sub(r"\|back_quotes\|", "backticks", md)
+    md = re.sub(r"\|([^|]+)\|", r"\1", md)  # Generic fallback
+
+    # Convert RST note/warning/important directives to VitePress format
+    # Pattern: .. note::\n\n   content
+    admonition_pattern = r"\.\.\s+(note|warning|important)::\s*\n\n((?:[ \t]+.+\n?)+)"
+
+    def replace_admonition(match):
+        admonition_type = match.group(1)
+        content = match.group(2)
+        # Remove common indentation
+        lines = content.split("\n")
+        min_indent = min(
+            (len(line) - len(line.lstrip()) for line in lines if line.strip()),
+            default=0,
         )
-        md = re.sub(
-            pattern,
-            r":::info\n\1\n:::",
-            md,
-            flags=re.IGNORECASE | re.DOTALL,
-        )
+        dedented_lines = [line[min_indent:] if line.strip() else "" for line in lines]
+        content_text = "\n".join(dedented_lines).strip()
 
-        # Fix escaped characters that pandoc adds
-        md = re.sub(r'\\"', '"', md)
-        md = re.sub(r"\\'", "'", md)
-        md = re.sub(r"\\-", "-", md)
+        # Map RST admonition types to VitePress
+        vitepress_type = "info"
+        if admonition_type == "warning":
+            vitepress_type = "warning"
+        elif admonition_type == "important":
+            vitepress_type = "tip"
 
-        # Clean up extra blank lines
-        md = re.sub(r"\n{3,}", "\n\n", md)
+        return f":::{vitepress_type}\n{content_text}\n:::"
 
-        return md.strip()
+    md = re.sub(admonition_pattern, replace_admonition, md, flags=re.IGNORECASE)
 
-    except subprocess.CalledProcessError as e:
-        print(f"Warning: pandoc conversion failed: {e.stderr}")
-        return rst_text
-    except FileNotFoundError:
-        print("Warning: pandoc not found. Install with: sudo apt install pandoc")
-        return rst_text
+    # Clean up extra blank lines
+    md = re.sub(r"\n{3,}", "\n\n", md)
+
+    return md.strip()
 
 
 def generate_dialects_documentation(output_dir: Path) -> dict[str, Any]:
