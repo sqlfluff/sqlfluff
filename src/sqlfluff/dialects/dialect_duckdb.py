@@ -357,12 +357,12 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         OneOf(
             Sequence("DEFAULT", "VALUES"),
-            Ref("SelectStatementSegment"),
+            Ref("SelectableGrammar"),
             Sequence(
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
                 OneOf(
                     Ref("ValuesClauseSegment"),
-                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
                 ),
             ),
         ),
