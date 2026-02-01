@@ -235,7 +235,7 @@ def release(new_version_num):
 
             else:
                 click.echo(f"...creating new entry for {new_version_num}")
-                write_changelog.write(f"\n{new_heading}\n## Highlights\n\n")
+                write_changelog.write(f"\n{new_heading}\n")
                 write_changelog.write(whats_changed_text)
                 write_changelog.write("\n## New Contributors\n\n")
                 # Ensure contributor names don't appear in input_changelog list
