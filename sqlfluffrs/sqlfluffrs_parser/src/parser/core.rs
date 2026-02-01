@@ -3,17 +3,17 @@
 //! This module contains the Parser struct definition and its core methods
 //! including the main entry point for parsing with grammar.
 
+use crate::parser::match_result::{self, MatchedClass, SegmentKwargs};
 use crate::vdebug;
 use std::sync::Arc;
 
 use crate::parser::table_driven::frame::{TableFrameResult, TableParseFrame};
 use crate::parser::FrameState;
-use crate::parser::{MatchResult, MetaSegmentType};
+use crate::parser::{MatchResult, MetaSegment};
 
 use super::{cache::TableParseCache, Node, ParseError};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::regex::RegexMode;
-use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::{SimpleHint, Token};
 // NEW: Table-driven grammar support
 use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant, RootGrammar};
@@ -114,6 +114,8 @@ impl<'a> Parser<'a> {
         self.cache_enabled = enabled;
     }
 
+    #[deprecated(note = "use call_rule_as_root_match_result instead")]
+    #[allow(deprecated)]
     pub fn call_rule_as_root(&mut self) -> Result<Node, ParseError> {
         // Obtain the root grammar for this dialect and dispatch based on its
         // variant (table-driven vs Arc-based). Clone to avoid holding borrows.
@@ -134,14 +136,8 @@ impl<'a> Parser<'a> {
 
         if token_slice.is_empty() {
             // Wrap in a Ref node for type clarity
-            let result = Node::new_ref(
-                "Root".to_string(),
-                Some("file".to_string()),
-                Node::Sequence {
-                    children: end_nodes,
-                },
-            );
-            return Ok(result.deduplicate());
+            let result = Node::new_ref(&MatchedClass::root(), &end_nodes);
+            return Ok(result);
         }
 
         self.tokens = token_slice;
@@ -176,8 +172,8 @@ impl<'a> Parser<'a> {
                     n = Node::Sequence { children };
                     self.pos += end_len;
                 }
-                let result = Node::new_ref("Root".to_string(), Some("file".to_string()), n);
-                Ok(result.deduplicate())
+                let result = Node::new_ref(&MatchedClass::root(), &[n]);
+                Ok(result)
             }
             Err(e) => Err(e),
         }
@@ -188,8 +184,6 @@ impl<'a> Parser<'a> {
     /// This allows Python to apply the match result using its own apply() logic,
     /// avoiding double-counting issues in Rust's apply() implementation.
     pub fn call_rule_as_root_match_result(&mut self) -> Result<MatchResult, ParseError> {
-        use crate::parser::match_result::MatchResult;
-
         // Obtain the root grammar for this dialect
         let root_grammar = self.dialect.get_root_grammar().clone();
 
@@ -263,6 +257,7 @@ impl<'a> Parser<'a> {
 
     /// Push a checkpoint onto the collection stack when starting to process a grammar.
     /// This records the current state so we can backtrack if needed.
+    #[deprecated(note = "we lazily evaluate matchresults now, so this is no longer needed")]
     pub fn push_collection_checkpoint(&mut self, frame_id: usize) {
         self.collection_stack.push(CollectionCheckpoint {
             frame_id,
@@ -277,6 +272,7 @@ impl<'a> Parser<'a> {
 
     /// Mark a token position as collected and record it in the current checkpoint.
     /// Returns true if the position was newly inserted, false if it was already collected.
+    #[deprecated(note = "we lazily evaluate matchresults now, so this is no longer needed")]
     pub fn mark_position_collected(&mut self, pos: usize) -> bool {
         let was_new = !self.collected_transparent_positions.contains(&pos);
         if was_new {
@@ -300,6 +296,7 @@ impl<'a> Parser<'a> {
     /// This is called when a grammar successfully produces a result that will be used.
     /// If the frame_id doesn't match the checkpoint on top of the stack, it means
     /// this grammar type (e.g., OneOf, Delimited) doesn't use checkpoints - this is OK.
+    #[deprecated(note = "we lazily evaluate matchresults now, so this is no longer needed")]
     pub fn commit_collection_checkpoint(&mut self, frame_id: usize) {
         if let Some(checkpoint) = self.collection_stack.last() {
             if checkpoint.frame_id == frame_id {
@@ -337,27 +334,16 @@ impl<'a> Parser<'a> {
     /// This is called when a grammar fails or is abandoned during backtracking.
     /// If the frame_id doesn't match the checkpoint on top of the stack, it means
     /// this grammar type (e.g., OneOf, Delimited) doesn't use checkpoints - this is OK.
+    #[deprecated(note = "No longer used")]
     pub fn rollback_collection_checkpoint(&mut self, frame_id: usize) {
         if let Some(checkpoint) = self.collection_stack.last() {
             if checkpoint.frame_id == frame_id {
-                // This frame owns the checkpoint - pop and rollback it
-                let checkpoint = self.collection_stack.pop().unwrap();
                 vdebug!(
                     "Rolling back {} collected positions for frame_id={}, stack depth now={}",
                     checkpoint.positions.len(),
                     frame_id,
                     self.collection_stack.len()
                 );
-                // Remove all positions that were marked during this checkpoint
-                for pos in checkpoint.positions {
-                    if let Some(index) = self
-                        .collected_transparent_positions
-                        .iter()
-                        .position(|&p| p == pos)
-                    {
-                        self.collected_transparent_positions.swap_remove(index);
-                    }
-                }
             } else {
                 // This frame doesn't own a checkpoint (e.g., OneOf, Delimited, Ref)
                 // This is normal - only Sequence creates checkpoints
@@ -398,6 +384,7 @@ impl<'a> Parser<'a> {
         let template = tables.get_string(template_id).to_string();
         let token_type = tables.get_string(token_type_id).to_string();
         let raw_class = tables.get_string(raw_class_id).to_string();
+        let casefold = self.grammar_ctx.casefold(grammar_id);
 
         vdebug!(
             "StringParser[table]: pos={}, template='{}', token_type='{}', raw_class='{}'",
@@ -410,32 +397,41 @@ impl<'a> Parser<'a> {
         match self.peek() {
             Some(tok) if tok.raw().eq_ignore_ascii_case(&template) && tok.is_code() => {
                 let token_pos = self.pos;
-                #[cfg(feature = "verbose-debug")]
-                let raw = tok.raw().to_string();
-                self.bump();
+                let result = MatchResult {
+                    matched_slice: token_pos..token_pos + 1,
+                    matched_class: Some(MatchedClass {
+                        class_name: raw_class.clone(),
+                        segment_type: Some(token_type.clone()),
+                        segment_kwargs: match_result::segment_kwargs_from_token(
+                            tok,
+                            &token_type,
+                            None,
+                            casefold,
+                        ),
+                    }),
+                    ..Default::default()
+                };
 
-                vdebug!(
-                    "StringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
-                    raw,
-                    raw_class,
-                    token_type,
-                    token_pos
-                );
+                #[cfg(feature = "verbose-debug")]
+                {
+                    let raw = tok.raw().to_string();
+
+                    vdebug!(
+                        "StringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
+                        raw,
+                        raw_class,
+                        token_type,
+                        token_pos
+                    );
+                }
+                self.bump();
 
                 // PYTHON PARITY: matched_class is the raw_class (segment class name)
                 // and instance_types contains the token_type from the parser
                 // This matches Python's _match_at() which sets:
                 // - matched_class=self.raw_class
                 // - segment_kwargs with instance_types from segment_kwargs()
-                Ok(MatchResult {
-                    matched_slice: token_pos..token_pos + 1,
-                    matched_class: Some(raw_class),
-                    instance_types: Some(vec![token_type]),
-                    // TODO: Add trim_chars and casefold from grammar when available
-                    trim_chars: None,
-                    casefold: CaseFold::None,
-                    ..Default::default()
-                })
+                Ok(result)
             }
             _ => {
                 vdebug!(
@@ -474,6 +470,7 @@ impl<'a> Parser<'a> {
         let template = tables.get_string(template_id).to_string();
         let token_type = tables.get_string(token_type_id).to_string();
         let raw_class = tables.get_string(raw_class_id).to_string();
+        let casefold = self.grammar_ctx.casefold(grammar_id);
 
         self.pos = frame.pos;
 
@@ -489,33 +486,29 @@ impl<'a> Parser<'a> {
                 // Capture all token-derived data before mutating self
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
-                let raw = tok.raw().to_string();
-                #[cfg(feature = "verbose-debug")]
-                let token_type_val = tok.token_type.clone();
-                #[cfg(feature = "verbose-debug")]
-                let inst_types = tok.instance_types.clone();
-                #[cfg(feature = "verbose-debug")]
-                let class_types = tok.class_types();
+                {
+                    let raw = tok.raw().to_string();
+                    let token_type_val = tok.token_type.clone();
+                    let inst_types = tok.instance_types.clone();
+                    let class_types = tok.class_types();
 
-                // Advance position after capturing token data
-                self.bump();
+                    vdebug!(
+                        "TypedParser[table] MATCHED: type='{}', raw='{}' at pos={}",
+                        token_type_val,
+                        raw,
+                        token_pos
+                    );
 
-                vdebug!(
-                    "TypedParser[table] MATCHED: type='{}', raw='{}' at pos={}",
-                    token_type_val,
-                    raw,
-                    token_pos
-                );
-
-                // Extra debug: show token instance/class types
-                vdebug!(
-                    "TypedParser[table] MATCH DETAILS: frame_id={}, grammar_id={:?}, token_idx={}, instance_types={:?}, class_types={:?}",
-                    frame.frame_id,
-                    grammar_id,
-                    token_pos,
-                    inst_types,
-                    class_types
-                );
+                    // Extra debug: show token instance/class types
+                    vdebug!(
+                        "TypedParser[table] MATCH DETAILS: frame_id={}, grammar_id={:?}, token_idx={}, instance_types={:?}, class_types={:?}",
+                        frame.frame_id,
+                        grammar_id,
+                        token_pos,
+                        inst_types,
+                        class_types
+                    );
+                }
 
                 // Build instance_types following Python TypedParser logic:
                 // 1. Override type (token_type) - e.g., "quoted_literal"
@@ -561,19 +554,23 @@ impl<'a> Parser<'a> {
 
                 // Return MatchResult with raw_class as matched_class (segment class)
                 // and computed instance_types (semantic type hierarchy)
-                let casefold = self
-                    .grammar_ctx
-                    .casefold(grammar_id)
-                    .unwrap_or(CaseFold::None);
-                let trim_chars = self.grammar_ctx.trim_chars(grammar_id);
                 let match_result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
-                    matched_class: Some(raw_class),
-                    instance_types: Some(instance_types_vec),
-                    trim_chars,
-                    casefold,
+                    matched_class: Some(MatchedClass {
+                        class_name: raw_class.clone(),
+                        segment_type: Some(token_type.clone()),
+                        segment_kwargs: match_result::segment_kwargs_from_token(
+                            tok,
+                            &token_type,
+                            Some(instance_types_vec),
+                            casefold,
+                        ),
+                    }),
                     ..Default::default()
                 };
+
+                // Advance position after capturing token data
+                self.bump();
 
                 frame.state = FrameState::Complete(Arc::new(match_result));
                 frame.end_pos = Some(self.pos);
@@ -652,6 +649,8 @@ impl<'a> Parser<'a> {
             tables.get_string(raw_class_id).to_string()
         };
 
+        let casefold = self.grammar_ctx.casefold(grammar_id);
+
         vdebug!(
             "MultiStringParser[table]: pos={}, templates={:?}, token_type='{}', raw_class='{}'",
             self.pos,
@@ -666,28 +665,36 @@ impl<'a> Parser<'a> {
             {
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
-                let raw = tok.raw().to_string();
-                self.bump();
+                {
+                    let raw = tok.raw().to_string();
 
-                vdebug!(
-                    "MultiStringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
-                    raw,
-                    raw_class,
-                    token_type,
-                    token_pos
-                );
+                    vdebug!(
+                        "MultiStringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
+                        raw,
+                        raw_class,
+                        token_type,
+                        token_pos
+                    );
+                }
 
                 // PYTHON PARITY: matched_class is the raw_class (segment class name)
                 // and instance_types contains the token_type from the parser
-                Ok(MatchResult {
+                let result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
-                    matched_class: Some(raw_class),
-                    instance_types: Some(vec![token_type]),
-                    // TODO: Add trim_chars and casefold from grammar when available
-                    trim_chars: None,
-                    casefold: CaseFold::None,
+                    matched_class: Some(MatchedClass {
+                        class_name: raw_class.clone(),
+                        segment_type: Some(token_type.clone()),
+                        segment_kwargs: match_result::segment_kwargs_from_token(
+                            tok,
+                            &token_type,
+                            None,
+                            casefold,
+                        ),
+                    }),
                     ..Default::default()
-                })
+                };
+                self.bump();
+                Ok(result)
             }
             _ => {
                 vdebug!(
@@ -913,7 +920,6 @@ impl<'a> Parser<'a> {
                 // Check main pattern
                 if pattern.is_match(&raw) {
                     let token_pos = self.pos;
-                    self.bump();
 
                     vdebug!(
                         "RegexParser[table] MATCHED: token='{}' at pos={}",
@@ -923,18 +929,23 @@ impl<'a> Parser<'a> {
 
                     // Return MatchResult with raw_class as matched_class
                     let token_type = token_type_opt.unwrap_or_default();
-                    let casefold = self
-                        .grammar_ctx
-                        .casefold(grammar_id)
-                        .unwrap_or(CaseFold::None);
-                    Ok(MatchResult {
+                    let casefold = self.grammar_ctx.casefold(grammar_id);
+                    let result = MatchResult {
                         matched_slice: token_pos..token_pos + 1,
-                        matched_class: Some(raw_class),
-                        instance_types: Some(vec![token_type]),
-                        trim_chars: None, // TODO: Add trim_chars support from grammar
-                        casefold,
+                        matched_class: Some(MatchedClass {
+                            class_name: raw_class.clone(),
+                            segment_type: Some(token_type.clone()),
+                            segment_kwargs: match_result::segment_kwargs_from_token(
+                                tok,
+                                &token_type,
+                                None,
+                                casefold,
+                            ),
+                        }),
                         ..Default::default()
-                    })
+                    };
+                    self.bump();
+                    Ok(result)
                 } else {
                     vdebug!(
                         "RegexParser[table] NOMATCH: pattern '{}' didn't match token='{}'",
@@ -1058,10 +1069,10 @@ impl<'a> Parser<'a> {
         vdebug!("Meta[table]: pos={}, token_type='{}'", self.pos, token_type);
 
         // Meta creates zero-length inserts. Determine type and is_implicit flag.
-        let (meta_type, is_implicit) = match token_type.as_str() {
-            "indent" => (MetaSegmentType::Indent, false),
-            "implicit_indent" => (MetaSegmentType::Indent, true),
-            "dedent" => (MetaSegmentType::Dedent, false),
+        let meta_type = match token_type.as_str() {
+            "indent" => MetaSegment::Indent { is_implicit: false },
+            "implicit_indent" => MetaSegment::Indent { is_implicit: true },
+            "dedent" => MetaSegment::Dedent { is_implicit: false },
             _ => {
                 log::warn!("Unknown meta token_type: {}", token_type);
                 return Ok(MatchResult::empty_at(self.pos));
@@ -1071,7 +1082,7 @@ impl<'a> Parser<'a> {
         // Return MatchResult with insert_segments
         Ok(MatchResult {
             matched_slice: self.pos..self.pos,
-            insert_segments: vec![(self.pos, meta_type, is_implicit)],
+            insert_segments: vec![(self.pos, meta_type)],
             ..Default::default()
         })
     }
@@ -1267,8 +1278,14 @@ impl<'a> Parser<'a> {
         // Record opening bracket position with SymbolSegment class
         let open_bracket_match = MatchResult {
             matched_slice: self.pos..self.pos + 1,
-            matched_class: Some("SymbolSegment".to_string()),
-            instance_types: Some(vec!["start_bracket".to_string()]),
+            matched_class: Some(MatchedClass {
+                class_name: "SymbolSegment".to_string(),
+                segment_type: Some("start_bracket".to_string()),
+                segment_kwargs: SegmentKwargs {
+                    instance_types: Some(vec!["start_bracket".to_string()]),
+                    ..Default::default()
+                },
+            }),
             ..Default::default()
         };
         self.bump();
@@ -1309,8 +1326,14 @@ impl<'a> Parser<'a> {
 
         let close_bracket_match = MatchResult {
             matched_slice: bracket_end - 1..bracket_end,
-            matched_class: Some("SymbolSegment".to_string()),
-            instance_types: Some(vec!["end_bracket".to_string()]),
+            matched_class: Some(MatchedClass {
+                class_name: "SymbolSegment".to_string(),
+                segment_type: Some("end_bracket".to_string()),
+                segment_kwargs: SegmentKwargs {
+                    instance_types: Some(vec!["end_bracket".to_string()]),
+                    ..Default::default()
+                },
+            }),
             ..Default::default()
         };
         inner_child_matches.push(Arc::new(close_bracket_match));
@@ -1322,11 +1345,21 @@ impl<'a> Parser<'a> {
             // When wrapping, Python stores start_bracket/end_bracket (extracted from children), not bracket_persists.
             MatchResult {
                 matched_slice: bracket_start..bracket_end,
-                matched_class: Some("BracketedSegment".to_string()),
+                matched_class: Some(MatchedClass {
+                    class_name: "BracketedSegment".to_string(),
+                    segment_type: Some("bracketed".to_string()),
+                    segment_kwargs: SegmentKwargs {
+                        instance_types: Some(vec!["bracketed".to_string()]),
+                        ..Default::default()
+                    },
+                }),
                 child_matches: inner_child_matches,
                 insert_segments: vec![
-                    (bracket_start + 1, MetaSegmentType::Indent, false),
-                    (bracket_end - 1, MetaSegmentType::Dedent, false),
+                    (
+                        bracket_start + 1,
+                        MetaSegment::Indent { is_implicit: false },
+                    ),
+                    (bracket_end - 1, MetaSegment::Dedent { is_implicit: false }),
                 ],
                 ..Default::default()
             }
@@ -1337,8 +1370,11 @@ impl<'a> Parser<'a> {
                 matched_slice: bracket_start..bracket_end,
                 child_matches: inner_child_matches,
                 insert_segments: vec![
-                    (bracket_start + 1, MetaSegmentType::Indent, false),
-                    (bracket_end - 1, MetaSegmentType::Dedent, false),
+                    (
+                        bracket_start + 1,
+                        MetaSegment::Indent { is_implicit: false },
+                    ),
+                    (bracket_end - 1, MetaSegment::Dedent { is_implicit: false }),
                 ],
                 ..Default::default()
             }

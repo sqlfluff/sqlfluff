@@ -1,5 +1,5 @@
 use smallvec::SmallVec;
-use sqlfluffrs_types::{GrammarId, ParseMode};
+use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
 
 use crate::parser::{FrameContext, FrameState, MatchResult};
@@ -104,6 +104,204 @@ impl TableParseFrameStack {
             .insert(frame_id, (Arc::new(match_result), end_pos, element_key));
     }
 
+    /// Push child frame and update parent to wait for it
+    #[inline]
+    pub(crate) fn push_child_and_wait(
+        &mut self,
+        parent: &mut TableParseFrame,
+        child: TableParseFrame,
+        child_index: usize,
+    ) -> TableFrameResult {
+        parent.state = FrameState::WaitingForChild { child_index };
+        self.push(parent);
+        self.push(&mut child.clone());
+        self.increment_frame_id_counter();
+        TableFrameResult::Done
+    }
+
+    #[inline]
+    pub(crate) fn transition_to_combining(
+        &mut self,
+        frame: &mut TableParseFrame,
+        end_pos: Option<usize>,
+    ) -> TableFrameResult {
+        frame.transition_to_combining(end_pos);
+        self.push(frame);
+        TableFrameResult::Done
+    }
+
+    /// Complete a frame and insert into results map
+    #[inline]
+    pub(crate) fn complete_frame(
+        &mut self,
+        mut frame: TableParseFrame,
+        result: MatchResult,
+    ) -> TableFrameResult {
+        let pos = result.end();
+        frame.end_pos = Some(pos);
+        self.insert_result(frame.frame_id, result, pos);
+        TableFrameResult::Done
+    }
+
+    /// Complete a frame with empty result
+    #[inline]
+    pub(crate) fn complete_frame_empty(&mut self, frame: &TableParseFrame) -> TableFrameResult {
+        self.insert_empty_result(frame.frame_id, frame.pos);
+        TableFrameResult::Done
+    }
+
+    /// Complete a frame with empty result
+    #[inline]
+    pub(crate) fn complete_frame_empty_at_pos(
+        &mut self,
+        frame: &TableParseFrame,
+        pos: usize,
+    ) -> TableFrameResult {
+        self.insert_empty_result(frame.frame_id, pos);
+        TableFrameResult::Done
+    }
+
+    /// Update the last_child_frame_id for the parent frame on the stack
+    /// Returns true if the update succeeded, false if parent wasn't found or had wrong context type
+    pub fn update_parent_last_child_id(
+        &mut self,
+        context_type: GrammarVariant,
+        child_frame_id: usize,
+    ) -> bool {
+        if let Some(parent_frame) = self.last_mut() {
+            match (&mut parent_frame.context, context_type) {
+                (
+                    FrameContext::SequenceTableDriven {
+                        last_child_frame_id,
+                        ..
+                    },
+                    GrammarVariant::Sequence,
+                )
+                | (
+                    FrameContext::OneOfTableDriven {
+                        last_child_frame_id,
+                        ..
+                    },
+                    GrammarVariant::OneOf,
+                )
+                | (
+                    FrameContext::BracketedTableDriven {
+                        last_child_frame_id,
+                        ..
+                    },
+                    GrammarVariant::Bracketed,
+                )
+                | (
+                    FrameContext::DelimitedTableDriven {
+                        last_child_frame_id,
+                        ..
+                    },
+                    GrammarVariant::Delimited,
+                )
+                | (
+                    FrameContext::RefTableDriven {
+                        last_child_frame_id,
+                        ..
+                    },
+                    GrammarVariant::Ref,
+                ) => {
+                    *last_child_frame_id = Some(child_frame_id);
+                    true
+                }
+                _ => false,
+            }
+        } else {
+            false
+        }
+    }
+
+    /// Push a child frame onto the stack and update parent's last_child_frame_id
+    /// Also pushes the parent frame back onto the stack first (for use in WaitingForChild handlers)
+    /// Returns the new frame_id_counter value
+    pub fn push_child_and_update_parent(
+        &mut self,
+        parent_frame: &mut TableParseFrame,
+        mut child_frame: TableParseFrame,
+        parent_context_type: GrammarVariant,
+    ) {
+        let child_id = child_frame.frame_id;
+
+        // Push parent back onto stack first
+        self.push(parent_frame);
+
+        // Update parent's last_child_frame_id
+        Self::update_parent_last_child_id(self, parent_context_type, child_id);
+
+        // Increment counter and push child
+        self.increment_frame_id_counter();
+        self.push(&mut child_frame);
+    }
+
+    /// Specialized version for Sequence that also updates current_element_idx
+    pub fn push_sequence_child_and_update_parent(
+        &mut self,
+        parent_frame: &mut TableParseFrame,
+        mut child_frame: TableParseFrame,
+        next_element_idx: usize,
+    ) {
+        let child_id = child_frame.frame_id;
+
+        // Push parent back onto stack first
+        let parent_id = parent_frame.frame_id;
+        self.push(parent_frame);
+
+        // Update parent's last_child_frame_id AND current_element_idx
+        if let Some(parent_frame) = self.last_mut() {
+            if let FrameContext::SequenceTableDriven {
+                last_child_frame_id,
+                current_element_idx,
+                ..
+            } = &mut parent_frame.context
+            {
+                log::debug!("DEBUG: push_sequence_child_and_update_parent (table) - parent {}, child {}, setting last_child_frame_id to {}",
+                    parent_id, child_id, child_id);
+                *last_child_frame_id = Some(child_id);
+                *current_element_idx = next_element_idx;
+            }
+        }
+
+        // Increment counter and push child
+        self.increment_frame_id_counter();
+        self.push(&mut child_frame);
+    }
+
+    /// Update Sequence parent on stack and push child (for WaitingForChild state)
+    /// Assumes parent is already on the stack
+    pub fn update_sequence_parent_and_push_child(
+        &mut self,
+        mut child_frame: TableParseFrame,
+        next_element_idx: usize,
+    ) -> TableFrameResult {
+        let child_id = child_frame.frame_id;
+
+        // Update parent's last_child_frame_id, current_element_idx, AND state
+        if let Some(parent_frame) = self.last_mut() {
+            if let FrameContext::SequenceTableDriven {
+                last_child_frame_id,
+                current_element_idx,
+                ..
+            } = &mut parent_frame.context
+            {
+                *last_child_frame_id = Some(child_id);
+                *current_element_idx = next_element_idx;
+            }
+            // CRITICAL: Set parent state to WaitingForChild so it knows to process child result
+            parent_frame.state = FrameState::WaitingForChild {
+                child_index: next_element_idx,
+            };
+        }
+
+        // Increment counter and push child
+        self.increment_frame_id_counter();
+        self.push(&mut child_frame);
+        TableFrameResult::Done
+    }
+
     // Add more helper methods as needed for dispatch or state management
 }
 
@@ -179,168 +377,10 @@ impl TableParseFrame {
         }
     }
 
-    /// Update the last_child_frame_id for the parent frame on the stack
-    /// Returns true if the update succeeded, false if parent wasn't found or had wrong context type
-    pub fn update_parent_last_child_id(
-        stack: &mut TableParseFrameStack,
-        context_type: &str,
-        child_frame_id: usize,
-    ) -> bool {
-        if let Some(parent_frame) = stack.last_mut() {
-            match (&mut parent_frame.context, context_type) {
-                (
-                    FrameContext::SequenceTableDriven {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "Sequence",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
-                    FrameContext::OneOfTableDriven {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "OneOf",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
-                    FrameContext::BracketedTableDriven {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "Bracketed",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
-                    FrameContext::DelimitedTableDriven {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "Delimited",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
-                    FrameContext::RefTableDriven {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "Ref",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                _ => false,
-            }
-        } else {
-            false
-        }
-    }
-
-    /// Push a child frame onto the stack and update parent's last_child_frame_id
-    /// Also pushes the parent frame back onto the stack first (for use in WaitingForChild handlers)
-    /// Returns the new frame_id_counter value
-    pub fn push_child_and_update_parent(
-        stack: &mut TableParseFrameStack,
-        parent_frame: &mut TableParseFrame,
-        mut child_frame: TableParseFrame,
-        parent_context_type: &str,
-    ) {
-        let child_id = child_frame.frame_id;
-
-        // Push parent back onto stack first
-        stack.push(parent_frame);
-
-        // Update parent's last_child_frame_id
-        Self::update_parent_last_child_id(stack, parent_context_type, child_id);
-
-        // Increment counter and push child
-        stack.increment_frame_id_counter();
-        stack.push(&mut child_frame);
-    }
-
-    /// Specialized version for Sequence that also updates current_element_idx
-    pub fn push_sequence_child_and_update_parent(
-        stack: &mut TableParseFrameStack,
-        parent_frame: &mut TableParseFrame,
-        mut child_frame: TableParseFrame,
-        next_element_idx: usize,
-    ) {
-        let child_id = child_frame.frame_id;
-
-        // Push parent back onto stack first
-        let parent_id = parent_frame.frame_id;
-        stack.push(parent_frame);
-
-        // Update parent's last_child_frame_id AND current_element_idx
-        if let Some(parent_frame) = stack.last_mut() {
-            match &mut parent_frame.context {
-                FrameContext::SequenceTableDriven {
-                    last_child_frame_id,
-                    current_element_idx,
-                    ..
-                } => {
-                    log::debug!("DEBUG: push_sequence_child_and_update_parent (table) - parent {}, child {}, setting last_child_frame_id to {}",
-                        parent_id, child_id, child_id);
-                    *last_child_frame_id = Some(child_id);
-                    *current_element_idx = next_element_idx;
-                }
-                _ => {}
-            }
-        }
-
-        // Increment counter and push child
-        stack.increment_frame_id_counter();
-        stack.push(&mut child_frame);
-    }
-
-    /// Update Sequence parent on stack and push child (for Initial state)
-    /// Assumes parent is already on the stack
-    pub fn update_sequence_parent_and_push_child(
-        stack: &mut TableParseFrameStack,
-        mut child_frame: TableParseFrame,
-        element_idx: usize,
-    ) {
-        let child_id = child_frame.frame_id;
-
-        // Update parent's last_child_frame_id AND current_element_idx
-        if let Some(parent_frame) = stack.last_mut() {
-            match &mut parent_frame.context {
-                FrameContext::SequenceTableDriven {
-                    last_child_frame_id,
-                    current_element_idx,
-                    ..
-                } => {
-                    *last_child_frame_id = Some(child_id);
-                    *current_element_idx = element_idx;
-                }
-                _ => {}
-            }
-        }
-
-        // Increment counter and push child
-        stack.increment_frame_id_counter();
-        stack.push(&mut child_frame);
-    }
-
-    pub(crate) fn transition_to_combining(
-        mut self,
-        end_pos: Option<usize>,
-        stack: &mut TableParseFrameStack,
-    ) -> TableFrameResult {
+    fn transition_to_combining(&mut self, end_pos: Option<usize>) {
         if let Some(pos) = end_pos {
             self.end_pos = Some(pos);
         }
         self.state = FrameState::Combining;
-        stack.push(&mut self);
-        TableFrameResult::Done
     }
 }

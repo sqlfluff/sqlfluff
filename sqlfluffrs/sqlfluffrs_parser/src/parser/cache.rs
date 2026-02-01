@@ -71,8 +71,7 @@ impl TableCacheKey {
 /// Cache value for table-driven parser
 /// - MatchResult: The lazy parse result (can be converted to Node via apply())
 /// - usize: End position after parsing
-/// - Option<Vec<usize>>: Transparent token positions collected during parse
-pub type TableCacheValue = (Arc<MatchResult>, usize, Option<Vec<usize>>);
+pub type TableCacheValue = (Arc<MatchResult>, usize);
 
 /// Parse result cache for table-driven parser
 ///

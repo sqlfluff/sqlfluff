@@ -1,6 +1,6 @@
-use crate::vdebug;
+use crate::{parser::match_result::MatchedClass, vdebug};
 use smallvec::SmallVec;
-use sqlfluffrs_types::{GrammarId, ParseMode};
+use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
 
 use crate::parser::{
@@ -41,8 +41,7 @@ impl Parser<'_> {
         );
         if all_children.len() < 2 {
             vdebug!("Bracketed[table]: Not enough children (need bracket_pairs + elements)");
-            stack.insert_empty_result(frame.frame_id, start_idx);
-            return Ok(TableFrameResult::Done);
+            return Ok(stack.complete_frame_empty(&frame));
         }
         let (start_bracket_idx, _end_bracket_idx) = self.grammar_ctx.bracketed_config(grammar_id);
         let open_bracket_id = all_children[start_bracket_idx];
@@ -63,7 +62,7 @@ impl Parser<'_> {
             start_idx,
             child_frame.frame_id
         );
-        TableParseFrame::update_parent_last_child_id(stack, "Bracketed", stack.frame_id_counter);
+        stack.update_parent_last_child_id(GrammarVariant::Bracketed, stack.frame_id_counter);
         // update_parent_last_child_frame(stack);
         stack.increment_frame_id_counter();
         stack.push(&mut child_frame);
@@ -177,42 +176,12 @@ impl Parser<'_> {
                     }
                 }
 
-                // Collect whitespace/newlines after opening bracket if allow_gaps
-                if allow_gaps {
-                    let code_idx =
-                        self.skip_start_index_forward_to_code(content_start_idx, self.tokens.len());
-                    for pos in content_start_idx..code_idx {
-                        if let Some(tok) = self.tokens.get(pos) {
-                            // Check if already collected globally
-                            if self.collected_transparent_positions.contains(&pos) {
-                                continue;
-                            }
-                            // PYTHON PARITY: Only collect end_of_file explicitly
-                            // Whitespace, newlines, comments captured implicitly by apply()
-                            match &*tok.get_type() {
-                                "end_of_file" => {
-                                    frame.accumulated.push(Arc::new(MatchResult {
-                                        matched_slice: pos..pos + 1,
-                                        matched_class: None, // Inferred from token type
-                                        ..Default::default()
-                                    }));
-                                    self.mark_position_collected(pos);
-                                }
-                                "whitespace" | "newline" | "comment" => {
-                                    vdebug!(
-                                        "Bracketed[table]: Skipping explicit collection of {} at {} - will be captured as trailing",
-                                        tok.get_type(),
-                                        pos
-                                    );
-                                }
-                                _ => {}
-                            }
-                        }
-                    }
-                    self.pos = code_idx;
+                // Skip whitespace/newlines after opening bracket if allow_gaps
+                self.pos = if allow_gaps {
+                    self.skip_start_index_forward_to_code(content_start_idx, self.tokens.len())
                 } else {
-                    self.pos = content_start_idx;
-                }
+                    content_start_idx
+                };
 
                 // Transition to MatchingContent state
                 *bracket_state = BracketedState::MatchingContent;
@@ -258,10 +227,7 @@ impl Parser<'_> {
                     );
 
                     *last_child_frame_id = Some(stack.frame_id_counter);
-                    stack.increment_frame_id_counter();
-                    stack.push(&mut frame);
-                    stack.push(&mut close_frame);
-                    return Ok(TableFrameResult::Done);
+                    return Ok(stack.push_child_and_wait(&mut frame, close_frame, 0));
                 } else {
                     // Start with the first content element
                     vdebug!(
@@ -285,7 +251,7 @@ impl Parser<'_> {
                     content_idx: *content_idx,
                     parse_mode_override: *parse_mode_override,
                 };
-                let mut child_frame = create_table_driven_child_frame(
+                let child_frame = create_table_driven_child_frame(
                     stack.frame_id_counter,
                     content_grammar_id,
                     self.pos,
@@ -295,10 +261,7 @@ impl Parser<'_> {
                     *parse_mode_override, // Pass override to content
                 );
                 *last_child_frame_id = Some(stack.frame_id_counter);
-                stack.increment_frame_id_counter();
-                stack.push(&mut frame);
-                stack.push(&mut child_frame);
-                Ok(TableFrameResult::Done)
+                Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
             }
             BracketedState::MatchingContent => {
                 // Python reference: sequence.py Bracketed.match() lines ~530-570
@@ -334,53 +297,11 @@ impl Parser<'_> {
                     }
                 }
 
-                let gap_start = *child_end_pos;
-                self.pos = gap_start;
-                vdebug!(
-                    "DEBUG: After content, gap_start={}, current_pos={}",
-                    gap_start,
-                    self.pos
-                );
-
-                if allow_gaps {
-                    let code_idx =
-                        self.skip_start_index_forward_to_code(gap_start, self.tokens.len());
-                    vdebug!(
-                        "[BRACKET-DEBUG] After content, gap_start={}, code_idx={}, token at gap_start={:?}, token at code_idx={:?}",
-                        gap_start, code_idx,
-                        self.tokens.get(gap_start).map(|t| t.raw()),
-                        self.tokens.get(code_idx).map(|t| t.raw()),
-                    );
-                    for pos in self.pos..code_idx {
-                        if let Some(tok) = self.tokens.get(pos) {
-                            // Check if already collected globally
-                            if self.collected_transparent_positions.contains(&pos) {
-                                continue;
-                            }
-                            let tok_type = tok.get_type();
-                            // PYTHON PARITY: Only collect end_of_file explicitly
-                            // Whitespace, newlines, comments captured implicitly by apply()
-                            if tok_type == "end_of_file" {
-                                frame.accumulated.push(Arc::new(MatchResult {
-                                    matched_slice: pos..pos + 1,
-                                    matched_class: None, // Inferred from token type
-                                    ..Default::default()
-                                }));
-                                self.mark_position_collected(pos);
-                            } else if tok_type == "whitespace"
-                                || tok_type == "newline"
-                                || tok_type == "comment"
-                            {
-                                vdebug!(
-                                    "Bracketed[table]: Skipping explicit collection of {} at {} - will be captured as trailing",
-                                    tok_type,
-                                    pos
-                                );
-                            }
-                        }
-                    }
-                    self.pos = code_idx;
-                }
+                self.pos = if allow_gaps {
+                    self.skip_start_index_forward_to_code(*child_end_pos, self.tokens.len())
+                } else {
+                    *child_end_pos
+                };
                 vdebug!(
                     "DEBUG: Checking for more content or closing bracket - self.pos={}, content_idx={}, content_ids.len()={}, tokens.len={}",
                     self.pos,
@@ -417,7 +338,7 @@ impl Parser<'_> {
                         content_idx: *content_idx,
                         parse_mode_override: *parse_mode_override,
                     };
-                    let mut child_frame = create_table_driven_child_frame(
+                    let child_frame = create_table_driven_child_frame(
                         stack.frame_id_counter,
                         next_content_id,
                         self.pos,
@@ -427,10 +348,7 @@ impl Parser<'_> {
                         *parse_mode_override, // Pass override to content
                     );
                     *last_child_frame_id = Some(stack.frame_id_counter);
-                    stack.increment_frame_id_counter();
-                    stack.push(&mut frame);
-                    stack.push(&mut child_frame);
-                    return Ok(TableFrameResult::Done);
+                    return Ok(stack.push_child_and_wait(&mut frame, child_frame, 0));
                 }
 
                 // All content elements parsed or current element failed - try closing bracket
@@ -461,7 +379,6 @@ impl Parser<'_> {
                             frame.pos, // Error at opening bracket position
                         );
 
-                        self.commit_collection_checkpoint(frame.frame_id);
                         stack.insert_result(frame.frame_id, error_match, self.pos);
                         return Ok(TableFrameResult::Done);
                     }
@@ -488,14 +405,12 @@ impl Parser<'_> {
                                 );
 
                                 // Create an UnparsableSegment for the tokens we couldn't parse
-                                let mut segment_kwargs = hashbrown::HashMap::new();
-                                segment_kwargs
-                                    .insert("expected".to_string(), "Nothing here.".to_string());
-
                                 let unparsable_match = MatchResult {
                                     matched_slice: check_pos..expected_close_pos,
-                                    matched_class: Some("UnparsableSegment".to_string()),
-                                    segment_kwargs,
+                                    matched_class: Some(MatchedClass::unparsable(
+                                        "Nothing here.",
+                                        expected_close_pos,
+                                    )),
                                     ..Default::default()
                                 };
                                 frame.accumulated.push(Arc::new(unparsable_match));
@@ -516,7 +431,7 @@ impl Parser<'_> {
                         self.pos,
                         parent_limit
                     );
-                    let mut child_frame = create_table_driven_child_frame(
+                    let child_frame = create_table_driven_child_frame(
                         stack.frame_id_counter,
                         close_bracket_id,
                         self.pos,
@@ -526,10 +441,7 @@ impl Parser<'_> {
                         None, // No override for closing bracket
                     );
                     *last_child_frame_id = Some(stack.frame_id_counter);
-                    stack.increment_frame_id_counter();
-                    stack.push(&mut frame);
-                    stack.push(&mut child_frame);
-                    Ok(TableFrameResult::Done)
+                    Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
                 }
             }
             BracketedState::MatchingClose => {
@@ -569,7 +481,6 @@ impl Parser<'_> {
                             frame.pos, // Error at opening bracket position
                         );
 
-                        self.commit_collection_checkpoint(frame.frame_id);
                         stack.insert_result(frame.frame_id, error_match, self.pos);
                         return Ok(TableFrameResult::Done);
                     }
@@ -605,6 +516,7 @@ impl Parser<'_> {
     pub(crate) fn handle_bracketed_table_driven_combining(
         &mut self,
         mut frame: TableParseFrame,
+        stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         #[cfg(feature = "verbose-debug")]
         let combine_end = frame.end_pos.unwrap_or(self.pos);
@@ -661,7 +573,7 @@ impl Parser<'_> {
                 frame.frame_id,
                 frame.accumulated.len()
             );
-            MatchResult::empty_at(frame.pos)
+            return Ok(stack.complete_frame_empty(&frame));
         };
 
         // Transition to Complete state with the final result
@@ -679,10 +591,7 @@ fn initialize_table_driven_bracketed_frame(
     all_terminators: &[GrammarId],
 ) {
     // Update frame with Bracketed context
-    frame.state = FrameState::WaitingForChild {
-        child_index: 0,
-        total_children: 3, // open, content, close
-    };
+    frame.state = FrameState::WaitingForChild { child_index: 0 };
     frame.context = FrameContext::BracketedTableDriven {
         grammar_id,
         state: BracketedState::MatchingOpen,

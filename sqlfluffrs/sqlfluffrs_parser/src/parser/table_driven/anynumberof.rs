@@ -77,8 +77,7 @@ impl Parser<'_> {
                 {
                     if !exclude_result.is_empty() {
                         vdebug!("AnyNumberOf[table]: Exclude grammar matched, returning Empty");
-                        stack.insert_empty_result(frame.frame_id, start_pos);
-                        return Ok(TableFrameResult::Done);
+                        return Ok(stack.complete_frame_empty(&frame));
                     }
                 }
                 self.pos = start_pos; // Reset position
@@ -104,8 +103,7 @@ impl Parser<'_> {
 
         if pruned_children.is_empty() {
             vdebug!("AnyNumberOf[table]: No elements to match after filtering");
-            stack.insert_empty_result(frame.frame_id, start_pos);
-            return Ok(TableFrameResult::Done);
+            return Ok(stack.complete_frame_empty(&frame));
         }
 
         // Initialize option counter for max_times_per_element tracking
@@ -162,10 +160,7 @@ impl Parser<'_> {
             frame.parent_max_idx
         );
 
-        frame.state = FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: pruned_children_count,
-        };
+        frame.state = FrameState::WaitingForChild { child_index: 0 };
 
         // Store context with max_times config and pruned element list
         frame.context = FrameContext::AnyNumberOfTableDriven {
@@ -186,11 +181,10 @@ impl Parser<'_> {
         // terminator set. Not setting this caused later child frames to be
         // created without terminators which can change matching behavior.
         frame.table_terminators = SmallVec::from_vec(all_terminators.clone());
-        stack.push(&mut frame);
 
         // Create initial child frame for the first element candidate and
         // let the WaitingForChild handler iterate remaining candidates.
-        let mut child_frame = TableParseFrame::new_child(
+        let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             first_element,
             start_pos,
@@ -215,10 +209,7 @@ impl Parser<'_> {
         }
 
         // Push parent then child (parent.last_child_frame_id was set in context)
-        stack.increment_frame_id_counter();
-        stack.push(&mut child_frame);
-
-        Ok(TableFrameResult::Done)
+        Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
     }
 
     /// Handle AnyNumberOf WaitingForChild state using table-driven approach
@@ -311,14 +302,8 @@ impl Parser<'_> {
             next_candidate.0
         );
 
-        // Update frame state
-        frame.state = FrameState::WaitingForChild {
-            child_index: next_element_idx,
-            total_children: ctx.pruned_children.len(),
-        };
-
         // Create and push child frame
-        let mut child_frame = TableParseFrame::new_child(
+        let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             next_candidate,
             *ctx.working_idx,
@@ -329,11 +314,7 @@ impl Parser<'_> {
         // Update last_child_frame_id
         *ctx.last_child_frame_id = Some(stack.frame_id_counter);
 
-        stack.increment_frame_id_counter();
-        stack.push(&mut frame);
-        stack.push(&mut child_frame);
-
-        Ok(TableFrameResult::Done)
+        Ok(stack.push_child_and_wait(&mut frame, child_frame, next_element_idx))
     }
 
     /// Process the longest match after all candidates are tried
@@ -373,7 +354,7 @@ impl Parser<'_> {
                     ctx.count
                 );
                 let matched_idx = *ctx.matched_idx;
-                return Ok(frame.transition_to_combining(Some(matched_idx), stack));
+                return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
             };
 
         // Check for zero-width match
@@ -382,7 +363,7 @@ impl Parser<'_> {
                 "AnyNumberOf[table]: zero-width match at {}, stopping",
                 ctx.working_idx
             );
-            return Ok(frame.transition_to_combining(None, stack));
+            return Ok(stack.transition_to_combining(&mut frame, None));
         }
 
         // We no longer "collect tokens", it's all lazy evaluation now.
@@ -395,7 +376,7 @@ impl Parser<'_> {
             if *ctx.count >= max {
                 vdebug!("AnyNumberOf[table]: Reached max_times={}", max);
                 let matched_idx = *ctx.matched_idx;
-                return Ok(frame.transition_to_combining(Some(matched_idx), stack));
+                return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
             }
         }
 
@@ -411,7 +392,7 @@ impl Parser<'_> {
                     max_per
                 );
                 let matched_idx = *ctx.matched_idx;
-                return Ok(frame.transition_to_combining(Some(matched_idx), stack));
+                return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
             }
         }
 
@@ -452,7 +433,7 @@ impl Parser<'_> {
                 ctx.max_idx
             );
             let matched_idx = *ctx.matched_idx;
-            return Ok(frame.transition_to_combining(Some(matched_idx), stack));
+            return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
         }
 
         // Continue matching - re-prune at new position
@@ -487,14 +468,14 @@ impl Parser<'_> {
         if repruned_children.is_empty() {
             vdebug!("AnyNumberOf[table]: All elements pruned after match");
             let matched_idx = *ctx.matched_idx;
-            return Ok(frame.transition_to_combining(Some(matched_idx), stack));
+            return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
         }
 
         // Reset for next repetition
         ctx.reset_for_next_repetition(&repruned_children);
 
         let next_element = repruned_children[0];
-        let mut child_frame = TableParseFrame::new_child(
+        let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             next_element,
             *ctx.working_idx,
@@ -506,21 +487,14 @@ impl Parser<'_> {
         *ctx.last_child_frame_id = Some(stack.frame_id_counter);
 
         // Update frame state
-        frame.state = FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: repruned_children.len(),
-        };
-
-        stack.increment_frame_id_counter();
-        stack.push(&mut frame);
-        stack.push(&mut child_frame);
-        Ok(TableFrameResult::Done)
+        Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
     }
 
     /// Handle AnyNumberOf Combining state using table-driven approach
     pub(crate) fn handle_anynumberof_table_driven_combining(
         &mut self,
         mut frame: TableParseFrame,
+        stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let FrameContext::AnyNumberOfTableDriven {
             grammar_id,
@@ -545,22 +519,21 @@ impl Parser<'_> {
 
         if *count < inst.min_times as usize {
             // Didn't meet min_times
-            self.pos = frame.pos;
-            frame.end_pos = Some(frame.pos);
-            frame.state = FrameState::Complete(Arc::new(MatchResult::empty_at(frame.pos)));
-            return Ok(TableFrameResult::Push(frame));
+            return Ok(stack.complete_frame_empty(&frame));
         }
 
         // Build final result
         let (result_match, final_pos) = {
             // Success - use lazy evaluation - store child_matches
             if frame.accumulated.is_empty() {
-                (Arc::new(MatchResult::empty_at(frame.pos)), frame.pos)
+                return Ok(stack.complete_frame_empty(&frame));
             } else {
+                // TODO: we should append, not use sequence
+                let start_idx = self.skip_start_index_forward_to_code(frame.pos, *matched_idx);
                 let accumulated = std::mem::take(&mut frame.accumulated);
                 (
                     Arc::new(MatchResult::sequence(
-                        frame.pos,
+                        start_idx,
                         *matched_idx,
                         accumulated.into_vec(),
                     )),

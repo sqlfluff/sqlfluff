@@ -47,7 +47,7 @@ fn table_driven_select_parses() {
                 }
                 None
             }
-            Node::Ref { child, .. } => contains_numeric_one(child),
+            Node::Ref { children, .. } => contains_numeric_one(&children[0]),
             Node::Sequence { children } | Node::DelimitedList { children } => {
                 for c in children {
                     if let Some(found) = contains_numeric_one(c) {

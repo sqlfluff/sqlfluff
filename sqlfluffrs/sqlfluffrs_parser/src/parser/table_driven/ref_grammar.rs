@@ -2,6 +2,7 @@ use sqlfluffrs_types::GrammarId;
 use std::sync::Arc;
 
 use crate::parser::{
+    match_result::{MatchedClass, SegmentKwargs},
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
@@ -19,8 +20,6 @@ impl Parser<'_> {
         parent_terminators: &[GrammarId],
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        self.pos = frame.pos;
-
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
         let start_pos = frame.pos;
 
@@ -36,47 +35,38 @@ impl Parser<'_> {
             rule_name
         );
 
-        // Push checkpoint for transparent token collection.
-        // If this Ref fails, we'll rollback to release collected positions.
-        // If it succeeds, we'll commit to keep them marked.
-        self.push_collection_checkpoint(frame.frame_id);
-
         // Python parity: If parent's max_idx is set and we're beyond it,
         // return Empty rather than error so parents (OneOf etc.) can try
         // other options. This matches the Python Ref behavior.
         if let Some(parent_max) = frame.parent_max_idx {
-            if frame.pos >= parent_max {
+            if start_pos >= parent_max {
                 log::debug!(
                     "Ref[table]: pos {} >= parent_max_idx {}, returning Empty",
                     frame.pos,
                     parent_max
                 );
-                // Rollback checkpoint before returning Empty
-                self.rollback_collection_checkpoint(frame.frame_id);
-                stack.insert_empty_result(frame.frame_id, frame.pos);
-                return Ok(TableFrameResult::Done);
+                return Ok(stack.complete_frame_empty(&frame));
             }
         }
 
         // Check exclude grammar first (table-driven exclude id if present).
         let exclude_id_opt = self.grammar_ctx.exclude(grammar_id);
         if let Some(exclude_id) = exclude_id_opt {
+            self.pos = start_pos;
             if let Ok(exclude_node) = self.parse_table_iterative(exclude_id, parent_terminators) {
+                self.pos = start_pos;
                 if !exclude_node.is_empty() {
                     log::debug!(
                         "Ref[table]: exclude grammar matched at pos {}, returning Empty",
                         frame.pos
                     );
-                    // Rollback checkpoint before returning Empty
-                    self.rollback_collection_checkpoint(frame.frame_id);
-                    stack.insert_empty_result(frame.frame_id, frame.pos);
-                    return Ok(TableFrameResult::Done);
+                    return Ok(stack.complete_frame_empty(&frame));
                 }
             }
             log::debug!("Ref[table]: exclude grammar did not match, continuing");
         }
 
-        let saved_pos = start_pos;
+        self.pos = start_pos;
 
         // Get element children (excludes the exclude grammar if present).
         // For a Ref with only an exclude (no explicit match_grammar child), this will be empty.
@@ -93,31 +83,23 @@ impl Parser<'_> {
                 Some(root) => root.grammar_id,
                 None => {
                     log::debug!(
-                "Ref[table]: No element children and no dialect mapping for '{}', returning Empty",
-                rule_name
-                );
-                    // Rollback checkpoint before returning Empty
-                    self.rollback_collection_checkpoint(frame.frame_id);
-                    stack.insert_empty_result(frame.frame_id, start_pos);
-                    return Ok(TableFrameResult::Done);
+                        "Ref[table]: No element children and no dialect mapping for '{}', returning Empty",
+                        rule_name
+                    );
+                    return Ok(stack.complete_frame_empty(&frame));
                 }
             }
         };
 
         // If the explicit child grammar allows gaps, collect leading transparent
         // tokens so child parsing starts at the next non-transparent token.
-        let mut leading_transparent: Vec<Arc<MatchResult>> = Vec::new();
         let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
-        if child_allows_gaps {
-            let ws = self.collect_transparent(true);
-            if !ws.is_empty() {
-                log::debug!(
-                    "Ref[table]: Collected {} leading transparent tokens for explicit child",
-                    ws.len()
-                );
-                leading_transparent = ws;
-            }
-        }
+        let child_type = self.grammar_ctx.get_type(child_grammar_id);
+        let child_start_pos = if child_allows_gaps {
+            self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
+        } else {
+            start_pos
+        };
 
         // Determine the segment_class (Python class name) from tables
         // This is what gets stored in matched_class for Python lookup
@@ -126,6 +108,8 @@ impl Parser<'_> {
             .grammar_ctx
             .segment_class(grammar_id)
             .map(|s| s.to_string());
+
+        // eprintln!("Ref[table]: child_type={:?}, table_segment_class={:?}", child_type, table_segment_class);
 
         log::debug!(
             "Ref[table]: rule_name='{}', table_segment_class={:?}",
@@ -137,19 +121,16 @@ impl Parser<'_> {
         frame.context = FrameContext::RefTableDriven {
             grammar_id,
             name: rule_name,
-            segment_type: table_segment_class,
-            saved_pos,
+            segment_class_name: table_segment_class,
+            segment_type: child_type,
+            saved_pos: child_start_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
-            leading_transparent,
             child_grammar_id,
         };
 
         // CRITICAL: Set parent frame state to WaitingForChild so it will
         // retrieve the child result on the next iteration
-        frame.state = FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: 1,
-        };
+        frame.state = FrameState::WaitingForChild { child_index: 0 };
 
         // Combine the Ref's local terminators with the parent terminators so
         // the referenced child parsing respects both sets (parity with Arc path)
@@ -163,7 +144,7 @@ impl Parser<'_> {
         let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             child_grammar_id,
-            self.pos,
+            child_start_pos,
             child_terminators,
             frame.parent_max_idx,
         );
@@ -173,14 +154,10 @@ impl Parser<'_> {
             child_grammar_id.0,
             frame.frame_id,
             stack.frame_id_counter,
-            self.pos
+            child_start_pos
         );
 
-        stack.increment_frame_id_counter();
-        stack.push(&mut frame);
-        stack.push(&mut child_frame.clone());
-
-        Ok(TableFrameResult::Done)
+        Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
     }
 
     /// Handle Ref WaitingForChild state using table-driven approach
@@ -240,12 +217,13 @@ impl Parser<'_> {
     pub(crate) fn handle_ref_table_driven_combining(
         &mut self,
         mut frame: TableParseFrame,
+        stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let FrameContext::RefTableDriven {
             name,
+            segment_class_name,
             segment_type,
-            leading_transparent,
-            child_grammar_id,
+            saved_pos,
             ..
         } = &mut frame.context
         else {
@@ -271,43 +249,37 @@ impl Parser<'_> {
         // Build final result
         let final_pos = frame.end_pos.unwrap_or(frame.pos);
         let result_match = if frame.accumulated.is_empty() {
-            // Child didn't match - rollback any collected positions
-            self.rollback_collection_checkpoint(frame.frame_id);
             MatchResult::empty_at(frame.pos)
         } else {
-            // Wrap child in Ref with lazy evaluation - store child_matches
-            // Prepend leading transparent matches to accumulated
-            let mut children = std::mem::take(leading_transparent);
-            let accumulated = std::mem::take(&mut frame.accumulated);
-            children.extend(accumulated.into_iter());
-
-            // Commit collected positions since Ref succeeded
-            self.commit_collection_checkpoint(frame.frame_id);
-
             log::debug!(
                 "Ref[table] Combining: name='{}', segment_type={:?}, creating ref_match",
                 name,
                 segment_type
             );
+            let matched_class = if segment_type.is_some() || segment_class_name.is_some() {
+                Some(MatchedClass {
+                    class_name: segment_class_name.clone().unwrap_or_default(),
+                    segment_type: segment_type.clone(),
+                    segment_kwargs: SegmentKwargs {
+                        // TODO: Add back later
+                        // instance_types: segment_type.clone().map(|t| vec![t]),
+                        ..Default::default()
+                    },
+                })
+            } else {
+                None
+            };
 
-            // Get casefold from the child grammar (the actual parser), not the Ref wrapper
-            // Refs are just named references - the casefold comes from the RegexParser/TypedParser they point to
-            let casefold = self.grammar_ctx.casefold(*child_grammar_id);
+            // let start_idx = self.skip_start_index_forward_to_code(*saved_pos, final_pos);
 
-            let mut result = MatchResult::ref_match(
+            MatchResult::ref_match(
                 name.clone(),
-                segment_type.clone(),
-                frame.pos,
+                matched_class,
+                // start_idx,
+                *saved_pos,
                 final_pos,
-                children,
-            );
-
-            // Apply casefold if present
-            if let Some(cf) = casefold {
-                result = result.with_casefold(cf);
-            }
-
-            result
+                frame.accumulated.to_vec(),
+            )
         };
 
         self.pos = final_pos;

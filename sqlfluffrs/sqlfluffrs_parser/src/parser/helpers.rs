@@ -4,10 +4,9 @@
 //! including token navigation, whitespace handling, and terminator checking.
 
 use hashbrown::HashSet;
-use std::sync::Arc;
 
 use super::core::Parser;
-use super::{MatchResult, Node};
+use super::Node;
 use sqlfluffrs_types::{GrammarId, ParseMode, Token};
 
 impl<'a> Parser<'a> {
@@ -18,6 +17,7 @@ impl<'a> Parser<'a> {
     ///
     /// If reset_terminators is true, only local_terminators are used.
     /// If reset_terminators is false, both local and parent terminators are combined.
+    #[inline]
     pub(crate) fn combine_table_terminators(
         &self,
         local_terminators: &[GrammarId],
@@ -91,11 +91,13 @@ impl<'a> Parser<'a> {
     }
 
     /// Peek at the current token without consuming it
+    #[inline]
     pub fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.pos)
     }
 
     /// Consume the current token and advance position
+    #[inline]
     pub fn bump(&mut self) {
         self.pos += 1;
     }
@@ -105,57 +107,11 @@ impl<'a> Parser<'a> {
         self.pos >= self.tokens.len()
     }
 
-    /// Collect all transparent tokens (whitespace, newlines, comments) between code tokens.
-    /// Returns a Vec<Arc<MatchResult>> with child_matches for each transparent token.
-    /// IMPORTANT: Comments are collected here, not skipped! They're part of the AST.
-    pub fn collect_transparent(&mut self, allow_gaps: bool) -> Vec<Arc<MatchResult>> {
-        let mut transparent_matches = Vec::new();
-
-        if !allow_gaps {
-            return transparent_matches;
-        }
-
-        while let Some(tok) = self.peek() {
-            // Stop at actual code tokens (but collect comments!)
-            if tok.is_code() {
-                break;
-            }
-
-            let token_pos = self.pos;
-
-            // Skip if already collected
-            if self.collected_transparent_positions.contains(&token_pos) {
-                self.bump();
-                continue;
-            }
-
-            log::debug!(
-                "TRANSPARENT collecting token at pos {}: type={}, raw={:?}",
-                token_pos,
-                tok.get_type(),
-                tok.raw()
-            );
-
-            // Create MatchResult for this token (slice only, data retrieved in apply())
-            let match_result = Arc::new(MatchResult {
-                matched_slice: token_pos..token_pos + 1,
-                matched_class: None, // Inferred from token type in apply()
-                ..Default::default()
-            });
-
-            transparent_matches.push(match_result);
-
-            // Use mark_position_collected to integrate with checkpoint system
-            self.mark_position_collected(token_pos);
-            self.bump();
-        }
-
-        transparent_matches
-    }
-
     /// Collect all transparent tokens (whitespace, newlines, comments) as Nodes.
     /// DEPRECATED: Use collect_transparent() instead. This is kept for backward compatibility
     /// with code that hasn't been converted to MatchResult yet.
+    #[deprecated(note = "we lazily evaluate matchresults now, so this is no longer needed")]
+    #[allow(deprecated)]
     pub fn collect_transparent_nodes(&mut self, allow_gaps: bool) -> Vec<Node> {
         let mut transparent_nodes = Vec::new();
 
@@ -412,6 +368,7 @@ impl<'a> Parser<'a> {
     ///
     /// If reset_terminators is true, only local_terminators are used.
     /// Otherwise, both local and parent terminators are combined.
+    #[inline]
     pub(crate) fn combine_terminators_table_driven(
         local_terminators: &[GrammarId],
         parent_terminators: &[GrammarId],
@@ -431,6 +388,7 @@ impl<'a> Parser<'a> {
     /// Calculate max_idx for table-driven parsing, considering terminators and parent constraints.
     ///
     /// This is the table-driven equivalent of calculate_max_idx().
+    #[inline]
     pub(crate) fn calculate_max_idx_table_driven(
         &mut self,
         start_idx: usize,
@@ -459,37 +417,6 @@ impl<'a> Parser<'a> {
             "calculate_max_idx_table_driven: start_idx={}, terminators.len()={}, parse_mode={:?}, parent_max_idx={:?}, final_max_idx={}",
             start_idx, terminators.len(), parse_mode, parent_max_idx, max_idx
         );
-
-        Ok(max_idx)
-    }
-
-    /// Calculate max_idx for table-driven parsing with element awareness (for AnyNumberOf).
-    ///
-    /// This is the table-driven equivalent of calculate_max_idx_with_elements().
-    pub(crate) fn calculate_max_idx_with_elements_table_driven(
-        &mut self,
-        start_idx: usize,
-        terminators: &[GrammarId],
-        elements: &[GrammarId],
-        parse_mode: ParseMode,
-        parent_max_idx: Option<usize>,
-    ) -> Result<usize, crate::parser::ParseError> {
-        // Calculate initial max_idx based on parse_mode
-        let mut max_idx = if parse_mode == ParseMode::Greedy {
-            self.trim_to_terminator_with_elements_table_driven(start_idx, terminators, elements)?
-        } else {
-            self.tokens.len()
-        };
-
-        // Trim backward to last code token
-        if max_idx > 0 {
-            max_idx = self.skip_stop_index_backward_to_code(max_idx, start_idx);
-        }
-
-        // Apply parent's constraint
-        if let Some(parent_limit) = parent_max_idx {
-            max_idx = max_idx.min(parent_limit);
-        }
 
         Ok(max_idx)
     }
@@ -812,137 +739,5 @@ impl<'a> Parser<'a> {
             final_idx
         );
         Ok(final_idx)
-    }
-
-    /// Trim to first terminator position for table-driven parsing with element awareness.
-    ///
-    /// This is the table-driven equivalent of trim_to_terminator_with_elements().
-    pub(crate) fn trim_to_terminator_with_elements_table_driven(
-        &mut self,
-        start_idx: usize,
-        terminators: &[GrammarId],
-        _elements: &[GrammarId],
-    ) -> Result<usize, crate::parser::ParseError> {
-        // Python version: trim at the first position where a terminator matches.
-        // For keyword terminators (all alphabetical), require whitespace before them.
-        if terminators.is_empty() {
-            return Ok(self.tokens.len());
-        }
-
-        let mut idx = start_idx;
-        'outer: while idx < self.tokens.len() {
-            // IMPORTANT: Check for opening brackets FIRST and skip over them.
-            // This prevents nested brackets from being incorrectly matched as terminators.
-            // For example, in `EXTRACT(MICROSECOND FROM col1)`, the `FROM` inside the brackets
-            // should not be matched as a terminator - we skip the entire `(...)` section.
-            if let Some(tok) = self.tokens.get(idx) {
-                let tok_type = tok.get_type();
-                let tok_raw = tok.raw();
-
-                // Check both by type AND by raw value, since some lexers use "raw" type for brackets
-                // instead of "start_bracket"/"start_square_bracket"/"start_angle_bracket"
-                // Note: We don't check for "<" here because angle brackets are tokenized as
-                // "less_than"/"greater_than" and the parser handles them differently than brackets.
-                // Treating "<" as a bracket would break comparisons like `WHERE a < b AND c > d`.
-                let is_open_bracket = tok_type == "start_bracket"
-                    || tok_type == "start_square_bracket"
-                    || tok_type == "start_angle_bracket"
-                    || (tok_type == "raw" && (tok_raw == "(" || tok_raw == "[" || tok_raw == "{"));
-
-                if is_open_bracket {
-                    if let Some(end_idx) = self.find_matching_bracket(idx) {
-                        idx = end_idx + 1;
-                        continue;
-                    } else {
-                        // PYTHON PARITY: No matching closing bracket found - raise parse error
-                        // This matches Python's resolve_bracket() behavior in greedy_match()
-                        // which raises SQLParseError("Couldn't find closing bracket for opening bracket.")
-                        log::debug!(
-                            "trim_to_terminator_with_elements: no matching closing bracket for opening bracket at {}",
-                            idx
-                        );
-                        return Err(crate::parser::ParseError::with_context(
-                            "Couldn't find closing bracket for opening bracket.".to_string(),
-                            Some(idx),
-                            None,
-                        ));
-                    }
-                }
-            }
-
-            let saved_pos = self.pos;
-            self.pos = idx;
-
-            // Skip transparent tokens before matching
-            self.skip_transparent(true);
-            let match_pos = self.pos; // Position after skipping transparent tokens
-
-            for term_id in terminators {
-                if let Ok(node) = self.parse_table_iterative(*term_id, &[]) {
-                    if !node.is_empty() {
-                        let match_end_pos = self.pos; // Position after match
-
-                        // Check if this terminator is a keyword (all alphabetical).
-                        // If so, require whitespace before it (Python behavior from greedy_match).
-                        // Instead of checking the grammar structure, check the token that matched.
-                        // If the token at match_pos is all alphabetical, it's a keyword.
-                        let requires_whitespace = if let Some(tok) = self.tokens.get(match_pos) {
-                            let raw = tok.raw();
-                            !raw.is_empty() && raw.chars().all(|c| c.is_alphabetic())
-                        } else {
-                            false
-                        };
-
-                        if requires_whitespace {
-                            // Edge case: if matching at start_idx, allow it (Python behavior)
-                            if match_pos == start_idx {
-                                self.pos = saved_pos;
-                                return Ok(idx);
-                            }
-
-                            // Check for whitespace before this position
-                            // Look backward from match_pos for whitespace (skip meta/transparent)
-                            let mut has_whitespace = false;
-                            let mut check_idx = match_pos;
-                            while check_idx > 0 {
-                                check_idx -= 1;
-                                if let Some(prev_tok) = self.tokens.get(check_idx) {
-                                    let prev_type = prev_tok.get_type();
-                                    // Skip meta/transparent tokens (indent, dedent, comment, etc.)
-                                    if prev_tok.is_meta {
-                                        continue;
-                                    }
-                                    // Found whitespace - keyword is preceded by whitespace
-                                    if prev_type == "whitespace" || prev_type == "newline" {
-                                        has_whitespace = true;
-                                        break;
-                                    }
-                                    // Found something other than meta/whitespace - stop looking
-                                    break;
-                                }
-                            }
-
-                            if !has_whitespace {
-                                // Keyword terminator without preceding whitespace.
-                                // Skip past this match and continue looking for next terminator.
-                                // (Python: working_idx = _stop_idx; continue)
-                                self.pos = saved_pos;
-                                idx = match_end_pos;
-                                continue 'outer;
-                            }
-                        }
-
-                        // Terminator is valid - return the position
-                        self.pos = saved_pos;
-                        return Ok(idx);
-                    }
-                }
-            }
-
-            self.pos = saved_pos;
-            idx += 1;
-        }
-
-        Ok(self.tokens.len())
     }
 }

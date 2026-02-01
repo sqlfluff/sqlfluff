@@ -197,22 +197,10 @@ fn node_to_yaml_value(
 
         Node::Meta { .. } => Ok(Value::Null), // Meta nodes are not in YAML
 
-        Node::Whitespace {
-            raw: _,
-            token_idx: _,
-        }
-        | Node::Newline {
-            raw: _,
-            token_idx: _,
-        }
-        | Node::Comment {
-            raw: _,
-            token_idx: _,
-        }
-        | Node::EndOfFile {
-            raw: _,
-            token_idx: _,
-        } => {
+        Node::Whitespace { .. }
+        | Node::Newline { .. }
+        | Node::Comment { .. }
+        | Node::EndOfFile { .. } => {
             // Whitespace/newlines/EOF are filtered out in code_only mode
             // Comments are kept in code_only mode (handled in node.to_tuple_tree)
             Ok(Value::Null)
@@ -269,37 +257,84 @@ fn node_to_yaml_value(
         Node::Ref {
             name: _,
             segment_type,
-            child,
+            children,
         } => {
-            // Check if this Ref should be transparent (not add a layer)
+            let filtered_children: Vec<&Node> = children
+                .iter()
+                .filter(|child| !code_only || child.should_include_in_code_only())
+                .collect();
 
-            // 1. Refs without segment_type are internal constructs - always transparent
-            //    These include: Grammar rules, KeywordSegment/LiteralSegment wrappers,
-            //    internal constructs with __ naming, base_/tail_/Expression_/Tail_ prefixes
-            let is_internal_construct = segment_type.is_none();
-
-            // 2. Refs with segment_type "expression" are wrappers - make transparent
-            let is_wrapper_segment = segment_type.as_ref().map_or(false, |st| st == "expression");
-
-            // If it's transparent, pass through to child without adding a layer
-            if is_internal_construct || is_wrapper_segment {
-                return node_to_yaml_value(child, tokens, code_only);
-            }
-
-            // Use segment_type directly (it's always present for non-transparent nodes)
-            let key = segment_type.as_ref().unwrap().to_string();
-
-            let child_value = node_to_yaml_value(child, tokens, code_only)?;
-
-            // If child returned Null, this whole Ref should be filtered
-            if matches!(child_value, Value::Null) {
+            if filtered_children.is_empty() {
                 return Ok(Value::Null);
             }
 
-            // Create a mapping with this segment's key
-            let mut map = Mapping::new();
-            map.insert(Value::String(key), child_value);
-            Ok(Value::Mapping(map))
+            // Try to flatten the structure by collecting child mappings and non-mapping values
+            let mut all_keys = Vec::new();
+            let mut child_values = Vec::new();
+
+            for child in &filtered_children {
+                let child_value = node_to_yaml_value(child, tokens, code_only)?;
+
+                // Skip Null values
+                if matches!(child_value, Value::Null) {
+                    continue;
+                }
+
+                if let Value::Mapping(ref child_map) = child_value {
+                    // Track keys to detect duplicates
+                    let keys: Vec<String> = child_map
+                        .keys()
+                        .filter_map(|k| {
+                            if let Value::String(s) = k {
+                                Some(s.clone())
+                            } else {
+                                None
+                            }
+                        })
+                        .collect();
+
+                    all_keys.extend(keys);
+                }
+
+                child_values.push(child_value);
+            }
+
+            if child_values.is_empty() {
+                return Ok(Value::Null);
+            }
+
+            // Check for duplicate keys in mappings
+            let unique_keys: HashSet<_> = all_keys.iter().collect();
+            let has_duplicates = unique_keys.len() != all_keys.len();
+
+            // If we have only mappings and no duplicates, try to merge them
+            let all_are_mappings = child_values.iter().all(|v| matches!(v, Value::Mapping(_)));
+
+            // Build the inner result first
+            let inner_result = if all_are_mappings && !has_duplicates {
+                // Merge all mappings into one
+                let mut merged_map = Mapping::new();
+                for child_value in child_values {
+                    if let Value::Mapping(child_map) = child_value {
+                        for (k, v) in child_map {
+                            merged_map.insert(k, v);
+                        }
+                    }
+                }
+                Value::Mapping(merged_map)
+            } else {
+                // Return as a list (either because of duplicates or non-mapping values)
+                Value::Sequence(child_values)
+            };
+
+            // If there's a segment_type, wrap the inner result with it as the key
+            if let Some(ref seg_type) = segment_type {
+                let mut outer = Mapping::new();
+                outer.insert(Value::String(seg_type.clone()), inner_result);
+                Ok(Value::Mapping(outer))
+            } else {
+                Ok(inner_result)
+            }
         }
 
         Node::Bracketed { children, .. } => {
@@ -537,10 +572,8 @@ mod whitespace_tests {
             | Node::EndOfFile { token_idx, .. } => {
                 positions.insert(*token_idx);
             }
-            Node::Ref { child, .. } => {
-                collect_token_positions(child, positions);
-            }
             Node::Sequence { children, .. }
+            | Node::Ref { children, .. }
             | Node::DelimitedList { children, .. }
             | Node::Bracketed { children, .. } => {
                 for c in children {
@@ -577,13 +610,16 @@ mod whitespace_tests {
         }
 
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-        let ast = parser.call_rule_as_root().expect("Parse failed");
+        let ast = parser
+            .call_rule_as_root_match_result()
+            .expect("Parse failed")
+            .apply(&tokens);
 
         println!("\n=== AST STRUCTURE ===");
         println!("{:#?}", ast);
 
         let mut ast_positions = HashSet::new();
-        collect_token_positions(&ast, &mut ast_positions);
+        collect_token_positions(&ast[0], &mut ast_positions);
 
         println!("\n=== AST POSITIONS ===");
         let mut sorted: Vec<_> = ast_positions.iter().copied().collect();

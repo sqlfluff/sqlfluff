@@ -2,9 +2,10 @@ use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
+#[cfg(feature = "verbose-debug")]
 use crate::vdebug;
 use smallvec::SmallVec;
-use sqlfluffrs_types::GrammarId;
+use sqlfluffrs_types::{GrammarId, GrammarVariant};
 use std::sync::Arc;
 
 impl Parser<'_> {
@@ -42,40 +43,40 @@ impl Parser<'_> {
         // Check exclude grammar first (before any other logic)
         if let Some(exclude_id) = self.grammar_ctx.exclude(grammar_id) {
             // Try matching exclude grammar
-            if let Ok(exclude_result) = self.parse_table_iterative(exclude_id, parent_terminators) {
+            if let Ok(exclude_result) =
+                self.parse_table_iterative_match_result(exclude_id, parent_terminators)
+            {
                 if !exclude_result.is_empty() {
                     vdebug!(
                         "OneOf[table]: exclude grammar matched at pos {}, returning Empty",
                         start_pos
                     );
-                    stack.insert_empty_result(frame.frame_id, start_pos);
-                    return Ok(TableFrameResult::Done);
+                    return Ok(stack.complete_frame_empty(&frame));
                 }
             }
             vdebug!("OneOf[table]: exclude grammar did not match, continuing");
         }
 
         // Collect leading transparent tokens if allow_gaps
-        let leading_ws = if allow_gaps {
-            self.collect_transparent(true)
+        // self.skip_start_index_forward_to_code(start_pos, frame)
+        let post_skip_pos = if allow_gaps {
+            self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
         } else {
-            Vec::new()
+            start_pos
         };
-        let post_skip_pos = self.pos;
 
         // Combine terminators
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let all_terminators = crate::parser::core::Parser::combine_terminators_table_driven(
+        let all_terminators = Parser::combine_terminators_table_driven(
             &local_terminators,
             parent_terminators,
             reset_terminators,
         );
 
         // Calculate max_idx with terminators
-        let max_idx = self.calculate_max_idx_with_elements_table_driven(
+        let max_idx = self.calculate_max_idx_table_driven(
             post_skip_pos,
             &all_terminators,
-            &[],
             parse_mode,
             frame.parent_max_idx,
         )?;
@@ -96,89 +97,76 @@ impl Parser<'_> {
         {
             vdebug!("OneOf[table]: Early termination - at terminator position");
             if optional {
-                stack.insert_empty_result(frame.frame_id, post_skip_pos);
-                return Ok(TableFrameResult::Done);
+                return Ok(stack.complete_frame_empty(&frame));
             }
         }
 
         // Get element children (excluding exclude grammar if present)
         let all_children: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
 
-        // Prune options based on simple hints (conservative - keeps all for now)
+        // Prune options based on simple hints
         let pruned_children = self.prune_options_table_driven(&all_children);
 
         // Debug: list kept children names
-        let mut kept_names: Vec<String> = Vec::new();
-        for gid in &pruned_children {
-            let var = self.grammar_ctx.variant(*gid);
-            let name = match var {
-                sqlfluffrs_types::GrammarVariant::Ref => {
-                    self.grammar_ctx.ref_name(*gid).to_string()
-                }
-                sqlfluffrs_types::GrammarVariant::StringParser
-                | sqlfluffrs_types::GrammarVariant::TypedParser
-                | sqlfluffrs_types::GrammarVariant::RegexParser => {
-                    self.grammar_ctx.template(*gid).to_string()
-                }
-                other => format!("{:?}", other),
-            };
-            kept_names.push(name);
+        #[cfg(feature = "verbose-debug")]
+        {
+            let mut kept_names: Vec<String> = Vec::new();
+            for gid in &pruned_children {
+                let var = self.grammar_ctx.variant(*gid);
+                let name = match var {
+                    sqlfluffrs_types::GrammarVariant::Ref => {
+                        self.grammar_ctx.ref_name(*gid).to_string()
+                    }
+                    sqlfluffrs_types::GrammarVariant::StringParser
+                    | sqlfluffrs_types::GrammarVariant::TypedParser
+                    | sqlfluffrs_types::GrammarVariant::RegexParser => {
+                        self.grammar_ctx.template(*gid).to_string()
+                    }
+                    other => format!("{:?}", other),
+                };
+                kept_names.push(name);
+            }
+            vdebug!(
+                "OneOf[table]: kept_children_count={} names={:?}",
+                pruned_children.len(),
+                kept_names
+            );
         }
-        vdebug!(
-            "OneOf[table]: kept_children_count={} names={:?}",
-            pruned_children.len(),
-            kept_names
-        );
 
         if pruned_children.is_empty() {
             vdebug!("OneOf[table]: No children after pruning, returning Empty");
-            stack.insert_empty_result(frame.frame_id, post_skip_pos);
-            return Ok(TableFrameResult::Done);
+            return Ok(stack.complete_frame_empty(&frame));
         }
 
         // Track match attempts (like Python's longest_match - each option is an attempt)
         self.match_attempts
             .set(self.match_attempts.get() + pruned_children.len());
 
-        // Try first child
-        let first_child = pruned_children[0];
-
         vdebug!(
             "OneOf[table]: Trying first of {} pruned children, grammar_id={}",
             pruned_children.len(),
-            first_child.0
+            pruned_children[0].0
         );
-
-        // Save initial collected positions count for O(1) rollback via truncate
-        // This ensures each child gets a fresh view of which whitespace to collect
-        let initial_collected_count = self.collected_transparent_positions.len();
 
         // Store context for WaitingForChild state
         frame.context = FrameContext::OneOfTableDriven {
             grammar_id,
             pruned_children: pruned_children.clone(),
-            leading_ws,
             post_skip_pos,
             longest_match: None,
             tried_elements: 0,
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
-            current_child_id: Some(first_child),
-            initial_collected_count,
-        };
-
-        frame.state = FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: 1,
+            current_child_id: Some(pruned_children[0]),
         };
 
         // CRITICAL: Store terminators in frame for use when trying subsequent children
         frame.table_terminators = SmallVec::from_vec(all_terminators.clone());
 
         // Create table-driven child frame with filtered terminators
-        let mut child_frame = TableParseFrame::new_child(
+        let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
-            first_child,
+            pruned_children[0],
             post_skip_pos,
             all_terminators.clone(),
             Some(max_idx),
@@ -188,13 +176,11 @@ impl Parser<'_> {
             "OneOf[table]: Pushing child frame: parent_frame_id={}, child_frame_id={}, child_gid={}",
             frame.frame_id,
             child_frame.frame_id,
-            first_child.0
+            pruned_children[0].0
         );
 
-        stack.increment_frame_id_counter();
-        stack.push(&mut frame);
-        stack.push(&mut child_frame);
-        Ok(TableFrameResult::Done)
+        // Transition: push child and wait
+        Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
     }
 
     /// Handle OneOf WaitingForChild state using table-driven approach
@@ -212,7 +198,6 @@ impl Parser<'_> {
             tried_elements,
             max_idx,
             current_child_id,
-            initial_collected_count,
             ..
         } = &mut frame.context
         else {
@@ -401,13 +386,6 @@ impl Parser<'_> {
             // and subsequent children skip that whitespace - leading to missing whitespace
             // in the final AST if a later child wins.
             // OPTIMIZATION: Use truncate instead of clone for O(1) rollback
-            self.collected_transparent_positions
-                .truncate(*initial_collected_count);
-            vdebug!(
-                "OneOf[table]: Truncated collected_transparent_positions to {} (was {})",
-                initial_collected_count,
-                self.collected_transparent_positions.len()
-            );
 
             // Try next child
             self.pos = *post_skip_pos;
@@ -419,10 +397,7 @@ impl Parser<'_> {
                 next_child.0
             );
 
-            frame.state = FrameState::WaitingForChild {
-                child_index: 0,
-                total_children: 1,
-            };
+            frame.state = FrameState::WaitingForChild { child_index: 0 };
 
             // Build child frame using same table_terminators as parent
             let child_frame = TableParseFrame::new_child(
@@ -433,7 +408,7 @@ impl Parser<'_> {
                 Some(*max_idx),
             );
 
-            TableParseFrame::push_child_and_update_parent(stack, &mut frame, child_frame, "OneOf");
+            stack.push_child_and_update_parent(&mut frame, child_frame, GrammarVariant::OneOf);
             Ok(TableFrameResult::Done)
         } else {
             // Should never reach here due to early termination logic above
@@ -445,22 +420,17 @@ impl Parser<'_> {
     pub(crate) fn handle_oneof_table_driven_combining(
         &mut self,
         mut frame: TableParseFrame,
-        _stack: &mut TableParseFrameStack,
+        stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         // Extract values from context by moving them out
-        let (leading_ws, post_skip_pos, longest_match) = match &mut frame.context {
+        let (post_skip_pos, longest_match) = match &mut frame.context {
             FrameContext::OneOfTableDriven {
-                leading_ws,
                 post_skip_pos,
                 longest_match,
                 ..
             } => {
                 // Take ownership to avoid clones
-                (
-                    std::mem::take(leading_ws),
-                    *post_skip_pos,
-                    longest_match.take(),
-                )
+                (*post_skip_pos, longest_match.take())
             }
             _ => {
                 return Err(ParseError::new(
@@ -491,36 +461,22 @@ impl Parser<'_> {
         }
 
         // Build final result
-        let (result_match, final_pos, _child_id) =
-            if let Some((best_match, best_consumed, best_child_id)) = longest_match {
-                // Track successful match (like Python's longest_match returning a match)
-                self.match_successes.set(self.match_successes.get() + 1);
+        let result_match = if let Some((best_match, best_consumed, _best_child_id)) = longest_match
+        {
+            // Track successful match (like Python's longest_match returning a match)
+            self.match_successes.set(self.match_successes.get() + 1);
+            self.pos = post_skip_pos + best_consumed;
 
-                let final_pos = post_skip_pos + best_consumed;
-                self.pos = final_pos;
+            best_match
+        } else {
+            // No match found
+            self.pos = frame.pos;
 
-                let result = if !leading_ws.is_empty() {
-                    // Prepend leading whitespace as MatchResults
-                    let mut children = leading_ws;
-                    children.push(Arc::clone(&best_match));
-                    MatchResult::sequence(frame.pos, final_pos, children)
-                } else {
-                    (*best_match).clone()
-                };
-
-                (result, final_pos, Some(best_child_id))
-            } else {
-                // No match found
-                let final_pos = frame.pos;
-                self.pos = final_pos;
-
-                (MatchResult::empty_at(frame.pos), final_pos, None)
-            };
+            Arc::new(MatchResult::empty_at(frame.pos))
+        };
 
         // Transition to Complete
-        frame.end_pos = Some(final_pos);
-        frame.state = FrameState::Complete(Arc::new(result_match));
-
-        Ok(TableFrameResult::Push(frame))
+        stack.complete_frame(frame, result_match.as_ref().clone());
+        Ok(TableFrameResult::Done)
     }
 }

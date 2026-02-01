@@ -37,7 +37,7 @@ impl Parser<'_> {
         // Materialize the AST by calling apply() - now returns a single Node
         let node = match_result.apply(self.tokens);
 
-        Ok(node)
+        Ok(node.first().cloned().unwrap_or(Node::Empty))
     }
 
     /// Primary iterative parser - returns MatchResult for lazy AST construction
@@ -64,11 +64,6 @@ impl Parser<'_> {
             grammar,
             self.pos
         );
-
-        // Save and clear checkpoint stack state at the start of this parse session.
-        // This is critical for proper whitespace collection when OneOf tries multiple children.
-        let saved_checkpoint_stack = std::mem::take(&mut self.collection_stack);
-        let saved_collected_count = self.collected_transparent_positions.len();
 
         // DON'T check cache here at the entry point!
         // Python's cache is checked INSIDE each grammar handler (via longest_match)
@@ -147,16 +142,11 @@ impl Parser<'_> {
                         }
                     }
                 }
-                FrameState::WaitingForChild {
-                    child_index,
-                    total_children,
-                } => {
+                FrameState::WaitingForChild { .. } => {
                     match self.handle_table_driven_waiting_for_child(
                         frame,
                         &mut stack,
                         iteration_count,
-                        child_index,
-                        total_children,
                     )? {
                         TableFrameResult::Done => continue,
                         TableFrameResult::Push(mut updated_frame) => {
@@ -295,26 +285,6 @@ impl Parser<'_> {
                 vdebug!("===================\n");
             }
 
-            // NOTE: We don't cache at this level anymore!
-            // Python's cache happens inside longest_match() which is called AFTER
-            // grammar handlers calculate their trimmed max_idx. Our equivalent is
-            // commit_table_frame_result() which caches WITH the frame's calculated max_idx.
-
-            // Restore checkpoint stack before returning
-            self.collection_stack = saved_checkpoint_stack;
-
-            // For Empty results (no match), restore collected_transparent_positions too.
-            // Empty results didn't actually consume anything, so any whitespace they
-            // "collected" while skipping should be available for other parsers.
-            if match_result.is_empty() {
-                vdebug!(
-                    "parse_table_iterative_match_result: Restoring collected_transparent_positions for Empty result (grammar {})",
-                    grammar.0
-                );
-                self.collected_transparent_positions
-                    .truncate(saved_collected_count);
-            }
-
             // Apply global deduplication to remove sibling duplicates
             Ok((**match_result).clone())
         } else {
@@ -324,10 +294,6 @@ impl Parser<'_> {
                 initial_frame_id,
                 stack.results.len()
             ));
-            // Restore checkpoint stack and collected positions before returning
-            self.collection_stack = saved_checkpoint_stack;
-            self.collected_transparent_positions
-                .truncate(saved_collected_count);
             Err(error)
         }
     }
@@ -551,8 +517,6 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
         iteration_count: usize,
-        _child_index: usize,
-        _total_children: usize,
     ) -> Result<TableFrameResult, ParseError> {
         // A child parse just completed - get its result
         let child_frame_id = match &frame.context {
@@ -602,9 +566,7 @@ impl Parser<'_> {
                 child_end_pos
             );
             vdebug!(
-                "Child {} of {} completed (frame_id={}): pos {} -> {}",
-                _child_index,
-                _total_children,
+                "Child completed (frame_id={}): pos {} -> {}",
                 child_frame_id,
                 frame.pos,
                 child_end_pos
@@ -788,11 +750,12 @@ impl Parser<'_> {
         match variant {
             GrammarVariant::OneOf => self.handle_oneof_table_driven_combining(frame, stack),
             GrammarVariant::Sequence => self.handle_sequence_table_driven_combining(frame, stack),
-            GrammarVariant::Delimited => self.handle_delimited_table_driven_combining(frame),
-            GrammarVariant::Bracketed => self.handle_bracketed_table_driven_combining(frame),
-            GrammarVariant::AnyNumberOf => self.handle_anynumberof_table_driven_combining(frame),
-            GrammarVariant::AnySetOf => self.handle_anynumberof_table_driven_combining(frame),
-            GrammarVariant::Ref => self.handle_ref_table_driven_combining(frame),
+            GrammarVariant::Delimited => self.handle_delimited_table_driven_combining(frame, stack),
+            GrammarVariant::Bracketed => self.handle_bracketed_table_driven_combining(frame, stack),
+            GrammarVariant::AnyNumberOf | GrammarVariant::AnySetOf => {
+                self.handle_anynumberof_table_driven_combining(frame, stack)
+            }
+            GrammarVariant::Ref => self.handle_ref_table_driven_combining(frame, stack),
             _ => {
                 // Combining should not be reached for terminal/simple variants
                 unimplemented!(
@@ -892,13 +855,9 @@ impl Parser<'_> {
                     };
 
                     let cache_key = TableCacheKey::new(frame.pos, frame.grammar_id, max_idx);
-                    // Get transparent positions for this frame
-                    let transparent_opt = frame.transparent_positions.clone();
                     // Cache as Arc<MatchResult> (cheap to clone later)
-                    self.table_cache.put(
-                        cache_key,
-                        (Arc::new(match_result.clone()), end_pos, transparent_opt),
-                    );
+                    self.table_cache
+                        .put(cache_key, (Arc::new(match_result.clone()), end_pos));
                 }
             }
         }
@@ -949,9 +908,7 @@ impl Parser<'_> {
                 };
 
                 let cache_key = TableCacheKey::new(frame.pos, frame.grammar_id, max_idx);
-                if let Some((match_result, end_pos, transparent_positions)) =
-                    self.table_cache.get(&cache_key)
-                {
+                if let Some((match_result, end_pos)) = self.table_cache.get(&cache_key) {
                     vdebug!(
                         "[LOOP] TableCache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
                         frame.grammar_id,
@@ -960,13 +917,6 @@ impl Parser<'_> {
                         frame.frame_id
                     );
                     self.pos = *end_pos;
-                    if let Some(positions) = transparent_positions {
-                        for &pos in positions {
-                            if !self.collected_transparent_positions.contains(&pos) {
-                                self.collected_transparent_positions.push(pos);
-                            }
-                        }
-                    }
                     // Insert cached MatchResult - match_result is &Arc, clone the Arc (cheap refcount)
                     stack.insert_arc_result(frame.frame_id, Arc::clone(match_result), *end_pos);
                     return Ok(TableFrameResult::Done);
