@@ -38,8 +38,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
-      # Ensure tox-uv creates venvs with pip installed
-      UV_SEED: true
 
     services:
       # Label used to access the service container

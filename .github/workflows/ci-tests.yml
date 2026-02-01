@@ -34,9 +34,7 @@ jobs:
 
   linting:
     runs-on: ubuntu-latest
-    env:
-      # Ensure tox-uv creates venvs with pip installed
-      UV_SEED: true
+
     strategy:
       matrix:
         job:
@@ -506,9 +504,6 @@ jobs:
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.13 Windows tests
-    env:
-      # Ensure tox-uv creates venvs with pip installed
-      UV_SEED: true
     steps:
     - name: Set git to use LF
       run: |
@@ -563,9 +558,7 @@ jobs:
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: dbt Plugin Python 3.12 Windows tests
-    env:
-      # Ensure tox-uv creates venvs with pip installed
-      UV_SEED: true
+
     steps:
 
     - name: Start PostgreSQL on Windows
