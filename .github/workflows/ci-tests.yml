@@ -52,15 +52,31 @@ jobs:
           # As at 2024-10-10, docbuild fails on 3.13, so fall back to 3.12
           - job: docbuild
             python-version: "3.12"
+
     name: ${{ matrix.job }} tests
     steps:
-    - uses: actions/checkout@v4
+
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 1
+
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
+          requirements_dev.txt
+          pyproject.toml
+          constraints/*.txt
+
     - name: Install dependencies
-      run: pip install tox
+      run: uv pip install --system tox tox-uv
     - name: Run the tests
       run: tox -e ${{ matrix.job }}
 
@@ -82,14 +98,31 @@ jobs:
           - runner: ubuntu-latest
             target: ppc64le
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
-          python-version: 3.x
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            constraints/*.txt
+
       - name: Generate Rust dialect files
         run: |
-          pip install -e .
+          uv pip install --system -e .
           python utils/rustify.py build
+
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -97,6 +130,7 @@ jobs:
           args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: auto
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -117,14 +151,31 @@ jobs:
           - runner: ubuntu-latest
             target: armv7
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
-          python-version: 3.x
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            constraints/*.txt
+
       - name: Generate Rust dialect files
         run: |
-          pip install -e .
+          uv pip install --system -e .
           python utils/rustify.py build
+
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -132,6 +183,7 @@ jobs:
           args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: musllinux_1_2
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -148,21 +200,38 @@ jobs:
           - runner: windows-latest
             target: x86
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
-          python-version: 3.x
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
           architecture: ${{ matrix.platform.target }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            constraints/*.txt
+
       - name: Generate Rust dialect files
         run: |
-          pip install -e .
+          uv pip install --system -e .
           python utils/rustify.py build
+
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -179,20 +248,37 @@ jobs:
           - runner: macos-15
             target: aarch64
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
-          python-version: 3.x
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            constraints/*.txt
+
       - name: Generate Rust dialect files
         run: |
-          pip install -e .
+          uv pip install --system -e .
           python utils/rustify.py build
+
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -202,19 +288,36 @@ jobs:
   rs-build-sdist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
-          python-version: 3.x
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            constraints/*.txt
+
       - name: Generate Rust dialect files
         run: |
-          pip install -e .
+          uv pip install --system -e .
           python utils/rustify.py build
+
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
           command: sdist
           args: --out dist --manifest-path sqlfluffrs/Cargo.toml
+
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
@@ -239,6 +342,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+
     uses: ./.github/workflows/ci-test-python.yml
     with:
       python-version: ${{ matrix.python-version }}
@@ -265,6 +369,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+
     uses: ./.github/workflows/ci-test-dbt.yml
     with:
       python-version: ${{ matrix.python-version }}
@@ -307,6 +412,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+
     uses: ./.github/workflows/ci-test-python.yml
     with:
       python-version: "3.13"
@@ -319,22 +425,40 @@ jobs:
   ymlchecks:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 1
+
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
+          requirements_dev.txt
+          pyproject.toml
+          .pre-commit-config.yaml
+
     - name: Install dependencies
       run: |
-        pip install -r requirements_dev.txt
-        pip install -e .
+        uv pip install --system -r requirements_dev.txt
+        uv pip install --system -e .
+
     - name: Generate the YAML files
       run: |
         python test/generate_parse_fixture_yml.py
+
     - name: Test the generated YAML files
       run: |
-        if [ -n "$(git status --porcelain)" ]; then
-          git diff
+        # Only check for changes in test fixture directories
+        if git status --porcelain -- 'test/fixtures/**/*.yml' | grep -q .; then
+          git diff -- 'test/fixtures/**/*.yml'
           echo "Generated YAML files do not match branch."
           echo "Please run the following command to generate these:"
           echo "  python test/generate_parse_fixture_yml.py"
@@ -345,15 +469,29 @@ jobs:
     runs-on: ubuntu-latest
     name: example tests
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 1
+
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
+          requirements_dev.txt
+          pyproject.toml
+          constraints/*.txt
+
     - name: Install dependencies
       run: |
-        pip install -e .
-        pip install tqdm
+        uv pip install --system -e .
+        uv pip install --system tqdm
     - name: Test the example files
       run: |
         for file in examples/*
@@ -370,18 +508,35 @@ jobs:
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
+
+    - name: Checkout code
+      uses: actions/checkout@v6
       with:
-        python-version: "3.13"
+        fetch-depth: 1
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
+          requirements_dev.txt
+          pyproject.toml
+          constraints/*.txt
+
     - name: List Env
       shell: bash
       run: |
         env | sort
+
     - name: Install dependencies
       shell: bash
-      run: pip install tox
+      run: uv pip install --system tox tox-uv
+
     - name: Run the tests
       shell: bash
       # Set python temp dir in working dir as on GitHub Actions Windows
@@ -390,6 +545,7 @@ jobs:
       run: |
         mkdir temp_pytest
         python -m tox -e winpy -- --cov=sqlfluff -n 2 test -m "not integration"
+
     - name: Upload coverage data (github)
       uses: actions/upload-artifact@v4
       with:
@@ -402,27 +558,46 @@ jobs:
     runs-on: windows-latest
     name: dbt Plugin Python 3.12 Windows tests
     steps:
+
     - name: Start PostgreSQL on Windows
       run: |
         $pgService = Get-Service -Name postgresql*
         Set-Service -InputObject $pgService -Status running -StartupType automatic
         Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
+
     - name: Set postgres user password
       run: |
         & $env:PGBIN\psql --command="ALTER USER postgres PASSWORD 'password';" --command="\du"
+
     - name: Set git to use LF
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v4
+
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 1
+
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         # NOTE: As of 2024-10-10, dbt does not yet support python 3.13.
-        python-version: "3.12"
+        python-version: '3.12'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
+          requirements_dev.txt
+          pyproject.toml
+          constraints/*.txt
+
     - name: Install dependencies
       shell: bash
-      run: pip install tox
+      run: uv pip install --system tox tox-uv
+
     - name: Run the tests
       shell: bash
       # Do not set explicitly temp dir for dbt as causes problems
@@ -437,26 +612,46 @@ jobs:
     if: github.event_name == 'pull_request'
     name: pip install tests
     steps:
-    - name: Set up Python
-      uses: actions/setup-python@v5
+
+    - name: Checkout code
+      uses: actions/checkout@v6
       with:
-        python-version: "3.13"
-    - uses: actions/checkout@v4
+        fetch-depth: 1
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
+          requirements_dev.txt
+          pyproject.toml
+          constraints/*.txt
+
     - name: Install dependencies
       run: |
-        pip install .
+        uv pip install --system .
+
     - name: Run the version test
       run: |
         sqlfluff --version
+
     - name: Run a simple select parse test via stdin
       run: |
         echo "select 1" | sqlfluff parse --dialect=ansi -
+
     - name: Run a simple select lint test via stdin
       run: |
         echo "select 1" | sqlfluff lint --dialect=ansi -
+
     - name: Run a simple select parse test via file
       run: |
         sqlfluff parse --dialect=ansi <(echo "select 1")
+
     - name: Run a simple select lint test via file
       run: |
         sqlfluff lint --dialect=ansi <(echo "select 1")
@@ -466,12 +661,27 @@ jobs:
     runs-on: ubuntu-latest
     needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
 
-      - run: python -m pip install --upgrade coverage[toml]
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            constraints/*.txt
+
+      - run: uv pip install --system --upgrade coverage[toml]
 
       - name: Download coverage data.
         uses: actions/download-artifact@v4
