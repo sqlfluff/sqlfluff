@@ -40,6 +40,9 @@ jobs:
   modular-python-test:
     runs-on: ubuntu-latest
     name: py${{ inputs.python-version }}
+    env:
+      # Ensure tox-uv creates venvs with pip installed
+      UV_SEED: true
     steps:
     - uses: actions/checkout@v6
       with:
