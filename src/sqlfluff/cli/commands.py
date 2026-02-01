@@ -1,52 +1,22 @@
 """Contains the CLI."""
 
+# Standard library imports
 import json
 import logging
 import os
 import sys
 import time
-from typing import Optional
-# --- Recursion Limit Helper ---
-def apply_recursion_limit(
-    recursion_limit: Optional[int],
-    extra_config_path: Optional[str] = None,
-    ignore_local_config: bool = False,
-    kwargs: Optional[dict] = None,
-    min_limit: int = 100,
-    max_limit: int = 1000000,
-) -> None:
-    """Set the Python recursion limit from CLI flag or config, with validation."""
-    # If CLI flag is not set, check config for recursion_limit
-    if recursion_limit is None:
-        config = get_config(
-            extra_config_path, ignore_local_config, require_dialect=False, **(kwargs or {})
-        )
-        config_limit = config.get("recursion_limit", section="core", default=None)
-        if config_limit is not None:
-            try:
-                recursion_limit = int(config_limit)
-            except ValueError:
-                recursion_limit = None
-    if recursion_limit is not None:
-        try:
-            if not (min_limit <= recursion_limit <= max_limit):
-                raise ValueError(f"recursion_limit must be between {min_limit} and {max_limit}.")
-            sys.setrecursionlimit(recursion_limit)
-        except ValueError as ve:
-            click.echo(f"Invalid recursion_limit: {ve}", err=True)
-        except Exception as e:
-            click.echo(f"Failed to set recursion_limit: {e}", err=True)
 from itertools import chain
 from logging import LogRecord
 from typing import Callable, Optional
 
+# Third-party imports
 import click
-
-# To enable colour cross platform
 import colorama
 import yaml
 from tqdm import tqdm
 
+# Local imports
 from sqlfluff.cli import EXIT_ERROR, EXIT_FAIL, EXIT_SUCCESS
 from sqlfluff.cli.autocomplete import dialect_shell_complete, shell_completion_enabled
 from sqlfluff.cli.formatters import OutputStreamFormatter, format_linting_result_header
@@ -67,6 +37,43 @@ from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.linter import LintingResult
 from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.types import Color, FormatType
+
+
+# --- Recursion Limit Helper ---
+def apply_recursion_limit(
+    recursion_limit: Optional[int],
+    extra_config_path: Optional[str] = None,
+    ignore_local_config: bool = False,
+    kwargs: Optional[dict] = None,
+    min_limit: int = 100,
+    max_limit: int = 1000000,
+) -> None:
+    """Set the Python recursion limit from CLI flag or config, with validation."""
+    # If CLI flag is not set, check config for recursion_limit
+    if recursion_limit is None:
+        config = get_config(
+            extra_config_path,
+            ignore_local_config,
+            require_dialect=False,
+            **(kwargs or {}),
+        )
+        config_limit = config.get("recursion_limit", section="core", default=None)
+        if config_limit is not None:
+            try:
+                recursion_limit = int(config_limit)
+            except ValueError:
+                recursion_limit = None
+    if recursion_limit is not None:
+        try:
+            if not (min_limit <= recursion_limit <= max_limit):
+                raise ValueError(
+                    f"recursion_limit must be between {min_limit} and {max_limit}."
+                )
+            sys.setrecursionlimit(recursion_limit)
+        except ValueError as ve:
+            click.echo(f"Invalid recursion_limit: {ve}", err=True)
+        except Exception as e:
+            click.echo(f"Failed to set recursion_limit: {e}", err=True)
 
 
 class StreamHandlerTqdm(logging.StreamHandler):
@@ -633,12 +640,6 @@ def lint(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
-    apply_recursion_limit(
-        recursion_limit,
-        extra_config_path=extra_config_path,
-        ignore_local_config=ignore_local_config,
-        kwargs=kwargs,
-    )
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -657,6 +658,12 @@ def lint(
         echo 'select col from tbl' | sqlfluff lint -
 
     """
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
@@ -1132,12 +1139,6 @@ def fix(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
-    apply_recursion_limit(
-        recursion_limit,
-        extra_config_path=extra_config_path,
-        ignore_local_config=ignore_local_config,
-        kwargs=kwargs,
-    )
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -1145,6 +1146,12 @@ def fix(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     # some quick checks
     fixing_stdin = ("-",) == paths
     if quiet:
@@ -1245,12 +1252,6 @@ def cli_format(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
-    apply_recursion_limit(
-        recursion_limit,
-        extra_config_path=extra_config_path,
-        ignore_local_config=ignore_local_config,
-        kwargs=kwargs,
-    )
     """Autoformat SQL files.
 
     This effectively force applies `sqlfluff fix` with a known subset of fairly
@@ -1262,6 +1263,12 @@ def cli_format(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     # some quick checks
     fixing_stdin = ("-",) == paths
 
@@ -1423,12 +1430,6 @@ def parse(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
-    apply_recursion_limit(
-        recursion_limit,
-        extra_config_path=extra_config_path,
-        ignore_local_config=ignore_local_config,
-        kwargs=kwargs,
-    )
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -1436,6 +1437,12 @@ def parse(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     c = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
