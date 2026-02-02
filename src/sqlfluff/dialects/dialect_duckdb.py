@@ -357,12 +357,12 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         OneOf(
             Sequence("DEFAULT", "VALUES"),
-            Ref("SelectStatementSegment"),
+            Ref("SelectableGrammar"),
             Sequence(
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
                 OneOf(
                     Ref("ValuesClauseSegment"),
-                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
                 ),
             ),
         ),
@@ -1125,6 +1125,45 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                 "FROM",
                 Ref("QuotedLiteralSegment"),
                 _copy_from_option,
+            ),
+        ),
+    )
+
+
+class SetStatementSegment(postgres.SetStatementSegment):
+    """A `SET` Statement.
+
+    DuckDB documentation: https://duckdb.org/docs/sql/statements/set
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            Sequence(
+                "VARIABLE",
+                Ref("NakedIdentifierSegment"),  # variable_name
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                ),
+            ),
+            Sequence(
+                OneOf("SESSION", "LOCAL", "GLOBAL", optional=True),
+                Ref("ParameterNameSegment"),
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    "DEFAULT",
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedIdentifierSegment"),
+                        Ref("OnKeywordAsIdentifierSegment"),
+                    ),
+                ),
             ),
         ),
     )

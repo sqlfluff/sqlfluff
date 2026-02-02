@@ -719,6 +719,12 @@ snowflake_dialect.replace(
         ),
         Ref("AliasExpressionSegment", optional=True),
     ),
+    # Snowflake supports DIRECTED joins for enforcing join order.
+    # https://docs.snowflake.com/en/sql-reference/constructs/join
+    JoinKeywordsGrammar=Sequence(
+        Ref.keyword("DIRECTED", optional=True),
+        "JOIN",
+    ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
@@ -3210,6 +3216,7 @@ class AccessStatementSegment(BaseSegment):
     _schema_object_types = OneOf(
         *_schema_object_names,
         Sequence("MATERIALIZED", "VIEW"),
+        Sequence("DYNAMIC", "TABLE"),
         Sequence("EXTERNAL", "TABLE"),
         Sequence(OneOf("TEMP", "TEMPORARY"), "TABLE"),
         Sequence("FILE", "FORMAT"),
