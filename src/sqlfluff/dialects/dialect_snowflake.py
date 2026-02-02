@@ -3216,6 +3216,7 @@ class AccessStatementSegment(BaseSegment):
     _schema_object_types = OneOf(
         *_schema_object_names,
         Sequence("MATERIALIZED", "VIEW"),
+        Sequence("DYNAMIC", "TABLE"),
         Sequence("EXTERNAL", "TABLE"),
         Sequence(OneOf("TEMP", "TEMPORARY"), "TABLE"),
         Sequence("FILE", "FORMAT"),
