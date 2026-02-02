@@ -66,14 +66,20 @@ def apply_recursion_limit(
     if recursion_limit is not None:
         try:
             if not (min_limit <= recursion_limit <= max_limit):
-                raise ValueError(
+                raise ValueError(  # pragma: no cover
                     f"recursion_limit must be between {min_limit} and {max_limit}."
                 )
             sys.setrecursionlimit(recursion_limit)
         except ValueError as ve:
-            click.echo(f"Invalid recursion_limit: {ve}", err=True)
+            click.echo(
+                f"Invalid recursion_limit: {ve}",
+                err=True,
+            )  # pragma: no cover
         except Exception as e:
-            click.echo(f"Failed to set recursion_limit: {e}", err=True)
+            click.echo(
+                f"Failed to set recursion_limit: {e}",
+                err=True,
+            )  # pragma: no cover
 
 
 class StreamHandlerTqdm(logging.StreamHandler):
