@@ -860,8 +860,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterAuthorizationStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterUserStatementSegment"),
+            Ref("GrantStatementSegment"),
+            Ref("DenyStatementSegment"),
+            Ref("RevokeStatementSegment"),
         ],
         remove=[
+            Ref("AccessStatementSegment"),
             Ref("CreateCastStatementSegment"),
             Ref("DropCastStatementSegment"),
             Ref("CreateModelStatementSegment"),
@@ -6644,50 +6648,21 @@ class AlterAuthorizationStatementSegment(BaseSegment):
 
     type = "alter_authorization_statement"
 
-    _securable = Sequence(
-        Sequence(
-            OneOf(
-                "ASSEMBLY",
-                Sequence("ASYMMETRIC", "KEY"),
-                "CERTIFICATE",
-                "DATABASE",
-                Sequence("FULLTEXT", "CATALOG"),
-                Sequence("FULLTEXT", "STOPLIST"),
-                "OBJECT",
-                "ROLE",
-                "SCHEMA",
-                Sequence("SEARCH", "PROPERTY", "LIST"),
-                Sequence("SYMMETRIC", "KEY"),
-                "TYPE",
-                Sequence("XML", "SCHEMA", "COLLECTION"),
-            ),
-            Ref("CastOperatorSegment"),
-            optional=True,
-        ),
-        Ref("ObjectReferenceSegment"),
-    )
-
     match_grammar: Matchable = Sequence(
         "ALTER",
         "AUTHORIZATION",
         "ON",
-        _securable,
+        Ref("SecurableSegment"),
         "TO",
         OneOf(Ref("RoleReferenceSegment"), Sequence("SCHEMA", "OWNER")),
     )
 
 
-class AccessStatementSegment(BaseSegment):
-    """A `GRANT`, `DENY` or `REVOKE` statement.
+class SecurableSegment(BaseSegment):
+    """Used by GRANT, DENY, REVOKE and ALTER AUTHORIZATION statements."""
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/deny-transact-sql
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/revoke-transact-sql
-    """
-
-    type = "access_statement"
-
-    _securable = Sequence(
+    type = "securable_segment"
+    match_grammar = Sequence(
         Sequence(
             OneOf(
                 "ASSEMBLY",
@@ -6712,228 +6687,251 @@ class AccessStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
     )
 
-    _permissions = Sequence(
-        OneOf(
-            Sequence("ADMINISTER", "BULK", "OPERATIONS"),
-            Sequence("ADMINISTER", "DATABASE", "BULK", "OPERATIONS"),
-            "ALTER",
-            Sequence(
-                "ALTER",
-                "ANY",
-                OneOf(
-                    Sequence("APPLICATION", "ROLE"),
-                    "ASSEMBLY",
-                    Sequence("ASYMMETRIC", "KEY"),
-                    Sequence("AVAILABILITY", "GROUP"),
-                    "CONNECTION",
-                    "CREDENTIAL",
-                    "CERTIFICATE",
-                    Sequence("COLUMN", "ENCRYPTION", "KEY"),
-                    Sequence("COLUMN", "MASTER", "KEY", "DEFINITION"),
-                    "CONTRACT",
-                    "DATABASE",
-                    Sequence("DATABASE", "AUDIT"),
-                    Sequence("DATABASE", "DDL", "TRIGGER"),
-                    Sequence("DATABASE", "EVENT", "NOTIFICATION"),
-                    Sequence("DATABASE", "EVENT", "SESSION"),
-                    Sequence("DATABASE", "SCOPED", "CONFIGURATION"),
-                    "DATASPACE",
-                    "ENDPOINT",
-                    Sequence("EVENT", "NOTIFICATION"),
-                    Sequence("EVENT", "SESSION"),
-                    Sequence("EXTERNAL", "DATA", "SOURCE"),
-                    Sequence("EXTERNAL", "FILE", "FORMAT"),
-                    Sequence("EXTERNAL", "LIBRARY"),
-                    Sequence("FULLTEXT", "CATALOG"),
-                    Sequence("LINKED", "SERVER"),
-                    "LOGIN",
-                    "MASK",
-                    Sequence("MESSAGE", "TYPE"),
-                    Sequence("REMOTE", "SERVICE", "BINDING"),
-                    "ROLE",
-                    "ROUTE",
-                    "SCHEMA",
-                    Sequence("SECURITY", "POLICY"),
-                    Sequence("SENSITIVITY", "CLASSIFICATION"),
-                    Sequence("SERVER", "AUDIT"),
-                    Sequence("SERVER", "ROLE"),
-                    "SERVICE",
-                    Sequence("SYMMETRIC", "KEY"),
-                    "USER",
-                ),
-            ),
-            Sequence("ALTER", "RESOURCES"),
-            Sequence("ALTER", "SERVER", "STATE"),
-            Sequence("ALTER", "SETTINGS"),
-            Sequence("ALTER", "TRACE"),
-            Sequence("APPLY", "MASKING", "POLICY"),
-            "AUTHENTICATE",
-            Sequence("AUTHENTICATE", "SERVER"),
-            Sequence("BACKUP", "DATABASE"),
-            Sequence("BACKUP", "LOG"),
-            "CHECKPOINT",
-            "CONNECT",
-            Sequence("CONNECT", "ANY", "DATABASE"),
-            Sequence("CONNECT", "REPLICATION"),
-            Sequence("CONNECT", "SQL"),
-            "CONTROL",
-            Sequence("CONTROL", "SERVER"),
-            Sequence(
-                "CREATE",
-                OneOf(
-                    "AGGREGATE",
-                    Sequence("ANY", "DATABASE"),
-                    Sequence("ANY", "EXTERNAL", "LIBRARY"),
-                    "ASSEMBLY",
-                    Sequence("ASYMMETRIC", "KEY"),
-                    Sequence("AVAILABILITY", "GROUP"),
-                    "CERTIFICATE",
-                    "CONTRACT",
-                    "DATABASE",
-                    Sequence("DATABASE", "DDL", "EVENT", "NOTIFICATION"),
-                    Sequence("DDL", "EVENT", "NOTIFICATION"),
-                    "DEFAULT",
-                    "ENDPOINT",
-                    Sequence("FULLTEXT", "CATALOG"),
-                    "FUNCTION",
-                    "INTEGRATION",
-                    "LOGIN",
-                    Sequence("MESSAGE", "TYPE"),
-                    "PROCEDURE",
-                    "QUEUE",
-                    Sequence("REMOTE", "SERVICE", "BINDING"),
-                    "ROLE",
-                    "ROUTE",
-                    "RULE",
-                    "SCHEMA",
-                    "SEQUENCE",
-                    Sequence("SERVER", "ROLE"),
-                    "SERVICE",
-                    Sequence("SYMMETRIC", "KEY"),
-                    "SYNONYM",
-                    "TABLE",
-                    Sequence("TRACE", "EVENT", "NOTIFICATION"),
-                    "TYPE",
-                    "USER",
-                    "VIEW",
-                    "WAREHOUSE",
-                    Sequence("XML", "SCHEMA", "COLLECTION"),
-                ),
-            ),
-            "DELETE",
-            "EXECUTE",
-            Sequence("EXECUTE", "ANY", "EXTERNAL", "ENDPOINT"),
-            Sequence("EXECUTE", "ANY", "EXTERNAL", "SCRIPT"),
-            Sequence("EXECUTE", "EXTERNAL", "SCRIPT"),
-            Sequence("EXTERNAL", "ACCESS", "ASSEMBLY"),
-            "IMPERSONATE",
-            Sequence("IMPERSONATE", "ANY", "LOGIN"),
-            "INSERT",
-            Sequence("KILL", "DATABASE", "CONNECTION"),
-            "RECEIVE",
-            "REFERENCES",
-            "SELECT",
-            Sequence("SELECT", "ALL", "USER", "SECURABLES"),
-            "SHOWPLAN",
-            "SHUTDOWN",
-            "SEND",
-            Sequence("SUBSCRIBE", "QUERY", "NOTIFICATIONS"),
-            Sequence("TAKE", "OWNERSHIP"),
-            "UNMASK",
-            Sequence("UNSAFE", "ASSEMBLY"),
-            "UPDATE",
-            Sequence("VIEW", "ANY", "COLUMN", "ENCRYPTION", "KEY", "DEFINITION"),
-            Sequence("VIEW", "ANY", "COLUMN", "MASTER", "KEY", "DEFINITION"),
-            Sequence("VIEW", "ANY", "DATABASE"),
-            Sequence("VIEW", "ANY", "DEFINITION"),
-            Sequence("VIEW", "CHANGE", "TRACKING"),
-            Sequence("VIEW", "DATABASE", "STATE"),
-            Sequence("VIEW", "DEFINITION"),
-            Sequence("VIEW", "SERVER", "STATE"),
-        ),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-    )
 
-    match_grammar: Matchable = OneOf(
+class PermissionsSegment(BaseSegment):
+    """Permissions segment used by GRANT, DENY and REVOKE statements."""
+
+    type = "permissions_segment"
+    match_grammar = Delimited(
         Sequence(
-            "GRANT",
             OneOf(
+                Sequence("ADMINISTER", "BULK", "OPERATIONS"),
+                Sequence("ADMINISTER", "DATABASE", "BULK", "OPERATIONS"),
+                "ALTER",
                 Sequence(
-                    Delimited(
-                        _permissions,
-                        terminators=["ON"],
+                    "ALTER",
+                    "ANY",
+                    OneOf(
+                        Sequence("APPLICATION", "ROLE"),
+                        "ASSEMBLY",
+                        Sequence("ASYMMETRIC", "KEY"),
+                        Sequence("AVAILABILITY", "GROUP"),
+                        "CONNECTION",
+                        "CREDENTIAL",
+                        "CERTIFICATE",
+                        Sequence("COLUMN", "ENCRYPTION", "KEY"),
+                        Sequence("COLUMN", "MASTER", "KEY", "DEFINITION"),
+                        "CONTRACT",
+                        "DATABASE",
+                        Sequence("DATABASE", "AUDIT"),
+                        Sequence("DATABASE", "DDL", "TRIGGER"),
+                        Sequence("DATABASE", "EVENT", "NOTIFICATION"),
+                        Sequence("DATABASE", "EVENT", "SESSION"),
+                        Sequence("DATABASE", "SCOPED", "CONFIGURATION"),
+                        "DATASPACE",
+                        "ENDPOINT",
+                        Sequence("EVENT", "NOTIFICATION"),
+                        Sequence("EVENT", "SESSION"),
+                        Sequence("EXTERNAL", "DATA", "SOURCE"),
+                        Sequence("EXTERNAL", "FILE", "FORMAT"),
+                        Sequence("EXTERNAL", "LIBRARY"),
+                        Sequence("FULLTEXT", "CATALOG"),
+                        Sequence("LINKED", "SERVER"),
+                        "LOGIN",
+                        "MASK",
+                        Sequence("MESSAGE", "TYPE"),
+                        Sequence("REMOTE", "SERVICE", "BINDING"),
+                        "ROLE",
+                        "ROUTE",
+                        "SCHEMA",
+                        Sequence("SECURITY", "POLICY"),
+                        Sequence("SENSITIVITY", "CLASSIFICATION"),
+                        Sequence("SERVER", "AUDIT"),
+                        Sequence("SERVER", "ROLE"),
+                        "SERVICE",
+                        Sequence("SYMMETRIC", "KEY"),
+                        "USER",
                     ),
                 ),
-                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+                Sequence("ALTER", "RESOURCES"),
+                Sequence("ALTER", "SERVER", "STATE"),
+                Sequence("ALTER", "SETTINGS"),
+                Sequence("ALTER", "TRACE"),
+                Sequence("APPLY", "MASKING", "POLICY"),
+                "AUTHENTICATE",
+                Sequence("AUTHENTICATE", "SERVER"),
+                Sequence("BACKUP", "DATABASE"),
+                Sequence("BACKUP", "LOG"),
+                "CHECKPOINT",
+                "CONNECT",
+                Sequence("CONNECT", "ANY", "DATABASE"),
+                Sequence("CONNECT", "REPLICATION"),
+                Sequence("CONNECT", "SQL"),
+                "CONTROL",
+                Sequence("CONTROL", "SERVER"),
+                Sequence(
+                    "CREATE",
+                    OneOf(
+                        "AGGREGATE",
+                        Sequence("ANY", "DATABASE"),
+                        Sequence("ANY", "EXTERNAL", "LIBRARY"),
+                        "ASSEMBLY",
+                        Sequence("ASYMMETRIC", "KEY"),
+                        Sequence("AVAILABILITY", "GROUP"),
+                        "CERTIFICATE",
+                        "CONTRACT",
+                        "DATABASE",
+                        Sequence("DATABASE", "DDL", "EVENT", "NOTIFICATION"),
+                        Sequence("DDL", "EVENT", "NOTIFICATION"),
+                        "DEFAULT",
+                        "ENDPOINT",
+                        Sequence("FULLTEXT", "CATALOG"),
+                        "FUNCTION",
+                        "INTEGRATION",
+                        "LOGIN",
+                        Sequence("MESSAGE", "TYPE"),
+                        "PROCEDURE",
+                        "QUEUE",
+                        Sequence("REMOTE", "SERVICE", "BINDING"),
+                        "ROLE",
+                        "ROUTE",
+                        "RULE",
+                        "SCHEMA",
+                        "SEQUENCE",
+                        Sequence("SERVER", "ROLE"),
+                        "SERVICE",
+                        Sequence("SYMMETRIC", "KEY"),
+                        "SYNONYM",
+                        "TABLE",
+                        Sequence("TRACE", "EVENT", "NOTIFICATION"),
+                        "TYPE",
+                        "USER",
+                        "VIEW",
+                        "WAREHOUSE",
+                        Sequence("XML", "SCHEMA", "COLLECTION"),
+                    ),
+                ),
+                "DELETE",
+                "EXECUTE",
+                Sequence("EXECUTE", "ANY", "EXTERNAL", "ENDPOINT"),
+                Sequence("EXECUTE", "ANY", "EXTERNAL", "SCRIPT"),
+                Sequence("EXECUTE", "EXTERNAL", "SCRIPT"),
+                Sequence("EXTERNAL", "ACCESS", "ASSEMBLY"),
+                "IMPERSONATE",
+                Sequence("IMPERSONATE", "ANY", "LOGIN"),
+                "INSERT",
+                Sequence("KILL", "DATABASE", "CONNECTION"),
+                "RECEIVE",
+                "REFERENCES",
+                "SELECT",
+                Sequence("SELECT", "ALL", "USER", "SECURABLES"),
+                "SHOWPLAN",
+                "SHUTDOWN",
+                "SEND",
+                Sequence("SUBSCRIBE", "QUERY", "NOTIFICATIONS"),
+                Sequence("TAKE", "OWNERSHIP"),
+                "UNMASK",
+                Sequence("UNSAFE", "ASSEMBLY"),
+                "UPDATE",
+                Sequence("VIEW", "ANY", "COLUMN", "ENCRYPTION", "KEY", "DEFINITION"),
+                Sequence("VIEW", "ANY", "COLUMN", "MASTER", "KEY", "DEFINITION"),
+                Sequence("VIEW", "ANY", "DATABASE"),
+                Sequence("VIEW", "ANY", "DEFINITION"),
+                Sequence("VIEW", "CHANGE", "TRACKING"),
+                Sequence("VIEW", "DATABASE", "STATE"),
+                Sequence("VIEW", "DEFINITION"),
+                Sequence("VIEW", "SERVER", "STATE"),
             ),
-            "ON",
-            _securable,
-            "TO",
-            Delimited(Ref("RoleReferenceSegment")),
-            Sequence(
-                "WITH",
-                "GRANT",
-                "OPTION",
-                optional=True,
-            ),
-            Sequence(
-                "AS",
-                Ref("RoleReferenceSegment"),
-                optional=True,
-            ),
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        )
+    )
+
+
+class GrantStatementSegment(BaseSegment):
+    """A `GRANT` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql
+    """
+
+    type = "grant_statement"
+
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        OneOf(
+            Ref("PermissionsSegment"),
+            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+        ),
+        "ON",
+        Ref("SecurableSegment"),
+        "TO",
+        Delimited(Ref("RoleReferenceSegment")),
+        Sequence(
+            "WITH",
+            "GRANT",
+            "OPTION",
+            optional=True,
         ),
         Sequence(
-            "DENY",
-            OneOf(
-                Delimited(
-                    _permissions,
-                    terminators=["ON"],
-                ),
-                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-            ),
-            "ON",
-            _securable,
-            "TO",
-            Delimited(
-                Ref("RoleReferenceSegment"),
-            ),
-            Sequence(
-                Ref.keyword("CASCADE", optional=True),
-                Ref("ObjectReferenceSegment", optional=True),
-                optional=True,
-            ),
-            Sequence(
-                "AS",
-                Ref("RoleReferenceSegment"),
-                optional=True,
-            ),
+            "AS",
+            Ref("RoleReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+
+class DenyStatementSegment(BaseSegment):
+    """A `DENY` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/deny-transact-sql
+    """
+
+    type = "deny_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DENY",
+        OneOf(
+            Ref("PermissionsSegment"),
+            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+        ),
+        "ON",
+        Ref("SecurableSegment"),
+        "TO",
+        Delimited(
+            Ref("RoleReferenceSegment"),
         ),
         Sequence(
-            "REVOKE",
-            Sequence("GRANT", "OPTION", "FOR", optional=True),
-            OneOf(
-                Delimited(
-                    _permissions,
-                    terminators=["ON"],
-                ),
-                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-            ),
-            "ON",
-            _securable,
-            OneOf("TO", "FROM"),
-            Delimited(
-                Ref("RoleReferenceSegment"),
-            ),
-            Sequence(
-                Ref.keyword("CASCADE", optional=True),
-                Ref("ObjectReferenceSegment", optional=True),
-                optional=True,
-            ),
-            Sequence(
-                "AS",
-                Ref("RoleReferenceSegment"),
-                optional=True,
-            ),
+            Ref.keyword("CASCADE", optional=True),
+            Ref("ObjectReferenceSegment", optional=True),
+            optional=True,
+        ),
+        Sequence(
+            "AS",
+            Ref("RoleReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+
+class RevokeStatementSegment(BaseSegment):
+    """`REVOKE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/revoke-transact-sql
+    """
+
+    type = "revoke_statement"
+
+    match_grammar: Matchable = Sequence(
+        "REVOKE",
+        Sequence("GRANT", "OPTION", "FOR", optional=True),
+        OneOf(
+            Ref("PermissionsSegment"),
+            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+        ),
+        "ON",
+        Ref("SecurableSegment"),
+        OneOf("TO", "FROM"),
+        Delimited(
+            Ref("RoleReferenceSegment"),
+        ),
+        Sequence(
+            Ref.keyword("CASCADE", optional=True),
+            Ref("ObjectReferenceSegment", optional=True),
+            optional=True,
+        ),
+        Sequence(
+            "AS",
+            Ref("RoleReferenceSegment"),
+            optional=True,
         ),
     )
 
