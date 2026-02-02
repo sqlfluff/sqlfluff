@@ -294,6 +294,37 @@ postgres_dialect.patch_lexer_matchers(
             ),
         ),
         RegexLexer("word", r"[\p{L}_][\p{L}\p{N}_$]*", WordSegment),
+        # Numeric literal matches integers, decimals, and exponential formats,
+        # Patch to support single underscores.
+        # Pattern breakdown:
+        # (?>                      Atomic grouping
+        #                          (https://www.regular-expressions.info/atomic.html).
+        #  \d+(_\d+)*\.\d+(_\d+)*  e.g. 123.456 or 123_000.456_000
+        #  |\d+(_\d+)*\.(?![\.\w]) e.g. 123. or 1_23.
+        #                          (N.B. negative lookahead assertion to ensure we
+        #                          don't match range operators `..` in Exasol, and
+        #                          that in bigquery we don't match the "."
+        #                          in "asd-12.foo").
+        #     |\.\d+(_\d+)*        e.g. .456 or .456_000
+        #     |\d+(_\d+)*          e.g. 123 or 123_000
+        # )
+        # (\.?[eE][+-]?\d+)?          Optional exponential.
+        # (
+        #     (?<=\.)              If matched character ends with . (e.g. 123.) then
+        #                          don't worry about word boundary check.
+        #     |(?=\b)              Check that we are at word boundary to avoid matching
+        #                          valid naked identifiers (e.g. 123column).
+        # )
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+(_\d+)*\.\d+(_\d+)*"  # Decimal numbers with underscores
+            r"|\d+(_\d+)*\.(?![\.\w])"  # Integer with trailing dot
+            r"|\.\d+(_\d+)*"  # Decimal starting with dot
+            r"|\d+(_\d+)*)"  # Integer with underscores
+            r"(\.?[eE][+-]?\d+)?"  # Optional exponential
+            r"((?<=\.)|(?=\b))",  # Word boundary check
+            LiteralSegment,
+        ),
     ]
 )
 
@@ -462,6 +493,10 @@ postgres_dialect.add(
 postgres_dialect.replace(
     LikeGrammar=OneOf("LIKE", "ILIKE", Sequence("SIMILAR", "TO")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
+    BaseExpressionElementGrammar=OneOf(
+        ansi_dialect.get_grammar("BaseExpressionElementGrammar"),
+        Ref("CompositeValueExpansionSegment"),
+    ),
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
@@ -497,7 +532,9 @@ postgres_dialect.replace(
             r"[\p{L}_][\p{L}\p{N}_$]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
             casefold=str.lower,
         )
     ),
@@ -549,6 +586,12 @@ postgres_dialect.replace(
                 Sequence("FOR", Ref("ExpressionSegment")),
                 optional=True,
             ),
+        ),
+        # json_serialize and json_value functions with RETURNING clause
+        # https://www.postgresql.org/docs/current/functions-json.html
+        Sequence(
+            "RETURNING",
+            Ref("DatatypeSegment"),
         ),
         Sequence(
             # Allow an optional distinct keyword here.
@@ -1966,6 +2009,36 @@ class GroupByClauseSegment(BaseSegment):
             ],
         ),
         Dedent,
+    )
+
+
+class CompositeValueExpansionSegment(BaseSegment):
+    """A PostgreSQL-specific composite value expansion segment.
+
+    This handles the PostgreSQL syntax where you can expand all columns
+    from a composite-valued expression using the .* syntax. This feature
+    is commonly used with set-returning functions that return composite types.
+
+    The expansion operator (.*) takes a bracketed expression that evaluates
+    to a composite value and expands it into its constituent columns.
+
+    Examples:
+        (JSONB_EACH_TEXT(config)).*       -- Expand JSON key-value pairs
+        (myfunc(x)).*                     -- Expand function result columns
+        (composite_column).*              -- Expand any composite column
+
+    See: https://www.postgresql.org/docs/current/rowtypes.html
+    """
+
+    type = "composite_value_expansion"
+
+    match_grammar = Sequence(
+        # A bracketed expression that evaluates to a composite value
+        # This can be a function call, column reference, or any expression
+        # that returns a composite value in PostgreSQL
+        Bracketed(Ref("ExpressionSegment")),
+        Ref("DotSegment"),
+        Ref("StarSegment"),
     )
 
 
@@ -6135,7 +6208,7 @@ class CreateTypeStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         "TYPE",
-        Ref("ObjectReferenceSegment"),
+        Ref("DatatypeSegment"),
         Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
         Bracketed(Delimited(Anything(), optional=True), optional=True),
     )
@@ -6270,7 +6343,7 @@ class AlterTypeStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "ALTER",
         "TYPE",
-        Ref("ObjectReferenceSegment"),
+        Ref("DatatypeSegment"),
         OneOf(
             Sequence(
                 "OWNER",

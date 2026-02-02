@@ -133,6 +133,12 @@ bigquery_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r"\\([\\`\"'?])", r"\1")],
             },
         ),
+        RegexLexer(
+            "numeric_literal",
+            r"(0[xX][0-9a-fA-F]+|(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)"
+            r"(\.?[eE][+-]?\d+)?)((?<=\.)|(?=\b))",
+            LiteralSegment,
+        ),
     ]
 )
 
@@ -210,7 +216,9 @@ bigquery_dialect.add(
             r"[A-Z_][A-Z0-9_]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
         )
     ),
     QuotedCSIdentifierSegment=TypedParser(
@@ -286,8 +294,44 @@ bigquery_dialect.replace(
             r"[A-Z_][A-Z0-9_]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
             casefold=str.upper,
+        )
+    ),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            [
+                "INT64",
+                "INT",
+                "SMALLINT",
+                "INTEGER",
+                "BIGINT",
+                "TINYINT",
+                "BYTEINT",
+                "FLOAT64",
+                "NUMERIC",
+                "DECIMAL",
+                "BIGNUMERIC",
+                "BIGDECIMAL",
+                "BOOL",
+                "BOOLEAN",
+                "STRING",
+                "BYTES",
+                "DATE",
+                "DATETIME",
+                "TIME",
+                "TIMESTAMP",
+                "GEOGRAPHY",
+                "INTERVAL",
+                "JSON",
+                "RANGE",
+                "ARRAY",
+                "STRUCT",
+            ],
+            CodeSegment,
+            type="data_type_identifier",
         )
     ),
     FunctionContentsExpressionGrammar=OneOf(
@@ -299,6 +343,24 @@ bigquery_dialect.replace(
         ),
         Sequence(Ref("ExpressionSegment"), "HAVING", OneOf("MIN", "MAX")),
         Ref("NamedArgumentSegment"),
+    ),
+    # Extend the ANSI FunctionContentsGrammar to allow a FORMAT clause
+    # after the CAST-style "AS <datatype>" pattern, e.g.:
+    #   CAST(x AS STRING FORMAT 'ASCII')
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[
+            Sequence(
+                Ref("ExpressionSegment"),
+                "AS",
+                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref.keyword("FORMAT"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("TimeZoneGrammar", optional=True),
+                    optional=True,
+                ),
+            )
+        ]
     ),
     TrimParametersGrammar=Nothing(),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
@@ -555,18 +617,6 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-class SelectStatementSegment(ansi.SelectStatementSegment):
-    """Enhance `SELECT` statement to include QUALIFY."""
-
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
-        insert=[Ref("QualifyClauseSegment", optional=True)],
-        before=Ref("OrderByClauseSegment", optional=True),
-        terminators=[
-            Ref("PipeOperatorSegment"),
-        ],
-    )
-
-
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Enhance unordered `SELECT` statement to include QUALIFY."""
 
@@ -575,6 +625,27 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         before=Ref("OverlapsClauseSegment", optional=True),
         terminators=[
             Ref("PipeOperatorSegment"),
+        ],
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """Enhance `SELECT` statement to include QUALIFY."""
+
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("NamedWindowSegment", optional=True),
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
+        ],
+        # Overwrite the terminators, because we want to remove some.
+        replace_terminators=True,
+        terminators=[
+            Ref("PipeOperatorSegment"),
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
         ],
     )
 
@@ -1156,6 +1227,19 @@ class FunctionSegment(ansi.FunctionSegment):
 
     match_grammar = Sequence(
         OneOf(
+            # BigQuery-specific aggregate functions with special syntax
+            Sequence(
+                Ref("ArrayAggFunctionNameSegment"),
+                Ref("ArrayAggFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("ArrayConcatAggFunctionNameSegment"),
+                Ref("ArrayConcatAggFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("StringAggFunctionNameSegment"),
+                Ref("StringAggFunctionContentsSegment"),
+            ),
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone
                 Ref("ExtractFunctionNameSegment"),
@@ -1173,7 +1257,12 @@ class FunctionSegment(ansi.FunctionSegment):
                 # rather than identifiers.
                 Ref(
                     "DatePartFunctionNameSegment",
-                    exclude=Ref("ExtractFunctionNameSegment"),
+                    exclude=OneOf(
+                        Ref("ExtractFunctionNameSegment"),
+                        Ref("ArrayAggFunctionNameSegment"),
+                        Ref("ArrayConcatAggFunctionNameSegment"),
+                        Ref("StringAggFunctionNameSegment"),
+                    ),
                 ),
                 Ref("DateTimeFunctionContentsSegment"),
             ),
@@ -1185,6 +1274,9 @@ class FunctionSegment(ansi.FunctionSegment):
                             Ref("DatePartFunctionNameSegment"),
                             Ref("NormalizeFunctionNameSegment"),
                             Ref("ValuesClauseSegment"),
+                            Ref("ArrayAggFunctionNameSegment"),
+                            Ref("ArrayConcatAggFunctionNameSegment"),
+                            Ref("StringAggFunctionNameSegment"),
                         ),
                     ),
                     Ref("FunctionContentsSegment"),
@@ -1198,6 +1290,118 @@ class FunctionSegment(ansi.FunctionSegment):
                 Ref("SemiStructuredAccessorSegment", optional=True),
                 Ref("PostFunctionGrammar", optional=True),
             ),
+        ),
+        allow_gaps=False,
+    )
+
+
+class ArrayAggFunctionNameSegment(BaseSegment):
+    """ARRAY_AGG function.
+
+    Supports DISTINCT, LIMIT, and ORDER BY clauses.
+    """
+
+    type = "function_name"
+
+    match_grammar = Sequence(
+        StringParser("ARRAY_AGG", CodeSegment, type="function_name_identifier"),
+    )
+
+
+class ArrayAggFunctionContentsSegment(BaseSegment):
+    """ARRAY_AGG function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Sequence(
+                Ref.keyword("DISTINCT", optional=True),
+                Ref("FunctionContentsExpressionGrammar"),
+                Ref(
+                    "AggregateOrderByClause",
+                    optional=True,
+                ),
+                Ref(
+                    "LimitClauseSegment",
+                    optional=True,
+                ),
+            )
+        ),
+        Ref("ArrayAccessorSegment", optional=True),
+        allow_gaps=False,
+    )
+
+
+class ArrayConcatAggFunctionNameSegment(BaseSegment):
+    """ARRAY_CONCAT_AGG function.
+
+    Supports LIMIT and ORDER BY clauses (but not DISTINCT).
+    """
+
+    type = "function_name"
+
+    match_grammar = Sequence(
+        StringParser("ARRAY_CONCAT_AGG", CodeSegment, type="function_name_identifier"),
+    )
+
+
+class ArrayConcatAggFunctionContentsSegment(BaseSegment):
+    """ARRAY_CONCAT_AGG function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Sequence(
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
+                Ref(
+                    "AggregateOrderByClause",
+                    optional=True,
+                ),
+                Ref(
+                    "LimitClauseSegment",
+                    optional=True,
+                ),
+            )
+        ),
+        Ref("ArrayAccessorSegment", optional=True),
+        allow_gaps=False,
+    )
+
+
+class StringAggFunctionNameSegment(BaseSegment):
+    """STRING_AGG function.
+
+    Supports DISTINCT, LIMIT, and ORDER BY clauses.
+    """
+
+    type = "function_name"
+
+    match_grammar = Sequence(
+        StringParser("STRING_AGG", CodeSegment, type="function_name_identifier"),
+    )
+
+
+class StringAggFunctionContentsSegment(BaseSegment):
+    """STRING_AGG function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Sequence(
+                Ref.keyword("DISTINCT", optional=True),
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
+                Ref(
+                    "AggregateOrderByClause",
+                    optional=True,
+                ),
+                Ref(
+                    "LimitClauseSegment",
+                    optional=True,
+                ),
+            )
         ),
         allow_gaps=False,
     )

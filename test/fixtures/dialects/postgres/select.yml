@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a3033206a24c97d12ac7670f4e1ae4970096485fbcc630ee1be74cbca3d520a6
+_hash: 296d3ca8609be8d997cda7664a7037ae5c0d8042c5cd2f8327fbfe191f876d1e
 file:
 - statement:
     select_statement:
@@ -995,4 +995,32 @@ file:
       for_clause:
       - keyword: FOR
       - keyword: UPDATE
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1_000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1_000_000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1.0_000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1_000_000.0_000_000'
 - statement_terminator: ;

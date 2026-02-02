@@ -672,10 +672,10 @@ test_limit_and_qualify_and_window_indent:
     my_tbl
     QUALIFY
     1
-    LIMIT
-    1
     WINDOW
     some_window AS (PARTITION BY 1)
+    LIMIT
+    1
   fix_str: |
     SELECT
         a,
@@ -684,10 +684,10 @@ test_limit_and_qualify_and_window_indent:
         my_tbl
     QUALIFY
         1
-    LIMIT
-        1
     WINDOW
         some_window AS (PARTITION BY 1)
+    LIMIT
+        1
   configs:
     core:
       dialect: bigquery
@@ -701,8 +701,8 @@ test_limit_and_qualify_and_window_single_line:
     FROM
         my_tbl
     QUALIFY 1
-    LIMIT 1
     WINDOW some_window AS (PARTITION BY 1)
+    LIMIT 1
   configs:
     core:
       dialect: bigquery

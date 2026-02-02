@@ -15,3 +15,6 @@
 # https://github.com/github/linguist/blob/master/docs/overrides.md
 test/** linguist-vendored=false
 *.sql linguist-language=SQL linguist-detectable
+
+# Exclude the rust generated files
+sqlfluffrs/sqlfluffrs_dialects/src/dialect/** linguist-generated
