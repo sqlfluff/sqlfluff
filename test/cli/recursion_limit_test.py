@@ -1,4 +1,5 @@
-import builtins
+"""Tests for recursion limit handling in CLI commands."""
+
 from types import SimpleNamespace
 
 import pytest
@@ -7,10 +8,14 @@ from sqlfluff.cli.commands import apply_recursion_limit as apply_rl
 
 
 class DummyConfig:
+    """Minimal config stub exposing a ``get`` method."""
+
     def __init__(self, value):
+        """Store a raw value returned for the recursion limit key."""
         self._value = value
 
     def get(self, key, section=None, default=None):
+        """Return configured value for ``recursion_limit``; else default."""
         if key == "recursion_limit":
             return self._value
         return default
@@ -18,6 +23,7 @@ class DummyConfig:
 
 @pytest.fixture()
 def echo_capture(monkeypatch):
+    """Capture ``click.echo`` calls as a list of ``(msg, err)`` tuples."""
     calls = []
 
     def fake_echo(msg, err=False):
@@ -28,6 +34,7 @@ def echo_capture(monkeypatch):
 
 
 def test_recursion_limit_from_cli_valid(monkeypatch):
+    """CLI flag sets recursion limit directly when provided."""
     called = SimpleNamespace(value=None)
 
     def fake_set(limit):
@@ -40,6 +47,7 @@ def test_recursion_limit_from_cli_valid(monkeypatch):
 
 
 def test_recursion_limit_from_config_valid(monkeypatch):
+    """Config value is read and coerced to int when CLI flag is absent."""
     called = SimpleNamespace(value=None)
 
     def fake_set(limit):
@@ -55,6 +63,7 @@ def test_recursion_limit_from_config_valid(monkeypatch):
 
 
 def test_recursion_limit_config_non_integer(monkeypatch, echo_capture):
+    """Non-integer config value is ignored and no echo is emitted."""
     called = SimpleNamespace(called=False)
 
     def fake_set(limit):
@@ -72,6 +81,7 @@ def test_recursion_limit_config_non_integer(monkeypatch, echo_capture):
 
 
 def test_recursion_limit_out_of_bounds(monkeypatch, echo_capture):
+    """Out-of-range values trigger validation error and stderr echo."""
     called = SimpleNamespace(called=False)
 
     def fake_set(limit):
@@ -86,6 +96,8 @@ def test_recursion_limit_out_of_bounds(monkeypatch, echo_capture):
 
 
 def test_recursion_limit_set_raises(monkeypatch, echo_capture):
+    """Exceptions from ``sys.setrecursionlimit`` are surfaced via echo."""
+
     def fake_set(limit):
         raise RuntimeError("boom")
 
