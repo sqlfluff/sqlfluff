@@ -184,10 +184,10 @@ impl Parser<'_> {
             log::debug!(
                 "Ref[table]: frame_id={} child matched, accumulated_before={}, setting pos to {}",
                 frame.frame_id,
-                frame.accumulated.len(),
+                frame.accumulated_matches.len(),
                 child_end_pos
             );
-            frame.accumulated.push(Arc::new(child_match.clone()));
+            frame.accumulated_matches.push(Arc::new(child_match.clone()));
             self.pos = *child_end_pos;
             frame.end_pos = Some(*child_end_pos);
         } else {
@@ -235,20 +235,20 @@ impl Parser<'_> {
         log::debug!(
             "Ref[table] Combining: frame_id={}, accumulated={}",
             frame.frame_id,
-            frame.accumulated.len()
+            frame.accumulated_matches.len()
         );
 
         // Debug: print accumulated children to inspect whether typed tokens are present
-        if !frame.accumulated.is_empty() {
+        if !frame.accumulated_matches.is_empty() {
             log::debug!(
                 "Ref[table] Combining DEBUG: accumulated nodes={:?}",
-                frame.accumulated
+                frame.accumulated_matches
             );
         }
 
         // Build final result
         let final_pos = frame.end_pos.unwrap_or(frame.pos);
-        let result_match = if frame.accumulated.is_empty() {
+        let result_match = if frame.accumulated_matches.is_empty() {
             MatchResult::empty_at(frame.pos)
         } else {
             log::debug!(
@@ -278,7 +278,7 @@ impl Parser<'_> {
                 // start_idx,
                 *saved_pos,
                 final_pos,
-                frame.accumulated.to_vec(),
+                frame.accumulated_matches.to_vec(),
             )
         };
 

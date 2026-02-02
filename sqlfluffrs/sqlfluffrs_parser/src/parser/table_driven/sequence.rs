@@ -167,13 +167,10 @@ impl Parser<'_> {
                     ctx.buffer_meta(meta_segment);
                     meta_count += 1;
                 }
+                ctx.advance_element_idx();
             } else {
                 break;
             }
-        }
-
-        if meta_count > 0 {
-            *ctx.current_element_idx += meta_count;
         }
         meta_count
     }

@@ -264,7 +264,7 @@ impl<'a> Parser<'_> {
                     let final_pos = if allow_trailing && delimiter_match.is_some() {
                         // Include trailing delimiter
                         frame
-                            .accumulated
+                            .accumulated_matches
                             .push(Arc::new(delimiter_match.take().unwrap()));
                         *delimiter_count += 1;
                         *matched_idx
@@ -305,7 +305,7 @@ impl<'a> Parser<'_> {
                     // Determine final position
                     let final_pos = if allow_trailing && delimiter_match.is_some() {
                         frame
-                            .accumulated
+                            .accumulated_matches
                             .push(Arc::new(delimiter_match.take().unwrap()));
                         *delimiter_count += 1;
                         *matched_idx
@@ -343,12 +343,12 @@ impl<'a> Parser<'_> {
                 // This matches Python's behavior where delimiter is only added when the
                 // NEXT element successfully matches.
                 if let Some(dm) = delimiter_match.take() {
-                    frame.accumulated.push(Arc::new(dm));
+                    frame.accumulated_matches.push(Arc::new(dm));
                     *delimiter_count += 1;
                 }
 
                 // Add the matched element
-                frame.accumulated.push(Arc::new(child_match.clone()));
+                frame.accumulated_matches.push(Arc::new(child_match.clone()));
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
 
@@ -439,7 +439,7 @@ impl<'a> Parser<'_> {
                         // Handle trailing delimiter if allowed and present
                         if allow_trailing {
                             if let Some(dm) = delimiter_match.take() {
-                                frame.accumulated.push(Arc::new(dm));
+                                frame.accumulated_matches.push(Arc::new(dm));
                                 *delimiter_count += 1;
                             }
                         }
@@ -500,7 +500,7 @@ impl<'a> Parser<'_> {
                     if allow_trailing {
                         // Include the trailing delimiter
                         if let Some(dm) = delimiter_match.take() {
-                            frame.accumulated.push(Arc::new(dm));
+                            frame.accumulated_matches.push(Arc::new(dm));
                             *delimiter_count += 1;
                         }
                     } else {
@@ -641,7 +641,7 @@ impl<'a> Parser<'_> {
         let (_delimiter_child_idx, min_delimiters) = self.grammar_ctx.delimited_config(*grammar_id);
 
         // Build final result
-        let result_match = if frame.accumulated.is_empty() {
+        let result_match = if frame.accumulated_matches.is_empty() {
             // No matches
             Arc::new(MatchResult::empty_at(frame.pos))
         } else if *delimiter_count < min_delimiters {
@@ -655,7 +655,7 @@ impl<'a> Parser<'_> {
         } else {
             // Success - use lazy evaluation - store child_matches
             // TODO: replace accumulated with a MatchResult that is appended to
-            let accumulated = std::mem::take(&mut frame.accumulated);
+            let accumulated = std::mem::take(&mut frame.accumulated_matches);
             let start_idx = self.skip_start_index_forward_to_code(frame.pos, *matched_idx);
             Arc::new(MatchResult::sequence(
                 start_idx,

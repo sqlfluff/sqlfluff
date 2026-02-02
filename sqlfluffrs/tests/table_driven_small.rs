@@ -334,3 +334,35 @@ fn basic_object_parses() {
         "Expected naked_identifier in parse tree for ObjectReferenceSegment"
     );
 }
+
+#[test]
+fn from_clause_parses() {
+    assert!(
+        parse_and_find("from t", "FromClauseSegment", "keyword"),
+        "Expected keyword in parse tree for FROM clause"
+    );
+}
+
+#[test]
+fn from_expression_parses() {
+    assert!(
+        parse_and_find("t", "FromExpressionSegment", "naked_identifier"),
+        "Expected naked_identifier in parse tree for FromExpressionSegment"
+    );
+}
+
+#[test]
+fn from_expression_element_parses() {
+    assert!(
+        parse_and_find("t", "FromExpressionElementSegment", "naked_identifier"),
+        "Expected naked_identifier in parse tree for FromExpressionElementSegment"
+    );
+}
+
+#[test]
+fn from_keyword_parses() {
+    assert!(
+        parse_and_find("from", "FromKeywordSegment", "keyword"),
+        "Expected keyword in parse tree for FROM keyword"
+    );
+}

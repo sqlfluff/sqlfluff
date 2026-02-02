@@ -139,7 +139,9 @@ impl TableParseFrameStack {
     ) -> TableFrameResult {
         let pos = result.end();
         frame.end_pos = Some(pos);
-        self.insert_result(frame.frame_id, result, pos);
+        frame.state = FrameState::Complete(Arc::new(result.clone()));
+        self.push(&mut frame);
+        // self.insert_result(frame.frame_id, result, pos);
         TableFrameResult::Done
     }
 
@@ -327,7 +329,7 @@ pub struct TableParseFrame {
     /// Accumulated results (Python parity - stores Arc<MatchResult> for lazy evaluation)
     /// Using Rc avoids expensive clones of MatchResults
     /// SmallVec avoids heap allocation for common case of 0-2 accumulated results
-    pub accumulated: SmallVec<[Arc<MatchResult>; 2]>,
+    pub accumulated_matches: SmallVec<[Arc<MatchResult>; 2]>,
     /// Additional context depending on grammar type
     pub context: FrameContext,
     /// Parent's max_idx limit (simulates Python's segments[:max_idx] slicing)
@@ -366,7 +368,7 @@ impl TableParseFrame {
             pos,
             table_terminators: SmallVec::from_vec(table_terminators),
             state: FrameState::Initial,
-            accumulated: SmallVec::new(),
+            accumulated_matches: SmallVec::new(),
             context: FrameContext::None,
             parent_max_idx,
             calculated_max_idx: None,

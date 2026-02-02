@@ -397,7 +397,7 @@ impl Parser<'_> {
         }
 
         // Match succeeded - accumulate and continue
-        frame.accumulated.push(Arc::clone(&best_match));
+        frame.accumulated_matches.push(Arc::clone(&best_match));
         *ctx.matched_idx = best_end_pos;
         *ctx.working_idx = *ctx.matched_idx;
         *ctx.count += 1;
@@ -525,12 +525,12 @@ impl Parser<'_> {
         // Build final result
         let (result_match, final_pos) = {
             // Success - use lazy evaluation - store child_matches
-            if frame.accumulated.is_empty() {
+            if frame.accumulated_matches.is_empty() {
                 return Ok(stack.complete_frame_empty(&frame));
             } else {
                 // TODO: we should append, not use sequence
                 let start_idx = self.skip_start_index_forward_to_code(frame.pos, *matched_idx);
-                let accumulated = std::mem::take(&mut frame.accumulated);
+                let accumulated = std::mem::take(&mut frame.accumulated_matches);
                 (
                     Arc::new(MatchResult::sequence(
                         start_idx,

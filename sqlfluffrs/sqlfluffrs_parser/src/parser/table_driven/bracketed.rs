@@ -141,7 +141,7 @@ impl Parser<'_> {
                     parse_mode
                 );
 
-                frame.accumulated.push(Arc::new(child_match.clone()));
+                frame.accumulated_matches.push(Arc::new(child_match.clone()));
                 let content_start_idx = *child_end_pos;
                 // Compute bracket_max_idx from the opening bracket's token position
                 let computed_bracket_max_idx = if !child_match.matched_slice.is_empty() {
@@ -285,15 +285,15 @@ impl Parser<'_> {
                     if child_match.matched_class.is_some() && !child_match.child_matches.is_empty()
                     {
                         // Has a matched_class and children - add the whole match
-                        frame.accumulated.push(Arc::new(child_match.clone()));
+                        frame.accumulated_matches.push(Arc::new(child_match.clone()));
                     } else if !child_match.child_matches.is_empty() {
                         // No matched_class but has children - flatten the children
                         frame
-                            .accumulated
+                            .accumulated_matches
                             .extend(child_match.child_matches.iter().cloned());
                     } else {
                         // Leaf match - add it directly
-                        frame.accumulated.push(Arc::new(child_match.clone()));
+                        frame.accumulated_matches.push(Arc::new(child_match.clone()));
                     }
                 }
 
@@ -413,7 +413,7 @@ impl Parser<'_> {
                                     )),
                                     ..Default::default()
                                 };
-                                frame.accumulated.push(Arc::new(unparsable_match));
+                                frame.accumulated_matches.push(Arc::new(unparsable_match));
 
                                 // Move position to the closing bracket
                                 self.pos = expected_close_pos;
@@ -485,7 +485,7 @@ impl Parser<'_> {
                         return Ok(TableFrameResult::Done);
                     }
                 } else {
-                    frame.accumulated.push(Arc::new(child_match.clone()));
+                    frame.accumulated_matches.push(Arc::new(child_match.clone()));
                     self.pos = *child_end_pos;
                     vdebug!(
                         "Bracketed[table] SUCCESS: {} children, transitioning to Combining at frame_id={}",
@@ -556,7 +556,7 @@ impl Parser<'_> {
                 bracket_persists
             );
             // Use lazy evaluation - store child_matches instead of building Node
-            let accumulated = std::mem::take(&mut frame.accumulated);
+            let accumulated = std::mem::take(&mut frame.accumulated_matches);
             MatchResult::bracketed(frame.pos, end_pos, accumulated.into_vec(), bracket_persists)
         } else {
             // Log the actual state for debugging
@@ -620,7 +620,7 @@ fn create_table_driven_child_frame(
         pos: start_idx,
         table_terminators: smallvec::SmallVec::from_slice(terminators),
         state: FrameState::Initial,
-        accumulated: smallvec::SmallVec::new(),
+        accumulated_matches: smallvec::SmallVec::new(),
         context,
         parent_max_idx, // Propagate parent's limit!
         calculated_max_idx: None,
