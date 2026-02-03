@@ -78,7 +78,7 @@ export default defineConfig({
     base: '/sqlfluff/',
 
     head: [
-        ['link', { rel: 'icon', href: '/favicon.ico' }]
+        ['link', { rel: 'icon', href: '/sqlfluff/favicon.ico' }]
     ],
 
     themeConfig: {
