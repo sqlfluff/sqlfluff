@@ -1,0 +1,175 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b6c7f18ae6e069bcd5c04d9953eda1a1035cacd33c1a0cfb81f52e1e202a9b45
+file:
+- statement:
+    begin_end_block:
+    - keyword: BEGIN
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: dual
+    - statement_terminator: ;
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - naked_identifier: no_data_found
+    - keyword: THEN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'No data'"
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: WHEN
+    - keyword: OTHERS
+    - keyword: THEN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Error'"
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: v_value
+        data_type:
+          data_type_identifier: NUMBER
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            assignment_segment_statement:
+              object_reference:
+                naked_identifier: v_value
+              assignment_operator: :=
+              expression:
+                numeric_literal: '1'
+        - statement_terminator: ;
+        - keyword: EXCEPTION
+        - keyword: WHEN
+        - keyword: OTHERS
+        - keyword: THEN
+        - statement:
+            function:
+              function_name:
+                naked_identifier: DBMS_OUTPUT
+                dot: .
+                function_name_identifier: PUT_LINE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'Inner exception'"
+                  end_bracket: )
+        - statement_terminator: ;
+        - keyword: END
+    - statement_terminator: ;
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - keyword: OTHERS
+    - keyword: THEN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Outer exception'"
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    begin_end_block:
+    - keyword: BEGIN
+    - statement:
+        null_statement:
+          keyword: 'NULL'
+    - statement_terminator: ;
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - naked_identifier: zero_divide
+    - keyword: THEN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Division by zero'"
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: WHEN
+    - naked_identifier: invalid_number
+    - keyword: THEN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Invalid number'"
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: WHEN
+    - keyword: OTHERS
+    - keyword: THEN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Other error'"
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

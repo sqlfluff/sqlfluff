@@ -2130,7 +2130,9 @@ class BeginEndSegment(BaseSegment):
             ),
         ),
         "THEN",
+        Indent,
         Ref("OneOrMoreStatementsGrammar"),
+        Dedent,
     )
 
     type = "begin_end_block"
@@ -2141,10 +2143,12 @@ class BeginEndSegment(BaseSegment):
         Ref("OneOrMoreStatementsGrammar"),
         Sequence(
             "EXCEPTION",
+            Indent,
             # Using AnyNumberOf with min_times=1 is not greedy enough to grab multiple
             # exceptions here. So define it once, then have AnyNumberOf after.
             _when_clause,
             AnyNumberOf(_when_clause),
+            Dedent,
             optional=True,
         ),
         Dedent,
