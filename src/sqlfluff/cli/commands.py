@@ -1,5 +1,6 @@
 """Contains the CLI."""
 
+# Standard library imports
 import json
 import logging
 import os
@@ -9,13 +10,13 @@ from itertools import chain
 from logging import LogRecord
 from typing import Callable, Optional
 
+# Third-party imports
 import click
-
-# To enable colour cross platform
 import colorama
 import yaml
 from tqdm import tqdm
 
+# Local imports
 from sqlfluff.cli import EXIT_ERROR, EXIT_FAIL, EXIT_SUCCESS
 from sqlfluff.cli.autocomplete import dialect_shell_complete, shell_completion_enabled
 from sqlfluff.cli.formatters import OutputStreamFormatter, format_linting_result_header
@@ -36,6 +37,49 @@ from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.linter import LintingResult
 from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.types import Color, FormatType
+
+
+# --- Recursion Limit Helper ---
+def apply_recursion_limit(
+    recursion_limit: Optional[int],
+    extra_config_path: Optional[str] = None,
+    ignore_local_config: bool = False,
+    kwargs: Optional[dict] = None,
+    min_limit: int = 100,
+    max_limit: int = 1000000,
+) -> None:
+    """Set the Python recursion limit from CLI flag or config, with validation."""
+    # If CLI flag is not set, check config for recursion_limit
+    if recursion_limit is None:
+        config = get_config(
+            extra_config_path,
+            ignore_local_config,
+            require_dialect=False,
+            **(kwargs or {}),
+        )
+        config_limit = config.get("recursion_limit", section="core", default=None)
+        if config_limit is not None:
+            try:
+                recursion_limit = int(config_limit)
+            except ValueError:
+                recursion_limit = None
+    if recursion_limit is not None:
+        try:
+            if not (min_limit <= recursion_limit <= max_limit):
+                raise ValueError(
+                    f"recursion_limit must be between {min_limit} and {max_limit}."
+                )
+            sys.setrecursionlimit(recursion_limit)
+        except ValueError as ve:
+            click.echo(
+                f"Invalid recursion_limit: {ve}",
+                err=True,
+            )
+        except Exception as e:
+            click.echo(
+                f"Failed to set recursion_limit: {e}",
+                err=True,
+            )
 
 
 class StreamHandlerTqdm(logging.StreamHandler):
@@ -577,6 +621,12 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
         "found. This is potentially useful during rollout."
     ),
 )
+@click.option(
+    "--recursion-limit",
+    type=int,
+    default=None,
+    help="Set the Python recursion limit before linting.",
+)
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
     paths: tuple[str],
@@ -584,6 +634,7 @@ def lint(
     write_output: Optional[str],
     annotation_level: str,
     nofail: bool,
+    recursion_limit: Optional[int],
     disregard_sqlfluffignores: bool,
     logger: Optional[logging.Logger] = None,
     bench: bool = False,
@@ -613,6 +664,12 @@ def lint(
         echo 'select col from tbl' | sqlfluff lint -
 
     """
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
@@ -1062,11 +1119,18 @@ def _paths_fix(
     is_flag=True,
     help="Show lint violations",
 )
+@click.option(
+    "--recursion-limit",
+    type=int,
+    default=None,
+    help="Set the Python recursion limit before fixing.",
+)
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
     force: bool,
     paths: tuple[str],
     disregard_sqlfluffignores: bool,
+    recursion_limit: Optional[int],
     check: bool = False,
     bench: bool = False,
     quiet: bool = False,
@@ -1088,6 +1152,12 @@ def fix(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     # some quick checks
     fixing_stdin = ("-",) == paths
     if quiet:
@@ -1166,10 +1236,17 @@ def fix(
     default=None,
     help="An optional suffix to add to fixed files.",
 )
+@click.option(
+    "--recursion-limit",
+    type=int,
+    default=None,
+    help="Set the Python recursion limit before formatting.",
+)
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def cli_format(
     paths: tuple[str],
     disregard_sqlfluffignores: bool,
+    recursion_limit: Optional[int],
     bench: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
@@ -1192,6 +1269,12 @@ def cli_format(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     # some quick checks
     fixing_stdin = ("-",) == paths
 
@@ -1276,6 +1359,12 @@ def quoted_presenter(dumper, data):
 @core_options
 @click.argument("path", nargs=1, type=click.Path(allow_dash=True))
 @click.option(
+    "--recursion-limit",
+    type=int,
+    default=None,
+    help="Set the Python recursion limit before parsing.",
+)
+@click.option(
     "-c",
     "--code-only",
     is_flag=True,
@@ -1339,6 +1428,7 @@ def parse(
     write_output: Optional[str],
     bench: bool,
     nofail: bool,
+    recursion_limit: Optional[int],
     logger: Optional[logging.Logger] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
@@ -1353,6 +1443,12 @@ def parse(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     c = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
