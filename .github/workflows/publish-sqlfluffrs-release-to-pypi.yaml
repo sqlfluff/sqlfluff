@@ -10,134 +10,69 @@ permissions:
   contents: read
 
 jobs:
-  linux:
+  build-wheels:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
+      fail-fast: false
       matrix:
         platform:
-          - runner: ubuntu-22.04
-            target: x86_64
-          - runner: ubuntu-22.04
-            target: x86
-          - runner: ubuntu-22.04
-            target: aarch64
-          - runner: ubuntu-22.04
-            target: armv7
-          - runner: ubuntu-22.04
-            target: s390x
-          - runner: ubuntu-22.04
-            target: ppc64le
+          # Linux (manylinux)
+          - {runner: ubuntu-22.04, target: x86_64, manylinux: auto, artifact: linux-x86_64}
+          - {runner: ubuntu-22.04, target: x86, manylinux: auto, artifact: linux-x86}
+          - {runner: ubuntu-22.04, target: aarch64, manylinux: auto, artifact: linux-aarch64}
+          - {runner: ubuntu-22.04, target: armv7, manylinux: auto, artifact: linux-armv7}
+          - {runner: ubuntu-22.04, target: s390x, manylinux: auto, artifact: linux-s390x}
+          - {runner: ubuntu-22.04, target: ppc64le, manylinux: auto, artifact: linux-ppc64le}
+          # Linux (musllinux)
+          - {runner: ubuntu-22.04, target: x86_64, manylinux: musllinux_1_2, artifact: musllinux-x86_64}
+          - {runner: ubuntu-22.04, target: x86, manylinux: musllinux_1_2, artifact: musllinux-x86}
+          - {runner: ubuntu-22.04, target: aarch64, manylinux: musllinux_1_2, artifact: musllinux-aarch64}
+          - {runner: ubuntu-22.04, target: armv7, manylinux: musllinux_1_2, artifact: musllinux-armv7}
+          # Windows
+          - {runner: windows-latest, target: x64, manylinux: "", artifact: windows-x64, arch: x64}
+          - {runner: windows-latest, target: x86, manylinux: "", artifact: windows-x86, arch: x86}
+          # macOS
+          - {runner: macos-15-intel, target: x86_64, manylinux: "", artifact: macos-x86_64}
+          - {runner: macos-15, target: aarch64, manylinux: "", artifact: macos-aarch64}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
-          python-version: 3.x
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
-          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
-          manylinux: auto
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-linux-${{ matrix.platform.target }}
-          path: dist
+          fetch-depth: 1
 
-  musllinux:
-    runs-on: ${{ matrix.platform.runner }}
-    strategy:
-      matrix:
-        platform:
-          - runner: ubuntu-22.04
-            target: x86_64
-          - runner: ubuntu-22.04
-            target: x86
-          - runner: ubuntu-22.04
-            target: aarch64
-          - runner: ubuntu-22.04
-            target: armv7
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
-          python-version: 3.x
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
-          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
-          manylinux: musllinux_1_2
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-musllinux-${{ matrix.platform.target }}
-          path: dist
+          python-version: "3.13"
+          architecture: ${{ matrix.platform.arch || null }}
 
-  windows:
-    runs-on: ${{ matrix.platform.runner }}
-    strategy:
-      matrix:
-        platform:
-          - runner: windows-latest
-            target: x64
-          - runner: windows-latest
-            target: x86
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-          architecture: ${{ matrix.platform.target }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-windows-${{ matrix.platform.target }}
-          path: dist
+          manylinux: ${{ matrix.platform.manylinux || '' }}
 
-  macos:
-    runs-on: ${{ matrix.platform.runner }}
-    strategy:
-      matrix:
-        platform:
-          - runner: macos-15-intel
-            target: x86_64
-          - runner: macos-15
-            target: aarch64
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
-          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-macos-${{ matrix.platform.target }}
+          name: wheels-${{ matrix.platform.artifact }}
           path: dist
 
   sdist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
           command: sdist
           args: --out dist --manifest-path sqlfluffrs/Cargo.toml
+
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
@@ -147,7 +82,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    needs: [linux, musllinux, windows, macos, sdist]
+    needs: [build-wheels, sdist]
     permissions:
       # Use to sign the release artifacts
       id-token: write
@@ -156,11 +91,14 @@ jobs:
       # Used to generate artifact attestation
       attestations: write
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: 'wheels-*/*'
+
       - name: Publish to PyPI
         uses: PyO3/maturin-action@v1
         env:
