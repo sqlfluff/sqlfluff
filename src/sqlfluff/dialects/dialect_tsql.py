@@ -1582,6 +1582,16 @@ class CursorDefinitionSegment(BaseSegment):
         Sequence("TYPE_WARNING", optional=True),
         "FOR",
         Ref("SelectStatementSegment"),
+        Sequence(
+            "FOR",
+            "UPDATE",
+            Sequence(
+                "OF",
+                Delimited(Ref("ColumnReferenceSegment")),
+                optional=True,
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -1739,11 +1749,13 @@ class InsertStatementSegment(BaseSegment):
 
     Overriding ANSI definition to remove terminator logic that doesn't handle optional
     delimitation well.
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/insert-transact-sql
     """
 
     type = "insert_statement"
     match_grammar = Sequence(
         "INSERT",
+        Ref("TopPercentGrammar", optional=True),
         OneOf(
             Sequence(
                 Ref.keyword("INTO", optional=True),
@@ -3133,6 +3145,21 @@ class DeclareCursorStatementSegment(BaseSegment):
                 "CURSOR",
                 "FOR",
                 Ref("SelectStatementSegment"),
+                Sequence(
+                    "FOR",
+                    OneOf(
+                        "READ_ONLY",
+                        Sequence(
+                            "UPDATE",
+                            Sequence(
+                                "OF",
+                                Delimited(Ref("ColumnReferenceSegment")),
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
             ),
         ),
     )
@@ -4202,7 +4229,11 @@ class ConvertFunctionContentsSegment(BaseSegment):
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Ref("CommaSegment"),
             Ref("ExpressionSegment"),
-            Sequence(Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("ExpressionSegment"),
+                optional=True,
+            ),
         ),
     )
 
@@ -5504,6 +5535,18 @@ class OpenRowSetWithClauseSegment(BaseSegment):
     )
 
 
+class WhereCurrentOfCursorSegment(BaseSegment):
+    """Used by UPDATE and DELETE statements."""
+
+    type = "where_current_of_cursor_segment"
+    match_grammar = Sequence(
+        "WHERE",
+        "CURRENT",
+        "OF",
+        Ref("CursorNameGrammar"),
+    )
+
+
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
@@ -5550,12 +5593,7 @@ class DeleteStatementSegment(BaseSegment):
                 Ref("FromClauseSegment", optional=True),
                 OneOf(
                     Ref("WhereClauseSegment"),
-                    Sequence(
-                        "WHERE",
-                        "CURRENT",
-                        "OF",
-                        Ref("CursorNameGrammar"),
-                    ),
+                    Ref("WhereCurrentOfCursorSegment"),
                     optional=True,
                 ),
             ),
@@ -5785,11 +5823,14 @@ class UpdateStatementSegment(BaseSegment):
 
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
     Overriding ANSI in order to allow for PostTableExpressionGrammar (table hints)
+
+    https://learn.microsoft.com/en-us/sql/t-sql/queries/update-transact-sql
     """
 
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Ref("TopPercentGrammar", optional=True),
         Indent,
         OneOf(
             Ref("TableReferenceSegment"),
@@ -5801,7 +5842,11 @@ class UpdateStatementSegment(BaseSegment):
         Ref("SetClauseListSegment"),
         Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
+        OneOf(
+            Ref("WhereClauseSegment"),
+            Ref("WhereCurrentOfCursorSegment"),
+            optional=True,
+        ),
         Ref("OptionClauseSegment", optional=True),
     )
 
@@ -7171,7 +7216,6 @@ class OpenCursorStatementSegment(BaseSegment):
     type = "open_cursor_statement"
     match_grammar: Matchable = Sequence(
         "OPEN",
-        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -7185,7 +7229,6 @@ class CloseCursorStatementSegment(BaseSegment):
     type = "close_cursor_statement"
     match_grammar: Matchable = Sequence(
         "CLOSE",
-        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -7199,7 +7242,6 @@ class DeallocateCursorStatementSegment(BaseSegment):
     type = "deallocate_cursor_statement"
     match_grammar: Matchable = Sequence(
         "DEALLOCATE",
-        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -7220,8 +7262,13 @@ class FetchCursorStatementSegment(BaseSegment):
             "LAST",
             Sequence(
                 OneOf("ABSOLUTE", "RELATIVE"),
-                Ref("SignedSegmentGrammar", optional=True),
-                Ref("NumericLiteralSegment"),
+                OneOf(
+                    Sequence(
+                        Ref("SignedSegmentGrammar", optional=True),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Ref("ParameterNameSegment"),
+                ),
             ),
             optional=True,
         ),
