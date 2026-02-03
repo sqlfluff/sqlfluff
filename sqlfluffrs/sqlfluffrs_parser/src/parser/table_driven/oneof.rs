@@ -455,8 +455,8 @@ impl Parser<'_> {
             );
         } else {
             vdebug!(
-                "OneOf[table] Combining DEBUG: no match found, frame.accumulated={}",
-                frame.accumulated.len()
+                "OneOf[table] Combining DEBUG: no match found, frame.accumulated_matches={}",
+                frame.accumulated_matches.len()
             );
         }
 

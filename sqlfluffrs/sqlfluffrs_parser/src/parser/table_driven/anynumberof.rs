@@ -513,7 +513,7 @@ impl Parser<'_> {
         vdebug!(
             "AnyNumberOf[table] Combining: frame_id={}, accumulated={}, count={}",
             frame.frame_id,
-            frame.accumulated.len(),
+            frame.accumulated_matches.len(),
             count
         );
 

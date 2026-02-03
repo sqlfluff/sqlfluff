@@ -489,7 +489,7 @@ impl Parser<'_> {
                     self.pos = *child_end_pos;
                     vdebug!(
                         "Bracketed[table] SUCCESS: {} children, transitioning to Combining at frame_id={}",
-                        frame.accumulated.len(),
+                        frame.accumulated_matches.len(),
                         frame.frame_id
                     );
                     // Mark as Complete so the combining handler knows this is a successful match
@@ -525,7 +525,7 @@ impl Parser<'_> {
             frame.pos,
             combine_end.saturating_sub(1),
             frame.frame_id,
-            frame.accumulated.len()
+            frame.accumulated_matches.len()
         );
 
         // Extract the bracketed state and grammar from the frame context
@@ -571,7 +571,7 @@ impl Parser<'_> {
                 "Bracketed combining with INCOMPLETE state ({}) → returning Empty, frame_id={}, accumulated={}",
                 state_str,
                 frame.frame_id,
-                frame.accumulated.len()
+                frame.accumulated_matches.len()
             );
             return Ok(stack.complete_frame_empty(&frame));
         };

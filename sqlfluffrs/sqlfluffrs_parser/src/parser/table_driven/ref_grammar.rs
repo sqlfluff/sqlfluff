@@ -187,7 +187,9 @@ impl Parser<'_> {
                 frame.accumulated_matches.len(),
                 child_end_pos
             );
-            frame.accumulated_matches.push(Arc::new(child_match.clone()));
+            frame
+                .accumulated_matches
+                .push(Arc::new(child_match.clone()));
             self.pos = *child_end_pos;
             frame.end_pos = Some(*child_end_pos);
         } else {

@@ -633,7 +633,7 @@ impl<'a> Parser<'_> {
         vdebug!(
             "Delimited[table] Combining: frame_id={}, accumulated={}, delim_count={}",
             frame.frame_id,
-            frame.accumulated.len(),
+            frame.accumulated_matches.len(),
             delimiter_count
         );
 
