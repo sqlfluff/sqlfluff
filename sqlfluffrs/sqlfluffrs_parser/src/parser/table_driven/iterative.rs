@@ -346,7 +346,7 @@ impl Parser<'_> {
                 self.handle_anynumberof_table_driven_initial(frame, &table_terminators, stack)
             }
             GrammarVariant::Ref => {
-                self.handle_ref_table_driven_initial(grammar_id, frame, &table_terminators, stack)
+                self.handle_ref_table_driven_initial(frame, &table_terminators, stack)
             }
             // Terminal/simple variants should be handled synchronously here
             GrammarVariant::StringParser => {

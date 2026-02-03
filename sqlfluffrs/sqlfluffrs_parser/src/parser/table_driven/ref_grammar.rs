@@ -15,11 +15,11 @@ impl Parser<'_> {
     /// Handle Ref Initial state using table-driven approach
     pub(crate) fn handle_ref_table_driven_initial(
         &mut self,
-        grammar_id: GrammarId,
         mut frame: TableParseFrame,
         parent_terminators: &[GrammarId],
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
+        let grammar_id = frame.grammar_id;
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
         let start_pos = frame.pos;
 
