@@ -275,8 +275,10 @@ impl Parser<'_> {
             *ctx.current_element_idx
         };
 
-        // If element is optional, skip it and continue
-        if current_element_optional {
+        // If element is optional or a Meta grammar, skip it and continue
+        if current_element_optional
+            || self.grammar_ctx.variant(current_element_grammar_id) == GrammarVariant::Meta
+        {
             // Optional element - skip and continue to next
             if current_idx + 1 >= elements.len() {
                 // All children processed - go to combining
