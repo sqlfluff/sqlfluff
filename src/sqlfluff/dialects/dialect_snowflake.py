@@ -5028,15 +5028,28 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             ),
             Sequence(
                 Sequence("WITH", optional=True),
-                Sequence(
-                    "ROW",
-                    "ACCESS",
-                    "POLICY",
-                    Ref("ObjectReferenceSegment"),
-                    "ON",
-                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                    optional=True,
+                OneOf(
+                    Sequence(
+                        "ROW",
+                        "ACCESS",
+                        "POLICY",
+                        Ref("ObjectReferenceSegment"),
+                        "ON",
+                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    ),
+                    Sequence(
+                        "AGGREGATION",
+                        "POLICY",
+                        Ref("ObjectReferenceSegment"),
+                        Sequence(
+                            "ENTITY",
+                            "KEY",
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            optional=True,
+                        ),
+                    ),
                 ),
+                optional=True,
             ),
             Ref("IcebergTableOptionsSegment", optional=True),
             Ref("DynamicTableOptionsSegment", optional=True),
