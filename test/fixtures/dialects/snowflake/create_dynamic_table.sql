@@ -54,8 +54,8 @@ CREATE DYNAMIC TABLE product (
   TARGET_LAG = '20 minutes'
   WAREHOUSE = mywh
   AS
-    SELECT product_id, 
-      product_name, 
-      product_description, 
+    SELECT product_id,
+      product_name,
+      product_description,
       product_price
     FROM staging_table;
