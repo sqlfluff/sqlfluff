@@ -8,7 +8,7 @@ import sys
 import time
 from itertools import chain
 from logging import LogRecord
-from typing import Callable, Optional
+from typing import Any, Callable, Dict, List, Optional, cast
 
 # Third-party imports
 import click
@@ -812,6 +812,103 @@ def lint(
                 github_result_native.append("::endgroup::")
 
         file_output = "\n".join(github_result_native)
+    elif format == FormatType.sarif.value:
+        # SARIF (Static Analysis Results Interchange Format) 2.1.0
+        # https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
+        from datetime import datetime, timezone
+
+        sarif_rules: List[Dict[str, Any]] = []
+        sarif_results: List[Dict[str, Any]] = []
+        rules_seen = set()
+
+        for record in result.as_records():
+            filepath = record["filepath"]
+            for violation in record["violations"]:
+                rule_id = violation["code"]
+
+                # Add rule to rules array (only once per unique rule)
+                if rule_id not in rules_seen:
+                    rule_info = {
+                        "id": rule_id,
+                        "name": rule_id,
+                        "shortDescription": {"text": violation["name"] or rule_id},
+                        "fullDescription": {"text": violation["description"]},
+                        "defaultConfiguration": {
+                            "level": "note" if violation["warning"] else "error"
+                        },
+                        "helpUri": f"https://docs.sqlfluff.com/en/stable/rules.html#{str(rule_id).lower()}",  # noqa: E501
+                    }
+                    sarif_rules.append(rule_info)
+                    rules_seen.add(rule_id)
+
+                # Create result for this violation
+                sarif_result: Dict[str, Any] = {
+                    "ruleId": rule_id,
+                    "level": "note" if violation["warning"] else "error",
+                    "message": {"text": f"{rule_id}: {violation['description']}"},
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": filepath,
+                                    "uriBaseId": "%SRCROOT%",
+                                },
+                                "region": {
+                                    "startLine": violation["start_line_no"],
+                                    "startColumn": violation["start_line_pos"],
+                                },
+                            }
+                        }
+                    ],
+                }
+
+                # Add end position if available
+                if "end_line_no" in violation:
+                    # Type-safe access to nested dict structure
+                    location = cast(Dict[str, Any], sarif_result["locations"][0])
+                    physical_location = cast(
+                        Dict[str, Any], location["physicalLocation"]
+                    )
+                    region = cast(Dict[str, Any], physical_location["region"])
+                    region["endLine"] = violation["end_line_no"]
+                if "end_line_pos" in violation:
+                    # Type-safe access to nested dict structure
+                    location = cast(Dict[str, Any], sarif_result["locations"][0])
+                    physical_location = cast(
+                        Dict[str, Any], location["physicalLocation"]
+                    )
+                    region = cast(Dict[str, Any], physical_location["region"])
+                    region["endColumn"] = violation["end_line_pos"]
+
+                sarif_results.append(sarif_result)
+
+        # Build complete SARIF document
+        sarif_output = {
+            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",  # noqa: E501
+            "version": "2.1.0",
+            "runs": [
+                {
+                    "tool": {
+                        "driver": {
+                            "name": "SQLFluff",
+                            "version": get_package_version(),
+                            "informationUri": "https://sqlfluff.com/",
+                            "rules": sarif_rules,
+                        }
+                    },
+                    "results": sarif_results,
+                    "invocations": [
+                        {
+                            "executionSuccessful": True,
+                            "startTimeUtc": datetime.now(timezone.utc).isoformat(),
+                            "endTimeUtc": datetime.now(timezone.utc).isoformat(),
+                        }
+                    ],
+                }
+            ],
+        }
+
+        file_output = json.dumps(sarif_output, indent=2)
 
     if file_output:
         dump_file_payload(write_output, file_output)
