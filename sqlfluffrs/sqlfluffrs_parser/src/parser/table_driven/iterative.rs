@@ -85,7 +85,6 @@ impl Parser<'_> {
             pos: self.pos,
             table_terminators: smallvec::SmallVec::from_slice(parent_terminators),
             state: FrameState::Initial,
-            accumulated_matches: smallvec::SmallVec::new(),
             context: FrameContext::None,
             parent_max_idx: None, // No parent constraint at top level - let handler calculate
             calculated_max_idx: None, // Will be set by handler after calculation
@@ -461,6 +460,13 @@ impl Parser<'_> {
             }
             GrammarVariant::Meta => {
                 let res = self.handle_meta_table_driven(grammar_id);
+                let parent_frame = stack.last_mut().unwrap();
+                let variant = self.grammar_ctx.inst(parent_frame.grammar_id).variant;
+                eprintln!(
+                    "Meta grammar should be consumed by a sequence or bracketed, not matched in {:?}:{}",
+                    variant,
+                    parent_frame.grammar_id.0
+                );
                 match res {
                     Ok(match_result) => {
                         vdebug!(

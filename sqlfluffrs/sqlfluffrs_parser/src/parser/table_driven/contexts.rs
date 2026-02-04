@@ -17,6 +17,7 @@ impl FrameContext {
                 option_counter,
                 max_idx,
                 last_child_frame_id,
+                matched,
                 longest_match,
                 tried_elements,
             } => Some(AnyNumberOfContextMut {
@@ -28,6 +29,7 @@ impl FrameContext {
                 option_counter,
                 max_idx,
                 last_child_frame_id,
+                matched,
                 longest_match,
                 tried_elements,
             }),
@@ -77,7 +79,8 @@ pub struct AnyNumberOfContextMut<'a> {
     pub option_counter: &'a mut hashbrown::HashMap<u64, usize>,
     pub max_idx: &'a mut usize,
     pub last_child_frame_id: &'a mut Option<usize>,
-    pub longest_match: &'a mut Option<(Arc<MatchResult>, usize, GrammarId)>,
+    pub matched: &'a mut Arc<MatchResult>,
+    pub longest_match: &'a mut (Arc<MatchResult>, Option<GrammarId>),
     pub tried_elements: &'a mut usize,
 }
 
@@ -89,14 +92,10 @@ impl<'a> AnyNumberOfContextMut<'a> {
         end_pos: usize,
         grammar_id: GrammarId,
     ) {
-        let is_better = if let Some((_, current_end_pos, _)) = self.longest_match {
-            end_pos > *current_end_pos
-        } else {
-            true
-        };
+        let is_better = end_pos > self.longest_match.0.end();
 
         if is_better {
-            *self.longest_match = Some((child_match, end_pos, grammar_id));
+            *self.longest_match = (child_match, Some(grammar_id));
             vdebug!(
                 "AnyNumberOf[table]: Updated longest_match: child_id={}, end_pos={}",
                 grammar_id.0,
@@ -115,7 +114,10 @@ impl<'a> AnyNumberOfContextMut<'a> {
     #[inline]
     pub(crate) fn reset_for_next_repetition(&mut self, new_pruned_children: &[GrammarId]) {
         *self.pruned_children = new_pruned_children.to_vec();
-        *self.longest_match = None;
+        *self.longest_match = (
+            Arc::new(MatchResult::empty_at(self.longest_match.0.end())),
+            None,
+        );
         *self.tried_elements = 0;
     }
 

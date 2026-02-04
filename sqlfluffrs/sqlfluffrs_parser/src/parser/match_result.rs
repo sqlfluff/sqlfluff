@@ -321,7 +321,7 @@ impl MatchResult {
     /// If either match is empty, returns the other.
     /// The two matches must be sequential (self.end <= other.start).
     /// Gaps between matches are allowed and preserved.
-    pub fn append(self, other: MatchResult) -> MatchResult {
+    pub fn append(self: Arc<Self>, other: Arc<MatchResult>) -> Arc<MatchResult> {
         // If current is empty, return other
         if self.is_empty() {
             return other;
@@ -348,22 +348,22 @@ impl MatchResult {
             match &m.matched_class {
                 None => {
                     // No class, flatten into parent
-                    insert_segments.extend(m.insert_segments);
-                    child_matches.extend(m.child_matches);
+                    insert_segments.extend(m.insert_segments.iter().cloned());
+                    child_matches.extend(m.child_matches.iter().cloned());
                 }
                 _ => {
                     // Has a class, add as child match (wrapped in Rc)
-                    child_matches.push(Arc::new(m));
+                    child_matches.push(m);
                 }
             }
         }
 
-        MatchResult {
+        Arc::new(MatchResult {
             matched_slice: new_slice,
             matched_class: None,
             insert_segments,
             child_matches,
-        }
+        })
     }
 
     /// Wrap this result with an outer segment class.

@@ -1,4 +1,7 @@
-use crate::{parser::match_result::MatchedClass, vdebug};
+use crate::{
+    parser::{match_result::MatchedClass, MetaSegment},
+    vdebug,
+};
 use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
@@ -89,6 +92,7 @@ impl Parser<'_> {
             content_ids,
             content_idx,
             parse_mode_override,
+            child_matches,
         } = &mut frame.context
         else {
             unreachable!("Expected BracketedTableDriven context");
@@ -141,7 +145,7 @@ impl Parser<'_> {
                     parse_mode
                 );
 
-                frame.accumulated_matches.push(Arc::new(child_match.clone()));
+                child_matches.push(Arc::new(child_match.clone()));
                 let content_start_idx = *child_end_pos;
                 // Compute bracket_max_idx from the opening bracket's token position
                 let computed_bracket_max_idx = if !child_match.matched_slice.is_empty() {
@@ -250,6 +254,7 @@ impl Parser<'_> {
                     content_ids: content_ids.clone(),
                     content_idx: *content_idx,
                     parse_mode_override: *parse_mode_override,
+                    child_matches: child_matches.clone(),
                 };
                 let child_frame = create_table_driven_child_frame(
                     stack.frame_id_counter,
@@ -285,15 +290,13 @@ impl Parser<'_> {
                     if child_match.matched_class.is_some() && !child_match.child_matches.is_empty()
                     {
                         // Has a matched_class and children - add the whole match
-                        frame.accumulated_matches.push(Arc::new(child_match.clone()));
+                        child_matches.push(Arc::new(child_match.clone()));
                     } else if !child_match.child_matches.is_empty() {
                         // No matched_class but has children - flatten the children
-                        frame
-                            .accumulated_matches
-                            .extend(child_match.child_matches.iter().cloned());
+                        child_matches.extend(child_match.child_matches.iter().cloned());
                     } else {
                         // Leaf match - add it directly
-                        frame.accumulated_matches.push(Arc::new(child_match.clone()));
+                        child_matches.push(Arc::new(child_match.clone()));
                     }
                 }
 
@@ -337,6 +340,7 @@ impl Parser<'_> {
                         content_ids: content_ids.clone(),
                         content_idx: *content_idx,
                         parse_mode_override: *parse_mode_override,
+                        child_matches: child_matches.clone(),
                     };
                     let child_frame = create_table_driven_child_frame(
                         stack.frame_id_counter,
@@ -413,7 +417,7 @@ impl Parser<'_> {
                                     )),
                                     ..Default::default()
                                 };
-                                frame.accumulated_matches.push(Arc::new(unparsable_match));
+                                child_matches.push(Arc::new(unparsable_match));
 
                                 // Move position to the closing bracket
                                 self.pos = expected_close_pos;
@@ -485,11 +489,11 @@ impl Parser<'_> {
                         return Ok(TableFrameResult::Done);
                     }
                 } else {
-                    frame.accumulated_matches.push(Arc::new(child_match.clone()));
+                    child_matches.push(Arc::new(child_match.clone()));
                     self.pos = *child_end_pos;
                     vdebug!(
                         "Bracketed[table] SUCCESS: {} children, transitioning to Combining at frame_id={}",
-                        frame.accumulated_matches.len(),
+                        child_matches.len(),
                         frame.frame_id
                     );
                     // Mark as Complete so the combining handler knows this is a successful match
@@ -518,20 +522,13 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        #[cfg(feature = "verbose-debug")]
-        let combine_end = frame.end_pos.unwrap_or(self.pos);
-        vdebug!(
-            "🔨 Bracketed combining at pos {}-{} - frame_id={}, accumulated={}",
-            frame.pos,
-            combine_end.saturating_sub(1),
-            frame.frame_id,
-            frame.accumulated_matches.len()
-        );
-
         // Extract the bracketed state and grammar from the frame context
-        let (is_complete, bracket_persists) =
+        let (is_complete, bracket_persists, child_matches) =
             if let FrameContext::BracketedTableDriven {
-                state, grammar_id, ..
+                state,
+                grammar_id,
+                child_matches,
+                ..
             } = &frame.context
             {
                 let complete = matches!(state, BracketedState::Complete);
@@ -539,10 +536,20 @@ impl Parser<'_> {
                 // Determine bracket_persists using the GrammarInst for this GrammarId
                 let persists = self.grammar_ctx.bracketed_persists(*grammar_id);
 
-                (complete, persists)
+                (complete, persists, child_matches.clone())
             } else {
-                (false, true)
+                panic!("Expected BracketedTableDriven context in combining state");
             };
+
+        #[cfg(feature = "verbose-debug")]
+        let combine_end = frame.end_pos.unwrap_or(self.pos);
+        vdebug!(
+            "🔨 Bracketed combining at pos {}-{} - frame_id={}, accumulated={}",
+            frame.pos,
+            combine_end.saturating_sub(1),
+            frame.frame_id,
+            child_matches.len()
+        );
 
         // The result is determined by the bracketed state:
         // - If state is Complete, we successfully matched all parts (open + content + close)
@@ -556,8 +563,28 @@ impl Parser<'_> {
                 bracket_persists
             );
             // Use lazy evaluation - store child_matches instead of building Node
-            let accumulated = std::mem::take(&mut frame.accumulated_matches);
-            MatchResult::bracketed(frame.pos, end_pos, accumulated.into_vec(), bracket_persists)
+            eprintln!(
+                "DEBUG: Building Bracketed MatchResult with {} children",
+                child_matches.len()
+            );
+            eprintln!("first match: {:?}", child_matches.first());
+            eprintln!("last match: {:?}", child_matches.last());
+            MatchResult {
+                matched_slice: frame.pos..end_pos,
+                matched_class: None,
+                insert_segments: vec![
+                    (
+                        child_matches[0].start(),
+                        MetaSegment::Indent { is_implicit: false },
+                    ),
+                    (
+                        child_matches[child_matches.len() - 1].end(),
+                        MetaSegment::Dedent { is_implicit: false },
+                    ),
+                ],
+                child_matches,
+                ..Default::default()
+            }
         } else {
             // Log the actual state for debugging
             #[cfg(feature = "verbose-debug")]
@@ -571,7 +598,7 @@ impl Parser<'_> {
                 "Bracketed combining with INCOMPLETE state ({}) → returning Empty, frame_id={}, accumulated={}",
                 state_str,
                 frame.frame_id,
-                frame.accumulated_matches.len()
+                child_matches.len()
             );
             return Ok(stack.complete_frame_empty(&frame));
         };
@@ -600,6 +627,7 @@ fn initialize_table_driven_bracketed_frame(
         content_ids: Vec::new(), // Will be populated later
         content_idx: 0,
         parse_mode_override: None, // Will be set when creating content frames
+        child_matches: Vec::new(),
     };
     frame.table_terminators = SmallVec::from_slice(all_terminators);
     stack.push(&mut frame);
@@ -620,7 +648,6 @@ fn create_table_driven_child_frame(
         pos: start_idx,
         table_terminators: smallvec::SmallVec::from_slice(terminators),
         state: FrameState::Initial,
-        accumulated_matches: smallvec::SmallVec::new(),
         context,
         parent_max_idx, // Propagate parent's limit!
         calculated_max_idx: None,

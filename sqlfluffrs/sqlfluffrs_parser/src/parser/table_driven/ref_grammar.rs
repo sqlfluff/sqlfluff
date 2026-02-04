@@ -126,6 +126,7 @@ impl Parser<'_> {
             saved_pos: child_start_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             child_grammar_id,
+            match_result: Arc::new(MatchResult::empty_at(start_pos)),
         };
 
         // CRITICAL: Set parent frame state to WaitingForChild so it will
@@ -167,7 +168,12 @@ impl Parser<'_> {
         child_match: &MatchResult,
         child_end_pos: &usize,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::RefTableDriven { saved_pos, .. } = &frame.context else {
+        let FrameContext::RefTableDriven {
+            saved_pos,
+            match_result,
+            ..
+        } = &mut frame.context
+        else {
             unreachable!("Expected RefTableDriven context");
         };
         let original_pos = *saved_pos;
@@ -182,14 +188,11 @@ impl Parser<'_> {
         // Store child result and transition to Combining
         if !child_match.is_empty() {
             log::debug!(
-                "Ref[table]: frame_id={} child matched, accumulated_before={}, setting pos to {}",
+                "Ref[table]: frame_id={} child matched, setting pos to {}",
                 frame.frame_id,
-                frame.accumulated_matches.len(),
                 child_end_pos
             );
-            frame
-                .accumulated_matches
-                .push(Arc::new(child_match.clone()));
+            *match_result = Arc::new(child_match.clone());
             self.pos = *child_end_pos;
             frame.end_pos = Some(*child_end_pos);
         } else {
@@ -226,6 +229,7 @@ impl Parser<'_> {
             segment_class_name,
             segment_type,
             saved_pos,
+            match_result,
             ..
         } = &mut frame.context
         else {
@@ -234,23 +238,19 @@ impl Parser<'_> {
             ));
         };
 
-        log::debug!(
-            "Ref[table] Combining: frame_id={}, accumulated={}",
-            frame.frame_id,
-            frame.accumulated_matches.len()
-        );
+        log::debug!("Ref[table] Combining: frame_id={}", frame.frame_id,);
 
         // Debug: print accumulated children to inspect whether typed tokens are present
-        if !frame.accumulated_matches.is_empty() {
+        if !match_result.is_empty() {
             log::debug!(
                 "Ref[table] Combining DEBUG: accumulated nodes={:?}",
-                frame.accumulated_matches
+                match_result
             );
         }
 
         // Build final result
         let final_pos = frame.end_pos.unwrap_or(frame.pos);
-        let result_match = if frame.accumulated_matches.is_empty() {
+        let result_match = if match_result.is_empty() {
             MatchResult::empty_at(frame.pos)
         } else {
             log::debug!(
@@ -280,7 +280,7 @@ impl Parser<'_> {
                 // start_idx,
                 *saved_pos,
                 final_pos,
-                frame.accumulated_matches.to_vec(),
+                vec![match_result.clone()],
             )
         };
 

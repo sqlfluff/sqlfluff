@@ -59,6 +59,7 @@ pub enum FrameContext {
         saved_pos: usize, // Position before skipping transparent tokens
         last_child_frame_id: Option<usize>,
         child_grammar_id: GrammarId, // The actual grammar this Ref resolves to (for casefold lookup)
+        match_result: Arc<MatchResult>,
     },
     DelimitedTableDriven {
         grammar_id: GrammarId,
@@ -68,13 +69,14 @@ pub enum FrameContext {
         max_idx: usize,
         state: DelimitedState,
         last_child_frame_id: Option<usize>,
-        delimiter_match: Option<MatchResult>,
+        delimiter_match: Option<Arc<MatchResult>>,
         pos_before_delimiter: Option<usize>,
         element_children: Vec<GrammarId>,
         /// Terminators to pass to child element frames (excludes local terminators)
         /// Python parity: local terminators (e.g., ObjectReferenceTerminatorGrammar)
         /// are checked at Delimited level, not passed to longest_match
         child_terminators: Vec<GrammarId>,
+        working_match: Arc<MatchResult>,
     },
     BracketedTableDriven {
         grammar_id: GrammarId,
@@ -86,6 +88,7 @@ pub enum FrameContext {
         /// When Some, override content grammar's parse_mode with this value
         /// Python parity: Bracketed inherits from Sequence, so content uses Bracketed's parse_mode
         parse_mode_override: Option<ParseMode>,
+        child_matches: Vec<Arc<MatchResult>>, // Store child matches here until sequence is complete
     },
     AnyNumberOfTableDriven {
         grammar_id: GrammarId,
@@ -96,9 +99,10 @@ pub enum FrameContext {
         option_counter: HashMap<u64, usize>,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
+        matched: Arc<MatchResult>,
         /// Track longest match among element candidates for current repetition
         /// (match_result, end_pos, matched_grammar_id)
-        longest_match: Option<(Arc<MatchResult>, usize, GrammarId)>,
+        longest_match: (Arc<MatchResult>, Option<GrammarId>),
         /// Number of elements tried for current repetition
         tried_elements: usize,
     },

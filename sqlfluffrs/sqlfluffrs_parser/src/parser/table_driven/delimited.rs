@@ -151,6 +151,7 @@ impl<'a> Parser<'_> {
             pos_before_delimiter: None,
             element_children: vec![elements_id], // Single entry: the OneOf or single element
             child_terminators: child_terminators.clone(), // Python parity: terminators for element matching
+            working_match: Arc::new(MatchResult::empty_at(start_pos)),
         };
 
         // Push child to match element(s)
@@ -196,6 +197,7 @@ impl<'a> Parser<'_> {
             delimiter_match,
             pos_before_delimiter,
             child_terminators,
+            working_match,
             ..
         } = &mut frame.context
         else {
@@ -261,18 +263,18 @@ impl<'a> Parser<'_> {
                     );
 
                     // Determine final position - if we have pending delimiter, use pos before it
-                    let final_pos = if allow_trailing && delimiter_match.is_some() {
-                        // Include trailing delimiter
-                        frame
-                            .accumulated_matches
-                            .push(Arc::new(delimiter_match.take().unwrap()));
-                        *delimiter_count += 1;
-                        *matched_idx
-                    } else if delimiter_match.is_some() && pos_before_delimiter.is_some() {
-                        // Don't include trailing delimiter - backtrack
-                        pos_before_delimiter.unwrap()
-                    } else {
-                        *matched_idx
+                    let final_pos = match (delimiter_match, pos_before_delimiter, allow_trailing) {
+                        (Some(delimiter_match), _, true) => {
+                            // Include trailing delimiter
+                            *working_match = working_match.clone().append(delimiter_match.clone());
+                            *delimiter_count += 1;
+                            *matched_idx
+                        }
+                        (Some(_), Some(pos_before_delimiter), _) => {
+                            // Don't include trailing delimiter - backtrack
+                            *pos_before_delimiter
+                        }
+                        _ => *matched_idx,
                     };
 
                     self.pos = final_pos;
@@ -304,9 +306,9 @@ impl<'a> Parser<'_> {
 
                     // Determine final position
                     let final_pos = if allow_trailing && delimiter_match.is_some() {
-                        frame
-                            .accumulated_matches
-                            .push(Arc::new(delimiter_match.take().unwrap()));
+                        *working_match = working_match
+                            .clone()
+                            .append(delimiter_match.take().unwrap());
                         *delimiter_count += 1;
                         *matched_idx
                     } else if delimiter_match.is_some() && pos_before_delimiter.is_some() {
@@ -343,12 +345,12 @@ impl<'a> Parser<'_> {
                 // This matches Python's behavior where delimiter is only added when the
                 // NEXT element successfully matches.
                 if let Some(dm) = delimiter_match.take() {
-                    frame.accumulated_matches.push(Arc::new(dm));
+                    *working_match = working_match.clone().append(dm.clone());
                     *delimiter_count += 1;
                 }
 
                 // Add the matched element
-                frame.accumulated_matches.push(Arc::new(child_match.clone()));
+                *working_match = working_match.clone().append(Arc::new(child_match.clone()));
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
 
@@ -439,7 +441,7 @@ impl<'a> Parser<'_> {
                         // Handle trailing delimiter if allowed and present
                         if allow_trailing {
                             if let Some(dm) = delimiter_match.take() {
-                                frame.accumulated_matches.push(Arc::new(dm));
+                                *working_match = working_match.clone().append(dm.clone());
                                 *delimiter_count += 1;
                             }
                         }
@@ -465,7 +467,7 @@ impl<'a> Parser<'_> {
                 // appeared before the delimiter in the output.
 
                 // Store delimiter match for later (will be added when next element matches)
-                *delimiter_match = Some(child_match.clone());
+                *delimiter_match = Some(Arc::new(child_match.clone()));
                 *pos_before_delimiter = Some(*matched_idx);
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
@@ -500,7 +502,7 @@ impl<'a> Parser<'_> {
                     if allow_trailing {
                         // Include the trailing delimiter
                         if let Some(dm) = delimiter_match.take() {
-                            frame.accumulated_matches.push(Arc::new(dm));
+                            *working_match = working_match.clone().append(dm.clone());
                             *delimiter_count += 1;
                         }
                     } else {
@@ -622,6 +624,7 @@ impl<'a> Parser<'_> {
             grammar_id,
             delimiter_count,
             matched_idx,
+            working_match,
             ..
         } = &frame.context
         else {
@@ -633,7 +636,7 @@ impl<'a> Parser<'_> {
         vdebug!(
             "Delimited[table] Combining: frame_id={}, accumulated={}, delim_count={}",
             frame.frame_id,
-            frame.accumulated_matches.len(),
+            working_match.len(),
             delimiter_count
         );
 
@@ -641,7 +644,7 @@ impl<'a> Parser<'_> {
         let (_delimiter_child_idx, min_delimiters) = self.grammar_ctx.delimited_config(*grammar_id);
 
         // Build final result
-        let result_match = if frame.accumulated_matches.is_empty() {
+        let result_match = if working_match.is_empty() {
             // No matches
             Arc::new(MatchResult::empty_at(frame.pos))
         } else if *delimiter_count < min_delimiters {
@@ -654,14 +657,7 @@ impl<'a> Parser<'_> {
             Arc::new(MatchResult::empty_at(frame.pos))
         } else {
             // Success - use lazy evaluation - store child_matches
-            // TODO: replace accumulated with a MatchResult that is appended to
-            let accumulated = std::mem::take(&mut frame.accumulated_matches);
-            let start_idx = self.skip_start_index_forward_to_code(frame.pos, *matched_idx);
-            Arc::new(MatchResult::sequence(
-                start_idx,
-                *matched_idx,
-                accumulated.into_vec(),
-            ))
+            working_match.clone()
         };
 
         stack.complete_frame(frame, result_match.as_ref().clone());

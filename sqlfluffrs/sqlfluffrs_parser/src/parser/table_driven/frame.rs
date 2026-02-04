@@ -1,3 +1,4 @@
+use regex::Match;
 use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
@@ -326,10 +327,6 @@ pub struct TableParseFrame {
     pub table_terminators: SmallVec<[GrammarId; 4]>,
     /// Current state of this frame
     pub state: FrameState,
-    /// Accumulated results (Python parity - stores Arc<MatchResult> for lazy evaluation)
-    /// Using Rc avoids expensive clones of MatchResults
-    /// SmallVec avoids heap allocation for common case of 0-2 accumulated results
-    pub accumulated_matches: SmallVec<[Arc<MatchResult>; 2]>,
     /// Additional context depending on grammar type
     pub context: FrameContext,
     /// Parent's max_idx limit (simulates Python's segments[:max_idx] slicing)
@@ -368,7 +365,6 @@ impl TableParseFrame {
             pos,
             table_terminators: SmallVec::from_vec(table_terminators),
             state: FrameState::Initial,
-            accumulated_matches: SmallVec::new(),
             context: FrameContext::None,
             parent_max_idx,
             calculated_max_idx: None,

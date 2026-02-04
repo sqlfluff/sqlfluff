@@ -270,8 +270,9 @@ impl Parser<'_> {
             parse_mode
         );
 
-        let mut current_idx = {
-            let ctx = frame.context.as_sequence_mut().unwrap();
+        let next_element_idx = {
+            let mut ctx = frame.context.as_sequence_mut().unwrap();
+            ctx.advance_element_idx();
             *ctx.current_element_idx
         };
 
@@ -280,24 +281,26 @@ impl Parser<'_> {
             || self.grammar_ctx.variant(current_element_grammar_id) == GrammarVariant::Meta
         {
             // Optional element - skip and continue to next
-            if current_idx + 1 >= elements.len() {
+            if next_element_idx >= elements.len() {
                 // All children processed - go to combining
                 return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
             }
+
+            self.buffer_trailing_meta_elements(&mut frame, elements);
+
             let child_frame_id = stack.frame_id_counter;
             let child_frame = self.match_sequence_next_element(
                 &frame,
-                &mut current_idx,
+                next_element_idx,
                 matched_idx,
                 max_idx,
                 allow_gaps,
                 elements,
                 child_frame_id,
             );
-            // CRITICAL: Push parent back onto stack before updating it
             stack.push(&mut frame);
             // continue to next element
-            return Ok(stack.update_sequence_parent_and_push_child(child_frame, current_idx + 1));
+            return Ok(stack.update_sequence_parent_and_push_child(child_frame, next_element_idx));
         }
 
         // Required element failed - handle based on parse mode
@@ -314,7 +317,7 @@ impl Parser<'_> {
             matched_idx,
             allow_gaps,
             elements
-                .get(current_idx + 1)
+                .get(next_element_idx)
                 .copied()
                 .unwrap_or(current_element_grammar_id),
             max_idx,
@@ -557,9 +560,9 @@ impl Parser<'_> {
     #[allow(clippy::too_many_arguments)]
     #[inline]
     fn match_sequence_next_element(
-        &mut self,
+        &self,
         frame: &TableParseFrame,
-        current_element_idx: &mut usize,
+        next_element_idx: usize,
         matched_idx: usize,
         max_idx: usize,
         allow_gaps: bool,
@@ -569,12 +572,12 @@ impl Parser<'_> {
         let child_start_pos = self.calculate_sequence_child_start_position(
             matched_idx,
             allow_gaps,
-            elements[*current_element_idx + 1],
+            elements[next_element_idx],
             max_idx,
         );
         TableParseFrame::new_child(
             child_frame_id,
-            elements[*current_element_idx + 1],
+            elements[next_element_idx],
             child_start_pos,
             frame.table_terminators.to_vec(),
             Some(max_idx),
@@ -769,7 +772,7 @@ impl Parser<'_> {
 
     #[inline]
     fn calculate_sequence_child_start_position(
-        &mut self,
+        &self,
         end_of_last_match_idx: usize,
         allow_gaps: bool,
         next_child_grammar_id: GrammarId,

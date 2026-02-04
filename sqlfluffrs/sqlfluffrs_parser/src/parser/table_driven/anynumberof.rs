@@ -160,6 +160,16 @@ impl Parser<'_> {
             frame.parent_max_idx
         );
 
+        // If we're already at or past max_idx, return Empty
+        if start_pos >= max_idx {
+            vdebug!(
+                "AnyNumberOf[table]: start_pos >= max_idx ({} >= {}), returning Empty",
+                start_pos,
+                max_idx
+            );
+            return Ok(stack.complete_frame_empty(&frame));
+        }
+
         frame.state = FrameState::WaitingForChild { child_index: 0 };
 
         // Store context with max_times config and pruned element list
@@ -172,7 +182,8 @@ impl Parser<'_> {
             option_counter,
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
-            longest_match: None,
+            matched: Arc::new(MatchResult::empty_at(start_pos)),
+            longest_match: (Arc::new(MatchResult::empty_at(start_pos)), None),
             tried_elements: 0,
         };
 
@@ -338,27 +349,26 @@ impl Parser<'_> {
         vdebug!(
             "AnyNumberOf[table]: All candidates tried at pos={}, longest_match={:?}, count={}, min_times={}",
             ctx.working_idx,
-            ctx.longest_match.as_ref().map(|(_, end, gid)| (end, gid.0)),
+            (ctx.longest_match.0.end(), ctx.longest_match.1.map(|gid| gid.0)),
             ctx.count,
             inst.min_times
         );
 
         // Take longest_match to avoid borrow issues
-        let (best_match, best_end_pos, best_gid) =
-            if let Some((ref m, pos, gid)) = ctx.longest_match {
-                (Arc::clone(m), *pos, gid)
-            } else {
-                // No match found - finalize
-                vdebug!(
-                    "AnyNumberOf[table]: No match found, finalizing with count={}",
-                    ctx.count
-                );
-                let matched_idx = *ctx.matched_idx;
-                return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
-            };
+        let (best_match, best_gid) = if let (ref m, Some(gid)) = ctx.longest_match {
+            (Arc::clone(m), gid)
+        } else {
+            // No match found - finalize
+            vdebug!(
+                "AnyNumberOf[table]: No match found, finalizing with count={}",
+                ctx.count
+            );
+            let matched_idx = *ctx.matched_idx;
+            return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
+        };
 
         // Check for zero-width match
-        if best_end_pos == *ctx.working_idx {
+        if best_match.end() == *ctx.working_idx {
             log::warn!(
                 "AnyNumberOf[table]: zero-width match at {}, stopping",
                 ctx.working_idx
@@ -397,8 +407,8 @@ impl Parser<'_> {
         }
 
         // Match succeeded - accumulate and continue
-        frame.accumulated_matches.push(Arc::clone(&best_match));
-        *ctx.matched_idx = best_end_pos;
+        *ctx.matched = ctx.matched.clone().append(best_match.clone());
+        *ctx.matched_idx = best_match.end();
         *ctx.working_idx = *ctx.matched_idx;
         *ctx.count += 1;
 
@@ -500,6 +510,7 @@ impl Parser<'_> {
             grammar_id,
             count,
             matched_idx,
+            matched,
             ..
         } = &frame.context
         else {
@@ -511,9 +522,8 @@ impl Parser<'_> {
         let inst = self.grammar_ctx.inst(*grammar_id);
 
         vdebug!(
-            "AnyNumberOf[table] Combining: frame_id={}, accumulated={}, count={}",
+            "AnyNumberOf[table] Combining: frame_id={}, count={}",
             frame.frame_id,
-            frame.accumulated_matches.len(),
             count
         );
 
@@ -525,20 +535,10 @@ impl Parser<'_> {
         // Build final result
         let (result_match, final_pos) = {
             // Success - use lazy evaluation - store child_matches
-            if frame.accumulated_matches.is_empty() {
+            if matched.is_empty() {
                 return Ok(stack.complete_frame_empty(&frame));
             } else {
-                // TODO: we should append, not use sequence
-                let start_idx = self.skip_start_index_forward_to_code(frame.pos, *matched_idx);
-                let accumulated = std::mem::take(&mut frame.accumulated_matches);
-                (
-                    Arc::new(MatchResult::sequence(
-                        start_idx,
-                        *matched_idx,
-                        accumulated.into_vec(),
-                    )),
-                    *matched_idx,
-                )
+                (matched.clone(), *matched_idx)
             }
         };
 
