@@ -163,6 +163,16 @@ class Rule_ST02(BaseRule):
             when_clauses = children.select(sp.is_type("when_clause"))
             else_clauses = children.select(sp.is_type("else_clause"))
 
+            # Start of my fix-
+            #Check for simple case
+            for child in children:
+                #if we find an expression before the first when clause, abort
+                if child.is_type("when_clause"):
+                    break
+                if child.is_type("expression"):
+                    return None
+            # End of my fix
+            
             # Can't fix if multiple WHEN clauses.
             if len(when_clauses) > 1:
                 return None
