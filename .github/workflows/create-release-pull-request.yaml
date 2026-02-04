@@ -11,7 +11,10 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
       - name: Abort if branch already exists
         run: |
             _check_branch=$(git ls-remote --heads origin prep-${{ github.event.inputs.newVersionNumber }})
@@ -23,9 +26,9 @@ jobs:
             fi
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Install dependencies
         run: |
