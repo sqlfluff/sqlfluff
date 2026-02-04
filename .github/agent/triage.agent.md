@@ -53,22 +53,15 @@ These files contain critical context about how SQLFluff works, its parser archit
 **Status**: ✅ Confirmed / ❌ Cannot Reproduce / ⚠️ Needs More Info
 
 **Minimal Reproduction**:
-```sql
--- dialect: <dialect_name>
-<minimal SQL here>
-```
+
+<minimal SQL code block with dialect specified, use SQL code block>
 
 **Command**:
-```bash
-sqlfluff lint --dialect <dialect> test.sql
-```
+
+<exact sqlfluff command to run, use bash code block>
 
 **Configuration** (if needed):
-```ini
-[sqlfluff]
-dialect = <dialect>
-[relevant config sections]
-```
+<relevant .sqlfluff config block if applicable, use ini code block>
 
 **Observed Behavior**:
 <what actually happens>
