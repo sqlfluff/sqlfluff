@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c50fafc1e621ade3b1f6fba074280b656867d00e09110117437ead25f292e0a8
+_hash: 994e1905623cca2f77acad0a50372f7a43de93e4803a6dfd28f902aa81d0a1e9
 file:
 - statement:
     create_table_statement:
@@ -325,6 +325,71 @@ file:
         - select_clause_element:
             column_reference:
               naked_identifier: product_name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: staging_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: product
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: product_id
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'product id'"
+      - comma: ','
+      - naked_identifier: product_name
+      - comma: ','
+      - column_definition:
+          naked_identifier: product_description
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"product_price"'
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'product price'"
+      - end_bracket: )
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'20 minutes'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: product_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: product_name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: product_description
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: product_price
         from_clause:
           keyword: FROM
           from_expression:

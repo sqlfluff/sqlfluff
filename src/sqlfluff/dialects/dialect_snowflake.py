@@ -4979,6 +4979,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                             OneOf(
                                 Ref("OutOfLineConstraintPropertiesSegment"),
                                 Ref("ColumnDefinitionSegment"),
+                                Sequence(
+                                    Ref("ColumnReferenceSegment"),
+                                    Ref("CommentClauseSegment"),
+                                ),
                                 Ref("SingleIdentifierGrammar"),
                                 Sequence(
                                     Ref("SingleIdentifierGrammar"),
