@@ -4980,9 +4980,9 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("OutOfLineConstraintPropertiesSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Sequence(
-                                    Ref("ColumnReferenceSegment"),
+                                    Ref("SingleIdentifierGrammar"),
                                     Ref("CommentClauseSegment"),
-                                ),
+                                ), # Bare identifier WITH comment - must precede bare identifier to avoid ambiguity
                                 Ref("SingleIdentifierGrammar"),
                                 Sequence(
                                     Ref("SingleIdentifierGrammar"),

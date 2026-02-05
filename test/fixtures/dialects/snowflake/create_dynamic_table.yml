@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 994e1905623cca2f77acad0a50372f7a43de93e4803a6dfd28f902aa81d0a1e9
+_hash: 36e84c56307423aadd979e6ca128b318d0de317b9146a1161463bad90bbccd04
 file:
 - statement:
     create_table_statement:
@@ -341,9 +341,56 @@ file:
     - table_reference:
         naked_identifier: product
     - bracketed:
-      - start_bracket: (
-      - column_reference:
+        start_bracket: (
+        column_definition:
           naked_identifier: product_id
+          data_type:
+            data_type_identifier: int
+        comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'product id'"
+        comma: ','
+        naked_identifier: product_name
+        end_bracket: )
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'20 minutes'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: product_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: product_name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: staging_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: product
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: product_id
       - comment_clause:
           keyword: COMMENT
           quoted_literal: "'product id'"
@@ -355,11 +402,18 @@ file:
           data_type:
             data_type_identifier: TEXT
       - comma: ','
-      - column_reference:
-          quoted_identifier: '"product_price"'
+      - quoted_identifier: '"product_price"'
       - comment_clause:
           keyword: COMMENT
           quoted_literal: "'product price'"
+      - comma: ','
+      - column_definition:
+          naked_identifier: product_stock
+          data_type:
+            data_type_identifier: NUMBER
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'product stock'"
       - end_bracket: )
     - dynamic_table_options:
       - keyword: TARGET_LAG
@@ -390,6 +444,10 @@ file:
         - select_clause_element:
             column_reference:
               naked_identifier: product_price
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: product_stock
         from_clause:
           keyword: FROM
           from_expression:
