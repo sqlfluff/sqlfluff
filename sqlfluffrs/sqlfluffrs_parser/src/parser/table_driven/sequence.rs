@@ -151,28 +151,22 @@ impl Parser<'_> {
     /// Helper function to buffer trailing meta elements starting from current_element_idx
     /// Returns the number of meta elements buffered
     #[inline]
-    fn buffer_trailing_meta_elements(
-        &self,
-        frame: &mut TableParseFrame,
-        elements: &[GrammarId],
-    ) -> usize {
+    fn buffer_trailing_meta_elements(&self, frame: &mut TableParseFrame, elements: &[GrammarId]) {
         let mut ctx = frame.context.as_sequence_mut().unwrap();
         let current_idx = *ctx.current_element_idx;
-        let mut meta_count = 0;
 
         for child_id in &elements[current_idx..elements.len()] {
             if self.grammar_ctx.variant(*child_id) == GrammarVariant::Meta {
                 let meta_segment = self.grammar_id_to_meta_segment(*child_id);
                 if let Some(meta_segment) = meta_segment {
                     ctx.buffer_meta(meta_segment);
-                    meta_count += 1;
                 }
                 ctx.advance_element_idx();
             } else {
-                break;
+                return;
             }
         }
-        meta_count
+        vdebug!("End of elements, we should move to combining now.");
     }
 
     /// Handle Sequence grammar Waiting for child state
@@ -287,6 +281,18 @@ impl Parser<'_> {
             }
 
             self.buffer_trailing_meta_elements(&mut frame, elements);
+
+            // Update next_element_idx after buffering metas
+            let next_element_idx = {
+                let ctx = frame.context.as_sequence_mut().unwrap();
+                *ctx.current_element_idx
+            };
+
+            // We should check again if we're done after buffering metas if we're out of elements
+            if next_element_idx >= elements.len() {
+                // All children processed - go to combining
+                return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
+            }
 
             let child_frame_id = stack.frame_id_counter;
             let child_frame = self.match_sequence_next_element(
