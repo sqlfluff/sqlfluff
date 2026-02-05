@@ -3211,6 +3211,7 @@ class AccessStatementSegment(BaseSegment):
         "PIPE",
         "NOTEBOOK",
         "MODEL",
+        "WORKSPACE",
     ]
 
     _schema_object_types = OneOf(
@@ -7792,6 +7793,7 @@ class ShowStatementSegment(BaseSegment):
         "STREAMS",
         "STREAMLITS",
         "TASKS",
+        "WORKSPACES",
         Sequence("USER", "FUNCTIONS"),
         Sequence("EXTERNAL", "FUNCTIONS"),
         "PROCEDURES",
@@ -7816,6 +7818,7 @@ class ShowStatementSegment(BaseSegment):
                 "USER",
                 "WAREHOUSE",
                 "VIEW",
+                "WORKSPACE",
             ),
             Ref("ObjectReferenceSegment", optional=True),
         ),
