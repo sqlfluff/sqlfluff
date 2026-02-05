@@ -462,10 +462,12 @@ impl Parser<'_> {
                 let res = self.handle_meta_table_driven(grammar_id);
                 let parent_frame = stack.last_mut().unwrap();
                 let variant = self.grammar_ctx.inst(parent_frame.grammar_id).variant;
-                eprintln!(
-                    "Meta grammar should be consumed by a sequence or bracketed, not matched in {:?}:{}",
+                log::warn!(
+                    "Meta grammar should be consumed by a sequence or bracketed, not matched in {:?}:{} for Meta {:?}",
                     variant,
-                    parent_frame.grammar_id.0
+                    parent_frame.grammar_id.0,
+                    frame.grammar_id.0
+
                 );
                 match res {
                     Ok(match_result) => {
