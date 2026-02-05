@@ -107,3 +107,13 @@ CREATE OR ALTER VIEW view_with_column_comment
 )
 AS SELECT col1
 FROM src_table;
+
+-- Test case from issue #5016 - simple column list in view definition
+CREATE OR REPLACE VIEW SCHEMANAME.TABLENAME(
+    COL1,
+    COL2
+) AS
+SELECT
+    $1 COL1,
+    $2 COL2
+FROM @NAME/path/(file_format=>CUSTOMIZED_FILE_FORMAT,pattern=>'.*ZIG37426_.*labels_.*.txt.gz.*');

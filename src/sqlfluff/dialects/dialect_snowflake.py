@@ -5856,6 +5856,9 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         AnySetOf(
+            # Simple column list: (col1, col2, ...)
+            Ref("BracketedColumnReferenceListGrammar"),
+            # Complex column list with masking policies, tags, comments
             Bracketed(
                 Delimited(
                     Sequence(
