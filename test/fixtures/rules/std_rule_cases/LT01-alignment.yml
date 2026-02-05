@@ -542,3 +542,28 @@ test_align_alias_with_tabs_custom_tab_size:
           spacing_before: align
           align_within: select_clause
           align_scope: bracketed
+
+# Test SparkSQL COMMENT alignment
+# https://github.com/sqlfluff/sqlfluff/issues/7428
+test_align_sparksql_comment:
+  fail_str: |
+    CREATE TABLE mytable (
+        date_pk STRING COMMENT 'Date',
+        year_num INT COMMENT 'Year'
+    );
+  fix_str: |
+    CREATE TABLE mytable (
+        date_pk  STRING COMMENT 'Date',
+        year_num INT    COMMENT 'Year'
+    );
+  configs:
+    core:
+      dialect: sparksql
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: statement
+        column_constraint_segment:
+          spacing_before: align
+          align_within: statement

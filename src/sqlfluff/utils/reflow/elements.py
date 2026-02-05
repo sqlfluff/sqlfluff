@@ -821,9 +821,12 @@ class ReflowPoint(ReflowElement):
                 post_constraint,
                 prev_block,
                 next_block,
+                root_segment,
                 segment_buffer,
                 existing_results + new_results,
                 anchor_on=anchor_on,
+                indent_unit=indent_unit,
+                tab_space_size=tab_space_size,
             )
             existing_results = []
             if edited:
