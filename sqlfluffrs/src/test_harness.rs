@@ -99,8 +99,8 @@ impl FixtureTest {
 
         // Try to parse as a file (top-level rule)
         // FileSegment always has segment_type "file"
-        let ast = match parser.call_rule_as_root() {
-            Ok(node) => node,
+        let mr_ast = match parser.call_rule_as_root_match_result() {
+            Ok(match_result) => match_result,
             Err(e) => {
                 return TestResult {
                     test: self.clone(),
@@ -112,8 +112,13 @@ impl FixtureTest {
             }
         };
 
+        println!("=== Parsed AST for {} ===", self.name);
+        println!("{}", mr_ast.stringify(0));
+
+        let ast = mr_ast.apply(&tokens);
+
         // Convert AST to YAML
-        let generated_yaml = match node_to_yaml(&ast, &tokens) {
+        let generated_yaml = match node_to_yaml(&ast[0], &tokens) {
             Ok(yaml) => yaml,
             Err(e) => {
                 return TestResult {

@@ -537,8 +537,26 @@ impl MatchResult {
             vec![Node::new_ref(&match_class, &result_nodes)]
         } else {
             // No wrapping class - return children as-is
-            return result_nodes;
+            result_nodes
         }
+    }
+
+    pub fn stringify(&self, indent: usize) -> String {
+        let indent_str = "  ".repeat(indent);
+        let mut s = format!(
+            "Match ({:?}): {:?}\n  {}-{:?}\n",
+            self.matched_class.as_ref().map(|c| &c.class_name),
+            self.matched_slice,
+            indent_str,
+            self.matched_class.as_ref().map(|c| &c.segment_kwargs)
+        );
+        for (idx, meta) in &self.insert_segments {
+            s.push_str(&format!("  {}+{}: {:?}\n", indent_str, idx, meta));
+        }
+        for child in &self.child_matches {
+            s.push_str(&format!("  {}+{}", indent_str, child.stringify(indent + 1)));
+        }
+        s
     }
 }
 
