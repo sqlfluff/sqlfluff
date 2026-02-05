@@ -65,8 +65,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: ./dist
-        pattern: wheels-*
-        merge-multiple: true
+        name: wheels-linux-x86_64
 
     - name: Install dependencies
       run: uv pip install --system tox tox-uv

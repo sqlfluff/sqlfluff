@@ -51,7 +51,6 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
-          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: ${{ matrix.platform.manylinux || '' }}
 
       - name: Upload wheels
