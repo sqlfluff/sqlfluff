@@ -750,9 +750,12 @@ def handle_respace__inline_without_space(
     post_constraint: str,
     prev_block: Optional["ReflowBlock"],
     next_block: Optional["ReflowBlock"],
+    root_segment: BaseSegment,
     segment_buffer: list[RawSegment],
     existing_results: list[LintResult],
     anchor_on: str = "before",
+    indent_unit: str = "space",
+    tab_space_size: int = 4,
 ) -> tuple[list[RawSegment], list[LintResult], bool]:
     """Ensure spacing is the right size.
 
@@ -774,12 +777,49 @@ def handle_respace__inline_without_space(
     # Are we supposed to be aligning?
     elif post_constraint.startswith("align"):
         reflow_logger.debug("    Inserting Aligned Whitespace.")
-        # TODO: We currently rely on a second pass to align
-        # insertions. This is where we could devise alignment
-        # in advance, but most of the alignment code relies on
-        # having existing position markers for those insertions.
-        # https://github.com/sqlfluff/sqlfluff/issues/4492
-        desired_space = " "
+        # Calculate the proper aligned spacing in advance.
+        # This fixes the issue where two passes were needed for alignment
+        # when there was no existing whitespace.
+        # https://github.com/sqlfluff/sqlfluff/issues/7428
+        if next_block:
+            seg_type, align_within, align_scope, align_space = (
+                _extract_alignment_config(post_constraint)
+            )
+            next_seg = next_block.segments[0]
+            next_pos: Optional[PositionMarker] = None
+            if next_seg.pos_marker:
+                next_pos = next_seg.pos_marker
+            elif prev_block and prev_block.segments[-1].pos_marker:
+                next_pos = prev_block.segments[-1].pos_marker.end_point_marker()
+
+            if next_pos:
+                # Create a temporary whitespace segment to calculate spacing.
+                # This represents the position where whitespace would be inserted.
+                temp_whitespace = WhitespaceSegment(" ")
+                # Position it after the previous segment if available
+                if prev_block and prev_block.segments[-1].pos_marker:
+                    temp_whitespace.pos_marker = (
+                        prev_block.segments[-1].pos_marker.end_point_marker()
+                    )
+                else:
+                    temp_whitespace.pos_marker = next_pos
+
+                desired_space = _determine_aligned_inline_spacing(
+                    root_segment,
+                    temp_whitespace,
+                    next_seg,
+                    next_pos,
+                    seg_type,
+                    align_within,
+                    align_scope,
+                    align_space,
+                    indent_unit,
+                    tab_space_size,
+                )
+            else:
+                desired_space = " "
+        else:
+            desired_space = " "
         added_whitespace = WhitespaceSegment(desired_space)
     # Is it anything other than the default case?
     elif not (pre_constraint == post_constraint == "single"):  # pragma: no cover
