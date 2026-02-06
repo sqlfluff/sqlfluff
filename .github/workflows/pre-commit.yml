@@ -25,11 +25,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.13"
-
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
@@ -43,7 +38,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/pre-commit/
-          key: pre-commit-4|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+          key: pre-commit-4|${{ hashFiles('.pre-commit-config.yaml') }}
 
       - name: Install pre-commit
         run: uv pip install --system pre-commit pre-commit-uv
