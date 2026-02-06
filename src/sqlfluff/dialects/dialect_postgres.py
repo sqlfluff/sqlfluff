@@ -5474,6 +5474,7 @@ class AlterSystemStatementSegment(BaseSegment):
                         Ref("LiteralGrammar"),
                         Ref("NakedIdentifierSegment"),
                         Ref("QuotedIdentifierSegment"),
+                        Ref("OnKeywordAsIdentifierSegment"),
                     ),
                 ),
             ),
