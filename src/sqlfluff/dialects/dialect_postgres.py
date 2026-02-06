@@ -5033,6 +5033,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("AlterSystemStatementSegment"),
             Ref("AlterPolicyStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("DropPolicyStatementSegment"),
@@ -5447,6 +5448,36 @@ class SetStatementSegment(BaseSegment):
             ),
             Sequence("SCHEMA", Ref("QuotedLiteralSegment")),
             Sequence("ROLE", OneOf("NONE", Ref("RoleReferenceSegment"))),
+        ),
+    )
+
+
+class AlterSystemStatementSegment(BaseSegment):
+    """An `ALTER SYSTEM` statement.
+
+    As specified in https://www.postgresql.org/docs/current/sql-altersystem.html
+    """
+
+    type = "alter_system_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SYSTEM",
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    "DEFAULT",
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedIdentifierSegment"),
+                    ),
+                ),
+            ),
+            Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
         ),
     )
 
