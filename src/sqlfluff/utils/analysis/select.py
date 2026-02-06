@@ -27,11 +27,23 @@ class SelectStatementColumnsAndTables(NamedTuple):
 
 
 def _get_object_references(segment: BaseSegment) -> list[ObjectReferenceSegment]:
+    # Exclude OPENJSON segments/clauses entirely - column references in OPENJSON
+    # WITH clauses are schema definitions, not table column references (issue #7442)
+    if segment.is_type("openjson_segment", "openjson_with_clause"):
+        return []
+
     return list(
         cast(ObjectReferenceSegment, _seg)
         for _seg in segment.recursive_crawl(
             "object_reference",
-            no_recursive_seg_type=["select_statement", "merge_statement"],
+            no_recursive_seg_type=[
+                "select_statement",
+                "merge_statement",
+                # Exclude OPENJSON segments - column references in OPENJSON WITH clauses
+                # are schema definitions, not table column references (issue #7442)
+                "openjson_segment",
+                "openjson_with_clause",
+            ],
         )
         # Exclude collation references - they inherit from ObjectReferenceSegment
         # but should not be treated as column/table references for linting purposes
