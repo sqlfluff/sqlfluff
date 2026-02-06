@@ -78,3 +78,50 @@ test_pass_clickhouse:
   configs:
     core:
       dialect: clickhouse
+
+test_fail_ambiguous_column_single_using:
+  # Test that unqualified USING columns in SELECT are qualified
+  # to prevent ambiguity after converting USING to ON
+  fail_str: |
+    SELECT
+        field_1,
+        field_2
+    FROM
+        table_a
+    INNER JOIN table_b USING (field_1)
+  fix_str: |
+    SELECT
+        table_a.field_1,
+        field_2
+    FROM
+        table_a
+    INNER JOIN table_b ON table_a.field_1 = table_b.field_1
+
+test_fail_ambiguous_column_multiple_using:
+  # Test with multiple USING columns
+  fail_str: |
+    SELECT
+        id,
+        name,
+        value
+    FROM
+        table_a
+    INNER JOIN table_b USING (id, name)
+  fix_str: |
+    SELECT
+        table_a.id,
+        table_a.name,
+        value
+    FROM
+        table_a
+    INNER JOIN table_b ON table_a.id = table_b.id AND table_a.name = table_b.name
+
+test_pass_already_qualified_column:
+  # Test that already qualified columns are not modified
+  pass_str: |
+    SELECT
+        table_a.field_1,
+        field_2
+    FROM
+        table_a
+    INNER JOIN table_b ON table_a.field_1 = table_b.field_1
