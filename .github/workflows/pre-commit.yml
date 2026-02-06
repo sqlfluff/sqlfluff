@@ -41,7 +41,7 @@ jobs:
           key: pre-commit-4|${{ hashFiles('.pre-commit-config.yaml') }}
 
       - name: Install pre-commit
-        run: uv pip install --system pre-commit pre-commit-uv
+        run: uv pip install pre-commit pre-commit-uv
 
       - name: Run pre-commit hooks
         run: |
