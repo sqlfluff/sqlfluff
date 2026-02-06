@@ -4836,9 +4836,12 @@ class DynamicTableOptionsSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
-                "CLUSTER",
-                "BY",
-                Delimited(Ref("ExpressionSegment")),
+                "INITIALIZATION_WAREHOUSE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
                 optional=True,
             ),
             Sequence(
@@ -4859,31 +4862,6 @@ class DynamicTableOptionsSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
-            Sequence(
-                "DATA_RETENTION_TIME_IN_DAYS",
-                Ref("EqualsSegment"),
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-            Sequence(
-                "MAX_DATA_EXTENSION_TIME_IN_DAYS",
-                Ref("EqualsSegment"),
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-            Sequence(
-                Ref.keyword("WITH", optional=True),
-                "ROW",
-                "ACCESS",
-                "POLICY",
-                Ref("ObjectReferenceSegment"),
-                "ON",
-                Bracketed(
-                    Delimited(Ref("ColumnReferenceSegment")),
-                ),
-                optional=True,
-            ),
-            Ref("TagBracketedEqualsSegment", optional=True),
             Sequence(
                 "REQUIRE",
                 "USER",
@@ -5051,12 +5029,27 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             ),
             Sequence(
                 Sequence("WITH", optional=True),
-                "ROW",
-                "ACCESS",
-                "POLICY",
-                Ref("ObjectReferenceSegment"),
-                "ON",
-                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                OneOf(
+                    Sequence(
+                        "ROW",
+                        "ACCESS",
+                        "POLICY",
+                        Ref("ObjectReferenceSegment"),
+                        "ON",
+                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    ),
+                    Sequence(
+                        "AGGREGATION",
+                        "POLICY",
+                        Ref("ObjectReferenceSegment"),
+                        Sequence(
+                            "ENTITY",
+                            "KEY",
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            optional=True,
+                        ),
+                    ),
+                ),
                 optional=True,
             ),
             Ref("IcebergTableOptionsSegment", optional=True),

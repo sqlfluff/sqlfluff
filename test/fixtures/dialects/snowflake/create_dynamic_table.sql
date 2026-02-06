@@ -44,3 +44,45 @@ CREATE DYNAMIC TABLE product
   REQUIRE USER
   AS
     SELECT product_id, product_name FROM staging_table;
+
+
+-- Test INITIALIZATION_WAREHOUSE
+CREATE DYNAMIC TABLE init_warehouse_test
+  TARGET_LAG = '1 minute'
+  WAREHOUSE = mywh
+  INITIALIZATION_WAREHOUSE = init_wh
+  AS
+    SELECT id FROM raw;
+
+-- Test AGGREGATION POLICY
+CREATE DYNAMIC TABLE agg_policy_test
+  TARGET_LAG = '1 minute'
+  WAREHOUSE = mywh
+  WITH AGGREGATION POLICY my_agg_policy ENTITY KEY (id)
+  AS
+    SELECT id FROM raw;
+
+-- Test ROW ACCESS POLICY (moved from dynamic options)
+CREATE DYNAMIC TABLE row_policy_test
+  TARGET_LAG = '1 minute'
+  WAREHOUSE = mywh
+  WITH ROW ACCESS POLICY my_row_policy ON (id)
+  AS
+    SELECT id FROM raw;
+
+-- Test mixed options (COMMENT, DATA_RETENTION)
+CREATE DYNAMIC TABLE mixed_options_test
+  TARGET_LAG = '1 minute'
+  WAREHOUSE = mywh
+  DATA_RETENTION_TIME_IN_DAYS = 1
+  COMMENT = 'This is a test'
+  AS
+    SELECT id FROM raw;
+
+-- Test CLUSTER BY (verified placement)
+CREATE DYNAMIC TABLE cluster_by_test
+  TARGET_LAG = '1 minute'
+  WAREHOUSE = mywh
+  CLUSTER BY (id)
+  AS
+    SELECT id FROM raw;
