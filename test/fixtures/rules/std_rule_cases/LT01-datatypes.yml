@@ -1,0 +1,61 @@
+rule: LT01
+
+# Test cases for multi-word data type spacing issues
+
+test_multi_word_data_type_spacing_preserved:
+  # This test verifies that multi-word data types maintain proper spacing
+  pass_str: |
+    CREATE TABLE test (
+        col1 CHARACTER VARYING(100),
+        col2 NATIONAL CHARACTER VARYING(50)
+    )
+
+test_mixed_single_and_multi_word_data_types:
+  # Test a mix of single and multi-word data types
+  pass_str: |
+    CREATE TABLE test (
+        id INT PRIMARY KEY,
+        name CHARACTER VARYING(100),
+        description TEXT,
+        timestamp TIMESTAMP,
+        national_name NATIONAL CHARACTER VARYING(50)
+    )
+
+test_multi_word_data_type_in_function:
+  # Test multi-word data types in function parameters
+  pass_str: |
+    CREATE FUNCTION test_func(
+        param1 CHARACTER VARYING(100),
+        param2 NATIONAL CHARACTER VARYING(50)
+    ) RETURNS INT
+    AS $$
+    BEGIN
+        RETURN 1;
+    END;
+    $$ LANGUAGE plpgsql;
+
+test_multi_word_data_type_in_procedure:
+  # Test multi-word data types in procedure parameters
+  pass_str: |
+    CREATE PROCEDURE test_proc(
+        IN param1 CHARACTER VARYING(100),
+        OUT param2 NATIONAL CHARACTER VARYING(50)
+    )
+    AS $$
+    BEGIN
+        -- procedure body
+    END;
+    $$ LANGUAGE plpgsql;
+
+test_multi_word_data_type_with_extra_spaces:
+  # Test that extra spaces in multi-word data types are handled correctly
+  fail_str: |
+    CREATE TABLE test (
+        col1 CHARACTER  VARYING(100),
+        col2 NATIONAL  CHARACTER  VARYING(50)
+    )
+  fix_str: |
+    CREATE TABLE test (
+        col1 CHARACTER VARYING(100),
+        col2 NATIONAL CHARACTER VARYING(50)
+    )
