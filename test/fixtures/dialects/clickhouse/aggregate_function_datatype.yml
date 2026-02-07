@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 66ca25ec1cc198b276eb26d2e9648e1b3e8e1e8445d9fed8214e296bcaf352e9
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_aggregate_function
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_count
+          data_type:
+            data_type_identifier: AggregateFunction
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: count
+            - comma: ','
+            - naked_identifier: UInt64
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: sum_values
+          data_type:
+            data_type_identifier: AggregateFunction
+            bracketed:
+              start_bracket: (
+              naked_identifier: sum
+              comma: ','
+              function:
+                function_name:
+                  function_name_identifier: Decimal
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '10'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: avg_score
+          data_type:
+            data_type_identifier: AggregateFunction
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: avg
+            - comma: ','
+            - naked_identifier: Float64
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: unique_users
+          data_type:
+            data_type_identifier: AggregateFunction
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: uniq
+            - comma: ','
+            - naked_identifier: String
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: quantile_data
+          data_type:
+            data_type_identifier: AggregateFunction
+            bracketed:
+              start_bracket: (
+              function:
+                function_name:
+                  function_name_identifier: quantile
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '0.95'
+                    end_bracket: )
+              comma: ','
+              naked_identifier: Float64
+              end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+  statement_terminator: ;
