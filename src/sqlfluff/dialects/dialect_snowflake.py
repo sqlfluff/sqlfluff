@@ -859,6 +859,71 @@ snowflake_dialect.replace(
         ),
     ),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            [
+                # https://docs.snowflake.com/en/sql-reference-data-types
+                # Numeric data types
+                "NUMBER",
+                "DECIMAL",
+                "NUMERIC",
+                "INT",
+                "INTEGER",
+                "BIGINT",
+                "SMALLINT",
+                "TINYINT",
+                "BYTEINT",
+                "FLOAT",
+                "FLOAT4",
+                "FLOAT8",
+                "DOUBLE",
+                "DOUBLE PRECISION",
+                "REAL",
+                "DECFLOAT",
+                # String & binary data types
+                "VARCHAR",
+                "CHAR",
+                "CHARACTER",
+                "STRING",
+                "TEXT",
+                "BINARY",
+                "VARBINARY",
+                # Logical data types
+                "BOOLEAN",
+                # Date & time data types
+                "DATE",
+                "DATETIME",
+                "TIME",
+                "TIMESTAMP",
+                "TIMESTAMP_LTZ",
+                "TIMESTAMP_NTZ",
+                "TIMESTAMP_TZ",
+                # Semi-structured data types
+                "VARIANT",
+                "OBJECT",
+                "ARRAY",
+                # Structured data types	ARRAY
+                "OBJECT",
+                "MAP",
+                # Unstructured data types
+                "FILE",
+                # Geospatial data types
+                "GEOGRAPHY",
+                "GEOMETRY",
+                # UUID data type
+                "UUID",
+                # Vector data types
+                "VECTOR",
+                # Scriptiong data types
+                # https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables
+                "RESULTSET",
+                "CURSOR",
+                "EXCEPTION",
+            ],
+            CodeSegment,
+            type="data_type_identifier",
+        )
+    ),
 )
 
 # Add all Snowflake keywords
@@ -3211,6 +3276,7 @@ class AccessStatementSegment(BaseSegment):
         "PIPE",
         "NOTEBOOK",
         "MODEL",
+        "WORKSPACE",
     ]
 
     _schema_object_types = OneOf(
@@ -4402,6 +4468,33 @@ class OutOfLineConstraintPropertiesSegment(BaseSegment):
     )
 
 
+class OutOfLineIndexPropertiesSegment(BaseSegment):
+    """Out of Line INDEX clause for CREATE HYBRID TABLE command.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-hybrid-table#syntax
+    """
+
+    type = "index_properties_segment"
+    match_grammar = Sequence(
+        "INDEX",
+        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        Sequence(
+            "INCLUDE",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     """A column option; each CREATE TABLE column can have 0 or more.
 
@@ -4978,6 +5071,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                         Sequence(
                             OneOf(
                                 Ref("OutOfLineConstraintPropertiesSegment"),
+                                Ref("OutOfLineIndexPropertiesSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("SingleIdentifierGrammar"),
                                 Sequence(
@@ -7788,6 +7882,7 @@ class ShowStatementSegment(BaseSegment):
         "STREAMS",
         "STREAMLITS",
         "TASKS",
+        "WORKSPACES",
         Sequence("USER", "FUNCTIONS"),
         Sequence("EXTERNAL", "FUNCTIONS"),
         "PROCEDURES",
@@ -7812,6 +7907,7 @@ class ShowStatementSegment(BaseSegment):
                 "USER",
                 "WAREHOUSE",
                 "VIEW",
+                "WORKSPACE",
             ),
             Ref("ObjectReferenceSegment", optional=True),
         ),

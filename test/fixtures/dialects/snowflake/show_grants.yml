@@ -3,29 +3,41 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 94347a05eb243cc8d8a5f0d63370bfef9540bff3b295e340ab836ebb758361f8
+_hash: dd2c9dd558f12f07bb19003b18cb8d18859bc7c23bf60713402474d37f019a0f
 file:
 - statement:
     show_statement:
     - keyword: SHOW
-    - keyword: PASSWORD
-    - keyword: POLICIES
+    - keyword: GRANTS
+    - keyword: TO
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: bar
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
-    - keyword: CORTEX
-    - keyword: SEARCH
-    - keyword: SERVICES
+    - keyword: GRANTS
+    - keyword: OF
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: bar
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
-    - keyword: RESOURCE
-    - keyword: MONITORS
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: foo
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
-    - keyword: WORKSPACES
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - keyword: WORKSPACE
+    - object_reference:
+        naked_identifier: foo
 - statement_terminator: ;
