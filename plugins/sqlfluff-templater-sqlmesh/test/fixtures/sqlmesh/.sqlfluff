@@ -1,0 +1,6 @@
+[sqlfluff]
+templater = sqlmesh
+dialect = duckdb
+
+[sqlfluff:templater:sqlmesh]
+project_dir = .
