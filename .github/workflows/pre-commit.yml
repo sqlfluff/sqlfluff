@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   pre-commit:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     env:
       RAW_LOG: pre-commit.log
       CS_XML: pre-commit.xml
