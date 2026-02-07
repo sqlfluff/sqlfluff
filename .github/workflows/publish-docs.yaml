@@ -21,7 +21,7 @@ jobs:
     name: Build Docs
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -40,10 +40,10 @@ jobs:
         uses: actions/configure-pages@v5
         if: ${{ !env.ACT }}
 
-      - name: � Setup Python
+      - name: 🐍 Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.13'
           cache: 'pip'
 
       - name: 📦 Install SQLFluff
