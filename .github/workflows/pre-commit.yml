@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   pre-commit:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     env:
       RAW_LOG: pre-commit.log
       CS_XML: pre-commit.xml
@@ -25,11 +25,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.13"
-
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
@@ -39,18 +34,24 @@ jobs:
             pyproject.toml
             .pre-commit-config.yaml
 
+      - name: Create virtual environment
+        run: uv venv .venv
+
       - name: Cache pre-commit environments
         uses: actions/cache@v5
         with:
           path: ~/.cache/pre-commit/
-          key: pre-commit-4|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+          key: pre-commit-4|${{ runner.os }}|${{ hashFiles('.pre-commit-config.yaml') }}
 
       - name: Install pre-commit
-        run: uv pip install --system pre-commit pre-commit-uv
+        run: |
+          source .venv/bin/activate
+          uv pip install pre-commit pre-commit-uv
 
       - name: Run pre-commit hooks
         run: |
           set -o pipefail
+          source .venv/bin/activate
           pre-commit gc
           pre-commit run --show-diff-on-failure --color=always --all-files | tee ${RAW_LOG}
 
