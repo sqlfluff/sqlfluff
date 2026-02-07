@@ -294,6 +294,37 @@ postgres_dialect.patch_lexer_matchers(
             ),
         ),
         RegexLexer("word", r"[\p{L}_][\p{L}\p{N}_$]*", WordSegment),
+        # Numeric literal matches integers, decimals, and exponential formats,
+        # Patch to support single underscores.
+        # Pattern breakdown:
+        # (?>                      Atomic grouping
+        #                          (https://www.regular-expressions.info/atomic.html).
+        #  \d+(_\d+)*\.\d+(_\d+)*  e.g. 123.456 or 123_000.456_000
+        #  |\d+(_\d+)*\.(?![\.\w]) e.g. 123. or 1_23.
+        #                          (N.B. negative lookahead assertion to ensure we
+        #                          don't match range operators `..` in Exasol, and
+        #                          that in bigquery we don't match the "."
+        #                          in "asd-12.foo").
+        #     |\.\d+(_\d+)*        e.g. .456 or .456_000
+        #     |\d+(_\d+)*          e.g. 123 or 123_000
+        # )
+        # (\.?[eE][+-]?\d+)?          Optional exponential.
+        # (
+        #     (?<=\.)              If matched character ends with . (e.g. 123.) then
+        #                          don't worry about word boundary check.
+        #     |(?=\b)              Check that we are at word boundary to avoid matching
+        #                          valid naked identifiers (e.g. 123column).
+        # )
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+(_\d+)*\.\d+(_\d+)*"  # Decimal numbers with underscores
+            r"|\d+(_\d+)*\.(?![\.\w])"  # Integer with trailing dot
+            r"|\.\d+(_\d+)*"  # Decimal starting with dot
+            r"|\d+(_\d+)*)"  # Integer with underscores
+            r"(\.?[eE][+-]?\d+)?"  # Optional exponential
+            r"((?<=\.)|(?=\b))",  # Word boundary check
+            LiteralSegment,
+        ),
     ]
 )
 

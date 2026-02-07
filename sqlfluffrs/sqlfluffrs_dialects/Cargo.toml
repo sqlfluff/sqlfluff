@@ -1,5 +1,6 @@
 [package]
 name = "sqlfluffrs_dialects"
+version.workspace = true
 edition = "2021"
 
 [dependencies]

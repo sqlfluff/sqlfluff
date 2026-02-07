@@ -1567,8 +1567,7 @@ def generate_parser_table_driven(dialect: str):
     print()
 
     # Phase 4: Generate GrammarTables instance
-    print(
-        f"""pub static {dialect.upper()}_TABLES: GrammarTables = GrammarTables {{
+    print(f"""pub static {dialect.upper()}_TABLES: GrammarTables = GrammarTables {{
     instructions: INSTRUCTIONS,
     child_ids: CHILD_IDS,
     terminators: TERMINATORS,
@@ -1585,27 +1584,22 @@ def generate_parser_table_driven(dialect: str):
     trim_chars_sparse: TRIM_CHARS_SPARSE,
     trim_chars_data: TRIM_CHARS_DATA,
 }};
-"""
-    )
+""")
 
     # Generate root grammar accessor
     root_name = loaded_dialect.get_root_segment().__name__
     root_id = segment_to_id.get(root_name, 0)
-    print(
-        f"""pub fn get_{dialect.lower()}_root_grammar_id() -> GrammarId {{
+    print(f"""pub fn get_{dialect.lower()}_root_grammar_id() -> GrammarId {{
     GrammarId({root_id})
-}}"""
-    )
+}}""")
 
     # Emit RootGrammar constructor for table-driven dialect (named _table)
-    print(
-        f"""pub fn get_{dialect.lower()}_root_grammar_table() -> RootGrammar {{
+    print(f"""pub fn get_{dialect.lower()}_root_grammar_table() -> RootGrammar {{
     RootGrammar {{
         grammar_id: get_{dialect.lower()}_root_grammar_id(),
         tables: &{dialect.upper()}_TABLES,
     }}
-}}"""
-    )
+}}""")
     # Wrapper so callers can call get_<dialect>_root_grammar()
     print(f"pub fn get_{dialect.lower()}_root_grammar() -> RootGrammar {{")
     print(f"    get_{dialect.lower()}_root_grammar_table()")
@@ -1613,7 +1607,7 @@ def generate_parser_table_driven(dialect: str):
 
 
 if __name__ == "__main__":
-    sys.stdout.reconfigure(newline="\n")  # Force LF line endings
+    sys.stdout.reconfigure(newline="\n", encoding="utf-8")  # Force LF line endings
     parser = argparse.ArgumentParser(
         description="Build generated Rust output for a dialect."
     )

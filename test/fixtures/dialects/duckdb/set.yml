@@ -1,0 +1,83 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0ae8e2248b599e2e435c42700cc3f2c71103f61c4a45b7b32c62518b4a514d28
+file:
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - naked_identifier: my_var
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '30'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - naked_identifier: other_var
+    - keyword: TO
+    - quoted_literal: "'hello'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      parameter: memory_limit
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: "'10GB'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      parameter: threads
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - parameter: threads
+    - keyword: TO
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - parameter: default_collation
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'nocase'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - parameter: sort_order
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'desc'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - parameter: threads
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - parameter: sort_order
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'desc'"
+- statement_terminator: ;

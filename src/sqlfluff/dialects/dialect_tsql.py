@@ -857,8 +857,15 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
             Ref("CreateFullTextCatalogStatementSegment"),
+            Ref("AlterAuthorizationStatementSegment"),
+            Ref("AlterRoleStatementSegment"),
+            Ref("AlterUserStatementSegment"),
+            Ref("GrantStatementSegment"),
+            Ref("DenyStatementSegment"),
+            Ref("RevokeStatementSegment"),
         ],
         remove=[
+            Ref("AccessStatementSegment"),
             Ref("CreateCastStatementSegment"),
             Ref("DropCastStatementSegment"),
             Ref("CreateModelStatementSegment"),
@@ -1575,6 +1582,41 @@ class CursorDefinitionSegment(BaseSegment):
         Sequence("TYPE_WARNING", optional=True),
         "FOR",
         Ref("SelectStatementSegment"),
+        Sequence(
+            "FOR",
+            "UPDATE",
+            Sequence(
+                "OF",
+                Delimited(Ref("ColumnReferenceSegment")),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
+class OnPartitionsSegment(BaseSegment):
+    """ON PARTITIONS clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql
+    """
+
+    type = "on_partitions_clause"
+    match_grammar = Sequence(
+        "ON",
+        "PARTITIONS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        "TO",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
     )
 
 
@@ -1707,11 +1749,13 @@ class InsertStatementSegment(BaseSegment):
 
     Overriding ANSI definition to remove terminator logic that doesn't handle optional
     delimitation well.
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/insert-transact-sql
     """
 
     type = "insert_statement"
     match_grammar = Sequence(
         "INSERT",
+        Ref("TopPercentGrammar", optional=True),
         OneOf(
             Sequence(
                 Ref.keyword("INTO", optional=True),
@@ -2144,24 +2188,6 @@ class AlterIndexStatementSegment(BaseSegment):
         ),
     )
 
-    _on_partitions = Sequence(
-        Sequence(
-            "ON",
-            "PARTITIONS",
-        ),
-        Bracketed(
-            Delimited(
-                Ref("NumericLiteralSegment"),
-            ),
-            Sequence(
-                "TO",
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-        ),
-        optional=True,
-    )
-
     _rebuild_index_option = AnyNumberOf(
         Sequence(
             OneOf(
@@ -2214,7 +2240,7 @@ class AlterIndexStatementSegment(BaseSegment):
                 "COLUMNSTORE",
                 "COLUMNSTORE_ARCHIVE",
             ),
-            _on_partitions,
+            Ref("OnPartitionsSegment", optional=True),
         ),
         Sequence(
             "XML_COMPRESSION",
@@ -2223,7 +2249,7 @@ class AlterIndexStatementSegment(BaseSegment):
                 "ON",
                 "OFF",
             ),
-            _on_partitions,
+            Ref("OnPartitionsSegment", optional=True),
         ),
     )
 
@@ -2481,24 +2507,6 @@ class TableOptionSegment(BaseSegment):
         ),
     )
 
-    _on_partitions = Sequence(
-        Sequence(
-            "ON",
-            "PARTITIONS",
-        ),
-        Bracketed(
-            Delimited(
-                Ref("NumericLiteralSegment"),
-            ),
-            Sequence(
-                "TO",
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-        ),
-        optional=True,
-    )
-
     type = "table_option_statement"
 
     match_grammar = Sequence(
@@ -2562,13 +2570,13 @@ class TableOptionSegment(BaseSegment):
                             "ROW",
                             "PAGE",
                         ),
-                        _on_partitions,
+                        Ref("OnPartitionsSegment", optional=True),
                     ),
                     Sequence(
                         "XML_COMPRESSION",
                         Ref("EqualsSegment"),
                         OneOf("ON", "OFF"),
-                        _on_partitions,
+                        Ref("OnPartitionsSegment", optional=True),
                     ),
                     Sequence(
                         "FILETABLE_DIRECTORY",
@@ -3137,6 +3145,21 @@ class DeclareCursorStatementSegment(BaseSegment):
                 "CURSOR",
                 "FOR",
                 Ref("SelectStatementSegment"),
+                Sequence(
+                    "FOR",
+                    OneOf(
+                        "READ_ONLY",
+                        Sequence(
+                            "UPDATE",
+                            Sequence(
+                                "OF",
+                                Delimited(Ref("ColumnReferenceSegment")),
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
             ),
         ),
     )
@@ -3303,7 +3326,10 @@ class CreateSequenceOptionsSegment(BaseSegment):
 
 
 class NextValueSequenceSegment(BaseSegment):
-    """Segment to get next value from a sequence."""
+    """Segment to get next value from a sequence.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/next-value-for-transact-sql
+    """
 
     type = "sequence_next_value"
     match_grammar = Sequence(
@@ -3311,6 +3337,11 @@ class NextValueSequenceSegment(BaseSegment):
         "VALUE",
         "FOR",
         Ref("ObjectReferenceSegment"),
+        Sequence(
+            "OVER",
+            Bracketed(Ref("OrderByClauseSegment")),
+            optional=True,
+        ),
     )
 
 
@@ -3997,16 +4028,52 @@ class ReplicateFunctionNameSegment(BaseSegment):
 
 
 class JsonFunctionNameSegment(BaseSegment):
-    """JSON functions name segment.
+    """JSON functions name segment for JSON_OBJECT and JSON_ARRAY.
 
-    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-object-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-functions-transact-sql
 
     Need to be able to specify this as type function_name
     so that linting rules identify it properly
     """
 
     type = "function_name"
-    match_grammar = OneOf("JSON_ARRAY", "JSON_OBJECT")
+    match_grammar = OneOf(
+        "JSON_ARRAY",
+        "JSON_OBJECT",
+    )
+
+
+class JsonScalarFunctionNameSegment(BaseSegment):
+    """JSON scalar function name segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-functions-transact-sql
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "ISJSON",
+        "JSON_VALUE",
+        "JSON_QUERY",
+        "JSON_MODIFY",
+        "JSON_PATH_EXISTS",
+    )
+
+
+class JsonAggFunctionNameSegment(BaseSegment):
+    """JSON aggregate function name segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-functions-transact-sql
+
+    For aggregation functions that use the WITHIN GROUP clause.
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf("JSON_ARRAYAGG", "JSON_OBJECTAGG")
 
 
 class RankFunctionNameSegment(BaseSegment):
@@ -4116,29 +4183,6 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
     )
 
 
-class OnPartitionsSegment(BaseSegment):
-    """ON PARTITIONS clause.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql
-    """
-
-    type = "on_partitions_clause"
-    match_grammar = Sequence(
-        "ON",
-        "PARTITIONS",
-        Bracketed(
-            Delimited(
-                OneOf(
-                    Ref("NumericLiteralSegment"),
-                    Sequence(
-                        Ref("NumericLiteralSegment"), "TO", Ref("NumericLiteralSegment")
-                    ),
-                )
-            )
-        ),
-    )
-
-
 class PartitionSchemeNameSegment(BaseSegment):
     """Partition Scheme Name."""
 
@@ -4185,7 +4229,11 @@ class ConvertFunctionContentsSegment(BaseSegment):
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Ref("CommaSegment"),
             Ref("ExpressionSegment"),
-            Sequence(Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("ExpressionSegment"),
+                optional=True,
+            ),
         ),
     )
 
@@ -4208,7 +4256,7 @@ class ReplicateFunctionContentsSegment(BaseSegment):
 
 
 class JsonFunctionContentsSegment(BaseSegment):
-    """JSON function contents."""
+    """JSON function contents for JSON_OBJECT and JSON_ARRAY."""
 
     type = "function_contents"
 
@@ -4255,6 +4303,146 @@ class JsonFunctionContentsSegment(BaseSegment):
         ),
         Bracketed(
             Delimited(_json_key_value, _json_null_clause),
+        ),
+    )
+
+
+class IsjsonFunctionContentsSegment(BaseSegment):
+    """ISJSON function contents.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/isjson-transact-sql
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # JSON expression
+        Sequence(
+            Ref("CommaSegment"),
+            OneOf(
+                "VALUE",
+                "ARRAY",
+                "OBJECT",
+                "SCALAR",
+            ),  # json_type_constraint
+            optional=True,
+        ),
+    )
+
+
+class JsonValueFunctionContentsSegment(BaseSegment):
+    """JSON_VALUE function contents.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-value-transact-sql
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # JSON expression
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment", terminators=["RETURNING"]),  # JSON path
+        Sequence(
+            "RETURNING",
+            Ref("DatatypeSegment"),
+            optional=True,
+        ),
+    )
+
+
+class JsonQueryFunctionContentsSegment(BaseSegment):
+    """JSON_QUERY function contents.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-query-transact-sql
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # JSON expression
+        Sequence(
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),  # JSON path
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            "ARRAY",
+            "WRAPPER",
+            optional=True,
+        ),
+    )
+
+
+class JsonModifyFunctionContentsSegment(BaseSegment):
+    """JSON_MODIFY function contents.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-modify-transact-sql
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # JSON expression
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),  # JSON path
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),  # new value
+    )
+
+
+class JsonPathExistsFunctionContentsSegment(BaseSegment):
+    """JSON_PATH_EXISTS function contents.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-path-exists-transact-sql
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # value_expression
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),  # sql_json_path
+    )
+
+
+class JsonAggFunctionContentsSegment(BaseSegment):
+    """JSON aggregate function contents for JSON_ARRAYAGG and JSON_OBJECTAGG.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-functions-transact-sql
+    """
+
+    type = "function_contents"
+
+    _json_null_clause = OneOf(
+        Sequence("NULL", "ON", "NULL"),
+        Sequence("ABSENT", "ON", "NULL"),
+        optional=True,
+    )
+
+    match_grammar = Bracketed(
+        Sequence(
+            # Single expression OR two expressions separated by colon
+            Ref("ExpressionSegment"),
+            Sequence(
+                Ref("ColonSegment"),
+                Ref("ExpressionSegment"),
+                # Optional for JSON_ARRAYAGG, required for JSON_OBJECTAGG
+                optional=True,
+            ),
+            # Only available for JSON_ARRAYAGG
+            Sequence(
+                "ORDER",
+                "BY",
+                Ref("ColumnReferenceSegment"),
+                optional=True,
+            ),
+            _json_null_clause,
+            Sequence(
+                "RETURNING",
+                "JSON",
+                optional=True,
+            ),
         ),
     )
 
@@ -4326,6 +4514,8 @@ class FunctionSegment(BaseSegment):
                         Ref("DatePartFunctionNameSegment"),
                         Ref("WithinGroupFunctionNameSegment"),
                         Ref("RankFunctionNameSegment"),
+                        Ref("JsonScalarFunctionNameSegment"),
+                        Ref("JsonAggFunctionNameSegment"),
                     ),
                 ),
                 Ref("ReservedKeywordFunctionNameSegment"),
@@ -4334,8 +4524,23 @@ class FunctionSegment(BaseSegment):
             Ref("PostFunctionGrammar", optional=True),
         ),
         Sequence(
+            Ref("JsonScalarFunctionNameSegment"),
+            OneOf(
+                Ref("IsjsonFunctionContentsSegment"),
+                Ref("JsonValueFunctionContentsSegment"),
+                Ref("JsonQueryFunctionContentsSegment"),
+                Ref("JsonModifyFunctionContentsSegment"),
+                Ref("JsonPathExistsFunctionContentsSegment"),
+            ),
+        ),
+        Sequence(
             Ref("JsonFunctionNameSegment"),
             Ref("JsonFunctionContentsSegment"),
+        ),
+        Sequence(
+            Ref("JsonAggFunctionNameSegment"),
+            Ref("JsonAggFunctionContentsSegment"),
+            Ref("WithinGroupClause", optional=True),
         ),
     )
 
@@ -4421,6 +4626,30 @@ class AlterTableStatementSegment(BaseSegment):
     TODO: Flesh out TSQL-specific functionality
     """
 
+    _rebuild_table_option = OneOf(
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "NONE",
+                "ROW",
+                "PAGE",
+                "COLUMNSTORE",
+                "COLUMNSTORE_ARCHIVE",
+            ),
+            Ref("OnPartitionsSegment", optional=True),
+        ),
+        Sequence(
+            "XML_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+            Ref("OnPartitionsSegment", optional=True),
+        ),
+    )
+
     type = "alter_table_statement"
     match_grammar = Sequence(
         "ALTER",
@@ -4478,8 +4707,11 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     "DROP",
-                    "CONSTRAINT",
-                    Ref("IfExistsGrammar", optional=True),
+                    Sequence(
+                        "CONSTRAINT",
+                        Ref("IfExistsGrammar", optional=True),
+                        optional=True,
+                    ),
                     Ref("ObjectReferenceSegment"),
                 ),
                 # Rename
@@ -4487,6 +4719,24 @@ class AlterTableStatementSegment(BaseSegment):
                     "RENAME",
                     OneOf("AS", "TO", optional=True),
                     Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    "REBUILD",
+                    Sequence(
+                        "PARTITION",
+                        Ref("EqualsSegment"),
+                        OneOf("ALL", Ref("NumericLiteralSegment")),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "WITH",
+                        Bracketed(
+                            Delimited(
+                                _rebuild_table_option,
+                            ),
+                        ),
+                        optional=True,
+                    ),
                 ),
                 Sequence(
                     "SET",
@@ -5172,7 +5422,9 @@ class OpenRowSetSegment(BaseSegment):
                 ),
                 Sequence(
                     "BULK",
-                    Ref("QuotedLiteralSegmentOptWithN"),
+                    OptionallyBracketed(
+                        Delimited(Ref("QuotedLiteralSegmentOptWithN")),
+                    ),
                     Ref("CommaSegment"),
                     OneOf(
                         Sequence(
@@ -5283,6 +5535,18 @@ class OpenRowSetWithClauseSegment(BaseSegment):
     )
 
 
+class WhereCurrentOfCursorSegment(BaseSegment):
+    """Used by UPDATE and DELETE statements."""
+
+    type = "where_current_of_cursor_segment"
+    match_grammar = Sequence(
+        "WHERE",
+        "CURRENT",
+        "OF",
+        Ref("CursorNameGrammar"),
+    )
+
+
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
@@ -5329,12 +5593,7 @@ class DeleteStatementSegment(BaseSegment):
                 Ref("FromClauseSegment", optional=True),
                 OneOf(
                     Ref("WhereClauseSegment"),
-                    Sequence(
-                        "WHERE",
-                        "CURRENT",
-                        "OF",
-                        Ref("CursorNameGrammar"),
-                    ),
+                    Ref("WhereCurrentOfCursorSegment"),
                     optional=True,
                 ),
             ),
@@ -5564,11 +5823,14 @@ class UpdateStatementSegment(BaseSegment):
 
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
     Overriding ANSI in order to allow for PostTableExpressionGrammar (table hints)
+
+    https://learn.microsoft.com/en-us/sql/t-sql/queries/update-transact-sql
     """
 
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Ref("TopPercentGrammar", optional=True),
         Indent,
         OneOf(
             Ref("TableReferenceSegment"),
@@ -5580,7 +5842,11 @@ class UpdateStatementSegment(BaseSegment):
         Ref("SetClauseListSegment"),
         Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
+        OneOf(
+            Ref("WhereClauseSegment"),
+            Ref("WhereCurrentOfCursorSegment"),
+            optional=True,
+        ),
         Ref("OptionClauseSegment", optional=True),
     )
 
@@ -5814,8 +6080,8 @@ class TableHintSegment(BaseSegment):
         Sequence(
             "INDEX",
             Ref("EqualsSegment"),
-            Bracketed(
-                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
+            OptionallyBracketed(
+                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment"))
             ),
         ),
         "KEEPIDENTITY",
@@ -6612,179 +6878,298 @@ class LabelStatementSegment(BaseSegment):
     )
 
 
-class AccessStatementSegment(BaseSegment):
-    """A `GRANT` or `REVOKE` statement.
+class AlterAuthorizationStatementSegment(BaseSegment):
+    """alter authorization statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-authorization-transact-sql
+    """
+
+    type = "alter_authorization_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "AUTHORIZATION",
+        "ON",
+        Ref("SecurableSegment"),
+        "TO",
+        OneOf(Ref("RoleReferenceSegment"), Sequence("SCHEMA", "OWNER")),
+    )
+
+
+class SecurableSegment(BaseSegment):
+    """Used by GRANT, DENY, REVOKE and ALTER AUTHORIZATION statements."""
+
+    type = "securable_segment"
+    match_grammar = Sequence(
+        Sequence(
+            OneOf(
+                "ASSEMBLY",
+                Sequence("ASYMMETRIC", "KEY"),
+                "CERTIFICATE",
+                "DATABASE",
+                Sequence("FULLTEXT", "CATALOG"),
+                Sequence("FULLTEXT", "STOPLIST"),
+                "LOGIN",
+                "OBJECT",
+                "ROLE",
+                "SCHEMA",
+                Sequence("SEARCH", "PROPERTY", "LIST"),
+                Sequence("SYMMETRIC", "KEY"),
+                "TYPE",
+                "USER",
+                Sequence("XML", "SCHEMA", "COLLECTION"),
+            ),
+            Ref("CastOperatorSegment"),
+            optional=True,
+        ),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class PermissionsSegment(BaseSegment):
+    """Permissions segment used by GRANT, DENY and REVOKE statements."""
+
+    type = "permissions_segment"
+    match_grammar = Delimited(
+        Sequence(
+            OneOf(
+                Sequence("ADMINISTER", "BULK", "OPERATIONS"),
+                Sequence("ADMINISTER", "DATABASE", "BULK", "OPERATIONS"),
+                "ALTER",
+                Sequence(
+                    "ALTER",
+                    "ANY",
+                    OneOf(
+                        Sequence("APPLICATION", "ROLE"),
+                        "ASSEMBLY",
+                        Sequence("ASYMMETRIC", "KEY"),
+                        Sequence("AVAILABILITY", "GROUP"),
+                        "CONNECTION",
+                        "CREDENTIAL",
+                        "CERTIFICATE",
+                        Sequence("COLUMN", "ENCRYPTION", "KEY"),
+                        Sequence("COLUMN", "MASTER", "KEY", "DEFINITION"),
+                        "CONTRACT",
+                        "DATABASE",
+                        Sequence("DATABASE", "AUDIT"),
+                        Sequence("DATABASE", "DDL", "TRIGGER"),
+                        Sequence("DATABASE", "EVENT", "NOTIFICATION"),
+                        Sequence("DATABASE", "EVENT", "SESSION"),
+                        Sequence("DATABASE", "SCOPED", "CONFIGURATION"),
+                        "DATASPACE",
+                        "ENDPOINT",
+                        Sequence("EVENT", "NOTIFICATION"),
+                        Sequence("EVENT", "SESSION"),
+                        Sequence("EXTERNAL", "DATA", "SOURCE"),
+                        Sequence("EXTERNAL", "FILE", "FORMAT"),
+                        Sequence("EXTERNAL", "LIBRARY"),
+                        Sequence("FULLTEXT", "CATALOG"),
+                        Sequence("LINKED", "SERVER"),
+                        "LOGIN",
+                        "MASK",
+                        Sequence("MESSAGE", "TYPE"),
+                        Sequence("REMOTE", "SERVICE", "BINDING"),
+                        "ROLE",
+                        "ROUTE",
+                        "SCHEMA",
+                        Sequence("SECURITY", "POLICY"),
+                        Sequence("SENSITIVITY", "CLASSIFICATION"),
+                        Sequence("SERVER", "AUDIT"),
+                        Sequence("SERVER", "ROLE"),
+                        "SERVICE",
+                        Sequence("SYMMETRIC", "KEY"),
+                        "USER",
+                    ),
+                ),
+                Sequence("ALTER", "RESOURCES"),
+                Sequence("ALTER", "SERVER", "STATE"),
+                Sequence("ALTER", "SETTINGS"),
+                Sequence("ALTER", "TRACE"),
+                Sequence("APPLY", "MASKING", "POLICY"),
+                "AUTHENTICATE",
+                Sequence("AUTHENTICATE", "SERVER"),
+                Sequence("BACKUP", "DATABASE"),
+                Sequence("BACKUP", "LOG"),
+                "CHECKPOINT",
+                "CONNECT",
+                Sequence("CONNECT", "ANY", "DATABASE"),
+                Sequence("CONNECT", "REPLICATION"),
+                Sequence("CONNECT", "SQL"),
+                "CONTROL",
+                Sequence("CONTROL", "SERVER"),
+                Sequence(
+                    "CREATE",
+                    OneOf(
+                        "AGGREGATE",
+                        Sequence("ANY", "DATABASE"),
+                        Sequence("ANY", "EXTERNAL", "LIBRARY"),
+                        "ASSEMBLY",
+                        Sequence("ASYMMETRIC", "KEY"),
+                        Sequence("AVAILABILITY", "GROUP"),
+                        "CERTIFICATE",
+                        "CONTRACT",
+                        "DATABASE",
+                        Sequence("DATABASE", "DDL", "EVENT", "NOTIFICATION"),
+                        Sequence("DDL", "EVENT", "NOTIFICATION"),
+                        "DEFAULT",
+                        "ENDPOINT",
+                        Sequence("FULLTEXT", "CATALOG"),
+                        "FUNCTION",
+                        "INTEGRATION",
+                        "LOGIN",
+                        Sequence("MESSAGE", "TYPE"),
+                        "PROCEDURE",
+                        "QUEUE",
+                        Sequence("REMOTE", "SERVICE", "BINDING"),
+                        "ROLE",
+                        "ROUTE",
+                        "RULE",
+                        "SCHEMA",
+                        "SEQUENCE",
+                        Sequence("SERVER", "ROLE"),
+                        "SERVICE",
+                        Sequence("SYMMETRIC", "KEY"),
+                        "SYNONYM",
+                        "TABLE",
+                        Sequence("TRACE", "EVENT", "NOTIFICATION"),
+                        "TYPE",
+                        "USER",
+                        "VIEW",
+                        "WAREHOUSE",
+                        Sequence("XML", "SCHEMA", "COLLECTION"),
+                    ),
+                ),
+                "DELETE",
+                "EXECUTE",
+                Sequence("EXECUTE", "ANY", "EXTERNAL", "ENDPOINT"),
+                Sequence("EXECUTE", "ANY", "EXTERNAL", "SCRIPT"),
+                Sequence("EXECUTE", "EXTERNAL", "SCRIPT"),
+                Sequence("EXTERNAL", "ACCESS", "ASSEMBLY"),
+                "IMPERSONATE",
+                Sequence("IMPERSONATE", "ANY", "LOGIN"),
+                "INSERT",
+                Sequence("KILL", "DATABASE", "CONNECTION"),
+                "RECEIVE",
+                "REFERENCES",
+                "SELECT",
+                Sequence("SELECT", "ALL", "USER", "SECURABLES"),
+                "SHOWPLAN",
+                "SHUTDOWN",
+                "SEND",
+                Sequence("SUBSCRIBE", "QUERY", "NOTIFICATIONS"),
+                Sequence("TAKE", "OWNERSHIP"),
+                "UNMASK",
+                Sequence("UNSAFE", "ASSEMBLY"),
+                "UPDATE",
+                Sequence("VIEW", "ANY", "COLUMN", "ENCRYPTION", "KEY", "DEFINITION"),
+                Sequence("VIEW", "ANY", "COLUMN", "MASTER", "KEY", "DEFINITION"),
+                Sequence("VIEW", "ANY", "DATABASE"),
+                Sequence("VIEW", "ANY", "DEFINITION"),
+                Sequence("VIEW", "CHANGE", "TRACKING"),
+                Sequence("VIEW", "DATABASE", "STATE"),
+                Sequence("VIEW", "DEFINITION"),
+                Sequence("VIEW", "SERVER", "STATE"),
+            ),
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        )
+    )
+
+
+class GrantStatementSegment(BaseSegment):
+    """A `GRANT` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql
+    """
+
+    type = "grant_statement"
+
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        OneOf(
+            Ref("PermissionsSegment"),
+            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+        ),
+        "ON",
+        Ref("SecurableSegment"),
+        "TO",
+        Delimited(Ref("RoleReferenceSegment")),
+        Sequence(
+            "WITH",
+            "GRANT",
+            "OPTION",
+            optional=True,
+        ),
+        Sequence(
+            "AS",
+            Ref("RoleReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+
+class DenyStatementSegment(BaseSegment):
+    """A `DENY` statement.
+
     https://docs.microsoft.com/en-us/sql/t-sql/statements/deny-transact-sql
+    """
+
+    type = "deny_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DENY",
+        OneOf(
+            Ref("PermissionsSegment"),
+            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+        ),
+        "ON",
+        Ref("SecurableSegment"),
+        "TO",
+        Delimited(
+            Ref("RoleReferenceSegment"),
+        ),
+        Sequence(
+            Ref.keyword("CASCADE", optional=True),
+            Ref("ObjectReferenceSegment", optional=True),
+            optional=True,
+        ),
+        Sequence(
+            "AS",
+            Ref("RoleReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+
+class RevokeStatementSegment(BaseSegment):
+    """`REVOKE` statement.
+
     https://docs.microsoft.com/en-us/sql/t-sql/statements/revoke-transact-sql
     """
 
-    type = "access_statement"
+    type = "revoke_statement"
 
-    # Privileges that can be set on the account (specific to snowflake)
-    _global_permissions = OneOf(
+    match_grammar: Matchable = Sequence(
+        "REVOKE",
+        Sequence("GRANT", "OPTION", "FOR", optional=True),
+        OneOf(
+            Ref("PermissionsSegment"),
+            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+        ),
+        "ON",
+        Ref("SecurableSegment"),
+        OneOf("TO", "FROM"),
+        Delimited(
+            Ref("RoleReferenceSegment"),
+        ),
         Sequence(
-            "CREATE",
-            OneOf(
-                "ROLE",
-                "USER",
-                "WAREHOUSE",
-                "DATABASE",
-                "INTEGRATION",
-            ),
-        ),
-        Sequence("APPLY", "MASKING", "POLICY"),
-        "EXECUTE",
-    )
-
-    _schema_object_names = [
-        "TABLE",
-        "VIEW",
-        "FUNCTION",
-        "PROCEDURE",
-        "SEQUENCE",
-    ]
-
-    _schema_object_types = OneOf(
-        *_schema_object_names,
-        Sequence("EXTERNAL", "TABLE"),
-        Sequence("FILE", "FORMAT"),
-    )
-
-    # We reuse the object names above and simply append an `S` to the end of them to get
-    # plurals
-    _schema_object_types_plural = OneOf(
-        *[f"{object_name}S" for object_name in _schema_object_names]
-    )
-
-    _permissions = Sequence(
-        OneOf(
-            "ALTER",
-            "CONTROL",
-            "DELETE",
-            "EXECUTE",
-            "INSERT",
-            "RECEIVE",
-            "REFERENCES",
-            "SELECT",
-            Sequence("TAKE", "OWNERSHIP"),
-            "UPDATE",
-            Sequence("VIEW", "CHANGE", "TRACKING"),
-            Sequence("VIEW", "DEFINITION"),
-        ),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-    )
-
-    # All of the object types that we can grant permissions on.
-    # This list will contain ansi sql objects as well as dialect specific ones.
-    _objects = Sequence(
-        OneOf(
-            "DATABASE",
-            "LANGUAGE",
-            "SCHEMA",
-            "ROLE",
-            "TYPE",
-            Sequence(
-                "FOREIGN",
-                OneOf("SERVER", Sequence("DATA", "WRAPPER")),
-            ),
-            Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
-            _schema_object_types,
-            Sequence("ALL", _schema_object_types_plural, "IN", "SCHEMA"),
+            Ref.keyword("CASCADE", optional=True),
+            Ref("ObjectReferenceSegment", optional=True),
             optional=True,
         ),
-        Delimited(Ref("ObjectReferenceSegment"), terminators=["TO", "FROM"]),
-        Ref("FunctionParameterListGrammar", optional=True),
-    )
-
-    match_grammar: Matchable = OneOf(
-        # Based on https://www.postgresql.org/docs/13/sql-grant.html
-        # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
         Sequence(
-            "GRANT",
-            OneOf(
-                Sequence(
-                    Delimited(
-                        OneOf(_global_permissions, _permissions),
-                        terminators=["ON"],
-                    ),
-                ),
-                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-            ),
-            "ON",
-            Sequence(
-                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
-                Ref("CastOperatorSegment"),
-                optional=True,
-            ),
-            _objects,
-            "TO",
-            Delimited(
-                OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment")),
-            ),
-            OneOf(
-                Sequence("WITH", "GRANT", "OPTION"),
-                optional=True,
-            ),
-            Sequence(
-                "AS",
-                Ref("ObjectReferenceSegment"),
-                optional=True,
-            ),
-        ),
-        Sequence(
-            "DENY",
-            OneOf(
-                Delimited(
-                    OneOf(_global_permissions, _permissions),
-                    terminators=["ON"],
-                ),
-                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-            ),
-            "ON",
-            Sequence(
-                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
-                Ref("CastOperatorSegment"),
-                optional=True,
-            ),
-            _objects,
-            OneOf("TO"),
-            Delimited(
-                Ref("RoleReferenceSegment"),
-            ),
-            Sequence(
-                Ref.keyword("CASCADE", optional=True),
-                Ref("ObjectReferenceSegment", optional=True),
-                optional=True,
-            ),
-        ),
-        Sequence(
-            "REVOKE",
-            Sequence("GRANT", "OPTION", "FOR", optional=True),
-            OneOf(
-                Delimited(
-                    OneOf(_global_permissions, _permissions),
-                    terminators=["ON"],
-                ),
-                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-            ),
-            "ON",
-            Sequence(
-                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
-                Ref("CastOperatorSegment"),
-                optional=True,
-            ),
-            _objects,
-            OneOf("TO", "FROM"),
-            Delimited(
-                Ref("RoleReferenceSegment"),
-            ),
-            Sequence(
-                Ref.keyword("CASCADE", optional=True),
-                Ref("ObjectReferenceSegment", optional=True),
-                optional=True,
-            ),
+            "AS",
+            Ref("RoleReferenceSegment"),
+            optional=True,
         ),
     )
 
@@ -6831,7 +7216,6 @@ class OpenCursorStatementSegment(BaseSegment):
     type = "open_cursor_statement"
     match_grammar: Matchable = Sequence(
         "OPEN",
-        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -6845,7 +7229,6 @@ class CloseCursorStatementSegment(BaseSegment):
     type = "close_cursor_statement"
     match_grammar: Matchable = Sequence(
         "CLOSE",
-        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -6859,7 +7242,6 @@ class DeallocateCursorStatementSegment(BaseSegment):
     type = "deallocate_cursor_statement"
     match_grammar: Matchable = Sequence(
         "DEALLOCATE",
-        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -6880,8 +7262,13 @@ class FetchCursorStatementSegment(BaseSegment):
             "LAST",
             Sequence(
                 OneOf("ABSOLUTE", "RELATIVE"),
-                Ref("SignedSegmentGrammar", optional=True),
-                Ref("NumericLiteralSegment"),
+                OneOf(
+                    Sequence(
+                        Ref("SignedSegmentGrammar", optional=True),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Ref("ParameterNameSegment"),
+                ),
             ),
             optional=True,
         ),
@@ -7468,6 +7855,31 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     )
 
 
+class AlterRoleStatementSegment(BaseSegment):
+    """A `ALTER ROLE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-role-transact-sql
+    """
+
+    type = "alter_role_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "ROLE",
+        Ref("RoleReferenceSegment"),
+        OneOf(
+            Sequence("ADD", "MEMBER", Ref("RoleReferenceSegment")),
+            Sequence("DROP", "MEMBER", Ref("RoleReferenceSegment")),
+            Sequence(
+                "WITH",
+                "NAME",
+                Ref("EqualsSegment"),
+                Ref("RoleReferenceSegment"),
+            ),
+        ),
+    )
+
+
 class CreateServerRoleStatementSegment(ansi.CreateRoleStatementSegment):
     """A `CREATE SERVER ROLE` statement.
 
@@ -7701,6 +8113,54 @@ class CopyIntoTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class AlterUserStatementSegment(BaseSegment):
+    """ALTER USER statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-user-transact-sql
+    """
+
+    type = "alter_user_statement"
+    _set_item = OneOf(
+        Sequence("NAME", Ref("EqualsSegment"), Ref("RoleReferenceSegment")),
+        Sequence(
+            "DEFAULT_SCHEMA",
+            Ref("EqualsSegment"),
+            OneOf(Ref("ObjectReferenceSegment"), "NULL"),
+        ),
+        Sequence("LOGIN", Ref("EqualsSegment"), Ref("RoleReferenceSegment")),
+        Sequence(
+            "PASSWORD",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            Sequence(
+                "OLD_PASSWORD",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "DEFAULT_LANGUAGE",
+            Ref("EqualsSegment"),
+            OneOf(
+                "NONE",
+                Ref("NumericLiteralSegment"),
+                Ref("QuotedLiteralSegment"),
+                Ref("NakedIdentifierSegment"),
+            ),
+        ),
+        Sequence(
+            "ALLOW_ENCRYPTED_VALUE_MODIFICATIONS",
+            Ref("EqualsSegment"),
+            OneOf("ON", "OFF"),
+        ),
+    )
+
+    match_grammar = Sequence(
+        "ALTER", "USER", Ref("RoleReferenceSegment"), "WITH", Delimited(_set_item)
     )
 
 

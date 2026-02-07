@@ -1,0 +1,14 @@
+[package]
+name = "sqlfluffrs_python"
+version.workspace = true
+edition = "2021"
+
+[dependencies]
+pyo3 = { version = "0.26.0", features = ["hashbrown", "extension-module", "uuid"] }
+sqlfluffrs_types = { path = "../sqlfluffrs_types" }
+hashbrown = "0.15.5"
+uuid = { version = "1.18.1", features = ["v4"] }
+once_cell = "1.21.3"
+bincode = "1.3.3"
+serde = { version = "1.0.225", features = ["derive"] }
+log = "0.4.28"

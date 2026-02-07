@@ -36,32 +36,3 @@ impl Display for Slice {
         write!(f, "slice({}, {}, None)", self.start, self.stop)
     }
 }
-
-#[cfg(feature = "python")]
-pub mod python {
-    use super::Slice;
-    use pyo3::{prelude::*, types::PySlice};
-
-    impl<'py> FromPyObject<'py> for Slice {
-        fn extract_bound(obj: &pyo3::Bound<'py, pyo3::PyAny>) -> PyResult<Self> {
-            let start = obj.getattr("start")?.extract::<usize>()?;
-            let stop = obj.getattr("stop")?.extract::<usize>()?;
-            Ok(Slice { start, stop })
-        }
-    }
-
-    impl<'py> IntoPyObject<'py> for Slice {
-        type Target = PySlice; // the Python type
-        type Output = Bound<'py, Self::Target>; // in most cases this will be `Bound`
-        type Error = PyErr; // the conversion error type, has to be convertible to `PyErr`
-
-        fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
-            Ok(PySlice::new(
-                py,
-                self.start.try_into()?,
-                self.stop.try_into()?,
-                1,
-            ))
-        }
-    }
-}

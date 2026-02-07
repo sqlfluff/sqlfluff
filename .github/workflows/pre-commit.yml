@@ -1,6 +1,7 @@
 ---
 name: pre-commit
 on:
+  workflow_dispatch:
   pull_request:
   push:
 
@@ -10,46 +11,59 @@ concurrency:
 
 jobs:
   pre-commit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       RAW_LOG: pre-commit.log
       CS_XML: pre-commit.xml
       SKIP: no-commit-to-branch
+      # Tell pre-commit-uv to use uv for creating environments
+      PRE_COMMIT_USE_UV: "1"
+
     steps:
-      - run: sudo apt-get update && sudo apt-get install cppcheck
-        if: false
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        if: false
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
-          cache: pip
-          python-version: 3.12.1
-      - run: python -m pip install pre-commit
-      - uses: actions/cache/restore@v4
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            .pre-commit-config.yaml
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pre-commit/
-          key: pre-commit-4|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml')
-            }}
+          key: pre-commit-4|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install pre-commit
+        run: uv pip install --system pre-commit pre-commit-uv
+
       - name: Run pre-commit hooks
         run: |
           set -o pipefail
           pre-commit gc
           pre-commit run --show-diff-on-failure --color=always --all-files | tee ${RAW_LOG}
+
       - name: Convert Raw Log to Checkstyle format (launch action)
-        uses: mdeweerd/logToCheckStyle@v2024.3.5
+        uses: mdeweerd/logToCheckStyle@v2025.11.2
         if: ${{ failure() }}
         with:
           in: ${{ env.RAW_LOG }}
           out: ${{ env.CS_XML }}
-      - uses: actions/cache/save@v4
-        if: ${{ ! cancelled() }}
-        with:
-          path: ~/.cache/pre-commit/
-          key: pre-commit-4|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml')
-            }}
+
       - name: Provide log as artifact
         uses: actions/upload-artifact@v4
-        if: ${{ ! cancelled() }}
+        if: ${{ !cancelled() }}
         with:
           name: precommit-logs
           path: |

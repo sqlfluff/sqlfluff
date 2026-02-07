@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "4.0.0a3"
+version = "4.0.0"
 description = "The SQL Linter for Humans"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.9"
@@ -98,7 +98,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-rs = ["sqlfluffrs==4.0.0a3"]
+rs = ["sqlfluffrs==4.0.0"]
 
 [project.urls]
 Homepage = "https://www.sqlfluff.com"
@@ -134,7 +134,7 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "3.5.0"
+stable_version = "4.0.0"
 
 
 [tool.setuptools.package-data]
@@ -279,7 +279,7 @@ quiet-level = 2
 # ignore-regex = '\\[fnrstv]'
 builtin = "clear,rare,informal,names"
 
-ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifers,statment"
+ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifers,statment,devlop"
 
 # ignore-words = "dev/tools/codespell/codespell-ignore.txt"
 # exclude-file = "dev/tools/codespell/codespell-lines-ignore.txt"

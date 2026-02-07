@@ -1,0 +1,295 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5d54b54953c0d194abc5acc9fda319c4a3ca3d002a62d160885c46df53f80f8a
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: DAY
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: DAYS
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '3'
+            date_part: WEEK
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '3'
+            date_part: WEEKS
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '6'
+            date_part: HOUR
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '6'
+            date_part: HOURS
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '30'
+            date_part: MINUTE
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '30'
+            date_part: MINUTES
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '45'
+            date_part: SECOND
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '45'
+            date_part: SECONDS
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: MONTH
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: MONTHS
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: YEAR
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: YEARS
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '500'
+            date_part: MILLISECOND
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '500'
+            date_part: MILLISECONDS
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1000'
+            date_part: MICROSECOND
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1000'
+            date_part: MICROSECONDS
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: dts
+          - dot: .
+          - naked_identifier: start_time
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: dts
+                    - dot: .
+                    - naked_identifier: start_time
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: dts
+                    - dot: .
+                    - naked_identifier: start_time
+                  frame_clause:
+                  - keyword: RANGE
+                  - keyword: BETWEEN
+                  - interval_expression:
+                      keyword: INTERVAL
+                      numeric_literal: '3'
+                      date_part: WEEKS
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - interval_expression:
+                      keyword: INTERVAL
+                      numeric_literal: '6'
+                      date_part: HOURS
+                  - keyword: PRECEDING
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_roll
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: range
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'2021-01-01'"
+                        casting_operator: '::'
+                        data_type:
+                          datetime_type_identifier:
+                            keyword: DATE
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'2021-01-02'"
+                        casting_operator: '::'
+                        data_type:
+                          datetime_type_identifier:
+                            keyword: DATE
+                  - comma: ','
+                  - expression:
+                      interval_expression:
+                        keyword: INTERVAL
+                        numeric_literal: '1'
+                        date_part: HOUR
+                  - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: dts
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  naked_identifier: start_time
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            bare_function: current_timestamp
+            binary_operator: +
+            interval_expression:
+              keyword: INTERVAL
+              numeric_literal: '1'
+              date_part: DAYS
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: tomorrow
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bare_function: current_timestamp
+            binary_operator: '-'
+            interval_expression:
+              keyword: INTERVAL
+              numeric_literal: '7'
+              date_part: DAYS
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: last_week
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bare_function: current_timestamp
+            binary_operator: +
+            interval_expression:
+              keyword: INTERVAL
+              numeric_literal: '2'
+              date_part: WEEKS
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: two_weeks_later
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bare_function: current_timestamp
+            binary_operator: '-'
+            interval_expression:
+              keyword: INTERVAL
+              numeric_literal: '3'
+              date_part: MONTHS
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: three_months_ago
+- statement_terminator: ;

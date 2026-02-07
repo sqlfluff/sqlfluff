@@ -750,25 +750,169 @@ class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
     )
 
 
-class CreateViewStatementSegment(sparksql.CreateViewStatementSegment):
+class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
 
     https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-view
-    https://docs.databricks.com/aws/en/dlt-ref/dlt-sql-ref-create-materialized-view
+
+    Does not inherit from SparkSQL to properly support Databricks-specific syntax
+    and to be distinct from `CREATE MATERIALIZED VIEW`.
     """
 
-    match_grammar = sparksql.CreateViewStatementSegment.match_grammar.copy(
-        insert=[
+    type = "create_view_statement"
+
+    _schema_binding_clause = Sequence(
+        "WITH",
+        OneOf(
+            "METRICS",
             Sequence(
-                Ref.keyword("PRIVATE", optional=True),
-                Ref.keyword("MATERIALIZED"),
+                "SCHEMA",
+                OneOf(
+                    "BINDING",
+                    "COMPENSATION",
+                    Sequence(
+                        Ref.keyword("TYPE", optional=True),
+                        "EVOLUTION",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    _view_clauses = AnyNumberOf(
+        Ref("CommentGrammar"),
+        Sequence(
+            "DEFAULT",
+            "COLLATION",
+            Ref("ObjectReferenceSegment"),  # collation_name
+        ),
+        Ref("TablePropertiesGrammar"),
+        Sequence("LANGUAGE", "YAML"),
+        _schema_binding_clause,
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("TEMPORARY", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        _view_clauses,
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            # YAML metric view definition: $$ yaml_string $$
+            Ref("DollarQuotedUDFBody"),
+        ),
+    )
+
+
+class CreateMaterializedViewStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW` Statement.
+
+    Covers both standard Databricks SQL and Lakeflow/DLT syntax:
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-materialized-view
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-materialized-view
+    """
+
+    type = "create_materialized_view_statement"
+
+    _schedule = OneOf(
+        Sequence(
+            "SCHEDULE",
+            Ref.keyword("REFRESH", optional=True),
+            OneOf(
+                Sequence(
+                    "EVERY",
+                    Ref("NumericLiteralSegment"),
+                    OneOf("HOUR", "HOURS", "DAY", "DAYS", "WEEK", "WEEKS"),
+                ),
+                Sequence(
+                    "CRON",
+                    Ref("QuotedLiteralSegment"),
+                    Sequence(
+                        "AT",
+                        "TIME",
+                        "ZONE",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "TRIGGER",
+            "ON",
+            "UPDATE",
+            Sequence(
+                "AT",
+                "MOST",
+                "EVERY",
+                Ref("IntervalExpressionSegment"),
                 optional=True,
             ),
-        ],
-        before=Ref.keyword("MATERIALIZED", optional=True),
-        remove=[
-            Ref.keyword("MATERIALIZED", optional=True),
-        ],
+        ),
+        optional=True,
+    )
+
+    _view_clauses = AnyNumberOf(
+        Ref("PartitionSpecGrammar"),
+        Ref("TableClusterByClauseSegment"),
+        Ref("CommentGrammar"),
+        Sequence(
+            "DEFAULT",
+            "COLLATION",
+            Ref("ObjectReferenceSegment"),
+        ),
+        Ref("TablePropertiesGrammar"),
+        _schedule,
+        Sequence(
+            "WITH",
+            "ROW",
+            "FILTER",
+            Ref("FunctionNameSegment"),
+            Sequence(
+                "ON",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        # OR REPLACE for standard SQL, OR REFRESH for DLT
+        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
+        Ref.keyword("PRIVATE", optional=True),  # DLT-specific
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ColumnFieldDefinitionSegment"),
+            ),
+            optional=True,
+        ),
+        _view_clauses,
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
     )
 
 
@@ -1313,6 +1457,10 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("UnsetTagStatementSegment"),
             # Notebook grammar
             Ref("MagicCellStatementSegment"),
+            # Databricks - Delta Live Tables
+            Ref("ApplyChangesIntoStatementSegment"),
+            Ref("CreateFlowStatementSegment"),
+            Ref("CreateMaterializedViewStatementSegment"),
         ]
     )
 
@@ -1840,4 +1988,137 @@ class SetVariableStatementSegment(BaseSegment):
             set_bracketed,
         ),
         allow_gaps=True,
+    )
+
+
+class CDCSpecificationSegment(BaseSegment):
+    """The segment shared by APPLY CHANGES INTO and CREATE FLOW...AUTO CDC INTO.
+
+    Used for specifying the data location and rules for ingesting a CDC data source
+    """
+
+    type = "cdc_specification_segment"
+
+    match_grammar = Sequence(
+        Ref("FromClauseSegment"),
+        Sequence(
+            "KEYS",
+            Indent,
+            Ref("BracketedColumnReferenceListGrammar"),
+            Dedent,
+        ),
+        Sequence("IGNORE", "NULL", "UPDATES", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                "APPLY",
+                "AS",
+                OneOf("DELETE", "TRUNCATE"),
+                "WHEN",
+                Ref("ColumnReferenceSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # NB: Setting max_times to allow for one instance
+            #     of DELETE and TRUNCATE at most
+            max_times=2,
+        ),
+        Sequence(
+            "SEQUENCE",
+            "BY",
+            Ref("ColumnReferenceSegment"),
+        ),
+        Sequence(
+            "COLUMNS",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "STORED",
+            "AS",
+            "SCD",
+            "TYPE",
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "TRACK",
+            "HISTORY",
+            "ON",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class ApplyChangesIntoStatementSegment(BaseSegment):
+    """A statement to ingest CDC data into a target table.
+
+    https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
+    """
+
+    type = "apply_changes_into_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "APPLY",
+            "CHANGES",
+            "INTO",
+        ),
+        Indent,
+        Ref("TableExpressionSegment"),
+        Dedent,
+        Ref("CDCSpecificationSegment"),
+    )
+
+
+class FlowReferenceSegment(ObjectReferenceSegment):
+    """A reference to a flow."""
+
+    type = "flow_reference"
+
+
+class CreateFlowStatementSegment(BaseSegment):
+    """A statement for creating a flow to ingest CDC data into a target table.
+
+    https://docs.databricks.com/aws/en/ldp/flows
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-apply-changes-into
+    """
+
+    type = "create_flow_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "CREATE",
+            "FLOW",
+        ),
+        Ref("FlowReferenceSegment"),
+        Sequence(
+            "AS",
+            "AUTO",
+            "CDC",
+            "INTO",
+        ),
+        Indent,
+        Ref("TableReferenceSegment"),
+        Dedent,
+        Ref("CDCSpecificationSegment"),
     )
