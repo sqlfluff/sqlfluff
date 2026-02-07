@@ -44,3 +44,30 @@ CREATE DYNAMIC TABLE product
   REQUIRE USER
   AS
     SELECT product_id, product_name FROM staging_table;
+
+CREATE DYNAMIC TABLE product (
+  product_id int COMMENT 'product id',
+  product_name
+)
+  TARGET_LAG = '20 minutes'
+  WAREHOUSE = mywh
+  AS
+    SELECT product_id, product_name FROM staging_table;
+
+CREATE DYNAMIC TABLE product (
+  product_id COMMENT 'product id',
+  product_name,
+  product_description TEXT,
+  "product_price" COMMENT 'product price',
+  product_stock NUMBER COMMENT 'product stock'
+)
+  TARGET_LAG = '20 minutes'
+  WAREHOUSE = mywh
+  AS
+    SELECT
+      product_id,
+      product_name,
+      product_description,
+      product_price,
+      product_stock
+    FROM staging_table;
