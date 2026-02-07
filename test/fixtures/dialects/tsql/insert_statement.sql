@@ -55,3 +55,5 @@ INSERT HumanResources.NewEmployee
   values
   ('Kirk', 'James')
 GO
+
+INSERT TOP (10) PERCENT INTO SomeTable SELECT * FROM SomeOtherTable;

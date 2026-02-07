@@ -75,8 +75,10 @@ export default defineConfig({
     description: 'The SQL Linter for Humans',
     srcExclude: ['**/README.md',],
 
+    base: '/sqlfluff/',
+
     head: [
-        ['link', { rel: 'icon', href: '/favicon.ico' }]
+        ['link', { rel: 'icon', href: '/sqlfluff/favicon.ico' }]
     ],
 
     themeConfig: {
