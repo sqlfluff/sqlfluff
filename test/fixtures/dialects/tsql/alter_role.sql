@@ -1,0 +1,4 @@
+ALTER ROLE SomeRole ADD MEMBER SomeUser;
+ALTER ROLE SomeRole DROP MEMBER SomeUser;
+ALTER ROLE SomeRole WITH NAME = NewName;
+GO
