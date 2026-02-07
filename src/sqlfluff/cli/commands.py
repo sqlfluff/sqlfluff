@@ -8,7 +8,7 @@ import sys
 import time
 from itertools import chain
 from logging import LogRecord
-from typing import Any, Callable, Dict, List, Optional, cast
+from typing import Any, Callable, Dict, List, Optional, Union, cast
 
 # Third-party imports
 import click
