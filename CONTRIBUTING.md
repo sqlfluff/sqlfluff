@@ -86,7 +86,7 @@ changes.
 The simplest way to set up a development environment is to use [`tox`](https://tox.wiki/en/latest/installation.html).
 
 **IMPORTANT:** Python 3.9 is the minimum version we support. Feel free
-to test on anything between `python3.9` and `python3.13`.
+to test on anything between `python3.9` and `python3.14`.
 
 #### Creating a virtual environment
 
@@ -102,7 +102,7 @@ source .venv/bin/activate
 ```
 (The `dbt180` environment is a good default choice.
 However any version can be installed by replacing `dbt180` with
-`py`, `py39` through `py313`, `dbt170` through `dbt1100`, etc.
+`py`, `py39` through `py314`, `dbt170` through `dbt1100`, etc.
 `py` defaults to the python version that was used to install tox.
 To be able to run all tests including the dbt templater,
 choose one of the dbt environments.)
