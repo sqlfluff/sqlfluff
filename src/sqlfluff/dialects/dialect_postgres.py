@@ -1024,7 +1024,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     "FLOAT4",
                     "FLOAT8",
                     "REAL",
-                    Sequence("DOUBLE", Ref.keyword("PRECISION")),
+                    Sequence("DOUBLE", "PRECISION"),
                     "SMALLSERIAL",
                     "SERIAL",
                     "SERIAL2",
