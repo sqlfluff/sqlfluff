@@ -1575,13 +1575,25 @@ class CursorDefinitionSegment(BaseSegment):
     type = "cursor_definition"
     match_grammar: Matchable = Sequence(
         "CURSOR",
-        OneOf("LOCAL", "GLOBAL", optional=True),
-        OneOf("FORWARD_ONLY", "SCROLL", optional=True),
-        OneOf("STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", optional=True),
-        OneOf("READ_ONLY", "SCROLL_LOCKS", "OPTIMISTIC", optional=True),
-        Sequence("TYPE_WARNING", optional=True),
+        AnySetOf(
+            OneOf("LOCAL", "GLOBAL", optional=True),
+            OneOf("FORWARD_ONLY", "SCROLL", optional=True),
+            OneOf("STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", optional=True),
+            OneOf("READ_ONLY", "SCROLL_LOCKS", "OPTIMISTIC", optional=True),
+            Sequence("TYPE_WARNING", optional=True),
+        ),
         "FOR",
         Ref("SelectStatementSegment"),
+        Sequence(
+            "FOR",
+            "UPDATE",
+            Sequence(
+                "OF",
+                Delimited(Ref("ColumnReferenceSegment")),
+                optional=True,
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -1712,7 +1724,10 @@ class SelectClauseSegment(BaseSegment):
 
 
 class UnorderedSelectStatementSegment(BaseSegment):
-    """A `SELECT` statement without any ORDER clauses or later.
+    """A `SELECT` statement without an OPTION clause or later.
+
+    ORDER BY has to be allowed for T-SQL since with TOP clause
+    they are allowed in derived tables and select set segments.
 
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
@@ -1731,6 +1746,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
         Ref("NamedWindowSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
     )
 
 
@@ -1739,11 +1755,13 @@ class InsertStatementSegment(BaseSegment):
 
     Overriding ANSI definition to remove terminator logic that doesn't handle optional
     delimitation well.
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/insert-transact-sql
     """
 
     type = "insert_statement"
     match_grammar = Sequence(
         "INSERT",
+        Ref("TopPercentGrammar", optional=True),
         OneOf(
             Sequence(
                 Ref.keyword("INTO", optional=True),
@@ -1875,6 +1893,10 @@ class SelectStatementSegment(BaseSegment):
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
 
+    ORDER BY was moved from here to UnorderedSelectStatementSegment
+    as T-SQL optional does allow ORDER BY in derived tables and
+    select set segments.
+
     We also need to get away from ANSI's use of terminators.
     There's not a clean list of terminators that can be used
     to identify the end of a TSQL select statement.  Semi-colon is optional.
@@ -1884,7 +1906,6 @@ class SelectStatementSegment(BaseSegment):
     # Remove the Limit and Window statements from ANSI
     match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
-            Ref("OrderByClauseSegment", optional=True),
             Ref("OptionClauseSegment", optional=True),
             Ref("ForClauseSegment", optional=True),
         ]
@@ -3128,11 +3149,28 @@ class DeclareCursorStatementSegment(BaseSegment):
         OneOf(
             Ref("CursorDefinitionSegment"),
             Sequence(
-                Ref.keyword("INSENSITIVE", optional=True),
-                Ref.keyword("SCROLL", optional=True),
+                AnySetOf(
+                    Ref.keyword("INSENSITIVE", optional=True),
+                    Ref.keyword("SCROLL", optional=True),
+                ),
                 "CURSOR",
                 "FOR",
                 Ref("SelectStatementSegment"),
+                Sequence(
+                    "FOR",
+                    OneOf(
+                        "READ_ONLY",
+                        Sequence(
+                            "UPDATE",
+                            Sequence(
+                                "OF",
+                                Delimited(Ref("ColumnReferenceSegment")),
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
             ),
         ),
     )
@@ -4202,7 +4240,11 @@ class ConvertFunctionContentsSegment(BaseSegment):
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Ref("CommaSegment"),
             Ref("ExpressionSegment"),
-            Sequence(Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("ExpressionSegment"),
+                optional=True,
+            ),
         ),
     )
 
@@ -5504,6 +5546,18 @@ class OpenRowSetWithClauseSegment(BaseSegment):
     )
 
 
+class WhereCurrentOfCursorSegment(BaseSegment):
+    """Used by UPDATE and DELETE statements."""
+
+    type = "where_current_of_cursor_segment"
+    match_grammar = Sequence(
+        "WHERE",
+        "CURRENT",
+        "OF",
+        Ref("CursorNameGrammar"),
+    )
+
+
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
@@ -5550,12 +5604,7 @@ class DeleteStatementSegment(BaseSegment):
                 Ref("FromClauseSegment", optional=True),
                 OneOf(
                     Ref("WhereClauseSegment"),
-                    Sequence(
-                        "WHERE",
-                        "CURRENT",
-                        "OF",
-                        Ref("CursorNameGrammar"),
-                    ),
+                    Ref("WhereCurrentOfCursorSegment"),
                     optional=True,
                 ),
             ),
@@ -5785,11 +5834,14 @@ class UpdateStatementSegment(BaseSegment):
 
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
     Overriding ANSI in order to allow for PostTableExpressionGrammar (table hints)
+
+    https://learn.microsoft.com/en-us/sql/t-sql/queries/update-transact-sql
     """
 
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Ref("TopPercentGrammar", optional=True),
         Indent,
         OneOf(
             Ref("TableReferenceSegment"),
@@ -5801,7 +5853,11 @@ class UpdateStatementSegment(BaseSegment):
         Ref("SetClauseListSegment"),
         Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
+        OneOf(
+            Ref("WhereClauseSegment"),
+            Ref("WhereCurrentOfCursorSegment"),
+            optional=True,
+        ),
         Ref("OptionClauseSegment", optional=True),
     )
 
@@ -7171,7 +7227,6 @@ class OpenCursorStatementSegment(BaseSegment):
     type = "open_cursor_statement"
     match_grammar: Matchable = Sequence(
         "OPEN",
-        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -7185,7 +7240,6 @@ class CloseCursorStatementSegment(BaseSegment):
     type = "close_cursor_statement"
     match_grammar: Matchable = Sequence(
         "CLOSE",
-        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -7199,7 +7253,6 @@ class DeallocateCursorStatementSegment(BaseSegment):
     type = "deallocate_cursor_statement"
     match_grammar: Matchable = Sequence(
         "DEALLOCATE",
-        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -7220,8 +7273,13 @@ class FetchCursorStatementSegment(BaseSegment):
             "LAST",
             Sequence(
                 OneOf("ABSOLUTE", "RELATIVE"),
-                Ref("SignedSegmentGrammar", optional=True),
-                Ref("NumericLiteralSegment"),
+                OneOf(
+                    Sequence(
+                        Ref("SignedSegmentGrammar", optional=True),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Ref("ParameterNameSegment"),
+                ),
             ),
             optional=True,
         ),
@@ -7676,7 +7734,7 @@ class OpenJsonWithClauseSegment(BaseSegment):
         Bracketed(
             Delimited(
                 Sequence(
-                    Ref("ColumnReferenceSegment"),
+                    Ref("SingleIdentifierGrammar"),
                     Ref("DatatypeSegment"),
                     Ref("QuotedLiteralSegment", optional=True),  # column_path
                     Sequence(
@@ -7701,11 +7759,11 @@ class OpenJsonSegment(BaseSegment):
     match_grammar = Sequence(
         "OPENJSON",
         Bracketed(
-            Delimited(
-                Ref("QuotedLiteralSegmentOptWithN"),  # jsonExpression
-                Ref("ColumnReferenceSegment"),
-                Ref("ParameterNameSegment"),
-                Ref("QuotedLiteralSegment"),  # path
+            Ref("ExpressionSegment"),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("ExpressionSegment"),
+                optional=True,
             ),
         ),
         Ref("OpenJsonWithClauseSegment", optional=True),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c12bd61279d14289da3f3370ee63f3ed2346d6d81c77b14e268ca723c5fe4c23
+_hash: 665e468c8c616a2e4a5a0eab0002a947475787057b4b4bae6b9a47bae892c2b3
 file:
 - statement:
     access_statement:
@@ -1716,6 +1716,60 @@ file:
     - keyword: SCHEMA
     - object_reference:
         naked_identifier: foo
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: WORKSPACE
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: foo
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: CREATE
+    - keyword: WORKSPACE
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: foo
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: WRITE
+    - keyword: 'ON'
+    - keyword: WORKSPACE
+    - object_reference:
+        naked_identifier: my_workspace
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: WRITE
+    - keyword: 'ON'
+    - keyword: WORKSPACE
+    - object_reference:
+        naked_identifier: my_workspace
     - keyword: FROM
     - keyword: ROLE
     - object_reference:
