@@ -418,6 +418,22 @@ class OutputStreamFormatter(FormatterInterface):
 
         return f"== [{self.colorize(filename, Color.light)}] {status_string}"
 
+    def _format_line_and_pos(
+        self, line_no: Optional[int], line_pos: Optional[int]
+    ) -> tuple[str, str]:
+        """Format line and position elements for consistent display.
+
+        Args:
+            line_no: Line number (None if not available)
+            line_pos: Position within line (None if not available)
+
+        Returns:
+            tuple: (formatted_line_elem, formatted_pos_elem)
+        """
+        line_elem = "   -" if line_no is None else f"{line_no:4d}"
+        pos_elem = "   -" if line_pos is None else f"{line_pos:4d}"
+        return line_elem, pos_elem
+
     def format_violation(
         self,
         violation: Union[SQLBaseError, dict],
@@ -442,8 +458,7 @@ class OutputStreamFormatter(FormatterInterface):
         line_no: int = v_dict["start_line_no"]
         line_pos: int = v_dict["start_line_pos"]
         warning: bool = v_dict["warning"]
-        line_elem = "   -" if line_no is None else f"{line_no:4d}"
-        pos_elem = "   -" if line_pos is None else f"{line_pos:4d}"
+        line_elem, pos_elem = self._format_line_and_pos(line_no, line_pos)
 
         if warning:
             desc = "WARNING: " + desc  # pragma: no cover
@@ -604,7 +619,11 @@ class OutputStreamFormatter(FormatterInterface):
         )
 
     def print_out_residual_error_counts(
-        self, total_errors: int, num_filtered_errors: int, force_stderr: bool = False
+        self,
+        total_errors: int,
+        num_filtered_errors: int,
+        tmp_prs_errors: Optional[dict[str, list[SQLBaseError]]] = None,
+        force_stderr: bool = False,
     ) -> None:
         """Output the residual error totals for the file.
 
@@ -612,6 +631,8 @@ class OutputStreamFormatter(FormatterInterface):
             total_errors (int): The total number of templating & parsing errors.
             num_filtered_errors (int): The number of templating & parsing errors
                 which remain after any noqa and filters applied.
+            tmp_prs_errors (dict[str, list], optional): A dict mapping filenames to
+                lists of templating/parsing errors for detailed reporting.
             force_stderr (bool): Whether to force the output onto stderr. By default
                 the output is on stdout if there are no errors, otherwise stderr.
         """
@@ -620,9 +641,29 @@ class OutputStreamFormatter(FormatterInterface):
                 message=self.colorize(
                     f"  [{total_errors} templating/parsing errors found]", Color.red
                 ),
-                color=self.plain_output,
+                color=not self.plain_output,
                 err=True,
             )
+
+            # Show detailed error information for templating/parsing errors
+            if tmp_prs_errors:
+                # Errors are grouped by file
+                for filepath, errors in tmp_prs_errors.items():
+                    click.echo(
+                        message=self.colorize(f"  == [{filepath}] ==", Color.light),
+                        color=not self.plain_output,
+                        err=True,
+                    )
+                    for error in errors:
+                        formatted_error = self.format_violation(
+                            violation=error, max_line_length=self.output_line_length
+                        )
+                        click.echo(
+                            message=self.colorize(f"  {formatted_error}", Color.red),
+                            color=not self.plain_output,
+                            err=True,
+                        )
+
             if num_filtered_errors < total_errors:
                 color = Color.red if num_filtered_errors else Color.green
                 click.echo(
