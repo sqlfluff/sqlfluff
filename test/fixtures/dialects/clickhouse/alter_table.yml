@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa02c417437d3e2ffe0a5cf16dd624674deb9e5a4c651def7a2d4f42ce29ed63
+_hash: 72ae79dd58799596fe92409eeddf2f547d735ef47b05c6efe732812c3dc994ad
 file:
 - statement:
     alter_table_statement:
@@ -1387,8 +1387,7 @@ file:
     - table_reference:
         naked_identifier: my_table
     - keyword: UPDATE
-    - column_reference:
-        naked_identifier: column_name
+    - naked_identifier: column_name
     - comparison_operator:
         raw_comparison_operator: '='
     - expression:
@@ -1409,8 +1408,7 @@ file:
     - table_reference:
         naked_identifier: my_table
     - keyword: UPDATE
-    - column_reference:
-        naked_identifier: column_name
+    - naked_identifier: column_name
     - comparison_operator:
         raw_comparison_operator: '='
     - expression:
@@ -1437,8 +1435,7 @@ file:
     - table_reference:
         naked_identifier: users
     - keyword: UPDATE
-    - column_reference:
-        naked_identifier: age
+    - naked_identifier: age
     - comparison_operator:
         raw_comparison_operator: '='
     - expression:
@@ -1462,15 +1459,13 @@ file:
     - table_reference:
         naked_identifier: users
     - keyword: UPDATE
-    - column_reference:
-        naked_identifier: status
+    - naked_identifier: status
     - comparison_operator:
         raw_comparison_operator: '='
     - expression:
         quoted_literal: "'active'"
     - comma: ','
-    - column_reference:
-        naked_identifier: last_login
+    - naked_identifier: last_login
     - comparison_operator:
         raw_comparison_operator: '='
     - expression:
@@ -1508,8 +1503,7 @@ file:
       - keyword: CLUSTER
       - quoted_identifier: "'{cluster}'"
     - keyword: UPDATE
-    - column_reference:
-        naked_identifier: price
+    - naked_identifier: price
     - comparison_operator:
         raw_comparison_operator: '='
     - expression:
@@ -1533,8 +1527,7 @@ file:
     - table_reference:
         naked_identifier: events
     - keyword: UPDATE
-    - column_reference:
-        naked_identifier: event_count
+    - naked_identifier: event_count
     - comparison_operator:
         raw_comparison_operator: '='
     - expression:

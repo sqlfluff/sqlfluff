@@ -2170,7 +2170,7 @@ class AlterTableStatementSegment(BaseSegment):
                 "UPDATE",
                 Delimited(
                     Sequence(
-                        Ref("ColumnReferenceSegment"),
+                        Ref("SingleIdentifierGrammar"),
                         Ref("EqualsSegment"),
                         Ref("ExpressionSegment"),
                     ),
