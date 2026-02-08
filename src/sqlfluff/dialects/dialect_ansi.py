@@ -1224,6 +1224,13 @@ class RoleReferenceSegment(ObjectReferenceSegment):
     match_grammar: Matchable = Ref("SingleIdentifierGrammar")
 
 
+class UserReferenceSegment(ObjectReferenceSegment):
+    """A reference to a user."""
+
+    type = "user_reference"
+    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
+
+
 class TablespaceReferenceSegment(ObjectReferenceSegment):
     """A reference to a tablespace."""
 
@@ -3582,6 +3589,278 @@ class DropIndexStatementSegment(BaseSegment):
     )
 
 
+class AccessPermissionSegment(BaseSegment):
+    """An access permission."""
+
+    type = "access_permission"
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "CREATE",
+            OneOf(
+                "ROLE",
+                "USER",
+                "WAREHOUSE",
+                "DATABASE",
+                "INTEGRATION",
+            ),
+        ),
+        Sequence("APPLY", "MASKING", "POLICY"),
+        Sequence("EXECUTE", "TASK"),
+        Sequence("MANAGE", "GRANTS"),
+        Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
+    )
+
+
+class AccessSchemaObjectSegment(BaseSegment):
+    """An access schema object."""
+
+    type = "access_schema_object"
+
+    match_grammar: Matchable = OneOf(
+        "TABLE",
+        "VIEW",
+        "STAGE",
+        "FUNCTION",
+        "PROCEDURE",
+        "ROUTINE",
+        "SEQUENCE",
+        "STREAM",
+        "TASK",
+        "SCHEMA",
+        Sequence("MASKING", "POLICY"),
+        Sequence("MATERIALIZED", "VIEW"),
+        Sequence("EXTERNAL", "TABLE"),
+        Sequence("FILE", "FORMAT"),
+    )
+
+
+class AccessSchemaPluralObjectSegment(BaseSegment):
+    """An access schema plural object."""
+
+    type = "access_schema_plural_object"
+
+    match_grammar: Matchable = OneOf(
+        "TABLES",
+        "VIEWS",
+        "STAGES",
+        "FUNCTIONS",
+        "PROCEDURES",
+        "ROUTINES",
+        "SEQUENCES",
+        "STREAMS",
+        "TASKS",
+        "SCHEMAS",
+        Sequence("MASKING", "POLICIES"),
+        Sequence("MATERIALIZED", "VIEWS"),
+        Sequence("EXTERNAL", "TABLES"),
+        Sequence("FILE", "FORMATS"),
+    )
+
+
+class AccessObjectSegment(BaseSegment):
+    """An access object."""
+
+    type = "access_object"
+
+    match_grammar: Matchable = OneOf(
+        "ACCOUNT",
+        Sequence(
+            OneOf(
+                Sequence("RESOURCE", "MONITOR"),
+                "WAREHOUSE",
+                "DATABASE",
+                "DOMAIN",
+                "INTEGRATION",
+                "LANGUAGE",
+                "SCHEMA",
+                "CATALOG",
+                "ROLE",
+                "TABLESPACE",
+                "TYPE",
+                Sequence(
+                    "FOREIGN",
+                    OneOf("SERVER", Sequence("DATA", "WRAPPER")),
+                ),
+                Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
+                Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
+                Ref("AccessSchemaObjectSegment"),
+                Sequence("ALL", Ref("AccessSchemaPluralObjectSegment"), "IN", "SCHEMA"),
+                Sequence(
+                    "FUTURE",
+                    Ref("AccessSchemaPluralObjectSegment"),
+                    "IN",
+                    OneOf("DATABASE", "SCHEMA"),
+                ),
+                optional=True,
+            ),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    Ref("FunctionNameSegment"),
+                    Ref("FunctionParameterListGrammar", optional=True),
+                ),
+                Ref("WildcardIdentifierSegment"),
+                terminators=["TO", "FROM"],
+            ),
+        ),
+        Sequence("LARGE", "OBJECT", Ref("NumericLiteralSegment")),
+    )
+
+
+class AccessPermissionSegment(BaseSegment):
+    """An access permission."""
+
+    type = "access_permission"
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "CREATE",
+            OneOf(
+                "ROLE",
+                "USER",
+                "WAREHOUSE",
+                "DATABASE",
+                "INTEGRATION",
+            ),
+        ),
+        Sequence("APPLY", "MASKING", "POLICY"),
+        Sequence("EXECUTE", "TASK"),
+        Sequence("MANAGE", "GRANTS"),
+        Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
+        Sequence(
+            OneOf(
+                Sequence(
+                    "CREATE",
+                    OneOf(
+                        "SCHEMA",
+                        Sequence("MASKING", "POLICY"),
+                        "PIPE",
+                        Ref("AccessSchemaObjectSegment"),
+                    ),
+                ),
+                Sequence("USE", OneOf("SCHEMA", "CATALOG")),
+                Sequence("IMPORTED", "PRIVILEGES"),
+                "APPLY",
+                "CONNECT",
+                "CREATE",
+                "DELETE",
+                "EXECUTE",
+                "INSERT",
+                "MODIFY",
+                "MONITOR",
+                "OPERATE",
+                "OWNERSHIP",
+                "READ",
+                "REFERENCE_USAGE",
+                "REFERENCES",
+                "SELECT",
+                "TEMP",
+                "TEMPORARY",
+                "TRIGGER",
+                "TRUNCATE",
+                "UPDATE",
+                "USAGE",
+                "USE_ANY_ROLE",
+                "WRITE",
+                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+            ),
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+    )
+
+
+class AccessPermissionsSegment(BaseSegment):
+    """An set of access permissions."""
+
+    type = "access_permissions"
+    match_grammar: Matchable = Delimited(
+        Ref("AccessPermissionSegment"),
+        terminators=["ON"],
+    )
+
+
+class AccessTargetSegment(BaseSegment):
+    """An access target."""
+
+    type = "access_target"
+
+    match_grammar: Matchable = OneOf(
+        Sequence("GROUP", Delimited(Ref("ObjectReferenceSegment"))),
+        Sequence("USER", Delimited(Ref("UserReferenceSegment"))),
+        Sequence("ROLE", Delimited(Ref("RoleReferenceSegment"))),
+        Sequence("SHARE", Delimited(Ref("ObjectReferenceSegment"))),
+        Delimited(Ref("RoleReferenceSegment")),
+        Delimited(Ref("FunctionSegment")),
+        "PUBLIC",
+    )
+
+
+class GrantStatementSegment(BaseSegment):
+    """A `GRANT` statement."""
+
+    type = "grant_statement"
+
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        OneOf(
+            Sequence(
+                Ref("AccessPermissionsSegment"),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
+            # In the case where a role is granted non-explicitly,
+            # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
+            # See https://www.postgresql.org/docs/current/sql-grant.html
+            Ref("ObjectReferenceSegment"),
+        ),
+        "TO",
+        Ref("AccessTargetSegment"),
+        OneOf(
+            Sequence("WITH", "GRANT", "OPTION"),
+            Sequence("WITH", "ADMIN", "OPTION"),
+            Sequence("COPY", "CURRENT", "GRANTS"),
+            optional=True,
+        ),
+        Sequence(
+            "GRANTED",
+            "BY",
+            OneOf(
+                "CURRENT_USER",
+                "SESSION_USER",
+                Ref("UserReferenceSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class RevokeStatementSegment(BaseSegment):
+    """A `REVOKE` statement."""
+
+    type = "revoke_statement"
+
+    match_grammar: Matchable = Sequence(
+        "REVOKE",
+        Sequence("GRANT", "OPTION", "FOR", optional=True),
+        OneOf(
+            Sequence(
+                Ref("AccessPermissionsSegment"),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
+            Ref("UserReferenceSegment"),
+        ),
+        "FROM",
+        Ref("AccessTargetSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement.
 
@@ -3604,202 +3883,9 @@ class AccessStatementSegment(BaseSegment):
 
     type = "access_statement"
 
-    # Privileges that can be set on the account (specific to snowflake)
-    _global_permissions = OneOf(
-        Sequence(
-            "CREATE",
-            OneOf(
-                "ROLE",
-                "USER",
-                "WAREHOUSE",
-                "DATABASE",
-                "INTEGRATION",
-            ),
-        ),
-        Sequence("APPLY", "MASKING", "POLICY"),
-        Sequence("EXECUTE", "TASK"),
-        Sequence("MANAGE", "GRANTS"),
-        Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
-    )
-
-    _schema_object_names = [
-        "TABLE",
-        "VIEW",
-        "STAGE",
-        "FUNCTION",
-        "PROCEDURE",
-        "ROUTINE",
-        "SEQUENCE",
-        "STREAM",
-        "TASK",
-    ]
-
-    _schema_object_types = OneOf(
-        *_schema_object_names,
-        Sequence("MATERIALIZED", "VIEW"),
-        Sequence("EXTERNAL", "TABLE"),
-        Sequence("FILE", "FORMAT"),
-    )
-
-    # We reuse the object names above and simply append an `S` to the end of them to get
-    # plurals
-    _schema_object_types_plural = OneOf(
-        *[f"{object_name}S" for object_name in _schema_object_names]
-    )
-
-    _permissions = Sequence(
-        OneOf(
-            Sequence(
-                "CREATE",
-                OneOf(
-                    "SCHEMA",
-                    Sequence("MASKING", "POLICY"),
-                    "PIPE",
-                    _schema_object_types,
-                ),
-            ),
-            Sequence("USE", OneOf("SCHEMA", "CATALOG")),
-            Sequence("IMPORTED", "PRIVILEGES"),
-            "APPLY",
-            "CONNECT",
-            "CREATE",
-            "DELETE",
-            "EXECUTE",
-            "INSERT",
-            "MODIFY",
-            "MONITOR",
-            "OPERATE",
-            "OWNERSHIP",
-            "READ",
-            "REFERENCE_USAGE",
-            "REFERENCES",
-            "SELECT",
-            "TEMP",
-            "TEMPORARY",
-            "TRIGGER",
-            "TRUNCATE",
-            "UPDATE",
-            "USAGE",
-            "USE_ANY_ROLE",
-            "WRITE",
-            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-        ),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-    )
-
-    # All of the object types that we can grant permissions on.
-    # This list will contain ansi sql objects as well as dialect specific ones.
-    _objects = OneOf(
-        "ACCOUNT",
-        Sequence(
-            OneOf(
-                Sequence("RESOURCE", "MONITOR"),
-                "WAREHOUSE",
-                "DATABASE",
-                "DOMAIN",
-                "INTEGRATION",
-                "LANGUAGE",
-                "SCHEMA",
-                "CATALOG",
-                "ROLE",
-                "TABLESPACE",
-                "TYPE",
-                Sequence(
-                    "FOREIGN",
-                    OneOf("SERVER", Sequence("DATA", "WRAPPER")),
-                ),
-                Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
-                Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
-                _schema_object_types,
-                Sequence("ALL", _schema_object_types_plural, "IN", "SCHEMA"),
-                Sequence(
-                    "FUTURE",
-                    _schema_object_types_plural,
-                    "IN",
-                    OneOf("DATABASE", "SCHEMA"),
-                ),
-                optional=True,
-            ),
-            Delimited(
-                Ref("ObjectReferenceSegment"),
-                Sequence(
-                    Ref("FunctionNameSegment"),
-                    Ref("FunctionParameterListGrammar", optional=True),
-                ),
-                Ref("WildcardIdentifierSegment"),
-                terminators=["TO", "FROM"],
-            ),
-        ),
-        Sequence("LARGE", "OBJECT", Ref("NumericLiteralSegment")),
-    )
-
     match_grammar: Matchable = OneOf(
-        # Based on https://www.postgresql.org/docs/13/sql-grant.html
-        # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
-        Sequence(
-            "GRANT",
-            OneOf(
-                Sequence(
-                    Delimited(
-                        OneOf(_global_permissions, _permissions),
-                        terminators=["ON"],
-                    ),
-                    "ON",
-                    _objects,
-                ),
-                Sequence("ROLE", Ref("ObjectReferenceSegment")),
-                Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
-                # In the case where a role is granted non-explicitly,
-                # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
-                # See https://www.postgresql.org/docs/current/sql-grant.html
-                Ref("ObjectReferenceSegment"),
-            ),
-            "TO",
-            OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
-            Delimited(
-                OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
-            ),
-            OneOf(
-                Sequence("WITH", "GRANT", "OPTION"),
-                Sequence("WITH", "ADMIN", "OPTION"),
-                Sequence("COPY", "CURRENT", "GRANTS"),
-                optional=True,
-            ),
-            Sequence(
-                "GRANTED",
-                "BY",
-                OneOf(
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    Ref("ObjectReferenceSegment"),
-                ),
-                optional=True,
-            ),
-        ),
-        # Based on https://www.postgresql.org/docs/12/sql-revoke.html
-        Sequence(
-            "REVOKE",
-            Sequence("GRANT", "OPTION", "FOR", optional=True),
-            OneOf(
-                Sequence(
-                    Delimited(
-                        OneOf(_global_permissions, _permissions),
-                        terminators=["ON"],
-                    ),
-                    "ON",
-                    _objects,
-                ),
-                Sequence("ROLE", Ref("ObjectReferenceSegment")),
-                Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
-                Ref("ObjectReferenceSegment"),
-            ),
-            "FROM",
-            OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
-            Delimited(
-                Ref("ObjectReferenceSegment"),
-            ),
-            Ref("DropBehaviorGrammar", optional=True),
-        ),
+        Ref("GrantStatementSegment"),
+        Ref("RevokeStatementSegment"),
     )
 
 
