@@ -3234,6 +3234,7 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         "PIPE",
         "NOTEBOOK",
         "MODEL",
+        "WORKSPACE",
         Sequence("MATERIALIZED", "VIEW"),
         Sequence("DYNAMIC", "TABLE"),
         Sequence("EXTERNAL", "TABLE"),
@@ -3263,6 +3264,7 @@ class AccessSchemaPluralObjectSegment(ansi.AccessSchemaPluralObjectSegment):
         "PIPES",
         "NOTEBOOKS",
         "MODELS",
+        "WORKSPACES",
     )
 
 

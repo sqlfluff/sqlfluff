@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 525ab5199d9795a6860cb226026e30af9ee4b34bc22de913af8be1ecb0c67c69
+_hash: a67ef733b964d84d3610036aa4aec341d0204c30735fc515282c76313142c730
 file:
 - statement:
     access_statement:
@@ -2317,55 +2317,79 @@ file:
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: CREATE
-    - keyword: WORKSPACE
-    - keyword: 'ON'
-    - keyword: SCHEMA
-    - object_reference:
-        naked_identifier: foo
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-        naked_identifier: bar
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+            access_schema_object:
+              keyword: WORKSPACE
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+            naked_identifier: foo
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: bar
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: CREATE
-    - keyword: WORKSPACE
-    - keyword: 'ON'
-    - keyword: SCHEMA
-    - object_reference:
-        naked_identifier: foo
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-        naked_identifier: bar
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+            access_schema_object:
+              keyword: WORKSPACE
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+            naked_identifier: foo
+      - keyword: FROM
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: bar
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: WRITE
-    - keyword: 'ON'
-    - keyword: WORKSPACE
-    - object_reference:
-        naked_identifier: my_workspace
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-        naked_identifier: bar
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: WRITE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: WORKSPACE
+          object_reference:
+            naked_identifier: my_workspace
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: bar
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: WRITE
-    - keyword: 'ON'
-    - keyword: WORKSPACE
-    - object_reference:
-        naked_identifier: my_workspace
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-        naked_identifier: bar
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: WRITE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: WORKSPACE
+          object_reference:
+            naked_identifier: my_workspace
+      - keyword: FROM
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: bar
 - statement_terminator: ;
