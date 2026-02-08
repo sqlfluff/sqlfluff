@@ -3589,29 +3589,6 @@ class DropIndexStatementSegment(BaseSegment):
     )
 
 
-class AccessPermissionSegment(BaseSegment):
-    """An access permission."""
-
-    type = "access_permission"
-
-    match_grammar: Matchable = OneOf(
-        Sequence(
-            "CREATE",
-            OneOf(
-                "ROLE",
-                "USER",
-                "WAREHOUSE",
-                "DATABASE",
-                "INTEGRATION",
-            ),
-        ),
-        Sequence("APPLY", "MASKING", "POLICY"),
-        Sequence("EXECUTE", "TASK"),
-        Sequence("MANAGE", "GRANTS"),
-        Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
-    )
-
-
 class AccessSchemaObjectSegment(BaseSegment):
     """An access schema object."""
 

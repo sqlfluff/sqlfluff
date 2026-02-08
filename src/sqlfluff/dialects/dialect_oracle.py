@@ -3432,6 +3432,7 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
 
 class AccessPermissionsSegment(ansi.AccessPermissionsSegment):
     """An access permission set."""
+
     match_grammar: Matchable = Delimited(
         Sequence(
             Ref("AccessPermissionSegment"),
@@ -3444,8 +3445,9 @@ class AccessPermissionsSegment(ansi.AccessPermissionsSegment):
             OneOf("ANY", "PUBLIC", optional=True),
             Ref("AccessObjectSegment", optional=True),
             Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
-        )
+        ),
     )
+
 
 class AccessObjectSegment(ansi.AccessObjectSegment):
     """An access object."""
@@ -3548,8 +3550,8 @@ class AccessTargetSegment(ansi.AccessTargetSegment):
             ),
         ),
         Delimited(Ref("RoleReferenceSegment"), "PUBLIC"),
-
     )
+
 
 class GrantStatementSegment(ansi.GrantStatementSegment):
     """A `GRANT` statement."""
@@ -3561,7 +3563,9 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
                 OneOf(
                     Sequence(
                         Ref("AccessPermissionsSegment"),
-                        Sequence("ON", "SCHEMA", Ref("SchemaReferenceSegment"), optional=True),
+                        Sequence(
+                            "ON", "SCHEMA", Ref("SchemaReferenceSegment"), optional=True
+                        ),
                         "TO",
                         OneOf(
                             Ref("AccessTargetSegment"),
@@ -3572,7 +3576,9 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
                                 Delimited(Ref("SingleIdentifierGrammar")),
                             ),
                         ),
-                        Sequence("WITH", OneOf("ADMIN", "DELEGATE"), "OPTION", optional=True),
+                        Sequence(
+                            "WITH", OneOf("ADMIN", "DELEGATE"), "OPTION", optional=True
+                        ),
                     ),
                     Sequence(
                         Ref("AccessPermissionsSegment"),
@@ -3590,7 +3596,9 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
                             Delimited(
                                 Sequence(
                                     Sequence(
-                                        Ref("SchemaReferenceSegment"), Ref("DotSegment"), optional=True
+                                        Ref("SchemaReferenceSegment"),
+                                        Ref("DotSegment"),
+                                        optional=True,
                                     ),
                                     Ref("ObjectReferenceSegment"),
                                 ),
@@ -3600,9 +3608,10 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
                         Ref("AccessTargetSegment"),
                         Sequence("WITH", "HIERARCHY", "OPTION", optional=True),
                         Sequence("WITH", "GRANT", "OPTION", optional=True),
-                        OneOf(Sequence("CASCADE", "CONSTRAINTS"), "FORCE", optional=True),
-                    )
-
+                        OneOf(
+                            Sequence("CASCADE", "CONSTRAINTS"), "FORCE", optional=True
+                        ),
+                    ),
                 ),
                 Sequence(
                     "CONTAINER",
@@ -3630,7 +3639,9 @@ class RevokeStatementSegment(ansi.RevokeStatementSegment):
                 OneOf(
                     Sequence(
                         Ref("AccessPermissionsSegment"),
-                        Sequence("ON", "SCHEMA", Ref("SchemaReferenceSegment"), optional=True),
+                        Sequence(
+                            "ON", "SCHEMA", Ref("SchemaReferenceSegment"), optional=True
+                        ),
                         "FROM",
                         OneOf(
                             Ref("AccessTargetSegment"),
@@ -3658,7 +3669,9 @@ class RevokeStatementSegment(ansi.RevokeStatementSegment):
                             Delimited(
                                 Sequence(
                                     Sequence(
-                                        Ref("SchemaReferenceSegment"), Ref("DotSegment"), optional=True
+                                        Ref("SchemaReferenceSegment"),
+                                        Ref("DotSegment"),
+                                        optional=True,
                                     ),
                                     Ref("ObjectReferenceSegment"),
                                 ),
@@ -3666,9 +3679,10 @@ class RevokeStatementSegment(ansi.RevokeStatementSegment):
                         ),
                         "FROM",
                         Ref("AccessTargetSegment"),
-                        OneOf(Sequence("CASCADE", "CONSTRAINTS"), "FORCE", optional=True),
-                    )
-
+                        OneOf(
+                            Sequence("CASCADE", "CONSTRAINTS"), "FORCE", optional=True
+                        ),
+                    ),
                 ),
                 Sequence(
                     "CONTAINER",

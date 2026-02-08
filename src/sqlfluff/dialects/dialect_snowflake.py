@@ -3387,7 +3387,7 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
             ),
             Ref("BracketedColumnReferenceListGrammar", optional=True),
-        )
+        ),
     )
 
 
@@ -3410,71 +3410,71 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
     """A GRANT statement."""
 
     match_grammar = Sequence(
-            "GRANT",
+        "GRANT",
+        OneOf(
+            Sequence(
+                Ref("AccessPermissionsSegment"),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Sequence("DATABASE", "ROLE", Ref("DatabaseRoleReferenceSegment")),
+            Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
+            Sequence(
+                "ADD",
+                "SEARCH",
+                "OPTIMIZATION",
+                "ON",
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence("APPLICATION", "ROLE", Ref("RoleReferenceSegment")),
+            # In the case where a role is granted non-explicitly,
+            # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
+            # See https://docs.snowflake.com/en/sql-reference/sql/grant-role.html
+            Ref("UserReferenceSegment"),
+        ),
+        "TO",
+        Ref("AccessTargetSegment"),
+        OneOf(
+            Sequence("WITH", "GRANT", "OPTION"),
+            Sequence("WITH", "ADMIN", "OPTION"),
+            Sequence(OneOf("REVOKE", "COPY"), "CURRENT", "GRANTS"),
+            optional=True,
+        ),
+        Sequence(
+            "GRANTED",
+            "BY",
             OneOf(
-                Sequence(
-                    Ref("AccessPermissionsSegment"),
-                    "ON",
-                    Ref("AccessObjectSegment"),
-                ),
-                Sequence("ROLE", Ref("RoleReferenceSegment")),
-                Sequence("DATABASE", "ROLE", Ref("DatabaseRoleReferenceSegment")),
-                Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
-                Sequence(
-                    "ADD",
-                    "SEARCH",
-                    "OPTIMIZATION",
-                    "ON",
-                    "SCHEMA",
-                    Ref("SchemaReferenceSegment"),
-                ),
-                Sequence("APPLICATION", "ROLE", Ref("RoleReferenceSegment")),
-                # In the case where a role is granted non-explicitly,
-                # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
-                # See https://docs.snowflake.com/en/sql-reference/sql/grant-role.html
+                "CURRENT_USER",
+                "SESSION_USER",
                 Ref("UserReferenceSegment"),
             ),
-            "TO",
-            Ref("AccessTargetSegment"),
-            OneOf(
-                Sequence("WITH", "GRANT", "OPTION"),
-                Sequence("WITH", "ADMIN", "OPTION"),
-                Sequence(OneOf("REVOKE", "COPY"), "CURRENT", "GRANTS"),
-                optional=True,
-            ),
-            Sequence(
-                "GRANTED",
-                "BY",
-                OneOf(
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    Ref("UserReferenceSegment"),
-                ),
-                optional=True,
-            ),
-        )
+            optional=True,
+        ),
+    )
 
 
 class RevokeStatementSegment(ansi.RevokeStatementSegment):
     """A `REVOKE` statement."""
 
     match_grammar = Sequence(
-            "REVOKE",
-            Sequence("GRANT", "OPTION", "FOR", optional=True),
-            OneOf(
-                Sequence(
-                    Ref("AccessPermissionsSegment"),
-                    "ON",
-                    Ref("AccessObjectSegment"),
-                ),
-                Sequence("ROLE", Ref("RoleReferenceSegment")),
-                Sequence("DATABASE", "ROLE", Ref("DatabaseRoleReferenceSegment")),
-                Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
+        "REVOKE",
+        Sequence("GRANT", "OPTION", "FOR", optional=True),
+        OneOf(
+            Sequence(
+                Ref("AccessPermissionsSegment"),
+                "ON",
+                Ref("AccessObjectSegment"),
             ),
-            "FROM",
-            Ref("AccessTargetSegment"),
-            Ref("DropBehaviorGrammar", optional=True),
-        )
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Sequence("DATABASE", "ROLE", Ref("DatabaseRoleReferenceSegment")),
+            Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
+        ),
+        "FROM",
+        Ref("AccessTargetSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
 
 
 class CreateCloneStatementSegment(BaseSegment):
@@ -10184,4 +10184,3 @@ class CreateAuthenticationPolicySegment(BaseSegment):
             optional=True,
         ),
     )
-

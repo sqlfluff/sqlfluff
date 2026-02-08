@@ -1206,7 +1206,7 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
         "ON",
         Ref("AccessObjectSegment"),
         "TO",
-        Ref("AccessTargetSegment")
+        Ref("AccessTargetSegment"),
     )
 
 
