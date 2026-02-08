@@ -40,3 +40,4 @@ types-tqdm
 # ----
 requests
 ghapi
+fastcore!=1.12.2 # 1.12.2 breaks for python <= 3.11, revisit later

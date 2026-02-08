@@ -163,6 +163,15 @@ class Rule_ST02(BaseRule):
             when_clauses = children.select(sp.is_type("when_clause"))
             else_clauses = children.select(sp.is_type("else_clause"))
 
+            # Guard clause: Skip Simple CASE statements (CASE x WHEN y THEN...)
+            # Only Searched CASE statements (CASE WHEN x=y THEN...) can be simplified.
+            for child in children:
+                # if we find an expression before the first WHEN clause, abort
+                if child.is_type("when_clause"):
+                    break
+                if child.is_type("expression"):
+                    return None
+
             # Can't fix if multiple WHEN clauses.
             if len(when_clauses) > 1:
                 return None

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72edb2ae4aca805149ab4371f61fa26037ba5d94f168b2f77bc14ef0292de940
+_hash: 3faec04198d5887e8113acbe6c48af17edab9cf0ef8f6bd1fd04751f522c0ef7
 file:
 - statement:
     create_procedure_statement:
@@ -434,12 +434,10 @@ file:
     - keyword: COPY
     - keyword: GRANTS
     - keyword: RETURNS
-    - data_type:
-        data_type_identifier: TABLE
-        bracketed_arguments:
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+    - keyword: TABLE
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
     - keyword: LANGUAGE
     - keyword: PYTHON
     - keyword: RUNTIME_VERSION

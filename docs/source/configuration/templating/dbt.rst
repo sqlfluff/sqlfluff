@@ -3,16 +3,6 @@
 :code:`dbt` templater
 ^^^^^^^^^^^^^^^^^^^^^
 
-.. note::
-    From sqlfluff version 0.7.0 onwards, the dbt templater has been moved
-    to a separate plugin and python package. Projects that were already using
-    the dbt templater may initially fail after an upgrade to 0.7.0+. See the
-    installation instructions below to install the dbt templater.
-
-    dbt templating is still a relatively new feature added in 0.4.0 and
-    is still in very active development! If you encounter an issue, please
-    let us know in a GitHub issue or on the SQLFluff slack workspace.
-
 :code:`dbt` is not the default templater for *SQLFluff* (it is :code:`jinja`).
 :code:`dbt` is a complex tool, so using the default :code:`jinja` templater
 will be simpler. You should be aware when using the :code:`dbt` templater that
@@ -72,12 +62,9 @@ In *.sqlfluffignore*:
 
 .. code-block:: text
 
-    target/
-    # dbt <1.0.0
-    dbt_modules/
-    # dbt >=1.0.0
     dbt_packages/
     macros/
+    target/
 
 You can set the dbt project directory, profiles directory and profile with:
 
@@ -147,9 +134,3 @@ Known Caveats
 - To use the dbt templater, you must set `templater = dbt` in the `.sqlfluff`
   config file in the directory where sqlfluff is run. The templater cannot
   be changed in `.sqlfluff` files in subdirectories.
-- In SQLFluff 0.4.0 using the dbt templater requires that all files
-  within the root and child directories of the dbt project must be part
-  of the project. If there are deployment scripts which refer to SQL files
-  not part of the project for instance, this will result in an error.
-  You can overcome this by adding any non-dbt project SQL files to
-  .sqlfluffignore.

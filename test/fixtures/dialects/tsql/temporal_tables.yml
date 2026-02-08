@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b2fdeb90ef3c094941357d2bbda4dcc9cebb8d2f80f2e5e5a3c9825b1d12d6b
+_hash: f26dac24e4fff2279fae0f74509b3da2113ead4e4dd84db15a13d96c9c350248
 file:
 - batch:
   - statement:
@@ -736,16 +736,18 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: ROW
+          - comma: ','
           - keyword: XML_COMPRESSION
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: 'ON'
-          - keyword: 'ON'
-          - keyword: PARTITIONS
-          - bracketed:
-              start_bracket: (
-              numeric_literal: '2'
-              end_bracket: )
+          - on_partitions_clause:
+            - keyword: 'ON'
+            - keyword: PARTITIONS
+            - bracketed:
+                start_bracket: (
+                numeric_literal: '2'
+                end_bracket: )
           - end_bracket: )
     statement_terminator: ;
     go_statement:
@@ -803,14 +805,16 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: PAGE
-          - keyword: 'ON'
-          - keyword: PARTITIONS
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '3'
-            - comma: ','
-            - numeric_literal: '5'
-            - end_bracket: )
+          - on_partitions_clause:
+            - keyword: 'ON'
+            - keyword: PARTITIONS
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '3'
+              - comma: ','
+              - numeric_literal: '5'
+              - end_bracket: )
+          - comma: ','
           - keyword: XML_COMPRESSION
           - comparison_operator:
               raw_comparison_operator: '='
@@ -872,14 +876,15 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: 'ON'
-          - keyword: 'ON'
-          - keyword: PARTITIONS
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '3'
-            - keyword: TO
-            - numeric_literal: '5'
-            - end_bracket: )
+          - on_partitions_clause:
+            - keyword: 'ON'
+            - keyword: PARTITIONS
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '3'
+              - keyword: TO
+              - numeric_literal: '5'
+              - end_bracket: )
           - comma: ','
           - keyword: FILETABLE_DIRECTORY
           - comparison_operator:

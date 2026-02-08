@@ -226,7 +226,9 @@ clickhouse_dialect.replace(
             r"[a-zA-Z_][0-9a-zA-Z_]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
         )
     ),
     SingleIdentifierGrammar=OneOf(
@@ -2164,6 +2166,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
             ),
         ),
+        Ref("SettingsClauseSegment", optional=True),
     )
 
 
