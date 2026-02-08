@@ -35,9 +35,9 @@ SELECT JSON_VALUE(json_column, '$.address.city') FROM customers;
 SELECT JSON_VALUE(@json_data, '$.id');
 
 -- JSON_VALUE with RETURNING clause
-SELECT JSON_VALUE('{"age":30}', '$.age' RETURNING int);
-SELECT JSON_VALUE('{"price":99.99}', '$.price' RETURNING decimal(10,2));
-SELECT JSON_VALUE('{"created":"2024-01-01"}', '$.created' RETURNING datetime2);
+SELECT JSON_VALUE(CONVERT(JSON, '{"age":30}'), '$.age' RETURNING int);
+SELECT JSON_VALUE(CONVERT(JSON, '{"price":99.99}'), '$.price' RETURNING decimal(10,2));
+SELECT JSON_VALUE(CONVERT(JSON, '{"created":"2024-01-01"}'), '$.created' RETURNING datetime2);
 
 -- JSON_VALUE with complex path
 SELECT JSON_VALUE('{"users":[{"name":"John"},{"name":"Jane"}]}', '$.users[0].name');

@@ -27,6 +27,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: SQL",
     "Topic :: Utilities",
@@ -279,7 +280,7 @@ quiet-level = 2
 # ignore-regex = '\\[fnrstv]'
 builtin = "clear,rare,informal,names"
 
-ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifers,statment"
+ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifers,statment,devlop"
 
 # ignore-words = "dev/tools/codespell/codespell-ignore.txt"
 # exclude-file = "dev/tools/codespell/codespell-lines-ignore.txt"

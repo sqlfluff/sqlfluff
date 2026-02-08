@@ -2166,6 +2166,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
             ),
         ),
+        Ref("SettingsClauseSegment", optional=True),
     )
 
 

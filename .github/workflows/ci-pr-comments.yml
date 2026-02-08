@@ -15,7 +15,7 @@ on:
 
 jobs:
   comment-on-pr:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     if: >
       github.event.workflow_run.event == 'pull_request'
     steps:

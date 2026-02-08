@@ -25,6 +25,7 @@ class FormatType(Enum):
     human = "human"
     json = "json"
     yaml = "yaml"
+    sarif = "sarif"
     github_annotation = "github-annotation"
     github_annotation_native = "github-annotation-native"
     none = "none"  # An option to return _no output_.
