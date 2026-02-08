@@ -10,7 +10,34 @@ permissions:
   contents: read
 
 jobs:
+  generate-rust-dialects:
+    name: Generate Rust dialects
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Generate Rust dialects
+        run: |
+          pip install -e .
+          python utils/rustify.py build
+
+      - name: Upload generated Rust dialects
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-rust-dialects
+          path: sqlfluffrs/sqlfluffrs_dialects/src/
+          retention-days: 1
+
   build-wheels:
+    needs: [generate-rust-dialects]
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
@@ -40,6 +67,12 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Download generated Rust dialects
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-rust-dialects
+          path: sqlfluffrs/sqlfluffrs_dialects/src/
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -60,11 +93,18 @@ jobs:
           path: dist
 
   sdist:
+    needs: [generate-rust-dialects]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 1
+
+      - name: Download generated Rust dialects
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-rust-dialects
+          path: sqlfluffrs/sqlfluffrs_dialects/src/
 
       - name: Build sdist
         uses: PyO3/maturin-action@v1
