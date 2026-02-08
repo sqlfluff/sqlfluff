@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     Matchable,
     OneOf,
     OptionallyBracketed,
+    OptionallyDelimited,
     ParseMode,
     Ref,
     Sequence,
@@ -722,4 +723,232 @@ class CreateFunctionStatementSegment(mysql.CreateFunctionStatementSegment):
     match_grammar = mysql.CreateFunctionStatementSegment.match_grammar.copy(
         insert=[Ref("OrReplaceGrammar", optional=True)],
         before=Ref("FunctionKeywordSegment"),
+    )
+
+
+class TableOptionsSegment(mysql.TableOptionsSegment):
+    """MariaDB table options for CREATE/ALTER TABLE statements.
+
+    https://mariadb.com/kb/en/create-table/
+    """
+
+    type = "table_options"
+
+    match_grammar = OptionallyDelimited(
+        OneOf(
+            # [STORAGE] ENGINE [=] engine_name
+            Sequence(
+                Ref.keyword("STORAGE", optional=True),
+                "ENGINE",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # AUTO_INCREMENT [=] number
+            Sequence(
+                "AUTO_INCREMENT",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # AVG_ROW_LENGTH [=] number
+            Sequence(
+                "AVG_ROW_LENGTH",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # [DEFAULT] CHARACTER SET [=] charset_name
+            Sequence(
+                Ref.keyword("DEFAULT", optional=True),
+                "CHARACTER",
+                "SET",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # CHECKSUM [=] {0 | 1}
+            Sequence(
+                "CHECKSUM",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # [DEFAULT] COLLATE [=] collation_name
+            Sequence(
+                Ref.keyword("DEFAULT", optional=True),
+                "COLLATE",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # COMMENT [=] 'string'
+            Sequence(
+                "COMMENT",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # CONNECTION [=] 'connect_string'
+            Sequence(
+                "CONNECTION",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # DATA DIRECTORY [=] 'absolute path to directory'
+            Sequence(
+                "DATA",
+                "DIRECTORY",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # DELAY_KEY_WRITE [=] {0 | 1}
+            Sequence(
+                "DELAY_KEY_WRITE",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # ENCRYPTED [=] {YES | NO}
+            Sequence(
+                "ENCRYPTED",
+                Ref("EqualsSegment", optional=True),
+                OneOf("YES", "NO"),
+            ),
+            # ENCRYPTION_KEY_ID [=] number
+            Sequence(
+                "ENCRYPTION_KEY_ID",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # IETF_QUOTES [=] {YES | NO}
+            Sequence(
+                "IETF_QUOTES",
+                Ref("EqualsSegment", optional=True),
+                OneOf("YES", "NO"),
+            ),
+            # INDEX DIRECTORY [=] 'absolute path to directory'
+            Sequence(
+                "INDEX",
+                "DIRECTORY",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # INSERT_METHOD [=] { NO | FIRST | LAST }
+            Sequence(
+                "INSERT_METHOD",
+                Ref("EqualsSegment", optional=True),
+                OneOf("NO", "FIRST", "LAST"),
+            ),
+            # KEY_BLOCK_SIZE [=] number
+            Sequence(
+                "KEY_BLOCK_SIZE",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # MAX_ROWS [=] number
+            Sequence(
+                "MAX_ROWS",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # MIN_ROWS [=] number
+            Sequence(
+                "MIN_ROWS",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # PACK_KEYS [=] {0 | 1 | DEFAULT}
+            Sequence(
+                "PACK_KEYS",
+                Ref("EqualsSegment", optional=True),
+                OneOf(Ref("NumericLiteralSegment"), "DEFAULT"),
+            ),
+            # PAGE_CHECKSUM [=] {0 | 1}
+            Sequence(
+                "PAGE_CHECKSUM",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # PAGE_COMPRESSED [=] {0 | 1}
+            Sequence(
+                "PAGE_COMPRESSED",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # PAGE_COMPRESSION_LEVEL [=] {0 .. 9}
+            Sequence(
+                "PAGE_COMPRESSION_LEVEL",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # PASSWORD [=] 'string'
+            Sequence(
+                "PASSWORD",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # ROW_FORMAT [=] {DEFAULT|DYNAMIC|FIXED|COMPRESSED|REDUNDANT|COMPACT|PAGE}
+            Sequence(
+                "ROW_FORMAT",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    "DEFAULT",
+                    "DYNAMIC",
+                    "FIXED",
+                    "COMPRESSED",
+                    "REDUNDANT",
+                    "COMPACT",
+                    "PAGE",
+                ),
+            ),
+            # SEQUENCE [=] {0|1}
+            Sequence(
+                "SEQUENCE",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # STATS_AUTO_RECALC [=] {DEFAULT|0|1}
+            Sequence(
+                "STATS_AUTO_RECALC",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    "DEFAULT",
+                    Ref("NumericLiteralSegment"),
+                ),
+            ),
+            # STATS_PERSISTENT [=] {DEFAULT|0|1}
+            Sequence(
+                "STATS_PERSISTENT",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    "DEFAULT",
+                    Ref("NumericLiteralSegment"),
+                ),
+            ),
+            # STATS_SAMPLE_PAGES [=] {DEFAULT|number}
+            Sequence(
+                "STATS_SAMPLE_PAGES",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    "DEFAULT",
+                    Ref("NumericLiteralSegment"),
+                ),
+            ),
+            # TABLESPACE tablespace_name
+            Sequence(
+                "TABLESPACE",
+                Ref("NakedIdentifierSegment"),
+            ),
+            # TRANSACTIONAL [=] {0 | 1}
+            Sequence(
+                "TRANSACTIONAL",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # UNION [=] (tbl_name[,tbl_name]...)
+            Sequence(
+                "UNION",
+                Ref("EqualsSegment", optional=True),
+                Bracketed(Delimited(Ref("TableReferenceSegment"))),
+            ),
+            # WITH SYSTEM VERSIONING
+            Sequence(
+                "WITH",
+                "SYSTEM",
+                "VERSIONING",
+            ),
+        ),
     )
