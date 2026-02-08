@@ -149,7 +149,8 @@ class Rule_AM07(BaseRule):
         # When SELECT is omitted, it's treated as an implicit SELECT *
         if not selectable.select_info:
             self.logger.debug(
-                "No select_info (e.g., implicit SELECT *): %r", selectable.selectable.raw
+                "No select_info (e.g., implicit SELECT *): %r",
+                selectable.selectable.raw,
             )
             # Cannot resolve implicit wildcards, return unresolved
             return 0, False
