@@ -10,6 +10,13 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [4.0.2] - 2026-02-08
+
+Draft release for 4.0.2 due to deploy issues with 4.0.1
+## New Contributors
+
+
+
 ## [4.0.1] - 2026-02-08
 
 ## Highlights
