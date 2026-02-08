@@ -2532,163 +2532,80 @@ class DropConnectionStatementSegment(BaseSegment):
 ############################
 # GRANT / REVOKE
 ############################
-class AccessStatementSegment(BaseSegment):
-    """`GRANT` / `REVOKE` statement.
-
-    https://docs.exasol.com/sql/grant.htm
-    https://docs.exasol.com/sql/revoke.htm
-    """
-
-    type = "access_statement"
-
-    is_ddl = False
-    is_dml = False
-    is_dql = False
-    is_dcl = True
+class GrantStatementSegment(ansi.GrantStatementSegment):
+    """`GRANT` statement."""
 
     match_grammar = Sequence(
-        OneOf("GRANT", "REVOKE"),
-        OneOf(
-            Ref("GrantRevokeSystemPrivilegesSegment"),
-            Ref("GrantRevokeObjectPrivilegesSegment"),
-            Ref("GrantRevokeRolesSegment"),
-            Ref("GrantRevokeImpersonationSegment"),
-            Ref("GrantRevokeConnectionSegment"),
-            Ref("GrantRevokeConnectionRestrictedSegment"),
-        ),
-    )
-
-
-class GrantRevokeSystemPrivilegesSegment(BaseSegment):
-    """`GRANT` / `REVOKE` system privileges."""
-
-    type = "grant_revoke_system_privileges"
-    match_grammar = Sequence(
-        OneOf(
-            Sequence(
-                "ALL",
-                Ref.keyword(
-                    "PRIVILEGES",
-                    optional=True,
+        "GRANT",
+        Ref("AccessPermissionsSegment"),
+        Ref("AccessObjectSegment", optional=True),
+        Sequence(
+            "ON",
+            OneOf(
+                Sequence(
+                    Ref("AccessObjectSegment", optional=True),
+                    Ref("ObjectReferenceSegment"),
                 ),
+                Sequence("ALL", Ref.keyword("OBJECTS", optional=True)),
             ),
-            Delimited(
-                Ref("SystemPrivilegesSegment"),
-                terminators=["TO", "FROM"],
-            ),
-        ),
-        OneOf("TO", "FROM"),
-        Delimited(
-            Ref("NakedIdentifierSegment"),
-        ),
-        Sequence("WITH", "ADMIN", "OPTION", optional=True),  # Grant only
-    )
-
-
-class GrantRevokeObjectPrivilegesSegment(BaseSegment):
-    """`GRANT` / `REVOKE` object privileges."""
-
-    type = "grant_revoke_object_privileges"
-    match_grammar = Sequence(
-        OneOf(
-            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-            Delimited(Ref("ObjectPrivilegesSegment"), terminators=["ON"]),
-        ),
-        "ON",
-        OneOf(
-            OneOf("SCHEMA", "TABLE", "VIEW", "FUNCTION", "SCRIPT"),
-            Sequence("ALL", Ref.keyword("OBJECTS", optional=True)),  # Revoke only
             optional=True,
         ),
-        Ref("ObjectReferenceSegment"),
-        OneOf(
-            Sequence(  # Grant only
-                "TO",
-                Delimited(Ref("SingleIdentifierGrammar")),
-            ),
-            Sequence(  # Revoke only
-                "FROM",
-                Delimited(Ref("SingleIdentifierGrammar")),
-                Sequence("CASCADE", "CONSTRAINTS", optional=True),
-            ),
-        ),
-    )
-
-
-class GrantRevokeRolesSegment(BaseSegment):
-    """`GRANT` / `REVOKE` roles."""
-
-    type = "grant_revoke_roles"
-    match_grammar = Sequence(
-        OneOf(
-            Sequence("ALL", "ROLES"),  # Revoke only
-            Delimited(Ref("RoleReferenceSegment"), terminators=["TO", "FROM"]),
-        ),
-        OneOf("TO", "FROM"),
-        Delimited(Ref("RoleReferenceSegment")),
-        Sequence("WITH", "ADMIN", "OPTION", optional=True),  # Grant only
-    )
-
-
-class GrantRevokeImpersonationSegment(BaseSegment):
-    """`GRANT` / `REVOKE` impersonation."""
-
-    type = "grant_revoke_impersonation"
-    match_grammar = Sequence(
-        "IMPERSONATION",
-        "ON",
-        Delimited(
-            Ref("SingleIdentifierGrammar"),
-            terminators=["TO", "FROM"],
-        ),
-        OneOf("TO", "FROM"),
-        Delimited(Ref("SingleIdentifierGrammar")),
-    )
-
-
-class GrantRevokeConnectionSegment(BaseSegment):
-    """`GRANT` / `REVOKE` connection."""
-
-    type = "grant_revoke_connection"
-    match_grammar = Sequence(
-        "CONNECTION",
-        Delimited(
-            Ref("SingleIdentifierGrammar"),
-            terminators=["TO", "FROM"],
-        ),
-        OneOf("TO", "FROM"),
-        Delimited(Ref("SingleIdentifierGrammar")),
+        "TO",
+        Ref("AccessTargetSegment"),
         Sequence("WITH", "ADMIN", "OPTION", optional=True),
     )
 
 
-class GrantRevokeConnectionRestrictedSegment(BaseSegment):
-    """`GRANT` / `REVOKE` connection restricted."""
+class RevokeStatementSegment(ansi.RevokeStatementSegment):
+    """`REVOKE` statement."""
 
-    type = "grant_revoke_connection_restricted"
     match_grammar = Sequence(
-        "ACCESS",
-        "ON",
-        "CONNECTION",
-        Ref("SingleIdentifierGrammar"),
+        "REVOKE",
+        Ref("AccessPermissionsSegment"),
+        Ref("AccessObjectSegment", optional=True),
         Sequence(
-            "FOR",
-            OneOf("SCRIPT", "SCHEMA", optional=True),
-            Ref("SingleIdentifierGrammar"),
+            "ON",
+            OneOf(
+                Sequence(
+                    Ref("AccessObjectSegment", optional=True),
+                    Ref("ObjectReferenceSegment"),
+                ),
+                Sequence("ALL", Ref.keyword("OBJECTS", optional=True)),
+            ),
+            optional=True,
         ),
-        OneOf("TO", "FROM"),
-        Delimited(Ref("SingleIdentifierGrammar")),
+        "FROM",
+        Ref("AccessTargetSegment"),
     )
 
 
-class SystemPrivilegesSegment(BaseSegment):
-    """System privileges.
+class AccessTargetSegment(ansi.AccessTargetSegment):
+    """An access target."""
+
+    match_grammar = Delimited(
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """Access permissions.
 
     https://docs.exasol.com/database_concepts/privileges/details_rights_management.htm#System_Privileges
     """
 
-    type = "system_privilege"
     match_grammar = OneOf(
+        "ALTER",
+        "SELECT",
+        "INSERT",
+        "UPDATE",
+        "DELETE",
+        "REFERENCES",
+        "EXECUTE",
+        # Revoke only
+        "IMPORT",
+        "EXPORT",
+        # System Privileges
+        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
         Sequence("GRANT", "ANY", "OBJECT", "PRIVILEGE"),
         Sequence("GRANT", "ANY", "PRIVILEGE"),
         Sequence("SET", "ANY", "CONSUMER", "GROUP"),
@@ -2725,27 +2642,36 @@ class SystemPrivilegesSegment(BaseSegment):
         ),
         "IMPORT",
         "EXPORT",
+        Sequence("IMPERSONATION", "ON", Ref("UserReferenceSegment")),
+        Sequence("CONNECTION", Ref("ObjectReferenceSegment")),
+        Sequence("ALL", "ROLES"),  # Revoke only
+        Delimited(Ref("RoleReferenceSegment"), terminators=["TO", "FROM"]),
+        Sequence(
+            "ACCESS",
+            "ON",
+            "CONNECTION",
+            Ref("SingleIdentifierGrammar"),
+            Sequence(
+                "FOR",
+                OneOf("SCRIPT", "SCHEMA", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
     )
 
 
-class ObjectPrivilegesSegment(BaseSegment):
+class AccessObjectSegment(ansi.AccessObjectSegment):
     """Object privileges.
 
     https://docs.exasol.com/database_concepts/privileges/details_rights_management.htm#System_Privileges
     """
 
-    type = "object_privilege"
     match_grammar = OneOf(
-        "ALTER",
-        "SELECT",
-        "INSERT",
-        "UPDATE",
-        "DELETE",
-        "REFERENCES",
-        "EXECUTE",
-        # Revoke only
-        "IMPORT",
-        "EXPORT",
+        "FUNCTION",
+        "SCHEMA",
+        "SCRIPT",
+        "TABLE",
+        "VIEW",
     )
 
 
