@@ -542,3 +542,59 @@ test_align_alias_with_tabs_custom_tab_size:
           spacing_before: align
           align_within: select_clause
           align_scope: bracketed
+
+test_align_sparksql_comment_clauses:
+  # Regression test for https://github.com/sqlfluff/sqlfluff/issues/XXXX
+  # SparkSQL CREATE TABLE with both data_type and column_constraint_segment
+  # (COMMENT) alignment should work in a single pass.
+  fail_str: |
+    CREATE TABLE mytable (
+        date_pk               STRING        COMMENT 'Date',
+        year_num        INT  COMMENT 'Year'
+    )
+  fix_str: |
+    CREATE TABLE mytable (
+        date_pk  STRING COMMENT 'Date',
+        year_num INT    COMMENT 'Year'
+    )
+  configs:
+    core:
+      dialect: sparksql
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: statement
+        column_constraint_segment:
+          spacing_before: align
+          align_within: statement
+
+test_align_sparksql_comment_clauses_with_varying_lengths:
+  # More comprehensive test with varied column and type lengths
+  fail_str: |
+    CREATE TABLE IF NOT EXISTS mytable (
+        a INT COMMENT 'First',
+        very_long_column_name VARCHAR(100) COMMENT 'Second',
+        medium_col BIGINT COMMENT 'Third'
+    )
+    USING ICEBERG
+  fix_str: |
+    CREATE TABLE IF NOT EXISTS mytable (
+        a                     INT          COMMENT 'First',
+        very_long_column_name VARCHAR(100) COMMENT 'Second',
+        medium_col            BIGINT       COMMENT 'Third'
+    )
+    USING ICEBERG
+  configs:
+    core:
+      dialect: sparksql
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: statement
+          align_scope: file
+        column_constraint_segment:
+          spacing_before: align
+          align_within: statement
+          align_scope: file
