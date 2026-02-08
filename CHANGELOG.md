@@ -10,6 +10,55 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [4.0.1] - 2026-01-31
+
+## Highlights
+
+## Highlights
+
+> Maintainers: Copy and paste the commentary from the changelog here.
+> Check that the name and tag are correct before releasing.
+> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+
+## What’s Changed
+
+* TSQL: Add support for all missing T-SQL JSON functions [#7410](https://github.com/sqlfluff/sqlfluff/pull/7410) [@peterbud](https://github.com/peterbud)
+* Databricks: Separate CREATE VIEW from CREATE MATERIALIZED VIEW parsing [#7405](https://github.com/sqlfluff/sqlfluff/pull/7405) [@nathanthorell](https://github.com/nathanthorell)
+* feat(snowflake): Add support for DIRECTED joins [#7402](https://github.com/sqlfluff/sqlfluff/pull/7402) [@Daniel-Wiszowaty](https://github.com/Daniel-Wiszowaty)
+* Add ANSI quantified comparison operators (ANY/ALL/SOME) [#7398](https://github.com/sqlfluff/sqlfluff/pull/7398) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* DuckDB: Add support for SET [#7404](https://github.com/sqlfluff/sqlfluff/pull/7404) [@aammett](https://github.com/aammett)
+* fix(ST06): prevent corruption of CREATE VIEW with explicit columns list [#7263](https://github.com/sqlfluff/sqlfluff/pull/7263) [@oulmoukenza](https://github.com/oulmoukenza)
+* DuckDB: parse simplified UNPIVOT `ON` expressions and `INTO` optional [#7394](https://github.com/sqlfluff/sqlfluff/pull/7394) [@hamza-dri](https://github.com/hamza-dri)
+* tsql alter table rebuild and drop without constraint keyword [#7393](https://github.com/sqlfluff/sqlfluff/pull/7393) [@dpurfield](https://github.com/dpurfield)
+* Adds support for `INSERT ALL` and error logging in `INSERT` in Oracle. [#7347](https://github.com/sqlfluff/sqlfluff/pull/7347) [@joaostorrer](https://github.com/joaostorrer)
+* Fix: handles dotted notation in INI config files for Jinja context [#7373](https://github.com/sqlfluff/sqlfluff/pull/7373) [@shuting-zhang-gh](https://github.com/shuting-zhang-gh)
+* SQLite: Add support for blob and hexadecimal literals [#7332](https://github.com/sqlfluff/sqlfluff/pull/7332) [@franloza](https://github.com/franloza)
+* Rust parser: Add `AnyNumberOf` context helper functions [#7390](https://github.com/sqlfluff/sqlfluff/pull/7390) [@keraion](https://github.com/keraion)
+* Add plural interval datetime units support for DuckDB [#7387](https://github.com/sqlfluff/sqlfluff/pull/7387) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* DuckDB: Add support for parenthesized expressions in INTERVAL [#7388](https://github.com/sqlfluff/sqlfluff/pull/7388) [@franloza](https://github.com/franloza)
+* TSQL: Add support for OPENROWSET(BULK) multiple file paths [#7329](https://github.com/sqlfluff/sqlfluff/pull/7329) [@lynndb0](https://github.com/lynndb0)
+* Improves the parsing of `GRANT` and `REVOKE` statements in Oracle. [#7338](https://github.com/sqlfluff/sqlfluff/pull/7338) [@joaostorrer](https://github.com/joaostorrer)
+* Rust: Migrate pyo3 items out of sqlfluffrs_types [#7386](https://github.com/sqlfluff/sqlfluff/pull/7386) [@keraion](https://github.com/keraion)
+* T-SQL: Support INDEX = hint syntax without brackets [#7344](https://github.com/sqlfluff/sqlfluff/pull/7344) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* docs: replace aliases in rule table with core rule specification [#7337](https://github.com/sqlfluff/sqlfluff/pull/7337) [@annebelleo](https://github.com/annebelleo)
+* fix(alignment): use `indent_unit` tab when configured [#7289](https://github.com/sqlfluff/sqlfluff/pull/7289) [@peterbud](https://github.com/peterbud)
+* feat(parse): export position info in JSON/YAML output [#7294](https://github.com/sqlfluff/sqlfluff/pull/7294) [@peterbud](https://github.com/peterbud)
+* Reserve "DEFAULT" in snowflake dialect [#7274](https://github.com/sqlfluff/sqlfluff/pull/7274) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix(RF03): don't treat COLLATE clauses as unqualified references [#7334](https://github.com/sqlfluff/sqlfluff/pull/7334) [@peterbud](https://github.com/peterbud)
+* TSQL: add support for NEXT VALUE FOR with OVER clause [#7335](https://github.com/sqlfluff/sqlfluff/pull/7335) [@peterbud](https://github.com/peterbud)
+* BigQuery: Add support for limit clause in aggregate functions [#7370](https://github.com/sqlfluff/sqlfluff/pull/7370) [@annebelleo](https://github.com/annebelleo)
+* CI: Update black to v26 [#7376](https://github.com/sqlfluff/sqlfluff/pull/7376) [@keraion](https://github.com/keraion)
+* Rust: remove generated files from source control [#7371](https://github.com/sqlfluff/sqlfluff/pull/7371) [@keraion](https://github.com/keraion)
+
+## New Contributors
+
+* [@shuting-zhang-gh](https://github.com/shuting-zhang-gh) made their first contribution in [#7373](https://github.com/sqlfluff/sqlfluff/pull/7373)
+* [@dpurfield](https://github.com/dpurfield) made their first contribution in [#7393](https://github.com/sqlfluff/sqlfluff/pull/7393)
+* [@hamza-dri](https://github.com/hamza-dri) made their first contribution in [#7394](https://github.com/sqlfluff/sqlfluff/pull/7394)
+* [@oulmoukenza](https://github.com/oulmoukenza) made their first contribution in [#7263](https://github.com/sqlfluff/sqlfluff/pull/7263)
+* [@aammett](https://github.com/aammett) made their first contribution in [#7404](https://github.com/sqlfluff/sqlfluff/pull/7404)
+* [@Daniel-Wiszowaty](https://github.com/Daniel-Wiszowaty) made their first contribution in [#7402](https://github.com/sqlfluff/sqlfluff/pull/7402)
+
 ## [4.0.0] - 2026-01-15
 
 ## Highlights
