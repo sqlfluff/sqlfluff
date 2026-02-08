@@ -10,6 +10,16 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [4.0.4a1] - 2026-02-08
+
+## Highlights
+
+Testing release to confirm functionality of rust publish script.
+
+## What’s Changed
+
+* Fix rust package publish workflow [#7464](https://github.com/sqlfluff/sqlfluff/pull/7464) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
 ## [4.0.3] - 2026-02-08
 
 Release 4.0.2 & 4.0.3 due to deploy issues with 4.0.1
