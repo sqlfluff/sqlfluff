@@ -544,9 +544,9 @@ test_align_alias_with_tabs_custom_tab_size:
           align_scope: bracketed
 
 test_align_sparksql_comment_clauses:
-  # Regression test for https://github.com/sqlfluff/sqlfluff/issues/XXXX
-  # SparkSQL CREATE TABLE with both data_type and column_constraint_segment
-  # (COMMENT) alignment should work in a single pass.
+  # Regression test for SparkSQL CREATE TABLE alignment issue where
+  # both data_type and column_constraint_segment (COMMENT) alignment
+  # should work in a single pass.
   fail_str: |
     CREATE TABLE mytable (
         date_pk               STRING        COMMENT 'Date',
