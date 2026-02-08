@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 577a7a6b13c1b2de61d92bb90967721624ea75016a47d55cd971f58ac3577ba3
+_hash: a6baab6ecf06d0af14e4891cdb8f533def310260e7ac96a2484fe4cfc2bc6534
 file:
 - batch:
   - statement:
@@ -99,6 +99,88 @@ file:
         - keyword: FORWARD_ONLY
         - keyword: FAST_FORWARD
         - keyword: TYPE_WARNING
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: Id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: SomeColumn
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: AnotherColumn
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: SomeTable
+        - keyword: FOR
+        - keyword: UPDATE
+        - keyword: OF
+        - column_reference:
+            naked_identifier: SomeColumn
+        - comma: ','
+        - column_reference:
+            naked_identifier: AnotherColumn
+  - statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        naked_identifier: db_cursor
+  - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: SomeColumn
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              quoted_literal: "'NewValue'"
+        where_current_of_cursor_segment:
+        - keyword: WHERE
+        - keyword: CURRENT
+        - keyword: OF
+        - naked_identifier: db_cursor
+  - statement_terminator: ;
+  - statement:
+      close_cursor_statement:
+        keyword: CLOSE
+        naked_identifier: db_cursor
+  - statement_terminator: ;
+  - statement:
+      deallocate_cursor_statement:
+        keyword: DEALLOCATE
+        naked_identifier: db_cursor
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: db_cursor
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: TYPE_WARNING
+        - keyword: FAST_FORWARD
+        - keyword: LOCAL
+        - keyword: FORWARD_ONLY
         - keyword: FOR
         - select_statement:
             select_clause:
@@ -318,6 +400,127 @@ file:
                   - naked_identifier: dbo
                   - dot: .
                   - naked_identifier: SomeTable
+      - keyword: FOR
+      - keyword: UPDATE
+      - keyword: OF
+      - column_reference:
+          naked_identifier: SomeColumn
+  - statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        naked_identifier: db_cursor
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: ABSOLUTE
+      - parameter: '@Rows'
+      - keyword: FROM
+      - naked_identifier: db_cursor
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: db_cursor
+      - keyword: SCROLL
+      - keyword: INSENSITIVE
+      - keyword: CURSOR
+      - keyword: FOR
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: Id
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: SomeColumn
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: SomeTable
+      - keyword: FOR
+      - keyword: UPDATE
+      - keyword: OF
+      - column_reference:
+          naked_identifier: SomeColumn
+  - statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        naked_identifier: db_cursor
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: ABSOLUTE
+      - parameter: '@Rows'
+      - keyword: FROM
+      - naked_identifier: db_cursor
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@table'
+      - keyword: AS
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              keyword: int
+        - comma: ','
+        - column_definition:
+            naked_identifier: name
+            data_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '128'
+                  end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: db_cursor
+      - keyword: SCROLL
+      - keyword: INSENSITIVE
+      - keyword: CURSOR
+      - keyword: FOR
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: Id
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: SomeColumn
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    parameter: '@table'
       - keyword: FOR
       - keyword: UPDATE
       - keyword: OF

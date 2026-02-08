@@ -2315,3 +2315,57 @@ file:
           role_reference:
             naked_identifier: bar
 - statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: WORKSPACE
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: foo
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: CREATE
+    - keyword: WORKSPACE
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: foo
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: WRITE
+    - keyword: 'ON'
+    - keyword: WORKSPACE
+    - object_reference:
+        naked_identifier: my_workspace
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: WRITE
+    - keyword: 'ON'
+    - keyword: WORKSPACE
+    - object_reference:
+        naked_identifier: my_workspace
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: bar
+- statement_terminator: ;

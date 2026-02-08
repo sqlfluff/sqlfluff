@@ -1186,3 +1186,27 @@ class ArrayLiteralSegment(BaseSegment):
         ),
         bracket_type="square",
     )
+
+
+class ValuesClauseSegment(postgres.ValuesClauseSegment):
+    """A `VALUES` clause within in `WITH` or `SELECT`."""
+
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(
+            Bracketed(
+                Delimited(
+                    Ref("ExpressionSegment"),
+                    # DEFAULT keyword used in
+                    # INSERT INTO statement.
+                    "DEFAULT",
+                    allow_trailing=True,
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            allow_trailing=True,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
+    )

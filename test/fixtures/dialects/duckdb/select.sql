@@ -9,3 +9,8 @@ SELECT 1_000;
 SELECT 1_000_000;
 SELECT 1.0_000;
 SELECT 1_000_000.0_000_000;
+
+SELECT *,
+FROM (VALUES ('Amsterdam', 1),
+('London', 2),
+) cities(name, id);
