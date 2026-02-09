@@ -14,17 +14,11 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+This is a re-release of 4.0.1 which had issues in initial deployment.
 
 ## What’s Changed
 
 * Fix rust package publish workflow [#7464](https://github.com/sqlfluff/sqlfluff/pull/7464) [@alanmcruickshank](https://github.com/alanmcruickshank)
-
-## New Contributors
-
-
 
 ## [4.0.4a1] - 2026-02-08
 
