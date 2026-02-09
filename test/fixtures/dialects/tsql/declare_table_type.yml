@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fff818dae10eb906b41219628754aca31aa0aad29d1f048b377c87a0be3b988d
+_hash: cf23475537fc817bf3a3e8f89e41ade64feb2f77a278521b2b86f90e5be3787e
 file:
   batch:
   - statement:
@@ -109,5 +109,47 @@ file:
                       integer_literal: '3'
                 - keyword: END
               end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@TableVar'
+      - keyword: Table
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ID
+          - data_type:
+              keyword: int
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: primary
+            - keyword: key
+        - comma: ','
+        - column_definition:
+            naked_identifier: name
+            data_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '128'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: 'NULL'
+            table_index_segment:
+              keyword: index
+              object_reference:
+                naked_identifier: _name
+              bracketed_index_column_list_grammar:
+                bracketed:
+                  start_bracket: (
+                  index_column_definition:
+                    naked_identifier: name
+                  end_bracket: )
         - end_bracket: )
   - statement_terminator: ;

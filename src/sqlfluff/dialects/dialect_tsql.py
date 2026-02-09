@@ -7,6 +7,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -208,11 +209,19 @@ tsql_dialect.insert_lexer_matchers(
 
 # Add hexadecimal literal lexer matcher before word matcher to ensure
 # patterns like 0x0, 0xAE are tokenized as numeric literals, not words
+# handle money literals with $ and other supported currency symbols
+# https://learn.microsoft.com/en-us/sql/t-sql/data-types/money-and-smallmoney-transact-sql
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "numeric_literal",
-            r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
+            (
+                r"([xX]'([\da-fA-F][\da-fA-F])+'"
+                r"|0[xX][\da-fA-F]*|"
+                r"[+-]*[￦￥￡￠＄﹩﷼₱₰₯₮₭€₫₪₩₨₧₦₥₤₣₢₡₠៛฿৳৲¥¤£¢$]"
+                r"[￦￥￡￠＄)﷼₱₰₯₮₭€₫₪₩₨₧₦₥₤₣₢₡₠៛฿৳৲¥¤£¢$+-]*"
+                r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+))"
+            ),
             LiteralSegment,
         ),
     ],
@@ -4552,6 +4561,24 @@ class FunctionSegment(BaseSegment):
             Ref("JsonAggFunctionNameSegment"),
             Ref("JsonAggFunctionContentsSegment"),
             Ref("WithinGroupClause", optional=True),
+        ),
+    )
+
+
+class ColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    Overwote ANSI to add optional TableIndexSegment
+    """
+
+    type = "column_definition"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+            Ref("TableIndexSegment", optional=True),
         ),
     )
 

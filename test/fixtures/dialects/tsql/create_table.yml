@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8a2a4fd5650e302c680d7646413f27a178a0b72e2e3019cf76b817ef39fb340
+_hash: c84a8953347a0de3a2da2bb5eb1f49174531052290b3b19f48748202771f4a96
 file:
   batch:
   - statement:
@@ -294,5 +294,50 @@ file:
                   end_bracket: )
           - column_constraint_segment:
               keyword: UNIQUE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Test
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ID
+          - data_type:
+              keyword: int
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: primary
+            - keyword: key
+        - comma: ','
+        - column_definition:
+            naked_identifier: name
+            data_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '128'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: 'NULL'
+            table_index_segment:
+              keyword: index
+              object_reference:
+                naked_identifier: _name
+              bracketed_index_column_list_grammar:
+                bracketed:
+                  start_bracket: (
+                  index_column_definition:
+                    naked_identifier: name
+                  end_bracket: )
         - end_bracket: )
   - statement_terminator: ;
