@@ -86,6 +86,26 @@ duckdb_dialect.sets("unreserved_keywords").update(
     ]
 )
 
+# Add plural datetime units for interval expressions
+# DuckDB supports both singular and plural forms (e.g., DAY and DAYS)
+# Note: ANSI has MILLISECOND (singular), PostgreSQL adds MILLISECONDS and
+# MICROSECONDS (both plural). We add the missing MICROSECOND (singular) and
+# all other plural forms (DAYS, HOURS, MINUTES, MONTHS, QUARTERS, SECONDS,
+# WEEKS, YEARS).
+duckdb_dialect.sets("datetime_units").update(
+    [
+        "DAYS",
+        "HOURS",
+        "MICROSECOND",  # Singular form missing from ANSI/PostgreSQL
+        "MINUTES",
+        "MONTHS",
+        "QUARTERS",
+        "SECONDS",
+        "WEEKS",
+        "YEARS",
+    ]
+)
+
 duckdb_dialect.add(
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
@@ -233,6 +253,38 @@ duckdb_dialect.patch_lexer_matchers(
 )
 
 
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    Extends ANSI to support dynamic intervals with parenthesized expressions.
+    https://duckdb.org/docs/stable/sql/data_types/interval
+    """
+
+    type = "interval_expression"
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
+            # The String version
+            Ref("QuotedLiteralSegment"),
+            # Combine version
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
+            # Expression version - for dynamic intervals with parenthesized expressions
+            Sequence(
+                Ref("ExpressionSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+        ),
+    )
+
+
 class StructTypeSegment(ansi.StructTypeSegment):
     """Expression to construct a STRUCT datatype."""
 
@@ -305,12 +357,12 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         OneOf(
             Sequence("DEFAULT", "VALUES"),
-            Ref("SelectStatementSegment"),
+            Ref("SelectableGrammar"),
             Sequence(
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
                 OneOf(
                     Ref("ValuesClauseSegment"),
-                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
                 ),
             ),
         ),
@@ -893,23 +945,21 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
         Delimited(
             Sequence(
                 OneOf(
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                    ),
-                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                    Bracketed(Delimited(Ref("ExpressionSegment"))),
                 ),
                 Ref("AliasExpressionSegment", optional=True),
             ),
-            Ref("ColumnsExpressionGrammar"),
         ),
-        "INTO",
-        "NAME",
-        Ref("SingleIdentifierGrammar"),
-        "VALUE",
-        Delimited(
+        Sequence(
+            "INTO",
+            "NAME",
             Ref("SingleIdentifierGrammar"),
+            "VALUE",
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+            ),
+            optional=True,
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
@@ -1080,6 +1130,45 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
     )
 
 
+class SetStatementSegment(postgres.SetStatementSegment):
+    """A `SET` Statement.
+
+    DuckDB documentation: https://duckdb.org/docs/sql/statements/set
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            Sequence(
+                "VARIABLE",
+                Ref("NakedIdentifierSegment"),  # variable_name
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                ),
+            ),
+            Sequence(
+                OneOf("SESSION", "LOCAL", "GLOBAL", optional=True),
+                Ref("ParameterNameSegment"),
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    "DEFAULT",
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedIdentifierSegment"),
+                        Ref("OnKeywordAsIdentifierSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment.
 
@@ -1096,4 +1185,28 @@ class ArrayLiteralSegment(BaseSegment):
             Ref("BaseExpressionElementGrammar"), optional=True, allow_trailing=True
         ),
         bracket_type="square",
+    )
+
+
+class ValuesClauseSegment(postgres.ValuesClauseSegment):
+    """A `VALUES` clause within in `WITH` or `SELECT`."""
+
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(
+            Bracketed(
+                Delimited(
+                    Ref("ExpressionSegment"),
+                    # DEFAULT keyword used in
+                    # INSERT INTO statement.
+                    "DEFAULT",
+                    allow_trailing=True,
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            allow_trailing=True,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
     )

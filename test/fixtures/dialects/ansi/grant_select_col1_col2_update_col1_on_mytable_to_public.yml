@@ -3,30 +3,36 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7723482a8f471de4ce6b952aead403d556fd48795cad2d947d68d5d7baeee290
+_hash: 710c31dd3a67491623b1b8f7d465737ec2c582b41ec7dea5ed6bc3dbf601cfc2
 file:
   statement:
     access_statement:
-    - keyword: grant
-    - keyword: select
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: col1
-      - comma: ','
-      - column_reference:
-          naked_identifier: col2
-      - end_bracket: )
-    - comma: ','
-    - keyword: update
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          naked_identifier: col1
-        end_bracket: )
-    - keyword: 'on'
-    - object_reference:
-        naked_identifier: mytable
-    - keyword: to
-    - role_reference:
-        naked_identifier: public
+      grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+            keyword: select
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: col1
+            - comma: ','
+            - column_reference:
+                naked_identifier: col2
+            - end_bracket: )
+        - comma: ','
+        - access_permission:
+            keyword: update
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: col1
+              end_bracket: )
+      - keyword: 'on'
+      - access_object:
+          object_reference:
+            naked_identifier: mytable
+      - keyword: to
+      - access_target:
+          role_reference:
+            naked_identifier: public

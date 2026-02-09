@@ -10,12 +10,12 @@ use pyo3::{
 };
 use uuid::Uuid;
 
-use crate::{
-    marker::python::{PyPositionMarker, PySqlFluffPositionMarker},
+use crate::marker::{PyPositionMarker, PySqlFluffPositionMarker};
+use sqlfluffrs_types::token::fix::SourceFix;
+use sqlfluffrs_types::{
     regex::RegexModeGroup,
+    token::{path::PathStep, CaseFold, Token, TupleSerialisedSegment},
 };
-
-use super::{path::PathStep, CaseFold, SourceFix, Token, TupleSerialisedSegment};
 
 /// Python wrapper for the CaseFold enum
 #[pyclass(name = "RsCaseFold", module = "sqlfluffrs")]
@@ -194,7 +194,7 @@ impl PyToken {
 
     #[getter]
     pub fn is_code(&self) -> bool {
-        self.0.is_code
+        self.0.is_code()
     }
 
     #[getter]
@@ -261,7 +261,7 @@ impl PyToken {
 
     #[getter]
     pub fn is_whitespace(&self) -> bool {
-        self.0.is_whitespace
+        self.0.is_whitespace()
     }
 
     pub fn is_raw(&self) -> bool {
@@ -270,7 +270,7 @@ impl PyToken {
 
     #[getter]
     pub fn is_comment(&self) -> bool {
-        self.0.is_comment
+        self.0.is_comment()
     }
 
     #[getter]
@@ -285,7 +285,7 @@ impl PyToken {
 
     #[getter]
     pub fn preface_modifier(&self) -> String {
-        self.0.preface_modifier.clone()
+        self.0.preface_modifier()
     }
 
     #[getter]
@@ -412,13 +412,18 @@ impl PyToken {
 
     pub fn _get_raw_segment_kwargs<'py>(&self, py: Python<'py>) -> Bound<'py, PyDict> {
         let dict = PyDict::new(py);
-        if let Some(ref quoted_value) = self.0.quoted_value {
-            dict.set_item("quoted_value", quoted_value.clone()).unwrap();
+        if let Some((s, g)) = self.0.quoted_value() {
+            let s_cloned = s.clone();
+            let py_group: Py<PyAny> = match g {
+                RegexModeGroup::Index(idx) => idx.into_pyobject(py).unwrap().into(),
+                RegexModeGroup::Name(name) => name.clone().into_pyobject(py).unwrap().into(),
+            };
+            dict.set_item("quoted_value", (s_cloned, py_group)).unwrap();
         } else {
             dict.set_item("quoted_value", py.None()).unwrap();
         }
-        if let Some(ref escape_replacement) = self.0.escape_replacement {
-            dict.set_item("escape_replacements", vec![escape_replacement])
+        if let Some((ref pattern, ref repl)) = self.0.escape_replacement() {
+            dict.set_item("escape_replacements", vec![(pattern.clone(), repl.clone())])
                 .unwrap();
         } else {
             dict.set_item("escape_replacements", py.None()).unwrap();
@@ -428,22 +433,21 @@ impl PyToken {
 
     #[getter]
     pub fn quoted_value(&self, py: Python<'_>) -> Option<(String, Py<PyAny>)> {
-        self.0.quoted_value.clone().map(|(s, g)| {
+        self.0.quoted_value().map(|(s, g)| {
+            let s_cloned = s.clone();
             let py_group: Py<PyAny> = match g {
                 RegexModeGroup::Index(idx) => idx.into_pyobject(py).unwrap().into(),
-                RegexModeGroup::Name(name) => name.into_pyobject(py).unwrap().into(),
+                RegexModeGroup::Name(name) => name.clone().into_pyobject(py).unwrap().into(),
             };
-            (s, py_group)
+            (s_cloned, py_group)
         })
     }
 
     #[getter]
     pub fn escape_replacements(&self) -> Option<Vec<(String, String)>> {
-        if self.0.escape_replacement.is_none() {
-            None
-        } else {
-            Some(vec![self.0.escape_replacement.clone().unwrap()])
-        }
+        self.0
+            .escape_replacement()
+            .map(|(s, r)| vec![(s.clone(), r.clone())])
     }
 
     pub fn set_parent(&self, parent: &Bound<'_, PyAny>, idx: usize) -> PyResult<()> {
@@ -556,12 +560,12 @@ impl PyToken {
         block_uuid: Option<String>,
         templated_file: Bound<'_, PyAny>,
     ) -> PyResult<Self> {
-        use crate::slice::Slice;
-        use crate::templater::templatefile::python::PySqlFluffTemplatedFile;
+        use crate::templater::templatefile::PySqlFluffTemplatedFile;
+        use sqlfluffrs_types::slice::Slice;
 
         // Extract TemplatedFile from Python object
         let tf: PySqlFluffTemplatedFile = templated_file.extract()?;
-        let tf_arc: Arc<crate::templater::templatefile::TemplatedFile> = tf.into();
+        let tf_arc: Arc<sqlfluffrs_types::templater::templatefile::TemplatedFile> = tf.into();
 
         // Parse UUID if provided (Python passes hex string)
         let uuid = block_uuid.as_ref().and_then(|s| Uuid::parse_str(s).ok());
@@ -635,7 +639,7 @@ impl<'py> FromPyObject<'py> for PySqlFluffToken {
             .getattr("pos_marker")?
             .extract::<PySqlFluffPositionMarker>()?;
 
-        use crate::token::config::TokenConfig;
+        use sqlfluffrs_types::token::config::TokenConfig;
         Ok(Self(PyToken(Token::base_token(
             raw,
             pos_marker.into(),

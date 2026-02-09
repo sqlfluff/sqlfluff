@@ -5,8 +5,6 @@ mod eq;
 pub mod fix;
 mod fmt;
 pub mod path;
-#[cfg(feature = "python")]
-pub mod python;
 
 use std::{
     fmt::Write,
@@ -242,6 +240,10 @@ impl Token {
         types.extend(self.instance_types.iter().cloned());
         types.extend(self.class_types.iter().cloned());
         types
+    }
+
+    pub fn preface_modifier(&self) -> String {
+        self.preface_modifier.clone()
     }
 
     pub fn is_type(&self, seg_types: &[&str]) -> bool {

@@ -41,10 +41,7 @@ impl Parser<'_> {
         );
         if all_children.len() < 2 {
             vdebug!("Bracketed[table]: Not enough children (need bracket_pairs + elements)");
-            stack.results.insert(
-                frame.frame_id,
-                (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
-            );
+            stack.insert_empty_result(frame.frame_id, start_idx);
             return Ok(TableFrameResult::Done);
         }
         let (start_bracket_idx, _end_bracket_idx) = self.grammar_ctx.bracketed_config(grammar_id);
@@ -465,9 +462,7 @@ impl Parser<'_> {
                         );
 
                         self.commit_collection_checkpoint(frame.frame_id);
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(error_match), self.pos, None));
+                        stack.insert_result(frame.frame_id, error_match, self.pos);
                         return Ok(TableFrameResult::Done);
                     }
                 } else {
@@ -575,9 +570,7 @@ impl Parser<'_> {
                         );
 
                         self.commit_collection_checkpoint(frame.frame_id);
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(error_match), self.pos, None));
+                        stack.insert_result(frame.frame_id, error_match, self.pos);
                         return Ok(TableFrameResult::Done);
                     }
                 } else {

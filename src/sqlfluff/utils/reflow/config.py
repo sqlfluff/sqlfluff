@@ -76,7 +76,7 @@ class ReflowConfig:
     # use `.from_fluff_config`, but the defaults are here to aid in
     # testing.
     tab_space_size: int = 4
-    indent_unit: str = "    "
+    indent_unit: str = "space"
     max_line_length: int = 80
     hanging_indents: bool = False
     skip_indentation_in: frozenset[str] = frozenset()

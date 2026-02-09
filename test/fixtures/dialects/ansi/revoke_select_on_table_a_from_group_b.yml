@@ -3,17 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f0fcfb3080b3ecc20c562740c3f682929cf8be7ea60f2b4b54fc46c1fdd371f
+_hash: 3cb01b6285b2e1ee841c420a26666a0c9dfbe80c0199492cd1e2eba94ae3abfc
 file:
   statement:
     access_statement:
-    - keyword: revoke
-    - keyword: select
-    - keyword: 'on'
-    - keyword: table
-    - object_reference:
-        naked_identifier: a
-    - keyword: from
-    - keyword: group
-    - object_reference:
-        naked_identifier: b
+      revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+          access_permission:
+            keyword: select
+      - keyword: 'on'
+      - access_object:
+          access_schema_object:
+            keyword: table
+          object_reference:
+            naked_identifier: a
+      - keyword: from
+      - access_target:
+          keyword: group
+          object_reference:
+            naked_identifier: b

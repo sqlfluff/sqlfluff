@@ -44,10 +44,7 @@ impl<'a> Parser<'_> {
                 "Delimited[table]: Expected exactly 2 children (elements + delimiter), got {}",
                 all_children.len()
             );
-            stack.results.insert(
-                frame.frame_id,
-                (Arc::new(MatchResult::empty_at(start_pos)), start_pos, None),
-            );
+            stack.insert_empty_result(frame.frame_id, start_pos);
             return Ok(TableFrameResult::Done);
         }
 
