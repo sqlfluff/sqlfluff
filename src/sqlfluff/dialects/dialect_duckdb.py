@@ -111,6 +111,10 @@ duckdb_dialect.add(
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
     EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
     UnpackingOperatorSegment=TypedParser("star", SymbolSegment, "unpacking_operator"),
+    # DuckDB-specific numeric operators
+    PowerOperatorSegment=StringParser("**", BinaryOperatorSegment),
+    AtSignSegment=StringParser("@", SymbolSegment, type="binary_operator"),
+    FactorialOperatorSegment=StringParser("!", SymbolSegment, type="binary_operator"),
 )
 
 duckdb_dialect.replace(
@@ -217,11 +221,29 @@ duckdb_dialect.replace(
             Sequence(Ref.keyword("WHERE", optional=True), Ref("ExpressionSegment"))
         ),
     ),
+    # Add ** (power) operator to arithmetic operators
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[Ref("PowerOperatorSegment")],
+    ),
+    # Add @ (abs) prefix operator
+    Expression_A_Unary_Operator_Grammar=ansi_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(
+        insert=[Ref("AtSignSegment")],
+    ),
+    # Add ! (factorial) postfix operator
+    AccessorGrammar=ansi_dialect.get_grammar("AccessorGrammar").copy(
+        insert=[Ref("FactorialOperatorSegment")],
+    ),
 )
 
 duckdb_dialect.insert_lexer_matchers(
     [
         StringLexer("double_divide", "//", CodeSegment),
+        StringLexer("power", "**", CodeSegment),
+        StringLexer("at_sign", "@", CodeSegment),
     ],
     before="divide",
 )
