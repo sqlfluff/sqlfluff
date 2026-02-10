@@ -163,6 +163,47 @@ tsql_dialect.sets("serde_method").update(
     ]
 )
 
+tsql_dialect.sets("currency_symbols").clear()
+tsql_dialect.sets("currency_symbols").update(
+    [
+        "\u0024",  # $	Dollar sign
+        "\u00a2",  # ¢	Cent sign
+        "\u00a3",  # £	Pound sign
+        "\u00a4",  # ¤	Currency sign
+        "\u00a5",  # ¥	Yen sign
+        "\u09f2",  # ৲	Bengali Rupee mark
+        "\u09f3",  # ৳	Bengali Rupee sign
+        "\u0e3f",  # ฿	Thai Baht currency symbol
+        "\u17db",  # ៛	Khmer Riel currency symbol
+        "\u20a0",  # ₠	Euro currency sign
+        "\u20a1",  # ₡	Colon sign
+        "\u20a2",  # ₢	Cruzeiro sign
+        "\u20a3",  # ₣	French Franc sign
+        "\u20a4",  # ₤	Lira sign
+        "\u20a5",  # ₥	Mill sign
+        "\u20a6",  # ₦	Naira sign
+        "\u20a7",  # ₧	Peseta sign
+        "\u20a8",  # ₨	Rupee sign
+        "\u20a9",  # ₩	Won sign
+        "\u20aa",  # ₪	New Sheqel sign
+        "\u20ab",  # ₫	Dong sign
+        "\u20ac",  # €	Euro sign
+        "\u20ad",  # ₭	Kip sign
+        "\u20ae",  # ₮	Tugrik sign
+        "\u20af",  # ₯	Drachma sign
+        "\u20b0",  # ₰	German Penny sign
+        "\u20b1",  # ₱	Peso sign
+        "\ufdfc",  # ﷼	Rial sign
+        "\ufe69",  # ﹩	Small Dollar sign
+        "\uff04",  # ＄	Full-width Dollar sign
+        "\uffe0",  # ￠	Full-width Cent sign
+        "\uffe1",  # ￡	Full-width Pound sign
+        "\uffe5",  # ￥	Full-width Yen sign
+        "\uffe6",  # ￦	Full-width Won sign
+    ]
+)
+
+
 tsql_dialect.insert_lexer_matchers(
     [
         # According to Microsoft spec, subsequent characters in identifiers can include
@@ -217,9 +258,9 @@ tsql_dialect.insert_lexer_matchers(
             "numeric_literal",
             (
                 r"([xX]'([\da-fA-F][\da-fA-F])+'"
-                r"|0[xX][\da-fA-F]*|"
-                r"[+-]*[￦￥￡￠＄﹩﷼₱₰₯₮₭€₫₪₩₨₧₦₥₤₣₢₡₠៛฿৳৲¥¤£¢$]"
-                r"[￦￥￡￠＄)﷼₱₰₯₮₭€₫₪₩₨₧₦₥₤₣₢₡₠៛฿৳৲¥¤£¢$+-]*"
+                r"|0[xX][\da-fA-F]*"
+                r"|[+-]*[" + "".join(tsql_dialect.sets("currency_symbols")) + r"]"
+                r"[" + "".join(tsql_dialect.sets("currency_symbols")) + r"+-]*"
                 r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+))"
             ),
             LiteralSegment,
