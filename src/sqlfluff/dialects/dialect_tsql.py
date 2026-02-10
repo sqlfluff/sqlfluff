@@ -7,7 +7,6 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
-    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -3263,89 +3262,84 @@ class DatatypeSegment(BaseSegment):
             optional=True,
         ),
         OneOf(
-            # Bracketed data type identifiers (e.g., [sys].[sysname])
-            Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
+            # Exact numeric types - no parameters
+            "TINYINT",
+            "SMALLINT",
+            "INT",
+            "BIGINT",
+            "BIT",
+            "MONEY",
+            "SMALLMONEY",
+            # Exact numeric types - with optional precision and scale
             Sequence(
-                OneOf(
-                    # Exact numeric types - no parameters
-                    "TINYINT",
-                    "SMALLINT",
-                    "INT",
-                    "BIGINT",
-                    "BIT",
-                    "MONEY",
-                    "SMALLMONEY",
-                    # Exact numeric types - with optional precision and scale
-                    Sequence(
-                        OneOf("DECIMAL", "NUMERIC", "DEC"),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    # Approximate numeric types
-                    Sequence(
-                        "FLOAT",
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "REAL",
-                    # Date and time types
-                    "DATE",
-                    "SMALLDATETIME",
-                    "DATETIME",
-                    Sequence(
-                        OneOf("TIME", "DATETIME2", "DATETIMEOFFSET"),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    # Character string types
-                    Sequence(
-                        OneOf("CHAR", "CHARACTER"),
-                        Ref.keyword("VARYING", optional=True),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    Sequence(
-                        "VARCHAR",
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "TEXT",
-                    # Unicode character string types
-                    Sequence(
-                        OneOf(
-                            "NCHAR", Sequence("NATIONAL", OneOf("CHAR", "CHARACTER"))
-                        ),
-                        Ref.keyword("VARYING", optional=True),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    Sequence(
-                        OneOf("NVARCHAR", Sequence("NATIONAL", "CHARACTER", "VARYING")),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "NTEXT",
-                    # Binary string types
-                    Sequence(
-                        OneOf("BINARY", "VARBINARY"),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "IMAGE",
-                    # Other data types
-                    "CURSOR",
-                    "SQL_VARIANT",
-                    "TABLE",
-                    "TIMESTAMP",
-                    "ROWVERSION",
-                    "UNIQUEIDENTIFIER",
-                    "XML",
-                    "JSON",
-                    # Spatial types
-                    "GEOGRAPHY",
-                    "GEOMETRY",
-                    "HIERARCHYID",
-                    # Vector type (Azure SQL Database)
-                    Sequence(
-                        "VECTOR",
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                ),
+                OneOf("DECIMAL", "NUMERIC", "DEC"),
+                Ref("BracketedArguments", optional=True),
             ),
-            # User-defined data types
-            Ref("DatatypeIdentifierSegment"),
+            # Approximate numeric types
+            Sequence(
+                "FLOAT",
+                Ref("BracketedArguments", optional=True),
+            ),
+            "REAL",
+            # Date and time types
+            "DATE",
+            "SMALLDATETIME",
+            "DATETIME",
+            Sequence(
+                OneOf("TIME", "DATETIME2", "DATETIMEOFFSET"),
+                Ref("BracketedArguments", optional=True),
+            ),
+            # Character string types
+            Sequence(
+                OneOf("CHAR", "CHARACTER"),
+                Ref.keyword("VARYING", optional=True),
+                Ref("BracketedArguments", optional=True),
+            ),
+            Sequence(
+                "VARCHAR",
+                Ref("BracketedArguments", optional=True),
+            ),
+            "TEXT",
+            # Unicode character string types
+            Sequence(
+                OneOf("NCHAR", Sequence("NATIONAL", OneOf("CHAR", "CHARACTER"))),
+                Ref.keyword("VARYING", optional=True),
+                Ref("BracketedArguments", optional=True),
+            ),
+            Sequence(
+                OneOf("NVARCHAR", Sequence("NATIONAL", "CHARACTER", "VARYING")),
+                Ref("BracketedArguments", optional=True),
+            ),
+            "NTEXT",
+            # Binary string types
+            Sequence(
+                OneOf("BINARY", "VARBINARY"),
+                Ref("BracketedArguments", optional=True),
+            ),
+            "IMAGE",
+            # Other data types
+            "CURSOR",
+            "SQL_VARIANT",
+            "TABLE",
+            "TIMESTAMP",
+            "ROWVERSION",
+            "UNIQUEIDENTIFIER",
+            "XML",
+            "JSON",
+            # Spatial types
+            "GEOGRAPHY",
+            "GEOMETRY",
+            "HIERARCHYID",
+            # Vector type (Azure SQL Database)
+            Sequence(
+                "VECTOR",
+                Ref("BracketedArguments", optional=True),
+            ),
+            Sequence(
+                # User-defined data types & type identifiers (e.g., [sys].[sysname])
+                Ref("DatatypeIdentifierSegment"),
+                Ref("BracketedArguments", optional=True),
+            ),
         ),
         # Character set grammar for character types
         Ref("CharCharacterSetGrammar", optional=True),
@@ -4616,7 +4610,6 @@ class ColumnDefinitionSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
             Ref("TableIndexSegment", optional=True),

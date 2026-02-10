@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c84a8953347a0de3a2da2bb5eb1f49174531052290b3b19f48748202771f4a96
+_hash: c8398012a2e524a4f60a74d645cf04e87101f0246578192526229df5c8345044
 file:
   batch:
   - statement:
@@ -20,10 +20,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -339,5 +341,44 @@ file:
                   index_column_definition:
                     naked_identifier: name
                   end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Test
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ID
+          - data_type:
+              keyword: int
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: primary
+            - keyword: key
+        - comma: ','
+        - column_definition:
+          - naked_identifier: name
+          - data_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '128'
+                  end_bracket: )
+          - column_constraint_segment:
+              keyword: 'NULL'
+          - column_constraint_segment:
+              keyword: index
+              object_reference:
+                naked_identifier: _name
         - end_bracket: )
   - statement_terminator: ;

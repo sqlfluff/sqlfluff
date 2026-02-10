@@ -42,3 +42,8 @@ CREATE TABLE dbo.Test(
     ID int NOT NULL primary key,
     name varchar(128) NULL index _name (name)
 );
+
+CREATE TABLE dbo.Test(
+    ID int NOT NULL primary key,
+    name varchar(128) NULL index _name
+);
