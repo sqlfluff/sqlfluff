@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     AnySetOf,
     Anything,
     BaseSegment,
+    BinaryOperatorSegment,
     Bracketed,
     BracketedSegment,
     CodeSegment,
@@ -1112,7 +1113,7 @@ class SQLConfPropertiesSegment(BaseSegment):
     )
 
 
-class DivBinaryOperatorSegment(BaseSegment):
+class DivBinaryOperatorSegment(BinaryOperatorSegment):
     """DIV type binary_operator."""
 
     type = "binary_operator"
