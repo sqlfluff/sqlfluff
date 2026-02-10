@@ -514,15 +514,17 @@ impl PyMatchResult {
 pub struct PyParser {
     dialect: Dialect,
     indent_config: hashbrown::HashMap<&'static str, bool>,
+    max_parse_depth: Option<usize>,
 }
 
 #[pymethods]
 impl PyParser {
     #[new]
-    #[pyo3(signature = (dialect=None, indent_config=None))]
+    #[pyo3(signature = (dialect=None, indent_config=None, max_parse_depth=None))]
     pub fn new(
         dialect: Option<&str>,
         indent_config: Option<std::collections::HashMap<String, bool>>,
+        max_parse_depth: Option<u32>,
     ) -> PyResult<Self> {
         let dialect = dialect
             .and_then(|d| Dialect::from_str(d).ok())
@@ -545,6 +547,7 @@ impl PyParser {
         Ok(PyParser {
             dialect,
             indent_config,
+            max_parse_depth: max_parse_depth.map(|v| v as usize),
         })
     }
 
@@ -568,8 +571,13 @@ impl PyParser {
         // We need to compute it for the Bracketed grammar to work correctly.
         compute_bracket_pairs(&mut rust_tokens);
 
-        // Create parser
-        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
+        // Create parser (with optional depth limit for DoS mitigation)
+        let mut parser = Parser::new_with_max_parse_depth(
+            &rust_tokens,
+            self.dialect,
+            self.indent_config.clone(),
+            self.max_parse_depth,
+        );
 
         // Parse and get the MatchResult directly
         let match_result = parser
@@ -607,8 +615,13 @@ impl PyParser {
         // Compute bracket pairs for the tokens.
         compute_bracket_pairs(&mut rust_tokens);
 
-        // Create parser
-        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
+        // Create parser (with optional depth limit for DoS mitigation)
+        let mut parser = Parser::new_with_max_parse_depth(
+            &rust_tokens,
+            self.dialect,
+            self.indent_config.clone(),
+            self.max_parse_depth,
+        );
 
         // Parse and get the MatchResult directly
         let match_result = parser
@@ -663,8 +676,13 @@ impl PyParser {
         // Compute bracket pairs for the tokens.
         compute_bracket_pairs(&mut rust_tokens);
 
-        // Create parser with grammar counting enabled
-        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
+        // Create parser with grammar counting enabled (with optional depth limit)
+        let mut parser = Parser::new_with_max_parse_depth(
+            &rust_tokens,
+            self.dialect,
+            self.indent_config.clone(),
+            self.max_parse_depth,
+        );
 
         // Track grammar calls using cache misses as a proxy
         // Each unique (grammar_id, pos) pair in the cache represents one grammar call

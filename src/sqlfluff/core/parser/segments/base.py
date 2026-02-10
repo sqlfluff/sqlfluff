@@ -1230,7 +1230,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         dialect: Dialect,
     ) -> bool:
         """Checks correctness of new segment by re-parsing it."""
-        ctx = ParseContext(dialect=dialect)
+        ctx = ParseContext(dialect=dialect, max_parse_depth=255)
         # We're going to check the rematch without any metas because the
         # matching routines will assume they haven't already been added.
         # We also strip any non-code from the ends which might have moved.

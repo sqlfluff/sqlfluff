@@ -106,6 +106,16 @@ impl Parser<'_> {
         while let Some(frame_from_stack) = stack.pop() {
             iteration_count += 1;
 
+            // Max parse depth (DoS mitigation): frame we're processing was at depth stack.len()+1
+            if let Some(max) = self.max_parse_depth {
+                if stack.len() + 1 > max {
+                    return Err(ParseError::new(format!(
+                        "Maximum parse depth exceeded (limit {}). This may indicate deeply nested SQL or a malicious input.",
+                        max
+                    )));
+                }
+            }
+
             // Re-check the cache ONLY for Initial frames
             // WaitingForChild frames have already started processing and have a child computing the result
             let mut frame = if matches!(frame_from_stack.state, FrameState::Initial) {
