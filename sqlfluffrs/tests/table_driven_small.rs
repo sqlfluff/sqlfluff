@@ -33,41 +33,41 @@ fn parse_and_find(sql: &str, grammar_name: &str, expected: &str) -> bool {
 
     println!("PARSE_MR for '{}': {}", sql, mr);
 
-    let node = mr.wrap(MatchedClass::root(), vec![]).apply(&tokens);
+    let node = mr.apply_as_root(&tokens);
 
     println!("PARSE_RESULT for '{}': {:?}", sql, node);
 
     // Recursive search for a Ref with matching segment_type
     fn find(node: &Node, expected: &str) -> bool {
         match node {
-            Node::Ref {
-                name,
+            Node::Raw {
+                segment_class,
+                segment_type,
+                instance_types,
+                ..
+            } => {
+                if segment_type == expected || segment_class == expected {
+                    return true;
+                }
+                instance_types.iter().any(|t| t == expected)
+            }
+            Node::Segment {
+                segment_class,
                 segment_type,
                 children,
                 ..
             } => {
-                if let Some(segment_type) = segment_type {
-                    if segment_type == expected {
-                        return true;
-                    }
-                }
-                if name == expected {
+                if segment_type.as_deref() == Some(expected) || segment_class == expected {
                     return true;
                 }
                 children.iter().any(|c| find(c, expected))
             }
-            Node::Sequence { children } | Node::DelimitedList { children } => {
-                children.iter().any(|c| find(c, expected))
-            }
-            Node::Bracketed { children, .. } => children.iter().any(|c| find(c, expected)),
-            Node::Token { token_type, .. } => token_type == expected,
-            Node::Empty | Node::Meta { .. } => false,
-            // Fallback for any other node kinds
-            _ => false,
+            Node::Unparsable { children, .. } => children.iter().any(|c| find(c, expected)),
+            Node::Meta { .. } | Node::Empty => false,
         }
     }
 
-    find(&node[0], expected)
+    find(&node, expected)
 }
 
 #[test]

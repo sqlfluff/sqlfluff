@@ -1,9 +1,9 @@
 //! Core types for the parser: Grammar, Node, ParseMode
 
-use serde_yaml_ng::{Mapping, Value};
-use sqlfluffrs_types::GrammarId;
+use std::default;
 
-use crate::parser::match_result::MatchedClass;
+use serde_yaml_ng::{Mapping, Value};
+use sqlfluffrs_types::{GrammarId, PositionMarker};
 
 /// Helper enum for tuple serialization, similar to Python's TupleSerialisedSegment.
 #[derive(Debug, Clone, PartialEq)]
@@ -12,87 +12,90 @@ pub enum NodeTupleValue {
     Tuple(String, Vec<NodeTupleValue>),
 }
 
+/// Type of meta segment (from lexer or parser)
 #[derive(Debug, Clone, PartialEq)]
+pub enum MetaType {
+    Indent {
+        is_implicit: bool,
+    },
+    Dedent {
+        is_implicit: bool,
+    },
+    Template {
+        source_str: String,
+        block_type: String,
+    },
+    TemplateLoop,
+    EndOfFile,
+}
+
+/// Additional segment properties for Raw segments
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct RawSegmentKwargs {
+    pub trim_chars: Option<Vec<String>>,
+    pub quoted_value: Option<(String, String)>,
+    pub escape_replacements: Option<Vec<(String, String)>>,
+}
+
+/// AST Node - represents parsed SQL structure
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum Node {
-    /// Whitespace tokens (spaces, tabs)
-    Whitespace { raw: String, token_idx: usize },
-
-    /// Newline tokens
-    Newline { raw: String, token_idx: usize },
-
-    /// Comment tokens (e.g., -- comment or /* comment */)
-    Comment { raw: String, token_idx: usize },
-
-    /// End of file marker
-    EndOfFile { raw: String, token_idx: usize },
-
-    /// Generic token
-    /// - token_type: The semantic token type from lexer (e.g., "naked_identifier", "keyword")
-    /// - raw: The actual text content
-    /// - token_idx: Position in token array
-    Token {
-        token_type: String,
-        raw: String,
-        token_idx: usize,
+    /// Leaf: Raw token/segment from lexer (RawSegment, KeywordSegment, etc.)
+    Raw {
+        segment_class: String, // "KeywordSegment", "LiteralSegment"
+        segment_type: String,  // "keyword", "literal", "whitespace"
+        raw: String,           // Actual text
+        pos_marker: Option<PositionMarker>,
+        instance_types: Vec<String>, // ["keyword"], ["numeric_literal", "literal"]
+        segment_kwargs: RawSegmentKwargs,
     },
 
-    /// Unparsable segment (in GREEDY mode when tokens don't match)
-    Unparsable {
-        expected_message: String,
-        children: Vec<Node>,
-    }, // (expected message, children)
-
-    /// A sequence of child nodes (used for Sequence grammars)
-    Sequence { children: Vec<Node> },
-
-    /// A list of elements separated by commas
-    DelimitedList { children: Vec<Node> },
-
-    /// A bracketed section (content between brackets)
-    /// bracket_persists: if true, output as "bracketed:" wrapper in YAML
-    ///                   if false, output children inline (for square/curly brackets)
-    Bracketed {
-        children: Vec<Node>,
-        bracket_persists: bool,
-    },
-
-    /// A reference to another segment (wraps its AST)
-    /// - name: The grammar/segment name from the dialect (e.g., "SelectStatementSegment" or "SelectableGrammar")
-    /// - segment_type: The segment's type attribute (e.g., "select_statement")
-    /// - child: The wrapped AST node
-    Ref {
-        name: String,
-        segment_type: Option<String>,
+    /// Container: Parsed segment with children (BaseSegment subclasses)
+    Segment {
+        segment_class: String,        // "SelectStatementSegment"
+        segment_type: Option<String>, // "select_statement"
+        pos_marker: Option<PositionMarker>,
         children: Vec<Node>,
     },
 
-    /// Used when an optional part didn't match
-    Empty,
+    /// Meta nodes (Indent, Dedent, Template markers, EOF)
     Meta {
-        token_type: String,
-        token_idx: Option<usize>,
+        meta_type: MetaType,
+        pos_marker: Option<PositionMarker>,
     },
+
+    /// Parse errors
+    Unparsable {
+        expected: String,
+        pos_marker: Option<PositionMarker>,
+        children: Vec<Node>,
+    },
+
+    /// Empty placeholder
+    #[default]
+    Empty,
 }
 
 impl Node {
-    /// Create a Token node.
-    ///
-    /// Python will map token_type to the appropriate segment class via
-    /// the segment_types dictionary.
-    pub fn new_token(token_type: String, raw: String, token_idx: usize) -> Self {
-        Node::Token {
-            token_type,
-            raw,
-            token_idx,
+    /// Get the raw text (no tokens parameter needed!)
+    pub fn raw(&self) -> String {
+        match self {
+            Node::Raw { raw, .. } => raw.clone(),
+            Node::Meta { .. } | Node::Empty => String::new(),
+            Node::Segment { children, .. } | Node::Unparsable { children, .. } => {
+                children.iter().map(|c| c.raw()).collect()
+            }
         }
     }
 
-    /// Create a Ref node.
-    pub fn new_ref(match_class: &MatchedClass, children: &[Node]) -> Self {
-        Node::Ref {
-            name: match_class.class_name.clone(),
-            segment_type: match_class.segment_type.clone(),
-            children: children.to_vec(),
+    /// Get the semantic type
+    pub fn segment_type(&self) -> Option<&str> {
+        match self {
+            Node::Raw { segment_type, .. } => Some(segment_type),
+            Node::Segment { segment_type, .. } => segment_type.as_deref(),
+            Node::Meta { .. } => Some("meta"),
+            Node::Unparsable { .. } => Some("unparsable"),
+            Node::Empty => None,
         }
     }
 
@@ -100,83 +103,44 @@ impl Node {
     /// This is useful for serialization to YAML/JSON and for parity with Python tests.
     pub fn to_tuple(&self, code_only: bool, show_raw: bool, include_meta: bool) -> NodeTupleValue {
         match self {
-            Node::Token {
-                token_type, raw, ..
-            } => {
-                // Use token_type (semantic type) for tuple output
-                if show_raw {
-                    NodeTupleValue::Raw(token_type.clone(), raw.clone())
-                } else {
-                    NodeTupleValue::Tuple(token_type.clone(), vec![])
-                }
-            }
-            Node::Whitespace { raw, .. }
-            | Node::Newline { raw, .. }
-            | Node::Comment { raw, .. }
-            | Node::EndOfFile { raw, .. } => {
-                // These are filtered in code_only mode (except comments which stay)
-                if code_only && !matches!(self, Node::Comment { .. }) {
-                    NodeTupleValue::Tuple(self.get_type().unwrap(), vec![])
-                } else {
-                    NodeTupleValue::Raw(self.get_type().unwrap(), raw.to_string())
-                }
-            }
-            Node::Meta {
-                token_type: meta_type,
+            Node::Raw {
+                segment_type,
+                raw,
+                instance_types,
                 ..
             } => {
-                if include_meta {
-                    NodeTupleValue::Raw(meta_type.to_string(), "".to_string())
+                // Check if this is code
+                let is_code = !instance_types
+                    .iter()
+                    .any(|t| matches!(t.as_str(), "whitespace" | "newline" | "comment"));
+
+                // Filter in code_only mode (except comments which stay)
+                if code_only && !is_code {
+                    return NodeTupleValue::Tuple(segment_type.clone(), vec![]);
+                }
+
+                if show_raw {
+                    NodeTupleValue::Raw(segment_type.clone(), raw.clone())
                 } else {
-                    NodeTupleValue::Tuple(meta_type.to_string(), vec![])
+                    NodeTupleValue::Tuple(segment_type.clone(), vec![])
                 }
             }
-            // Node::Ref {
-            //     segment_type,
-            //     children,
-            //     ..
-            // } => {
-            //     // Recursively flatten only 'sequence' nodes
-            //     fn flatten_sequence(node: NodeTupleValue) -> NodeTupleValue {
-            //         match node {
-            //             NodeTupleValue::Tuple(t, v) if t == "sequence" => {
-            //                 let mut flat = Vec::new();
-            //                 for c in v {
-            //                     match flatten_sequence(c) {
-            //                         NodeTupleValue::Tuple(inner_t, inner_v)
-            //                             if inner_t == "sequence" =>
-            //                         {
-            //                             flat.extend(inner_v);
-            //                         }
-            //                         other => flat.push(other),
-            //                     }
-            //                 }
-            //                 NodeTupleValue::Tuple("sequence".to_string(), flat)
-            //             }
-            //             other => other,
-            //         }
-            //     }
+            Node::Meta { meta_type, .. } => {
+                let type_str = match meta_type {
+                    MetaType::Indent { .. } => "indent",
+                    MetaType::Dedent { .. } => "dedent",
+                    MetaType::Template { .. } => "placeholder",
+                    MetaType::TemplateLoop => "template_loop",
+                    MetaType::EndOfFile => "end_of_file",
+                };
 
-            //     let child_node =
-            //         flatten_sequence(child.to_tuple(code_only, show_raw, include_meta));
-            //     if let Some(ref_type) = segment_type {
-            //         match &child_node {
-            //             NodeTupleValue::Raw(t, s) if t == "sequence" => {
-            //                 NodeTupleValue::Raw(ref_type.clone(), s.clone())
-            //             }
-            //             NodeTupleValue::Tuple(t, v) if t == "sequence" => {
-            //                 NodeTupleValue::Tuple(ref_type.clone(), v.to_vec())
-            //             }
-            //             _ => NodeTupleValue::Tuple(ref_type.clone(), vec![child_node]),
-            //         }
-            //     } else {
-            //         child_node
-            //     }
-            // }
-            Node::Sequence { children }
-            | Node::DelimitedList { children }
-            | Node::Ref { children, .. } => {
-                let segment_type = self.get_type().unwrap_or("sequence".to_string());
+                if include_meta {
+                    NodeTupleValue::Raw(type_str.to_string(), String::new())
+                } else {
+                    NodeTupleValue::Tuple(type_str.to_string(), vec![])
+                }
+            }
+            Node::Segment { children, .. } => {
                 let mut tupled = vec![];
                 for child in children {
                     if code_only && !child.is_code() {
@@ -185,58 +149,9 @@ impl Node {
                     let val = child.to_tuple(code_only, show_raw, include_meta);
                     tupled.push(val);
                 }
-                NodeTupleValue::Tuple(segment_type, tupled)
+                NodeTupleValue::Tuple(self.get_type(), tupled)
             }
-            Node::Bracketed {
-                children,
-                bracket_persists,
-            } => {
-                // Use the same flatten_sequence logic as in Ref
-                fn flatten_sequence(node: NodeTupleValue) -> Vec<NodeTupleValue> {
-                    match node {
-                        NodeTupleValue::Tuple(t, v) if t == "sequence" => {
-                            let mut flat = Vec::new();
-                            for c in v {
-                                for item in flatten_sequence(c) {
-                                    match item {
-                                        NodeTupleValue::Tuple(inner_t, inner_v)
-                                            if inner_t == "sequence" =>
-                                        {
-                                            flat.extend(inner_v);
-                                        }
-                                        other => flat.push(other),
-                                    }
-                                }
-                            }
-                            flat
-                        }
-                        other => vec![other],
-                    }
-                }
-
-                let mut tupled = vec![];
-                for child in children {
-                    if code_only && !child.is_code() {
-                        continue;
-                    }
-                    let val = flatten_sequence(child.to_tuple(code_only, show_raw, include_meta));
-                    tupled.extend(val);
-                }
-
-                // Python parity: If bracket_persists is false (square/curly brackets),
-                // output as "sequence" instead of "bracketed" so children are inlined
-                let tuple_type = if *bracket_persists {
-                    "bracketed".to_string()
-                } else {
-                    log::debug!("Bracketed with bracket_persists=false, returning as sequence");
-                    "sequence".to_string()
-                };
-                NodeTupleValue::Tuple(tuple_type, tupled)
-            }
-            Node::Unparsable {
-                expected_message: _,
-                children,
-            } => {
+            Node::Unparsable { children, .. } => {
                 let mut tupled = vec![];
                 for child in children {
                     if code_only && !child.is_code() {
@@ -326,65 +241,13 @@ impl Node {
     pub fn is_empty(&self) -> bool {
         match &self {
             Node::Empty => true,
-            Node::DelimitedList { children: items } => {
-                items.is_empty()
-                    || items
-                        .iter()
-                        .all(|n| matches!(n, Node::Empty | Node::Meta { .. }))
-            }
-            Node::Sequence { children: items } => {
-                items.is_empty()
-                    || items
-                        .iter()
-                        .all(|n| matches!(n, Node::Empty | Node::Meta { .. }))
-            }
-            Node::Bracketed {
-                children: items, ..
-            } => {
-                items.is_empty()
-                    || items
+            Node::Segment { children, .. } | Node::Unparsable { children, .. } => {
+                children.is_empty()
+                    || children
                         .iter()
                         .all(|n| matches!(n, Node::Empty | Node::Meta { .. }))
             }
             _ => false,
-        }
-    }
-
-    /// Get the token index from this node if it's a Token/Whitespace/Newline/EndOfFile.
-    /// Returns None for complex nodes like Sequence, Ref, etc.
-    pub fn get_token_idx(&self) -> Option<usize> {
-        match self {
-            Node::Token { token_idx: idx, .. }
-            | Node::Whitespace { token_idx: idx, .. }
-            | Node::Newline { token_idx: idx, .. }
-            | Node::Comment { token_idx: idx, .. }
-            | Node::EndOfFile { token_idx: idx, .. } => Some(*idx),
-            _ => None,
-        }
-    }
-
-    /// Get the last (end) token index from this node
-    /// For leaf nodes, returns the same as get_token_idx()
-    /// For container nodes, recursively finds the last token in children
-    pub fn get_end_token_idx(&self) -> Option<usize> {
-        match self {
-            // Leaf nodes - return their token index
-            Node::Token { token_idx: idx, .. }
-            | Node::Whitespace { token_idx: idx, .. }
-            | Node::Newline { token_idx: idx, .. }
-            | Node::Comment { token_idx: idx, .. }
-            | Node::EndOfFile { token_idx: idx, .. } => Some(*idx),
-
-            // Container nodes - find last token in children
-            Node::Sequence { children }
-            | Node::DelimitedList { children }
-            | Node::Bracketed { children, .. }
-            | Node::Unparsable { children, .. }
-            | Node::Ref { children, .. } => children
-                .iter()
-                .rev()
-                .find_map(|child| child.get_end_token_idx()),
-            _ => self.get_token_idx(),
         }
     }
 
@@ -590,46 +453,21 @@ impl Node {
     /// Check if this node represents code (not whitespace or meta)
     pub fn is_code(&self) -> bool {
         match self {
-            // Whitespace, newlines, and comments are not code
-            // Empty is not code
-            Node::Whitespace { .. }
-            | Node::Newline { .. }
-            | Node::Comment { .. }
-            | Node::EndOfFile { .. }
-            | Node::Meta { .. }
-            | Node::Empty => false,
-
-            // Token: treat comments as non-code
-            Node::Token { token_type, .. } => !matches!(
-                token_type.as_str(),
-                "whitespace" | "newline" | "inline_comment" | "comment"
-            ),
-
-            // Unparsable segments contain code
+            Node::Meta { .. } | Node::Empty => false,
+            Node::Raw { instance_types, .. } => !instance_types
+                .iter()
+                .any(|t| matches!(t.as_str(), "whitespace" | "newline" | "comment")),
+            Node::Segment { children, .. } => children.iter().any(|c| c.is_code()),
             Node::Unparsable { .. } => true,
-
-            // Container nodes: check if they contain any code
-            Node::Sequence { children }
-            | Node::DelimitedList { children }
-            | Node::Bracketed { children, .. }
-            | Node::Ref { children, .. } => children.iter().any(|child| child.is_code()),
         }
     }
 
     /// Check if this node is whitespace (spaces, tabs, newlines)
     pub fn is_whitespace(&self) -> bool {
         match self {
-            Node::Whitespace {
-                raw: _,
-                token_idx: _,
-            }
-            | Node::Newline {
-                raw: _,
-                token_idx: _,
-            } => true,
-            Node::Token { token_type, .. } => {
-                matches!(token_type.as_str(), "whitespace" | "newline")
-            }
+            Node::Raw { instance_types, .. } => instance_types
+                .iter()
+                .any(|t| matches!(t.as_str(), "whitespace" | "newline")),
             _ => false,
         }
     }
@@ -645,212 +483,34 @@ impl Node {
         self.is_code() && !self.is_meta()
     }
 
-    /// Get the type of this node based on its variant and token information
-    /// This helps determine what kind of segment it represents
-    pub fn get_type(&self) -> Option<String> {
+    /// Get the type of this node based on its variant
+    pub fn get_type(&self) -> String {
         match self {
-            Node::Whitespace {
-                raw: _,
-                token_idx: _,
-            } => Some("whitespace".to_string()),
-            Node::Newline {
-                raw: _,
-                token_idx: _,
-            } => Some("newline".to_string()),
-            Node::Comment {
-                raw: _,
-                token_idx: _,
-            } => Some("comment".to_string()),
-            Node::EndOfFile {
-                raw: _,
-                token_idx: _,
-            } => Some("end_of_file".to_string()),
-            Node::Token { token_type, .. } => Some(token_type.clone()),
-            Node::Unparsable {
-                expected_message: _,
-                children: _,
-            } => Some("unparsable".to_string()),
-            Node::Ref { segment_type, .. } => segment_type.clone(),
-            Node::Sequence { children: _ } => Some("sequence".to_string()),
-            Node::DelimitedList { children: _ } => Some("delimited".to_string()),
-            Node::Bracketed { .. } => Some("bracketed".to_string()),
-            Node::Meta {
-                token_type: name, ..
-            } => Some(name.to_string()),
-            Node::Empty => None,
+            Node::Raw { segment_type, .. } => segment_type.clone(),
+            Node::Segment { segment_type, .. } => segment_type.clone().unwrap_or_default(),
+            Node::Meta { meta_type, .. } => match meta_type {
+                MetaType::Indent { .. } => "indent".to_string(),
+                MetaType::Dedent { .. } => "dedent".to_string(),
+                MetaType::Template { .. } => "placeholder".to_string(),
+                MetaType::TemplateLoop => "template_loop".to_string(),
+                MetaType::EndOfFile => "end_of_file".to_string(),
+            },
+            Node::Unparsable { .. } => "unparsable".to_string(),
+            Node::Empty => "empty".to_string(),
         }
     }
 
-    // /// Get all class types from the token, if this node references a token
-    // pub fn get_class_types(&self, tokens: &[Token]) -> Vec<String> {
-    //     match self {
-    //         Node::Token {
-    //             token_type,
-    //             token_idx: idx,
-    //             ..
-    //         } => {
-    //             if let Some(token) = tokens.get(*idx) {
-    //                 let mut v = vec![token_type.clone()];
-    //                 v.extend(token.class_types.iter().cloned());
-    //                 v
-    //             } else {
-    //                 Vec::new()
-    //             }
-    //         }
-    //         Node::Ref {
-    //             children: child, ..
-    //         } => child.get_class_types(tokens),
-    //         _ => Vec::new(),
-    //     }
-    // }
-
-    // /// Check if this node or its token has a specific type
-    // pub fn has_type(&self, type_name: &str, tokens: &[Token]) -> bool {
-    //     if let Some(node_type) = self.get_type() {
-    //         if node_type == type_name {
-    //             return true;
-    //         }
-    //     }
-
-    //     // Also check class types
-    //     self.get_class_types(tokens)
-    //         .contains(&type_name.to_string())
-    // }
-
-    /// Deduplicate whitespace and newline nodes in the AST.
-    /// This removes duplicate token positions recursively throughout the tree.
-    /// Returns a new Node with duplicates removed.
-    pub fn deduplicate(self) -> Node {
-        // let mut seen = HashSet::new();
-        // self.deduplicate_impl(&mut seen)
-        self
-    }
-
-    // /// Internal implementation of deduplicate that uses a shared HashSet
-    // fn deduplicate_impl(self, seen: &mut HashSet<usize>) -> Node {
-    //     match self {
-    //         Node::Sequence { children } => {
-    //             let deduped = children
-    //                 .into_iter()
-    //                 .filter_map(|child| {
-    //                     match &child {
-    //                         Node::Comment { token_idx: pos, .. } => {
-    //                             // Deduplicate comments by token_idx
-    //                             if seen.insert(*pos) {
-    //                                 Some(child.deduplicate_impl(seen))
-    //                             } else {
-    //                                 None // Skip duplicate
-    //                             }
-    //                         }
-    //                         _ => Some(child.deduplicate_impl(seen)),
-    //                     }
-    //                 })
-    //                 .collect();
-    //             Node::Sequence { children: deduped }
-    //         }
-    //         Node::DelimitedList { children } => {
-    //             let deduped = children
-    //                 .into_iter()
-    //                 .filter_map(|child| match &child {
-    //                     Node::Comment { token_idx: pos, .. } => {
-    //                         // Deduplicate comments by token_idx
-    //                         if seen.insert(*pos) {
-    //                             Some(child.deduplicate_impl(seen))
-    //                         } else {
-    //                             None
-    //                         }
-    //                     }
-    //                     _ => Some(child.deduplicate_impl(seen)),
-    //                 })
-    //                 .collect();
-    //             Node::DelimitedList { children: deduped }
-    //         }
-    //         Node::Bracketed {
-    //             children,
-    //             bracket_persists,
-    //         } => {
-    //             let deduped = children
-    //                 .into_iter()
-    //                 .filter_map(|child| match &child {
-    //                     Node::Comment { token_idx: pos, .. } => {
-    //                         // Deduplicate comments by token_idx
-    //                         if seen.insert(*pos) {
-    //                             Some(child.deduplicate_impl(seen))
-    //                         } else {
-    //                             None
-    //                         }
-    //                     }
-    //                     _ => Some(child.deduplicate_impl(seen)),
-    //                 })
-    //                 .collect();
-    //             Node::Bracketed {
-    //                 children: deduped,
-    //                 bracket_persists,
-    //             }
-    //         }
-    //         Node::Ref {
-    //             name,
-    //             segment_type,
-    //             children: child,
-    //         } => Node::Ref {
-    //             name,
-    //             segment_type,
-    //             children: Box::new(child.deduplicate_impl(seen)),
-    //         },
-    //         Node::Unparsable {
-    //             expected_message,
-    //             children,
-    //         } => {
-    //             let deduped = children
-    //                 .into_iter()
-    //                 .filter_map(|child| match &child {
-    //                     Node::Comment { token_idx: pos, .. } => {
-    //                         // Deduplicate comments by token_idx
-    //                         if seen.insert(*pos) {
-    //                             Some(child.deduplicate_impl(seen))
-    //                         } else {
-    //                             None
-    //                         }
-    //                     }
-    //                     _ => Some(child.deduplicate_impl(seen)),
-    //                 })
-    //                 .collect();
-    //             Node::Unparsable {
-    //                 expected_message,
-    //                 children: deduped,
-    //             }
-    //         }
-    //         // Leaf nodes - just return as-is
-    //         other => other,
-    //     }
-    // }
-}
-
-fn simplify_segment_name(name: &str) -> String {
-    let name = name
-        .strip_suffix("Segment")
-        .or_else(|| name.strip_suffix("Grammar"))
-        .unwrap_or(name);
-
-    camel_to_snake(name)
-}
-
-fn camel_to_snake(s: &str) -> String {
-    let mut result = String::new();
-    let chars = s.chars().peekable();
-
-    for c in chars {
-        if c.is_uppercase() {
-            if !result.is_empty() {
-                result.push('_');
-            }
-            result.push(c.to_lowercase().next().unwrap());
-        } else {
-            result.push(c);
+    /// Check if this node is of a specific type (including instance_types for Raw nodes)
+    pub fn is_type(&self, target: &str) -> bool {
+        match self {
+            Node::Raw {
+                segment_type,
+                instance_types,
+                ..
+            } => segment_type == target || instance_types.iter().any(|t| t == target),
+            _ => self.get_type() == target,
         }
     }
-
-    result
 }
 
 #[derive(Debug, Clone)]
@@ -915,30 +575,44 @@ mod tests {
     use serde_yaml_ng::Value;
 
     #[test]
-    fn test_sequence_node_as_record_empty() {
-        let node = Node::Sequence { children: vec![] };
+    fn test_segment_node_as_record_empty() {
+        let node = Node::Segment {
+            segment_class: "StatementSegment".to_string(),
+            segment_type: Some("statement".to_string()),
+            pos_marker: None,
+            children: vec![],
+        };
         let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
             let mut m = serde_yaml_ng::Mapping::new();
-            m.insert(Value::String("sequence".to_string()), Value::Null);
+            m.insert(Value::String("statement".to_string()), Value::Null);
             m
         });
         assert_eq!(record, expected);
     }
 
     #[test]
-    fn test_sequence_node_as_record_merge() {
-        let node = Node::Sequence {
+    fn test_segment_node_as_record_merge() {
+        let node = Node::Segment {
+            segment_class: "StatementSegment".to_string(),
+            segment_type: Some("statement".to_string()),
+            pos_marker: None,
             children: vec![
-                Node::Token {
-                    token_type: "keyword".to_string(),
+                Node::Raw {
+                    segment_class: "KeywordSegment".to_string(),
+                    segment_type: "keyword".to_string(),
                     raw: "SELECT".to_string(),
-                    token_idx: 0,
+                    pos_marker: None,
+                    instance_types: vec!["keyword".to_string()],
+                    segment_kwargs: RawSegmentKwargs::default(),
                 },
-                Node::Token {
-                    token_type: "naked_identifier".to_string(),
+                Node::Raw {
+                    segment_class: "IdentifierSegment".to_string(),
+                    segment_type: "naked_identifier".to_string(),
                     raw: "foo".to_string(),
-                    token_idx: 1,
+                    pos_marker: None,
+                    instance_types: vec!["identifier".to_string()],
+                    segment_kwargs: RawSegmentKwargs::default(),
                 },
             ],
         };
@@ -955,7 +629,7 @@ mod tests {
         let expected = Value::Mapping({
             let mut m = serde_yaml_ng::Mapping::new();
             m.insert(
-                Value::String("sequence".to_string()),
+                Value::String("statement".to_string()),
                 Value::Mapping(merged),
             );
             m
@@ -963,42 +637,11 @@ mod tests {
         assert_eq!(record, expected);
     }
 
-    // #[test]
-    // fn test_ref_node_as_record() {
-    //     let child = Node::Token {
-    //         token_type: "keyword".to_string(),
-    //         raw: "SELECT".to_string(),
-    //         token_idx: 0,
-    //     };
-    //     let node = Node::Ref {
-    //         name: "SelectKeywordSegment".to_string(),
-    //         segment_type: Some("keyword".to_string()),
-    //         children: Box::new(child),
-    //     };
-    //     let record = node.as_record(false, true, false).unwrap();
-    //     let expected = Value::Mapping({
-    //         let mut m = serde_yaml_ng::Mapping::new();
-    //         m.insert(
-    //             Value::String("keyword".to_string()),
-    //             Value::Mapping({
-    //                 let mut inner = serde_yaml_ng::Mapping::new();
-    //                 inner.insert(
-    //                     Value::String("keyword".to_string()),
-    //                     Value::String("SELECT".to_string()),
-    //                 );
-    //                 inner
-    //             }),
-    //         );
-    //         m
-    //     });
-    //     assert_eq!(record, expected);
-    // }
-
     #[test]
     fn test_meta_node_as_record() {
         let node = Node::Meta {
-            token_type: "indent".to_string(),
-            token_idx: None,
+            meta_type: MetaType::Indent { is_implicit: false },
+            pos_marker: None,
         };
         let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
@@ -1012,17 +655,24 @@ mod tests {
     #[test]
     fn test_unparsable_node_as_record() {
         let node = Node::Unparsable {
-            expected_message: "expected foo".to_string(),
+            expected: "expected foo".to_string(),
+            pos_marker: None,
             children: vec![
-                Node::Token {
-                    token_type: "keyword".to_string(),
+                Node::Raw {
+                    segment_class: "KeywordSegment".to_string(),
+                    segment_type: "keyword".to_string(),
                     raw: "SELECT".to_string(),
-                    token_idx: 0,
+                    pos_marker: None,
+                    instance_types: vec!["keyword".to_string()],
+                    segment_kwargs: RawSegmentKwargs::default(),
                 },
-                Node::Token {
-                    token_type: "naked_identifier".to_string(),
+                Node::Raw {
+                    segment_class: "IdentifierSegment".to_string(),
+                    segment_type: "naked_identifier".to_string(),
                     raw: "foo".to_string(),
-                    token_idx: 1,
+                    pos_marker: None,
+                    instance_types: vec!["identifier".to_string()],
+                    segment_kwargs: RawSegmentKwargs::default(),
                 },
             ],
         };
@@ -1048,11 +698,14 @@ mod tests {
     }
 
     #[test]
-    fn test_token_node_to_tuple_show_raw() {
-        let node = Node::Token {
-            token_type: "keyword".to_string(),
+    fn test_raw_node_to_tuple_show_raw() {
+        let node = Node::Raw {
+            segment_class: "KeywordSegment".to_string(),
+            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
-            token_idx: 0,
+            pos_marker: None,
+            instance_types: vec!["keyword".to_string()],
+            segment_kwargs: RawSegmentKwargs::default(),
         };
         let val = node.to_tuple(false, true, false);
         assert_eq!(
@@ -1062,36 +715,48 @@ mod tests {
     }
 
     #[test]
-    fn test_token_node_to_tuple_no_raw() {
-        let node = Node::Token {
-            token_type: "keyword".to_string(),
+    fn test_raw_node_to_tuple_no_raw() {
+        let node = Node::Raw {
+            segment_class: "KeywordSegment".to_string(),
+            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
-            token_idx: 0,
+            pos_marker: None,
+            instance_types: vec!["keyword".to_string()],
+            segment_kwargs: RawSegmentKwargs::default(),
         };
         let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("keyword".to_string(), vec![]));
     }
 
     #[test]
-    fn test_sequence_node_to_tuple() {
-        let child1 = Node::Token {
-            token_type: "keyword".to_string(),
+    fn test_segment_node_to_tuple() {
+        let child1 = Node::Raw {
+            segment_class: "KeywordSegment".to_string(),
+            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
-            token_idx: 0,
+            pos_marker: None,
+            instance_types: vec!["keyword".to_string()],
+            segment_kwargs: RawSegmentKwargs::default(),
         };
-        let child2 = Node::Token {
-            token_type: "keyword".to_string(),
+        let child2 = Node::Raw {
+            segment_class: "KeywordSegment".to_string(),
+            segment_type: "keyword".to_string(),
             raw: "FROM".to_string(),
-            token_idx: 1,
+            pos_marker: None,
+            instance_types: vec!["keyword".to_string()],
+            segment_kwargs: RawSegmentKwargs::default(),
         };
-        let node = Node::Sequence {
+        let node = Node::Segment {
+            segment_class: "StatementSegment".to_string(),
+            segment_type: "statement".to_string(),
+            pos_marker: None,
             children: vec![child1, child2],
         };
         let val = node.to_tuple(false, true, false);
         assert_eq!(
             val,
             NodeTupleValue::Tuple(
-                "sequence".to_string(),
+                "statement".to_string(),
                 vec![
                     NodeTupleValue::Raw("keyword".to_string(), "SELECT".to_string()),
                     NodeTupleValue::Raw("keyword".to_string(), "FROM".to_string()),
@@ -1100,30 +765,11 @@ mod tests {
         );
     }
 
-    // #[test]
-    // fn test_ref_node_to_tuple() {
-    //     let child = Node::Token {
-    //         token_type: "keyword".to_string(),
-    //         raw: "SELECT".to_string(),
-    //         token_idx: 0,
-    //     };
-    //     let node = Node::Ref {
-    //         name: "SelectKeywordSegment".to_string(),
-    //         segment_type: None,
-    //         children: Box::new(child),
-    //     };
-    //     let val = node.to_tuple(false, true, false);
-    //     assert_eq!(
-    //         val,
-    //         NodeTupleValue::Raw("keyword".to_string(), "SELECT".to_string())
-    //     );
-    // }
-
     #[test]
     fn test_meta_node_to_tuple_include_meta() {
         let node = Node::Meta {
-            token_type: "indent".to_string(),
-            token_idx: None,
+            meta_type: MetaType::Indent { is_implicit: false },
+            pos_marker: None,
         };
         let val = node.to_tuple(false, false, true);
         assert_eq!(
@@ -1135,8 +781,8 @@ mod tests {
     #[test]
     fn test_meta_node_to_tuple_exclude_meta() {
         let node = Node::Meta {
-            token_type: "indent".to_string(),
-            token_idx: None,
+            meta_type: MetaType::Indent { is_implicit: false },
+            pos_marker: None,
         };
         let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("indent".to_string(), vec![]));

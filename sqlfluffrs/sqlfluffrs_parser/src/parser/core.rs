@@ -114,70 +114,70 @@ impl<'a> Parser<'a> {
         self.cache_enabled = enabled;
     }
 
-    #[deprecated(note = "use call_rule_as_root_match_result instead")]
-    #[allow(deprecated)]
-    pub fn call_rule_as_root(&mut self) -> Result<Node, ParseError> {
-        // Obtain the root grammar for this dialect and dispatch based on its
-        // variant (table-driven vs Arc-based). Clone to avoid holding borrows.
-        let root_grammar = self.dialect.get_root_grammar().clone();
+    // #[deprecated(note = "use call_rule_as_root_match_result instead")]
+    // #[allow(deprecated)]
+    // pub fn call_rule_as_root_match_result(&mut self) -> Result<Node, ParseError> {
+    //     // Obtain the root grammar for this dialect and dispatch based on its
+    //     // variant (table-driven vs Arc-based). Clone to avoid holding borrows.
+    //     let root_grammar = self.dialect.get_root_grammar().clone();
 
-        // Find the last code token position (for trailing non-code tokens)
-        let mut last_code_pos = self.tokens.len();
-        for (i, token) in self.tokens.iter().enumerate().rev() {
-            if token.is_code() {
-                last_code_pos = i + 1;
-                break;
-            }
-        }
+    //     // Find the last code token position (for trailing non-code tokens)
+    //     let mut last_code_pos = self.tokens.len();
+    //     for (i, token) in self.tokens.iter().enumerate().rev() {
+    //         if token.is_code() {
+    //             last_code_pos = i + 1;
+    //             break;
+    //         }
+    //     }
 
-        let token_slice_orig = self.tokens;
-        let token_slice = &self.tokens[..last_code_pos];
-        let end_nodes = self.end_children_nodes(last_code_pos);
+    //     let token_slice_orig = self.tokens;
+    //     let token_slice = &self.tokens[..last_code_pos];
+    //     let end_nodes = self.end_children_nodes(last_code_pos);
 
-        if token_slice.is_empty() {
-            // Wrap in a Ref node for type clarity
-            let result = Node::new_ref(&MatchedClass::root(), &end_nodes);
-            return Ok(result);
-        }
+    //     if token_slice.is_empty() {
+    //         // Wrap in a Ref node for type clarity
+    //         let result = Node::new_ref(&MatchedClass::root(), &end_nodes);
+    //         return Ok(result);
+    //     }
 
-        self.tokens = token_slice;
+    //     self.tokens = token_slice;
 
-        // Collect any leading transparent tokens (whitespace, newlines, COMMENTS)
-        // before parsing starts. This ensures leading comments are included in the AST.
-        let leading_transparent = self.collect_transparent_nodes(true);
+    //     // Collect any leading transparent tokens (whitespace, newlines, COMMENTS)
+    //     // before parsing starts. This ensures leading comments are included in the AST.
+    //     // let leading_transparent = self.collect_transparent_nodes(true);
 
-        // Parse using the root grammar.
-        let grammar_id = root_grammar.grammar_id;
-        let tables = root_grammar.tables;
-        // Update grammar context if needed
-        self.grammar_ctx = GrammarContext::new(tables);
-        let nodes = self.parse_table_iterative(grammar_id, &[]);
-        self.tokens = token_slice_orig;
-        match nodes {
-            Ok(mut n) => {
-                // Prepend leading transparent tokens and append trailing tokens
-                if !leading_transparent.is_empty() || !end_nodes.is_empty() {
-                    let mut all_children = leading_transparent;
-                    all_children.push(n);
-                    all_children.extend(end_nodes);
-                    let len = all_children.len();
-                    n = Node::Sequence {
-                        children: all_children,
-                    };
-                    self.pos += len - 1; // -1 because n is included
-                } else if !end_nodes.is_empty() {
-                    let mut children = vec![n];
-                    let end_len = end_nodes.len();
-                    children.extend(end_nodes);
-                    n = Node::Sequence { children };
-                    self.pos += end_len;
-                }
-                let result = Node::new_ref(&MatchedClass::root(), &[n]);
-                Ok(result)
-            }
-            Err(e) => Err(e),
-        }
-    }
+    //     // Parse using the root grammar.
+    //     let grammar_id = root_grammar.grammar_id;
+    //     let tables = root_grammar.tables;
+    //     // Update grammar context if needed
+    //     self.grammar_ctx = GrammarContext::new(tables);
+    //     let nodes = self.parse_table_iterative(grammar_id, &[]);
+    //     self.tokens = token_slice_orig;
+    //     match nodes {
+    //         Ok(mut n) => {
+    //             // Prepend leading transparent tokens and append trailing tokens
+    //             if !leading_transparent.is_empty() || !end_nodes.is_empty() {
+    //                 let mut all_children = leading_transparent;
+    //                 all_children.push(n);
+    //                 all_children.extend(end_nodes);
+    //                 let len = all_children.len();
+    //                 n = Node::Sequence {
+    //                     children: all_children,
+    //                 };
+    //                 self.pos += len - 1; // -1 because n is included
+    //             } else if !end_nodes.is_empty() {
+    //                 let mut children = vec![n];
+    //                 let end_len = end_nodes.len();
+    //                 children.extend(end_nodes);
+    //                 n = Node::Sequence { children };
+    //                 self.pos += end_len;
+    //             }
+    //             let result = Node::new_ref(&MatchedClass::root(), &[n]);
+    //             Ok(result)
+    //         }
+    //         Err(e) => Err(e),
+    //     }
+    // }
 
     /// Parse and return MatchResult instead of Node
     ///
@@ -216,44 +216,101 @@ impl<'a> Parser<'a> {
         result
     }
 
-    fn end_children_nodes(&mut self, start_idx: usize) -> Vec<Node> {
-        // Only non-code tokens present; return them as nodes with type mapping
-        let mut children = Vec::new();
-        for (i, token) in self.tokens[start_idx..].iter().enumerate() {
+    pub fn root_parse(&mut self) -> Result<Node, ParseError> {
+        // Obtain the root grammar for this dialect
+        let root_grammar = self.dialect.get_root_grammar().clone();
+
+        // Find the last code token position (for trailing non-code tokens)
+        let mut last_code_pos = self.tokens.len();
+        for (i, token) in self.tokens.iter().enumerate().rev() {
             if token.is_code() {
+                last_code_pos = i + 1;
                 break;
             }
-            let node = match token.get_type().as_str() {
-                "meta" => Node::Meta {
-                    token_type: "meta".to_string(),
-                    token_idx: Some(start_idx + i),
-                },
-                "dedent" => Node::Meta {
-                    token_type: "dedent".to_string(),
-                    token_idx: Some(start_idx + i),
-                },
-                "whitespace" => Node::Whitespace {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                "newline" => Node::Newline {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                "end_of_file" => Node::EndOfFile {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                "comment" => Node::Comment {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                other => Node::new_token(other.to_string(), token.raw().to_string(), start_idx + i),
-            };
-            children.push(node);
         }
-        children
+
+        let token_slice_orig = self.tokens;
+        let token_slice = &self.tokens[..last_code_pos];
+
+        if token_slice.is_empty() {
+            // Return empty match result
+            return Ok(MatchResult::empty_at(0).apply(&token_slice)[0].clone());
+        }
+
+        self.tokens = token_slice;
+
+        // Parse using the root grammar
+        let grammar_id = root_grammar.grammar_id;
+        let tables = root_grammar.tables;
+        self.grammar_ctx = GrammarContext::new(tables);
+        let grammar_name = self.grammar_ctx.grammar_id_name(grammar_id);
+        let match_result = self.parse_table_iterative_match_result(grammar_id, &[])?;
+        let match_end = match_result.end();
+        self.tokens = token_slice_orig;
+
+        let matched = match_result.apply(&self.tokens);
+        // We expect exactly one root node after applying the match result
+        assert_eq!(matched.len(), 1);
+        let unmatched = self.tokens[match_end..last_code_pos].to_vec();
+
+        // let mut content;
+        // if match_result.is_empty() {
+        //     content = Node::Unparsable {
+        //         expected_message: grammar_name,
+        //         children: vec![],
+        //     };
+        // } else if !unmatched.is_empty() {
+        //     content = matched
+        //         + unmatched
+        //             .iter()
+        //             .take_while(|t| !t.is_code())
+        //             .collect::<Vec<_>>();
+        // } else {
+        //     // Some tokens were not matched; wrap in Unparsable
+        //     content = Node::Unparsable {
+        //         expected_message: format!("{} (with unmatched tokens)", grammar_name),
+        //         children: matched,
+        //     };
+        // }
+
+        // Ok(content)
+        Ok(matched[0].clone())
     }
+
+    // fn end_children_nodes(&mut self, start_idx: usize) -> Vec<Node> {
+    //     // Only non-code tokens present; return them as nodes with type mapping
+    //     let mut children = Vec::new();
+    //     for (i, token) in self.tokens[start_idx..].iter().enumerate() {
+    //         if token.is_code() {
+    //             break;
+    //         }
+    //         let node = match token.get_type().as_str() {
+    //             "meta" => Node::Meta {
+    //                 token_type: "meta".to_string(),
+    //                 token_idx: Some(start_idx + i),
+    //             },
+    //             "dedent" => Node::Meta {
+    //                 token_type: "dedent".to_string(),
+    //                 token_idx: Some(start_idx + i),
+    //             },
+    //             "newline" => Node::Newline {
+    //                 raw: token.raw().to_string(),
+    //                 token_idx: start_idx + i,
+    //             },
+    //             "end_of_file" => Node::EndOfFile {
+    //                 raw: token.raw().to_string(),
+    //                 token_idx: start_idx + i,
+    //             },
+    //             "comment" => Node::Comment {
+    //                 raw: token.raw().to_string(),
+    //                 token_idx: start_idx + i,
+    //             },
+    //             other => Node::new_token(other.to_string(), token.raw().to_string(), start_idx + i),
+    //         };
+    //         children.push(node);
+    //     }
+    //     children
+    // }
 
     /// Push a checkpoint onto the collection stack when starting to process a grammar.
     /// This records the current state so we can backtrack if needed.

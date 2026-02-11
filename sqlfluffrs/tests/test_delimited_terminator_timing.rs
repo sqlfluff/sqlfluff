@@ -79,7 +79,7 @@ mod delimited_terminator_tests {
 
         // Parse as a simple delimited list (simulating column list)
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-        let result = parser.call_rule_as_root();
+        let result = parser.call_rule_as_root_match_result();
 
         // Should successfully parse the bracketed comma-delimited list
         // Both Python and Rust should handle this correctly

@@ -40,7 +40,10 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
         assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
         let mut parser =
             sqlfluffrs_parser::parser::Parser::new(&tokens, dialect_obj, hashbrown::HashMap::new());
-        let ast = parser.call_rule_as_root().expect("Parse error");
+        let ast = parser
+            .call_rule_as_root_match_result()
+            .expect("Parse error")
+            .apply_as_root(&tokens);
 
         // Generate YAML
         let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML conversion error");
@@ -402,7 +405,11 @@ fn test_yaml_output_matches_python() {
     // Parse
     let mut parser =
         sqlfluffrs_parser::parser::Parser::new(&tokens, Dialect::Ansi, hashbrown::HashMap::new());
-    let ast = parser.call_rule_as_root().expect("Parse error");
+    let ast = parser
+        .call_rule_as_root_match_result()
+        .expect("Parse error")
+        .apply_as_root(&tokens);
+
     // Generate YAML
     let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML generation failed");
     // Read expected YAML
@@ -437,7 +444,7 @@ fn test_yaml_output_matches_python() {
 ///
 /// This test suite parses SQL files from test/fixtures/dialects/ and compares
 /// the output against expected YAML files.
-use sqlfluffrs_parser::parser::{Node, Parser};
+use sqlfluffrs_parser::parser::{MatchedClass, Node, Parser};
 use std::path::Path;
 use std::str::FromStr;
 
@@ -499,9 +506,11 @@ impl FixtureTest {
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
 
         // Try to parse as a file (top-level rule)
-        parser
-            .call_rule_as_root()
-            .map_err(|e| format!("Parse error: {:?}", e))
+        let ast = parser
+            .call_rule_as_root_match_result()
+            .expect("Parse error")
+            .apply_as_root(&tokens);
+        Ok(ast)
     }
 }
 

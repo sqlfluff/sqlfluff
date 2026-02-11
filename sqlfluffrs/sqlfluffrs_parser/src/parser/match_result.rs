@@ -12,7 +12,7 @@ use std::fmt::Display;
 use std::ops::Range;
 use std::sync::Arc;
 
-use crate::parser::types::Node;
+use crate::parser::types::{MetaType, Node, RawSegmentKwargs};
 use hashbrown::HashMap;
 use sqlfluffrs_types::regex::RegexModeGroup;
 use sqlfluffrs_types::token::CaseFold;
@@ -476,8 +476,29 @@ impl MatchResult {
                     if idx < tokens.len() {
                         let tok = &tokens[idx];
                         let raw = tok.raw().to_string();
-                        let tok_type = tok.get_type().to_string();
-                        result_nodes.push(Node::new_token(tok_type, raw, idx));
+
+                        let (segment_class, segment_type) =
+                            if let Some(match_class) = self.matched_class.as_ref() {
+                                (
+                                    match_class.class_name.clone(),
+                                    match_class
+                                        .segment_type
+                                        .clone()
+                                        .unwrap_or_else(|| tok.token_type.clone()),
+                                )
+                            } else {
+                                (tok.class_name.clone(), tok.token_type.clone())
+                            };
+
+                        // Create Raw node from token
+                        result_nodes.push(Node::Raw {
+                            segment_class,
+                            segment_type,
+                            raw,
+                            pos_marker: tok.pos_marker.clone(),
+                            instance_types: tok.instance_types.clone(),
+                            segment_kwargs: RawSegmentKwargs::default(),
+                        });
                     }
                 }
                 current_idx = pos;
@@ -516,29 +537,77 @@ impl MatchResult {
                 if idx < tokens.len() {
                     let tok = &tokens[idx];
                     let raw = tok.raw().to_string();
-                    let tok_type = tok.get_type().to_string();
 
-                    result_nodes.push(Node::new_token(tok_type, raw, idx));
+                    let (segment_class, segment_type) =
+                        if let Some(match_class) = self.matched_class.as_ref() {
+                            (
+                                match_class.class_name.clone(),
+                                match_class
+                                    .segment_type
+                                    .clone()
+                                    .unwrap_or_else(|| tok.token_type.clone()),
+                            )
+                        } else {
+                            (tok.class_name.clone(), tok.token_type.clone())
+                        };
+
+                    // Create Raw node from token
+                    result_nodes.push(Node::Raw {
+                        segment_class,
+                        segment_type,
+                        raw,
+                        pos_marker: tok.pos_marker.clone(),
+                        instance_types: tok.instance_types.clone(),
+                        segment_kwargs: RawSegmentKwargs::default(),
+                    });
                 }
             }
         }
 
-        if let Some(match_class) = self.matched_class {
+        if let Some(match_class) = self.matched_class.clone() {
             vdebug!(
                 "[APPLY-DEBUG] {:?} wrapping {} nodes",
                 match_class.class_name,
                 result_nodes.len()
             );
 
-            // TODO: drop this segment ending check.
+            // Calculate position marker from first child
+            let pos_marker = result_nodes.first().and_then(|n| match n {
+                Node::Raw { pos_marker, .. }
+                | Node::Segment { pos_marker, .. }
+                | Node::Meta { pos_marker, .. }
+                | Node::Unparsable { pos_marker, .. } => pos_marker.clone(),
+                _ => None,
+            });
 
-            // For segment classes (end with "Segment"), wrap in Ref
-            // For other cases, wrap in Sequence
-            vec![Node::new_ref(&match_class, &result_nodes)]
+            // Create Segment node
+            vec![Node::Segment {
+                segment_class: match_class.class_name.clone(),
+                segment_type: match_class.segment_type.clone(),
+                pos_marker,
+                children: result_nodes,
+            }]
         } else {
             // No wrapping class - return children as-is
             result_nodes
         }
+    }
+
+    pub fn apply_as_root(self, tokens: &[Token]) -> Node {
+        let file_mr = MatchResult {
+            matched_slice: 0..tokens.len(),
+            matched_class: Some(MatchedClass::root()),
+            insert_segments: vec![],
+            child_matches: vec![Arc::new(self)],
+        };
+        let root_node = file_mr.apply(tokens);
+        if root_node.len() > 1 {
+            panic!(
+                "Root apply did not produce a single node, got {} nodes",
+                root_node.len()
+            );
+        }
+        root_node.first().cloned().unwrap_or_default()
     }
 
     pub fn stringify(&self, indent: usize) -> String {
@@ -578,7 +647,7 @@ pub fn segment_kwargs_from_token(
     }
 }
 
-fn get_point_pos_at_token_idx(tokens: &[Token], pos: usize) -> PositionMarker {
+fn get_point_pos_at_token_idx(_tokens: &[Token], _pos: usize) -> PositionMarker {
     todo!()
 }
 
@@ -589,43 +658,23 @@ enum TriggerItem {
     ChildMatch(MatchResult),
 }
 
-/// Convert a transparent insert to a Node
-fn transparent_to_node(insert: &TransparentInsert) -> Node {
-    match insert.token_type {
-        TransparentType::Whitespace => Node::Whitespace {
-            raw: insert.raw.clone(),
-            token_idx: insert.token_idx,
-        },
-        TransparentType::Newline => Node::Newline {
-            raw: insert.raw.clone(),
-            token_idx: insert.token_idx,
-        },
-        TransparentType::Comment => Node::Comment {
-            raw: insert.raw.clone(),
-            token_idx: insert.token_idx,
-        },
-        TransparentType::EndOfFile => Node::EndOfFile {
-            raw: insert.raw.clone(),
-            token_idx: insert.token_idx,
-        },
-    }
-}
-
 /// Convert a meta segment type to a Node
-fn meta_to_node(idx: usize, meta_type: &MetaSegment) -> Node {
+fn meta_to_node(_idx: usize, meta_type: &MetaSegment) -> Node {
+    // TODO: Get position marker for meta segment - for now use None
+    let pos_marker = None;
+
     match meta_type {
         MetaSegment::Indent { is_implicit } => Node::Meta {
-            token_type: if *is_implicit {
-                "implicit_indent"
-            } else {
-                "indent"
-            }
-            .to_string(),
-            token_idx: Some(idx),
+            meta_type: MetaType::Indent {
+                is_implicit: *is_implicit,
+            },
+            pos_marker,
         },
-        MetaSegment::Dedent { .. } => Node::Meta {
-            token_type: "dedent".to_string(),
-            token_idx: Some(idx),
+        MetaSegment::Dedent { is_implicit } => Node::Meta {
+            meta_type: MetaType::Dedent {
+                is_implicit: *is_implicit,
+            },
+            pos_marker,
         },
     }
 }

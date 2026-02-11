@@ -192,7 +192,7 @@ mod tests {
 
         // First parse - should populate cache
         println!("\n=== First Parse (should populate cache) ===");
-        match parser.call_rule_as_root() {
+        match parser.call_rule_as_root_match_result() {
             Ok(_ast) => {
                 println!("✓ Parse successful");
                 parser.print_cache_stats();
@@ -208,7 +208,7 @@ mod tests {
 
         // Second parse - should hit cache heavily
         println!("\n=== Second Parse (should hit cache) ===");
-        match parser.call_rule_as_root() {
+        match parser.call_rule_as_root_match_result() {
             Ok(_ast) => {
                 println!("✓ Parse successful");
                 parser.print_cache_stats();

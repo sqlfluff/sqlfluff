@@ -95,6 +95,7 @@ impl Parser<'_> {
         // tokens so child parsing starts at the next non-transparent token.
         let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
         let child_type = self.grammar_ctx.get_type(child_grammar_id);
+        let this_type = self.grammar_ctx.get_type(grammar_id);
         let child_start_pos = if child_allows_gaps {
             self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
         } else {
@@ -109,7 +110,10 @@ impl Parser<'_> {
             .segment_class(grammar_id)
             .map(|s| s.to_string());
 
-        // eprintln!("Ref[table]: child_type={:?}, table_segment_class={:?}", child_type, table_segment_class);
+        eprintln!(
+            "Ref[table]: this_type={:?}, child_type={:?}, table_segment_class={:?}",
+            this_type, child_type, table_segment_class
+        );
 
         log::debug!(
             "Ref[table]: rule_name='{}', table_segment_class={:?}",
@@ -122,7 +126,7 @@ impl Parser<'_> {
             grammar_id,
             name: rule_name,
             segment_class_name: table_segment_class,
-            segment_type: child_type,
+            segment_type: this_type,
             saved_pos: child_start_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             child_grammar_id,

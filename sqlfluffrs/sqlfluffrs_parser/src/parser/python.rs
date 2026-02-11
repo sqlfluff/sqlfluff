@@ -53,7 +53,6 @@ impl PyNode {
             Node::Bracketed { .. } => "bracketed".to_string(),
             Node::Meta { .. } => "meta".to_string(),
             Node::Empty => "empty".to_string(),
-            Node::Whitespace { .. } => "whitespace".to_string(),
             Node::Newline { .. } => "newline".to_string(),
             Node::Comment { .. } => "comment".to_string(),
             Node::EndOfFile { .. } => "end_of_file".to_string(),
