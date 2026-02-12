@@ -929,7 +929,11 @@ oracle_dialect.replace(
         OneOf(
             Sequence(
                 Ref.keyword("IN", optional=True),
-                OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
+                OneOf(
+                    Ref("DatatypeSegment"),
+                    Ref("ColumnTypeReferenceSegment"),
+                    Ref("RowTypeReferenceSegment"),
+                ),
                 Sequence(
                     OneOf(Ref("AssignmentOperatorSegment"), "DEFAULT"),
                     Ref("ExpressionSegment"),
@@ -940,7 +944,11 @@ oracle_dialect.replace(
                 Ref.keyword("IN", optional=True),
                 "OUT",
                 Ref.keyword("NOCOPY", optional=True),
-                OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
+                OneOf(
+                    Ref("DatatypeSegment"),
+                    Ref("ColumnTypeReferenceSegment"),
+                    Ref("RowTypeReferenceSegment"),
+                ),
             ),
         ),
     ),

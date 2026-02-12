@@ -1993,7 +1993,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs"
-version = "4.0.0"
+version = "4.0.4"
 dependencies = [
  "bincode",
  "blake2",
@@ -2023,7 +2023,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_dialects"
-version = "4.0.0"
+version = "4.0.4"
 dependencies = [
  "fancy-regex",
  "hashbrown 0.15.5",
@@ -2034,7 +2034,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_lexer"
-version = "4.0.0"
+version = "4.0.4"
 dependencies = [
  "env_logger",
  "fancy-regex",
@@ -2053,7 +2053,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_parser"
-version = "4.0.0"
+version = "4.0.4"
 dependencies = [
  "env_logger",
  "hashbrown 0.15.5",
@@ -2071,7 +2071,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_python"
-version = "4.0.0"
+version = "4.0.4"
 dependencies = [
  "bincode",
  "hashbrown 0.15.5",
@@ -2085,7 +2085,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_types"
-version = "4.0.0"
+version = "4.0.4"
 dependencies = [
  "bincode",
  "fancy-regex",
