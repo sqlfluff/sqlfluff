@@ -1,0 +1,154 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fbf4a76e75cbd0d67db2608d26721153c7272a63a628d809a23b71c0e2a313c6
+file:
+  statement:
+    with_compound_statement:
+    - keyword: with
+    - common_table_expression:
+        naked_identifier: hits
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: hit_id
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: hit_code
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: string_to_array
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: coalesce
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                column_reference:
+                                  naked_identifier: hit_categories
+                            - comma: ','
+                            - expression:
+                                quoted_literal: "'[]'"
+                            - end_bracket: )
+                    - keyword: using
+                    - keyword: parameters
+                    - parameter: collection_delimiter
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - quoted_literal: "','"
+                    - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: hit_categories_array
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: test
+                    - dot: .
+                    - naked_identifier: table_name
+            where_clause:
+              keyword: where
+              expression:
+                keyword: not
+                column_reference:
+                  naked_identifier: is_deleted_flg
+          end_bracket: )
+    - comma: ','
+    - common_table_expression:
+        naked_identifier: result
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: hit_code
+            - comma: ','
+            - select_clause_element:
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array_find
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: hit_categories_array
+                        comma: ','
+                        lambda_function:
+                          parameter: e
+                          lambda_arrow: ->
+                          expression:
+                          - column_reference:
+                              naked_identifier: e
+                          - keyword: not
+                          - keyword: in
+                          - bracketed:
+                            - start_bracket: (
+                            - quoted_literal: "'Apple'"
+                            - comma: ','
+                            - quoted_literal: "'Banana'"
+                            - comma: ','
+                            - quoted_literal: "'Cherry'"
+                            - comma: ','
+                            - quoted_literal: "'Durian'"
+                            - comma: ','
+                            - quoted_literal: "'Elderberry'"
+                            - comma: ','
+                            - quoted_literal: "'Fig'"
+                            - end_bracket: )
+                        end_bracket: )
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '1'
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: is_unknown_category_flg
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: hits
+          end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: result
+  statement_terminator: ;
