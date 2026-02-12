@@ -36,6 +36,7 @@ from sqlfluff.utils.functional.segment_predicates import (
     is_type,
     is_whitespace,
 )
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 _SELECT_TYPES = [
     "with_compound_statement",
@@ -216,6 +217,16 @@ class Rule_ST05(BaseRule):
                     edit_segments=[new_select],
                 )
             ]
+            seq = ReflowSequence.from_around_target(
+                # Which element should we pass, the original (segment[0]) or
+                # the one we replace it with (new_select)?
+                # segment[0],
+                new_select,
+                context.parent_stack[0],
+                config=context.config,
+                sides="both",
+            )
+            lint_result.fixes = seq.get_fixes()
             lint_result.fixes += fixes
         return [lint_result[0] for lint_result in results_list]
 
