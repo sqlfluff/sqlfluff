@@ -255,3 +255,17 @@ test_pass_bigquery_array:
   configs:
     core:
       dialect: bigquery
+
+test_fail_sparksql_div_operator:
+  # Test for SparkSQL DIV operator capitalization
+  # Ensures DIV operator can be edited by CP01 rule (issue #6311)
+  fail_str: |
+    SELECT 3 div 2
+  fix_str: |
+    SELECT 3 DIV 2
+  configs:
+    core:
+      dialect: sparksql
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper

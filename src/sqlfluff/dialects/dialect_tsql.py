@@ -1575,11 +1575,13 @@ class CursorDefinitionSegment(BaseSegment):
     type = "cursor_definition"
     match_grammar: Matchable = Sequence(
         "CURSOR",
-        OneOf("LOCAL", "GLOBAL", optional=True),
-        OneOf("FORWARD_ONLY", "SCROLL", optional=True),
-        OneOf("STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", optional=True),
-        OneOf("READ_ONLY", "SCROLL_LOCKS", "OPTIMISTIC", optional=True),
-        Sequence("TYPE_WARNING", optional=True),
+        AnySetOf(
+            OneOf("LOCAL", "GLOBAL", optional=True),
+            OneOf("FORWARD_ONLY", "SCROLL", optional=True),
+            OneOf("STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", optional=True),
+            OneOf("READ_ONLY", "SCROLL_LOCKS", "OPTIMISTIC", optional=True),
+            Sequence("TYPE_WARNING", optional=True),
+        ),
         "FOR",
         Ref("SelectStatementSegment"),
         Sequence(
@@ -1722,7 +1724,10 @@ class SelectClauseSegment(BaseSegment):
 
 
 class UnorderedSelectStatementSegment(BaseSegment):
-    """A `SELECT` statement without any ORDER clauses or later.
+    """A `SELECT` statement without an OPTION clause or later.
+
+    ORDER BY has to be allowed for T-SQL since with TOP clause
+    they are allowed in derived tables and select set segments.
 
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
@@ -1741,6 +1746,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
         Ref("NamedWindowSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
     )
 
 
@@ -1887,6 +1893,10 @@ class SelectStatementSegment(BaseSegment):
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
 
+    ORDER BY was moved from here to UnorderedSelectStatementSegment
+    as T-SQL optional does allow ORDER BY in derived tables and
+    select set segments.
+
     We also need to get away from ANSI's use of terminators.
     There's not a clean list of terminators that can be used
     to identify the end of a TSQL select statement.  Semi-colon is optional.
@@ -1896,7 +1906,6 @@ class SelectStatementSegment(BaseSegment):
     # Remove the Limit and Window statements from ANSI
     match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
-            Ref("OrderByClauseSegment", optional=True),
             Ref("OptionClauseSegment", optional=True),
             Ref("ForClauseSegment", optional=True),
         ]
@@ -3140,8 +3149,10 @@ class DeclareCursorStatementSegment(BaseSegment):
         OneOf(
             Ref("CursorDefinitionSegment"),
             Sequence(
-                Ref.keyword("INSENSITIVE", optional=True),
-                Ref.keyword("SCROLL", optional=True),
+                AnySetOf(
+                    Ref.keyword("INSENSITIVE", optional=True),
+                    Ref.keyword("SCROLL", optional=True),
+                ),
                 "CURSOR",
                 "FOR",
                 Ref("SelectStatementSegment"),
@@ -7723,7 +7734,7 @@ class OpenJsonWithClauseSegment(BaseSegment):
         Bracketed(
             Delimited(
                 Sequence(
-                    Ref("ColumnReferenceSegment"),
+                    Ref("SingleIdentifierGrammar"),
                     Ref("DatatypeSegment"),
                     Ref("QuotedLiteralSegment", optional=True),  # column_path
                     Sequence(
@@ -7748,11 +7759,11 @@ class OpenJsonSegment(BaseSegment):
     match_grammar = Sequence(
         "OPENJSON",
         Bracketed(
-            Delimited(
-                Ref("QuotedLiteralSegmentOptWithN"),  # jsonExpression
-                Ref("ColumnReferenceSegment"),
-                Ref("ParameterNameSegment"),
-                Ref("QuotedLiteralSegment"),  # path
+            Ref("ExpressionSegment"),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("ExpressionSegment"),
+                optional=True,
             ),
         ),
         Ref("OpenJsonWithClauseSegment", optional=True),

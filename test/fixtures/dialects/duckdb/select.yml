@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a367cefb1135af487a34618fd4bd5cfd4a348549920d3a124ae545f7af23d785
+_hash: 490ad890e6d2b5ec1b7ea73d5d3c7b8ae8719c1a235c2109dba3c2f70c9d9b95
 file:
 - statement:
     select_statement:
@@ -113,4 +113,51 @@ file:
         keyword: SELECT
         select_clause_element:
           numeric_literal: '1_000_000.0_000_000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+        comma: ','
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Amsterdam'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '1'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'London'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+                - comma: ','
+              end_bracket: )
+            alias_expression:
+              naked_identifier: cities
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: name
+                - comma: ','
+                - naked_identifier: id
+                end_bracket: )
 - statement_terminator: ;
