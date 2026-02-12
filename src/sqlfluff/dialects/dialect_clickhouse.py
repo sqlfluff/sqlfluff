@@ -351,6 +351,167 @@ clickhouse_dialect.sets("datetime_units").update(
 )
 
 
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """A ClickHouse access permission.
+
+    Based on https://clickhouse.com/docs/sql-reference/statements/grant#privileges
+    """
+
+    match_grammar: Matchable = OneOf(
+        # SELECT privilege
+        Sequence(
+            "SELECT",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # INSERT privilege
+        Sequence(
+            "INSERT",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # DELETE privilege (standalone)
+        Sequence(
+            "DELETE",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # UPDATE privilege (standalone)
+        Sequence(
+            "UPDATE",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # ALTER privileges - hierarchical structure
+        Sequence(
+            "ALTER",
+            OneOf(
+                # ALTER TABLE
+                "TABLE",
+                # ALTER ADD/DROP/MODIFY/CLEAR/COMMENT/RENAME COLUMN
+                Sequence(
+                    OneOf("ADD", "DROP", "MODIFY", "CLEAR", "COMMENT", "RENAME"),
+                    "COLUMN",
+                ),
+                # ALTER CONSTRAINT
+                Sequence(
+                    OneOf("ADD", "DROP"),
+                    "CONSTRAINT",
+                ),
+                # ALTER TTL/ORDER BY/SAMPLE BY
+                Sequence(
+                    OneOf("MODIFY", "REMOVE"),
+                    OneOf(
+                        "TTL",
+                        Sequence("ORDER", "BY"),
+                        Sequence("SAMPLE", "BY"),
+                    ),
+                ),
+                # ALTER MATERIALIZE TTL
+                Sequence("MATERIALIZE", "TTL"),
+                # ALTER DELETE, ALTER UPDATE (data manipulation)
+                "DELETE",
+                "UPDATE",
+                # ALTER MOVE PARTITION/PART
+                Sequence(
+                    "MOVE",
+                    OneOf("PARTITION", "PART"),
+                ),
+                # ALTER FETCH PARTITION
+                Sequence("FETCH", "PARTITION"),
+                # ALTER FREEZE PARTITION
+                Sequence("FREEZE", "PARTITION"),
+                # ALTER INDEX
+                Sequence(
+                    OneOf("ADD", "DROP", "MATERIALIZE", "CLEAR"),
+                    "INDEX",
+                ),
+                # ALTER PROJECTION
+                Sequence(
+                    OneOf("ADD", "DROP", "MATERIALIZE", "CLEAR"),
+                    "PROJECTION",
+                ),
+                # ALTER VIEW - REFRESH/MODIFY QUERY
+                Sequence(
+                    "VIEW",
+                    OneOf("REFRESH", Sequence("MODIFY", "QUERY")),
+                ),
+                optional=True,
+            ),
+        ),
+        # CREATE privileges
+        Sequence(
+            "CREATE",
+            OneOf(
+                "DATABASE",
+                "TABLE",
+                "VIEW",
+                "DICTIONARY",
+                Sequence("TEMPORARY", "TABLE"),
+                optional=True,
+            ),
+        ),
+        # DROP privileges
+        Sequence(
+            "DROP",
+            OneOf(
+                "DATABASE",
+                "TABLE",
+                "VIEW",
+                "DICTIONARY",
+                optional=True,
+            ),
+        ),
+        # TRUNCATE privilege
+        "TRUNCATE",
+        # OPTIMIZE privilege
+        "OPTIMIZE",
+        # SHOW privileges
+        Sequence(
+            "SHOW",
+            OneOf(
+                "DATABASES",
+                "TABLES",
+                "COLUMNS",
+                "DICTIONARIES",
+                optional=True,
+            ),
+        ),
+        # ACCESS MANAGEMENT privileges
+        # CREATE/ALTER/DROP USER
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "USER",
+        ),
+        # CREATE/ALTER/DROP ROLE
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "ROLE",
+        ),
+        # CREATE/ALTER/DROP ROW POLICY
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "ROW",
+            "POLICY",
+        ),
+        # CREATE/ALTER/DROP QUOTA
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "QUOTA",
+        ),
+        # CREATE/ALTER/DROP SETTINGS PROFILE
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "SETTINGS",
+            "PROFILE",
+        ),
+        # SHOW ACCESS
+        Sequence("SHOW", "ACCESS"),
+        # ROLE ADMIN
+        Sequence("ROLE", "ADMIN"),
+        # ACCESS MANAGEMENT (general)
+        Sequence("ACCESS", "MANAGEMENT"),
+        # ALL or ALL PRIVILEGES
+        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+    )
+
+
 class IntoOutfileClauseSegment(BaseSegment):
     """An `INTO OUTFILE` clause like in `SELECT`."""
 
