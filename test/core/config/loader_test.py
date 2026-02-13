@@ -187,8 +187,8 @@ def test__config__load_placeholder_cfg():
     }
 
 
-@patch("os.path.exists")
-@patch("os.listdir")
+@patch("sqlfluff.core.config.loader.os.path.exists")
+@patch("sqlfluff.core.config.loader.os.listdir")
 @pytest.mark.skipif(sys.platform == "win32", reason="Not applicable on Windows")
 @pytest.mark.parametrize(
     "sys_platform,xdg_exists,default_exists,resolved_config_path,paths_checked",
@@ -302,7 +302,7 @@ def test__config__get_user_config_dir_path(
     )
 
 
-@patch("os.path.exists")
+@patch("sqlfluff.core.config.loader.os.path.exists")
 @patch("sqlfluff.core.config.loader.load_config_at_path")
 def test__config__load_user_appdir_config(mock_load_config, mock_path_exists):
     """Test _load_user_appdir_config.
