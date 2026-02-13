@@ -1871,7 +1871,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 class DropProcedureStatementSegment(BaseSegment):
     """A `DROP PROCEDURE` statement.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/DROP-PROCEDURE-statement.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/DROP-PROCEDURE-statement.html
     """
 
     type = "drop_procedure_statement"
