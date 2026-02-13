@@ -68,11 +68,7 @@ keywords = [
 ]
 dependencies = [
     # Used for finding os-specific application config dirs
-    # Pinned to <4.6.0 due to breaking changes in 4.6.0/4.7.0 (released 2026-02-12)
-    # which cause test failures when mocking os.path.exists in config loader tests.
-    # The newer versions may have path validation/caching that interferes with mocks.
-    # TODO: Investigate and update once platformdirs stabilizes or we fix our tests.
-    "platformdirs<4.6.0",
+    "platformdirs",
     # To get the encoding of files.
     "chardet",
     # Click can include breaking changes in minor releases. Make sure to test

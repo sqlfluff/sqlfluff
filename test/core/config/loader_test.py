@@ -210,12 +210,14 @@ def test__config__load_placeholder_cfg():
             ["~/.config/sqlfluff"],
         ),
         # On MacOS, if the default config path and the XDG path don't exist, then
-        # we should resolve config to the default MacOS config path.
+        # platformdirs 4.6.0+ also respects XDG_CONFIG_HOME on macOS, so if it's set,
+        # the XDG path will be returned even if it doesn't exist.
+        # See: https://github.com/tox-dev/platformdirs/pull/375
         (
             "darwin",
             False,
             False,
-            "~/Library/Application Support/sqlfluff",
+            "~/.config/my/special/path/sqlfluff",
             ["~/.config/sqlfluff", "~/.config/my/special/path/sqlfluff"],
         ),
         # However, if XDG_CONFIG_HOME is set, and the path exists then that should
