@@ -71,7 +71,7 @@ dependencies = [
     # Pinned to <4.6.0 due to breaking changes in 4.6.0 (released 2026-02-12)
     # which added XDG_CONFIG_HOME support to macOS (https://github.com/tox-dev/platformdirs/pull/375)
     # This breaks our tests which expect the old macOS behavior.
-    # TODO: Update tests to support both old and new behavior or drop Python 3.9 support.
+    # TODO: Update tests to support both old and new behavior.
     "platformdirs<4.6.0",
     # To get the encoding of files.
     "chardet",
