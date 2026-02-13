@@ -26,7 +26,7 @@ config_a = {
 }
 
 
-@pytest.fixture(autouse=False)
+@pytest.fixture
 def mock_xdg_home(monkeypatch):
     """Sets the XDG_CONFIG_HOME variable per XDG spec (must be absolute path).
 
@@ -244,14 +244,7 @@ def test__config__get_user_config_dir_path(
     """Test loading config from user appdir."""
     xdg_home = os.environ.get("XDG_CONFIG_HOME")
     assert xdg_home, "XDG HOME should be set by the mock. Something has gone wrong."
-    # Ensure XDG_CONFIG_HOME is absolute per XDG spec
-    assert os.path.isabs(
-        xdg_home
-    ), f"XDG_CONFIG_HOME must be absolute per XDG Base Directory spec. Got: {xdg_home}"
     xdg_config_path = xdg_home + "/sqlfluff"
-
-    # Track what paths are being checked for debugging
-    checked_paths = []
 
     def path_exists(check_path):
         """Patch for os.path.exists which depends on test parameters.
@@ -261,7 +254,6 @@ def test__config__get_user_config_dir_path(
             the function is the default config path, or unless `xdg_exists`
             is `False` and the path passed is the XDG config path.
         """
-        checked_paths.append(check_path)
         resolved_path = os.path.expanduser(check_path)
         if (
             resolved_path == os.path.expanduser("~/.config/sqlfluff")
@@ -269,13 +261,6 @@ def test__config__get_user_config_dir_path(
         ):
             return False
         if resolved_path == os.path.expanduser(xdg_config_path) and not xdg_exists:
-            # DEBUG: Print diagnostic info if this comparison fails in unexpected ways
-            if resolved_path != os.path.expanduser(xdg_config_path):
-                print(
-                    f"DEBUG: Path mismatch! resolved={resolved_path}, "
-                    f"xdg_config={xdg_config_path}, "
-                    f"expanded_xdg={os.path.expanduser(xdg_config_path)}"
-                )
             return False
         return True
 
@@ -283,20 +268,7 @@ def test__config__get_user_config_dir_path(
 
     # Get the config path as though we are on macOS.
     resolved_path = _get_user_config_dir_path(sys_platform)
-
-    # Provide detailed assertion error messages
-    try:
-        assert os.path.expanduser(resolved_path) == os.path.expanduser(
-            resolved_config_path
-        )
-    except AssertionError:
-        print("\nDEBUG: Test failure diagnostics:")
-        print(f"  XDG_CONFIG_HOME: {xdg_home}")
-        print(f"  xdg_config_path: {xdg_config_path}")
-        print(f"  Paths checked: {checked_paths}")
-        print(f"  Expected: {os.path.expanduser(resolved_config_path)}")
-        print(f"  Got: {os.path.expanduser(resolved_path)}")
-        raise
+    assert os.path.expanduser(resolved_path) == os.path.expanduser(resolved_config_path)
     mock_path_exists.assert_has_calls(
         [call(os.path.expanduser(path)) for path in paths_checked]
     )
