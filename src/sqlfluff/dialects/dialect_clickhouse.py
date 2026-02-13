@@ -92,7 +92,6 @@ clickhouse_dialect.add(
         type="quoted_identifier",
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
-    Expression_D_Base_Grammar=ansi_dialect.get_grammar("Expression_D_Grammar").copy(),
 )
 
 clickhouse_dialect.replace(
@@ -287,13 +286,9 @@ clickhouse_dialect.replace(
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
     ),
-    Expression_D_Grammar=Sequence(
-        Ref("Expression_D_Base_Grammar"),
-        AnyNumberOf(
-            Ref("NumericLiteralSegment"),
-            min_times=0,
-            allow_gaps=False,
-        ),
+    Expression_D_Grammar=OneOf(
+        Ref("TupleElementAccessSegment"),
+        ansi_dialect.get_grammar("Expression_D_Grammar"),
     ),
 )
 
@@ -2381,4 +2376,19 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
             ),
             allow_gaps=False,
         ),
+    )
+
+
+class TupleElementAccessSegment(BaseSegment):
+    """A tuple element access expression like `(a.1).2`."""
+
+    type = "tuple_element_access"
+    match_grammar: Matchable = Sequence(
+        Bracketed(Ref("ColumnReferenceSegment")),
+        AnyNumberOf(
+            Ref("NumericLiteralSegment"),
+            min_times=1,
+            allow_gaps=False,
+        ),
+        allow_gaps=False,
     )
