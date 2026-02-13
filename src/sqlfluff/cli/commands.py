@@ -155,7 +155,10 @@ def set_logging_level(
     # that we don't break tests by changing the granularity
     # between tests.
     parser_logger = logging.getLogger("sqlfluff.parser")
-    if verbosity < 3:
+    if verbosity < 0:
+        fluff_logger.setLevel(logging.ERROR)
+        parser_logger.setLevel(logging.ERROR)
+    elif verbosity < 3 and verbosity >= 0:
         fluff_logger.setLevel(logging.WARNING)
         parser_logger.setLevel(logging.NOTSET)
     elif verbosity == 3:
@@ -1057,7 +1060,7 @@ def _stdin_fix(
     else:
         stdout = stdin
 
-    if templater_error:
+    if templater_error and formatter.verbosity >= 0:
         click.echo(
             formatter.colorize(
                 "Fix aborted due to unparsable template variables.",
@@ -1073,7 +1076,7 @@ def _stdin_fix(
             err=True,
         )
 
-    if unfixable_error:
+    if unfixable_error and formatter.verbosity >= 0:
         click.echo(
             formatter.colorize("Unfixable violations detected.", Color.red),
             err=True,
