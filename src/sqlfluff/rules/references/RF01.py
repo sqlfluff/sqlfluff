@@ -8,7 +8,11 @@ from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.reference import object_ref_matches_table
+from sqlfluff.core.rules.reference import (
+    dialect_supports_dot_access,
+    extract_reference_table_candidates,
+    object_ref_matches_table,
+)
 from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.query import Query, Selectable
 
@@ -207,9 +211,7 @@ class Rule_RF01(BaseRule):
         #   whether the dialect overrides
         #   ObjectReferenceSegment.extract_possible_references().
         if not tbl_refs or dialect.name in ["bigquery"]:
-            for tr in ref.extract_possible_references(
-                level=ref.ObjectReferenceLevel.TABLE
-            ):
+            for tr, _ in extract_reference_table_candidates(ref, dialect):
                 tbl_refs.append((tr, (tr.part,)))
                 tbl_refs.append((tr, (tr.segments[0].normalize(tr.part),)))
         return tbl_refs
@@ -233,7 +235,7 @@ class Rule_RF01(BaseRule):
             targets.append((standalone_alias.raw_normalized(False),))
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
 
-        if self._dialect_supports_dot_access(query.dialect):
+        if dialect_supports_dot_access(query.dialect):
             # BigQuery supports having multiple aliases in the FROM statement
             # SparkSQL supports directly accessing values in nested array columns
             if len(distinct_targets) == 1 or query.dialect.name in [
@@ -306,26 +308,3 @@ class Rule_RF01(BaseRule):
                         )
 
         return []
-
-    def _dialect_supports_dot_access(self, dialect: Dialect) -> bool:
-        # Athena:
-        # https://docs.aws.amazon.com/athena/latest/ug/filtering-with-dot.html
-        # BigQuery:
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/operators#field_access_operator
-        # Databricks:
-        # https://docs.databricks.com/en/sql/language-manual/functions/dotsign.html
-        # DuckDB:
-        # https://duckdb.org/docs/sql/data_types/struct#retrieving-from-structs
-        # Redshift:
-        # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
-        # TODO: all doc links to all referenced dialects
-        return dialect.name in (
-            "athena",
-            "bigquery",
-            "databricks",
-            "duckdb",
-            "hive",
-            "redshift",
-            "soql",
-            "sparksql",
-        )

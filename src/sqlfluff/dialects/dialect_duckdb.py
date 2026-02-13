@@ -4,6 +4,10 @@ https://duckdb.org/docs/
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.dialects.common import (
+    REFERENCE_FEATURE_DOT_ACCESS,
+    REFERENCE_FEATURES_SET,
+)
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
@@ -50,6 +54,8 @@ The dialect for `DuckDB <https://duckdb.org/>`_.
 .. _`DuckDB Identifiers Documentation`: https://duckdb.org/docs/sql/dialect/keywords_and_identifiers
 """,  # noqa: E501
 )
+
+duckdb_dialect.sets(REFERENCE_FEATURES_SET).add(REFERENCE_FEATURE_DOT_ACCESS)
 
 duckdb_dialect.sets("reserved_keywords").update(
     [

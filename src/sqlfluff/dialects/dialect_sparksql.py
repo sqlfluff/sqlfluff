@@ -12,6 +12,10 @@ https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apa
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.dialects.common import (
+    REFERENCE_FEATURE_DOT_ACCESS,
+    REFERENCE_FEATURES_SET,
+)
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
@@ -80,6 +84,8 @@ Versions of Spark prior to 3.x will only support the Hive dialect.
 .. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
 .. _`Spark Identifiers`: https://spark.apache.org/docs/latest/sql-ref-identifier.html""",  # noqa: E501
 )
+
+sparksql_dialect.sets(REFERENCE_FEATURES_SET).add(REFERENCE_FEATURE_DOT_ACCESS)
 
 sparksql_dialect.patch_lexer_matchers(
     [

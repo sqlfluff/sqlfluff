@@ -1,6 +1,11 @@
 """The Hive dialect."""
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.dialects.common import (
+    REFERENCE_FEATURE_DOT_ACCESS,
+    REFERENCE_FEATURE_STRUCT_QUALIFICATION_AMBIGUITY,
+    REFERENCE_FEATURES_SET,
+)
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
@@ -35,6 +40,13 @@ hive_dialect = ansi_dialect.copy_as(
     "hive",
     formatted_name="Apache Hive",
     docstring="The dialect for Apache `Hive <https://hive.apache.org/>`_.",
+)
+
+hive_dialect.sets(REFERENCE_FEATURES_SET).update(
+    {
+        REFERENCE_FEATURE_DOT_ACCESS,
+        REFERENCE_FEATURE_STRUCT_QUALIFICATION_AMBIGUITY,
+    }
 )
 
 # Clear ANSI Keywords and add all Hive keywords

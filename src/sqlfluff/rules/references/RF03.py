@@ -3,6 +3,7 @@
 from collections.abc import Iterator
 from typing import Optional
 
+from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import IdentifierSegment
 from sqlfluff.core.parser.segments import BaseSegment, SymbolSegment
@@ -14,6 +15,10 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.reference import (
+    dialect_has_struct_qualification_ambiguity,
+    extract_reference_table_candidates,
+)
 from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.query import Query
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
@@ -73,8 +78,6 @@ class Rule_RF03(BaseRule):
     # If any of the parents would have also triggered the rule, don't fire
     # because they will more accurately process any internal references.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
-    _is_struct_dialect = False
-    _dialects_with_structs = ["bigquery", "hive", "redshift"]
     # This could be turned into an option
     _fix_inconsistent_to = "qualified"
     is_fix_compatible = True
@@ -84,21 +87,22 @@ class Rule_RF03(BaseRule):
         """Override base class for dialects that use structs, or SELECT aliases."""
         # Config type hints
         self.force_enable: bool
+        is_struct_dialect = dialect_has_struct_qualification_ambiguity(
+            context.dialect
+        )
         # Some dialects use structs (e.g. column.field) which look like
         # table references and so incorrectly trigger this rule.
-        if (
-            context.dialect.name in self._dialects_with_structs
-            and not self.force_enable
-        ):
+        if is_struct_dialect and not self.force_enable:
             return LintResult()
-
-        if context.dialect.name in self._dialects_with_structs:
-            self._is_struct_dialect = True
 
         query: Query = Query.from_segment(context.segment, dialect=context.dialect)
         visited: set = set()
         # Recursively visit and check each query in the tree.
-        return list(self._visit_queries(query, visited))
+        return list(
+            self._visit_queries(
+                query, visited, context.dialect, is_struct_dialect=is_struct_dialect
+            )
+        )
 
     def _iter_available_targets(
         self, query: Query, subquery: Optional[Query] = None
@@ -116,7 +120,13 @@ class Rule_RF03(BaseRule):
                     if (subquery and not alias.object_reference) or alias.ref_str:
                         yield alias
 
-    def _visit_queries(self, query: Query, visited: set) -> Iterator[LintResult]:
+    def _visit_queries(
+        self,
+        query: Query,
+        visited: set,
+        dialect: Dialect,
+        is_struct_dialect: bool,
+    ) -> Iterator[LintResult]:
         select_info: Optional[SelectStatementColumnsAndTables] = None
         if query.selectables:
             select_info = query.selectables[0].select_info
@@ -144,10 +154,11 @@ class Rule_RF03(BaseRule):
                     select_info.standalone_aliases,
                     select_info.reference_buffer,
                     select_info.col_aliases,
-                    self.single_table_references,
-                    self._is_struct_dialect,
-                    self._fix_inconsistent_to,
-                    fixable,
+                    dialect=dialect,
+                    single_table_references=self.single_table_references,
+                    is_struct_dialect=is_struct_dialect,
+                    fix_inconsistent_to=self._fix_inconsistent_to,
+                    fixable=fixable,
                 )
         children = list(query.children)
         # 'query.children' includes CTEs and "main" queries, but not queries in
@@ -166,7 +177,12 @@ class Rule_RF03(BaseRule):
                     visited.update(s.selectable for s in q.selectables)
                     children.append(q)
         for child in children:
-            yield from self._visit_queries(child, visited)
+            yield from self._visit_queries(
+                child,
+                visited,
+                dialect=dialect,
+                is_struct_dialect=is_struct_dialect,
+            )
 
 
 def _check_references(
@@ -174,6 +190,7 @@ def _check_references(
     standalone_aliases: list[BaseSegment],
     references: list[ObjectReferenceSegment],
     col_aliases: list[ColumnAliasInfo],
+    dialect: Dialect,
     single_table_references: str,
     is_struct_dialect: bool,
     fix_inconsistent_to: Optional[str],
@@ -189,8 +206,12 @@ def _check_references(
     for ref in references:
         this_ref_type: str = ref.qualification()
         if this_ref_type == "qualified" and is_struct_dialect:
-            # If this col appears "qualified" check if it is more logically a struct.
-            if next(ref.iter_raw_references()).part != table_ref_str:
+            # If this appears qualified, verify it can actually reference the
+            # table alias in scope for this single-table query.
+            table_candidates = extract_reference_table_candidates(
+                ref, dialect, available_tables={table_ref_str}
+            )
+            if not table_candidates:
                 this_ref_type = "unqualified"
 
         lint_res = _validate_one_reference(
@@ -217,6 +238,7 @@ def _check_references(
                 standalone_aliases,
                 references,
                 col_aliases,
+                dialect=dialect,
                 # NB vars are passed in a different order here
                 single_table_references=fix_inconsistent_to,
                 is_struct_dialect=is_struct_dialect,

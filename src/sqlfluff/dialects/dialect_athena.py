@@ -4,6 +4,10 @@ https://docs.aws.amazon.com/athena/latest/ug/what-is.html
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.dialects.common import (
+    REFERENCE_FEATURE_DOT_ACCESS,
+    REFERENCE_FEATURES_SET,
+)
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
@@ -48,6 +52,8 @@ Identifiers: ``""`` or |back_quotes|
 The dialect for `Athena <https://aws.amazon.com/athena/>`_
 on Amazon Web Services (AWS).""",
 )
+
+athena_dialect.sets(REFERENCE_FEATURES_SET).add(REFERENCE_FEATURE_DOT_ACCESS)
 
 athena_dialect.sets("unreserved_keywords").update(athena_unreserved_keywords)
 athena_dialect.sets("reserved_keywords").update(athena_reserved_keywords)

@@ -3,15 +3,24 @@
 from collections.abc import Iterator
 from typing import cast
 
+from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.reference import (
+    extract_reference_table_candidates,
+    normalize_reference_part,
+)
 from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.query import Query
 
 
 class UnqualifiedReferenceError(ValueError):
     """Custom exception for signalling when a reference is unqualified."""
+
+
+class AmbiguousReferenceError(ValueError):
+    """Custom exception for signalling when a reference is ambiguous."""
 
 
 class Rule_ST11(BaseRule):
@@ -108,7 +117,11 @@ class Rule_ST11(BaseRule):
         return ""
 
     def _extract_referenced_tables(
-        self, segment: BaseSegment, allow_unqualified: bool = False
+        self,
+        segment: BaseSegment,
+        dialect: Dialect,
+        allow_unqualified: bool = False,
+        available_tables: set[str] | None = None,
     ) -> Iterator[str]:
         # NOTE: Here we _may_ recurse into subqueries to find references.
         for ref in segment.recursive_crawl("column_reference"):
@@ -119,11 +132,38 @@ class Rule_ST11(BaseRule):
                     continue
                 else:
                     raise UnqualifiedReferenceError(ref.raw)
-            # Remove any quoting characters when returning.
-            yield parts[-2].part.upper().strip("\"'`[]")
+            table_candidates = extract_reference_table_candidates(
+                obj_ref, dialect, available_tables=available_tables
+            )
+            if available_tables and len(table_candidates) > 1:
+                raise AmbiguousReferenceError(ref.raw)
+            if not table_candidates and available_tables is not None:
+                # Preserve historical behavior for out-of-scope refs by
+                # falling back to the default table-level interpretation.
+                table_candidates = extract_reference_table_candidates(obj_ref, dialect)
+            if table_candidates:
+                yield table_candidates[0][1]
+
+    def _extract_referenced_join_tables(
+        self, segment: BaseSegment, dialect: Dialect, available_tables: set[str]
+    ) -> Iterator[str]:
+        """Extract table references from JOIN expression table paths."""
+        assert segment.is_type("from_expression_element")
+        for ref in segment.recursive_crawl(
+            "table_reference", no_recursive_seg_type="select_statement"
+        ):
+            table_candidates = extract_reference_table_candidates(
+                cast(ObjectReferenceSegment, ref),
+                dialect,
+                available_tables=available_tables,
+            )
+            if len(table_candidates) > 1:
+                raise AmbiguousReferenceError(ref.raw)
+            if table_candidates:
+                yield table_candidates[0][1]
 
     def _extract_references_from_select(
-        self, segment: BaseSegment
+        self, segment: BaseSegment, dialect: Dialect
     ) -> list[tuple[str, BaseSegment]]:
         assert segment.is_type("select_statement")
         # Tables which exist in the query
@@ -170,7 +210,17 @@ class Rule_ST11(BaseRule):
                     # If we have functions in the table_expression, we referenced them,
                     # add them to the list.
                     for tbl_ref in self._extract_referenced_tables(
-                        from_expression_elem, allow_unqualified=True
+                        from_expression_elem,
+                        dialect=dialect,
+                        allow_unqualified=True,
+                        available_tables={tbl_ref for tbl_ref, _ in joined_tables},
+                    ):
+                        if tbl_ref not in _this_clause_refs:
+                            referenced_tables.append(tbl_ref)
+                    for tbl_ref in self._extract_referenced_join_tables(
+                        from_expression_elem,
+                        dialect=dialect,
+                        available_tables={tbl_ref for tbl_ref, _ in joined_tables},
                     ):
                         if tbl_ref not in _this_clause_refs:
                             referenced_tables.append(tbl_ref)
@@ -180,7 +230,10 @@ class Rule_ST11(BaseRule):
                     # We can tolerate some unqualified references here, so no need
                     # to raise exceptions.
                     for tbl_ref in self._extract_referenced_tables(
-                        join_on_condition, allow_unqualified=True
+                        join_on_condition,
+                        dialect=dialect,
+                        allow_unqualified=True,
+                        available_tables={tbl_ref for tbl_ref, _ in joined_tables},
                     ):
                         if tbl_ref not in _this_clause_refs:
                             referenced_tables.append(tbl_ref)
@@ -211,10 +264,10 @@ class Rule_ST11(BaseRule):
         tables referenced in all the other clauses and look for
         mismatches.
 
-        NOTE: If *any* references aren't appropriately qualified,
-        this rule will abort (because it won't know how to resolve
-        the ambiguous references). That means it relies on RF02
-        having been already applied.
+        NOTE: If references are unqualified or otherwise ambiguous,
+        this rule aborts for that SELECT (because it cannot safely
+        resolve source tables). That means it relies on RF02 having
+        been already applied.
         """
         reference_clause_types = [
             "select_clause",
@@ -225,7 +278,15 @@ class Rule_ST11(BaseRule):
             "qualify_clause",
         ]
 
-        joined_tables = self._extract_references_from_select(context.segment)
+        try:
+            joined_tables = self._extract_references_from_select(
+                context.segment, context.dialect
+            )
+        except AmbiguousReferenceError as err:
+            self.logger.debug(
+                f"Found an ambiguous ref '{err}'. Aborting for this SELECT."
+            )
+            return []
         if not joined_tables:  # No from, no joins, no worries
             self.logger.debug("No tables found in scope.")
             return []
@@ -233,23 +294,29 @@ class Rule_ST11(BaseRule):
         # aren't otherwise referred to in the FROM clause. Now we work
         # through all the other clauses.
         table_references = set()
+        in_scope_tables = {tbl_ref for tbl_ref, _ in joined_tables}
         for other_clause in context.segment.get_children(*reference_clause_types):
             try:
                 for tbl_ref in self._extract_referenced_tables(
-                    other_clause, allow_unqualified=False
+                    other_clause,
+                    dialect=context.dialect,
+                    allow_unqualified=False,
+                    available_tables=in_scope_tables,
                 ):
                     self.logger.debug(f"    {tbl_ref!r} referenced in {other_clause}")
                     table_references.add(tbl_ref)
-            except UnqualifiedReferenceError as err:
+            except (UnqualifiedReferenceError, AmbiguousReferenceError) as err:
                 self.logger.debug(
-                    f"Found an unqualified ref '{err}'. Aborting for this SELECT."
+                    f"Found an unresolved ref '{err}'. Aborting for this SELECT."
                 )
                 return []
 
         query: Query = Query.from_segment(context.segment, context.dialect)
         for selectable in query.selectables:
             for wcinfo in selectable.get_wildcard_info():
-                table_references |= {t.upper() for t in wcinfo.tables}
+                table_references |= {
+                    normalize_reference_part(table) for table in wcinfo.tables
+                }
 
         results: list[LintResult] = []
         self.logger.debug(

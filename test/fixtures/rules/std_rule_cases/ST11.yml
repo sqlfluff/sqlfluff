@@ -208,3 +208,56 @@ test_pass_quoted_brackets_table_name:
   configs:
     core:
       dialect: tsql
+
+test_pass_redshift_super_dotted_join_path:
+  pass_str: |
+    SELECT
+        payload.id::VARCHAR AS id,
+        item.description ILIKE '%sample%' AS has_sample_description
+    FROM
+        source_table
+        LEFT JOIN source_table.payload.items AS item ON TRUE
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_redshift_super_single_table_dotted_column:
+  pass_str: |
+    SELECT
+        item.subitem.key
+    FROM t1
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_redshift_super_dotted_column_with_join:
+  pass_str: |
+    SELECT
+        t1.item.subitem.key,
+        t2.id
+    FROM t1
+    LEFT JOIN t2 ON TRUE
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_redshift_super_aliased_dotted_column_with_join:
+  pass_str: |
+    SELECT
+        s.item.subitem.key,
+        j.id
+    FROM source_table AS s
+    LEFT JOIN joined_table AS j ON TRUE
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_redshift_super_ambiguous_dotted_reference:
+  pass_str: |
+    SELECT
+        t1.t2.value
+    FROM t1
+    LEFT JOIN t2 ON TRUE
+  configs:
+    core:
+      dialect: redshift
