@@ -177,6 +177,8 @@ def test__config__load_placeholder_cfg():
     }
 
 
+@patch("os.path.exists")
+@patch("os.listdir")
 @pytest.mark.skipif(sys.platform == "win32", reason="Not applicable on Windows")
 @pytest.mark.parametrize(
     "sys_platform,xdg_exists,default_exists,resolved_config_path,paths_checked",
