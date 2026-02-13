@@ -2165,6 +2165,23 @@ class AlterTableStatementSegment(BaseSegment):
                 "FROM",
                 Ref("TableReferenceSegment"),
             ),
+            # ALTER TABLE ... UPDATE column = expr [, column = expr ...] WHERE condition
+            Sequence(
+                "UPDATE",
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                Ref("WhereClauseSegment"),
+            ),
+            # ALTER TABLE ... DELETE WHERE condition
+            Sequence(
+                "DELETE",
+                Ref("WhereClauseSegment"),
+            ),
         ),
         Ref("SettingsClauseSegment", optional=True),
     )
