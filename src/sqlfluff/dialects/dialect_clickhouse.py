@@ -92,6 +92,7 @@ clickhouse_dialect.add(
         type="quoted_identifier",
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
+    Expression_D_Base_Grammar=ansi_dialect.get_grammar("Expression_D_Grammar").copy(),
 )
 
 clickhouse_dialect.replace(
@@ -285,6 +286,14 @@ clickhouse_dialect.replace(
         Ref.keyword("COLUMN"),
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
+    ),
+    Expression_D_Grammar=Sequence(
+        Ref("Expression_D_Base_Grammar"),
+        AnyNumberOf(
+            Ref("NumericLiteralSegment"),
+            min_times=0,
+            allow_gaps=False,
+        ),
     ),
 )
 
@@ -2365,7 +2374,11 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
                 delimiter=Ref("ObjectReferenceDelimiterGrammar"),
                 allow_gaps=False,
             ),
-            Ref("NumericLiteralSegment"),
+            AnyNumberOf(
+                Ref("NumericLiteralSegment"),
+                min_times=1,
+                allow_gaps=False,
+            ),
             allow_gaps=False,
         ),
     )

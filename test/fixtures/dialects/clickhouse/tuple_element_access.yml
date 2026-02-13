@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 316a00ad1fe2f540f42f8be6651e984b51c31fcd1aa06926beba503d0ecacf47
+_hash: 5cfd28451b56e70dc69b637584de9f4ddecf596a8414cc8198e5289a5fa5967c
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -38,3 +38,55 @@ file:
             alias_operator:
               keyword: AS
             naked_identifier: dsa
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bracketed:
+                  - start_bracket: (
+                  - quoted_literal: "'a'"
+                  - comma: ','
+                  - quoted_literal: "'aa'"
+                  - end_bracket: )
+                comma: ','
+                quoted_literal: "'b'"
+                end_bracket: )
+            comma: ','
+            quoted_literal: "'c'"
+            end_bracket: )
+        keyword: AS
+        naked_identifier: test
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: test
+            - numeric_literal: '.1'
+            - numeric_literal: '.1'
+            - numeric_literal: '.2'
+        - comma: ','
+        - select_clause_element:
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: test
+                    numeric_literal: '.1'
+                end_bracket: )
+              numeric_literal: '.2'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: test
+              numeric_literal: '.2'
+- statement_terminator: ;
