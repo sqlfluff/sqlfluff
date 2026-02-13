@@ -28,18 +28,8 @@ config_a = {
 
 @pytest.fixture
 def mock_xdg_home(monkeypatch):
-    """Sets the XDG_CONFIG_HOME variable per XDG spec (must be absolute path).
-
-    Note: This fixture is explicitly requested in parametrized tests that need
-    to simulate XDG_CONFIG_HOME behavior. It sets an absolute path as required
-    by the XDG Base Directory Specification.
-    """
-    # First clear any existing XDG_CONFIG_HOME to ensure clean state
-    monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
-    # Then set our test value (must be absolute per XDG spec)
-    monkeypatch.setenv(
-        "XDG_CONFIG_HOME", os.path.expanduser("~/.config/my/special/path")
-    )
+    """Sets the XDG_CONFIG_HOME variable."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", "~/.config/my/special/path")
 
 
 def test__config__load_file_dir():
@@ -187,8 +177,6 @@ def test__config__load_placeholder_cfg():
     }
 
 
-@patch("sqlfluff.core.config.loader.os.path.exists")
-@patch("sqlfluff.core.config.loader.os.listdir")
 @pytest.mark.skipif(sys.platform == "win32", reason="Not applicable on Windows")
 @pytest.mark.parametrize(
     "sys_platform,xdg_exists,default_exists,resolved_config_path,paths_checked",
@@ -274,7 +262,7 @@ def test__config__get_user_config_dir_path(
     )
 
 
-@patch("sqlfluff.core.config.loader.os.path.exists")
+@patch("os.path.exists")
 @patch("sqlfluff.core.config.loader.load_config_at_path")
 def test__config__load_user_appdir_config(mock_load_config, mock_path_exists):
     """Test _load_user_appdir_config.
