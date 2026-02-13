@@ -2350,3 +2350,22 @@ class ColumnDefinitionSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
+    """A reference to a column, including tuple element access like `a.1`."""
+
+    match_grammar: Matchable = OneOf(
+        ansi.ColumnReferenceSegment.match_grammar,
+        # Tuple element access uses dot + numeric literal, but the lexer
+        # tokenizes ".1" as a numeric literal rather than a dot segment.
+        Sequence(
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+                delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+                allow_gaps=False,
+            ),
+            Ref("NumericLiteralSegment"),
+            allow_gaps=False,
+        ),
+    )
