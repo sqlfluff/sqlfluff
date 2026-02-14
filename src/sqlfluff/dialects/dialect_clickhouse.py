@@ -288,6 +288,10 @@ clickhouse_dialect.replace(
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
     ),
+    Expression_D_Grammar=OneOf(
+        Ref("TupleElementAccessSegment"),
+        ansi_dialect.get_grammar("Expression_D_Grammar"),
+    ),
 )
 
 # Set the datetime units
@@ -2165,6 +2169,23 @@ class AlterTableStatementSegment(BaseSegment):
                 "FROM",
                 Ref("TableReferenceSegment"),
             ),
+            # ALTER TABLE ... UPDATE column = expr [, column = expr ...] WHERE condition
+            Sequence(
+                "UPDATE",
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                Ref("WhereClauseSegment"),
+            ),
+            # ALTER TABLE ... DELETE WHERE condition
+            Sequence(
+                "DELETE",
+                Ref("WhereClauseSegment"),
+            ),
         ),
         Ref("SettingsClauseSegment", optional=True),
     )
@@ -2352,4 +2373,42 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
+    """A reference to a column, including tuple element access like `a.1`."""
+
+    match_grammar: Matchable = OneOf(
+        ansi.ColumnReferenceSegment.match_grammar,
+        # Tuple element access uses dot + numeric literal, but the lexer
+        # tokenizes ".1" as a numeric literal rather than a dot segment.
+        Sequence(
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+                delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+                allow_gaps=False,
+            ),
+            AnyNumberOf(
+                Ref("NumericLiteralSegment"),
+                min_times=1,
+                allow_gaps=False,
+            ),
+            allow_gaps=False,
+        ),
+    )
+
+
+class TupleElementAccessSegment(BaseSegment):
+    """A tuple element access expression like `(a.1).2`."""
+
+    type = "tuple_element_access"
+    match_grammar: Matchable = Sequence(
+        Bracketed(Ref("ColumnReferenceSegment")),
+        AnyNumberOf(
+            Ref("NumericLiteralSegment"),
+            min_times=1,
+            allow_gaps=False,
+        ),
+        allow_gaps=False,
     )
