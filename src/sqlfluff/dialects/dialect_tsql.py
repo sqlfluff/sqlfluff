@@ -5405,6 +5405,7 @@ class OpenRowSetSegment(BaseSegment):
     """A `OPENROWSET` segment.
 
     https://docs.microsoft.com/en-us/sql/t-sql/functions/openrowset-transact-sql
+    https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/develop-openrowset
     """
 
     type = "openrowset_segment"
@@ -5433,83 +5434,60 @@ class OpenRowSetSegment(BaseSegment):
                 ),
                 Sequence(
                     "BULK",
+                    # Filepath(s)
                     OptionallyBracketed(
                         Delimited(Ref("QuotedLiteralSegmentOptWithN")),
                     ),
                     Ref("CommaSegment"),
-                    OneOf(
-                        Sequence(
+                    Delimited(
+                        OneOf(
+                            # Unicode strings
                             Sequence(
-                                "FORMATFILE",
+                                OneOf(
+                                    "DATA_SOURCE",
+                                    "CODEPAGE",
+                                    "DATAFILETYPE",
+                                    "FORMAT",
+                                    "FORMATFILE",
+                                    "FORMATFILE_DATA_SOURCE",
+                                    "FIELDTERMINATOR",
+                                    "ROWTERMINATOR",
+                                    "FIELDQUOTE",
+                                    "ESCAPE_CHAR",
+                                    "DATA_COMPRESSION",
+                                    "PARSER_VERSION",
+                                    "ERRORFILE",
+                                    "ERRORFILE_LOCATION",
+                                    "ERRORFILE_DATA_SOURCE",
+                                    "ROWSET_OPTIONS",
+                                ),
                                 Ref("EqualsSegment"),
                                 Ref("QuotedLiteralSegmentOptWithN"),
-                                Ref("CommaSegment"),
-                                optional=True,
                             ),
-                            Delimited(
-                                AnyNumberOf(
-                                    Sequence(
-                                        "DATA_SOURCE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "ERRORFILE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "ERRORFILE_DATA_SOURCE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "MAXERRORS",
-                                        Ref("EqualsSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "FIRSTROW",
-                                        Ref("EqualsSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "LASTROW",
-                                        Ref("EqualsSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "CODEPAGE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "FORMAT",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "FIELDQUOTE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "FORMATFILE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "FORMATFILE_DATA_SOURCE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
+                            # Bulk options that take numeric or boolean types
+                            Sequence(
+                                OneOf(
+                                    "FIRSTROW",
+                                    "LASTROW",
+                                    "MAXERRORS",
+                                    "ROWS_PER_BATCH",
+                                    "HEADER_ROW",
                                 ),
-                                optional=True,
+                                Ref("EqualsSegment"),
+                                Ref("LiteralGrammar"),
+                            ),
+                            Sequence(
+                                "ORDER",
+                                Ref("ColumnReferenceSegment"),
+                                OneOf("ASC", "DESC", optional=True),
+                                Ref("UniqueKeyGrammar", optional=True),
+                            ),
+                            OneOf(
+                                "SINGLE_BLOB",
+                                "SINGLE_CLOB",
+                                "SINGLE_NCLOB",
                             ),
                         ),
-                        "SINGLE_BLOB",
-                        "SINGLE_CLOB",
-                        "SINGLE_NCLOB",
                     ),
                 ),
             ),
