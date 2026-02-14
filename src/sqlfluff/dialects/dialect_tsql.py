@@ -3174,6 +3174,7 @@ class DeclareStatementSegment(BaseSegment):
                                 Ref("TableConstraintSegment"),
                                 Ref("ComputedColumnDefinitionSegment"),
                                 Ref("ColumnDefinitionSegment"),
+                                Ref("TableIndexSegment"),
                                 allow_trailing=True,
                             )
                         ),
@@ -4749,9 +4750,13 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     "DROP",
-                    "COLUMN",
-                    Ref("IfExistsGrammar", optional=True),
-                    Delimited(Ref("ColumnReferenceSegment")),
+                    Delimited(
+                        Sequence(
+                            "COLUMN",
+                            Ref("IfExistsGrammar", optional=True),
+                            Delimited(Ref("ColumnReferenceSegment")),
+                        ),
+                    ),
                 ),
                 Sequence(
                     "ADD",
@@ -4779,12 +4784,16 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     "DROP",
-                    Sequence(
-                        "CONSTRAINT",
-                        Ref("IfExistsGrammar", optional=True),
-                        optional=True,
+                    Delimited(
+                        Sequence(
+                            Sequence(
+                                "CONSTRAINT",
+                                Ref("IfExistsGrammar", optional=True),
+                                optional=True,
+                            ),
+                            Ref("ObjectReferenceSegment"),
+                        ),
                     ),
-                    Ref("ObjectReferenceSegment"),
                 ),
                 # Rename
                 Sequence(
@@ -5109,6 +5118,7 @@ class IdentityGrammar(BaseSegment):
         # optional (seed, increment) e.g. (1, 1)
         Bracketed(
             Sequence(
+                Ref("SignedSegmentGrammar", optional=True),
                 Ref("NumericLiteralSegment"),
                 Ref("CommaSegment"),
                 Ref("NumericLiteralSegment"),
@@ -7984,13 +7994,20 @@ class CreateLoginStatementSegment(BaseSegment):
     _default_database = Sequence(
         "DEFAULT_DATABASE",
         Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NakedIdentifierSegment"),
+        ),
     )
 
     _default_language = Sequence(
         "DEFAULT_LANGUAGE",
         Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegment"),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
+            Ref("NakedIdentifierSegment"),
+        ),
     )
 
     _option_list_2 = AnyNumberOf(
@@ -8026,7 +8043,7 @@ class CreateLoginStatementSegment(BaseSegment):
     _option_list_1 = Sequence(
         "PASSWORD",
         Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegment"),
+        Ref("QuotedLiteralSegmentOptWithN"),
         Ref.keyword("MUST_CHANGE", optional=True),
         Ref("CommaSegment", optional=True),
         Delimited(_option_list_2, optional=True),
