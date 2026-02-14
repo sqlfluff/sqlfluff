@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c0f5e3c883c5c84bd50f0e51a21fa281941c9c5ea39746676fb3a63dcc83086
+_hash: 888c9644156d7f31b23b833ab7a1c455a5c6d2f4c3c2b7f668b2b075a4d21fe3
 file:
 - batch:
     statement:
@@ -239,10 +239,25 @@ file:
                       raw_comparison_operator: '='
                   - quoted_literal: "N'D:\\XChange\\test-csv.fmt'"
                   - comma: ','
+                  - keyword: FORMATFILE_DATA_SOURCE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'root\\'"
+                  - comma: ','
+                  - keyword: ROWTERMINATOR
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'\\n,'"
+                  - comma: ','
+                  - keyword: FIELDTERMINATOR
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'\\t'"
+                  - comma: ','
                   - keyword: FIRSTROW
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - numeric_literal: '2'
+                  - integer_literal: '2'
                   - comma: ','
                   - keyword: FORMAT
                   - comparison_operator:
@@ -257,7 +272,121 @@ file:
     go_statement:
       keyword: GO
 - batch:
-    statement:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - bracketed:
+                      start_bracket: (
+                      quoted_literal: "'https://sqlondemandstorage.blob.core.windows.net/data.csv'"
+                      end_bracket: )
+                  - comma: ','
+                  - keyword: FORMAT
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'CSV'"
+                  - comma: ','
+                  - keyword: PARSER_VERSION
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'2.0'"
+                  - comma: ','
+                  - keyword: ESCAPE_CHAR
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'\"'"
+                  - comma: ','
+                  - keyword: HEADER_ROW
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - boolean_literal: 'TRUE'
+                  - comma: ','
+                  - keyword: DATAFILETYPE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'char'"
+                  - comma: ','
+                  - keyword: ROWSET_OPTIONS
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'{\"READ_OPTIONS\":[\"ALLOW_INCONSISTENT_READS\"\
+                      ]}'"
+                  - comma: ','
+                  - keyword: MAXERRORS
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - integer_literal: '2'
+                  - comma: ','
+                  - keyword: ERRORFILE_DATA_SOURCE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'https://sqlondemandstorage.blob.core.windows.net/'"
+                  - comma: ','
+                  - keyword: ERRORFILE_LOCATION
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'path\\to\\errorfile.csv'"
+                  - end_bracket: )
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - bracketed:
+                    - start_bracket: (
+                    - quoted_literal: "N'https://azureopendatastorage.blob.core.windows.net/censusdatacontainer/'"
+                    - comma: ','
+                    - quoted_literal: "'file_does_not_exist.parquet'"
+                    - end_bracket: )
+                  - comma: ','
+                  - keyword: FORMAT
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'PARQUET'"
+                  - comma: ','
+                  - keyword: LASTROW
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - integer_literal: '10000'
+                  - comma: ','
+                  - keyword: ROWS_PER_BATCH
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - integer_literal: '1000'
+                  - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: name
+  - statement_terminator: ;
+  - statement:
       select_statement:
         select_clause:
           keyword: SELECT
@@ -295,7 +424,7 @@ file:
                 alias_operator:
                   keyword: as
                 naked_identifier: rows
-    go_statement:
+  - go_statement:
       keyword: GO
 - batch:
     statement:
