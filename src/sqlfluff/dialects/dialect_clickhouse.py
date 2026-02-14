@@ -440,10 +440,48 @@ class SettingsClauseSegment(BaseSegment):
     )
 
 
+
+
+
+
+
+
+
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause for filtering window function results.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/qualify
+    """
+
+    type = "qualify_clause"
+    match_grammar = Sequence(
+        "QUALIFY",
+        ImplicitIndent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """Enhance unordered `SELECT` statement to include PREWHERE and QUALIFY."""
+
+    match_grammar = (
+        ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+            insert=[Ref("PreWhereClauseSegment", optional=True)],
+            before=Ref("WhereClauseSegment", optional=True),
+        )
+        .copy(
+            insert=[Ref("QualifyClauseSegment", optional=True)],
+            before=Ref("OverlapsClauseSegment", optional=True),
+        )
+    )
+
+
+
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("PreWhereClauseSegment", optional=True)],
         before=Ref("WhereClauseSegment", optional=True),
     ).copy(
@@ -454,14 +492,6 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         ],
     )
 
-
-class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
-    """Enhance unordered `SELECT` statement to include QUALIFY."""
-
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        insert=[Ref("PreWhereClauseSegment", optional=True)],
-        before=Ref("WhereClauseSegment", optional=True),
-    )
 
 
 class WithFillSegment(ansi.WithFillSegment):
