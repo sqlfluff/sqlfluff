@@ -3,12 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad95a8c4c861de157b9cb1474c0e529c48b47f70c9cd28001f56c0c54f9f33f3
+_hash: 522be50f075539ac7b38fc1220506f4909d2744b420421c118e13a06fa3e130f
 file:
-  statement:
+- statement:
     drop_package_statement:
     - keyword: DROP
     - keyword: PACKAGE
     - package_reference:
         naked_identifier: emp_mgmt
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    drop_package_statement:
+    - keyword: DROP
+    - keyword: PACKAGE
+    - keyword: BODY
+    - package_reference:
+        naked_identifier: test_package
+- statement_terminator: ;
+- statement_terminator: /

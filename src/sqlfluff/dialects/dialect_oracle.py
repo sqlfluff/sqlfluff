@@ -2320,32 +2320,132 @@ class DropTypeStatementSegment(ansi.DropTypeStatementSegment):
 
 
 class CreatePackageStatementSegment(BaseSegment):
-    """A `CREATE PACKAGE` statement.
+    """A `CREATE PACKAGE` or `CREATE PACKAGE BODY` statement.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-PACKAGE-statement.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-PACKAGE-BODY-statement.html
     """
 
     type = "create_package_statement"
 
-    match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
-        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
-        "PACKAGE",
-        Ref.keyword("BODY", optional=True),
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("PackageReferenceSegment"),
-        Ref("SharingClauseGrammar", optional=True),
-        AnyNumberOf(
-            Ref("DefaultCollationClauseGrammar"),
-            Ref("InvokerRightsClauseGrammar"),
-            Ref("AccessibleByClauseGrammar"),
-            optional=True,
+    match_grammar = OneOf(
+        # CREATE PACKAGE BODY (with optional declarations and optional BEGIN...END)
+        Sequence(
+            "CREATE",
+            Sequence("OR", "REPLACE", optional=True),
+            OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+            "PACKAGE",
+            "BODY",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("PackageReferenceSegment"),
+            Ref("SharingClauseGrammar", optional=True),
+            AnyNumberOf(
+                Ref("DefaultCollationClauseGrammar"),
+                Ref("InvokerRightsClauseGrammar"),
+                Ref("AccessibleByClauseGrammar"),
+                optional=True,
+            ),
+            OneOf("IS", "AS"),
+            # For PACKAGE BODY: declarations and/or initialization block
+            Indent,
+            # Optional declarations
+            AnyNumberOf(
+                Delimited(
+                    OneOf(
+                        Sequence(
+                            OneOf(
+                                Sequence(
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref.keyword("CONSTANT", optional=True),
+                                    OneOf(
+                                        Ref("DatatypeSegment"),
+                                        Ref("ColumnTypeReferenceSegment"),
+                                        Ref("RowTypeReferenceSegment"),
+                                    ),
+                                ),
+                                Sequence(
+                                    "PRAGMA",
+                                    Ref("FunctionSegment"),
+                                ),
+                                Ref("CollectionTypeDefinitionSegment"),
+                                Ref("RecordTypeDefinitionSegment"),
+                                Ref("RefCursorTypeDefinitionSegment"),
+                            ),
+                            Sequence("NOT", "NULL", optional=True),
+                            Sequence(
+                                OneOf(
+                                    Ref("AssignmentOperatorSegment"),
+                                    "DEFAULT",
+                                ),
+                                Ref("ExpressionSegment"),
+                                optional=True,
+                            ),
+                            Ref("DelimiterGrammar"),
+                        ),
+                        Ref("CreateProcedureStatementSegment"),
+                        Ref("CreateFunctionStatementSegment"),
+                        Ref("DeclareCursorVariableSegment"),
+                    ),
+                    delimiter=Ref("DelimiterGrammar"),
+                    terminators=["BEGIN", "END"],
+                ),
+            ),
+            # Optional initialization block
+            Sequence(
+                "BEGIN",
+                Ref("OneOrMoreStatementsGrammar"),
+                Sequence(
+                    "EXCEPTION",
+                    Indent,
+                    AnyNumberOf(
+                        Sequence(
+                            "WHEN",
+                            OneOf(
+                                "OTHERS",
+                                Sequence(
+                                    Ref("SingleIdentifierGrammar"),
+                                    AnyNumberOf(
+                                        Sequence(
+                                            "OR",
+                                            Ref("SingleIdentifierGrammar"),
+                                        )
+                                    ),
+                                ),
+                            ),
+                            "THEN",
+                            Ref("OneOrMoreStatementsGrammar"),
+                        ),
+                        min_times=1,
+                    ),
+                    Dedent,
+                    optional=True,
+                ),
+                optional=True,
+            ),
+            Dedent,
+            "END",
+            Ref("PackageReferenceSegment", optional=True),
         ),
-        OneOf("IS", "AS"),
-        Ref("DeclareSegment"),
-        "END",
-        Ref("PackageReferenceSegment", optional=True),
+        # CREATE PACKAGE (without BODY, requires declarations)
+        Sequence(
+            "CREATE",
+            Sequence("OR", "REPLACE", optional=True),
+            OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+            "PACKAGE",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("PackageReferenceSegment"),
+            Ref("SharingClauseGrammar", optional=True),
+            AnyNumberOf(
+                Ref("DefaultCollationClauseGrammar"),
+                Ref("InvokerRightsClauseGrammar"),
+                Ref("AccessibleByClauseGrammar"),
+                optional=True,
+            ),
+            OneOf("IS", "AS"),
+            Ref("DeclareSegment"),
+            "END",
+            Ref("PackageReferenceSegment", optional=True),
+        ),
     )
 
 
