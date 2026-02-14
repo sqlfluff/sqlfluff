@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 56ea05fee863d1a5fcd2f8981c49e3e83b47b2b81dfdc38f16c18c84fe97dfe1
+_hash: fee19cbb0e0c7cf5ef7f1187bf98ce80d714b9ef6ea64e00703182a1d802d49a
 file:
 - batch:
     statement:
@@ -224,10 +224,12 @@ file:
           - quoted_identifier: '[ColumnB]'
           - data_type:
               data_type_identifier: '[varchar]'
-          - bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
           - column_constraint_segment:
               keyword: FILESTREAM
           - column_constraint_segment:
