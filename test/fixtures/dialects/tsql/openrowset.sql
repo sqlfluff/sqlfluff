@@ -55,7 +55,8 @@ FROM OPENROWSET(BULK(
     MAXERRORS = 2,
     ERRORFILE_DATA_SOURCE = 'https://sqlondemandstorage.blob.core.windows.net/',
     ERRORFILE_LOCATION = 'path\to\errorfile.csv'
-)
+);
+GO
 
 SELECT *
 FROM OPENROWSET(BULK(
@@ -66,11 +67,12 @@ FROM OPENROWSET(BULK(
     LASTROW = 10000,
     ROWS_PER_BATCH = 1000
 ) AS name;
+GO
 
 SELECT TOP 10 *
 from OPENROWSET(BULK 'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet',
     DATA_SOURCE = 'MyAzureBlobStorage',
-    FORMAT = 'PARQUET') as rows
+    FORMAT = 'PARQUET') as rows;
 GO
 
 SELECT TOP 10 *
@@ -83,7 +85,7 @@ WITH (
     [country_name] VARCHAR(100) COLLATE Latin1_General_BIN2 2,
     [year] smallint,
     [population] bigint
-) as rows
+) as rows;
 GO
 
 SELECT
@@ -99,5 +101,5 @@ WITH (
     [countyName_explicit_path] VARCHAR(50) '$.COUNTYNAME',
     [population] bigint 'strict $.population'
 )
-AS [r]
+AS [r];
 GO

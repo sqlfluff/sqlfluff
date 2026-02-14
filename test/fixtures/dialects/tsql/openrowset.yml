@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 888c9644156d7f31b23b833ab7a1c455a5c6d2f4c3c2b7f668b2b075a4d21fe3
+_hash: 74cd86009886a72bf6ddb929b490c6c2a50e3ad00464eb3268e4c65b51f50e17
 file:
 - batch:
     statement:
@@ -272,7 +272,7 @@ file:
     go_statement:
       keyword: GO
 - batch:
-  - statement:
+    statement:
       select_statement:
         select_clause:
           keyword: SELECT
@@ -341,7 +341,11 @@ file:
                       raw_comparison_operator: '='
                   - quoted_literal: "'path\\to\\errorfile.csv'"
                   - end_bracket: )
-  - statement:
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
       select_statement:
         select_clause:
           keyword: SELECT
@@ -385,8 +389,11 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: name
-  - statement_terminator: ;
-  - statement:
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
       select_statement:
         select_clause:
           keyword: SELECT
@@ -424,7 +431,8 @@ file:
                 alias_operator:
                   keyword: as
                 naked_identifier: rows
-  - go_statement:
+    statement_terminator: ;
+    go_statement:
       keyword: GO
 - batch:
     statement:
@@ -499,6 +507,7 @@ file:
                 alias_operator:
                   keyword: as
                 naked_identifier: rows
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -586,5 +595,6 @@ file:
                 alias_operator:
                   keyword: AS
                 quoted_identifier: '[r]'
+    statement_terminator: ;
     go_statement:
       keyword: GO
