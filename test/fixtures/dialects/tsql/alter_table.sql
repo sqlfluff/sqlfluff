@@ -5,9 +5,6 @@ GO
 
 CREATE TABLE dbo.doc_exc (column_a INT) ;
 GO
-ALTER TABLE dbo.doc_exc ADD column_b VARCHAR(20) NULL
-    CONSTRAINT exb_unique UNIQUE, DROP COLUMN column_a, DROP COLUMN IF EXISTS column_c ;
-GO
 EXEC sp_help doc_exc ;
 GO
 DROP TABLE dbo.doc_exc ;

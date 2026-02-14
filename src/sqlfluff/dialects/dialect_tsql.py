@@ -4728,170 +4728,168 @@ class AlterTableStatementSegment(BaseSegment):
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
-        Delimited(
-            OneOf(
-                # Table options
-                Sequence(
-                    Ref("ParameterNameSegment"),
-                    Ref("EqualsSegment", optional=True),
-                    OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
-                ),
-                Sequence(
-                    "ALTER",
-                    "COLUMN",
+        OneOf(
+            # Table options
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Ref("EqualsSegment", optional=True),
+                OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+            ),
+            Sequence(
+                "ALTER",
+                "COLUMN",
+                Ref("ColumnDefinitionSegment"),
+            ),
+            Sequence(
+                "ADD",
+                Delimited(
+                    Ref("ComputedColumnDefinitionSegment"),
                     Ref("ColumnDefinitionSegment"),
                 ),
-                Sequence(
-                    "ADD",
-                    Delimited(
-                        Ref("ComputedColumnDefinitionSegment"),
-                        Ref("ColumnDefinitionSegment"),
+            ),
+            Sequence(
+                "DROP",
+                Delimited(
+                    Sequence(
+                        "COLUMN",
+                        Ref("IfExistsGrammar", optional=True),
+                        Delimited(Ref("ColumnReferenceSegment")),
                     ),
                 ),
+            ),
+            Sequence(
+                "ADD",
+                Ref("ColumnConstraintSegment"),
+                "FOR",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(OneOf("ADD", "DROP"), Ref("PeriodSegment")),
+            Sequence(
                 Sequence(
-                    "DROP",
-                    Delimited(
+                    "WITH",
+                    OneOf("CHECK", "NOCHECK"),
+                    optional=True,
+                ),
+                "ADD",
+                Ref("TableConstraintSegment"),
+            ),
+            # See for details on check/nocheck constraints
+            # https://learn.microsoft.com/en-us/sql/relational-databases/tables/disable-foreign-key-constraints-with-insert-and-update-statements
+            Sequence(
+                Sequence("WITH", OneOf("CHECK", "NOCHECK"), optional=True),
+                OneOf("CHECK", "NOCHECK"),
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DROP",
+                Delimited(
+                    Sequence(
                         Sequence(
-                            "COLUMN",
+                            "CONSTRAINT",
                             Ref("IfExistsGrammar", optional=True),
-                            Delimited(Ref("ColumnReferenceSegment")),
+                            optional=True,
+                        ),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+            ),
+            # Rename
+            Sequence(
+                "RENAME",
+                OneOf("AS", "TO", optional=True),
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "REBUILD",
+                Sequence(
+                    "PARTITION",
+                    Ref("EqualsSegment"),
+                    OneOf("ALL", Ref("NumericLiteralSegment")),
+                    optional=True,
+                ),
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        Delimited(
+                            _rebuild_table_option,
                         ),
                     ),
+                    optional=True,
                 ),
-                Sequence(
-                    "ADD",
-                    Ref("ColumnConstraintSegment"),
-                    "FOR",
-                    Ref("ColumnReferenceSegment"),
-                ),
-                Sequence(OneOf("ADD", "DROP"), Ref("PeriodSegment")),
-                Sequence(
-                    Sequence(
-                        "WITH",
-                        OneOf("CHECK", "NOCHECK"),
-                        optional=True,
-                    ),
-                    "ADD",
-                    Ref("TableConstraintSegment"),
-                ),
-                # See for details on check/nocheck constraints
-                # https://learn.microsoft.com/en-us/sql/relational-databases/tables/disable-foreign-key-constraints-with-insert-and-update-statements
-                Sequence(
-                    Sequence("WITH", OneOf("CHECK", "NOCHECK"), optional=True),
-                    OneOf("CHECK", "NOCHECK"),
-                    "CONSTRAINT",
-                    Ref("ObjectReferenceSegment"),
-                ),
-                Sequence(
-                    "DROP",
-                    Delimited(
+            ),
+            Sequence(
+                "SET",
+                OneOf(
+                    Bracketed(
                         Sequence(
+                            "FILESTREAM_ON",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("FilegroupNameSegment"),
+                                Ref("PartitionSchemeNameSegment"),
+                                OneOf(
+                                    "NULL",
+                                    Ref("LiteralGrammar"),  # for "default" value
+                                ),
+                            ),
+                        )
+                    ),
+                    Bracketed(
+                        Sequence(
+                            "SYSTEM_VERSIONING",
+                            Ref("EqualsSegment"),
+                            OneOf("ON", "OFF"),
                             Sequence(
-                                "CONSTRAINT",
-                                Ref("IfExistsGrammar", optional=True),
+                                Bracketed(
+                                    "HISTORY_TABLE",
+                                    Ref("EqualsSegment"),
+                                    Ref("TableReferenceSegment"),
+                                    Sequence(
+                                        Ref("CommaSegment"),
+                                        "DATA_CONSISTENCY_CHECK",
+                                        Ref("EqualsSegment"),
+                                        OneOf("ON", "OFF"),
+                                        optional=True,
+                                    ),
+                                    Sequence(
+                                        Ref("CommaSegment"),
+                                        "HISTORY_RETENTION_PERIOD",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment", optional=True),
+                                        Ref("DatetimeUnitSegment"),
+                                        optional=True,
+                                    ),
+                                ),
                                 optional=True,
                             ),
-                            Ref("ObjectReferenceSegment"),
-                        ),
+                        )
                     ),
-                ),
-                # Rename
-                Sequence(
-                    "RENAME",
-                    OneOf("AS", "TO", optional=True),
-                    Ref("TableReferenceSegment"),
-                ),
-                Sequence(
-                    "REBUILD",
-                    Sequence(
-                        "PARTITION",
-                        Ref("EqualsSegment"),
-                        OneOf("ALL", Ref("NumericLiteralSegment")),
-                        optional=True,
-                    ),
-                    Sequence(
-                        "WITH",
-                        Bracketed(
-                            Delimited(
-                                _rebuild_table_option,
-                            ),
-                        ),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    "SET",
-                    OneOf(
-                        Bracketed(
+                    Bracketed(
+                        Sequence(
+                            "DATA_DELETION",
+                            Ref("EqualsSegment"),
+                            OneOf("ON", "OFF"),
                             Sequence(
-                                "FILESTREAM_ON",
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    Ref("FilegroupNameSegment"),
-                                    Ref("PartitionSchemeNameSegment"),
-                                    OneOf(
-                                        "NULL",
-                                        Ref("LiteralGrammar"),  # for "default" value
-                                    ),
-                                ),
-                            )
-                        ),
-                        Bracketed(
-                            Sequence(
-                                "SYSTEM_VERSIONING",
-                                Ref("EqualsSegment"),
-                                OneOf("ON", "OFF"),
-                                Sequence(
-                                    Bracketed(
-                                        "HISTORY_TABLE",
+                                Bracketed(
+                                    "FILTER_COLUMN",
+                                    Ref("EqualsSegment"),
+                                    Ref("ColumnReferenceSegment"),
+                                    Sequence(
+                                        Ref("CommaSegment"),
+                                        "RETENTION_PERIOD",
                                         Ref("EqualsSegment"),
-                                        Ref("TableReferenceSegment"),
-                                        Sequence(
-                                            Ref("CommaSegment"),
-                                            "DATA_CONSISTENCY_CHECK",
-                                            Ref("EqualsSegment"),
-                                            OneOf("ON", "OFF"),
-                                            optional=True,
-                                        ),
-                                        Sequence(
-                                            Ref("CommaSegment"),
-                                            "HISTORY_RETENTION_PERIOD",
-                                            Ref("EqualsSegment"),
-                                            Ref("NumericLiteralSegment", optional=True),
-                                            Ref("DatetimeUnitSegment"),
-                                            optional=True,
-                                        ),
+                                        Ref("NumericLiteralSegment", optional=True),
+                                        Ref("DatetimeUnitSegment"),
+                                        optional=True,
                                     ),
-                                    optional=True,
                                 ),
-                            )
-                        ),
-                        Bracketed(
-                            Sequence(
-                                "DATA_DELETION",
-                                Ref("EqualsSegment"),
-                                OneOf("ON", "OFF"),
-                                Sequence(
-                                    Bracketed(
-                                        "FILTER_COLUMN",
-                                        Ref("EqualsSegment"),
-                                        Ref("ColumnReferenceSegment"),
-                                        Sequence(
-                                            Ref("CommaSegment"),
-                                            "RETENTION_PERIOD",
-                                            Ref("EqualsSegment"),
-                                            Ref("NumericLiteralSegment", optional=True),
-                                            Ref("DatetimeUnitSegment"),
-                                            optional=True,
-                                        ),
-                                    ),
-                                    optional=True,
-                                ),
+                                optional=True,
                             ),
                         ),
                     ),
                 ),
-            )
+            ),
         ),
     )
 

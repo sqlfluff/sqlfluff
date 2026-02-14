@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 60144d45a8e99b1551f9e9266f55003ee02bddd222a98aa3505bfa7288ec08ec
+_hash: e989cf31997a3e74b1ac4434ca977521939f508d45882cf8db3ff9b59027ec83
 file:
 - batch:
     statement:
@@ -69,45 +69,6 @@ file:
     go_statement:
       keyword: GO
 - batch:
-    statement:
-      alter_table_statement:
-      - keyword: ALTER
-      - keyword: TABLE
-      - table_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: doc_exc
-      - keyword: ADD
-      - column_definition:
-        - naked_identifier: column_b
-        - data_type:
-            keyword: VARCHAR
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                expression:
-                  integer_literal: '20'
-                end_bracket: )
-        - column_constraint_segment:
-            keyword: 'NULL'
-        - column_constraint_segment:
-          - keyword: CONSTRAINT
-          - object_reference:
-              naked_identifier: exb_unique
-          - keyword: UNIQUE
-      - comma: ','
-      - keyword: DROP
-      - keyword: COLUMN
-      - column_reference:
-          naked_identifier: column_a
-      - comma: ','
-      - keyword: DROP
-      - keyword: COLUMN
-      - keyword: IF
-      - keyword: EXISTS
-      - column_reference:
-          naked_identifier: column_c
-    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
