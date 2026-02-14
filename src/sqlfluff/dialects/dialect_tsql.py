@@ -5441,7 +5441,7 @@ class OpenRowSetSegment(BaseSegment):
                     Ref("CommaSegment"),
                     Delimited(
                         OneOf(
-                            # Unicode strings
+                            # Bulk options taking normal or unicode strings
                             Sequence(
                                 OneOf(
                                     "DATA_SOURCE",
