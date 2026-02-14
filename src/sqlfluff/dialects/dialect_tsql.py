@@ -4282,7 +4282,7 @@ class JsonFunctionContentsSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
             Ref("ParameterNameSegment"),
         ),
-        Ref("ColonSegment"),
+        Ref("ColonDelimiterSegment"),
         Sequence(
             OneOf(
                 Ref("QuotedLiteralSegment"),
@@ -4436,7 +4436,7 @@ class JsonAggFunctionContentsSegment(BaseSegment):
             # Single expression OR two expressions separated by colon
             Ref("ExpressionSegment"),
             Sequence(
-                Ref("ColonSegment"),
+                Ref("ColonDelimiterSegment"),
                 Ref("ExpressionSegment"),
                 # Optional for JSON_ARRAYAGG, required for JSON_OBJECTAGG
                 optional=True,
