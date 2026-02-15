@@ -5,6 +5,11 @@ We should monitor in future and see if it should be rebased off of ANSI
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.dialects.common import (
+    REFERENCE_FEATURE_DOT_ACCESS,
+    REFERENCE_FEATURE_STRUCT_QUALIFICATION_AMBIGUITY,
+    REFERENCE_FEATURES_SET,
+)
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
@@ -53,6 +58,13 @@ The dialect for `Redshift`_ on Amazon Web Services (AWS).
 .. _`Redshift`: https://aws.amazon.com/redshift/
 .. _`Redshift Names & Identifiers Docs`: https://docs.aws.amazon.com/redshift/latest/dg/r_names.html
 """,  # noqa: E501
+)
+
+redshift_dialect.sets(REFERENCE_FEATURES_SET).update(
+    {
+        REFERENCE_FEATURE_DOT_ACCESS,
+        REFERENCE_FEATURE_STRUCT_QUALIFICATION_AMBIGUITY,
+    }
 )
 
 # Set Keywords

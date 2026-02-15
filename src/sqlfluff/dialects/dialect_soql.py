@@ -4,6 +4,10 @@ https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforc
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.dialects.common import (
+    REFERENCE_FEATURE_DOT_ACCESS,
+    REFERENCE_FEATURES_SET,
+)
 from sqlfluff.core.parser import (
     BaseSegment,
     CodeSegment,
@@ -27,6 +31,8 @@ soql_dialect = ansi_dialect.copy_as(
         "(Salesforce Object Query Language)."
     ),
 )
+
+soql_dialect.sets(REFERENCE_FEATURES_SET).add(REFERENCE_FEATURE_DOT_ACCESS)
 
 soql_dialect.insert_lexer_matchers(
     [

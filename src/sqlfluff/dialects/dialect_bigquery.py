@@ -9,6 +9,11 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 from collections.abc import Generator
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.dialects.common import (
+    REFERENCE_FEATURE_DOT_ACCESS,
+    REFERENCE_FEATURE_STRUCT_QUALIFICATION_AMBIGUITY,
+    REFERENCE_FEATURES_SET,
+)
 from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
@@ -68,6 +73,13 @@ Identifiers: ``""`` or |back_quotes|.
 
 The dialect for `BigQuery <https://cloud.google.com/bigquery/>`_
 on Google Cloud Platform (GCP).""",
+)
+
+bigquery_dialect.sets(REFERENCE_FEATURES_SET).update(
+    {
+        REFERENCE_FEATURE_DOT_ACCESS,
+        REFERENCE_FEATURE_STRUCT_QUALIFICATION_AMBIGUITY,
+    }
 )
 
 bigquery_dialect.insert_lexer_matchers(
