@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74cd86009886a72bf6ddb929b490c6c2a50e3ad00464eb3268e4c65b51f50e17
+_hash: 52a7a08a72ad411173d5547e1d0f83859d89af746bc0edb9875e6aca8e6729db
 file:
 - batch:
     statement:
@@ -242,7 +242,7 @@ file:
                   - keyword: FORMATFILE_DATA_SOURCE
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - quoted_literal: "'root\\'"
+                  - quoted_literal: "'root'"
                   - comma: ','
                   - keyword: ROWTERMINATOR
                   - comparison_operator:
@@ -334,7 +334,7 @@ file:
                   - keyword: ERRORFILE_DATA_SOURCE
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - quoted_literal: "'https://sqlondemandstorage.blob.core.windows.net/'"
+                  - quoted_literal: "'error_source'"
                   - comma: ','
                   - keyword: ERRORFILE_LOCATION
                   - comparison_operator:
@@ -375,20 +375,78 @@ file:
                       raw_comparison_operator: '='
                   - quoted_literal: "'PARQUET'"
                   - comma: ','
-                  - keyword: LASTROW
-                  - comparison_operator:
-                      raw_comparison_operator: '='
-                  - integer_literal: '10000'
-                  - comma: ','
                   - keyword: ROWS_PER_BATCH
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - integer_literal: '1000'
+                  - comma: ','
+                  - keyword: LASTROW
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - integer_literal: '10000'
                   - end_bracket: )
               alias_expression:
                 alias_operator:
                   keyword: AS
-                naked_identifier: name
+                naked_identifier: named
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - quoted_literal: "'C:\\Text1.txt'"
+                  - comma: ','
+                  - keyword: FORMAT
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'PARQUET'"
+                  - comma: ','
+                  - keyword: CODEPAGE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'RAW'"
+                  - comma: ','
+                  - keyword: ORDER
+                  - bracketed:
+                    - start_bracket: (
+                    - column_reference:
+                        naked_identifier: column1
+                    - keyword: ASC
+                    - comma: ','
+                    - column_reference:
+                        naked_identifier: column2
+                    - keyword: DESC
+                    - end_bracket: )
+                  - keyword: UNIQUE
+                  - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: Document
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                  - naked_identifier: column1
+                  - comma: ','
+                  - naked_identifier: column2
+                  end_bracket: )
     statement_terminator: ;
     go_statement:
       keyword: GO

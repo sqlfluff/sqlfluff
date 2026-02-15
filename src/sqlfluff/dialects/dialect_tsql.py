@@ -5434,59 +5434,63 @@ class OpenRowSetSegment(BaseSegment):
                 ),
                 Sequence(
                     "BULK",
-                    # Filepath(s)
+                    # Data filepath(s)
                     OptionallyBracketed(
                         Delimited(Ref("QuotedLiteralSegmentOptWithN")),
                     ),
                     Ref("CommaSegment"),
                     Delimited(
-                        OneOf(
-                            # Bulk options taking normal or unicode strings
-                            Sequence(
-                                OneOf(
-                                    "DATA_SOURCE",
-                                    "CODEPAGE",
-                                    "DATAFILETYPE",
-                                    "FORMAT",
-                                    "FORMATFILE",
-                                    "FORMATFILE_DATA_SOURCE",
-                                    "FIELDTERMINATOR",
-                                    "ROWTERMINATOR",
-                                    "FIELDQUOTE",
-                                    "ESCAPE_CHAR",
-                                    "DATA_COMPRESSION",
-                                    "PARSER_VERSION",
-                                    "ERRORFILE",
-                                    "ERRORFILE_LOCATION",
-                                    "ERRORFILE_DATA_SOURCE",
-                                    "ROWSET_OPTIONS",
-                                ),
-                                Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegmentOptWithN"),
-                            ),
-                            # Bulk options that take numeric or boolean types
-                            Sequence(
-                                OneOf(
-                                    "FIRSTROW",
-                                    "LASTROW",
-                                    "MAXERRORS",
-                                    "ROWS_PER_BATCH",
-                                    "HEADER_ROW",
-                                ),
-                                Ref("EqualsSegment"),
-                                Ref("LiteralGrammar"),
-                            ),
-                            Sequence(
-                                "ORDER",
-                                Ref("ColumnReferenceSegment"),
-                                OneOf("ASC", "DESC", optional=True),
-                                Ref("UniqueKeyGrammar", optional=True),
-                            ),
+                        # Bulk options taking normal or unicode strings
+                        Sequence(
                             OneOf(
-                                "SINGLE_BLOB",
-                                "SINGLE_CLOB",
-                                "SINGLE_NCLOB",
+                                "DATA_SOURCE",
+                                "CODEPAGE",
+                                "DATAFILETYPE",
+                                "FORMAT",
+                                "FORMATFILE",
+                                "FORMATFILE_DATA_SOURCE",
+                                "FIELDTERMINATOR",
+                                "ROWTERMINATOR",
+                                "FIELDQUOTE",
+                                "ESCAPE_CHAR",
+                                "DATA_COMPRESSION",
+                                "PARSER_VERSION",
+                                "ERRORFILE",
+                                "ERRORFILE_LOCATION",
+                                "ERRORFILE_DATA_SOURCE",
+                                "ROWSET_OPTIONS",
                             ),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegmentOptWithN"),
+                        ),
+                        # Bulk options that take numeric or boolean types
+                        Sequence(
+                            OneOf(
+                                "FIRSTROW",
+                                "LASTROW",
+                                "MAXERRORS",
+                                "ROWS_PER_BATCH",
+                                "HEADER_ROW",
+                            ),
+                            Ref("EqualsSegment"),
+                            Ref("LiteralGrammar"),
+                        ),
+                        Sequence(
+                            "ORDER",
+                            OptionallyBracketed(
+                                Delimited(
+                                    Sequence(
+                                        Ref("ColumnReferenceSegment"),
+                                        OneOf("ASC", "DESC", optional=True),
+                                    ),
+                                ),
+                            ),
+                            Ref("UniqueKeyGrammar", optional=True),
+                        ),
+                        OneOf(
+                            "SINGLE_BLOB",
+                            "SINGLE_CLOB",
+                            "SINGLE_NCLOB",
                         ),
                     ),
                 ),

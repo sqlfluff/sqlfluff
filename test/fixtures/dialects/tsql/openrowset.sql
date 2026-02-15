@@ -35,7 +35,7 @@ SELECT *
 FROM OPENROWSET(BULK(N'D:\XChange\test-csv.csv',
     N'D:\XChange\test-csv2.csv'),
     FORMATFILE = N'D:\XChange\test-csv.fmt',
-    FORMATFILE_DATA_SOURCE = 'root\',
+    FORMATFILE_DATA_SOURCE = 'root',
     ROWTERMINATOR = '\n,',
     FIELDTERMINATOR = '\t',
     FIRSTROW=2,
@@ -53,7 +53,7 @@ FROM OPENROWSET(BULK(
     DATAFILETYPE = 'char',
     ROWSET_OPTIONS = '{"READ_OPTIONS":["ALLOW_INCONSISTENT_READS"]}',
     MAXERRORS = 2,
-    ERRORFILE_DATA_SOURCE = 'https://sqlondemandstorage.blob.core.windows.net/',
+    ERRORFILE_DATA_SOURCE = 'error_source',
     ERRORFILE_LOCATION = 'path\to\errorfile.csv'
 );
 GO
@@ -64,10 +64,20 @@ FROM OPENROWSET(BULK(
     'file_does_not_exist.parquet'
     ),
     FORMAT='PARQUET',
-    LASTROW = 10000,
-    ROWS_PER_BATCH = 1000
-) AS name;
+    ROWS_PER_BATCH = 1000,
+    LASTROW = 10000
+) AS named;
 GO
+
+SELECT *
+FROM OPENROWSET(BULK 'C:\Text1.txt',
+    FORMAT='PARQUET',
+    CODEPAGE = 'RAW',
+    ORDER (column1 ASC,
+	column2 DESC) UNIQUE
+   ) AS Document(column1, column2);
+GO
+
 
 SELECT TOP 10 *
 from OPENROWSET(BULK 'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet',
