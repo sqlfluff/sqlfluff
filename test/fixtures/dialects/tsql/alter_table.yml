@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7670e9a18c6d391a4bb17710318c6e7242c3eddb43cdd88150db593456690694
+_hash: 6fdbd1e8b08ab562807934193173f00d434181feb971eace85f2f75d65f561cc
 file:
 - batch:
     statement:
@@ -1106,10 +1106,12 @@ file:
             quoted_identifier: '[strUserId]'
             data_type:
               data_type_identifier: '[char]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '21'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '21'
+                  end_bracket: )
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -1118,10 +1120,12 @@ file:
             quoted_identifier: '[strItem]'
             data_type:
               data_type_identifier: '[binary]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '400'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '400'
+                  end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
@@ -1129,10 +1133,12 @@ file:
             quoted_identifier: '[strSkill]'
             data_type:
               data_type_identifier: '[binary]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '400'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '400'
+                  end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','

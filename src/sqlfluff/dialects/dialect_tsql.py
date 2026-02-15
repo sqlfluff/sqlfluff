@@ -162,6 +162,47 @@ tsql_dialect.sets("serde_method").update(
     ]
 )
 
+tsql_dialect.sets("currency_symbols").clear()
+tsql_dialect.sets("currency_symbols").update(
+    [
+        "\u0024",  # $	Dollar sign
+        "\u00a2",  # ¢	Cent sign
+        "\u00a3",  # £	Pound sign
+        "\u00a4",  # ¤	Currency sign
+        "\u00a5",  # ¥	Yen sign
+        "\u09f2",  # ৲	Bengali Rupee mark
+        "\u09f3",  # ৳	Bengali Rupee sign
+        "\u0e3f",  # ฿	Thai Baht currency symbol
+        "\u17db",  # ៛	Khmer Riel currency symbol
+        "\u20a0",  # ₠	Euro currency sign
+        "\u20a1",  # ₡	Colon sign
+        "\u20a2",  # ₢	Cruzeiro sign
+        "\u20a3",  # ₣	French Franc sign
+        "\u20a4",  # ₤	Lira sign
+        "\u20a5",  # ₥	Mill sign
+        "\u20a6",  # ₦	Naira sign
+        "\u20a7",  # ₧	Peseta sign
+        "\u20a8",  # ₨	Rupee sign
+        "\u20a9",  # ₩	Won sign
+        "\u20aa",  # ₪	New Sheqel sign
+        "\u20ab",  # ₫	Dong sign
+        "\u20ac",  # €	Euro sign
+        "\u20ad",  # ₭	Kip sign
+        "\u20ae",  # ₮	Tugrik sign
+        "\u20af",  # ₯	Drachma sign
+        "\u20b0",  # ₰	German Penny sign
+        "\u20b1",  # ₱	Peso sign
+        "\ufdfc",  # ﷼	Rial sign
+        "\ufe69",  # ﹩	Small Dollar sign
+        "\uff04",  # ＄	Full-width Dollar sign
+        "\uffe0",  # ￠	Full-width Cent sign
+        "\uffe1",  # ￡	Full-width Pound sign
+        "\uffe5",  # ￥	Full-width Yen sign
+        "\uffe6",  # ￦	Full-width Won sign
+    ]
+)
+
+
 tsql_dialect.insert_lexer_matchers(
     [
         # According to Microsoft spec, subsequent characters in identifiers can include
@@ -208,11 +249,19 @@ tsql_dialect.insert_lexer_matchers(
 
 # Add hexadecimal literal lexer matcher before word matcher to ensure
 # patterns like 0x0, 0xAE are tokenized as numeric literals, not words
+# handle money literals with $ and other supported currency symbols
+# https://learn.microsoft.com/en-us/sql/t-sql/data-types/money-and-smallmoney-transact-sql
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "numeric_literal",
-            r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
+            (
+                r"([xX]'([\da-fA-F][\da-fA-F])+'"
+                r"|0[xX][\da-fA-F]*"
+                r"|[+-]*[" + "".join(tsql_dialect.sets("currency_symbols")) + r"]"
+                r"[" + "".join(tsql_dialect.sets("currency_symbols")) + r"+-]*"
+                r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+))"
+            ),
             LiteralSegment,
         ),
     ],
@@ -3213,89 +3262,84 @@ class DatatypeSegment(BaseSegment):
             optional=True,
         ),
         OneOf(
-            # Bracketed data type identifiers (e.g., [sys].[sysname])
-            Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
+            # Exact numeric types - no parameters
+            "TINYINT",
+            "SMALLINT",
+            "INT",
+            "BIGINT",
+            "BIT",
+            "MONEY",
+            "SMALLMONEY",
+            # Exact numeric types - with optional precision and scale
             Sequence(
-                OneOf(
-                    # Exact numeric types - no parameters
-                    "TINYINT",
-                    "SMALLINT",
-                    "INT",
-                    "BIGINT",
-                    "BIT",
-                    "MONEY",
-                    "SMALLMONEY",
-                    # Exact numeric types - with optional precision and scale
-                    Sequence(
-                        OneOf("DECIMAL", "NUMERIC", "DEC"),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    # Approximate numeric types
-                    Sequence(
-                        "FLOAT",
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "REAL",
-                    # Date and time types
-                    "DATE",
-                    "SMALLDATETIME",
-                    "DATETIME",
-                    Sequence(
-                        OneOf("TIME", "DATETIME2", "DATETIMEOFFSET"),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    # Character string types
-                    Sequence(
-                        OneOf("CHAR", "CHARACTER"),
-                        Ref.keyword("VARYING", optional=True),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    Sequence(
-                        "VARCHAR",
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "TEXT",
-                    # Unicode character string types
-                    Sequence(
-                        OneOf(
-                            "NCHAR", Sequence("NATIONAL", OneOf("CHAR", "CHARACTER"))
-                        ),
-                        Ref.keyword("VARYING", optional=True),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    Sequence(
-                        OneOf("NVARCHAR", Sequence("NATIONAL", "CHARACTER", "VARYING")),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "NTEXT",
-                    # Binary string types
-                    Sequence(
-                        OneOf("BINARY", "VARBINARY"),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "IMAGE",
-                    # Other data types
-                    "CURSOR",
-                    "SQL_VARIANT",
-                    "TABLE",
-                    "TIMESTAMP",
-                    "ROWVERSION",
-                    "UNIQUEIDENTIFIER",
-                    "XML",
-                    "JSON",
-                    # Spatial types
-                    "GEOGRAPHY",
-                    "GEOMETRY",
-                    "HIERARCHYID",
-                    # Vector type (Azure SQL Database)
-                    Sequence(
-                        "VECTOR",
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                ),
+                OneOf("DECIMAL", "NUMERIC", "DEC"),
+                Ref("BracketedArguments", optional=True),
             ),
-            # User-defined data types
-            Ref("DatatypeIdentifierSegment"),
+            # Approximate numeric types
+            Sequence(
+                "FLOAT",
+                Ref("BracketedArguments", optional=True),
+            ),
+            "REAL",
+            # Date and time types
+            "DATE",
+            "SMALLDATETIME",
+            "DATETIME",
+            Sequence(
+                OneOf("TIME", "DATETIME2", "DATETIMEOFFSET"),
+                Ref("BracketedArguments", optional=True),
+            ),
+            # Character string types
+            Sequence(
+                OneOf("CHAR", "CHARACTER"),
+                Ref.keyword("VARYING", optional=True),
+                Ref("BracketedArguments", optional=True),
+            ),
+            Sequence(
+                "VARCHAR",
+                Ref("BracketedArguments", optional=True),
+            ),
+            "TEXT",
+            # Unicode character string types
+            Sequence(
+                OneOf("NCHAR", Sequence("NATIONAL", OneOf("CHAR", "CHARACTER"))),
+                Ref.keyword("VARYING", optional=True),
+                Ref("BracketedArguments", optional=True),
+            ),
+            Sequence(
+                OneOf("NVARCHAR", Sequence("NATIONAL", "CHARACTER", "VARYING")),
+                Ref("BracketedArguments", optional=True),
+            ),
+            "NTEXT",
+            # Binary string types
+            Sequence(
+                OneOf("BINARY", "VARBINARY"),
+                Ref("BracketedArguments", optional=True),
+            ),
+            "IMAGE",
+            # Other data types
+            "CURSOR",
+            "SQL_VARIANT",
+            "TABLE",
+            "TIMESTAMP",
+            "ROWVERSION",
+            "UNIQUEIDENTIFIER",
+            "XML",
+            "JSON",
+            # Spatial types
+            "GEOGRAPHY",
+            "GEOMETRY",
+            "HIERARCHYID",
+            # Vector type (Azure SQL Database)
+            Sequence(
+                "VECTOR",
+                Ref("BracketedArguments", optional=True),
+            ),
+            Sequence(
+                # User-defined data types & type identifiers (e.g., [sys].[sysname])
+                Ref("DatatypeIdentifierSegment"),
+                Ref("BracketedArguments", optional=True),
+            ),
         ),
         # Character set grammar for character types
         Ref("CharCharacterSetGrammar", optional=True),
@@ -4282,7 +4326,7 @@ class JsonFunctionContentsSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
             Ref("ParameterNameSegment"),
         ),
-        Ref("ColonSegment"),
+        Ref("ColonDelimiterSegment"),
         Sequence(
             OneOf(
                 Ref("QuotedLiteralSegment"),
@@ -4436,7 +4480,7 @@ class JsonAggFunctionContentsSegment(BaseSegment):
             # Single expression OR two expressions separated by colon
             Ref("ExpressionSegment"),
             Sequence(
-                Ref("ColonSegment"),
+                Ref("ColonDelimiterSegment"),
                 Ref("ExpressionSegment"),
                 # Optional for JSON_ARRAYAGG, required for JSON_OBJECTAGG
                 optional=True,
@@ -4552,6 +4596,23 @@ class FunctionSegment(BaseSegment):
             Ref("JsonAggFunctionNameSegment"),
             Ref("JsonAggFunctionContentsSegment"),
             Ref("WithinGroupClause", optional=True),
+        ),
+    )
+
+
+class ColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    Overwote ANSI to add optional TableIndexSegment
+    """
+
+    type = "column_definition"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+            Ref("TableIndexSegment", optional=True),
         ),
     )
 

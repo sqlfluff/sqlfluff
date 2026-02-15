@@ -288,6 +288,10 @@ clickhouse_dialect.replace(
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
     ),
+    Expression_D_Grammar=OneOf(
+        Ref("TupleElementAccessSegment"),
+        ansi_dialect.get_grammar("Expression_D_Grammar"),
+    ),
 )
 
 # Set the datetime units
@@ -349,6 +353,167 @@ clickhouse_dialect.sets("datetime_units").update(
         "YY",
     ]
 )
+
+
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """A ClickHouse access permission.
+
+    Based on https://clickhouse.com/docs/sql-reference/statements/grant#privileges
+    """
+
+    match_grammar: Matchable = OneOf(
+        # SELECT privilege
+        Sequence(
+            "SELECT",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # INSERT privilege
+        Sequence(
+            "INSERT",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # DELETE privilege (standalone)
+        Sequence(
+            "DELETE",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # UPDATE privilege (standalone)
+        Sequence(
+            "UPDATE",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # ALTER privileges - hierarchical structure
+        Sequence(
+            "ALTER",
+            OneOf(
+                # ALTER TABLE
+                "TABLE",
+                # ALTER ADD/DROP/MODIFY/CLEAR/COMMENT/RENAME COLUMN
+                Sequence(
+                    OneOf("ADD", "DROP", "MODIFY", "CLEAR", "COMMENT", "RENAME"),
+                    "COLUMN",
+                ),
+                # ALTER CONSTRAINT
+                Sequence(
+                    OneOf("ADD", "DROP"),
+                    "CONSTRAINT",
+                ),
+                # ALTER TTL/ORDER BY/SAMPLE BY
+                Sequence(
+                    OneOf("MODIFY", "REMOVE"),
+                    OneOf(
+                        "TTL",
+                        Sequence("ORDER", "BY"),
+                        Sequence("SAMPLE", "BY"),
+                    ),
+                ),
+                # ALTER MATERIALIZE TTL
+                Sequence("MATERIALIZE", "TTL"),
+                # ALTER DELETE, ALTER UPDATE (data manipulation)
+                "DELETE",
+                "UPDATE",
+                # ALTER MOVE PARTITION/PART
+                Sequence(
+                    "MOVE",
+                    OneOf("PARTITION", "PART"),
+                ),
+                # ALTER FETCH PARTITION
+                Sequence("FETCH", "PARTITION"),
+                # ALTER FREEZE PARTITION
+                Sequence("FREEZE", "PARTITION"),
+                # ALTER INDEX
+                Sequence(
+                    OneOf("ADD", "DROP", "MATERIALIZE", "CLEAR"),
+                    "INDEX",
+                ),
+                # ALTER PROJECTION
+                Sequence(
+                    OneOf("ADD", "DROP", "MATERIALIZE", "CLEAR"),
+                    "PROJECTION",
+                ),
+                # ALTER VIEW - REFRESH/MODIFY QUERY
+                Sequence(
+                    "VIEW",
+                    OneOf("REFRESH", Sequence("MODIFY", "QUERY")),
+                ),
+                optional=True,
+            ),
+        ),
+        # CREATE privileges
+        Sequence(
+            "CREATE",
+            OneOf(
+                "DATABASE",
+                "TABLE",
+                "VIEW",
+                "DICTIONARY",
+                Sequence("TEMPORARY", "TABLE"),
+                optional=True,
+            ),
+        ),
+        # DROP privileges
+        Sequence(
+            "DROP",
+            OneOf(
+                "DATABASE",
+                "TABLE",
+                "VIEW",
+                "DICTIONARY",
+                optional=True,
+            ),
+        ),
+        # TRUNCATE privilege
+        "TRUNCATE",
+        # OPTIMIZE privilege
+        "OPTIMIZE",
+        # SHOW privileges
+        Sequence(
+            "SHOW",
+            OneOf(
+                "DATABASES",
+                "TABLES",
+                "COLUMNS",
+                "DICTIONARIES",
+                optional=True,
+            ),
+        ),
+        # ACCESS MANAGEMENT privileges
+        # CREATE/ALTER/DROP USER
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "USER",
+        ),
+        # CREATE/ALTER/DROP ROLE
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "ROLE",
+        ),
+        # CREATE/ALTER/DROP ROW POLICY
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "ROW",
+            "POLICY",
+        ),
+        # CREATE/ALTER/DROP QUOTA
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "QUOTA",
+        ),
+        # CREATE/ALTER/DROP SETTINGS PROFILE
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "SETTINGS",
+            "PROFILE",
+        ),
+        # SHOW ACCESS
+        Sequence("SHOW", "ACCESS"),
+        # ROLE ADMIN
+        Sequence("ROLE", "ADMIN"),
+        # ACCESS MANAGEMENT (general)
+        Sequence("ACCESS", "MANAGEMENT"),
+        # ALL or ALL PRIVILEGES
+        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+    )
 
 
 class IntoOutfileClauseSegment(BaseSegment):
@@ -2165,6 +2330,23 @@ class AlterTableStatementSegment(BaseSegment):
                 "FROM",
                 Ref("TableReferenceSegment"),
             ),
+            # ALTER TABLE ... UPDATE column = expr [, column = expr ...] WHERE condition
+            Sequence(
+                "UPDATE",
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                Ref("WhereClauseSegment"),
+            ),
+            # ALTER TABLE ... DELETE WHERE condition
+            Sequence(
+                "DELETE",
+                Ref("WhereClauseSegment"),
+            ),
         ),
         Ref("SettingsClauseSegment", optional=True),
     )
@@ -2352,4 +2534,42 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
+    """A reference to a column, including tuple element access like `a.1`."""
+
+    match_grammar: Matchable = OneOf(
+        ansi.ColumnReferenceSegment.match_grammar,
+        # Tuple element access uses dot + numeric literal, but the lexer
+        # tokenizes ".1" as a numeric literal rather than a dot segment.
+        Sequence(
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+                delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+                allow_gaps=False,
+            ),
+            AnyNumberOf(
+                Ref("NumericLiteralSegment"),
+                min_times=1,
+                allow_gaps=False,
+            ),
+            allow_gaps=False,
+        ),
+    )
+
+
+class TupleElementAccessSegment(BaseSegment):
+    """A tuple element access expression like `(a.1).2`."""
+
+    type = "tuple_element_access"
+    match_grammar: Matchable = Sequence(
+        Bracketed(Ref("ColumnReferenceSegment")),
+        AnyNumberOf(
+            Ref("NumericLiteralSegment"),
+            min_times=1,
+            allow_gaps=False,
+        ),
+        allow_gaps=False,
     )
