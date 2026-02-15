@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c472d3c67cc77e0aeff8c8c0cf119727f347828cc9990246bb2ee364c66f66c
+_hash: 070a93ea4af628f472d0bba61995a7e62cbd5523ccc788117293ea088fc70cd2
 file:
 - statement:
     begin_end_block:
@@ -38,7 +38,7 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - keyword: BEGIN
@@ -73,7 +73,7 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - keyword: BEGIN
@@ -120,7 +120,7 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - keyword: BEGIN
@@ -185,7 +185,7 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - keyword: BEGIN
@@ -257,7 +257,7 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - declare_segment:
@@ -338,7 +338,7 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - declare_segment:
@@ -414,7 +414,7 @@ file:
     - object_reference:
         naked_identifier: main
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - keyword: BEGIN
@@ -513,7 +513,7 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - declare_segment:
@@ -588,7 +588,7 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - declare_segment:
@@ -679,7 +679,7 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - declare_segment:
@@ -770,4 +770,4 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"

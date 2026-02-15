@@ -129,6 +129,14 @@ class Rule_ST12(BaseRule):
         while i < n - 1:
             j = i
             while j + 1 < n and _whitespace_only_between(terms[j], terms[j + 1]):
+                # Oracle allows a semicolon followed by a slash as a valid dual terminator.
+                # In this case we should not collapse them.
+                if (
+                    context.dialect.name == "oracle"
+                    and terms[j].raw == ";"
+                    and terms[j + 1].raw.strip() == "/"
+                ):
+                    break
                 j += 1
             run_len = j - i + 1
             if run_len >= 2:

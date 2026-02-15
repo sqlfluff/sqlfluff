@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 077f26cb3da5612a2e421697b9c7a968da02430f65c4908a0d9b8350f61b1234
+_hash: e540f5f93d810f23bce2c7c4aa21fd209055bf58d17a3a9d27c9d2f567f58473
 file:
 - statement:
     create_type_statement:
@@ -93,7 +93,7 @@ file:
           data_type_identifier: ORDER_LIST_TYP
       - end_bracket: )
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -125,7 +125,7 @@ file:
             data_type_identifier: NUMBER
         end_bracket: )
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -147,7 +147,7 @@ file:
               end_bracket: )
         end_bracket: )
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -174,7 +174,7 @@ file:
     - keyword: NOT
     - keyword: FINAL
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -197,7 +197,7 @@ file:
     - keyword: NOT
     - keyword: FINAL
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -214,7 +214,7 @@ file:
           data_type_identifier: NUMBER
         end_bracket: )
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -236,7 +236,7 @@ file:
             numeric_literal: '25'
             end_bracket: )
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -261,7 +261,7 @@ file:
     - keyword: NOT
     - keyword: PERSISTABLE
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -279,7 +279,7 @@ file:
     - keyword: NOT
     - keyword: PERSISTABLE
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -297,7 +297,7 @@ file:
     - keyword: NOT
     - keyword: PERSISTABLE
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -322,7 +322,7 @@ file:
           data_type_identifier: BLOB
       - end_bracket: )
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -335,7 +335,7 @@ file:
     - data_type:
         data_type_identifier: textdoc_typ
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -396,7 +396,7 @@ file:
           data_type_identifier: phone_list_typ_demo
       - end_bracket: )
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -409,7 +409,7 @@ file:
     - data_type:
         data_type_identifier: cust_address_typ2
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -429,7 +429,7 @@ file:
           data_type_identifier: NUMBER
       - end_bracket: )
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -454,7 +454,7 @@ file:
             data_type_identifier: NUMBER
         end_bracket: )
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"
 - statement:
     create_type_statement:
     - keyword: CREATE
@@ -486,4 +486,4 @@ file:
               end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"

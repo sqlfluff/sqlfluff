@@ -135,6 +135,7 @@ sqlfluff_rules_structure = "sqlfluff.rules.structure"
 sqlfluff_rules_convention = "sqlfluff.rules.convention"
 sqlfluff_rules_jinja = "sqlfluff.rules.jinja"
 sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
+sqlfluff_rules_oracle = "sqlfluff.rules.oracle"
 
 
 [tool.sqlfluff_docs]

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 35e04399a637d23004021bd8ef4c6b1752c79266805ac0ac258ed75767673f7d
+_hash: fa5a7b1e3684ed3ab3edb38ed6d3fd2636d707fc4367df0d74afc5a05a2fde4e
 file:
 - statement:
     create_procedure_statement:
@@ -66,7 +66,7 @@ file:
       - statement_terminator: ;
       - keyword: END
     - statement_terminator: ;
-    - statement_terminator: /
+    - statement_terminator: "\n/"
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -99,7 +99,7 @@ file:
       - statement_terminator: ;
       - keyword: END
     - statement_terminator: ;
-    - statement_terminator: /
+    - statement_terminator: "\n/"
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -146,7 +146,7 @@ file:
       - statement_terminator: ;
       - keyword: END
     - statement_terminator: ;
-    - statement_terminator: /
+    - statement_terminator: "\n/"
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -303,7 +303,7 @@ file:
       - statement_terminator: ;
       - keyword: END
     - statement_terminator: ;
-    - statement_terminator: /
+    - statement_terminator: "\n/"
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -456,7 +456,7 @@ file:
       - statement_terminator: ;
       - keyword: END
     - statement_terminator: ;
-    - statement_terminator: /
+    - statement_terminator: "\n/"
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -541,7 +541,7 @@ file:
       - statement_terminator: ;
       - keyword: END
     - statement_terminator: ;
-    - statement_terminator: /
+    - statement_terminator: "\n/"
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -583,4 +583,4 @@ file:
       - statement_terminator: ;
       - keyword: END
     - statement_terminator: ;
-    - statement_terminator: /
+    - statement_terminator: "\n  /"

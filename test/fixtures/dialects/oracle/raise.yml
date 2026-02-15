@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: acaeb3e2b1089b2d6122ba504ef0ad701c7aeaa61faaa1bf2a81a43ef4eeb0d5
+_hash: e4681803c7559e6d05e503062d951f4b3fe6bcaaf320f88acd5581e7dd9d83ca
 file:
 - statement:
     create_procedure_statement:
@@ -71,7 +71,7 @@ file:
       - statement_terminator: ;
       - keyword: END
     - statement_terminator: ;
-    - statement_terminator: /
+    - statement_terminator: "\n/"
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -177,7 +177,7 @@ file:
       - statement_terminator: ;
       - keyword: END
     - statement_terminator: ;
-    - statement_terminator: /
+    - statement_terminator: "\n/"
 - statement:
     begin_end_block:
     - declare_segment:
@@ -337,4 +337,4 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
-- statement_terminator: /
+- statement_terminator: "\n/"

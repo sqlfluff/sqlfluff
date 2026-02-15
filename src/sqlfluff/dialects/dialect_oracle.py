@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     Indent,
     LiteralSegment,
     Matchable,
+    NewlineSegment,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -46,6 +47,18 @@ oracle_dialect = ansi_dialect.copy_as(
     docstring="""The dialect for `Oracle`_ SQL. Note: this does include PL/SQL.
 
 .. _`Oracle`: https://www.oracle.com/database/technologies/appdev/sql.html""",
+)
+
+oracle_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "slash_terminator",
+            r"(\r|\n)+\s*/(?!\*)",
+            SymbolSegment,
+            segment_kwargs={"type": "slash_terminator"},
+        ),
+    ],
+    before="newline",
 )
 
 oracle_dialect.sets("reserved_keywords").update(
@@ -690,8 +703,8 @@ oracle_dialect.add(
         Ref("NumericLiteralSegment"),
         RegexParser(r"[KMGTPE]?", LiteralSegment, type="size_prefix"),
     ),
-    SlashStatementTerminatorSegment=StringParser(
-        "/", SymbolSegment, type="statement_terminator"
+    SlashStatementTerminatorSegment=TypedParser(
+        "slash_terminator", SymbolSegment, type="statement_terminator"
     ),
     TriggerPredicatesGrammar=OneOf(
         "INSERTING",
@@ -952,8 +965,15 @@ oracle_dialect.replace(
             ),
         ),
     ),
-    DelimiterGrammar=Sequence(
-        Ref("SemicolonSegment"), Ref("SlashStatementTerminatorSegment", optional=True)
+    DelimiterGrammar=OneOf(
+        Ref("SemicolonSegment"),
+        Ref("SlashStatementTerminatorSegment"),
+        # Rogue case: slash immediately after semicolon (no newline)
+        # We catch this so that the linter (OR01) can identify it and insert a newline.
+        Sequence(
+            Ref("SemicolonSegment"),
+            StringParser("/", SymbolSegment, type="statement_terminator"),
+        ),
     ),
     ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
         "ArithmeticBinaryOperatorGrammar"
