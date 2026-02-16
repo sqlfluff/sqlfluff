@@ -424,6 +424,7 @@ oracle_dialect.add(
         ),
     ),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
+    TriggerCorrelationReferenceSegment=Ref("TriggerCorrelationReferenceSegment"),
     PivotForInGrammar=Sequence(
         "FOR",
         OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
@@ -809,6 +810,7 @@ oracle_dialect.replace(
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
+            Ref("TriggerCorrelationReferenceSegment"),
             Ref("SqlplusVariableGrammar"),
             Ref.keyword("LEVEL"),
             Ref.keyword("ROWNUM"),
@@ -829,6 +831,7 @@ oracle_dialect.replace(
             Ref("PlusJoinGrammar"),
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
+            Ref("TriggerCorrelationReferenceSegment"),
             Bracketed(
                 OneOf(
                     # We're using the expression segment here rather than the grammar so
@@ -1695,6 +1698,30 @@ class PivotSegment(BaseSegment):
     )
 
 
+class TriggerCorrelationNameSegment(BaseSegment):
+    """A correlation name like OLD, NEW, or PARENT."""
+
+    type = "trigger_correlation_name"
+    match_grammar = OneOf("OLD", "NEW", "PARENT")
+
+
+class TriggerCorrelationReferenceSegment(BaseSegment):
+    """A segment to represent pseudorecords like :NEW, :OLD, and :PARENT."""
+
+    type = "bind_variable"
+
+    match_grammar = Sequence(
+        Ref("ColonDelimiterSegment"),
+        Ref("TriggerCorrelationNameSegment"),
+        Sequence(
+            Ref("DotSegment"),
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        allow_gaps=False,
+    )
+
+
 class UnpivotSegment(BaseSegment):
     """Unpivot clause.
 
@@ -2462,7 +2489,7 @@ class ReferencingClauseSegment(BaseSegment):
         "REFERENCING",
         AnyNumberOf(
             Sequence(
-                OneOf("OLD", "NEW", "PARENT"),
+                Ref("TriggerCorrelationNameSegment"),
                 Ref.keyword("AS", optional=True),
                 Ref("NakedIdentifierSegment"),
             )
@@ -2548,7 +2575,10 @@ class AssignmentStatementSegment(BaseSegment):
                 optional=True,
             ),
             Ref("DotSegment", optional=True),
-            Ref("SqlplusVariableGrammar"),
+            OneOf(
+                Ref("TriggerCorrelationReferenceSegment"),
+                Ref("SqlplusVariableGrammar"),
+            ),
             optional=True,
         ),
         OneOf(Ref("AssignmentOperatorSegment"), "DEFAULT"),
