@@ -4327,7 +4327,7 @@ class JsonFunctionContentsSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
             Ref("ParameterNameSegment"),
         ),
-        Ref("ColonSegment"),
+        Ref("ColonDelimiterSegment"),
         Sequence(
             OneOf(
                 Ref("QuotedLiteralSegment"),
@@ -4481,7 +4481,7 @@ class JsonAggFunctionContentsSegment(BaseSegment):
             # Single expression OR two expressions separated by colon
             Ref("ExpressionSegment"),
             Sequence(
-                Ref("ColonSegment"),
+                Ref("ColonDelimiterSegment"),
                 Ref("ExpressionSegment"),
                 # Optional for JSON_ARRAYAGG, required for JSON_OBJECTAGG
                 optional=True,
@@ -5475,6 +5475,7 @@ class OpenRowSetSegment(BaseSegment):
     """A `OPENROWSET` segment.
 
     https://docs.microsoft.com/en-us/sql/t-sql/functions/openrowset-transact-sql
+    https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/develop-openrowset
     """
 
     type = "openrowset_segment"
@@ -5503,83 +5504,64 @@ class OpenRowSetSegment(BaseSegment):
                 ),
                 Sequence(
                     "BULK",
+                    # Data filepath(s)
                     OptionallyBracketed(
                         Delimited(Ref("QuotedLiteralSegmentOptWithN")),
                     ),
                     Ref("CommaSegment"),
-                    OneOf(
+                    Delimited(
+                        # Bulk options taking normal or unicode strings
                         Sequence(
-                            Sequence(
+                            OneOf(
+                                "DATA_SOURCE",
+                                "CODEPAGE",
+                                "DATAFILETYPE",
+                                "FORMAT",
                                 "FORMATFILE",
-                                Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegmentOptWithN"),
-                                Ref("CommaSegment"),
-                                optional=True,
+                                "FORMATFILE_DATA_SOURCE",
+                                "FIELDTERMINATOR",
+                                "ROWTERMINATOR",
+                                "FIELDQUOTE",
+                                "ESCAPE_CHAR",
+                                "DATA_COMPRESSION",
+                                "PARSER_VERSION",
+                                "ERRORFILE",
+                                "ERRORFILE_LOCATION",
+                                "ERRORFILE_DATA_SOURCE",
+                                "ROWSET_OPTIONS",
                             ),
-                            Delimited(
-                                AnyNumberOf(
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegmentOptWithN"),
+                        ),
+                        # Bulk options that take numeric or boolean types
+                        Sequence(
+                            OneOf(
+                                "FIRSTROW",
+                                "LASTROW",
+                                "MAXERRORS",
+                                "ROWS_PER_BATCH",
+                                "HEADER_ROW",
+                            ),
+                            Ref("EqualsSegment"),
+                            Ref("LiteralGrammar"),
+                        ),
+                        Sequence(
+                            "ORDER",
+                            OptionallyBracketed(
+                                Delimited(
                                     Sequence(
-                                        "DATA_SOURCE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "ERRORFILE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "ERRORFILE_DATA_SOURCE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "MAXERRORS",
-                                        Ref("EqualsSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "FIRSTROW",
-                                        Ref("EqualsSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "LASTROW",
-                                        Ref("EqualsSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "CODEPAGE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "FORMAT",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "FIELDQUOTE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "FORMATFILE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "FORMATFILE_DATA_SOURCE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                        Ref("ColumnReferenceSegment"),
+                                        OneOf("ASC", "DESC", optional=True),
                                     ),
                                 ),
-                                optional=True,
                             ),
+                            Ref("UniqueKeyGrammar", optional=True),
                         ),
-                        "SINGLE_BLOB",
-                        "SINGLE_CLOB",
-                        "SINGLE_NCLOB",
+                        OneOf(
+                            "SINGLE_BLOB",
+                            "SINGLE_CLOB",
+                            "SINGLE_NCLOB",
+                        ),
                     ),
                 ),
             ),
