@@ -5119,6 +5119,7 @@ class IdentityGrammar(BaseSegment):
                 Ref("SignedSegmentGrammar", optional=True),
                 Ref("NumericLiteralSegment"),
                 Ref("CommaSegment"),
+                Ref("SignedSegmentGrammar", optional=True),
                 Ref("NumericLiteralSegment"),
             ),
             optional=True,
