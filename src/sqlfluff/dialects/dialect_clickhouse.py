@@ -669,6 +669,95 @@ class BracketedArguments(ansi.BracketedArguments):
     )
 
 
+class DateTime64ArgumentsSegment(BaseSegment):
+    """Arguments for DateTime64(precision[, 'timezone'])."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Sequence(
+            Ref("NumericLiteralSegment"),  # precision
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("QuotedLiteralSegment"),  # timezone
+                optional=True,
+            ),
+            optional=True,
+        )
+    )
+
+
+class DateTimeArgumentsSegment(BaseSegment):
+    """Arguments for DateTime('timezone')."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+class NumericArgumentsSegment(BaseSegment):
+    """Arguments for single numeric parameter types (e.g. FixedString(8))."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Ref("NumericLiteralSegment"),
+    )
+
+
+class TupleArgumentsSegment(BaseSegment):
+    """Arguments for Tuple(Type1, Type2) or Tuple(name Type)."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Delimited(
+            OneOf(
+                # Named tuple element: name Type
+                Sequence(
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("QuotedIdentifierSegment"),
+                    ),
+                    Ref("DatatypeSegment"),
+                ),
+                # Regular tuple element: just Type
+                Ref("DatatypeSegment"),
+            ),
+            delimiter=Ref("CommaSegment"),
+        )
+    )
+
+
+class NestedArgumentsSegment(BaseSegment):
+    """Arguments for Nested(name Type, ...)."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment"),
+            ),
+            delimiter=Ref("CommaSegment"),
+        )
+    )
+
+
+class EnumArgumentsSegment(BaseSegment):
+    """Arguments for Enum8/Enum16."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            delimiter=Ref("CommaSegment"),
+        )
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """Support complex Clickhouse data types.
 
@@ -681,88 +770,52 @@ class DatatypeSegment(BaseSegment):
         # Nullable(Type)
         Sequence(
             StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
-            Bracketed(Ref("DatatypeSegment")),
+            Ref("BracketedArguments"),
         ),
         # LowCardinality(Type)
         Sequence(
             StringParser("LOWCARDINALITY", CodeSegment, type="data_type_identifier"),
-            Bracketed(Ref("DatatypeSegment")),
+            Ref("BracketedArguments"),
         ),
         # DateTime64(precision, 'timezone')
         Sequence(
             StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Delimited(
-                    OneOf(
-                        Ref("NumericLiteralSegment"),  # precision
-                        Ref("QuotedLiteralSegment"),  # timezone
-                    ),
-                    delimiter=Ref("CommaSegment"),
-                    optional=True,
-                )
-            ),
+            Ref("DateTime64ArgumentsSegment", optional=True),
         ),
         # DateTime('timezone')
         Sequence(
             StringParser("DATETIME", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Ref("QuotedLiteralSegment"),  # timezone
-                optional=True,
-            ),
+            Ref("DateTimeArgumentsSegment", optional=True),
+        ),
+        # Time64(precision)
+        Sequence(
+            StringParser("TIME64", CodeSegment, type="data_type_identifier"),
+            Ref("NumericArgumentsSegment"),
         ),
         # FixedString(length)
         Sequence(
             StringParser("FIXEDSTRING", CodeSegment, type="data_type_identifier"),
-            Bracketed(Ref("NumericLiteralSegment")),  # length
+            Ref("NumericArgumentsSegment"),  # length
         ),
         # Array(Type)
         Sequence(
             StringParser("ARRAY", CodeSegment, type="data_type_identifier"),
-            Bracketed(Ref("DatatypeSegment")),
+            Ref("BracketedArguments"),
         ),
         # Map(KeyType, ValueType)
         Sequence(
             StringParser("MAP", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Delimited(
-                    Ref("DatatypeSegment"),
-                    delimiter=Ref("CommaSegment"),
-                )
-            ),
+            Ref("BracketedArguments"),
         ),
         # Tuple(Type1, Type2) or Tuple(name1 Type1, name2 Type2)
         Sequence(
             StringParser("TUPLE", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Delimited(
-                    OneOf(
-                        # Named tuple element: name Type
-                        Sequence(
-                            OneOf(
-                                Ref("SingleIdentifierGrammar"),
-                                Ref("QuotedIdentifierSegment"),
-                            ),
-                            Ref("DatatypeSegment"),
-                        ),
-                        # Regular tuple element: just Type
-                        Ref("DatatypeSegment"),
-                    ),
-                    delimiter=Ref("CommaSegment"),
-                )
-            ),
+            Ref("TupleArgumentsSegment"),
         ),
         # Nested(name1 Type1, name2 Type2)
         Sequence(
             StringParser("NESTED", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("DatatypeSegment"),
-                    ),
-                    delimiter=Ref("CommaSegment"),
-                )
-            ),
+            Ref("NestedArgumentsSegment"),
         ),
         # JSON data type
         StringParser("JSON", CodeSegment, type="data_type_identifier"),
@@ -772,16 +825,7 @@ class DatatypeSegment(BaseSegment):
                 StringParser("ENUM8", CodeSegment, type="data_type_identifier"),
                 StringParser("ENUM16", CodeSegment, type="data_type_identifier"),
             ),
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("QuotedLiteralSegment"),
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    delimiter=Ref("CommaSegment"),
-                )
-            ),
+            Ref("EnumArgumentsSegment"),
         ),
         # double args
         Sequence(
@@ -799,26 +843,18 @@ class DatatypeSegment(BaseSegment):
                 StringParser("DECIMAL128", CodeSegment, type="data_type_identifier"),
                 StringParser("DECIMAL256", CodeSegment, type="data_type_identifier"),
             ),
-            Bracketed(Ref("NumericLiteralSegment")),  # scale
+            Ref("NumericArgumentsSegment"),  # scale
         ),
         Ref("TupleTypeSegment"),
         Ref("DatatypeIdentifierSegment"),
         Ref("NumericLiteralSegment"),
         Sequence(
             StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Delimited(
-                    Ref("NumericLiteralSegment"),  # precision
-                    Ref("QuotedLiteralSegment", optional=True),  # timezone
-                    # The brackets might be empty as well
-                    optional=True,
-                ),
-                optional=True,
-            ),
+            Ref("DateTime64ArgumentsSegment", optional=True),
         ),
         Sequence(
             StringParser("ARRAY", CodeSegment, type="data_type_identifier"),
-            Bracketed(Ref("DatatypeSegment")),
+            Ref("BracketedArguments"),
         ),
     )
 

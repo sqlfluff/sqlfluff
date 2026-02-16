@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d66dde416de3038b16ea8ee4cae8cf1048d54ab69cf64535d3fce588a22c9170
+_hash: b2d0417b19871da394984cc16d8f35a70529ee0bf1751604a4763c6797472b4f
 file:
 - statement:
     create_table_statement:
@@ -24,12 +24,13 @@ file:
           quoted_identifier: '`timestamp`'
           data_type:
             data_type_identifier: DateTime64
-            bracketed:
-              start_bracket: (
-              numeric_literal: '3'
-              comma: ','
-              quoted_literal: "'UTC'"
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                comma: ','
+                quoted_literal: "'UTC'"
+                end_bracket: )
           keyword: CODEC
           bracketed:
             start_bracket: (
@@ -55,53 +56,57 @@ file:
           quoted_identifier: '`category`'
           data_type:
             data_type_identifier: LowCardinality
-            bracketed:
-              start_bracket: (
-              data_type:
-                data_type_identifier: String
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  data_type_identifier: String
+                end_bracket: )
       - comma: ','
       - column_definition:
           quoted_identifier: '`status`'
           data_type:
             data_type_identifier: Enum8
-            bracketed:
-            - start_bracket: (
-            - quoted_literal: "'ACTIVE'"
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - numeric_literal: '1'
-            - comma: ','
-            - quoted_literal: "'INACTIVE'"
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - numeric_literal: '2'
-            - comma: ','
-            - quoted_literal: "'PENDING'"
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - numeric_literal: '3'
-            - end_bracket: )
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - quoted_literal: "'ACTIVE'"
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '1'
+              - comma: ','
+              - quoted_literal: "'INACTIVE'"
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '2'
+              - comma: ','
+              - quoted_literal: "'PENDING'"
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '3'
+              - end_bracket: )
       - comma: ','
       - column_definition:
           quoted_identifier: '`description`'
           data_type:
             data_type_identifier: Nullable
-            bracketed:
-              start_bracket: (
-              data_type:
-                data_type_identifier: String
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  data_type_identifier: String
+                end_bracket: )
       - comma: ','
       - column_definition:
           quoted_identifier: '`tags`'
           data_type:
             data_type_identifier: Array
-            bracketed:
-              start_bracket: (
-              data_type:
-                data_type_identifier: String
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  data_type_identifier: String
+                end_bracket: )
       - comma: ','
       - column_definition:
           quoted_identifier: '`value_calculated`'
@@ -207,46 +212,49 @@ file:
           quoted_identifier: '`coordinates`'
           data_type:
             data_type_identifier: Tuple
-            bracketed:
-            - start_bracket: (
-            - data_type:
-                data_type_identifier: Float64
-            - comma: ','
-            - data_type:
-                data_type_identifier: Float64
-            - end_bracket: )
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - data_type:
+                  data_type_identifier: Float64
+              - comma: ','
+              - data_type:
+                  data_type_identifier: Float64
+              - end_bracket: )
       - comma: ','
       - column_definition:
           quoted_identifier: '`named_point`'
           data_type:
             data_type_identifier: Tuple
-            bracketed:
-            - start_bracket: (
-            - naked_identifier: x
-            - data_type:
-                data_type_identifier: Float64
-            - comma: ','
-            - naked_identifier: y
-            - data_type:
-                data_type_identifier: Float64
-            - comma: ','
-            - naked_identifier: z
-            - data_type:
-                data_type_identifier: Float64
-            - end_bracket: )
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: x
+              - data_type:
+                  data_type_identifier: Float64
+              - comma: ','
+              - naked_identifier: y
+              - data_type:
+                  data_type_identifier: Float64
+              - comma: ','
+              - naked_identifier: z
+              - data_type:
+                  data_type_identifier: Float64
+              - end_bracket: )
       - comma: ','
       - column_definition:
           quoted_identifier: '`properties`'
           data_type:
             data_type_identifier: Map
-            bracketed:
-            - start_bracket: (
-            - data_type:
-                data_type_identifier: String
-            - comma: ','
-            - data_type:
-                data_type_identifier: String
-            - end_bracket: )
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - data_type:
+                  data_type_identifier: String
+              - comma: ','
+              - data_type:
+                  data_type_identifier: String
+              - end_bracket: )
       - comma: ','
       - column_definition:
           quoted_identifier: '`json_data`'
@@ -257,20 +265,21 @@ file:
           quoted_identifier: '`nested_data`'
           data_type:
             data_type_identifier: Nested
-            bracketed:
-            - start_bracket: (
-            - naked_identifier: key
-            - data_type:
-                data_type_identifier: String
-            - comma: ','
-            - naked_identifier: value
-            - data_type:
-                data_type_identifier: Float64
-            - comma: ','
-            - naked_identifier: timestamp
-            - data_type:
-                data_type_identifier: DateTime
-            - end_bracket: )
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: key
+              - data_type:
+                  data_type_identifier: String
+              - comma: ','
+              - naked_identifier: value
+              - data_type:
+                  data_type_identifier: Float64
+              - comma: ','
+              - naked_identifier: timestamp
+              - data_type:
+                  data_type_identifier: DateTime
+              - end_bracket: )
       - end_bracket: )
     - engine:
         keyword: ENGINE
@@ -386,23 +395,24 @@ file:
     - quoted_identifier: '`new_enum_column`'
     - data_type:
         data_type_identifier: Enum8
-        bracketed:
-        - start_bracket: (
-        - quoted_literal: "'VALUE1'"
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - numeric_literal: '1'
-        - comma: ','
-        - quoted_literal: "'VALUE2'"
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - numeric_literal: '2'
-        - comma: ','
-        - quoted_literal: "'VALUE3'"
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - numeric_literal: '3'
-        - end_bracket: )
+        bracketed_arguments:
+          bracketed:
+          - start_bracket: (
+          - quoted_literal: "'VALUE1'"
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '1'
+          - comma: ','
+          - quoted_literal: "'VALUE2'"
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '2'
+          - comma: ','
+          - quoted_literal: "'VALUE3'"
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '3'
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -417,11 +427,12 @@ file:
     - quoted_identifier: '`new_lowcard_column`'
     - data_type:
         data_type_identifier: LowCardinality
-        bracketed:
-          start_bracket: (
-          data_type:
-            data_type_identifier: String
-          end_bracket: )
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: String
+            end_bracket: )
     - keyword: DEFAULT
     - expression:
         quoted_literal: "'DEFAULT_VALUE'"
@@ -439,12 +450,13 @@ file:
     - quoted_identifier: '`new_datetime_column`'
     - data_type:
         data_type_identifier: DateTime64
-        bracketed:
-          start_bracket: (
-          numeric_literal: '3'
-          comma: ','
-          quoted_literal: "'UTC'"
-          end_bracket: )
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '3'
+            comma: ','
+            quoted_literal: "'UTC'"
+            end_bracket: )
     - keyword: CODEC
     - bracketed:
         start_bracket: (
@@ -474,11 +486,12 @@ file:
     - quoted_identifier: '`new_nullable_column`'
     - data_type:
         data_type_identifier: Nullable
-        bracketed:
-          start_bracket: (
-          data_type:
-            data_type_identifier: Float32
-          end_bracket: )
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: Float32
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -589,11 +602,12 @@ file:
     - quoted_identifier: '`category`'
     - data_type:
         data_type_identifier: LowCardinality
-        bracketed:
-          start_bracket: (
-          data_type:
-            data_type_identifier: String
-          end_bracket: )
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: String
+            end_bracket: )
     - keyword: DEFAULT
     - expression:
         quoted_literal: "'UNKNOWN_CATEGORY'"
