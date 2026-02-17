@@ -293,7 +293,7 @@ class IntervalExpressionSegment(BaseSegment):
 
 class ColumnIndexSegment(BaseSegment):
     """Column index reference using positional syntax.
-    
+
     DuckDB allows referencing columns by their position using #<number> syntax.
     https://duckdb.org/docs/stable/sql/statements/select
     """
