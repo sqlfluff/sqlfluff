@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fee19cbb0e0c7cf5ef7f1187bf98ce80d714b9ef6ea64e00703182a1d802d49a
+_hash: 31aed97b2d5afab047766f562a2a91036705c240f8a277701dc7ca455ea97793
 file:
 - batch:
     statement:
@@ -331,7 +331,7 @@ file:
     go_statement:
       keyword: GO
 - batch:
-    statement:
+  - statement:
       create_table_statement:
       - keyword: CREATE
       - keyword: TABLE
@@ -359,4 +359,36 @@ file:
               - keyword: 'NO'
               - keyword: ACTION
           end_bracket: )
-    statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
+      - bracketed:
+          start_bracket: (
+          column_definition:
+          - naked_identifier: ID
+          - data_type:
+              keyword: int
+          - column_constraint_segment:
+            - keyword: not
+            - keyword: 'null'
+          - column_constraint_segment:
+              identity_grammar:
+                keyword: IDENTITY
+                bracketed:
+                - start_bracket: (
+                - sign_indicator: '-'
+                - numeric_literal: '2147483648'
+                - comma: ','
+                - numeric_literal: '1'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+          end_bracket: )
+  - statement_terminator: ;
