@@ -228,9 +228,7 @@ duckdb_dialect.replace(
     ),
     # Add postfix factorial operator support
     Expression_C_Grammar=Sequence(
-        OneOf(
-            postgres_dialect.get_grammar("Expression_C_Grammar"),
-        ),
+        postgres_dialect.get_grammar("Expression_C_Grammar"),
         Ref("FactorialOperatorSegment", optional=True),
     ),
     ComparisonOperatorGrammar=ansi_dialect.get_grammar(
