@@ -4038,14 +4038,63 @@ class CreateViewStatementSegment(BaseSegment):
 
 
 class MLTableExpressionSegment(BaseSegment):
-    """An ML table expression.
+    """A T-SQL PREDICT table expression for machine learning predictions.
 
-    Not present in T-SQL.
-    TODO: Consider whether this segment can be used to represent a PREDICT statement.
+    https://learn.microsoft.com/en-us/sql/t-sql/queries/predict-transact-sql
     """
 
     type = "ml_table_expression"
-    match_grammar = Nothing()
+    match_grammar: Matchable = Sequence(
+        "PREDICT",
+        Bracketed(
+            Delimited(
+                # MODEL = @model or MODEL = model_literal
+                Sequence(
+                    "MODEL",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("ParameterNameSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                # DATA = object AS table_alias
+                Sequence(
+                    "DATA",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("TableReferenceSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    "AS",
+                    Ref("SingleIdentifierGrammar"),
+                ),
+                # Optional RUNTIME = ONNX
+                Sequence(
+                    "RUNTIME",
+                    Ref("EqualsSegment"),
+                    "ONNX",
+                    optional=True,
+                ),
+            ),
+        ),
+        # WITH ( result_set_definition )
+        "WITH",
+        Bracketed(
+            Delimited(
+                # Each column in the result set
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),  # column_name
+                    Ref("DatatypeSegment"),  # data_type
+                    Ref("CollateGrammar", optional=True),
+                    Sequence(
+                        Ref.keyword("NOT", optional=True),
+                        "NULL",
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+    )
 
 
 class ConvertFunctionNameSegment(BaseSegment):
@@ -5711,6 +5760,7 @@ class TableExpressionSegment(BaseSegment):
 
     type = "table_expression"
     match_grammar: Matchable = OneOf(
+        Ref("MLTableExpressionSegment"),
         Ref("ValuesClauseSegment"),
         Sequence(Ref("TableReferenceSegment"), Ref("PostTableExpressionGrammar")),
         Ref("BareFunctionSegment"),
