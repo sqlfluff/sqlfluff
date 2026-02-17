@@ -1,4 +1,4 @@
---https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/LISTAGG.html
+--https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/LISTAGG.html#GUID-B6E50D8E-F467-425B-9436-F7F8BF38D466
 
 SELECT LISTAGG(last_name, '; ')
          WITHIN GROUP (ORDER BY hire_date, last_name) "Emp_list",
