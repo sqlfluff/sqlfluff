@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a37f693c347dfe13b88ba1f444497a58bebd55e30bcc0d92604bb749d2adc2e4
+_hash: a336f63e645a7bd8b9a2b03f4bfb20f86d9d7e05eebc8c15a11d156afb90e6f3
 file:
   batch:
   - statement:
@@ -174,4 +174,26 @@ file:
       - keyword: KEY
       - object_reference:
           quoted_identifier: '[MyAsymKey]'
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          naked_identifier: SomeLogin
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'$trongPassw0rd'"
+      - comma: ','
+      - keyword: DEFAULT_DATABASE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: master
+      - comma: ','
+      - keyword: DEFAULT_LANGUAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: us_english
   - statement_terminator: ;
