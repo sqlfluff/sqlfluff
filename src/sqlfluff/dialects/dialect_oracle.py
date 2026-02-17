@@ -1412,7 +1412,7 @@ class ListaggOverflowClauseSegment(BaseSegment):
 class NamedArgumentSegment(BaseSegment):
     """Named argument to a function.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/21/lnpls/plsql-subprograms.html#GUID-A7D51201-1711-4F33-827F-70042700801F
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/lnpls/plsql-subprograms.html
     """
 
     type = "named_argument"
@@ -1812,7 +1812,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
 class TableConstraintSegment(ansi.TableConstraintSegment):
     """A table constraint, e.g. for CREATE TABLE.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html#GUID-552E7373-BF93-477D-9DA3-B2C9386F2877__I2103997
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html
     """
 
     type = "table_constraint"
@@ -1913,7 +1913,7 @@ class DropProcedureStatementSegment(BaseSegment):
 class DeclareSegment(BaseSegment):
     """A declaration segment in PL/SQL.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/block.html#GUID-9ACEB9ED-567E-4E1A-A16A-B8B35214FC9D__CJAIABJJ
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/block.html
     """
 
     type = "declare_segment"
@@ -2458,7 +2458,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
 class DmlEventClauseSegment(BaseSegment):
     """DML event clause.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/CREATE-TRIGGER-statement.html#GUID-AF9E33F1-64D1-4382-A6A4-EC33C36F237B__BABGDFBI
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/CREATE-TRIGGER-statement.html
     """
 
     type = "dml_event_clause"
@@ -2480,7 +2480,7 @@ class DmlEventClauseSegment(BaseSegment):
 class ReferencingClauseSegment(BaseSegment):
     """`REFERENCING` clause.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/CREATE-TRIGGER-statement.html#GUID-AF9E33F1-64D1-4382-A6A4-EC33C36F237B__BABEBAAB
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/CREATE-TRIGGER-statement.html
     """
 
     type = "referencing_clause"
@@ -2500,7 +2500,7 @@ class ReferencingClauseSegment(BaseSegment):
 class CompoundTriggerBlock(BaseSegment):
     """A compound trigger block.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/CREATE-TRIGGER-statement.html#GUID-AF9E33F1-64D1-4382-A6A4-EC33C36F237B__CJACFCDJ
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/CREATE-TRIGGER-statement.html
     """
 
     type = "compound_trigger_statement"
@@ -2516,7 +2516,7 @@ class CompoundTriggerBlock(BaseSegment):
 class TimingPointSectionSegment(BaseSegment):
     """A timing point section.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/CREATE-TRIGGER-statement.html#GUID-AF9E33F1-64D1-4382-A6A4-EC33C36F237B__GUID-2CD49225-7507-458B-8BDF-21C56AFC3527
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/CREATE-TRIGGER-statement.html
     """
 
     type = "timing_point_section"
@@ -2773,7 +2773,7 @@ class NullStatementSegment(BaseSegment):
 class MergeUpdateClauseSegment(BaseSegment):
     """`UPDATE` clause within the `MERGE` statement.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html#GUID-5692CCB7-24D9-4C0E-81A7-A22436DC968F__BGBBBIDF
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html
     """
 
     type = "merge_update_clause"
@@ -3052,7 +3052,7 @@ class FetchStatementSegment(BaseSegment):
 class IntoClauseSegment(BaseSegment):
     """Into Clause Segment.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/RETURNING-INTO-clause.html#GUID-38F735B9-1100-45AF-AE71-18FB74A899BE__CJAJDJHC
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/RETURNING-INTO-clause.html
     """
 
     type = "into_clause"
@@ -3066,7 +3066,7 @@ class IntoClauseSegment(BaseSegment):
 class BulkCollectIntoClauseSegment(BaseSegment):
     """A `BULK COLLECT INTO` Clause Segment.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/RETURNING-INTO-clause.html#GUID-38F735B9-1100-45AF-AE71-18FB74A899BE__CJAIAGHJ
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/RETURNING-INTO-clause.html
     """
 
     type = "bulk_collect_into_clause"
