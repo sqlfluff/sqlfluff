@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83d8056bc29b5b849928ad98ab6bc4deb8f366d9b369986a45bc4b1a0fbebbe3
+_hash: dc85879d3ad69d614486a2d645a3f330f0000128289fb2c9cdc4c601e4d6d14e
 file:
 - statement:
     create_database_statement:
@@ -23,10 +23,424 @@ file:
         naked_identifier: MY_DATABASE
 - statement_terminator: ;
 - statement:
-    create_database_from_share_statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: TRANSIENT
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TRANSIENT
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: MY_DATABASE
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TRANSIENT
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '5'
+    - keyword: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'de'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
     - keyword: CREATE
     - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '30'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: MAX_DATA_EXTENSION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '14'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: EXTERNAL_VOLUME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_ext_volume'"
+    - keyword: CATALOG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_catalog_integration'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: REPLACE_INVALID_CHARACTERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-ci'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: STORAGE_SERIALIZATION_POLICY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: OPTIMIZED
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: STORAGE_SERIALIZATION_POLICY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COMPATIBLE
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'My database'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: WARN
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: METRIC_LEVEL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ON_EVENT
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: OBJECT_VISIBILITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: PRIVILEGED
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: ENABLE_DATA_COMPACTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - tag_bracketed_equals:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
+        - start_bracket: (
+        - tag_reference:
+            naked_identifier: env
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'production'"
+        - comma: ','
+        - tag_reference:
+            naked_identifier: team
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'data'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+      - start_bracket: (
+      - keyword: STEWARD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_steward
+      - comma: ','
+      - keyword: SUPPORT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_support
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: CATALOG_SYNC
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_open_catalog_integration'"
+    - keyword: CATALOG_SYNC_NAMESPACE_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: FLATTEN
+    - keyword: CATALOG_SYNC_NAMESPACE_FLATTEN_DELIMITER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - catalog_sync_namespace_flatten_delimeter: "'-'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: CLONE
     - object_reference:
+        naked_identifier: source_db
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_db
+    - from_at_expression:
+        keyword: AT
+        bracketed:
+          start_bracket: (
+          keyword: TIMESTAMP
+          parameter_assigner: =>
+          expression:
+            cast_expression:
+              quoted_literal: "'2025-01-01 00:00:00'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: TIMESTAMP_TZ
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_db
+    - from_before_expression:
+        keyword: BEFORE
+        bracketed:
+          start_bracket: (
+          keyword: STATEMENT
+          parameter_assigner: =>
+          expression:
+            quoted_literal: "'01b71944-0001-b181-0000-0129032279f6'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_db
+    - from_at_expression:
+        keyword: AT
+        bracketed:
+          start_bracket: (
+          keyword: OFFSET
+          parameter_assigner: =>
+          expression:
+            numeric_literal: '3600'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_db
+    - keyword: IGNORE
+    - keyword: TABLES
+    - keyword: WITH
+    - keyword: INSUFFICIENT
+    - keyword: DATA
+    - keyword: RETENTION
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_db
+    - keyword: IGNORE
+    - keyword: HYBRID
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_db
+    - from_at_expression:
+        keyword: AT
+        bracketed:
+          start_bracket: (
+          keyword: TIMESTAMP
+          parameter_assigner: =>
+          expression:
+            cast_expression:
+              quoted_literal: "'2025-01-01 00:00:00'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: TIMESTAMP_TZ
+          end_bracket: )
+    - keyword: IGNORE
+    - keyword: TABLES
+    - keyword: WITH
+    - keyword: INSUFFICIENT
+    - keyword: DATA
+    - keyword: RETENTION
+    - keyword: IGNORE
+    - keyword: HYBRID
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
         naked_identifier: MY_DATABASE
     - keyword: FROM
     - keyword: SHARE
@@ -36,11 +450,187 @@ file:
       - naked_identifier: MY_SHARE
 - statement_terminator: ;
 - statement:
-    create_statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: FROM
+    - keyword: LISTING
+    - quoted_literal: "'my_listing_global_name'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: FROM
+    - keyword: BACKUP
+    - keyword: SET
+    - object_reference:
+        naked_identifier: my_backup_set
+    - keyword: IDENTIFIER
+    - quoted_literal: "'abc123'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: AS
+    - keyword: REPLICA
+    - keyword: OF
+    - object_reference:
+      - naked_identifier: my_org
+      - dot: .
+      - naked_identifier: my_account
+      - dot: .
+      - naked_identifier: my_primary_db
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: AS
+    - keyword: REPLICA
+    - keyword: OF
+    - object_reference:
+      - naked_identifier: my_org
+      - dot: .
+      - naked_identifier: my_account
+      - dot: .
+      - naked_identifier: my_primary_db
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: OBJECT_VISIBILITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - udf_body: "$$\norganization_targets:\n  - account: acme_engineering\n  - account:\
+        \ acme_marketing\n  - account: acme_sales\n$$"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
     - keyword: CREATE
     - keyword: OR
-    - keyword: ALTER
+    - keyword: REPLACE
+    - keyword: TRANSIENT
     - keyword: DATABASE
-    - object_reference:
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
         naked_identifier: MY_DATABASE
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '30'
+    - keyword: MAX_DATA_EXTENSION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '14'
+    - keyword: EXTERNAL_VOLUME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_ext_volume'"
+    - keyword: CATALOG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_catalog_integration'"
+    - keyword: REPLACE_INVALID_CHARACTERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-ci'"
+    - keyword: STORAGE_SERIALIZATION_POLICY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COMPATIBLE
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Full example database'"
+    - keyword: CATALOG_SYNC
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_open_catalog'"
+    - keyword: CATALOG_SYNC_NAMESPACE_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: NEST
+    - keyword: CATALOG_SYNC_NAMESPACE_FLATTEN_DELIMITER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - catalog_sync_namespace_flatten_delimeter: "'$'"
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: INFO
+    - keyword: METRIC_LEVEL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: NONE
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'OFF'
+    - keyword: OBJECT_VISIBILITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: PRIVILEGED
+    - keyword: ENABLE_DATA_COMPACTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - tag_bracketed_equals:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
+        - start_bracket: (
+        - tag_reference:
+            naked_identifier: env
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'production'"
+        - comma: ','
+        - tag_reference:
+            naked_identifier: team
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'data'"
+        - end_bracket: )
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+      - start_bracket: (
+      - keyword: STEWARD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_steward
+      - comma: ','
+      - keyword: SUPPORT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_support
+      - end_bracket: )
 - statement_terminator: ;
