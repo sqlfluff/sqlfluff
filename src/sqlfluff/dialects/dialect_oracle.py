@@ -1412,7 +1412,7 @@ class ListaggOverflowClauseSegment(BaseSegment):
 class NamedArgumentSegment(BaseSegment):
     """Named argument to a function.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/21/lnpls/plsql-subprograms.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/plsql-subprograms.html
     """
 
     type = "named_argument"
