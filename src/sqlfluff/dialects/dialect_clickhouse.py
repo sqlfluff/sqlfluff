@@ -713,7 +713,6 @@ class NestedArgumentsSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("DatatypeSegment"),
             ),
-            delimiter=Ref("CommaSegment"),
         )
     )
 
@@ -729,7 +728,6 @@ class EnumArgumentsSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("NumericLiteralSegment"),
             ),
-            delimiter=Ref("CommaSegment"),
         )
     )
 
