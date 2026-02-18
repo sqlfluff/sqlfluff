@@ -19,6 +19,26 @@ ALTER SERVICE my_service UNSET MIN_INSTANCES, MAX_INSTANCES, COMMENT;
 ALTER SERVICE my_service
   FROM @my_stage SPECIFICATION_FILE = 'new_spec.yaml';
 
+-- Update specification template from stage with USING
+ALTER SERVICE my_service
+  FROM @my_stage SPECIFICATION_TEMPLATE_FILE = 'spec.yaml'
+  USING (key1 => 'value1', key2 => 'value2');
+
+-- Update inline specification template with USING
+ALTER SERVICE my_service
+  FROM SPECIFICATION_TEMPLATE $$
+    spec:
+      containers:
+      - name: main
+        image: /my_db/my_schema/my_repo/my_image:latest
+  $$
+  USING (env => 'production');
+
+-- Update specification template file (no stage) with USING
+ALTER SERVICE my_service
+  FROM SPECIFICATION_TEMPLATE_FILE = 'template.yaml'
+  USING (replicas => 3, region => 'us-east-1');
+
 -- Restore volume from snapshot
 ALTER SERVICE my_service
   RESTORE VOLUME 'data_vol'

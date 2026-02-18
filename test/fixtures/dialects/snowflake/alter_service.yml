@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84bd9f52cdfc2b6a753b331e3f21cf0cbb0e1ed175c528f5a34c5f4be1210d54
+_hash: e751663c9d0eb729e53a204aeeec8c333ea35af282b0fdceadaa0632029c0b41
 file:
 - statement:
     alter_service_statement:
@@ -77,6 +77,71 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'new_spec.yaml'"
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: FROM
+    - stage_path: '@my_stage'
+    - keyword: SPECIFICATION_TEMPLATE_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'spec.yaml'"
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: key1
+      - parameter_assigner: =>
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - naked_identifier: key2
+      - parameter_assigner: =>
+      - quoted_literal: "'value2'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: FROM
+    - keyword: SPECIFICATION_TEMPLATE
+    - quoted_literal: "$$\n    spec:\n      containers:\n      - name: main\n    \
+        \    image: /my_db/my_schema/my_repo/my_image:latest\n  $$"
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        naked_identifier: env
+        parameter_assigner: =>
+        quoted_literal: "'production'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: FROM
+    - keyword: SPECIFICATION_TEMPLATE_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'template.yaml'"
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: replicas
+      - parameter_assigner: =>
+      - numeric_literal: '3'
+      - comma: ','
+      - naked_identifier: region
+      - parameter_assigner: =>
+      - quoted_literal: "'us-east-1'"
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_service_statement:

@@ -11821,7 +11821,7 @@ class AlterServiceStatementSegment(BaseSegment):
                         Delimited(
                             Sequence(
                                 Ref("NakedIdentifierSegment"),
-                                Ref("RawComparisonOperator"),
+                                Ref("ParameterAssignerSegment"),
                                 Ref("LiteralGrammar"),
                             ),
                         ),
