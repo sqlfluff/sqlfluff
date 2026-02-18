@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b6b90c4e4860e6fbdc92b7078abeb392d04f41d7d8ab9d65b1219ab7b5914214
+file:
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: FETCH
+- statement_terminator: ;
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: SET
+    - keyword: GIT_CREDENTIALS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: new_secret
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: new_integration
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'updated repo'"
+- statement_terminator: ;
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: UNSET
+    - keyword: GIT_CREDENTIALS
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: SET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: my_tag
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'value'"
+- statement_terminator: ;
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: my_tag
+- statement_terminator: ;

@@ -1,0 +1,53 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1357f9aedc0a36ea6d658354b2bd33861b5297cd512d06f5d17d9ea49d1ba6a0
+file:
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: new_notebook
+- statement_terminator: ;
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'updated notebook'"
+    - keyword: QUERY_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: new_wh
+    - keyword: IDLE_AUTO_SHUTDOWN_TIME_SECONDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3600'
+- statement_terminator: ;
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: UNSET
+    - keyword: QUERY_WAREHOUSE
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;

@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c2bbea6d8ac23c23a49e3aec72ddfe7745af4a18ed4ea1aa7316b49e280d7795
+file:
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_pool
+    - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_pool
+    - keyword: RESUME
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_pool
+    - keyword: STOP
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_pool
+    - keyword: SET
+    - keyword: MIN_NODES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '2'
+    - keyword: MAX_NODES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '8'
+    - keyword: AUTO_RESUME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: AUTO_SUSPEND_SECS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1800'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'updated pool'"
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_pool
+    - keyword: UNSET
+    - keyword: AUTO_SUSPEND_SECS
+    - comma: ','
+    - keyword: AUTO_RESUME
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;

@@ -1,0 +1,68 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fdd6173d5668028afa36b017cc6316dcee15a2024b26363357b7c3cb44089c0c
+file:
+- statement:
+    create_projection_policy_statement:
+    - keyword: CREATE
+    - keyword: PROJECTION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_proj_policy
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURNS
+    - keyword: PROJECTION_CONSTRAINT
+    - lambda_arrow: ->
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: PROJECTION_CONSTRAINT
+          function_contents:
+            bracketed:
+              start_bracket: (
+              snowflake_keyword_expression:
+                parameter: ALLOW
+                parameter_assigner: =>
+                boolean_literal: 'FALSE'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_projection_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROJECTION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_proj_policy
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURNS
+    - keyword: PROJECTION_CONSTRAINT
+    - lambda_arrow: ->
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: PROJECTION_CONSTRAINT
+          function_contents:
+            bracketed:
+              start_bracket: (
+              snowflake_keyword_expression:
+                parameter: ALLOW
+                parameter_assigner: =>
+                boolean_literal: 'TRUE'
+              end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'allows projection'"
+- statement_terminator: ;

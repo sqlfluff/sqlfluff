@@ -1,0 +1,58 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0544c4ec93c38d680fceb0639f3056b4eef5bad4fd9b11c1134a322faf04042d
+file:
+- statement:
+    alter_listing_statement:
+    - keyword: ALTER
+    - keyword: LISTING
+    - object_reference:
+        naked_identifier: my_listing
+    - keyword: PUBLISH
+- statement_terminator: ;
+- statement:
+    alter_listing_statement:
+    - keyword: ALTER
+    - keyword: LISTING
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_listing
+    - keyword: UNPUBLISH
+- statement_terminator: ;
+- statement:
+    alter_listing_statement:
+    - keyword: ALTER
+    - keyword: LISTING
+    - object_reference:
+        naked_identifier: my_listing
+    - keyword: AS
+    - quoted_literal: "'---\ntitle: \"Updated Listing\"\n'"
+- statement_terminator: ;
+- statement:
+    alter_listing_statement:
+    - keyword: ALTER
+    - keyword: LISTING
+    - object_reference:
+        naked_identifier: my_listing
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: new_listing
+- statement_terminator: ;
+- statement:
+    alter_listing_statement:
+    - keyword: ALTER
+    - keyword: LISTING
+    - object_reference:
+        naked_identifier: my_listing
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'updated listing'"
+- statement_terminator: ;

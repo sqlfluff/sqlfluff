@@ -1,0 +1,89 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8af15d14b72b5ead1674862fa8d4efe6d36a4638465833596896af9b870bce9c
+file:
+- statement:
+    create_application_statement:
+    - keyword: CREATE
+    - keyword: APPLICATION
+    - object_reference:
+        naked_identifier: my_app
+    - keyword: FROM
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_package
+- statement_terminator: ;
+- statement:
+    create_application_statement:
+    - keyword: CREATE
+    - keyword: APPLICATION
+    - object_reference:
+        naked_identifier: my_app
+    - keyword: FROM
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_package
+    - keyword: USING
+    - keyword: VERSION
+    - naked_identifier: v1
+    - keyword: PATCH
+    - numeric_literal: '2'
+    - keyword: DEBUG_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test app'"
+- statement_terminator: ;
+- statement:
+    create_application_statement:
+    - keyword: CREATE
+    - keyword: APPLICATION
+    - object_reference:
+        naked_identifier: my_app
+    - keyword: FROM
+    - keyword: LISTING
+    - object_reference:
+        naked_identifier: my_listing
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'marketplace app'"
+    - keyword: AUTHORIZE_TELEMETRY_EVENT_SHARING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_application_statement:
+    - keyword: CREATE
+    - keyword: APPLICATION
+    - object_reference:
+        naked_identifier: my_app
+    - keyword: FROM
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_package
+    - keyword: USING
+    - stage_path: '@my_stage/path/to/version'
+    - tag_bracketed_equals:
+        keyword: TAG
+        bracketed:
+          start_bracket: (
+          tag_reference:
+            naked_identifier: env
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'dev'"
+          end_bracket: )
+- statement_terminator: ;

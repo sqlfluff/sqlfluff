@@ -1,0 +1,76 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 28cc3318340328dbca9dce6a4c9e71a379bc25a38869456fee2b6b8a9b5d3527
+file:
+- statement:
+    create_data_metric_function_statement:
+    - keyword: CREATE
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_dmf
+    - bracketed:
+        start_bracket: (
+        naked_identifier: ARG_T
+        keyword: TABLE
+        bracketed:
+          start_bracket: (
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+        end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: NUMBER
+    - keyword: AS
+    - quoted_literal: "'SELECT COUNT(*) FROM ARG_T WHERE col1 IS NULL'"
+- statement_terminator: ;
+- statement:
+    create_data_metric_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SECURE
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: my_dmf
+    - bracketed:
+        start_bracket: (
+        naked_identifier: ARG_T
+        keyword: TABLE
+        bracketed:
+        - start_bracket: (
+        - naked_identifier: col1
+        - data_type:
+            data_type_identifier: VARCHAR
+        - comma: ','
+        - naked_identifier: col2
+        - data_type:
+            data_type_identifier: NUMBER
+        - end_bracket: )
+        end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: NUMBER
+    - keyword: NOT
+    - keyword: 'NULL'
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'null check metric'"
+    - keyword: AS
+    - quoted_literal: "'SELECT COUNT(*) FROM ARG_T WHERE col1 IS NULL OR col2 IS NULL'"
+- statement_terminator: ;

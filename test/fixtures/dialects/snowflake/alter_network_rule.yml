@@ -1,0 +1,49 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 13b06d957c3e837c4b2b44c34b7224bb06e203c39ed1b336372f816cd29fc3aa
+file:
+- statement:
+    alter_network_rule_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: my_rule
+    - keyword: SET
+    - keyword: VALUE_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'192.168.1.0/24'"
+      - comma: ','
+      - quoted_literal: "'10.0.0.0/8'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_network_rule_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: my_rule
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'updated rule'"
+- statement_terminator: ;
+- statement:
+    alter_network_rule_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: my_rule
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;

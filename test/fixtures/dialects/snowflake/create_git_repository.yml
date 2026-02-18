@@ -1,0 +1,70 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c309b815648e192e37bccfca154064fb393da79152e2c5ad2cb261b9a9bce563
+file:
+- statement:
+    create_git_repository_statement:
+    - keyword: CREATE
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: ORIGIN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://github.com/my-org/my-repo.git'"
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_git_integration
+- statement_terminator: ;
+- statement:
+    create_git_repository_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_repo
+    - keyword: ORIGIN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://github.com/my-org/my-repo.git'"
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_git_integration
+    - keyword: GIT_CREDENTIALS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_secret
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'main repo'"
+    - tag_bracketed_equals:
+        keyword: TAG
+        bracketed:
+          start_bracket: (
+          tag_reference:
+            naked_identifier: team
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'data'"
+          end_bracket: )
+- statement_terminator: ;

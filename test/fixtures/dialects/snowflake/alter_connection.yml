@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ce84587fa703406ad8bdcb346984c3f913e3160fe3f56f833015bb8b660ddead
+file:
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: my_connection
+    - keyword: ENABLE
+    - keyword: FAILOVER
+    - keyword: TO
+    - keyword: ACCOUNTS
+    - object_reference:
+      - naked_identifier: my_org
+      - dot: .
+      - naked_identifier: my_account1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: my_org
+      - dot: .
+      - naked_identifier: my_account2
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: my_connection
+    - keyword: DISABLE
+    - keyword: FAILOVER
+    - keyword: TO
+    - keyword: ACCOUNTS
+    - object_reference:
+      - naked_identifier: my_org
+      - dot: .
+      - naked_identifier: my_account1
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: my_connection
+    - keyword: PRIMARY
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: my_connection
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'updated connection'"
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: my_connection
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;

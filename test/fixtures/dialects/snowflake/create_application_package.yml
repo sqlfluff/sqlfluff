@@ -1,0 +1,69 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7ade03ec9c9079da891bcd249172fd308d31fdc12524fc9cc6b8d87317047162
+file:
+- statement:
+    create_application_package_statement:
+    - keyword: CREATE
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_package
+- statement_terminator: ;
+- statement:
+    create_application_package_statement:
+    - keyword: CREATE
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_package
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - keyword: MAX_DATA_EXTENSION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '14'
+    - keyword: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-ci'"
+    - keyword: DISTRIBUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: INTERNAL
+    - keyword: LISTING_AUTO_REFRESH
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: MULTIPLE_INSTANCES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: ENABLE_RELEASE_CHANNELS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - tag_bracketed_equals:
+        keyword: TAG
+        bracketed:
+          start_bracket: (
+          tag_reference:
+            naked_identifier: team
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'platform'"
+          end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'my native app package'"
+- statement_terminator: ;

@@ -1,0 +1,66 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7bec15635ef33b80853d7234b469272c0c7d9d01d5e6526b0aa9f8e7379c37ca
+file:
+- statement:
+    create_notebook_statement:
+    - keyword: CREATE
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+- statement_terminator: ;
+- statement:
+    create_notebook_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: FROM
+    - quoted_literal: "'@my_stage/notebooks/analysis.ipynb'"
+    - keyword: MAIN_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'analysis.ipynb'"
+    - keyword: QUERY_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_wh
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'data analysis notebook'"
+- statement_terminator: ;
+- statement:
+    create_notebook_statement:
+    - keyword: CREATE
+    - keyword: NOTEBOOK
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: IDLE_AUTO_SHUTDOWN_TIME_SECONDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '7200'
+    - keyword: RUNTIME_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'SYSTEM$GPU_RUNTIME'"
+    - keyword: COMPUTE_POOL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_pool'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_wh
+- statement_terminator: ;

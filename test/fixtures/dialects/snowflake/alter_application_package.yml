@@ -1,0 +1,66 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a48d2c104f0d3223fdb6582cee43037f7b6d7c2e6495bce0a8e626a5f8cf41f1
+file:
+- statement:
+    alter_application_package_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_package
+    - keyword: SET
+    - keyword: DISTRIBUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: EXTERNAL
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'public package'"
+- statement_terminator: ;
+- statement:
+    alter_application_package_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_package
+    - keyword: UNSET
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_application_package_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_package
+    - keyword: SET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: my_tag
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'value'"
+- statement_terminator: ;
+- statement:
+    alter_application_package_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_package
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: my_tag
+- statement_terminator: ;
