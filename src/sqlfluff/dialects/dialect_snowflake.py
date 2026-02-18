@@ -6089,6 +6089,11 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 ),
             ),
             Ref("TagBracketedEqualsSegment"),
+            Sequence(
+                "CHANGE_TRACKING",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
             Sequence("COPY", "GRANTS"),
             Ref("CommentEqualsClauseSegment"),
         ),
