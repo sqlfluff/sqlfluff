@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b9d149b9fe24d2c93edc1b40d9832403c4b0d484279ba69f0002e5a7cb677004
+_hash: 7ec3fc21ff0b800f4501ed0ea83878bba11240cd36ce7616052aafd41cdce820
 file:
 - statement:
     alter_database_statement:
@@ -60,25 +60,368 @@ file:
     - object_reference:
         naked_identifier: mydb
     - keyword: SET
-    - parameter: DATA_RETENTION_TIME_IN_DAYS
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
     - comparison_operator:
         raw_comparison_operator: '='
     - numeric_literal: '7'
-    - comma: ','
-    - parameter: MAX_DATA_EXTENSION_TIME_IN_DAYS
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: MAX_DATA_EXTENSION_TIME_IN_DAYS
     - comparison_operator:
         raw_comparison_operator: '='
     - numeric_literal: '14'
-    - comma: ','
-    - parameter: DEFAULT_DDL_COLLATION
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: EXTERNAL_VOLUME
     - comparison_operator:
         raw_comparison_operator: '='
-    - quoted_literal: "'en_ci'"
-    - comma: ','
-    - parameter: COMMENT
+    - quoted_literal: "'my_volume'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: CATALOG
     - comparison_operator:
         raw_comparison_operator: '='
-    - quoted_literal: "'My most excellent database'"
+    - quoted_literal: "'my_catalog'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: REPLACE_INVALID_CHARACTERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-ci'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'cpu_pool'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'gpu_pool'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_wh
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: STORAGE_SERIALIZATION_POLICY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: OPTIMIZED
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: STORAGE_SERIALIZATION_POLICY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COMPATIBLE
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: EVENT_TABLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_event_table
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'My database'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: CLASSIFICATION_PROFILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_profile'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: ENABLE_DATA_COMPACTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '7'
+    - keyword: MAX_DATA_EXTENSION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '14'
+    - keyword: EXTERNAL_VOLUME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_volume'"
+    - keyword: CATALOG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_catalog'"
+    - keyword: REPLACE_INVALID_CHARACTERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-ci'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: OBJECT_VISIBILITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: PRIVILEGED
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: OBJECT_VISIBILITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - udf_body: "$$\norganization_targets:\n  - account: acme_engineering\n  - account:\
+        \ acme_marketing\n$$"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: WARN
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - metric_level_equals:
+      - keyword: METRIC_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALL
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ON_EVENT
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: CATALOG_SYNC
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_open_catalog_integration'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: REPLICABLE_WITH_FAILOVER_GROUPS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'YES'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: BASE_LOCATION_PREFIX
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'prefix/path'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: CATALOG_SYNC
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_open_catalog_integration'"
+    - keyword: REPLICABLE_WITH_FAILOVER_GROUPS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'YES'"
+    - keyword: BASE_LOCATION_PREFIX
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'prefix/path'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: CONTACT
+    - keyword: STEWARD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: admin_user
+    - comma: ','
+    - keyword: SUPPORT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: support_user
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: DATA_QUALITY_MONITORING_SETTINGS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - udf_body: "$$\nnotification:\n  enabled: true\n  integrations:\n    - my_notification_integration\n\
+        \  metadata_included: true\n$$"
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -123,6 +466,283 @@ file:
         naked_identifier: mydb
     - keyword: UNSET
     - keyword: DATA_RETENTION_TIME_IN_DAYS
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: MAX_DATA_EXTENSION_TIME_IN_DAYS
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: EXTERNAL_VOLUME
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: CATALOG
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: DEFAULT_DDL_COLLATION
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU
+    - comma: ','
+    - keyword: DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: OBJECT_VISIBILITY
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: STORAGE_SERIALIZATION_POLICY
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: EVENT_TABLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_event_table
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: CATALOG_SYNC
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: REPLICABLE_WITH_FAILOVER_GROUPS
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: BASE_LOCATION_PREFIX
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: CLASSIFICATION_PROFILE
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: CONTACT
+    - keyword: STEWARD
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: ENABLE_DATA_COMPACTION
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '30'
+    - keyword: MAX_DATA_EXTENSION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '14'
+    - keyword: EXTERNAL_VOLUME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_volume'"
+    - keyword: CATALOG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_catalog'"
+    - keyword: REPLACE_INVALID_CHARACTERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-ci'"
+    - keyword: DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'cpu_pool'"
+    - keyword: DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'gpu_pool'"
+    - keyword: DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_wh
+    - keyword: OBJECT_VISIBILITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: PRIVILEGED
+    - keyword: STORAGE_SERIALIZATION_POLICY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: OPTIMIZED
+    - keyword: EVENT_TABLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_event_table
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Full example database'"
+    - keyword: CATALOG_SYNC
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_open_catalog_integration'"
+    - keyword: REPLICABLE_WITH_FAILOVER_GROUPS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'YES'"
+    - keyword: BASE_LOCATION_PREFIX
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'prefix/path'"
+    - keyword: CLASSIFICATION_PROFILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_profile'"
+    - keyword: ENABLE_DATA_COMPACTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comma: ','
+    - keyword: MAX_DATA_EXTENSION_TIME_IN_DAYS
+    - comma: ','
+    - keyword: EXTERNAL_VOLUME
+    - comma: ','
+    - keyword: CATALOG
     - comma: ','
     - keyword: DEFAULT_DDL_COLLATION
+    - comma: ','
+    - keyword: DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU
+    - comma: ','
+    - keyword: DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU
+    - comma: ','
+    - keyword: OBJECT_VISIBILITY
+    - comma: ','
+    - keyword: STORAGE_SERIALIZATION_POLICY
+    - comma: ','
+    - keyword: COMMENT
+    - comma: ','
+    - keyword: CATALOG_SYNC
+    - comma: ','
+    - keyword: REPLICABLE_WITH_FAILOVER_GROUPS
+    - comma: ','
+    - keyword: BASE_LOCATION_PREFIX
+    - comma: ','
+    - keyword: DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE
+    - comma: ','
+    - keyword: CLASSIFICATION_PROFILE
+    - comma: ','
+    - keyword: ENABLE_DATA_COMPACTION
 - statement_terminator: ;

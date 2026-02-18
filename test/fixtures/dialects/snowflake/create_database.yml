@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dc85879d3ad69d614486a2d645a3f330f0000128289fb2c9cdc4c601e4d6d14e
+_hash: 74274f8f0745af9a44b0c9fd7d899c9fbbb82cd4c2a1e7e071b28f2dfea34b46
 file:
 - statement:
     create_database_statement:
@@ -199,10 +199,11 @@ file:
     - keyword: DATABASE
     - database_reference:
         naked_identifier: MY_DATABASE
-    - keyword: METRIC_LEVEL
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: ALL
+    - metric_level_equals:
+      - keyword: METRIC_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALL
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -583,10 +584,11 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: INFO
-    - keyword: METRIC_LEVEL
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: NONE
+    - metric_level_equals:
+      - keyword: METRIC_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
     - trace_level_equals:
       - keyword: TRACE_LEVEL
       - comparison_operator:

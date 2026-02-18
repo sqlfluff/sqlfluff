@@ -3108,6 +3108,23 @@ class TraceLevelEqualsSegment(BaseSegment):
     )
 
 
+class MetricLevelEqualsSegment(BaseSegment):
+    """METRIC_LEVEL clause.
+
+    https://docs.snowflake.com/en/sql-reference/parameters#metric-level
+    """
+
+    type = "metric_level_equals"
+    match_grammar = Sequence(
+        "METRIC_LEVEL",
+        Ref("EqualsSegment"),
+        OneOf(
+            "ALL",
+            "NONE",
+        ),
+    )
+
+
 class ExternalAccessIntegrationsEqualsSegment(BaseSegment):
     """EXTERNAL_ACCESS_INTEGRATIONS clause.
 
@@ -3531,7 +3548,6 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
         OneOf(
-            # FROM SHARE / FROM LISTING / FROM BACKUP SET
             Sequence("FROM", "SHARE", Ref("ObjectReferenceSegment")),
             Sequence("FROM", "LISTING", Ref("QuotedLiteralSegment")),
             Sequence(
@@ -3542,7 +3558,6 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
                 "IDENTIFIER",
                 Ref("QuotedLiteralSegment"),
             ),
-            # AS REPLICA OF
             Sequence(
                 "AS",
                 "REPLICA",
@@ -3555,7 +3570,6 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
                     optional=True,
                 ),
             ),
-            # Standard database with optional CLONE and properties
             Sequence(
                 Sequence(
                     "CLONE",
@@ -3630,14 +3644,8 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
                         Ref("CatalogSyncNamespaceFlattenDelimeter"),
                     ),
                     Ref("LogLevelEqualsSegment"),
-                    Sequence(
-                        "METRIC_LEVEL",
-                        Ref("EqualsSegment"),
-                        OneOf("ALL", "NONE"),
-                    ),
+                    Ref("MetricLevelEqualsSegment"),
                     Ref("TraceLevelEqualsSegment"),
-                    # OBJECT_VISIBILITY = { object_visibility_spec | PRIVILEGED }
-                    # object_visibility_spec is a yaml specification
                     Sequence(
                         "OBJECT_VISIBILITY",
                         Ref("EqualsSegment"),
@@ -9579,37 +9587,152 @@ class AlterDatabaseSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         OneOf(
+            # ALTER DATABASE [ IF EXISTS ] <name> RENAME TO <new_db_name>
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            # ALTER DATABASE [ IF EXISTS ] <name> SWAP WITH <target_db_name>
             Sequence("SWAP", "WITH", Ref("ObjectReferenceSegment")),
+            # ALTER DATABASE [ IF EXISTS ] <name> SET ...
             Sequence(
                 "SET",
-                OneOf(
-                    Ref("TagEqualsSegment"),
-                    Delimited(
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                Ref("BooleanLiteralGrammar"),
-                                Ref("QuotedLiteralSegment"),
-                                Ref("NumericLiteralSegment"),
+                AnySetOf(
+                    Sequence(
+                        "DATA_RETENTION_TIME_IN_DAYS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "EXTERNAL_VOLUME",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "CATALOG",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "REPLACE_INVALID_CHARACTERS",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "DEFAULT_DDL_COLLATION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "OBJECT_VISIBILITY",
+                        Ref("EqualsSegment"),
+                        OneOf("PRIVILEGED", Ref("DollarQuotedUDFBody")),
+                    ),
+                    Ref("LogLevelEqualsSegment"),
+                    Ref("MetricLevelEqualsSegment"),
+                    Ref("TraceLevelEqualsSegment"),
+                    Sequence(
+                        "STORAGE_SERIALIZATION_POLICY",
+                        Ref("EqualsSegment"),
+                        OneOf("COMPATIBLE", "OPTIMIZED"),
+                    ),
+                    Sequence(
+                        "EVENT_TABLE",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                    Sequence(
+                        "CATALOG_SYNC",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "REPLICABLE_WITH_FAILOVER_GROUPS",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "BASE_LOCATION_PREFIX",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "CLASSIFICATION_PROFILE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "CONTACT",
+                        Delimited(
+                            Sequence(
+                                Ref("PurposeGrammar"),
+                                Ref("EqualsSegment"),
+                                Ref("ObjectReferenceSegment"),
                             ),
                         ),
                     ),
-                ),
-            ),
-            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
-            Sequence(
-                "UNSET",
-                Delimited(
-                    AnySetOf(
-                        "DATA_RETENTION_TIME_IN_DAYS",
-                        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
-                        "DEFAULT_DDL_COLLATION",
-                        "COMMENT",
+                    Sequence(
+                        "ENABLE_DATA_COMPACTION",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "DATA_QUALITY_MONITORING_SETTINGS",
+                        Ref("EqualsSegment"),
+                        Ref("DollarQuotedUDFBody"),
                     ),
                 ),
             ),
+            # ALTER DATABASE [ IF EXISTS ] <name> UNSET ...
+            Sequence(
+                "UNSET",
+                Delimited(
+                    "DATA_RETENTION_TIME_IN_DAYS",
+                    "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                    "EXTERNAL_VOLUME",
+                    "CATALOG",
+                    "DEFAULT_DDL_COLLATION",
+                    "DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU",
+                    "DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU",
+                    "OBJECT_VISIBILITY",
+                    "STORAGE_SERIALIZATION_POLICY",
+                    Sequence(
+                        "EVENT_TABLE",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    "COMMENT",
+                    "CATALOG_SYNC",
+                    "REPLICABLE_WITH_FAILOVER_GROUPS",
+                    "BASE_LOCATION_PREFIX",
+                    "DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE",
+                    "CLASSIFICATION_PROFILE",
+                    Sequence("CONTACT", Ref("PurposeGrammar")),
+                    "ENABLE_DATA_COMPACTION",
+                ),
+            ),
+            # ALTER DATABASE <name> SET TAG <tag_name> = '<tag_value>' [ , <tag_name> = '<tag_value>' ... ]
+            Sequence("SET", Ref("TagEqualsSegment")),
+            # ALTER DATABASE <name> UNSET TAG <tag_name> [ , <tag_name> ... ]
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
         ),
     )
 
