@@ -681,7 +681,6 @@ class DateTime64ArgumentsSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),  # timezone
                 optional=True,
             ),
-            optional=True,
         )
     )
 
@@ -701,29 +700,6 @@ class NumericArgumentsSegment(BaseSegment):
     type = "bracketed_arguments"
     match_grammar = Bracketed(
         Ref("NumericLiteralSegment"),
-    )
-
-
-class TupleArgumentsSegment(BaseSegment):
-    """Arguments for Tuple(Type1, Type2) or Tuple(name Type)."""
-
-    type = "bracketed_arguments"
-    match_grammar = Bracketed(
-        Delimited(
-            OneOf(
-                # Named tuple element: name Type
-                Sequence(
-                    OneOf(
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("QuotedIdentifierSegment"),
-                    ),
-                    Ref("DatatypeSegment"),
-                ),
-                # Regular tuple element: just Type
-                Ref("DatatypeSegment"),
-            ),
-            delimiter=Ref("CommaSegment"),
-        )
     )
 
 
@@ -807,11 +783,6 @@ class DatatypeSegment(BaseSegment):
             StringParser("MAP", CodeSegment, type="data_type_identifier"),
             Ref("BracketedArguments"),
         ),
-        # Tuple(Type1, Type2) or Tuple(name1 Type1, name2 Type2)
-        Sequence(
-            StringParser("TUPLE", CodeSegment, type="data_type_identifier"),
-            Ref("TupleArgumentsSegment"),
-        ),
         # Nested(name1 Type1, name2 Type2)
         Sequence(
             StringParser("NESTED", CodeSegment, type="data_type_identifier"),
@@ -874,8 +845,16 @@ class TupleTypeSchemaSegment(BaseSegment):
     type = "tuple_type_schema"
     match_grammar = Bracketed(
         Delimited(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
+            OneOf(
+                # Named tuple element: name Type
+                Sequence(
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("QuotedIdentifierSegment"),
+                    ),
+                    Ref("DatatypeSegment"),
+                ),
+                # Regular tuple element: just Type
                 Ref("DatatypeSegment"),
             ),
             bracket_pairs_set="bracket_pairs",

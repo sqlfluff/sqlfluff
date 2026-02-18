@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2f34b40c4437a4c9c09f637ab338805c391ed6bb05117638cf94b4700a9f9f40
+_hash: 81ec74ea8a1090c4a1395adffeae36bb8497958ac0b4a8be339d9465e5c8d88c
 file:
 - statement:
     select_statement:
@@ -22,22 +22,23 @@ file:
               - end_bracket: )
               casting_operator: '::'
               data_type:
-                data_type_identifier: Tuple
-                bracketed_arguments:
-                  bracketed:
-                  - start_bracket: (
-                  - naked_identifier: id
-                  - data_type:
-                      data_type_identifier: Int64
-                  - comma: ','
-                  - naked_identifier: name
-                  - data_type:
-                      data_type_identifier: String
-                  - comma: ','
-                  - naked_identifier: created_at
-                  - data_type:
-                      data_type_identifier: Date32
-                  - end_bracket: )
+                struct_type:
+                  keyword: Tuple
+                  tuple_type_schema:
+                    bracketed:
+                    - start_bracket: (
+                    - naked_identifier: id
+                    - data_type:
+                        data_type_identifier: Int64
+                    - comma: ','
+                    - naked_identifier: name
+                    - data_type:
+                        data_type_identifier: String
+                    - comma: ','
+                    - naked_identifier: created_at
+                    - data_type:
+                        data_type_identifier: Date32
+                    - end_bracket: )
           alias_expression:
             alias_operator:
               keyword: as
@@ -60,22 +61,23 @@ file:
               - end_bracket: )
               casting_operator: '::'
               data_type:
-                data_type_identifier: Tuple
-                bracketed_arguments:
-                  bracketed:
-                  - start_bracket: (
-                  - quoted_identifier: '`id`'
-                  - data_type:
-                      data_type_identifier: Int64
-                  - comma: ','
-                  - quoted_identifier: '`name`'
-                  - data_type:
-                      data_type_identifier: String
-                  - comma: ','
-                  - quoted_identifier: '`created_at`'
-                  - data_type:
-                      data_type_identifier: Date32
-                  - end_bracket: )
+                struct_type:
+                  keyword: Tuple
+                  tuple_type_schema:
+                    bracketed:
+                    - start_bracket: (
+                    - quoted_identifier: '`id`'
+                    - data_type:
+                        data_type_identifier: Int64
+                    - comma: ','
+                    - quoted_identifier: '`name`'
+                    - data_type:
+                        data_type_identifier: String
+                    - comma: ','
+                    - quoted_identifier: '`created_at`'
+                    - data_type:
+                        data_type_identifier: Date32
+                    - end_bracket: )
           alias_expression:
             alias_operator:
               keyword: as

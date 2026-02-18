@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2d0417b19871da394984cc16d8f35a70529ee0bf1751604a4763c6797472b4f
+_hash: ccb4f2f414e47d97eb292a1ef573a7a3eb5f8fb4107a91885e3414a7c0d75a33
 file:
 - statement:
     create_table_statement:
@@ -211,36 +211,38 @@ file:
       - column_definition:
           quoted_identifier: '`coordinates`'
           data_type:
-            data_type_identifier: Tuple
-            bracketed_arguments:
-              bracketed:
-              - start_bracket: (
-              - data_type:
-                  data_type_identifier: Float64
-              - comma: ','
-              - data_type:
-                  data_type_identifier: Float64
-              - end_bracket: )
+            struct_type:
+              keyword: Tuple
+              tuple_type_schema:
+                bracketed:
+                - start_bracket: (
+                - data_type:
+                    data_type_identifier: Float64
+                - comma: ','
+                - data_type:
+                    data_type_identifier: Float64
+                - end_bracket: )
       - comma: ','
       - column_definition:
           quoted_identifier: '`named_point`'
           data_type:
-            data_type_identifier: Tuple
-            bracketed_arguments:
-              bracketed:
-              - start_bracket: (
-              - naked_identifier: x
-              - data_type:
-                  data_type_identifier: Float64
-              - comma: ','
-              - naked_identifier: y
-              - data_type:
-                  data_type_identifier: Float64
-              - comma: ','
-              - naked_identifier: z
-              - data_type:
-                  data_type_identifier: Float64
-              - end_bracket: )
+            struct_type:
+              keyword: Tuple
+              tuple_type_schema:
+                bracketed:
+                - start_bracket: (
+                - naked_identifier: x
+                - data_type:
+                    data_type_identifier: Float64
+                - comma: ','
+                - naked_identifier: y
+                - data_type:
+                    data_type_identifier: Float64
+                - comma: ','
+                - naked_identifier: z
+                - data_type:
+                    data_type_identifier: Float64
+                - end_bracket: )
       - comma: ','
       - column_definition:
           quoted_identifier: '`properties`'
