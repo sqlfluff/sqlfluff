@@ -8,7 +8,9 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
+    ImplicitIndent,
     Matchable,
     MultiStringParser,
     OneOf,
@@ -254,6 +256,39 @@ class DistributionSegment(BaseSegment):
     )
 
 
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`.
+
+    StarRocks QUALIFY has strict requirements:
+    1. QUALIFY syntax: QUALIFY <window_function> <comparison_operator> <value>
+    2. SELECT clause can ONLY contain plain column references (no functions, CAST, etc.)
+    3. Window function is only allowed in the QUALIFY clause itself
+
+    Valid example:
+        SELECT col1, col2 FROM table
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY col1 ORDER BY col2) <= 3
+
+    Invalid example (function in SELECT):
+        SELECT col1, RANK() OVER (...) AS rank FROM table
+        QUALIFY RANK() OVER (...) <= 3
+
+    https://docs.starrocks.io/docs/sql-reference/sql-statements/data-manipulation/SELECT/
+    """
+
+    type = "qualify_clause"
+    match_grammar = Sequence(
+        "QUALIFY",
+        ImplicitIndent,
+        # Must be a window function followed by comparison
+        Sequence(
+            Ref("FunctionSegment"),  # Window function with OVER clause
+            Ref("ComparisonOperatorGrammar"),
+            Ref("ExpressionSegment"),
+        ),
+        Dedent,
+    )
+
+
 class IndexDefinitionSegment(BaseSegment):
     """Bitmap index definition specific to StarRocks."""
 
@@ -402,4 +437,41 @@ class StatementSegment(mysql.StatementSegment):
             Ref("PauseRoutineLoadStatementSegment"),
             Ref("ResumeRoutineLoadStatementSegment"),
         ]
+    )
+
+
+class UnorderedSelectStatementSegment(mysql.UnorderedSelectStatementSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    Enhanced for StarRocks to include QUALIFY clause support.
+    """
+
+    type = "select_statement"
+
+    match_grammar = mysql.UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+    )
+
+
+class SelectStatementSegment(mysql.SelectStatementSegment):
+    """A `SELECT` statement including QUALIFY support.
+
+    StarRocks supports QUALIFY for filtering based on window functions.
+    """
+
+    type = "select_statement"
+
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("UpsertClauseListSegment"),
+            Ref("WithCheckOptionSegment"),
+        ],
+        replace_terminators=True,
     )
