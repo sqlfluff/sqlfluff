@@ -4047,34 +4047,26 @@ class MLTableExpressionSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "PREDICT",
         Bracketed(
-            Delimited(
-                # MODEL = @model or MODEL = model_literal
-                Sequence(
-                    "MODEL",
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        Ref("ParameterNameSegment"),
-                        Ref("ObjectReferenceSegment"),
-                    ),
+            # MODEL = @model or MODEL = model_literal
+            Sequence(
+                "MODEL",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    Ref("ObjectReferenceSegment"),
                 ),
-                # DATA = object AS table_alias
-                Sequence(
-                    "DATA",
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        Ref("TableReferenceSegment"),
-                        Ref("ObjectReferenceSegment"),
-                    ),
-                    "AS",
-                    Ref("SingleIdentifierGrammar"),
+            ),
+            Ref("CommaSegment"),
+            # DATA = object AS table_alias
+            Sequence(
+                "DATA",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("TableReferenceSegment"),
+                    Ref("ObjectReferenceSegment"),
                 ),
-                # Optional RUNTIME = ONNX
-                Sequence(
-                    "RUNTIME",
-                    Ref("EqualsSegment"),
-                    "ONNX",
-                    optional=True,
-                ),
+                "AS",
+                Ref("SingleIdentifierGrammar"),
             ),
         ),
         # WITH ( result_set_definition )

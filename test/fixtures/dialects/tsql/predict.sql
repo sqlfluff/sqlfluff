@@ -17,18 +17,6 @@ CROSS APPLY PREDICT(
     confidence float
 ) AS p;
 
--- PREDICT with RUNTIME parameter
-SELECT d.*, p.*
-FROM sales_data AS d
-CROSS APPLY PREDICT(
-    MODEL = @my_model,
-    DATA = d AS t,
-    RUNTIME = ONNX
-) WITH (
-    score float NOT NULL,
-    category varchar(50)
-) AS p;
-
 -- PREDICT in FROM clause
 SELECT *
 FROM PREDICT(
