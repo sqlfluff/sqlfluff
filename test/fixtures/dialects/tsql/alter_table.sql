@@ -5,9 +5,6 @@ GO
 
 CREATE TABLE dbo.doc_exc (column_a INT) ;
 GO
-ALTER TABLE dbo.doc_exc ADD column_b VARCHAR(20) NULL
-    CONSTRAINT exb_unique UNIQUE, DROP COLUMN column_a, DROP COLUMN IF EXISTS column_c ;
-GO
 EXEC sp_help doc_exc ;
 GO
 DROP TABLE dbo.doc_exc ;
@@ -175,3 +172,11 @@ ALTER TABLE [TestTable] REBUILD PARTITION=ALL WITH (
   DATA_COMPRESSION = NONE ON PARTITIONS (4),
   DATA_COMPRESSION = COLUMNSTORE ON PARTITIONS (1, 5 TO 7, 10, 20 TO 40)
   );
+
+ALTER TABLE dbo.SomeTable DROP
+  CONSTRAINT IF EXISTS SomeConstraint,
+  CONSTRAINT SomeOtherConstraint;
+
+ALTER TABLE dbo.SomeTable DROP
+  COLUMN SomeColumn,
+  COLUMN IF EXISTS SomeOtherColumn;

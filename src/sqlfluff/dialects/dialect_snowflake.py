@@ -1470,6 +1470,7 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             Ref("AccessStatementSegment"),
             Ref("CreateStatementSegment"),
+            Ref("DefineStatementSegment"),
             Ref("CreateTaskSegment"),
             Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
@@ -1500,6 +1501,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("CreateStageSegment"),
+            Ref("DefineStageSegment"),
             Ref("AlterStageSegment"),
             Ref("CreateStreamStatementSegment"),
             Ref("CreateStreamlitStatementSegment"),
@@ -3357,6 +3359,15 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
                 Sequence("NETWORK", "POLICY"),
             ),
         ),
+        Sequence(
+            "DEFINE",
+            OneOf(
+                "ROLE",
+                "WAREHOUSE",
+                "DATABASE",
+                "TAG",
+            ),
+        ),
         Sequence("APPLY", "MASKING", "POLICY"),
         Sequence("APPLY", "ROW", "ACCESS", "POLICY"),
         Sequence("APPLY", "SESSION", "POLICY"),
@@ -4061,13 +4072,23 @@ class CreateFunctionStatementSegment(BaseSegment):
 
     type = "create_function_statement"
     match_grammar = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        OneOf("TEMP", "TEMPORARY", optional=True),
-        Sequence("SECURE", optional=True),
-        Sequence("AGGREGATE", optional=True),
-        "FUNCTION",
-        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("OrReplaceGrammar", optional=True),
+                OneOf("TEMP", "TEMPORARY", optional=True),
+                Sequence("SECURE", optional=True),
+                Sequence("AGGREGATE", optional=True),
+                "FUNCTION",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence(
+                "DEFINE",
+                Sequence("SECURE", optional=True),
+                Sequence("AGGREGATE", optional=True),
+                "FUNCTION",
+            ),
+        ),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         Sequence("COPY", "GRANTS", optional=True),
@@ -4794,11 +4815,16 @@ class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
 
     type = "create_schema_statement"
     match_grammar = Sequence(
-        "CREATE",
-        Ref("AlterOrReplaceGrammar", optional=True),
-        Ref("TemporaryTransientGrammar", optional=True),
-        "SCHEMA",
-        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                Ref("TemporaryTransientGrammar", optional=True),
+                "SCHEMA",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence("DEFINE", "SCHEMA"),
+        ),
         Ref("SchemaReferenceSegment"),
         Sequence("WITH", "MANAGED", "ACCESS", optional=True),
         Ref("SchemaObjectParamsSegment", optional=True),
@@ -5215,14 +5241,23 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """
 
     match_grammar: Matchable = Sequence(
-        "CREATE",
-        Ref("AlterOrReplaceGrammar", optional=True),
-        Ref("TemporaryTransientGrammar", optional=True),
-        Ref.keyword("DYNAMIC", optional=True),
-        Ref.keyword("HYBRID", optional=True),
-        Ref.keyword("ICEBERG", optional=True),
-        "TABLE",
-        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                Ref("TemporaryTransientGrammar", optional=True),
+                Ref.keyword("DYNAMIC", optional=True),
+                Ref.keyword("HYBRID", optional=True),
+                Ref.keyword("ICEBERG", optional=True),
+                "TABLE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence(
+                "DEFINE",
+                Ref.keyword("DYNAMIC", optional=True),
+                "TABLE",
+            ),
+        ),
         Ref("TableReferenceSegment"),
         # Columns and comment syntax:
         AnySetOf(
@@ -5347,10 +5382,15 @@ class CreateTaskSegment(BaseSegment):
     type = "create_task_statement"
 
     match_grammar = Sequence(
-        "CREATE",
-        Ref("AlterOrReplaceGrammar", optional=True),
-        "TASK",
-        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                "TASK",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence("DEFINE", "TASK"),
+        ),
         Ref("ObjectReferenceSegment"),
         Indent,
         AnyNumberOf(
@@ -5942,6 +5982,45 @@ class CreateStatementSegment(BaseSegment):
     )
 
 
+class DefineStatementSegment(BaseSegment):
+    """A snowflake `DEFINE` statement (specific to DCM projects)."""
+
+    type = "define_statement"
+
+    match_grammar = Sequence(
+        "DEFINE",
+        OneOf(
+            Sequence(
+                "TAG",
+            ),
+            Sequence(
+                OneOf("WAREHOUSE", "DATABASE"),
+            ),
+        ),
+        Ref("ObjectReferenceSegment"),
+        # Next are WAREHOUSE options
+        # https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+        Sequence(
+            Sequence("WITH", optional=True),
+            AnyNumberOf(
+                Ref("WarehouseObjectPropertiesSegment"),
+                Ref("CommentEqualsClauseSegment"),
+                Ref("WarehouseObjectParamsSegment"),
+            ),
+            Ref("TagBracketedEqualsSegment", optional=True),
+            optional=True,
+        ),
+        Sequence(
+            "ALLOWED_VALUES",
+            Delimited(
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
 class CreateUserSegment(BaseSegment):
     """A snowflake `CREATE USER` statement.
 
@@ -6099,16 +6178,29 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """
 
     match_grammar = Sequence(
-        "CREATE",
-        Ref("AlterOrReplaceGrammar", optional=True),
-        AnySetOf(
-            "SECURE",
-            "RECURSIVE",
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                AnySetOf(
+                    "SECURE",
+                    "RECURSIVE",
+                ),
+                Ref("TemporaryGrammar", optional=True),
+                Sequence("MATERIALIZED", optional=True),
+                "VIEW",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence(
+                "DEFINE",
+                AnySetOf(
+                    "SECURE",
+                    "RECURSIVE",
+                ),
+                Sequence("MATERIALIZED", optional=True),
+                "VIEW",
+            ),
         ),
-        Ref("TemporaryGrammar", optional=True),
-        Sequence("MATERIALIZED", optional=True),
-        "VIEW",
-        Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         AnySetOf(
             Bracketed(
@@ -6151,6 +6243,11 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 ),
             ),
             Ref("TagBracketedEqualsSegment"),
+            Sequence(
+                "CHANGE_TRACKING",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
             Sequence("COPY", "GRANTS"),
             Ref("CommentEqualsClauseSegment"),
         ),
@@ -7624,6 +7721,42 @@ class CreateStageSegment(BaseSegment):
     )
 
 
+class DefineStageSegment(BaseSegment):
+    """A Snowflake DEFINE STAGE statement (specific to DCM projects)."""
+
+    type = "define_stage_statement"
+
+    match_grammar = Sequence(
+        "DEFINE",
+        "STAGE",
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        # Only internal stages supported in DCM projects currently
+        Sequence(
+            Ref("InternalStageParameters", optional=True),
+            Sequence(
+                "DIRECTORY",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Sequence(
+                        "ENABLE",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    )
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "FILE_FORMAT", Ref("EqualsSegment"), Ref("FileFormatSegment"), optional=True
+        ),
+        Ref("TagBracketedEqualsSegment", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        Dedent,
+    )
+
+
 class AlterStageSegment(BaseSegment):
     """A Snowflake ALTER STAGE statement.
 
@@ -8249,10 +8382,15 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     """
 
     match_grammar = Sequence(
-        "CREATE",
-        Ref("AlterOrReplaceGrammar", optional=True),
-        "ROLE",
-        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                "ROLE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence("DEFINE", "ROLE"),
+        ),
         Ref("RoleReferenceSegment"),
         Ref(
             "CommentEqualsClauseSegment",
@@ -8269,16 +8407,15 @@ class CreateDatabaseRoleStatementSegment(BaseSegment):
 
     type = "create_database_role_statement"
     match_grammar = Sequence(
-        "CREATE",
-        Ref(
-            "AlterOrReplaceGrammar",
-            optional=True,
-        ),
-        "DATABASE",
-        "ROLE",
-        Ref(
-            "IfNotExistsGrammar",
-            optional=True,
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                "DATABASE",
+                "ROLE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence("DEFINE", "DATABASE", "ROLE"),
         ),
         Ref("DatabaseRoleReferenceSegment"),
         Ref(
@@ -10393,11 +10530,16 @@ class CreateAuthenticationPolicySegment(BaseSegment):
     type = "create_authentication_policy_segment"
 
     match_grammar = Sequence(
-        "Create",
-        Ref("OrReplaceGrammar", optional=True),
-        "AUTHENTICATION",
-        "POLICY",
-        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("OrReplaceGrammar", optional=True),
+                "AUTHENTICATION",
+                "POLICY",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence("DEFINE", "AUTHENTICATION", "POLICY"),
+        ),
         Ref("TableReferenceSegment"),
         Sequence(
             "AUTHENTICATION_METHODS",

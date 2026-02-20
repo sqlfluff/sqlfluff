@@ -1,0 +1,42 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9f94e66c6dea4a1d5c9d578421ecd9f94e25a1ec0131f824c5d14c75fb47e52d
+file:
+  statement:
+    create_function_statement:
+    - keyword: DEFINE
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: DCM_PROJECT_DEV
+      - dot: .
+      - naked_identifier: ANALYTICS
+      - dot: .
+      - function_name_identifier: CALCULATE_PROFIT_MARGIN
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: REVENUE
+        - data_type:
+            data_type_identifier: number
+        - comma: ','
+        - parameter: COST
+        - data_type:
+            data_type_identifier: number
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: NUMBER
+        bracketed_arguments:
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '10'
+          - comma: ','
+          - numeric_literal: '2'
+          - end_bracket: )
+    - keyword: AS
+    - udf_body: "$$\n    CASE WHEN REVENUE = 0\nTHEN 0\nELSE ROUND(((REVENUE - COST)\
+        \ / REVENUE) * 100, 2)\n    END\n$$"
+  statement_terminator: ;
