@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ebfb672d35977ebc3af763f96813784be017df8c90008587caf0e1e9674a0a2e
+_hash: 8dea4678495c263a3b79da5700c45145edbe1d8659149dea55f66314a682a7b3
 file:
   batch:
   - statement:
@@ -45,26 +45,26 @@ file:
           comma: ','
           numeric_literal: '1'
           end_bracket: )
-      - word: WITH
-      - word: FAST
+      - keyword: WITH
+      - keyword: FAST
   - statement_terminator: ;
   - statement:
       dbcc_statement:
       - keyword: DBCC
       - keyword: SHOWCONTIG
-      - word: WITH
-      - word: TABLERESULTS
+      - keyword: WITH
+      - keyword: TABLERESULTS
       - comma: ','
-      - word: ALL_INDEXES
+      - keyword: ALL_INDEXES
   - statement_terminator: ;
   - statement:
       dbcc_statement:
       - keyword: DBCC
       - keyword: OPENTRAN
-      - word: WITH
-      - word: TABLERESULTS
+      - keyword: WITH
+      - keyword: TABLERESULTS
       - comma: ','
-      - word: NO_INFOMSGS
+      - keyword: NO_INFOMSGS
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -74,10 +74,10 @@ file:
           start_bracket: (
           word: AdventureWorks2022
           end_bracket: )
-      - word: WITH
-      - word: TABLERESULTS
+      - keyword: WITH
+      - keyword: TABLERESULTS
       - comma: ','
-      - word: NO_INFOMSGS
+      - keyword: NO_INFOMSGS
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -92,8 +92,8 @@ file:
       dbcc_statement:
       - keyword: DBCC
       - keyword: PROCCACHE
-      - word: WITH
-      - word: NO_INFOMSGS
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -116,8 +116,8 @@ file:
           comma: ','
           word: Customer_LastName
           end_bracket: )
-      - word: WITH
-      - word: HISTOGRAM
+      - keyword: WITH
+      - keyword: HISTOGRAM
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -145,8 +145,8 @@ file:
       dbcc_statement:
       - keyword: DBCC
       - keyword: USEROPTIONS
-      - word: WITH
-      - word: NO_INFOMSGS
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -179,8 +179,8 @@ file:
       dbcc_statement:
       - keyword: DBCC
       - keyword: CHECKCONSTRAINTS
-      - word: WITH
-      - word: ALL_CONSTRAINTS
+      - keyword: WITH
+      - keyword: ALL_CONSTRAINTS
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -201,8 +201,8 @@ file:
           start_bracket: (
           numeric_literal: '1'
           end_bracket: )
-      - word: WITH
-      - word: ESTIMATEONLY
+      - keyword: WITH
+      - keyword: ESTIMATEONLY
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -234,14 +234,14 @@ file:
           start_bracket: (
           single_quote: "'HumanResources.Employee'"
           end_bracket: )
-      - word: WITH
-      - word: EXTENDED_LOGICAL_CHECKS
+      - keyword: WITH
+      - keyword: EXTENDED_LOGICAL_CHECKS
       - comma: ','
-      - word: PHYSICAL_ONLY
+      - keyword: PHYSICAL_ONLY
       - comma: ','
-      - word: TABLOCK
+      - keyword: TABLOCK
       - comma: ','
-      - word: ESTIMATEONLY
+      - keyword: ESTIMATEONLY
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -251,12 +251,12 @@ file:
           start_bracket: (
           word: AdventureWorks2022
           end_bracket: )
-      - word: WITH
-      - word: NO_INFOMSGS
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
       - comma: ','
-      - word: MAXDOP
-      - equals: '='
-      - numeric_literal: '8'
+      - keyword: MAXDOP
+      - raw_comparison_operator: '='
+      - integer_literal: '8'
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -270,8 +270,8 @@ file:
         - comma: ','
         - numeric_literal: '0'
         - end_bracket: )
-      - word: WITH
-      - word: NO_INFOMSGS
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -290,8 +290,8 @@ file:
       dbcc_statement:
       - keyword: DBCC
       - keyword: DROPCLEANBUFFERS
-      - word: WITH
-      - word: NO_INFOMSGS
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -347,10 +347,10 @@ file:
           comma: ','
           single_quote: "'HumanResources.Employee'"
           end_bracket: )
-      - word: WITH
-      - word: NO_INFOMSGS
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
       - comma: ','
-      - word: COUNT_ROWS
+      - keyword: COUNT_ROWS
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -387,8 +387,8 @@ file:
       dbcc_statement:
       - keyword: DBCC
       - keyword: FREESESSIONCACHE
-      - word: WITH
-      - word: NO_INFOMSGS
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -398,8 +398,8 @@ file:
           start_bracket: (
           single_quote: "'ALL'"
           end_bracket: )
-      - word: WITH
-      - word: MARK_IN_USE_FOR_REMOVAL
+      - keyword: WITH
+      - keyword: MARK_IN_USE_FOR_REMOVAL
   - statement_terminator: ;
   - statement:
       dbcc_statement:
@@ -411,10 +411,10 @@ file:
         - comma: ','
         - word: AdventureWorks_Clone
         - end_bracket: )
-      - word: WITH
-      - word: NO_STATISTICS
+      - keyword: WITH
+      - keyword: NO_STATISTICS
       - comma: ','
-      - word: NO_QUERYSTORE
+      - keyword: NO_QUERYSTORE
   - statement_terminator: ;
   - statement:
       dbcc_statement:

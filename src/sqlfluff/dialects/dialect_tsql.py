@@ -8790,7 +8790,7 @@ class DbccStatementSegment(BaseSegment):
         "DBCC",
         _statements,
         # Using Anything as a catch-all for now, more specifics might be needed later
-        Sequence(OptionallyBracketed(Anything()), optional=True),
+        Sequence(Bracketed(Anything()), optional=True),
         Sequence("WITH", _with_options, optional=True),
     )
 
