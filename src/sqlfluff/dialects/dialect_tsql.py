@@ -7,6 +7,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -903,6 +904,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreatePartitionSchemeSegment"),
             Ref("AlterPartitionFunctionSegment"),
             Ref("OpenSymmetricKeySegment"),
+            Ref("DbccStatementSegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
             Ref("CreateFullTextCatalogStatementSegment"),
@@ -8776,6 +8778,87 @@ class OpenSymmetricKeySegment(BaseSegment):
         "DECRYPTION",
         "BY",
         _decryption_mechanism,
+    )
+
+
+class DbccStatementSegment(BaseSegment):
+    """A `DBCC` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/database-console-commands/dbcc-transact-sql
+
+    type = "dbcc_statement"
+
+    _statements = OneOf(
+        # informational
+        "INPUTBUFFER",
+        "SHOWCONTIG",
+        "OPENTRAN",
+        "OUTPUTBUFFER",
+        "PROCCACHE",
+        "SHOW_STATISTICS",
+        "SQLPERF",
+        "TRACESTATUS",
+        "USEROPTIONS",
+        # validation
+        "CHECKALLOC",
+        "CHECKCATALOG",
+        "CHECKCONSTRAINTS",
+        "CHECKDB",
+        "CHECKFILEGROUP",
+        "CHECKIDENT",
+        "CHECKTABLE",
+        # maintenance
+        "CLEANTABLE",
+        "DBREINDEX",
+        "DROPCLEANBUFFERS",
+        "FREEPROCCACHE",
+        "INDEXDEFRAG",
+        "SHRINKDATABASE",
+        "SHRINKFILE",
+        "UPDATEUSAGE",
+        # miscellaneous
+        "HELP",
+        "FLUSHAUTHCACHE",
+        "TRACEOFF",
+        "FREESESSIONCACHE",
+        "TRACEON",
+        "FREESYSTEMCACHE",
+        "CLONEDATABASE",
+    )
+
+    _with_options = Delimited(
+        "FAST",
+        "NO_INFOMSGS",
+        "ALL_INDEXES",
+        "TABLERESULTS",
+        "ALL_LEVELS",
+        "STAT_HEADER",
+        "DENSITY_VECTOR",
+        "HISTOGRAM",
+        "ALL_ERRORMSGS",
+        "TABLOCK",
+        "ESTIMATEONLY",
+        "ALL_CONSTRAINTS",
+        "EXTENDED_LOGICAL_CHECKS",
+        "PHYSICAL_ONLY",
+        "DATA_PURITY",
+        "COUNT_ROWS",
+        "MARK_IN_USE_FOR_REMOVAL",
+        "NO_STATISTICS",
+        "NO_QUERYSTORE",
+        "VERIFY_CLONEDB",
+        "BACKUP_CLONEDB",
+        "SERVICEBROKER",
+        Sequence("MAXDOP", Ref("RawEqualsSegment"), Ref("IntegerLiteralSegment")),
+        optional=True,
+    )
+
+    match_grammar: Matchable = Sequence(
+        "DBCC",
+        _statements,
+        # Using Anything as a catch-all for now, more specifics might be needed later
+        Sequence(Bracketed(Anything()), optional=True),
+        Sequence("WITH", _with_options, optional=True),
     )
 
 
