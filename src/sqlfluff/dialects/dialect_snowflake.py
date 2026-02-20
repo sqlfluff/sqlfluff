@@ -398,7 +398,7 @@ snowflake_dialect.add(
         LiteralSegment,
         type="dynamic_table_lag_interval_segment",
     ),
-    # Valid characters for CATALOG_SYNC_NAMESPACE_FLATTEN_DELIMITER: 
+    # Valid characters for CATALOG_SYNC_NAMESPACE_FLATTEN_DELIMITER:
     # 0-9, A-Z, a-z, _, $, -
     CatalogSyncNamespaceFlattenDelimeter=RegexParser(
         r"'[0-9A-Za-z_$-]+'",
