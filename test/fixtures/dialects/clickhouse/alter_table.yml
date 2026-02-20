@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72ae79dd58799596fe92409eeddf2f547d735ef47b05c6efe732812c3dc994ad
+_hash: 12cc1d35c03f95ca0b3dc51ae0d0cb8f4c7ef6c785feb56e2933835cdfe3af60
 file:
 - statement:
     alter_table_statement:
@@ -603,11 +603,12 @@ file:
     - naked_identifier: browser
     - data_type:
         data_type_identifier: Array
-        bracketed:
-          start_bracket: (
-          data_type:
-            data_type_identifier: String
-          end_bracket: )
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: String
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
