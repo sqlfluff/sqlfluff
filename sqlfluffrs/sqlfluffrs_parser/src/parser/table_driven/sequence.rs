@@ -276,6 +276,17 @@ impl Parser<'_> {
         {
             // Optional element - skip and continue to next
             if next_element_idx >= elements.len() {
+                // Flush any buffered metas before going to combining
+                let pending_metas = {
+                    let mut ctx = frame.context.as_sequence_mut().unwrap();
+                    ctx.take_meta_buffer()
+                };
+                if !pending_metas.is_empty() {
+                    let insert_positions =
+                        self.flush_meta_buffer(matched_idx, matched_idx, pending_metas);
+                    let ctx = frame.context.as_sequence_mut().unwrap();
+                    ctx.insert_segments.extend(insert_positions);
+                }
                 // All children processed - go to combining
                 return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
             }
@@ -290,6 +301,17 @@ impl Parser<'_> {
 
             // We should check again if we're done after buffering metas if we're out of elements
             if next_element_idx >= elements.len() {
+                // Flush any buffered metas before going to combining
+                let pending_metas = {
+                    let mut ctx = frame.context.as_sequence_mut().unwrap();
+                    ctx.take_meta_buffer()
+                };
+                if !pending_metas.is_empty() {
+                    let insert_positions =
+                        self.flush_meta_buffer(matched_idx, matched_idx, pending_metas);
+                    let ctx = frame.context.as_sequence_mut().unwrap();
+                    ctx.insert_segments.extend(insert_positions);
+                }
                 // All children processed - go to combining
                 return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
             }
