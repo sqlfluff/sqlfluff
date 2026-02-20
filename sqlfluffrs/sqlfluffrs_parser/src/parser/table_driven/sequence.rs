@@ -337,7 +337,7 @@ impl Parser<'_> {
 
         // Required element failed - handle based on parse mode
         if parse_mode == ParseMode::Strict
-            || (matched_idx == start_idx && parse_mode != ParseMode::GreedyOnceStarted)
+            || (matched_idx == start_idx && parse_mode != ParseMode::Greedy)
         {
             // STRICT mode or GREEDY_ONCE_STARTED with no matches yet
             // - return Empty, from the beginning of the sequence
