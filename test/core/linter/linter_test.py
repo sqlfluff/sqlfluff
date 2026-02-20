@@ -499,7 +499,7 @@ def test__linter__templating_fail():
         ),
         (
             "test/fixtures/linter/jinja_variants/branching_cp01.sql",
-            "L010",
+            "CP01",
             False,
             [
                 # Nested IF/ELIF blocks should surface keyword violations
