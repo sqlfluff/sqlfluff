@@ -214,8 +214,12 @@ impl Parser<'_> {
             _first_match
         );
 
-        // Handle failed/unparsable match
-        if child_match.is_empty() || child_match.contains_unparsable() {
+        // Handle failed match.
+        // NOTE: A non-empty match that contains_unparsable() is still a VALID match
+        // (the unparsable content is part of the result, e.g. from GREEDY mode).
+        // Only truly empty matches indicate failure, matching Python's behaviour
+        // which only checks `not result` (i.e. zero-length).
+        if child_match.is_empty() {
             return self.handle_sequence_child_failure(
                 frame,
                 current_element_optional,
