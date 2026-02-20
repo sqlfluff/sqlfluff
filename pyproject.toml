@@ -65,6 +65,7 @@ keywords = [
     "tsql",
     "vertica",
     "dbt",
+    "sqlmesh",
 ]
 dependencies = [
     # Used for finding os-specific application config dirs
