@@ -217,11 +217,17 @@ duckdb_dialect.replace(
             Sequence(Ref.keyword("WHERE", optional=True), Ref("ExpressionSegment"))
         ),
     ),
+    BaseExpressionElementGrammar=OneOf(
+        postgres_dialect.get_grammar("BaseExpressionElementGrammar"),
+        Ref("ColumnIndexSegment"),
+    ),
 )
 
 duckdb_dialect.insert_lexer_matchers(
     [
         StringLexer("double_divide", "//", CodeSegment),
+        # Column indexes: #1, #2, etc.
+        RegexLexer("column_index", r"#[0-9]+", CodeSegment),
     ],
     before="divide",
 )
@@ -282,6 +288,21 @@ class IntervalExpressionSegment(BaseSegment):
                 Ref("DatetimeUnitSegment"),
             ),
         ),
+    )
+
+
+class ColumnIndexSegment(BaseSegment):
+    """Column index reference using positional syntax.
+
+    DuckDB allows referencing columns by their position using #<number> syntax.
+    https://duckdb.org/docs/stable/sql/statements/select
+    """
+
+    type = "column_index"
+    match_grammar = TypedParser(
+        "column_index",
+        CodeSegment,
+        type="column_index",
     )
 
 
