@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ac14da5a7dad2369080248fec4f344fbd99e70c5a2114da8b0200d176813432
+_hash: 3782eb6e30fd4124b40aed397c8745b7162aade8d8851c4e8b749f53eace7823
 file:
 - statement:
     create_materialized_view_statement:
@@ -1423,15 +1423,13 @@ file:
       - comma: ','
       - naked_identifier: revenue
       - end_bracket: )
-    - definer_clause:
-        keyword: DEFINER
-        comparison_operator:
-          raw_comparison_operator: '='
-        naked_identifier: CURRENT_USER
-    - materialized_view_sql_security_clause:
-      - keyword: SQL
-      - keyword: SECURITY
-      - keyword: DEFINER
+    - keyword: DEFINER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: CURRENT_USER
+    - keyword: SQL
+    - keyword: SECURITY
+    - keyword: DEFINER
     - keyword: AS
     - select_statement:
         select_clause:

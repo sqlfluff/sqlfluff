@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d962be7ebad0d5d529f2b0797c8fa367f21930449a7afbfcab0c54522405d757
+_hash: e6d154272c3b76cfe94b6c47aac1aaada12c4736c349664bbf242f43b3c499f8
 file:
   statement:
     create_dictionary_statement:
@@ -24,137 +24,115 @@ file:
       - naked_identifier: mycluster
     - bracketed:
       - start_bracket: (
-      - dictionary_attribute:
-        - naked_identifier: country_code
-        - data_type:
-            data_type_identifier: String
-        - keyword: DEFAULT
-        - expression:
-            quoted_literal: "''"
-        - keyword: IS_OBJECT_ID
+      - naked_identifier: country_code
+      - data_type:
+          data_type_identifier: String
+      - keyword: DEFAULT
+      - expression:
+          quoted_literal: "''"
+      - keyword: IS_OBJECT_ID
       - comma: ','
-      - dictionary_attribute:
-          naked_identifier: country_id
-          data_type:
-            data_type_identifier: UInt64
+      - naked_identifier: country_id
+      - data_type:
+          data_type_identifier: UInt64
       - comma: ','
-      - dictionary_attribute:
-          naked_identifier: country_name
-          data_type:
-            data_type_identifier: String
-          keyword: DEFAULT
-          expression:
-            quoted_literal: "'UNKNOWN'"
+      - naked_identifier: country_name
+      - data_type:
+          data_type_identifier: String
+      - keyword: DEFAULT
+      - expression:
+          quoted_literal: "'UNKNOWN'"
       - comma: ','
-      - dictionary_attribute:
-          naked_identifier: country_name_lower
-          data_type:
-            data_type_identifier: String
-          keyword: EXPRESSION
-          expression:
-            function:
-              function_name:
-                function_name_identifier: lower
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: country_name
-                  end_bracket: )
+      - naked_identifier: country_name_lower
+      - data_type:
+          data_type_identifier: String
+      - keyword: EXPRESSION
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: lower
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: country_name
+                end_bracket: )
       - comma: ','
-      - dictionary_attribute:
-          naked_identifier: region
-          data_type:
-            data_type_identifier: String
+      - naked_identifier: region
+      - data_type:
+          data_type_identifier: String
       - comma: ','
-      - dictionary_attribute:
-        - naked_identifier: parent_code
-        - data_type:
-            data_type_identifier: String
-        - keyword: DEFAULT
-        - expression:
-            quoted_literal: "''"
-        - keyword: HIERARCHICAL
+      - naked_identifier: parent_code
+      - data_type:
+          data_type_identifier: String
+      - keyword: DEFAULT
+      - expression:
+          quoted_literal: "''"
+      - keyword: HIERARCHICAL
       - comma: ','
-      - dictionary_attribute:
-        - naked_identifier: is_active
-        - data_type:
-            data_type_identifier: UInt8
-        - keyword: DEFAULT
-        - expression:
-            numeric_literal: '1'
-        - keyword: INJECTIVE
+      - naked_identifier: is_active
+      - data_type:
+          data_type_identifier: UInt8
+      - keyword: DEFAULT
+      - expression:
+          numeric_literal: '1'
+      - keyword: INJECTIVE
       - end_bracket: )
     - keyword: PRIMARY
     - keyword: KEY
     - naked_identifier: country_code
     - comma: ','
     - naked_identifier: country_id
-    - dictionary_source_clause:
-        keyword: SOURCE
-        bracketed:
-          start_bracket: (
-          dictionary_function:
-            naked_identifier: CLICKHOUSE
-            dictionary_parameters:
-              bracketed:
-                start_bracket: (
-                dictionary_parameter_list:
-                - dictionary_parameter:
-                    naked_identifier: HOST
-                    quoted_literal: "'localhost'"
-                - dictionary_parameter:
-                    naked_identifier: PORT
-                    numeric_literal: '9000'
-                - dictionary_parameter:
-                    naked_identifier: USER
-                    quoted_literal: "'default'"
-                - dictionary_parameter:
-                    naked_identifier: PASSWORD
-                    quoted_literal: "'<PASSWORD>'"
-                - dictionary_parameter:
-                    naked_identifier: TABLE
-                    quoted_literal: "'dim_countries'"
-                - dictionary_parameter:
-                    naked_identifier: DB
-                    quoted_literal: "'analytics'"
-                end_bracket: )
-          end_bracket: )
-    - dictionary_layout_clause:
-        keyword: LAYOUT
-        bracketed:
-          start_bracket: (
-          dictionary_function:
-            naked_identifier: HASHED
-            dictionary_parameters:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-          end_bracket: )
-    - dictionary_lifetime_clause:
-        keyword: LIFETIME
+    - keyword: SOURCE
+    - bracketed:
+        start_bracket: (
+        naked_identifier: CLICKHOUSE
         bracketed:
         - start_bracket: (
-        - keyword: MIN
-        - numeric_literal: '300'
-        - keyword: MAX
-        - numeric_literal: '600'
+        - naked_identifier: HOST
+        - quoted_literal: "'localhost'"
+        - naked_identifier: PORT
+        - numeric_literal: '9000'
+        - naked_identifier: USER
+        - quoted_literal: "'default'"
+        - naked_identifier: PASSWORD
+        - quoted_literal: "'<PASSWORD>'"
+        - naked_identifier: TABLE
+        - quoted_literal: "'dim_countries'"
+        - naked_identifier: DB
+        - quoted_literal: "'analytics'"
         - end_bracket: )
-    - dictionary_settings_clause:
-        keyword: SETTINGS
+        end_bracket: )
+    - keyword: LAYOUT
+    - bracketed:
+        start_bracket: (
+        naked_identifier: HASHED
         bracketed:
-        - start_bracket: (
-        - naked_identifier: min_idle_time
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - numeric_literal: '10'
-        - comma: ','
-        - naked_identifier: max_block_size
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - numeric_literal: '10000'
-        - end_bracket: )
+          start_bracket: (
+          end_bracket: )
+        end_bracket: )
+    - keyword: LIFETIME
+    - bracketed:
+      - start_bracket: (
+      - keyword: MIN
+      - numeric_literal: '300'
+      - keyword: MAX
+      - numeric_literal: '600'
+      - end_bracket: )
+    - keyword: SETTINGS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: min_idle_time
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '10'
+      - comma: ','
+      - naked_identifier: max_block_size
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '10000'
+      - end_bracket: )
     - comment_clause:
         keyword: COMMENT
         quoted_literal: "'Country dictionary with defaults and expressions'"

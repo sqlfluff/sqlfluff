@@ -1045,51 +1045,6 @@ class OnClusterClauseSegment(BaseSegment):
     )
 
 
-class ViewColumnListSegment(BaseSegment):
-    """A column list for views."""
-
-    type = "view_column_list"
-    match_grammar = Bracketed(Delimited(Ref("SingleIdentifierGrammar")))
-
-
-class DefinerClauseSegment(BaseSegment):
-    """A `DEFINER` clause for views."""
-
-    type = "definer_clause"
-    match_grammar = Sequence(
-        "DEFINER",
-        Ref("EqualsSegment"),
-        OneOf(
-            Ref("SingleIdentifierGrammar"),
-            "CURRENT_USER",
-        ),
-    )
-
-
-class ViewSQLSecurityClauseSegment(BaseSegment):
-    """A `SQL SECURITY` clause for views."""
-
-    type = "view_sql_security_clause"
-    match_grammar = Sequence(
-        "SQL",
-        "SECURITY",
-        # NOTE: "NONE" is deprecated but still accepted by ClickHouse.
-        OneOf("DEFINER", "INVOKER", "NONE"),
-    )
-
-
-class MaterializedViewSQLSecurityClauseSegment(BaseSegment):
-    """A `SQL SECURITY` clause for materialized views."""
-
-    type = "materialized_view_sql_security_clause"
-    match_grammar = Sequence(
-        "SQL",
-        "SECURITY",
-        # NOTE: "NONE" is deprecated but still accepted by ClickHouse.
-        OneOf("DEFINER", "NONE"),
-    )
-
-
 class TableEngineSegment(BaseSegment):
     """An `ENGINE` used in `CREATE TABLE`."""
 
@@ -1506,16 +1461,37 @@ class CreateViewStatementSegment(BaseSegment):
 
     type = "create_view_statement"
 
+    _view_column_list = Bracketed(
+        Delimited(Ref("SingleIdentifierGrammar")),
+        optional=True,
+    )
+    _definer_clause = Sequence(
+        "DEFINER",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            "CURRENT_USER",
+        ),
+        optional=True,
+    )
+    _sql_security_clause = Sequence(
+        "SQL",
+        "SECURITY",
+        # NOTE: "NONE" is deprecated but still accepted by ClickHouse.
+        OneOf("DEFINER", "INVOKER", "NONE"),
+        optional=True,
+    )
+
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Ref("ViewColumnListSegment", optional=True),
+        _view_column_list,
         Ref("OnClusterClauseSegment", optional=True),
-        Ref("DefinerClauseSegment", optional=True),
-        Ref("ViewSQLSecurityClauseSegment", optional=True),
+        _definer_clause,
+        _sql_security_clause,
         "AS",
         Ref(
             "SelectableGrammar",
@@ -1533,6 +1509,23 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
     """
 
     type = "create_materialized_view_statement"
+
+    _definer_clause = Sequence(
+        "DEFINER",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            "CURRENT_USER",
+        ),
+        optional=True,
+    )
+    _sql_security_clause = Sequence(
+        "SQL",
+        "SECURITY",
+        # NOTE: "NONE" is deprecated but still accepted by ClickHouse.
+        OneOf("DEFINER", "NONE"),
+        optional=True,
+    )
 
     match_grammar = Sequence(
         "CREATE",
@@ -1572,8 +1565,8 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
                 Sequence("POPULATE", optional=True),
             ),
         ),
-        Ref("DefinerClauseSegment", optional=True),
-        Ref("MaterializedViewSQLSecurityClauseSegment", optional=True),
+        _definer_clause,
+        _sql_security_clause,
         "AS",
         Ref(
             "SelectableGrammar",
@@ -1584,11 +1577,15 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
     )
 
 
-class DictionaryAttributeSegment(BaseSegment):
-    """A dictionary attribute declaration."""
+class CreateDictionaryStatementSegment(BaseSegment):
+    """A `CREATE DICTIONARY` statement.
 
-    type = "dictionary_attribute"
-    match_grammar = Sequence(
+    https://clickhouse.com/docs/en/sql-reference/statements/create/dictionary
+    """
+
+    type = "create_dictionary_statement"
+
+    _dictionary_attribute = Sequence(
         Ref("SingleIdentifierGrammar"),
         Ref("DatatypeSegment"),
         Sequence(
@@ -1603,13 +1600,7 @@ class DictionaryAttributeSegment(BaseSegment):
             optional=True,
         ),
     )
-
-
-class DictionaryParameterSegment(BaseSegment):
-    """A single key/value dictionary parameter."""
-
-    type = "dictionary_parameter"
-    match_grammar = Sequence(
+    _dictionary_parameter = Sequence(
         Ref("SingleIdentifierGrammar"),
         OneOf(
             Ref("QuotedLiteralSegment"),
@@ -1618,66 +1609,31 @@ class DictionaryParameterSegment(BaseSegment):
             Ref("NakedIdentifierSegment"),
         ),
     )
-
-
-class DictionaryParameterListSegment(BaseSegment):
-    """A list of dictionary parameters."""
-
-    type = "dictionary_parameter_list"
-    match_grammar = AnyNumberOf(
-        Ref("DictionaryParameterSegment"),
+    _dictionary_parameter_list = AnyNumberOf(
+        _dictionary_parameter,
         min_times=1,
+        optional=True,
     )
-
-
-class DictionaryParametersSegment(BaseSegment):
-    """A parameter list for dictionary sources/layouts."""
-
-    type = "dictionary_parameters"
-    match_grammar = Bracketed(
-        Ref("DictionaryParameterListSegment", optional=True),
+    _dictionary_parameters = Bracketed(
+        _dictionary_parameter_list,
     )
-
-
-class DictionaryFunctionSegment(BaseSegment):
-    """A dictionary source/layout function."""
-
-    type = "dictionary_function"
-    match_grammar = Sequence(
+    _dictionary_function = Sequence(
         Ref("SingleIdentifierGrammar"),
-        Ref("DictionaryParametersSegment"),
+        _dictionary_parameters,
     )
-
-
-class DictionarySourceClauseSegment(BaseSegment):
-    """A dictionary SOURCE clause."""
-
-    type = "dictionary_source_clause"
-    match_grammar = Sequence(
+    _dictionary_source_clause = Sequence(
         "SOURCE",
         Bracketed(
-            Ref("DictionaryFunctionSegment"),
+            _dictionary_function,
         ),
     )
-
-
-class DictionaryLayoutClauseSegment(BaseSegment):
-    """A dictionary LAYOUT clause."""
-
-    type = "dictionary_layout_clause"
-    match_grammar = Sequence(
+    _dictionary_layout_clause = Sequence(
         "LAYOUT",
         Bracketed(
-            Ref("DictionaryFunctionSegment"),
+            _dictionary_function,
         ),
     )
-
-
-class DictionaryLifetimeClauseSegment(BaseSegment):
-    """A dictionary LIFETIME clause."""
-
-    type = "dictionary_lifetime_clause"
-    match_grammar = Sequence(
+    _dictionary_lifetime_clause = Sequence(
         "LIFETIME",
         Bracketed(
             OneOf(
@@ -1690,14 +1646,9 @@ class DictionaryLifetimeClauseSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
             ),
         ),
+        optional=True,
     )
-
-
-class DictionarySettingsClauseSegment(BaseSegment):
-    """A dictionary SETTINGS clause."""
-
-    type = "dictionary_settings_clause"
-    match_grammar = Sequence(
+    _dictionary_settings_clause = Sequence(
         "SETTINGS",
         Bracketed(
             Delimited(
@@ -1713,16 +1664,8 @@ class DictionarySettingsClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        optional=True,
     )
-
-
-class CreateDictionaryStatementSegment(BaseSegment):
-    """A `CREATE DICTIONARY` statement.
-
-    https://clickhouse.com/docs/en/sql-reference/statements/create/dictionary
-    """
-
-    type = "create_dictionary_statement"
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
@@ -1732,16 +1675,16 @@ class CreateDictionaryStatementSegment(BaseSegment):
         Ref("OnClusterClauseSegment", optional=True),
         Bracketed(
             Delimited(
-                Ref("DictionaryAttributeSegment"),
+                _dictionary_attribute,
             ),
         ),
         "PRIMARY",
         "KEY",
         Delimited(Ref("SingleIdentifierGrammar")),
-        Ref("DictionarySourceClauseSegment"),
-        Ref("DictionaryLayoutClauseSegment"),
-        Ref("DictionaryLifetimeClauseSegment", optional=True),
-        Ref("DictionarySettingsClauseSegment", optional=True),
+        _dictionary_source_clause,
+        _dictionary_layout_clause,
+        _dictionary_lifetime_clause,
+        _dictionary_settings_clause,
         Ref("CommentClauseSegment", optional=True),
     )
 
