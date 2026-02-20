@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     Delimited,
     KeywordSegment,
+    Matchable,
     MultiStringParser,
     OneOf,
     Ref,
@@ -70,7 +71,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateViewStatementSegment"),
             Ref("DropStatementSegment"),
             Ref("FetchStatementSegment"),
-            Ref("GrantStatementSegment"),
             Ref("MaterializeExplainStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("ShowCreateStatementSegment"),
@@ -125,18 +125,6 @@ materialize_dialect.add(
         "CLUSTER",
         Ref("ObjectReferenceSegment"),
     ),
-    Privileges=OneOf(
-        "SELECT",
-        "INSERT",
-        "UPDATE",
-        "DELETE",
-        "CREATE",
-        "USAGE",
-        "CREATEROLE",
-        "CREATEDB",
-        "CREATECLUSTER",
-        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-    ),
 )
 
 
@@ -189,8 +177,12 @@ class AlterDefaultPrivilegesStatementSegment(BaseSegment):
         Sequence("ALTER", "DEFAULT", "PRIVILEGES", "FOR"),
         OneOf(
             Sequence(
-                OneOf("ROLE", "USER"),
-                Ref("ObjectReferenceSegment"),
+                "ROLE",
+                Ref("RoleReferenceSegment"),
+            ),
+            Sequence(
+                "USER",
+                Ref("UserReferenceSegment"),
             ),
             Sequence("ALL", "ROLES"),
         ),
@@ -201,7 +193,7 @@ class AlterDefaultPrivilegesStatementSegment(BaseSegment):
             optional=True,
         ),
         "GRANT",
-        Ref("Privileges"),
+        Ref("AccessPermissionsSegment"),
         "ON",
         OneOf(
             "TABLES",
@@ -1127,66 +1119,94 @@ class FetchStatementSegment(BaseSegment):
     )
 
 
-class GrantStatementSegment(BaseSegment):
+class AccessObjectSegment(ansi.AccessObjectSegment):
+    """An access object."""
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            OneOf(
+                "TABLE",
+                "TYPE",
+                "SECRET",
+                "CONNECTION",
+                "DATABASE",
+                "SCHEMA",
+                "CLUSTER",
+                optional=True,
+            ),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+        "SYSTEM",
+        Sequence(
+            "ALL",
+            OneOf(
+                Sequence(
+                    OneOf(
+                        "TABLES",
+                        "TYPES",
+                        "SECRETS",
+                        "CONNECTIONS",
+                    ),
+                    "IN",
+                    "SCHEMA",
+                    Delimited(
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                Sequence(
+                    OneOf("TABLES", "TYPES", "SECRETS", "CONNECTIONS", "SCHEMAS"),
+                    "IN",
+                    "DATABASE",
+                    Delimited(
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                "DATABASES",
+                "SCHEMAS",
+                "CLUSTERS",
+            ),
+        ),
+    )
+
+
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """An access permissions."""
+
+    match_grammar: Matchable = OneOf(
+        "SELECT",
+        "INSERT",
+        "UPDATE",
+        "DELETE",
+        "CREATE",
+        "USAGE",
+        "CREATEROLE",
+        "CREATEDB",
+        "CREATECLUSTER",
+        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+    )
+
+
+class AccessTargetSegment(ansi.AccessTargetSegment):
+    """An access target."""
+
+    match_grammar = Delimited(
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class GrantStatementSegment(ansi.GrantStatementSegment):
     """A `GRANT` statement."""
 
     type = "grant_statement"
     match_grammar = Sequence(
         "GRANT",
-        Ref("Privileges"),
+        Ref("AccessPermissionsSegment"),
         "ON",
-        OneOf(
-            Sequence(
-                OneOf(
-                    "TABLE",
-                    "TYPE",
-                    "SECRET",
-                    "CONNECTION",
-                    "DATABASE",
-                    "SCHEMA",
-                    "CLUSTER",
-                    optional=True,
-                ),
-                Delimited(
-                    Ref("ObjectReferenceSegment"),
-                ),
-            ),
-            "SYSTEM",
-            Sequence(
-                "ALL",
-                OneOf(
-                    Sequence(
-                        OneOf(
-                            "TABLES",
-                            "TYPES",
-                            "SECRETS",
-                            "CONNECTIONS",
-                        ),
-                        "IN",
-                        "SCHEMA",
-                        Delimited(
-                            Ref("ObjectReferenceSegment"),
-                        ),
-                    ),
-                    Sequence(
-                        OneOf("TABLES", "TYPES", "SECRETS", "CONNECTIONS", "SCHEMAS"),
-                        "IN",
-                        "DATABASE",
-                        Delimited(
-                            Ref("ObjectReferenceSegment"),
-                        ),
-                    ),
-                    "DATABASES",
-                    "SCHEMAS",
-                    "CLUSTERS",
-                ),
-            ),
-        ),
+        Ref("AccessObjectSegment"),
         "TO",
-        Sequence("GROUP", optional=True),
-        Delimited(
-            Ref("ObjectReferenceSegment"),
-        ),
+        Ref("AccessTargetSegment"),
     )
 
 

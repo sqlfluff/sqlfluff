@@ -145,7 +145,15 @@ class Rule_AM07(BaseRule):
         If it does, we attempt to resolve them.
         """
         self.logger.debug("Resolving selectable: %r", selectable.selectable.raw)
-        assert selectable.select_info
+        # Handle cases where select_info is None (e.g., DuckDB FROM-first syntax)
+        # When SELECT is omitted, it's treated as an implicit SELECT *
+        if not selectable.select_info:
+            self.logger.debug(
+                "No select_info (e.g., implicit SELECT *): %r",
+                selectable.selectable.raw,
+            )
+            # Cannot resolve implicit wildcards, return unresolved
+            return 0, False
         wildcard_info = selectable.get_wildcard_info()
         # Start with the number of non-wild columns.
         num_cols = len(selectable.select_info.select_targets) - len(wildcard_info)

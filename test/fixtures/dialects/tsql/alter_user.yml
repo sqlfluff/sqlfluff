@@ -1,0 +1,93 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6dded947b1162d86e57dd8ac9f939bd775d96e25c1142eb99f7d7738aad12175
+file:
+  batch:
+  - statement:
+      alter_user_statement:
+      - keyword: ALTER
+      - keyword: USER
+      - role_reference:
+          naked_identifier: SomeUser
+      - keyword: WITH
+      - keyword: LOGIN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - role_reference:
+          naked_identifier: SomeUser
+  - statement_terminator: ;
+  - statement:
+      alter_user_statement:
+      - keyword: ALTER
+      - keyword: USER
+      - role_reference:
+          naked_identifier: SomeUser
+      - keyword: WITH
+      - keyword: DEFAULT_SCHEMA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'NULL'
+  - statement_terminator: ;
+  - statement:
+      alter_user_statement:
+      - keyword: ALTER
+      - keyword: USER
+      - role_reference:
+          naked_identifier: SomeUser
+      - keyword: WITH
+      - keyword: Name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - role_reference:
+          naked_identifier: NewName
+      - comma: ','
+      - keyword: DEFAULT_SCHEMA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: dbo
+      - comma: ','
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'password'"
+      - comma: ','
+      - keyword: DEFAULT_LANGUAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
+      - comma: ','
+      - keyword: ALLOW_ENCRYPTED_VALUE_MODIFICATIONS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      alter_user_statement:
+      - keyword: ALTER
+      - keyword: USER
+      - role_reference:
+          naked_identifier: SomeUser
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'password'"
+      - keyword: OLD_PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'oldpassword'"
+      - comma: ','
+      - keyword: ALLOW_ENCRYPTED_VALUE_MODIFICATIONS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'OFF'
+      - comma: ','
+      - keyword: DEFAULT_LANGUAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: French
+  - statement_terminator: ;

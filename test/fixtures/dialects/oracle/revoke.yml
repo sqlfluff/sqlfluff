@@ -3,143 +3,192 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 04408a584cceb3c2d70ac62da8e92c121f710f569c74eccdfb87518f24c7b7b5
+_hash: 13ea10d4938f9ebc49685f9857717468e0b3aef33be59ff65640dc7735d41381
 file:
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: DROP
-    - keyword: ANY
-    - keyword: TABLE
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: hr
-    - comma: ','
-    - role_reference:
-        naked_identifier: oe
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: DROP
+          keyword: ANY
+          access_object:
+            keyword: TABLE
+      - keyword: FROM
+      - access_target:
+        - object_reference:
+            naked_identifier: hr
+        - comma: ','
+        - object_reference:
+            naked_identifier: oe
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - role_reference:
-        naked_identifier: dw_manager
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: sh
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          role_reference:
+            naked_identifier: dw_manager
+      - keyword: FROM
+      - access_target:
+          object_reference:
+            naked_identifier: sh
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: CREATE
-    - keyword: TABLESPACE
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: dw_manager
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+          access_object:
+            keyword: TABLESPACE
+      - keyword: FROM
+      - access_target:
+          object_reference:
+            naked_identifier: dw_manager
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - role_reference:
-        naked_identifier: dw_user
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: dw_manager
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          role_reference:
+            naked_identifier: dw_user
+      - keyword: FROM
+      - access_target:
+          object_reference:
+            naked_identifier: dw_manager
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: DELETE
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: orders
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: hr
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: DELETE
+      - keyword: 'ON'
+      - object_reference:
+          naked_identifier: orders
+      - keyword: FROM
+      - access_target:
+          object_reference:
+            naked_identifier: hr
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: ALL
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: orders
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: hr
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: ALL
+      - keyword: 'ON'
+      - object_reference:
+          naked_identifier: orders
+      - keyword: FROM
+      - access_target:
+          object_reference:
+            naked_identifier: hr
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: UPDATE
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: emp_details_view
-    - keyword: FROM
-    - keyword: public
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: UPDATE
+      - keyword: 'ON'
+      - object_reference:
+          naked_identifier: emp_details_view
+      - keyword: FROM
+      - access_target:
+          keyword: public
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: INHERIT
-    - keyword: PRIVILEGES
-    - keyword: 'ON'
-    - keyword: USER
-    - object_reference:
-        naked_identifier: sh
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: hr
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: INHERIT
+          access_object:
+            keyword: PRIVILEGES
+      - keyword: 'ON'
+      - keyword: USER
+      - object_reference:
+          naked_identifier: sh
+      - keyword: FROM
+      - access_target:
+          object_reference:
+            naked_identifier: hr
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: SELECT
-    - keyword: 'ON'
-    - object_reference:
-      - naked_identifier: hr
-      - dot: .
-      - naked_identifier: departments_seq
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: oe
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: hr
+        - dot: .
+        - naked_identifier: departments_seq
+      - keyword: FROM
+      - access_target:
+          object_reference:
+            naked_identifier: oe
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: REFERENCES
-    - keyword: 'ON'
-    - object_reference:
-      - naked_identifier: hr
-      - dot: .
-      - naked_identifier: employees
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: oe
-    - keyword: CASCADE
-    - keyword: CONSTRAINTS
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: REFERENCES
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: hr
+        - dot: .
+        - naked_identifier: employees
+      - keyword: FROM
+      - access_target:
+          object_reference:
+            naked_identifier: oe
+      - keyword: CASCADE
+      - keyword: CONSTRAINTS
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: READ
-    - keyword: 'ON'
-    - keyword: DIRECTORY
-    - object_reference:
-        naked_identifier: bfile_dir
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: hr
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: READ
+      - keyword: 'ON'
+      - keyword: DIRECTORY
+      - object_reference:
+          naked_identifier: bfile_dir
+      - keyword: FROM
+      - access_target:
+          object_reference:
+            naked_identifier: hr
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: UPDATE
-    - keyword: 'ON'
-    - object_reference:
-      - naked_identifier: hr
-      - dot: .
-      - naked_identifier: employees
-    - keyword: FROM
-    - role_reference:
-        naked_identifier: oe
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: UPDATE
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: hr
+        - dot: .
+        - naked_identifier: employees
+      - keyword: FROM
+      - access_target:
+          object_reference:
+            naked_identifier: oe
 - statement_terminator: ;

@@ -27,6 +27,19 @@ WITH unpivot_alias AS (
 
 SELECT * FROM unpivot_alias;
 
+-- Simplified UNPIVOT with expressions and default name/value columns
+UNPIVOT
+    (SELECT 42 AS col1, 'woot' AS col2)
+ON
+    (col1 * 2)::VARCHAR,
+    col2;
+
+UNPIVOT monthly_sales
+ON COLUMNS (* EXCLUDE (empid, dept))::float4 AS '\1_\2'
+INTO
+NAME month
+VALUE sales;
+
 -- Standard UNPIVOT
 FROM monthly_sales UNPIVOT (
     sales

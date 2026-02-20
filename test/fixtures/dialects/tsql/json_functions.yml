@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be768cf5638cac420924be39f8ae3d9436e1f17562d47d33699e52db22b5e37f
+_hash: ce758daa106109323d822d670f41b46292876e22991f3ce128ae080f0b0a9144
 file:
   batch:
   - statement:
@@ -82,11 +82,11 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'name'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: "'value'"
                 - comma: ','
                 - quoted_literal: "'new'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - integer_literal: '1'
                 - end_bracket: )
   - statement_terminator: ;
@@ -102,11 +102,11 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'name'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: "'value'"
                 - comma: ','
                 - quoted_literal: "'type'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - null_literal: 'NULL'
                 - keyword: ABSENT
                 - keyword: 'ON'
@@ -124,11 +124,11 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'name'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: "'value'"
                 - comma: ','
                 - quoted_literal: "'type'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                     function_name:
                       function_name_identifier: JSON_ARRAY
@@ -154,11 +154,11 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'name'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: "'value'"
                 - comma: ','
                 - quoted_literal: "'type'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                     function_name:
                       keyword: JSON_OBJECT
@@ -166,11 +166,11 @@ file:
                       bracketed:
                       - start_bracket: (
                       - quoted_literal: "'type_id'"
-                      - colon: ':'
+                      - colon_delimiter: ':'
                       - integer_literal: '1'
                       - comma: ','
                       - quoted_literal: "'name'"
-                      - colon: ':'
+                      - colon_delimiter: ':'
                       - quoted_literal: "'a'"
                       - end_bracket: )
                 - end_bracket: )
@@ -223,7 +223,7 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'user_name'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                     function_name:
                       function_name_identifier: USER_NAME
@@ -233,11 +233,11 @@ file:
                         end_bracket: )
                 - comma: ','
                 - parameter: '@id_key'
-                - colon: ':'
+                - colon_delimiter: ':'
                 - parameter: '@id_value'
                 - comma: ','
                 - quoted_literal: "'sid'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - bracketed:
                     start_bracket: (
                     select_statement:
@@ -266,21 +266,21 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'security_id'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - column_reference:
                   - naked_identifier: s
                   - dot: .
                   - naked_identifier: security_id
                 - comma: ','
                 - quoted_literal: "'login'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - column_reference:
                   - naked_identifier: s
                   - dot: .
                   - naked_identifier: login_name
                 - comma: ','
                 - quoted_literal: "'status'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - column_reference:
                   - naked_identifier: s
                   - dot: .
@@ -336,11 +336,11 @@ file:
                         bracketed:
                         - start_bracket: (
                         - quoted_literal: "'name'"
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - quoted_literal: "'value'"
                         - comma: ','
                         - quoted_literal: "'type'"
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - integer_literal: '1'
                         - end_bracket: )
                 - end_bracket: )
@@ -367,11 +367,11 @@ file:
                         bracketed:
                         - start_bracket: (
                         - quoted_literal: "'name'"
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - quoted_literal: "'value'"
                         - comma: ','
                         - quoted_literal: "'type'"
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - integer_literal: '1'
                         - end_bracket: )
                 - comma: ','

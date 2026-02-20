@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f602ab96165c4b0c779f9c957ab8cec683a696b01e5552829e52e79d59c507ec
+_hash: 523f2c660ac87dbb3503df90e9fdef4d066625d211175c41f20da88947bbaec5
 file:
 - statement:
     select_statement:
@@ -506,11 +506,6 @@ file:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
           numeric_literal: '3'
-      orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-          naked_identifier: item
       named_window:
         keyword: WINDOW
         named_window_expression:
@@ -539,4 +534,9 @@ file:
               - numeric_literal: '2'
               - keyword: FOLLOWING
             end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: item
 - statement_terminator: ;

@@ -1,0 +1,72 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: df3d4065bb243b58e374b7ea22132ced6c5d10a4dcc43a8502b15dbdea9438d3
+file:
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - parameter: max_wal_size
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'2GB'"
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - parameter: work_mem
+    - keyword: TO
+    - quoted_literal: "'64MB'"
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - parameter: shared_buffers
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - parameter: max_connections
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '200'
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - parameter: search_path
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: public
+    - comma: ','
+    - naked_identifier: pg_catalog
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: RESET
+    - parameter: max_wal_size
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: RESET
+    - keyword: ALL
+- statement_terminator: ;

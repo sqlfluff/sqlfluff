@@ -337,3 +337,144 @@ test_oracle_nested_indentation_scenarios:
   configs:
     core:
       dialect: oracle
+
+# Test cases for exception block indentation scenarios
+test_fail_oracle_exception_block_basic:
+  # Test basic exception block indentation
+  fail_str: |
+    DECLARE
+    v_dividend NUMBER := 10;
+    v_divisor NUMBER := 0;
+    v_result NUMBER;
+    BEGIN
+    v_result := v_dividend / v_divisor;
+    DBMS_OUTPUT.PUT_LINE('Result: ' || v_result);
+    EXCEPTION
+    WHEN ZERO_DIVIDE THEN
+    DBMS_OUTPUT.PUT_LINE('Error: Division by zero!');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Unexpected error: ' || SQLERRM);
+    END;
+  fix_str: |
+    DECLARE
+        v_dividend NUMBER := 10;
+        v_divisor NUMBER := 0;
+        v_result NUMBER;
+    BEGIN
+        v_result := v_dividend / v_divisor;
+        DBMS_OUTPUT.PUT_LINE('Result: ' || v_result);
+        EXCEPTION
+            WHEN ZERO_DIVIDE THEN
+                DBMS_OUTPUT.PUT_LINE('Error: Division by zero!');
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Unexpected error: ' || SQLERRM);
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_exception_block_simple:
+  # Test simple exception block without DECLARE
+  fail_str: |
+    BEGIN
+    SELECT 1 FROM dual;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Error');
+    END;
+  fix_str: |
+    BEGIN
+        SELECT 1 FROM dual;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                DBMS_OUTPUT.PUT_LINE('No data');
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Error');
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_exception_block_nested:
+  # Test nested exception blocks
+  fail_str: |
+    DECLARE
+    v_value NUMBER;
+    BEGIN
+    BEGIN
+    v_value := 1;
+    EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Inner exception');
+    END;
+    EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Outer exception');
+    END;
+  fix_str: |
+    DECLARE
+        v_value NUMBER;
+    BEGIN
+        BEGIN
+            v_value := 1;
+            EXCEPTION
+                WHEN OTHERS THEN
+                    DBMS_OUTPUT.PUT_LINE('Inner exception');
+        END;
+        EXCEPTION
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Outer exception');
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_exception_block_multiple_handlers:
+  # Test exception block with multiple handlers
+  fail_str: |
+    BEGIN
+    NULL;
+    EXCEPTION
+    WHEN ZERO_DIVIDE THEN
+    DBMS_OUTPUT.PUT_LINE('Division by zero');
+    WHEN INVALID_NUMBER THEN
+    DBMS_OUTPUT.PUT_LINE('Invalid number');
+    WHEN VALUE_ERROR THEN
+    DBMS_OUTPUT.PUT_LINE('Value error');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Other error');
+    END;
+  fix_str: |
+    BEGIN
+        NULL;
+        EXCEPTION
+            WHEN ZERO_DIVIDE THEN
+                DBMS_OUTPUT.PUT_LINE('Division by zero');
+            WHEN INVALID_NUMBER THEN
+                DBMS_OUTPUT.PUT_LINE('Invalid number');
+            WHEN VALUE_ERROR THEN
+                DBMS_OUTPUT.PUT_LINE('Value error');
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Other error');
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_exception_block_proper_indentation:
+  # Test properly indented exception block
+  pass_str: |
+    BEGIN
+        v_result := v_dividend / v_divisor;
+        DBMS_OUTPUT.PUT_LINE('Result: ' || v_result);
+        EXCEPTION
+            WHEN ZERO_DIVIDE THEN
+                DBMS_OUTPUT.PUT_LINE('Error: Division by zero!');
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Unexpected error: ' || SQLERRM);
+    END;
+  configs:
+    core:
+      dialect: oracle

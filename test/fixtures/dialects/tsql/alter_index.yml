@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ae559c6095a99da7a6eaa94388edbca341d6980ecac15a47f886246db5ce0e8e
+_hash: 3c9e00395ece23bb7cdffc8b399239e13081456a6f02fc594f49343024019aba
 file:
   batch:
   - statement:
@@ -329,18 +329,19 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - keyword: 'ON'
-        - keyword: 'ON'
-        - keyword: PARTITIONS
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '2'
-          - comma: ','
-          - numeric_literal: '4'
-          - comma: ','
-          - numeric_literal: '6'
-          - keyword: TO
-          - numeric_literal: '8'
-          - end_bracket: )
+        - on_partitions_clause:
+          - keyword: 'ON'
+          - keyword: PARTITIONS
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '2'
+            - comma: ','
+            - numeric_literal: '4'
+            - comma: ','
+            - numeric_literal: '6'
+            - keyword: TO
+            - numeric_literal: '8'
+            - end_bracket: )
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -360,14 +361,15 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - keyword: PAGE
-        - keyword: 'ON'
-        - keyword: PARTITIONS
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '3'
-          - comma: ','
-          - numeric_literal: '5'
-          - end_bracket: )
+        - on_partitions_clause:
+          - keyword: 'ON'
+          - keyword: PARTITIONS
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '3'
+            - comma: ','
+            - numeric_literal: '5'
+            - end_bracket: )
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -387,12 +389,13 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - keyword: NONE
-        - keyword: 'ON'
-        - keyword: PARTITIONS
-        - bracketed:
-            start_bracket: (
-            numeric_literal: '1'
-            end_bracket: )
+        - on_partitions_clause:
+          - keyword: 'ON'
+          - keyword: PARTITIONS
+          - bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
         - end_bracket: )
   - statement_terminator: ;
   - statement:

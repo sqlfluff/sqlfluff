@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2219075cc577e6730b1c1e0077dc77d3f284825d3a89c0e9d4fe9f223e00bd75
+_hash: 642b8a9acbcaa45ee7a8797a5c99828ae1ef394f62d8aa75b7353cbe71563f86
 file:
 - batch:
     statement:
@@ -20,10 +20,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -94,10 +96,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -166,10 +170,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -246,10 +252,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -331,10 +339,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -415,10 +425,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -501,10 +513,12 @@ file:
             quoted_identifier: '[name]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'

@@ -1,0 +1,454 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a4b8cbf17eaefb8e3de1fc01426c6777ab1612fd107913919b198b8105e86b14
+file:
+- batch:
+    statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: SCHEMA
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: Sales
+      - keyword: TO
+      - role_reference:
+          naked_identifier: Vendors
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: FROM
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: PRIVILEGES
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          quoted_identifier: '[AdventureWorks2012\RosaQdM]'
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+        - keyword: SELECT
+        - comma: ','
+        - keyword: INSERT
+        - comma: ','
+        - keyword: UPDATE
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+      - comma: ','
+      - role_reference:
+          naked_identifier: SomeOtherRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+          keyword: SELECT
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: Column1
+          - comma: ','
+          - column_reference:
+              naked_identifier: Column2
+          - end_bracket: )
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeTable
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeUser
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+        - keyword: SELECT
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: Column1
+          - comma: ','
+          - column_reference:
+              naked_identifier: Column2
+          - end_bracket: )
+        - comma: ','
+        - keyword: UPDATE
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: Column2
+            end_bracket: )
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeTable
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeUser
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+          keyword: EXECUTE
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeTableType
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+      - keyword: CASCADE
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+          keyword: EXECUTE
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeTableType
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+      - keyword: AS
+      - role_reference:
+          naked_identifier: SomeAdmin
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: GRANT
+      - keyword: OPTION
+      - keyword: FOR
+      - permissions_segment:
+          keyword: EXECUTE
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeTableType
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+      - keyword: AS
+      - role_reference:
+          naked_identifier: SomeAdmin
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: TYPE
+          casting_operator: '::'
+          object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeTableType
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: OBJECT
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+      - comma: ','
+      - role_reference:
+          naked_identifier: AnotherRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: ASSEMBLY
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+        - keyword: ASYMMETRIC
+        - keyword: KEY
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: CERTIFICATE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: TYPE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+        - keyword: FULLTEXT
+        - keyword: CATALOG
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+        - keyword: FULLTEXT
+        - keyword: STOPLIST
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: ROLE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+        - keyword: SEARCH
+        - keyword: PROPERTY
+        - keyword: LIST
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+        - keyword: SYMMETRIC
+        - keyword: KEY
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: ALL
+      - keyword: 'ON'
+      - securable_segment:
+        - keyword: XML
+        - keyword: SCHEMA
+        - keyword: COLLECTION
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+          keyword: IMPERSONATE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: LOGIN
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeUser
+      - keyword: TO
+      - role_reference:
+          naked_identifier: AnotherUser
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+          keyword: CONTROL
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: USER
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeUser
+      - keyword: TO
+      - role_reference:
+          naked_identifier: AnotherUser
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: GRANT
+      - keyword: OPTION
+      - keyword: FOR
+      - permissions_segment:
+        - keyword: SELECT
+        - comma: ','
+        - keyword: INSERT
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: Column1
+            end_bracket: )
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: OBJECT
+          casting_operator: '::'
+          object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeUser
+      - comma: ','
+      - role_reference:
+          naked_identifier: AnotherUser
+      - keyword: CASCADE
+      - keyword: AS
+      - role_reference:
+          naked_identifier: SomeAdmin
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO

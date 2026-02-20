@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     AnySetOf,
     Anything,
     BaseSegment,
+    BinaryOperatorSegment,
     Bracketed,
     BracketedSegment,
     CodeSegment,
@@ -1112,7 +1113,7 @@ class SQLConfPropertiesSegment(BaseSegment):
     )
 
 
-class DivBinaryOperatorSegment(BaseSegment):
+class DivBinaryOperatorSegment(BinaryOperatorSegment):
     """DIV type binary_operator."""
 
     type = "binary_operator"
@@ -1172,8 +1173,14 @@ class PrimitiveTypeSegment(BaseSegment):
         "TIMESTAMP_LTZ",
         "TIMESTAMP_NTZ",
         "STRING",
+        # CHAR, CHARACTER, and VARCHAR require mandatory length
         Sequence(
-            OneOf("CHAR", "CHARACTER", "VARCHAR", "DECIMAL", "DEC", "NUMERIC"),
+            OneOf("CHAR", "CHARACTER", "VARCHAR"),
+            Ref("BracketedArguments"),
+        ),
+        # DECIMAL, DEC, and NUMERIC have optional precision/scale
+        Sequence(
+            OneOf("DECIMAL", "DEC", "NUMERIC"),
             Ref("BracketedArguments", optional=True),
         ),
         "BINARY",

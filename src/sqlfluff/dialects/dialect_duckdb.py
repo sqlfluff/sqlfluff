@@ -357,12 +357,12 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         OneOf(
             Sequence("DEFAULT", "VALUES"),
-            Ref("SelectStatementSegment"),
+            Ref("SelectableGrammar"),
             Sequence(
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
                 OneOf(
                     Ref("ValuesClauseSegment"),
-                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
                 ),
             ),
         ),
@@ -945,23 +945,21 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
         Delimited(
             Sequence(
                 OneOf(
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                    ),
-                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                    Bracketed(Delimited(Ref("ExpressionSegment"))),
                 ),
                 Ref("AliasExpressionSegment", optional=True),
             ),
-            Ref("ColumnsExpressionGrammar"),
         ),
-        "INTO",
-        "NAME",
-        Ref("SingleIdentifierGrammar"),
-        "VALUE",
-        Delimited(
+        Sequence(
+            "INTO",
+            "NAME",
             Ref("SingleIdentifierGrammar"),
+            "VALUE",
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+            ),
+            optional=True,
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
@@ -1132,6 +1130,45 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
     )
 
 
+class SetStatementSegment(postgres.SetStatementSegment):
+    """A `SET` Statement.
+
+    DuckDB documentation: https://duckdb.org/docs/sql/statements/set
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            Sequence(
+                "VARIABLE",
+                Ref("NakedIdentifierSegment"),  # variable_name
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                ),
+            ),
+            Sequence(
+                OneOf("SESSION", "LOCAL", "GLOBAL", optional=True),
+                Ref("ParameterNameSegment"),
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    "DEFAULT",
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedIdentifierSegment"),
+                        Ref("OnKeywordAsIdentifierSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment.
 
@@ -1148,4 +1185,28 @@ class ArrayLiteralSegment(BaseSegment):
             Ref("BaseExpressionElementGrammar"), optional=True, allow_trailing=True
         ),
         bracket_type="square",
+    )
+
+
+class ValuesClauseSegment(postgres.ValuesClauseSegment):
+    """A `VALUES` clause within in `WITH` or `SELECT`."""
+
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(
+            Bracketed(
+                Delimited(
+                    Ref("ExpressionSegment"),
+                    # DEFAULT keyword used in
+                    # INSERT INTO statement.
+                    "DEFAULT",
+                    allow_trailing=True,
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            allow_trailing=True,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
     )

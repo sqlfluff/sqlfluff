@@ -336,7 +336,7 @@ CREATE OR REPLACE HYBRID TABLE target_hybrid_table (
     col1 VARCHAR(32) PRIMARY KEY,
     col2 NUMBER(38,0) UNIQUE,
     col3 NUMBER(38,0),
-    INDEX index_col3 (col3)
+    INDEX index_col3 (col3) INCLUDE (col1, col2)
     )
   AS SELECT col1, col2, col3 FROM source_table;
 

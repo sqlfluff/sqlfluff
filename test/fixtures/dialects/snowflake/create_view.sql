@@ -107,3 +107,11 @@ CREATE OR ALTER VIEW view_with_column_comment
 )
 AS SELECT col1
 FROM src_table;
+
+CREATE OR ALTER VIEW view_with_change_tracking
+(
+    col1
+)
+CHANGE_TRACKING = TRUE
+AS SELECT col1
+FROM src_table;

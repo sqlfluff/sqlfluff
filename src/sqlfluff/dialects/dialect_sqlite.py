@@ -370,8 +370,10 @@ sqlite_dialect.replace(
             ),
         ),
     ),
-    # NOTE: This block was copy/pasted from dialect_ansi.py with these changes made:
+    # NOTE: This block was copy/pasted from dialect_ansi.py with these changes:
     #  - "PRIOR" keyword removed from Expression_A_Unary_Operator_Grammar
+    #  - QuantifiedComparisonOperatorGrammar removed (SQLite doesn't support
+    #    ANY/ALL/SOME)
     Expression_A_Unary_Operator_Grammar=OneOf(
         Ref(
             "SignedSegmentGrammar",
@@ -379,6 +381,39 @@ sqlite_dialect.replace(
         ),
         Ref("TildeSegment"),
         Ref("NotOperatorGrammar"),
+    ),
+    Expression_A_Grammar=Sequence(
+        Ref("Tail_Recurse_Expression_A_Grammar"),
+        AnyNumberOf(
+            OneOf(
+                Ref("LikeExpressionGrammar"),
+                Sequence(
+                    Ref("BinaryOperatorGrammar"),
+                    Ref("Tail_Recurse_Expression_A_Grammar"),
+                ),
+                Ref("InOperatorGrammar"),
+                # QuantifiedComparisonOperatorGrammar removed - not supported in SQLite
+                Sequence(
+                    "IS",
+                    Ref.keyword("NOT", optional=True),
+                    Ref("IsClauseGrammar"),
+                ),
+                Ref("IsNullGrammar"),
+                Ref("NotNullGrammar"),
+                Ref("CollateGrammar"),
+                Sequence(
+                    Ref.keyword("NOT", optional=True),
+                    "BETWEEN",
+                    Ref("Expression_B_Grammar"),
+                    "AND",
+                    Ref("Tail_Recurse_Expression_A_Grammar"),
+                ),
+                Sequence(
+                    Ref("PatternMatchingGrammar"),
+                    Ref("Expression_A_Grammar"),
+                ),
+            )
+        ),
     ),
     IsDistinctFromGrammar=Sequence(
         "IS",

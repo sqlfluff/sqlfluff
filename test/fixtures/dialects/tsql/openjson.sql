@@ -50,3 +50,10 @@ SELECT root.[key] AS [Order],TheValues.[key], TheValues.[value]
 FROM OPENJSON ( @JSON ) AS root
 CROSS APPLY OPENJSON ( root.value) AS TheValues
 ;
+GO
+
+DECLARE @JSON nvarchar(max), @Path nvarchar(max);
+SELECT d.id, d.name
+FROM OPENJSON(isnull(@json,'{}'), isnull(@path,'$.attribute'))
+WITH (id int, name nvarchar(128))  d;
+GO

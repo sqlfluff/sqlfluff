@@ -288,6 +288,10 @@ clickhouse_dialect.replace(
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
     ),
+    Expression_D_Grammar=OneOf(
+        Ref("TupleElementAccessSegment"),
+        ansi_dialect.get_grammar("Expression_D_Grammar"),
+    ),
 )
 
 # Set the datetime units
@@ -349,6 +353,167 @@ clickhouse_dialect.sets("datetime_units").update(
         "YY",
     ]
 )
+
+
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """A ClickHouse access permission.
+
+    Based on https://clickhouse.com/docs/sql-reference/statements/grant#privileges
+    """
+
+    match_grammar: Matchable = OneOf(
+        # SELECT privilege
+        Sequence(
+            "SELECT",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # INSERT privilege
+        Sequence(
+            "INSERT",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # DELETE privilege (standalone)
+        Sequence(
+            "DELETE",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # UPDATE privilege (standalone)
+        Sequence(
+            "UPDATE",
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+        # ALTER privileges - hierarchical structure
+        Sequence(
+            "ALTER",
+            OneOf(
+                # ALTER TABLE
+                "TABLE",
+                # ALTER ADD/DROP/MODIFY/CLEAR/COMMENT/RENAME COLUMN
+                Sequence(
+                    OneOf("ADD", "DROP", "MODIFY", "CLEAR", "COMMENT", "RENAME"),
+                    "COLUMN",
+                ),
+                # ALTER CONSTRAINT
+                Sequence(
+                    OneOf("ADD", "DROP"),
+                    "CONSTRAINT",
+                ),
+                # ALTER TTL/ORDER BY/SAMPLE BY
+                Sequence(
+                    OneOf("MODIFY", "REMOVE"),
+                    OneOf(
+                        "TTL",
+                        Sequence("ORDER", "BY"),
+                        Sequence("SAMPLE", "BY"),
+                    ),
+                ),
+                # ALTER MATERIALIZE TTL
+                Sequence("MATERIALIZE", "TTL"),
+                # ALTER DELETE, ALTER UPDATE (data manipulation)
+                "DELETE",
+                "UPDATE",
+                # ALTER MOVE PARTITION/PART
+                Sequence(
+                    "MOVE",
+                    OneOf("PARTITION", "PART"),
+                ),
+                # ALTER FETCH PARTITION
+                Sequence("FETCH", "PARTITION"),
+                # ALTER FREEZE PARTITION
+                Sequence("FREEZE", "PARTITION"),
+                # ALTER INDEX
+                Sequence(
+                    OneOf("ADD", "DROP", "MATERIALIZE", "CLEAR"),
+                    "INDEX",
+                ),
+                # ALTER PROJECTION
+                Sequence(
+                    OneOf("ADD", "DROP", "MATERIALIZE", "CLEAR"),
+                    "PROJECTION",
+                ),
+                # ALTER VIEW - REFRESH/MODIFY QUERY
+                Sequence(
+                    "VIEW",
+                    OneOf("REFRESH", Sequence("MODIFY", "QUERY")),
+                ),
+                optional=True,
+            ),
+        ),
+        # CREATE privileges
+        Sequence(
+            "CREATE",
+            OneOf(
+                "DATABASE",
+                "TABLE",
+                "VIEW",
+                "DICTIONARY",
+                Sequence("TEMPORARY", "TABLE"),
+                optional=True,
+            ),
+        ),
+        # DROP privileges
+        Sequence(
+            "DROP",
+            OneOf(
+                "DATABASE",
+                "TABLE",
+                "VIEW",
+                "DICTIONARY",
+                optional=True,
+            ),
+        ),
+        # TRUNCATE privilege
+        "TRUNCATE",
+        # OPTIMIZE privilege
+        "OPTIMIZE",
+        # SHOW privileges
+        Sequence(
+            "SHOW",
+            OneOf(
+                "DATABASES",
+                "TABLES",
+                "COLUMNS",
+                "DICTIONARIES",
+                optional=True,
+            ),
+        ),
+        # ACCESS MANAGEMENT privileges
+        # CREATE/ALTER/DROP USER
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "USER",
+        ),
+        # CREATE/ALTER/DROP ROLE
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "ROLE",
+        ),
+        # CREATE/ALTER/DROP ROW POLICY
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "ROW",
+            "POLICY",
+        ),
+        # CREATE/ALTER/DROP QUOTA
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "QUOTA",
+        ),
+        # CREATE/ALTER/DROP SETTINGS PROFILE
+        Sequence(
+            OneOf("CREATE", "ALTER", "DROP"),
+            "SETTINGS",
+            "PROFILE",
+        ),
+        # SHOW ACCESS
+        Sequence("SHOW", "ACCESS"),
+        # ROLE ADMIN
+        Sequence("ROLE", "ADMIN"),
+        # ACCESS MANAGEMENT (general)
+        Sequence("ACCESS", "MANAGEMENT"),
+        # ALL or ALL PRIVILEGES
+        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+    )
 
 
 class IntoOutfileClauseSegment(BaseSegment):
@@ -504,6 +669,69 @@ class BracketedArguments(ansi.BracketedArguments):
     )
 
 
+class DateTime64ArgumentsSegment(BaseSegment):
+    """Arguments for DateTime64(precision[, 'timezone'])."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Sequence(
+            Ref("NumericLiteralSegment"),  # precision
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("QuotedLiteralSegment"),  # timezone
+                optional=True,
+            ),
+        )
+    )
+
+
+class DateTimeArgumentsSegment(BaseSegment):
+    """Arguments for DateTime('timezone')."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+class NumericArgumentsSegment(BaseSegment):
+    """Arguments for single numeric parameter types (e.g. FixedString(8))."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Ref("NumericLiteralSegment"),
+    )
+
+
+class NestedArgumentsSegment(BaseSegment):
+    """Arguments for Nested(name Type, ...)."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment"),
+            ),
+        )
+    )
+
+
+class EnumArgumentsSegment(BaseSegment):
+    """Arguments for Enum8/Enum16."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+        )
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """Support complex Clickhouse data types.
 
@@ -516,88 +744,47 @@ class DatatypeSegment(BaseSegment):
         # Nullable(Type)
         Sequence(
             StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
-            Bracketed(Ref("DatatypeSegment")),
+            Ref("BracketedArguments"),
         ),
         # LowCardinality(Type)
         Sequence(
             StringParser("LOWCARDINALITY", CodeSegment, type="data_type_identifier"),
-            Bracketed(Ref("DatatypeSegment")),
+            Ref("BracketedArguments"),
         ),
         # DateTime64(precision, 'timezone')
         Sequence(
             StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Delimited(
-                    OneOf(
-                        Ref("NumericLiteralSegment"),  # precision
-                        Ref("QuotedLiteralSegment"),  # timezone
-                    ),
-                    delimiter=Ref("CommaSegment"),
-                    optional=True,
-                )
-            ),
+            Ref("DateTime64ArgumentsSegment", optional=True),
         ),
         # DateTime('timezone')
         Sequence(
             StringParser("DATETIME", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Ref("QuotedLiteralSegment"),  # timezone
-                optional=True,
-            ),
+            Ref("DateTimeArgumentsSegment", optional=True),
+        ),
+        # Time64(precision)
+        Sequence(
+            StringParser("TIME64", CodeSegment, type="data_type_identifier"),
+            Ref("NumericArgumentsSegment"),
         ),
         # FixedString(length)
         Sequence(
             StringParser("FIXEDSTRING", CodeSegment, type="data_type_identifier"),
-            Bracketed(Ref("NumericLiteralSegment")),  # length
+            Ref("NumericArgumentsSegment"),  # length
         ),
         # Array(Type)
         Sequence(
             StringParser("ARRAY", CodeSegment, type="data_type_identifier"),
-            Bracketed(Ref("DatatypeSegment")),
+            Ref("BracketedArguments"),
         ),
         # Map(KeyType, ValueType)
         Sequence(
             StringParser("MAP", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Delimited(
-                    Ref("DatatypeSegment"),
-                    delimiter=Ref("CommaSegment"),
-                )
-            ),
-        ),
-        # Tuple(Type1, Type2) or Tuple(name1 Type1, name2 Type2)
-        Sequence(
-            StringParser("TUPLE", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Delimited(
-                    OneOf(
-                        # Named tuple element: name Type
-                        Sequence(
-                            OneOf(
-                                Ref("SingleIdentifierGrammar"),
-                                Ref("QuotedIdentifierSegment"),
-                            ),
-                            Ref("DatatypeSegment"),
-                        ),
-                        # Regular tuple element: just Type
-                        Ref("DatatypeSegment"),
-                    ),
-                    delimiter=Ref("CommaSegment"),
-                )
-            ),
+            Ref("BracketedArguments"),
         ),
         # Nested(name1 Type1, name2 Type2)
         Sequence(
             StringParser("NESTED", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("DatatypeSegment"),
-                    ),
-                    delimiter=Ref("CommaSegment"),
-                )
-            ),
+            Ref("NestedArgumentsSegment"),
         ),
         # JSON data type
         StringParser("JSON", CodeSegment, type="data_type_identifier"),
@@ -607,16 +794,7 @@ class DatatypeSegment(BaseSegment):
                 StringParser("ENUM8", CodeSegment, type="data_type_identifier"),
                 StringParser("ENUM16", CodeSegment, type="data_type_identifier"),
             ),
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("QuotedLiteralSegment"),
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    delimiter=Ref("CommaSegment"),
-                )
-            ),
+            Ref("EnumArgumentsSegment"),
         ),
         # double args
         Sequence(
@@ -634,26 +812,18 @@ class DatatypeSegment(BaseSegment):
                 StringParser("DECIMAL128", CodeSegment, type="data_type_identifier"),
                 StringParser("DECIMAL256", CodeSegment, type="data_type_identifier"),
             ),
-            Bracketed(Ref("NumericLiteralSegment")),  # scale
+            Ref("NumericArgumentsSegment"),  # scale
         ),
         Ref("TupleTypeSegment"),
         Ref("DatatypeIdentifierSegment"),
         Ref("NumericLiteralSegment"),
         Sequence(
             StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Delimited(
-                    Ref("NumericLiteralSegment"),  # precision
-                    Ref("QuotedLiteralSegment", optional=True),  # timezone
-                    # The brackets might be empty as well
-                    optional=True,
-                ),
-                optional=True,
-            ),
+            Ref("DateTime64ArgumentsSegment", optional=True),
         ),
         Sequence(
             StringParser("ARRAY", CodeSegment, type="data_type_identifier"),
-            Bracketed(Ref("DatatypeSegment")),
+            Ref("BracketedArguments"),
         ),
     )
 
@@ -673,8 +843,16 @@ class TupleTypeSchemaSegment(BaseSegment):
     type = "tuple_type_schema"
     match_grammar = Bracketed(
         Delimited(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
+            OneOf(
+                # Named tuple element: name Type
+                Sequence(
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("QuotedIdentifierSegment"),
+                    ),
+                    Ref("DatatypeSegment"),
+                ),
+                # Regular tuple element: just Type
                 Ref("DatatypeSegment"),
             ),
             bracket_pairs_set="bracket_pairs",
@@ -2165,7 +2343,25 @@ class AlterTableStatementSegment(BaseSegment):
                 "FROM",
                 Ref("TableReferenceSegment"),
             ),
+            # ALTER TABLE ... UPDATE column = expr [, column = expr ...] WHERE condition
+            Sequence(
+                "UPDATE",
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                Ref("WhereClauseSegment"),
+            ),
+            # ALTER TABLE ... DELETE WHERE condition
+            Sequence(
+                "DELETE",
+                Ref("WhereClauseSegment"),
+            ),
         ),
+        Ref("SettingsClauseSegment", optional=True),
     )
 
 
@@ -2351,4 +2547,42 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
+    """A reference to a column, including tuple element access like `a.1`."""
+
+    match_grammar: Matchable = OneOf(
+        ansi.ColumnReferenceSegment.match_grammar,
+        # Tuple element access uses dot + numeric literal, but the lexer
+        # tokenizes ".1" as a numeric literal rather than a dot segment.
+        Sequence(
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+                delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+                allow_gaps=False,
+            ),
+            AnyNumberOf(
+                Ref("NumericLiteralSegment"),
+                min_times=1,
+                allow_gaps=False,
+            ),
+            allow_gaps=False,
+        ),
+    )
+
+
+class TupleElementAccessSegment(BaseSegment):
+    """A tuple element access expression like `(a.1).2`."""
+
+    type = "tuple_element_access"
+    match_grammar: Matchable = Sequence(
+        Bracketed(Ref("ColumnReferenceSegment")),
+        AnyNumberOf(
+            Ref("NumericLiteralSegment"),
+            min_times=1,
+            allow_gaps=False,
+        ),
+        allow_gaps=False,
     )

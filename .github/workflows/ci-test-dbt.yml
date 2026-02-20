@@ -58,19 +58,26 @@ jobs:
           - 5432:5432
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ inputs.python-version }}
-        cache: 'pip'
-        cache-dependency-path: |
-          setup.cfg
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
           requirements_dev.txt
+          pyproject.toml
+          constraints/*.txt
 
     - name: Install dependencies
-      run: pip install tox
+      run: uv pip install --system tox tox-uv
 
     - name: Run the tests (with coverage)
       if: ${{ inputs.coverage }}

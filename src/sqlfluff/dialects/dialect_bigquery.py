@@ -133,6 +133,12 @@ bigquery_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r"\\([\\`\"'?])", r"\1")],
             },
         ),
+        RegexLexer(
+            "numeric_literal",
+            r"(0[xX][0-9a-fA-F]+|(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)"
+            r"(\.?[eE][+-]?\d+)?)((?<=\.)|(?=\b))",
+            LiteralSegment,
+        ),
     ]
 )
 
@@ -611,18 +617,6 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-class SelectStatementSegment(ansi.SelectStatementSegment):
-    """Enhance `SELECT` statement to include QUALIFY."""
-
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
-        insert=[Ref("QualifyClauseSegment", optional=True)],
-        before=Ref("OrderByClauseSegment", optional=True),
-        terminators=[
-            Ref("PipeOperatorSegment"),
-        ],
-    )
-
-
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Enhance unordered `SELECT` statement to include QUALIFY."""
 
@@ -631,6 +625,27 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         before=Ref("OverlapsClauseSegment", optional=True),
         terminators=[
             Ref("PipeOperatorSegment"),
+        ],
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """Enhance `SELECT` statement to include QUALIFY."""
+
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("NamedWindowSegment", optional=True),
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
+        ],
+        # Overwrite the terminators, because we want to remove some.
+        replace_terminators=True,
+        terminators=[
+            Ref("PipeOperatorSegment"),
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
         ],
     )
 

@@ -3,18 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74f8012e4befe77e9c842c77b0dbf29035a7f04c5dedd0eba48c352539d91932
+_hash: c3f58aa16ea9fd42b97b20c8cedfaee7167eeffcef24bb06678ea04396fdcd1e
 file:
   statement:
     access_statement:
-    - keyword: grant
-    - keyword: select
-    - keyword: 'on'
-    - object_reference:
-        naked_identifier: mytable
-    - keyword: to
-    - role_reference:
-        naked_identifier: public
-    - keyword: with
-    - keyword: grant
-    - keyword: option
+      grant_statement:
+      - keyword: grant
+      - access_permissions:
+          access_permission:
+            keyword: select
+      - keyword: 'on'
+      - access_object:
+          object_reference:
+            naked_identifier: mytable
+      - keyword: to
+      - access_target:
+          role_reference:
+            naked_identifier: public
+      - keyword: with
+      - keyword: grant
+      - keyword: option

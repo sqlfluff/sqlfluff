@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 902b791e01120f3e64d3fab27c1c8bb51cd227a2190d355864611f008e83b957
+_hash: 5ac384e5956234f029ccc05622864d0192b9c6eadc800ff5bad7fbfc82764e02
 file:
   statement:
     create_trigger_statement:
@@ -189,23 +189,26 @@ file:
                     keyword: VALUES
                     bracketed:
                     - start_bracket: (
-                    - sqlplus_variable:
-                      - colon: ':'
-                      - parameter: new
-                      - dot: .
-                      - parameter: customer_id
+                    - bind_variable:
+                        colon_delimiter: ':'
+                        trigger_correlation_name:
+                          keyword: new
+                        dot: .
+                        naked_identifier: customer_id
                     - comma: ','
-                    - sqlplus_variable:
-                      - colon: ':'
-                      - parameter: new
-                      - dot: .
-                      - parameter: cust_last_name
+                    - bind_variable:
+                        colon_delimiter: ':'
+                        trigger_correlation_name:
+                          keyword: new
+                        dot: .
+                        naked_identifier: cust_last_name
                     - comma: ','
-                    - sqlplus_variable:
-                      - colon: ':'
-                      - parameter: new
-                      - dot: .
-                      - parameter: cust_first_name
+                    - bind_variable:
+                        colon_delimiter: ':'
+                        trigger_correlation_name:
+                          keyword: new
+                        dot: .
+                        naked_identifier: cust_first_name
                     - end_bracket: )
             - statement_terminator: ;
             - statement:
@@ -229,23 +232,26 @@ file:
                     keyword: VALUES
                     bracketed:
                     - start_bracket: (
-                    - sqlplus_variable:
-                      - colon: ':'
-                      - parameter: new
-                      - dot: .
-                      - parameter: order_id
+                    - bind_variable:
+                        colon_delimiter: ':'
+                        trigger_correlation_name:
+                          keyword: new
+                        dot: .
+                        naked_identifier: order_id
                     - comma: ','
-                    - sqlplus_variable:
-                      - colon: ':'
-                      - parameter: new
-                      - dot: .
-                      - parameter: order_date
+                    - bind_variable:
+                        colon_delimiter: ':'
+                        trigger_correlation_name:
+                          keyword: new
+                        dot: .
+                        naked_identifier: order_date
                     - comma: ','
-                    - sqlplus_variable:
-                      - colon: ':'
-                      - parameter: new
-                      - dot: .
-                      - parameter: customer_id
+                    - bind_variable:
+                        colon_delimiter: ':'
+                        trigger_correlation_name:
+                          keyword: new
+                        dot: .
+                        naked_identifier: customer_id
                     - end_bracket: )
             - statement_terminator: ;
             - keyword: EXCEPTION
@@ -301,10 +307,12 @@ file:
                   naked_identifier: dept_view
             - referencing_clause:
               - keyword: REFERENCING
-              - keyword: NEW
+              - trigger_correlation_name:
+                  keyword: NEW
               - keyword: AS
               - naked_identifier: Employee
-              - keyword: PARENT
+              - trigger_correlation_name:
+                  keyword: PARENT
               - keyword: AS
               - naked_identifier: Department
             - keyword: FOR
@@ -578,11 +586,12 @@ file:
                             naked_identifier: employee_id
                         - assignment_operator: :=
                         - expression:
-                            sqlplus_variable:
-                            - colon: ':'
-                            - parameter: NEW
-                            - dot: .
-                            - parameter: employee_id
+                            bind_variable:
+                              colon_delimiter: ':'
+                              trigger_correlation_name:
+                                keyword: NEW
+                              dot: .
+                              naked_identifier: employee_id
                     - statement_terminator: ;
                     - statement:
                         assignment_segment_statement:
@@ -614,11 +623,12 @@ file:
                             naked_identifier: salary
                         - assignment_operator: :=
                         - expression:
-                            sqlplus_variable:
-                            - colon: ':'
-                            - parameter: NEW
-                            - dot: .
-                            - parameter: salary
+                            bind_variable:
+                              colon_delimiter: ':'
+                              trigger_correlation_name:
+                                keyword: NEW
+                              dot: .
+                              naked_identifier: salary
                     - statement_terminator: ;
                     - statement:
                         if_then_statement:
@@ -703,11 +713,12 @@ file:
                           - keyword: THEN
                         - statement:
                             assignment_segment_statement:
-                              sqlplus_variable:
-                              - colon: ':'
-                              - parameter: new
-                              - dot: .
-                              - parameter: created_at
+                              bind_variable:
+                                colon_delimiter: ':'
+                                trigger_correlation_name:
+                                  keyword: new
+                                dot: .
+                                naked_identifier: created_at
                               assignment_operator: :=
                               expression:
                                 bare_function: CURRENT_TIMESTAMP
@@ -717,11 +728,12 @@ file:
                         - keyword: THEN
                         - statement:
                             assignment_segment_statement:
-                              sqlplus_variable:
-                              - colon: ':'
-                              - parameter: new
-                              - dot: .
-                              - parameter: updated_at
+                              bind_variable:
+                                colon_delimiter: ':'
+                                trigger_correlation_name:
+                                  keyword: new
+                                dot: .
+                                naked_identifier: updated_at
                               assignment_operator: :=
                               expression:
                                 bare_function: CURRENT_TIMESTAMP

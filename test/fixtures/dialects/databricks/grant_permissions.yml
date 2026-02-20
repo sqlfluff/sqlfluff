@@ -3,102 +3,140 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 13ff8b6364cc56cb7b53e553bd57fd2011e8b2a5fc37419e2adda676503b197b
+_hash: 2697a4556bc801199aec5b93e94c55db5522b9a21093a66883f80c9412416914
 file:
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: CREATE
-    - keyword: TABLE
-    - keyword: 'ON'
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: main
-      - dot: .
-      - naked_identifier: default
-    - keyword: TO
-    - role_reference:
-        quoted_identifier: '`finance-team`'
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+            access_schema_object:
+              keyword: TABLE
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+          - naked_identifier: main
+          - dot: .
+          - naked_identifier: default
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: '`finance-team`'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: USE
-    - keyword: SCHEMA
-    - keyword: 'ON'
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: main
-      - dot: .
-      - naked_identifier: default
-    - keyword: TO
-    - role_reference:
-        quoted_identifier: '`finance-team`'
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: USE
+          - keyword: SCHEMA
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+          - naked_identifier: main
+          - dot: .
+          - naked_identifier: default
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: '`finance-team`'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: USE
-    - keyword: CATALOG
-    - keyword: 'ON'
-    - keyword: CATALOG
-    - object_reference:
-        naked_identifier: main
-    - keyword: TO
-    - role_reference:
-        quoted_identifier: '`finance-team`'
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: USE
+          - keyword: CATALOG
+      - keyword: 'ON'
+      - access_object:
+          keyword: CATALOG
+          object_reference:
+            naked_identifier: main
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: '`finance-team`'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: FUNCTION
-    - object_reference:
-      - naked_identifier: prod
-      - dot: .
-      - naked_identifier: ml_team
-      - dot: .
-      - naked_identifier: iris_model
-    - keyword: TO
-    - role_reference:
-        quoted_identifier: '`ml-team-acme`'
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: FUNCTION
+          object_reference:
+          - naked_identifier: prod
+          - dot: .
+          - naked_identifier: ml_team
+          - dot: .
+          - naked_identifier: iris_model
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: '`ml-team-acme`'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: READ
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: METASTORE
-    - keyword: TO
-    - role_reference:
-        quoted_identifier: "'principal'"
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: READ
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: METASTORE
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: "'principal'"
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: SELECT
-    - keyword: 'ON'
-    - keyword: VIEW
-    - object_reference:
-      - naked_identifier: schema
-      - dot: .
-      - naked_identifier: view
-    - keyword: TO
-    - role_reference:
-        quoted_identifier: '`the_view_accessors`'
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: VIEW
+          object_reference:
+          - naked_identifier: schema
+          - dot: .
+          - naked_identifier: view
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: '`the_view_accessors`'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: ALL
-    - keyword: PRIVILEGES
-    - keyword: 'ON'
-    - keyword: CATALOG
-    - object_reference:
-        naked_identifier: main
-    - keyword: TO
-    - role_reference:
-        quoted_identifier: '`data-engineers`'
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: ALL
+          - keyword: PRIVILEGES
+      - keyword: 'ON'
+      - access_object:
+          keyword: CATALOG
+          object_reference:
+            naked_identifier: main
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: '`data-engineers`'
 - statement_terminator: ;

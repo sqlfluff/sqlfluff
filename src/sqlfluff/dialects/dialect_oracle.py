@@ -424,6 +424,7 @@ oracle_dialect.add(
         ),
     ),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
+    TriggerCorrelationReferenceSegment=Ref("TriggerCorrelationReferenceSegment"),
     PivotForInGrammar=Sequence(
         "FOR",
         OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
@@ -809,6 +810,7 @@ oracle_dialect.replace(
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
+            Ref("TriggerCorrelationReferenceSegment"),
             Ref("SqlplusVariableGrammar"),
             Ref.keyword("LEVEL"),
             Ref.keyword("ROWNUM"),
@@ -829,6 +831,7 @@ oracle_dialect.replace(
             Ref("PlusJoinGrammar"),
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
+            Ref("TriggerCorrelationReferenceSegment"),
             Bracketed(
                 OneOf(
                     # We're using the expression segment here rather than the grammar so
@@ -929,7 +932,11 @@ oracle_dialect.replace(
         OneOf(
             Sequence(
                 Ref.keyword("IN", optional=True),
-                OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
+                OneOf(
+                    Ref("DatatypeSegment"),
+                    Ref("ColumnTypeReferenceSegment"),
+                    Ref("RowTypeReferenceSegment"),
+                ),
                 Sequence(
                     OneOf(Ref("AssignmentOperatorSegment"), "DEFAULT"),
                     Ref("ExpressionSegment"),
@@ -940,7 +947,11 @@ oracle_dialect.replace(
                 Ref.keyword("IN", optional=True),
                 "OUT",
                 Ref.keyword("NOCOPY", optional=True),
-                OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
+                OneOf(
+                    Ref("DatatypeSegment"),
+                    Ref("ColumnTypeReferenceSegment"),
+                    Ref("RowTypeReferenceSegment"),
+                ),
             ),
         ),
     ),
@@ -1687,6 +1698,30 @@ class PivotSegment(BaseSegment):
     )
 
 
+class TriggerCorrelationNameSegment(BaseSegment):
+    """A correlation name like OLD, NEW, or PARENT."""
+
+    type = "trigger_correlation_name"
+    match_grammar = OneOf("OLD", "NEW", "PARENT")
+
+
+class TriggerCorrelationReferenceSegment(BaseSegment):
+    """A segment to represent pseudorecords like :NEW, :OLD, and :PARENT."""
+
+    type = "bind_variable"
+
+    match_grammar = Sequence(
+        Ref("ColonDelimiterSegment"),
+        Ref("TriggerCorrelationNameSegment"),
+        Sequence(
+            Ref("DotSegment"),
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        allow_gaps=False,
+    )
+
+
 class UnpivotSegment(BaseSegment):
     """Unpivot clause.
 
@@ -2130,7 +2165,9 @@ class BeginEndSegment(BaseSegment):
             ),
         ),
         "THEN",
+        Indent,
         Ref("OneOrMoreStatementsGrammar"),
+        Dedent,
     )
 
     type = "begin_end_block"
@@ -2141,10 +2178,12 @@ class BeginEndSegment(BaseSegment):
         Ref("OneOrMoreStatementsGrammar"),
         Sequence(
             "EXCEPTION",
+            Indent,
             # Using AnyNumberOf with min_times=1 is not greedy enough to grab multiple
             # exceptions here. So define it once, then have AnyNumberOf after.
             _when_clause,
             AnyNumberOf(_when_clause),
+            Dedent,
             optional=True,
         ),
         Dedent,
@@ -2450,7 +2489,7 @@ class ReferencingClauseSegment(BaseSegment):
         "REFERENCING",
         AnyNumberOf(
             Sequence(
-                OneOf("OLD", "NEW", "PARENT"),
+                Ref("TriggerCorrelationNameSegment"),
                 Ref.keyword("AS", optional=True),
                 Ref("NakedIdentifierSegment"),
             )
@@ -2536,7 +2575,10 @@ class AssignmentStatementSegment(BaseSegment):
                 optional=True,
             ),
             Ref("DotSegment", optional=True),
-            Ref("SqlplusVariableGrammar"),
+            OneOf(
+                Ref("TriggerCorrelationReferenceSegment"),
+                Ref("SqlplusVariableGrammar"),
+            ),
             optional=True,
         ),
         OneOf(Ref("AssignmentOperatorSegment"), "DEFAULT"),
@@ -3373,16 +3415,10 @@ class AlterSynonymStatementSegment(BaseSegment):
     )
 
 
-class AccessStatementSegment(BaseSegment):
-    """A `GRANT` or `REVOKE` statement.
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """An access permission."""
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/GRANT.html
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/REVOKE.html
-    """
-
-    type = "access_statement"
-
-    _privileges = OneOf(
+    match_grammar: Matchable = OneOf(
         "ADMINISTER",
         "ADVISOR",
         "ALL",
@@ -3435,7 +3471,30 @@ class AccessStatementSegment(BaseSegment):
         "WRITE",
     )
 
-    _object_types = OneOf(
+
+class AccessPermissionsSegment(ansi.AccessPermissionsSegment):
+    """An access permission set."""
+
+    match_grammar: Matchable = Delimited(
+        Sequence(
+            Ref("AccessPermissionSegment"),
+            OneOf("ANY", "PUBLIC", optional=True),
+            Ref("AccessObjectSegment", optional=True),
+        ),
+        Ref("RoleReferenceSegment"),
+        Sequence(
+            Ref("AccessPermissionSegment"),
+            OneOf("ANY", "PUBLIC", optional=True),
+            Ref("AccessObjectSegment", optional=True),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+        ),
+    )
+
+
+class AccessObjectSegment(ansi.AccessObjectSegment):
+    """An access object."""
+
+    match_grammar: Matchable = OneOf(
         Sequence("ACCESS", "POLICY"),
         Sequence("ANALYTIC", "VIEW"),
         Sequence("ATTRIBUTE", "DIMENSION"),
@@ -3512,85 +3571,90 @@ class AccessStatementSegment(BaseSegment):
         "TYPE",
         "USER",
         "VIEW",
-        optional=True,
     )
 
-    _object_privileges = Sequence(
-        _privileges,
-        OneOf("ANY", "PUBLIC", optional=True),
-        _object_types,
-    )
 
-    _grantee_clause = Delimited(OneOf(Ref("RoleReferenceSegment"), "PUBLIC"))
+class AccessTargetSegment(ansi.AccessTargetSegment):
+    """An access target."""
 
-    _system_schema_privileges_segment = Sequence(
-        Delimited(
-            OneOf(
-                _object_privileges,
-                Ref("RoleReferenceSegment"),
-            )
-        ),
-        Sequence("ON", "SCHEMA", Ref("SchemaReferenceSegment"), optional=True),
-        OneOf("TO", "FROM"),
-        OneOf(
-            _grantee_clause,
-            Sequence(
-                Delimited(Ref("RoleReferenceSegment")),
-                "IDENTIFIED",
-                "BY",
-                Delimited(Ref("SingleIdentifierGrammar")),
-            ),
-        ),
-        Sequence("WITH", OneOf("ADMIN", "DELEGATE"), "OPTION", optional=True),
-    )
-
-    _object_privileges_segment = Sequence(
-        Delimited(
-            Sequence(
-                _object_privileges,
-                Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
-            )
-        ),
-        "ON",
+    match_grammar: Matchable = OneOf(
         Sequence(
-            OneOf(
-                "USER",
-                "DIRECTORY",
-                "EDITION",
-                Sequence("MINING", "MODEL"),
-                Sequence("JAVA", OneOf("SOURCE", "RESOURCE")),
-                Sequence("SQL", "TRANSLATION", "PROFILE"),
-                optional=True,
-            ),
-            Delimited(
+            OneOf("FUNCTION", "PROCEDURE", "PACKAGE"),
+            Sequence(Ref("SchemaReferenceSegment"), Ref("DotSegment"), optional=True),
+            Ref("FunctionNameSegment"),
+        ),
+        Delimited(
+            Sequence(
                 Sequence(
-                    Sequence(
-                        Ref("SchemaReferenceSegment"), Ref("DotSegment"), optional=True
-                    ),
-                    Ref("ObjectReferenceSegment"),
+                    Ref("SchemaReferenceSegment"), Ref("DotSegment"), optional=True
                 ),
+                Ref("ObjectReferenceSegment"),
             ),
         ),
-        OneOf("TO", "FROM"),
-        _grantee_clause,
-        Sequence("WITH", "HIERARCHY", "OPTION", optional=True),
-        Sequence("WITH", "GRANT", "OPTION", optional=True),
-        OneOf(Sequence("CASCADE", "CONSTRAINTS"), "FORCE", optional=True),
+        Delimited(Ref("RoleReferenceSegment"), "PUBLIC"),
     )
 
-    _roles_from_programs_segment = Sequence(
-        Delimited(Ref("RoleReferenceSegment")),
-        OneOf("TO", "FROM"),
-        OneOf("FUNCTION", "PROCEDURE", "PACKAGE"),
-        Sequence(Ref("SchemaReferenceSegment"), Ref("DotSegment"), optional=True),
-        Ref("FunctionNameSegment"),
-    )
+
+class GrantStatementSegment(ansi.GrantStatementSegment):
+    """A `GRANT` statement."""
 
     match_grammar: Matchable = Sequence(
-        OneOf("GRANT", "REVOKE"),
+        "GRANT",
         OneOf(
             Sequence(
-                OneOf(_system_schema_privileges_segment, _object_privileges_segment),
+                OneOf(
+                    Sequence(
+                        Ref("AccessPermissionsSegment"),
+                        Sequence(
+                            "ON", "SCHEMA", Ref("SchemaReferenceSegment"), optional=True
+                        ),
+                        "TO",
+                        OneOf(
+                            Ref("AccessTargetSegment"),
+                            Sequence(
+                                Ref("AccessTargetSegment"),
+                                "IDENTIFIED",
+                                "BY",
+                                Delimited(Ref("SingleIdentifierGrammar")),
+                            ),
+                        ),
+                        Sequence(
+                            "WITH", OneOf("ADMIN", "DELEGATE"), "OPTION", optional=True
+                        ),
+                    ),
+                    Sequence(
+                        Ref("AccessPermissionsSegment"),
+                        "ON",
+                        Sequence(
+                            OneOf(
+                                "USER",
+                                "DIRECTORY",
+                                "EDITION",
+                                Sequence("MINING", "MODEL"),
+                                Sequence("JAVA", OneOf("SOURCE", "RESOURCE")),
+                                Sequence("SQL", "TRANSLATION", "PROFILE"),
+                                optional=True,
+                            ),
+                            Delimited(
+                                Sequence(
+                                    Sequence(
+                                        Ref("SchemaReferenceSegment"),
+                                        Ref("DotSegment"),
+                                        optional=True,
+                                    ),
+                                    Ref("ObjectReferenceSegment"),
+                                ),
+                            ),
+                        ),
+                        "TO",
+                        Ref("AccessTargetSegment"),
+                        Sequence("WITH", "HIERARCHY", "OPTION", optional=True),
+                        Sequence("WITH", "GRANT", "OPTION", optional=True),
+                        OneOf(
+                            Sequence("CASCADE", "CONSTRAINTS"), "FORCE", optional=True
+                        ),
+                    ),
+                ),
                 Sequence(
                     "CONTAINER",
                     Ref("EqualsSegment"),
@@ -3598,7 +3662,82 @@ class AccessStatementSegment(BaseSegment):
                     optional=True,
                 ),
             ),
-            _roles_from_programs_segment,
+            Sequence(
+                Ref("AccessPermissionsSegment"),
+                "TO",
+                Ref("AccessTargetSegment"),
+            ),
+        ),
+    )
+
+
+class RevokeStatementSegment(ansi.RevokeStatementSegment):
+    """A `REVOKE` statement."""
+
+    match_grammar: Matchable = Sequence(
+        "REVOKE",
+        OneOf(
+            Sequence(
+                OneOf(
+                    Sequence(
+                        Ref("AccessPermissionsSegment"),
+                        Sequence(
+                            "ON", "SCHEMA", Ref("SchemaReferenceSegment"), optional=True
+                        ),
+                        "FROM",
+                        OneOf(
+                            Ref("AccessTargetSegment"),
+                            Sequence(
+                                Ref("AccessTargetSegment"),
+                                "IDENTIFIED",
+                                "BY",
+                                Delimited(Ref("SingleIdentifierGrammar")),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        Ref("AccessPermissionsSegment"),
+                        "ON",
+                        Sequence(
+                            OneOf(
+                                "USER",
+                                "DIRECTORY",
+                                "EDITION",
+                                Sequence("MINING", "MODEL"),
+                                Sequence("JAVA", OneOf("SOURCE", "RESOURCE")),
+                                Sequence("SQL", "TRANSLATION", "PROFILE"),
+                                optional=True,
+                            ),
+                            Delimited(
+                                Sequence(
+                                    Sequence(
+                                        Ref("SchemaReferenceSegment"),
+                                        Ref("DotSegment"),
+                                        optional=True,
+                                    ),
+                                    Ref("ObjectReferenceSegment"),
+                                ),
+                            ),
+                        ),
+                        "FROM",
+                        Ref("AccessTargetSegment"),
+                        OneOf(
+                            Sequence("CASCADE", "CONSTRAINTS"), "FORCE", optional=True
+                        ),
+                    ),
+                ),
+                Sequence(
+                    "CONTAINER",
+                    Ref("EqualsSegment"),
+                    OneOf("CURRENT", "ALL"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Delimited(Ref("RoleReferenceSegment")),
+                "FROM",
+                Ref("AccessTargetSegment"),
+            ),
         ),
     )
 

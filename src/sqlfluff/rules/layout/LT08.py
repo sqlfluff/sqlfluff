@@ -104,6 +104,18 @@ class Rule_LT08(BaseRule):
                     comma_seg_idx = seg_idx
                 seg_idx += 1
 
+            # Check if the next code segment is CYCLE or SEARCH
+            # These are part of the CTE definition itself (PostgreSQL),
+            # so we should not require a blank line before them.
+            if forward_slice[seg_idx].is_type("keyword") and forward_slice[
+                seg_idx
+            ].raw_upper in ("CYCLE", "SEARCH"):
+                self.logger.info(
+                    "Skipping blank line requirement: CTE followed by %s clause",
+                    forward_slice[seg_idx].raw_upper,
+                )
+                continue
+
             # Infer the comma style (NB this could be different for each case!)
             if comma_line_idx is None:
                 comma_style = "final"

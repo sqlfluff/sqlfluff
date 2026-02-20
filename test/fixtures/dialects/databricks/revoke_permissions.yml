@@ -3,89 +3,122 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 56ffba57ca4628322383297f15f461875df331a5201320a18e2367c75ea60994
+_hash: 15c62c9aaa94e9285e28b23634fc1bd37ae7f42c202d116ac26747e8a8fc4312
 file:
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: CREATE
-    - keyword: TABLE
-    - keyword: 'ON'
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: main
-      - dot: .
-      - naked_identifier: default
-    - keyword: FROM
-    - object_reference:
-        quoted_identifier: '`finance-team`'
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+            access_schema_object:
+              keyword: TABLE
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+          - naked_identifier: main
+          - dot: .
+          - naked_identifier: default
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            quoted_identifier: '`finance-team`'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: USE
-    - keyword: SCHEMA
-    - keyword: 'ON'
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: main
-      - dot: .
-      - naked_identifier: default
-    - keyword: FROM
-    - object_reference:
-        quoted_identifier: '`finance-team`'
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+          - keyword: USE
+          - keyword: SCHEMA
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+          - naked_identifier: main
+          - dot: .
+          - naked_identifier: default
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            quoted_identifier: '`finance-team`'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: USE
-    - keyword: CATALOG
-    - keyword: 'ON'
-    - keyword: CATALOG
-    - object_reference:
-        naked_identifier: main
-    - keyword: FROM
-    - object_reference:
-        quoted_identifier: '`finance-team`'
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+          - keyword: USE
+          - keyword: CATALOG
+      - keyword: 'ON'
+      - access_object:
+          keyword: CATALOG
+          object_reference:
+            naked_identifier: main
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            quoted_identifier: '`finance-team`'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: FUNCTION
-    - object_reference:
-      - naked_identifier: prod
-      - dot: .
-      - naked_identifier: ml_team
-      - dot: .
-      - naked_identifier: iris_model
-    - keyword: FROM
-    - object_reference:
-        quoted_identifier: '`ml-team-acme`'
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: FUNCTION
+          object_reference:
+          - naked_identifier: prod
+          - dot: .
+          - naked_identifier: ml_team
+          - dot: .
+          - naked_identifier: iris_model
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            quoted_identifier: '`ml-team-acme`'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: READ
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: METASTORE
-    - keyword: FROM
-    - object_reference:
-        quoted_identifier: "'principal'"
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: READ
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: METASTORE
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            quoted_identifier: "'principal'"
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: SELECT
-    - keyword: 'ON'
-    - keyword: VIEW
-    - object_reference:
-      - naked_identifier: schema
-      - dot: .
-      - naked_identifier: view
-    - keyword: FROM
-    - object_reference:
-        quoted_identifier: '`the_view_accessors`'
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: VIEW
+          object_reference:
+          - naked_identifier: schema
+          - dot: .
+          - naked_identifier: view
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            quoted_identifier: '`the_view_accessors`'
 - statement_terminator: ;
