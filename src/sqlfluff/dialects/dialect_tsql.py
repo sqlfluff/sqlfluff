@@ -1693,6 +1693,10 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
 
     Overriding ANSI to remove greedy logic which assumes statements have been
     delimited and to support SELECT @variable = expression syntax.
+
+    Also adding support for IDENTITY(type,seed,inc) function which is
+    valid when using an INTO clause
+
     """
 
     # Important to split elements before parsing, otherwise debugging is really hard.
@@ -1704,6 +1708,19 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         Sequence(
             Ref("AltAliasExpressionSegment"),
             Ref("BaseExpressionElementGrammar"),
+        ),
+        Sequence(
+            "IDENTITY",
+            Bracketed(
+                Ref("DatatypeSegment"),
+                Ref("CommaSegment"),
+                Ref("SignedSegmentGrammar", optional=True),
+                Ref("NumericLiteralSegment"),
+                Ref("CommaSegment"),
+                Ref("SignedSegmentGrammar", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            Ref("AliasExpressionSegment"),
         ),
         Sequence(
             Ref("BaseExpressionElementGrammar"),
@@ -3669,7 +3686,8 @@ class FunctionOptionSegment(BaseSegment):
     match_grammar = Sequence(
         "WITH",
         Delimited(
-            AnyNumberOf(
+            OneOf(
+                "NATIVE_COMPILATION",
                 "ENCRYPTION",
                 "SCHEMABINDING",
                 Sequence(
@@ -3693,7 +3711,6 @@ class FunctionOptionSegment(BaseSegment):
                         "OFF",
                     ),
                 ),
-                min_times=1,
             ),
         ),
     )
@@ -6470,6 +6487,11 @@ class ExecuteScriptSegment(BaseSegment):
             )
         ),
         Ref("LoginUserSegment", optional=True),
+        Sequence(
+            "WITH",
+            Ref("ExecuteOptionSegment"),
+            optional=True,
+        ),
     )
 
     #  Execute a pass-through command against a linked server
