@@ -880,18 +880,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         _schedule,
         Sequence(
             "WITH",
-            "ROW",
-            "FILTER",
-            Ref("FunctionNameSegment"),
-            Sequence(
-                "ON",
-                Bracketed(
-                    Delimited(
-                        Ref("ColumnReferenceSegment"),
-                    ),
-                ),
-                optional=True,
-            ),
+            Ref("RowFilterClauseGrammar"),
         ),
     )
 
@@ -906,7 +895,10 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Bracketed(
             Delimited(
-                Ref("ColumnFieldDefinitionSegment"),
+                OneOf(
+                    Ref("ColumnFieldDefinitionSegment"),
+                    Ref("TableConstraintSegment"),
+                ),
             ),
             optional=True,
         ),
