@@ -9866,7 +9866,8 @@ class AlterDatabaseSegment(BaseSegment):
                     "ENABLE_DATA_COMPACTION",
                 ),
             ),
-            # ALTER DATABASE <name> SET TAG <tag_name> = '<tag_value>' [ , <tag_name> = '<tag_value>' ... ]
+            # ALTER DATABASE <name>
+            # SET TAG <tag_name> = '<tag_value>' [ , <tag_name> = '<tag_value>' ... ]
             Sequence("SET", Ref("TagEqualsSegment")),
             # ALTER DATABASE <name> UNSET TAG <tag_name> [ , <tag_name> ... ]
             Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
