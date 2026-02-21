@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9345daec21a584bb050cecc837df2cc90f54910647c4d2e27d910c059d22991c
+_hash: cfd65828939dcd73ed3d6ea374e42b9f5edd0a0cd2b486842053b2189a60d104
 file:
 - batch:
   - statement:
@@ -812,4 +812,38 @@ file:
         - keyword: RESULT
         - keyword: SETS
         - keyword: UNDEFINED
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@table_name'
+        data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: MAX
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+        keyword: EXEC
+        bracketed:
+          start_bracket: (
+          quoted_literal: "'SELECT DISTINCT data_version FROM myschema.'"
+          binary_operator: +
+          parameter: '@table_name'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+        keyword: EXEC
+        bracketed:
+        - start_bracket: (
+        - quoted_literal: "'SELECT * FROM myschema.'"
+        - binary_operator: +
+        - parameter: '@table_name'
+        - binary_operator: +
+        - quoted_literal: "' WHERE id = 1'"
+        - end_bracket: )
   - statement_terminator: ;

@@ -139,3 +139,11 @@ EXECUTE Production.ProductList '%tire%' WITH RESULT SETS
 EXECUTE ( 'SELECT @@SERVERNAME' ) AT DATA_SOURCE my_sql_server;
 
 EXECUTE ('sp_who2') AS USER = 'dbo' WITH RESULT SETS UNDEFINED;
+
+-- EXEC with schema name inside string literal concatenated with a variable
+-- This pattern is commonly seen when using Jinja templates where a schema
+-- variable is rendered inside the string
+DECLARE @table_name VARCHAR(MAX);
+EXEC('SELECT DISTINCT data_version FROM myschema.' + @table_name);
+
+EXEC('SELECT * FROM myschema.' + @table_name + ' WHERE id = 1');
