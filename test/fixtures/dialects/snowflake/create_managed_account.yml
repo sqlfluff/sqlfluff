@@ -1,0 +1,51 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f6fd69f636bb47d08618ca4054d04f9d4637af36bd17bcd67b275dc67868f9f6
+file:
+- statement:
+    create_managed_account_statement:
+    - keyword: CREATE
+    - keyword: MANAGED
+    - keyword: ACCOUNT
+    - object_reference:
+        naked_identifier: my_reader_account
+    - keyword: ADMIN_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'admin_user'"
+    - comma: ','
+    - keyword: ADMIN_PASSWORD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'TestPassword123!'"
+- statement_terminator: ;
+- statement:
+    create_managed_account_statement:
+    - keyword: CREATE
+    - keyword: MANAGED
+    - keyword: ACCOUNT
+    - object_reference:
+        naked_identifier: my_reader_account
+    - keyword: ADMIN_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'admin_user'"
+    - comma: ','
+    - keyword: ADMIN_PASSWORD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'TestPassword123!'"
+    - comma: ','
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: READER
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'reader account for partner'"
+- statement_terminator: ;

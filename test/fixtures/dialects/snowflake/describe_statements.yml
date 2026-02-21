@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2d90ff90e34181f6d5c7eda872c6ad20f6e397214b53e9f53306eb38f82f5e7b
+_hash: fa798506b96858b60f8696e254bd79d09355a55d71af50e5680a424113289d0b
 file:
 - statement:
     describe_statement:
@@ -712,4 +712,256 @@ file:
     - keyword: SERVICE
     - object_reference:
         naked_identifier: mysvc
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_dynamic_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_dynamic_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: EVENT
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_event_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: EVENT
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_event_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_auth_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_auth_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: NETWORK
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: my_network_rule
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: NETWORK
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: my_network_rule
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: PROJECTION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_proj_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: PROJECTION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_proj_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_pool
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_pool
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: IMAGE
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: IMAGE
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SNAPSHOT
+    - object_reference:
+        naked_identifier: my_snapshot
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: SNAPSHOT
+    - object_reference:
+        naked_identifier: my_snapshot
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: APPLICATION
+    - object_reference:
+        naked_identifier: my_app
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: APPLICATION
+    - object_reference:
+        naked_identifier: my_app
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_package
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_package
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: my_model
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: my_model
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: LISTING
+    - object_reference:
+        naked_identifier: my_listing
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: LISTING
+    - object_reference:
+        naked_identifier: my_listing
 - statement_terminator: ;

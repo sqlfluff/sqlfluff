@@ -122,3 +122,51 @@ DESC PASSWORD POLICY password_policy_prod_1;
 DESCRIBE CORTEX SEARCH SERVICE mysvc;
 
 DESC CORTEX SEARCH SERVICE mysvc;
+
+DESCRIBE DYNAMIC TABLE my_db.my_schema.my_dynamic_table;
+DESC DYNAMIC TABLE my_db.my_schema.my_dynamic_table;
+
+DESCRIBE EVENT TABLE my_event_table;
+DESC EVENT TABLE my_event_table;
+
+DESCRIBE AUTHENTICATION POLICY my_auth_policy;
+DESC AUTHENTICATION POLICY my_auth_policy;
+
+DESCRIBE NETWORK RULE my_network_rule;
+DESC NETWORK RULE my_network_rule;
+
+DESCRIBE AGGREGATION POLICY my_agg_policy;
+DESC AGGREGATION POLICY my_agg_policy;
+
+DESCRIBE PROJECTION POLICY my_proj_policy;
+DESC PROJECTION POLICY my_proj_policy;
+
+DESCRIBE SERVICE my_service;
+DESC SERVICE my_service;
+
+DESCRIBE COMPUTE POOL my_pool;
+DESC COMPUTE POOL my_pool;
+
+DESCRIBE IMAGE REPOSITORY my_repo;
+DESC IMAGE REPOSITORY my_repo;
+
+DESCRIBE GIT REPOSITORY my_repo;
+DESC GIT REPOSITORY my_repo;
+
+DESCRIBE SNAPSHOT my_snapshot;
+DESC SNAPSHOT my_snapshot;
+
+DESCRIBE APPLICATION my_app;
+DESC APPLICATION my_app;
+
+DESCRIBE APPLICATION PACKAGE my_package;
+DESC APPLICATION PACKAGE my_package;
+
+DESCRIBE NOTEBOOK my_notebook;
+DESC NOTEBOOK my_notebook;
+
+DESCRIBE MODEL my_model;
+DESC MODEL my_model;
+
+DESCRIBE LISTING my_listing;
+DESC LISTING my_listing;

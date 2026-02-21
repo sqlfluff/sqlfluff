@@ -1,0 +1,96 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e411150cc8e313149d43c2e166cd14226086c1081709ac10db32b88e61e16160
+file:
+- statement:
+    alter_model_statement:
+    - keyword: ALTER
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: my_model
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'production model'"
+    - keyword: DEFAULT_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'v2'"
+- statement_terminator: ;
+- statement:
+    alter_model_statement:
+    - keyword: ALTER
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: my_model
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_model_statement:
+    - keyword: ALTER
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: my_model
+    - keyword: VERSION
+    - naked_identifier: v1
+    - keyword: SET
+    - keyword: ALIAS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'production'"
+- statement_terminator: ;
+- statement:
+    alter_model_statement:
+    - keyword: ALTER
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: my_model
+    - keyword: VERSION
+    - naked_identifier: v1
+    - keyword: UNSET
+    - keyword: ALIAS
+- statement_terminator: ;
+- statement:
+    alter_model_statement:
+    - keyword: ALTER
+    - keyword: MODEL
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_model
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: new_model
+- statement_terminator: ;
+- statement:
+    alter_model_statement:
+    - keyword: ALTER
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: my_model
+    - keyword: SET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: my_tag
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'ml_model'"
+- statement_terminator: ;
+- statement:
+    alter_model_statement:
+    - keyword: ALTER
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: my_model
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: my_tag
+- statement_terminator: ;

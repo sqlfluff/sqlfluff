@@ -1,0 +1,19 @@
+-- Suspend
+ALTER COMPUTE POOL my_pool SUSPEND;
+
+-- Resume
+ALTER COMPUTE POOL IF EXISTS my_pool RESUME;
+
+-- Stop all
+ALTER COMPUTE POOL my_pool STOP ALL;
+
+-- Set properties
+ALTER COMPUTE POOL my_pool SET
+  MIN_NODES = 2
+  MAX_NODES = 8
+  AUTO_RESUME = TRUE
+  AUTO_SUSPEND_SECS = 1800
+  COMMENT = 'updated pool';
+
+-- Unset properties
+ALTER COMPUTE POOL my_pool UNSET AUTO_SUSPEND_SECS, AUTO_RESUME, COMMENT;

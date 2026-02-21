@@ -115,3 +115,20 @@ CREATE OR ALTER VIEW view_with_change_tracking
 CHANGE_TRACKING = TRUE
 AS SELECT col1
 FROM src_table;
+
+-- WITH AGGREGATION POLICY
+CREATE OR REPLACE VIEW view_with_agg_policy
+WITH AGGREGATION POLICY my_policy
+AS SELECT col1 FROM src_table;
+
+CREATE OR REPLACE VIEW view_with_agg_policy_entity_key
+AGGREGATION POLICY my_db.my_schema.my_policy ENTITY KEY (col1, col2)
+AS SELECT col1, col2 FROM src_table;
+
+-- Column-level PROJECTION POLICY
+CREATE OR REPLACE VIEW view_with_proj_policy
+(
+    col1 WITH PROJECTION POLICY my_db.my_schema.my_proj_policy,
+    col2 PROJECTION POLICY my_proj_policy
+)
+AS SELECT col1, col2 FROM src_table;

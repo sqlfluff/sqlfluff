@@ -1,0 +1,59 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 15218c90dcdf9bccb356c5e5f05f15617a234b1f110f38917289b96de0ab5acd
+file:
+- statement:
+    create_listing_statement:
+    - keyword: CREATE
+    - keyword: LISTING
+    - object_reference:
+        naked_identifier: my_listing
+    - keyword: AS
+    - quoted_literal: "'---\ntitle: \"My Listing\"\ndescription: \"A data listing\"\
+        \n'"
+- statement_terminator: ;
+- statement:
+    create_listing_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: LISTING
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_listing
+    - keyword: SHARE
+    - object_reference:
+        naked_identifier: my_share
+    - keyword: AS
+    - quoted_literal: "'---\ntitle: \"My Share Listing\"\n'"
+    - keyword: PUBLISH
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: REVIEW
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'marketplace listing'"
+- statement_terminator: ;
+- statement:
+    create_listing_statement:
+    - keyword: CREATE
+    - keyword: LISTING
+    - object_reference:
+        naked_identifier: my_listing
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_package
+    - keyword: FROM
+    - quoted_literal: "'@my_stage/manifest.yml'"
+- statement_terminator: ;

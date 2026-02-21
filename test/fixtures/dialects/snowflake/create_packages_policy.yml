@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 52d858a6d2cdc98514b2e990944b4f835b09ce8824cdd84d77c2413da2a895c7
+file:
+- statement:
+    create_packages_policy_statement:
+    - keyword: CREATE
+    - keyword: PACKAGES
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_packages_policy
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: ALLOWLIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'numpy'"
+      - comma: ','
+      - quoted_literal: "'pandas'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_packages_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PACKAGES
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_packages_policy
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: ALLOWLIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'numpy'"
+      - comma: ','
+      - quoted_literal: "'pandas==1.2.3'"
+      - end_bracket: )
+    - keyword: BLOCKLIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'os'"
+      - comma: ','
+      - quoted_literal: "'subprocess'"
+      - end_bracket: )
+    - keyword: ADDITIONAL_CREATION_BLOCKLIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'requests'"
+        end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'restrict python packages'"
+- statement_terminator: ;

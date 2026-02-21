@@ -1,0 +1,114 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0387f6631bcda419cb1703445d8ef4047acdbe00623bceb469cf84ec530fe797
+file:
+- statement:
+    create_failover_group_statement:
+    - keyword: CREATE
+    - keyword: FAILOVER
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: my_fg
+    - keyword: OBJECT_TYPES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: DATABASES
+    - comma: ','
+    - object_reference:
+        naked_identifier: ROLES
+    - keyword: ALLOWED_DATABASES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: db1
+    - comma: ','
+    - object_reference:
+        naked_identifier: db2
+    - keyword: ALLOWED_ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+      - naked_identifier: my_org
+      - dot: .
+      - naked_identifier: my_account1
+    - keyword: REPLICATION_SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'10 MINUTE'"
+- statement_terminator: ;
+- statement:
+    create_failover_group_statement:
+    - keyword: CREATE
+    - keyword: FAILOVER
+    - keyword: GROUP
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_fg
+    - keyword: OBJECT_TYPES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: DATABASES
+    - comma: ','
+    - object_reference:
+        naked_identifier: SHARES
+    - comma: ','
+    - object_reference:
+        naked_identifier: INTEGRATIONS
+    - keyword: ALLOWED_DATABASES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: db1
+    - keyword: ALLOWED_SHARES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: share1
+    - comma: ','
+    - object_reference:
+        naked_identifier: share2
+    - keyword: ALLOWED_INTEGRATION_TYPES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: SECURITY_INTEGRATIONS
+    - keyword: ALLOWED_ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+      - naked_identifier: my_org
+      - dot: .
+      - naked_identifier: my_account1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: my_org
+      - dot: .
+      - naked_identifier: my_account2
+    - keyword: IGNORE_EDITION_CHECK
+    - keyword: REPLICATION_SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 0 0 * * * America/Los_Angeles'"
+- statement_terminator: ;
+- statement:
+    create_failover_group_statement:
+    - keyword: CREATE
+    - keyword: FAILOVER
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: my_fg_replica
+    - keyword: AS
+    - keyword: REPLICA
+    - keyword: OF
+    - object_reference:
+      - naked_identifier: my_org
+      - dot: .
+      - naked_identifier: my_source_fg
+- statement_terminator: ;

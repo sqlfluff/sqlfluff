@@ -1,0 +1,56 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 253a4e40709c4a32b5fbe707a1f67782186342b787f5f57b9655218a84b644cb
+file:
+- statement:
+    alter_session_policy_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_session_policy
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: new_session_policy
+- statement_terminator: ;
+- statement:
+    alter_session_policy_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_session_policy
+    - keyword: SET
+    - keyword: SESSION_IDLE_TIMEOUT_MINS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '45'
+    - keyword: SESSION_UI_IDLE_TIMEOUT_MINS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '15'
+- statement_terminator: ;
+- statement:
+    alter_session_policy_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_session_policy
+    - keyword: UNSET
+    - keyword: SESSION_IDLE_TIMEOUT_MINS
+- statement_terminator: ;
+- statement:
+    alter_session_policy_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_session_policy
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;

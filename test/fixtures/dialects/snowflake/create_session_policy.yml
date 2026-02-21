@@ -1,0 +1,45 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 163f226eab0873d5c44df95d5c2113170d706ca50a20337d46693bf9d2e4e350
+file:
+- statement:
+    create_session_policy_statement:
+    - keyword: CREATE
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_session_policy
+    - keyword: SESSION_IDLE_TIMEOUT_MINS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '30'
+- statement_terminator: ;
+- statement:
+    create_session_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SESSION
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_session_policy
+    - keyword: SESSION_IDLE_TIMEOUT_MINS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '60'
+    - keyword: SESSION_UI_IDLE_TIMEOUT_MINS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '30'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'production session policy'"
+- statement_terminator: ;

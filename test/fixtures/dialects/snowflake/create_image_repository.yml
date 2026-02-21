@@ -1,0 +1,54 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a5307ec7f7dfb3b46836eede98185bdc3529f5e9f1ffcc3a3b1d36864b4429b0
+file:
+- statement:
+    create_image_repository_statement:
+    - keyword: CREATE
+    - keyword: IMAGE
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+- statement_terminator: ;
+- statement:
+    create_image_repository_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: IMAGE
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+- statement_terminator: ;
+- statement:
+    create_image_repository_statement:
+    - keyword: CREATE
+    - keyword: IMAGE
+    - keyword: REPOSITORY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_repo
+- statement_terminator: ;
+- statement:
+    create_image_repository_statement:
+    - keyword: CREATE
+    - keyword: IMAGE
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: ENCRYPTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: TYPE
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'SNOWFLAKE_FULL'"
+        end_bracket: )
+- statement_terminator: ;

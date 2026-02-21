@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 01bb938a99b22a5199c42d104e76b4af743634dcc489b8492cfd6679381f2e45
+_hash: 059cdce00bf0e4fd683c59684d8d7b0fe3afb7961d1b99df0a4ce4cf2d0e98ee
 file:
 - statement:
     alter_table_statement:
@@ -1083,5 +1083,164 @@ file:
     - data_governance_policy_tag_action_segment:
       - keyword: UNSET
       - keyword: JOIN
+      - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: SET
+    - parameter: ENABLE_SCHEMA_EVOLUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: SET
+    - parameter: ENABLE_SCHEMA_EVOLUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_governance_policy_tag_action_segment:
+      - keyword: ADD
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: my_dmf
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_governance_policy_tag_action_segment:
+      - keyword: DROP
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: my_dmf
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_governance_policy_tag_action_segment:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: my_dmf
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+      - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_governance_policy_tag_action_segment:
+      - keyword: ALTER
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: my_dmf
+      - keyword: 'ON'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - keyword: RESUME
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: col1
+      - keyword: SET
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: my_proj_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: col1
+      - keyword: SET
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: my_proj_policy
+      - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: col1
+      - keyword: UNSET
+      - keyword: PROJECTION
       - keyword: POLICY
 - statement_terminator: ;

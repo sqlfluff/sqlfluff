@@ -1,0 +1,140 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9e4db34c37059023fea4aba4c282815792d286f6548138567150dfcee16e496e
+file:
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: RESUME
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: SET
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_new_warehouse
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: SET
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'10 MINUTE'"
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'updated alert'"
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: UNSET
+    - keyword: WAREHOUSE
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: MODIFY
+    - keyword: CONDITION
+    - keyword: EXISTS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: errors
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: severity
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'HIGH'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: MODIFY
+    - keyword: ACTION
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: alert_log
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: CURRENT_TIMESTAMP
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
