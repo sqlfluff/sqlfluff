@@ -7,6 +7,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -162,6 +163,47 @@ tsql_dialect.sets("serde_method").update(
     ]
 )
 
+tsql_dialect.sets("currency_symbols").clear()
+tsql_dialect.sets("currency_symbols").update(
+    [
+        "\u0024",  # $	Dollar sign
+        "\u00a2",  # ¢	Cent sign
+        "\u00a3",  # £	Pound sign
+        "\u00a4",  # ¤	Currency sign
+        "\u00a5",  # ¥	Yen sign
+        "\u09f2",  # ৲	Bengali Rupee mark
+        "\u09f3",  # ৳	Bengali Rupee sign
+        "\u0e3f",  # ฿	Thai Baht currency symbol
+        "\u17db",  # ៛	Khmer Riel currency symbol
+        "\u20a0",  # ₠	Euro currency sign
+        "\u20a1",  # ₡	Colon sign
+        "\u20a2",  # ₢	Cruzeiro sign
+        "\u20a3",  # ₣	French Franc sign
+        "\u20a4",  # ₤	Lira sign
+        "\u20a5",  # ₥	Mill sign
+        "\u20a6",  # ₦	Naira sign
+        "\u20a7",  # ₧	Peseta sign
+        "\u20a8",  # ₨	Rupee sign
+        "\u20a9",  # ₩	Won sign
+        "\u20aa",  # ₪	New Sheqel sign
+        "\u20ab",  # ₫	Dong sign
+        "\u20ac",  # €	Euro sign
+        "\u20ad",  # ₭	Kip sign
+        "\u20ae",  # ₮	Tugrik sign
+        "\u20af",  # ₯	Drachma sign
+        "\u20b0",  # ₰	German Penny sign
+        "\u20b1",  # ₱	Peso sign
+        "\ufdfc",  # ﷼	Rial sign
+        "\ufe69",  # ﹩	Small Dollar sign
+        "\uff04",  # ＄	Full-width Dollar sign
+        "\uffe0",  # ￠	Full-width Cent sign
+        "\uffe1",  # ￡	Full-width Pound sign
+        "\uffe5",  # ￥	Full-width Yen sign
+        "\uffe6",  # ￦	Full-width Won sign
+    ]
+)
+
+
 tsql_dialect.insert_lexer_matchers(
     [
         # According to Microsoft spec, subsequent characters in identifiers can include
@@ -208,11 +250,19 @@ tsql_dialect.insert_lexer_matchers(
 
 # Add hexadecimal literal lexer matcher before word matcher to ensure
 # patterns like 0x0, 0xAE are tokenized as numeric literals, not words
+# handle money literals with $ and other supported currency symbols
+# https://learn.microsoft.com/en-us/sql/t-sql/data-types/money-and-smallmoney-transact-sql
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "numeric_literal",
-            r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
+            (
+                r"([xX]'([\da-fA-F][\da-fA-F])+'"
+                r"|0[xX][\da-fA-F]*"
+                r"|[+-]*[" + "".join(tsql_dialect.sets("currency_symbols")) + r"]"
+                r"[" + "".join(tsql_dialect.sets("currency_symbols")) + r"+-]*"
+                r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+))"
+            ),
             LiteralSegment,
         ),
     ],
@@ -854,6 +904,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreatePartitionSchemeSegment"),
             Ref("AlterPartitionFunctionSegment"),
             Ref("OpenSymmetricKeySegment"),
+            Ref("DbccStatementSegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
             Ref("CreateFullTextCatalogStatementSegment"),
@@ -1644,6 +1695,10 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
 
     Overriding ANSI to remove greedy logic which assumes statements have been
     delimited and to support SELECT @variable = expression syntax.
+
+    Also adding support for IDENTITY(type,seed,inc) function which is
+    valid when using an INTO clause
+
     """
 
     # Important to split elements before parsing, otherwise debugging is really hard.
@@ -1655,6 +1710,22 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         Sequence(
             Ref("AltAliasExpressionSegment"),
             Ref("BaseExpressionElementGrammar"),
+        ),
+        Sequence(
+            "IDENTITY",
+            Bracketed(
+                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref("CommaSegment"),
+                    Ref("SignedSegmentGrammar", optional=True),
+                    Ref("NumericLiteralSegment"),
+                    Ref("CommaSegment"),
+                    Ref("SignedSegmentGrammar", optional=True),
+                    Ref("NumericLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            Ref("AliasExpressionSegment"),
         ),
         Sequence(
             Ref("BaseExpressionElementGrammar"),
@@ -3125,6 +3196,7 @@ class DeclareStatementSegment(BaseSegment):
                                 Ref("TableConstraintSegment"),
                                 Ref("ComputedColumnDefinitionSegment"),
                                 Ref("ColumnDefinitionSegment"),
+                                Ref("TableIndexSegment"),
                                 allow_trailing=True,
                             )
                         ),
@@ -3213,89 +3285,84 @@ class DatatypeSegment(BaseSegment):
             optional=True,
         ),
         OneOf(
-            # Bracketed data type identifiers (e.g., [sys].[sysname])
-            Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
+            # Exact numeric types - no parameters
+            "TINYINT",
+            "SMALLINT",
+            "INT",
+            "BIGINT",
+            "BIT",
+            "MONEY",
+            "SMALLMONEY",
+            # Exact numeric types - with optional precision and scale
             Sequence(
-                OneOf(
-                    # Exact numeric types - no parameters
-                    "TINYINT",
-                    "SMALLINT",
-                    "INT",
-                    "BIGINT",
-                    "BIT",
-                    "MONEY",
-                    "SMALLMONEY",
-                    # Exact numeric types - with optional precision and scale
-                    Sequence(
-                        OneOf("DECIMAL", "NUMERIC", "DEC"),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    # Approximate numeric types
-                    Sequence(
-                        "FLOAT",
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "REAL",
-                    # Date and time types
-                    "DATE",
-                    "SMALLDATETIME",
-                    "DATETIME",
-                    Sequence(
-                        OneOf("TIME", "DATETIME2", "DATETIMEOFFSET"),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    # Character string types
-                    Sequence(
-                        OneOf("CHAR", "CHARACTER"),
-                        Ref.keyword("VARYING", optional=True),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    Sequence(
-                        "VARCHAR",
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "TEXT",
-                    # Unicode character string types
-                    Sequence(
-                        OneOf(
-                            "NCHAR", Sequence("NATIONAL", OneOf("CHAR", "CHARACTER"))
-                        ),
-                        Ref.keyword("VARYING", optional=True),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    Sequence(
-                        OneOf("NVARCHAR", Sequence("NATIONAL", "CHARACTER", "VARYING")),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "NTEXT",
-                    # Binary string types
-                    Sequence(
-                        OneOf("BINARY", "VARBINARY"),
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                    "IMAGE",
-                    # Other data types
-                    "CURSOR",
-                    "SQL_VARIANT",
-                    "TABLE",
-                    "TIMESTAMP",
-                    "ROWVERSION",
-                    "UNIQUEIDENTIFIER",
-                    "XML",
-                    "JSON",
-                    # Spatial types
-                    "GEOGRAPHY",
-                    "GEOMETRY",
-                    "HIERARCHYID",
-                    # Vector type (Azure SQL Database)
-                    Sequence(
-                        "VECTOR",
-                        Ref("BracketedArguments", optional=True),
-                    ),
-                ),
+                OneOf("DECIMAL", "NUMERIC", "DEC"),
+                Ref("BracketedArguments", optional=True),
             ),
-            # User-defined data types
-            Ref("DatatypeIdentifierSegment"),
+            # Approximate numeric types
+            Sequence(
+                "FLOAT",
+                Ref("BracketedArguments", optional=True),
+            ),
+            "REAL",
+            # Date and time types
+            "DATE",
+            "SMALLDATETIME",
+            "DATETIME",
+            Sequence(
+                OneOf("TIME", "DATETIME2", "DATETIMEOFFSET"),
+                Ref("BracketedArguments", optional=True),
+            ),
+            # Character string types
+            Sequence(
+                OneOf("CHAR", "CHARACTER"),
+                Ref.keyword("VARYING", optional=True),
+                Ref("BracketedArguments", optional=True),
+            ),
+            Sequence(
+                "VARCHAR",
+                Ref("BracketedArguments", optional=True),
+            ),
+            "TEXT",
+            # Unicode character string types
+            Sequence(
+                OneOf("NCHAR", Sequence("NATIONAL", OneOf("CHAR", "CHARACTER"))),
+                Ref.keyword("VARYING", optional=True),
+                Ref("BracketedArguments", optional=True),
+            ),
+            Sequence(
+                OneOf("NVARCHAR", Sequence("NATIONAL", "CHARACTER", "VARYING")),
+                Ref("BracketedArguments", optional=True),
+            ),
+            "NTEXT",
+            # Binary string types
+            Sequence(
+                OneOf("BINARY", "VARBINARY"),
+                Ref("BracketedArguments", optional=True),
+            ),
+            "IMAGE",
+            # Other data types
+            "CURSOR",
+            "SQL_VARIANT",
+            "TABLE",
+            "TIMESTAMP",
+            "ROWVERSION",
+            "UNIQUEIDENTIFIER",
+            "XML",
+            "JSON",
+            # Spatial types
+            "GEOGRAPHY",
+            "GEOMETRY",
+            "HIERARCHYID",
+            # Vector type (Azure SQL Database)
+            Sequence(
+                "VECTOR",
+                Ref("BracketedArguments", optional=True),
+            ),
+            Sequence(
+                # User-defined data types & type identifiers (e.g., [sys].[sysname])
+                Ref("DatatypeIdentifierSegment"),
+                Ref("BracketedArguments", optional=True),
+            ),
         ),
         # Character set grammar for character types
         Ref("CharCharacterSetGrammar", optional=True),
@@ -3624,7 +3691,8 @@ class FunctionOptionSegment(BaseSegment):
     match_grammar = Sequence(
         "WITH",
         Delimited(
-            AnyNumberOf(
+            OneOf(
+                "NATIVE_COMPILATION",
                 "ENCRYPTION",
                 "SCHEMABINDING",
                 Sequence(
@@ -3648,7 +3716,6 @@ class FunctionOptionSegment(BaseSegment):
                         "OFF",
                     ),
                 ),
-                min_times=1,
             ),
         ),
     )
@@ -3993,14 +4060,55 @@ class CreateViewStatementSegment(BaseSegment):
 
 
 class MLTableExpressionSegment(BaseSegment):
-    """An ML table expression.
+    """A T-SQL PREDICT table expression for machine learning predictions.
 
-    Not present in T-SQL.
-    TODO: Consider whether this segment can be used to represent a PREDICT statement.
+    https://learn.microsoft.com/en-us/sql/t-sql/queries/predict-transact-sql
     """
 
     type = "ml_table_expression"
-    match_grammar = Nothing()
+    match_grammar: Matchable = Sequence(
+        "PREDICT",
+        Bracketed(
+            # MODEL = @model or MODEL = model_literal
+            Sequence(
+                "MODEL",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            Ref("CommaSegment"),
+            # DATA = object AS table_alias
+            Sequence(
+                "DATA",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("TableReferenceSegment"),
+                    Ref("ObjectReferenceSegment"),
+                ),
+                "AS",
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+        # WITH ( result_set_definition )
+        "WITH",
+        Bracketed(
+            Delimited(
+                # Each column in the result set
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),  # column_name
+                    Ref("DatatypeSegment"),  # data_type
+                    Ref("CollateGrammar", optional=True),
+                    Sequence(
+                        Ref.keyword("NOT", optional=True),
+                        "NULL",
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+    )
 
 
 class ConvertFunctionNameSegment(BaseSegment):
@@ -4282,7 +4390,7 @@ class JsonFunctionContentsSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
             Ref("ParameterNameSegment"),
         ),
-        Ref("ColonSegment"),
+        Ref("ColonDelimiterSegment"),
         Sequence(
             OneOf(
                 Ref("QuotedLiteralSegment"),
@@ -4436,7 +4544,7 @@ class JsonAggFunctionContentsSegment(BaseSegment):
             # Single expression OR two expressions separated by colon
             Ref("ExpressionSegment"),
             Sequence(
-                Ref("ColonSegment"),
+                Ref("ColonDelimiterSegment"),
                 Ref("ExpressionSegment"),
                 # Optional for JSON_ARRAYAGG, required for JSON_OBJECTAGG
                 optional=True,
@@ -4556,6 +4664,23 @@ class FunctionSegment(BaseSegment):
     )
 
 
+class ColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    Overwote ANSI to add optional TableIndexSegment
+    """
+
+    type = "column_definition"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+            Ref("TableIndexSegment", optional=True),
+        ),
+    )
+
+
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
@@ -4666,162 +4791,168 @@ class AlterTableStatementSegment(BaseSegment):
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
-        Delimited(
-            OneOf(
-                # Table options
-                Sequence(
-                    Ref("ParameterNameSegment"),
-                    Ref("EqualsSegment", optional=True),
-                    OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
-                ),
-                Sequence(
-                    "ALTER",
-                    "COLUMN",
+        OneOf(
+            # Table options
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Ref("EqualsSegment", optional=True),
+                OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+            ),
+            Sequence(
+                "ALTER",
+                "COLUMN",
+                Ref("ColumnDefinitionSegment"),
+            ),
+            Sequence(
+                "ADD",
+                Delimited(
+                    Ref("ComputedColumnDefinitionSegment"),
                     Ref("ColumnDefinitionSegment"),
                 ),
-                Sequence(
-                    "ADD",
-                    Delimited(
-                        Ref("ComputedColumnDefinitionSegment"),
-                        Ref("ColumnDefinitionSegment"),
-                    ),
-                ),
-                Sequence(
-                    "DROP",
-                    "COLUMN",
-                    Ref("IfExistsGrammar", optional=True),
-                    Delimited(Ref("ColumnReferenceSegment")),
-                ),
-                Sequence(
-                    "ADD",
-                    Ref("ColumnConstraintSegment"),
-                    "FOR",
-                    Ref("ColumnReferenceSegment"),
-                ),
-                Sequence(OneOf("ADD", "DROP"), Ref("PeriodSegment")),
-                Sequence(
+            ),
+            Sequence(
+                "DROP",
+                Delimited(
                     Sequence(
-                        "WITH",
-                        OneOf("CHECK", "NOCHECK"),
-                        optional=True,
-                    ),
-                    "ADD",
-                    Ref("TableConstraintSegment"),
-                ),
-                # See for details on check/nocheck constraints
-                # https://learn.microsoft.com/en-us/sql/relational-databases/tables/disable-foreign-key-constraints-with-insert-and-update-statements
-                Sequence(
-                    Sequence("WITH", OneOf("CHECK", "NOCHECK"), optional=True),
-                    OneOf("CHECK", "NOCHECK"),
-                    "CONSTRAINT",
-                    Ref("ObjectReferenceSegment"),
-                ),
-                Sequence(
-                    "DROP",
-                    Sequence(
-                        "CONSTRAINT",
+                        "COLUMN",
                         Ref("IfExistsGrammar", optional=True),
-                        optional=True,
+                        Delimited(Ref("ColumnReferenceSegment")),
                     ),
-                    Ref("ObjectReferenceSegment"),
                 ),
-                # Rename
+            ),
+            Sequence(
+                "ADD",
+                Ref("ColumnConstraintSegment"),
+                "FOR",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(OneOf("ADD", "DROP"), Ref("PeriodSegment")),
+            Sequence(
                 Sequence(
-                    "RENAME",
-                    OneOf("AS", "TO", optional=True),
-                    Ref("TableReferenceSegment"),
+                    "WITH",
+                    OneOf("CHECK", "NOCHECK"),
+                    optional=True,
                 ),
-                Sequence(
-                    "REBUILD",
+                "ADD",
+                Ref("TableConstraintSegment"),
+            ),
+            # See for details on check/nocheck constraints
+            # https://learn.microsoft.com/en-us/sql/relational-databases/tables/disable-foreign-key-constraints-with-insert-and-update-statements
+            Sequence(
+                Sequence("WITH", OneOf("CHECK", "NOCHECK"), optional=True),
+                OneOf("CHECK", "NOCHECK"),
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DROP",
+                Delimited(
                     Sequence(
-                        "PARTITION",
-                        Ref("EqualsSegment"),
-                        OneOf("ALL", Ref("NumericLiteralSegment")),
-                        optional=True,
-                    ),
-                    Sequence(
-                        "WITH",
-                        Bracketed(
-                            Delimited(
-                                _rebuild_table_option,
-                            ),
+                        Sequence(
+                            "CONSTRAINT",
+                            Ref("IfExistsGrammar", optional=True),
+                            optional=True,
                         ),
-                        optional=True,
+                        Ref("ObjectReferenceSegment"),
                     ),
                 ),
+            ),
+            # Rename
+            Sequence(
+                "RENAME",
+                OneOf("AS", "TO", optional=True),
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "REBUILD",
                 Sequence(
-                    "SET",
-                    OneOf(
-                        Bracketed(
-                            Sequence(
-                                "FILESTREAM_ON",
-                                Ref("EqualsSegment"),
+                    "PARTITION",
+                    Ref("EqualsSegment"),
+                    OneOf("ALL", Ref("NumericLiteralSegment")),
+                    optional=True,
+                ),
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        Delimited(
+                            _rebuild_table_option,
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SET",
+                OneOf(
+                    Bracketed(
+                        Sequence(
+                            "FILESTREAM_ON",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("FilegroupNameSegment"),
+                                Ref("PartitionSchemeNameSegment"),
                                 OneOf(
-                                    Ref("FilegroupNameSegment"),
-                                    Ref("PartitionSchemeNameSegment"),
-                                    OneOf(
-                                        "NULL",
-                                        Ref("LiteralGrammar"),  # for "default" value
-                                    ),
+                                    "NULL",
+                                    Ref("LiteralGrammar"),  # for "default" value
                                 ),
-                            )
-                        ),
-                        Bracketed(
+                            ),
+                        )
+                    ),
+                    Bracketed(
+                        Sequence(
+                            "SYSTEM_VERSIONING",
+                            Ref("EqualsSegment"),
+                            OneOf("ON", "OFF"),
                             Sequence(
-                                "SYSTEM_VERSIONING",
-                                Ref("EqualsSegment"),
-                                OneOf("ON", "OFF"),
-                                Sequence(
-                                    Bracketed(
-                                        "HISTORY_TABLE",
+                                Bracketed(
+                                    "HISTORY_TABLE",
+                                    Ref("EqualsSegment"),
+                                    Ref("TableReferenceSegment"),
+                                    Sequence(
+                                        Ref("CommaSegment"),
+                                        "DATA_CONSISTENCY_CHECK",
                                         Ref("EqualsSegment"),
-                                        Ref("TableReferenceSegment"),
-                                        Sequence(
-                                            Ref("CommaSegment"),
-                                            "DATA_CONSISTENCY_CHECK",
-                                            Ref("EqualsSegment"),
-                                            OneOf("ON", "OFF"),
-                                            optional=True,
-                                        ),
-                                        Sequence(
-                                            Ref("CommaSegment"),
-                                            "HISTORY_RETENTION_PERIOD",
-                                            Ref("EqualsSegment"),
-                                            Ref("NumericLiteralSegment", optional=True),
-                                            Ref("DatetimeUnitSegment"),
-                                            optional=True,
-                                        ),
+                                        OneOf("ON", "OFF"),
+                                        optional=True,
                                     ),
-                                    optional=True,
+                                    Sequence(
+                                        Ref("CommaSegment"),
+                                        "HISTORY_RETENTION_PERIOD",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment", optional=True),
+                                        Ref("DatetimeUnitSegment"),
+                                        optional=True,
+                                    ),
                                 ),
-                            )
-                        ),
-                        Bracketed(
+                                optional=True,
+                            ),
+                        )
+                    ),
+                    Bracketed(
+                        Sequence(
+                            "DATA_DELETION",
+                            Ref("EqualsSegment"),
+                            OneOf("ON", "OFF"),
                             Sequence(
-                                "DATA_DELETION",
-                                Ref("EqualsSegment"),
-                                OneOf("ON", "OFF"),
-                                Sequence(
-                                    Bracketed(
-                                        "FILTER_COLUMN",
+                                Bracketed(
+                                    "FILTER_COLUMN",
+                                    Ref("EqualsSegment"),
+                                    Ref("ColumnReferenceSegment"),
+                                    Sequence(
+                                        Ref("CommaSegment"),
+                                        "RETENTION_PERIOD",
                                         Ref("EqualsSegment"),
-                                        Ref("ColumnReferenceSegment"),
-                                        Sequence(
-                                            Ref("CommaSegment"),
-                                            "RETENTION_PERIOD",
-                                            Ref("EqualsSegment"),
-                                            Ref("NumericLiteralSegment", optional=True),
-                                            Ref("DatetimeUnitSegment"),
-                                            optional=True,
-                                        ),
+                                        Ref("NumericLiteralSegment", optional=True),
+                                        Ref("DatetimeUnitSegment"),
+                                        optional=True,
                                     ),
-                                    optional=True,
                                 ),
+                                optional=True,
                             ),
                         ),
                     ),
                 ),
-            )
+            ),
         ),
     )
 
@@ -5048,8 +5179,10 @@ class IdentityGrammar(BaseSegment):
         # optional (seed, increment) e.g. (1, 1)
         Bracketed(
             Sequence(
+                Ref("SignedSegmentGrammar", optional=True),
                 Ref("NumericLiteralSegment"),
                 Ref("CommaSegment"),
+                Ref("SignedSegmentGrammar", optional=True),
                 Ref("NumericLiteralSegment"),
             ),
             optional=True,
@@ -5405,6 +5538,7 @@ class OpenRowSetSegment(BaseSegment):
     """A `OPENROWSET` segment.
 
     https://docs.microsoft.com/en-us/sql/t-sql/functions/openrowset-transact-sql
+    https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/develop-openrowset
     """
 
     type = "openrowset_segment"
@@ -5433,83 +5567,64 @@ class OpenRowSetSegment(BaseSegment):
                 ),
                 Sequence(
                     "BULK",
+                    # Data filepath(s)
                     OptionallyBracketed(
                         Delimited(Ref("QuotedLiteralSegmentOptWithN")),
                     ),
                     Ref("CommaSegment"),
-                    OneOf(
+                    Delimited(
+                        # Bulk options taking normal or unicode strings
                         Sequence(
-                            Sequence(
+                            OneOf(
+                                "DATA_SOURCE",
+                                "CODEPAGE",
+                                "DATAFILETYPE",
+                                "FORMAT",
                                 "FORMATFILE",
-                                Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegmentOptWithN"),
-                                Ref("CommaSegment"),
-                                optional=True,
+                                "FORMATFILE_DATA_SOURCE",
+                                "FIELDTERMINATOR",
+                                "ROWTERMINATOR",
+                                "FIELDQUOTE",
+                                "ESCAPE_CHAR",
+                                "DATA_COMPRESSION",
+                                "PARSER_VERSION",
+                                "ERRORFILE",
+                                "ERRORFILE_LOCATION",
+                                "ERRORFILE_DATA_SOURCE",
+                                "ROWSET_OPTIONS",
                             ),
-                            Delimited(
-                                AnyNumberOf(
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegmentOptWithN"),
+                        ),
+                        # Bulk options that take numeric or boolean types
+                        Sequence(
+                            OneOf(
+                                "FIRSTROW",
+                                "LASTROW",
+                                "MAXERRORS",
+                                "ROWS_PER_BATCH",
+                                "HEADER_ROW",
+                            ),
+                            Ref("EqualsSegment"),
+                            Ref("LiteralGrammar"),
+                        ),
+                        Sequence(
+                            "ORDER",
+                            OptionallyBracketed(
+                                Delimited(
                                     Sequence(
-                                        "DATA_SOURCE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "ERRORFILE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "ERRORFILE_DATA_SOURCE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "MAXERRORS",
-                                        Ref("EqualsSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "FIRSTROW",
-                                        Ref("EqualsSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "LASTROW",
-                                        Ref("EqualsSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "CODEPAGE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "FORMAT",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                    ),
-                                    Sequence(
-                                        "FIELDQUOTE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "FORMATFILE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
-                                    ),
-                                    Sequence(
-                                        "FORMATFILE_DATA_SOURCE",
-                                        Ref("EqualsSegment"),
-                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                        Ref("ColumnReferenceSegment"),
+                                        OneOf("ASC", "DESC", optional=True),
                                     ),
                                 ),
-                                optional=True,
                             ),
+                            Ref("UniqueKeyGrammar", optional=True),
                         ),
-                        "SINGLE_BLOB",
-                        "SINGLE_CLOB",
-                        "SINGLE_NCLOB",
+                        OneOf(
+                            "SINGLE_BLOB",
+                            "SINGLE_CLOB",
+                            "SINGLE_NCLOB",
+                        ),
                     ),
                 ),
             ),
@@ -5659,6 +5774,7 @@ class TableExpressionSegment(BaseSegment):
 
     type = "table_expression"
     match_grammar: Matchable = OneOf(
+        Ref("MLTableExpressionSegment"),
         Ref("ValuesClauseSegment"),
         Sequence(Ref("TableReferenceSegment"), Ref("PostTableExpressionGrammar")),
         Ref("BareFunctionSegment"),
@@ -6418,6 +6534,11 @@ class ExecuteScriptSegment(BaseSegment):
             )
         ),
         Ref("LoginUserSegment", optional=True),
+        Sequence(
+            "WITH",
+            Ref("ExecuteOptionSegment"),
+            optional=True,
+        ),
     )
 
     #  Execute a pass-through command against a linked server
@@ -7923,13 +8044,20 @@ class CreateLoginStatementSegment(BaseSegment):
     _default_database = Sequence(
         "DEFAULT_DATABASE",
         Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NakedIdentifierSegment"),
+        ),
     )
 
     _default_language = Sequence(
         "DEFAULT_LANGUAGE",
         Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegment"),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
+            Ref("NakedIdentifierSegment"),
+        ),
     )
 
     _option_list_2 = AnyNumberOf(
@@ -7965,7 +8093,7 @@ class CreateLoginStatementSegment(BaseSegment):
     _option_list_1 = Sequence(
         "PASSWORD",
         Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegment"),
+        Ref("QuotedLiteralSegmentOptWithN"),
         Ref.keyword("MUST_CHANGE", optional=True),
         Ref("CommaSegment", optional=True),
         Delimited(_option_list_2, optional=True),
@@ -8650,6 +8778,87 @@ class OpenSymmetricKeySegment(BaseSegment):
         "DECRYPTION",
         "BY",
         _decryption_mechanism,
+    )
+
+
+class DbccStatementSegment(BaseSegment):
+    """A `DBCC` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/database-console-commands/dbcc-transact-sql
+
+    type = "dbcc_statement"
+
+    _statements = OneOf(
+        # informational
+        "INPUTBUFFER",
+        "SHOWCONTIG",
+        "OPENTRAN",
+        "OUTPUTBUFFER",
+        "PROCCACHE",
+        "SHOW_STATISTICS",
+        "SQLPERF",
+        "TRACESTATUS",
+        "USEROPTIONS",
+        # validation
+        "CHECKALLOC",
+        "CHECKCATALOG",
+        "CHECKCONSTRAINTS",
+        "CHECKDB",
+        "CHECKFILEGROUP",
+        "CHECKIDENT",
+        "CHECKTABLE",
+        # maintenance
+        "CLEANTABLE",
+        "DBREINDEX",
+        "DROPCLEANBUFFERS",
+        "FREEPROCCACHE",
+        "INDEXDEFRAG",
+        "SHRINKDATABASE",
+        "SHRINKFILE",
+        "UPDATEUSAGE",
+        # miscellaneous
+        "HELP",
+        "FLUSHAUTHCACHE",
+        "TRACEOFF",
+        "FREESESSIONCACHE",
+        "TRACEON",
+        "FREESYSTEMCACHE",
+        "CLONEDATABASE",
+    )
+
+    _with_options = Delimited(
+        "FAST",
+        "NO_INFOMSGS",
+        "ALL_INDEXES",
+        "TABLERESULTS",
+        "ALL_LEVELS",
+        "STAT_HEADER",
+        "DENSITY_VECTOR",
+        "HISTOGRAM",
+        "ALL_ERRORMSGS",
+        "TABLOCK",
+        "ESTIMATEONLY",
+        "ALL_CONSTRAINTS",
+        "EXTENDED_LOGICAL_CHECKS",
+        "PHYSICAL_ONLY",
+        "DATA_PURITY",
+        "COUNT_ROWS",
+        "MARK_IN_USE_FOR_REMOVAL",
+        "NO_STATISTICS",
+        "NO_QUERYSTORE",
+        "VERIFY_CLONEDB",
+        "BACKUP_CLONEDB",
+        "SERVICEBROKER",
+        Sequence("MAXDOP", Ref("RawEqualsSegment"), Ref("IntegerLiteralSegment")),
+        optional=True,
+    )
+
+    match_grammar: Matchable = Sequence(
+        "DBCC",
+        _statements,
+        # Using Anything as a catch-all for now, more specifics might be needed later
+        Sequence(Bracketed(Anything()), optional=True),
+        Sequence("WITH", _with_options, optional=True),
     )
 
 

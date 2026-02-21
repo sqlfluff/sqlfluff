@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b626c56f4d7624d0ba715e0c7e33750ce7dfbf41ae94cb7f2623df882a27df07
+_hash: cc31705eb94536e4c6dbeef78c923caca322998653865aa58bc616bdc1cf3cae
 file:
   batch:
   - statement:
@@ -363,7 +363,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: name
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: value
@@ -390,7 +390,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: key_column
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: value_column
@@ -417,7 +417,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: setting_name
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: setting_value
@@ -447,7 +447,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: config_key
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: config_value
@@ -477,7 +477,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: prop_name
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: prop_value
@@ -506,7 +506,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: name
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: score
@@ -545,7 +545,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: attr_name
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: attr_value
@@ -590,7 +590,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: item_name
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: item_price
@@ -641,7 +641,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: setting_name
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: setting_value
@@ -676,7 +676,7 @@ file:
                 - start_bracket: (
                 - expression:
                     quoted_literal: "'key'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: value_column
@@ -708,7 +708,7 @@ file:
                   - binary_operator: +
                   - column_reference:
                       naked_identifier: suffix
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: data_value
@@ -739,7 +739,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: employee_id
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: employee_name
@@ -795,7 +795,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: employee_id
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     column_reference:
                       naked_identifier: employee_email
@@ -870,7 +870,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: product_name
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     bracketed:
                       start_bracket: (
@@ -1049,7 +1049,7 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'items'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                     function_name:
                       keyword: JSON_ARRAYAGG
@@ -1062,7 +1062,7 @@ file:
                         end_bracket: )
                 - comma: ','
                 - quoted_literal: "'count'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                     function_name:
                       function_name_identifier: COUNT
@@ -1175,7 +1175,7 @@ file:
                 - expression:
                     column_reference:
                       naked_identifier: user_id
-                - colon: ':'
+                - colon_delimiter: ':'
                 - expression:
                     bracketed:
                       start_bracket: (
