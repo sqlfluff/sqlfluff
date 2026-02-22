@@ -643,15 +643,18 @@ impl<'a> Parser<'a> {
                 grammar_name,
                 start_idx
             );
-            if let Ok(m) = self.try_match_grammar_table_driven(*term, start_idx, &[]) {
+            if let Ok(_m) = self.try_match_grammar_table_driven(*term, start_idx, &[]) {
                 log::debug!(
-                    "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) matched at idx={}, returning {}",
+                    "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) matched immediately at idx={}, returning start_idx={}",
                     term,
                     grammar_name,
                     start_idx,
-                    m
+                    start_idx
                 );
-                return Ok(m);
+                // Terminator matched immediately at (or right after) start_idx.
+                // Return start_idx so that max_idx is trimmed to exclude the
+                // terminator and any content it covers.
+                return Ok(start_idx);
             } else {
                 log::debug!(
                     "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) did NOT match at idx={}",
