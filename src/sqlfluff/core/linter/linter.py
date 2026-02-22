@@ -122,7 +122,7 @@ class Linter:
         fname: str, root_config: FluffConfig
     ) -> tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
-        file_config = root_config.make_child_from_path(fname)
+        file_config = root_config.make_child_from_path(fname, require_dialect=False)
         config_encoding: str = file_config.get("encoding", default="autodetect")
         encoding = get_encoding(fname=fname, config_encoding=config_encoding)
         # Check file size before loading.
@@ -853,7 +853,10 @@ class Linter:
         self, in_str: str, fname: str, config: FluffConfig, encoding: str
     ) -> RenderedFile:
         """Template the file."""
-        linter_logger.info("Rendering String [%s] (%s)", self.templater.name, fname)
+        # Use the templater from the config (which may have been updated by in-file
+        # config) rather than self.templater
+        templater = config.get("templater_obj")
+        linter_logger.info("Rendering String [%s] (%s)", templater.name, fname)
 
         # Start the templating timer
         t0 = time.monotonic()
@@ -868,22 +871,13 @@ class Linter:
         # not going to pick up a .sqlfluff or other config file to provide a
         # missing dialect at this point.)
         config.verify_dialect_specified()
-        if not config.get("templater_obj") == self.templater:
-            linter_logger.warning(
-                f"Attempt to set templater to {config.get('templater_obj').name} "
-                f"failed. Using {self.templater.name} templater. Templater cannot "
-                "be set in a .sqlfluff file in a subdirectory of the current "
-                "working directory. It can be set in a .sqlfluff in the current "
-                "working directory. See Nesting section of the docs for more "
-                "details."
-            )
 
         variant_limit = config.get("render_variant_limit")
         templated_variants: list[TemplatedFile] = []
         templater_violations: list[SQLTemplaterError] = []
 
         try:
-            for variant, templater_errs in self.templater.process_with_variants(
+            for variant, templater_errs in templater.process_with_variants(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
             ):
                 if variant:
