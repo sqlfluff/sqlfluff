@@ -110,11 +110,6 @@ impl Parser<'_> {
             .segment_class(grammar_id)
             .map(|s| s.to_string());
 
-        eprintln!(
-            "Ref[table]: this_type={:?}, child_type={:?}, table_segment_class={:?}",
-            this_type, child_type, table_segment_class
-        );
-
         log::debug!(
             "Ref[table]: rule_name='{}', table_segment_class={:?}",
             rule_name,
