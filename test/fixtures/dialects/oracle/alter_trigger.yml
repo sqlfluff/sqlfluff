@@ -3,21 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: addf6d049dbc44b7783a567ed0e5debfff0bd5d500946a152fc8d4f331dad0b5
+_hash: 7447b138d5947f6bf22bf6d63b10b7f4b208fbb31c047b8407317731e1998116
 file:
-- statement:
-    alter_trigger_statement:
-    - keyword: ALTER
-    - keyword: TRIGGER
-    - function_name:
-        function_name_identifier: update_job_history
-    - keyword: DISABLE
-- statement_terminator: ;
-- statement:
-    alter_trigger_statement:
-    - keyword: ALTER
-    - keyword: TRIGGER
-    - function_name:
-        function_name_identifier: update_job_history
-    - keyword: ENABLE
-- statement_terminator: ;
+  batch:
+  - statement:
+      alter_trigger_statement:
+      - keyword: ALTER
+      - keyword: TRIGGER
+      - function_name:
+          function_name_identifier: update_job_history
+      - keyword: DISABLE
+  - statement_terminator: ;
+  - statement:
+      alter_trigger_statement:
+      - keyword: ALTER
+      - keyword: TRIGGER
+      - function_name:
+          function_name_identifier: update_job_history
+      - keyword: ENABLE
+  - statement_terminator: ;

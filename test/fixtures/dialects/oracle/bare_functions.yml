@@ -3,73 +3,74 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e263a00681db97d124e7a639374ee40f65642e13597c704ac5a150b1e308206
+_hash: 6c8e20fbc5145723c5d447ed4ecc614752cc0e01fa409c33c66b17bfe51311dd
 file:
-  statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: a
-          - dot: .
-          - naked_identifier: foo
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: b
-          - dot: .
-          - naked_identifier: bar
-      - comma: ','
-      - select_clause_element:
-          bare_function: current_date
-      - comma: ','
-      - select_clause_element:
-          bare_function: current_timestamp
-      - comma: ','
-      - select_clause_element:
-          bare_function: dbtimezone
-      - comma: ','
-      - select_clause_element:
-          bare_function: localtimestamp
-      - comma: ','
-      - select_clause_element:
-          bare_function: sessiontimestamp
-      - comma: ','
-      - select_clause_element:
-          bare_function: sysdate
-      - comma: ','
-      - select_clause_element:
-          bare_function: systimestamp
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: first_table
-            alias_expression:
-              naked_identifier: a
-          join_clause:
-          - keyword: INNER
-          - keyword: JOIN
-          - from_expression_element:
+  batch:
+    statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: a
+            - dot: .
+            - naked_identifier: foo
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: b
+            - dot: .
+            - naked_identifier: bar
+        - comma: ','
+        - select_clause_element:
+            bare_function: current_date
+        - comma: ','
+        - select_clause_element:
+            bare_function: current_timestamp
+        - comma: ','
+        - select_clause_element:
+            bare_function: dbtimezone
+        - comma: ','
+        - select_clause_element:
+            bare_function: localtimestamp
+        - comma: ','
+        - select_clause_element:
+            bare_function: sessiontimestamp
+        - comma: ','
+        - select_clause_element:
+            bare_function: sysdate
+        - comma: ','
+        - select_clause_element:
+            bare_function: systimestamp
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: second_table
+                  naked_identifier: first_table
               alias_expression:
-                naked_identifier: b
-          - join_on_condition:
-              keyword: 'ON'
-              expression:
-              - column_reference:
-                - naked_identifier: a
-                - dot: .
-                - naked_identifier: baz
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - column_reference:
-                - naked_identifier: b
-                - dot: .
-                - naked_identifier: baz
-  statement_terminator: ;
+                naked_identifier: a
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: second_table
+                alias_expression:
+                  naked_identifier: b
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: a
+                  - dot: .
+                  - naked_identifier: baz
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: b
+                  - dot: .
+                  - naked_identifier: baz
+    statement_terminator: ;

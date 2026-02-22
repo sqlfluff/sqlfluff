@@ -3,106 +3,107 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5d58dab8c810a69405689c1ac6eb6f0416b3389c1901c5a08601b0f41ed0d2d4
+_hash: fd1454a1c29738768fc3651822fac209cfe5d7c2d5b85ffff9d10b760fc02d3e
 file:
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-              - naked_identifier: foo
-              - at_sign: '@'
-              - naked_identifier: bar
-      where_clause:
-        keyword: where
-        expression:
-        - numeric_literal: '1'
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-          - naked_identifier: baz
-          - dot: .
-          - naked_identifier: name
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-              - naked_identifier: foo
-              - at_sign: '@'
-              - naked_identifier: bar
-            alias_expression:
-              naked_identifier: baz
-      where_clause:
-        keyword: where
-        expression:
-        - numeric_literal: '1'
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          function:
-            function_name:
-            - function_name_identifier: function_a
-            - at_sign: '@'
-            - function_name_identifier: orcl
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          function:
-            function_name:
-            - naked_identifier: pkg_test
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: foo
+                - at_sign: '@'
+                - naked_identifier: bar
+        where_clause:
+          keyword: where
+          expression:
+          - numeric_literal: '1'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+            - naked_identifier: baz
             - dot: .
-            - function_name_identifier: function_a
-            - at_sign: '@'
-            - function_name_identifier: orcl
-            function_contents:
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '1'
-                end_bracket: )
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-- statement_terminator: ;
+            - naked_identifier: name
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: foo
+                - at_sign: '@'
+                - naked_identifier: bar
+              alias_expression:
+                naked_identifier: baz
+        where_clause:
+          keyword: where
+          expression:
+          - numeric_literal: '1'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+              - function_name_identifier: function_a
+              - at_sign: '@'
+              - function_name_identifier: orcl
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+              - naked_identifier: pkg_test
+              - dot: .
+              - function_name_identifier: function_a
+              - at_sign: '@'
+              - function_name_identifier: orcl
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '1'
+                  end_bracket: )
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;

@@ -3,76 +3,77 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 816c3def67ca43619b23914d7e07bc53fe94f8c1c82827c2285c08c18ceaa89a
+_hash: 5cd07da28bd351dd1159e00ff893cdfb9d2f51f5128fefc8af15d9e54e345716
 file:
-- statement:
-    alter_database_link_statement:
-    - keyword: ALTER
-    - keyword: DATABASE
-    - keyword: LINK
-    - database_link_reference:
-        naked_identifier: private_link
-    - keyword: CONNECT
-    - keyword: TO
-    - role_reference:
-        naked_identifier: hr
-    - keyword: IDENTIFIED
-    - keyword: BY
-    - naked_identifier: hr_new_password
-- statement_terminator: ;
-- statement:
-    alter_database_link_statement:
-    - keyword: ALTER
-    - keyword: PUBLIC
-    - keyword: DATABASE
-    - keyword: LINK
-    - database_link_reference:
-        naked_identifier: public_link
-    - keyword: CONNECT
-    - keyword: TO
-    - role_reference:
-        naked_identifier: scott
-    - keyword: IDENTIFIED
-    - keyword: BY
-    - naked_identifier: scott_new_password
-- statement_terminator: ;
-- statement:
-    alter_database_link_statement:
-    - keyword: ALTER
-    - keyword: SHARED
-    - keyword: PUBLIC
-    - keyword: DATABASE
-    - keyword: LINK
-    - database_link_reference:
-        naked_identifier: shared_pub_link
-    - keyword: CONNECT
-    - keyword: TO
-    - role_reference:
-        naked_identifier: scott
-    - keyword: IDENTIFIED
-    - keyword: BY
-    - naked_identifier: scott_new_password
-    - keyword: AUTHENTICATED
-    - keyword: BY
-    - role_reference:
-        naked_identifier: hr
-    - keyword: IDENTIFIED
-    - keyword: BY
-    - naked_identifier: hr_new_password
-- statement_terminator: ;
-- statement:
-    alter_database_link_statement:
-    - keyword: ALTER
-    - keyword: SHARED
-    - keyword: DATABASE
-    - keyword: LINK
-    - database_link_reference:
-        naked_identifier: shared_pub_link
-    - keyword: CONNECT
-    - keyword: TO
-    - role_reference:
-        naked_identifier: scott
-    - keyword: IDENTIFIED
-    - keyword: BY
-    - naked_identifier: scott_new_password
-- statement_terminator: ;
+  batch:
+  - statement:
+      alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: private_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: hr
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: hr_new_password
+  - statement_terminator: ;
+  - statement:
+      alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: PUBLIC
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: public_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: scott
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: scott_new_password
+  - statement_terminator: ;
+  - statement:
+      alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: SHARED
+      - keyword: PUBLIC
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: shared_pub_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: scott
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: scott_new_password
+      - keyword: AUTHENTICATED
+      - keyword: BY
+      - role_reference:
+          naked_identifier: hr
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: hr_new_password
+  - statement_terminator: ;
+  - statement:
+      alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: SHARED
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: shared_pub_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: scott
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: scott_new_password
+  - statement_terminator: ;

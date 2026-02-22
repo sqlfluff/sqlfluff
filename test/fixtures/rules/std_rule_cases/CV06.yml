@@ -517,7 +517,7 @@ test_pass_file_with_only_comments_with_require_final_semicolon:
       convention.terminator:
         require_final_semicolon: true
 
-test_pass_oracle_block_with_slash_delimiter:
+test_pass_oracle_block_with_slash_buffer_executor:
   pass_str: |
     CREATE PROCEDURE test_proc AS
     BEGIN
@@ -531,7 +531,7 @@ test_pass_oracle_block_with_slash_delimiter:
       convention.terminator:
         require_final_semicolon: true
 
-test_pass_oracle_block_with_slash_delimiter_multiline:
+test_pass_oracle_block_with_slash_buffer_executor_multiline:
   pass_str: |
     CREATE PROCEDURE test_proc AS
     BEGIN

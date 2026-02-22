@@ -3,102 +3,167 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e90a718c0d1e95a444ec74ff34034bc4c9e4e74275574c07156ce1f6eaa00bac
+_hash: fa3a5fa53786662f0cb7ed9d487d71738f9eecb708734849ff82a409bdae78c0
 file:
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: departments
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+  batch:
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: departments
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '280'
+          - comma: ','
+          - quoted_literal: "'Recreation'"
+          - comma: ','
+          - numeric_literal: '121'
+          - comma: ','
+          - numeric_literal: '1700'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: departments
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '280'
+          - comma: ','
+          - quoted_literal: "'Recreation'"
+          - comma: ','
+          - keyword: DEFAULT
+          - comma: ','
+          - numeric_literal: '1700'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: employees
+      - bracketed:
         - start_bracket: (
-        - numeric_literal: '280'
+        - column_reference:
+            naked_identifier: employee_id
         - comma: ','
-        - quoted_literal: "'Recreation'"
+        - column_reference:
+            naked_identifier: last_name
         - comma: ','
-        - numeric_literal: '121'
+        - column_reference:
+            naked_identifier: email
         - comma: ','
-        - numeric_literal: '1700'
+        - column_reference:
+            naked_identifier: hire_date
+        - comma: ','
+        - column_reference:
+            naked_identifier: job_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: salary
+        - comma: ','
+        - column_reference:
+            naked_identifier: commission_pct
         - end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: departments
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - numeric_literal: '280'
-        - comma: ','
-        - quoted_literal: "'Recreation'"
-        - comma: ','
-        - keyword: DEFAULT
-        - comma: ','
-        - numeric_literal: '1700'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: employees
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: employee_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: last_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: email
-      - comma: ','
-      - column_reference:
-          naked_identifier: hire_date
-      - comma: ','
-      - column_reference:
-          naked_identifier: job_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: salary
-      - comma: ','
-      - column_reference:
-          naked_identifier: commission_pct
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - numeric_literal: '207'
-        - comma: ','
-        - quoted_literal: "'Gregory'"
-        - comma: ','
-        - quoted_literal: "'pgregory@example.com'"
-        - comma: ','
-        - expression:
-            bare_function: sysdate
-        - comma: ','
-        - quoted_literal: "'PU_CLERK'"
-        - comma: ','
-        - numeric_literal: 1.2E3
-        - comma: ','
-        - null_literal: 'NULL'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - bracketed:
-        start_bracket: (
-        select_statement:
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '207'
+          - comma: ','
+          - quoted_literal: "'Gregory'"
+          - comma: ','
+          - quoted_literal: "'pgregory@example.com'"
+          - comma: ','
+          - expression:
+              bare_function: sysdate
+          - comma: ','
+          - quoted_literal: "'PU_CLERK'"
+          - comma: ','
+          - numeric_literal: 1.2E3
+          - comma: ','
+          - null_literal: 'NULL'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: employee_id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: last_name
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: email
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: hire_date
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: job_id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: salary
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: commission_pct
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+          end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '207'
+          - comma: ','
+          - quoted_literal: "'Gregory'"
+          - comma: ','
+          - quoted_literal: "'pgregory@example.com'"
+          - comma: ','
+          - expression:
+              bare_function: sysdate
+          - comma: ','
+          - quoted_literal: "'PU_CLERK'"
+          - comma: ','
+          - numeric_literal: 1.2E3
+          - comma: ','
+          - null_literal: 'NULL'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: bonuses
+      - select_statement:
           select_clause:
           - keyword: SELECT
           - select_clause_element:
@@ -106,28 +171,11 @@ file:
                 naked_identifier: employee_id
           - comma: ','
           - select_clause_element:
-              column_reference:
-                naked_identifier: last_name
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                naked_identifier: email
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                naked_identifier: hire_date
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                naked_identifier: job_id
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                naked_identifier: salary
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                naked_identifier: commission_pct
+              expression:
+                column_reference:
+                  naked_identifier: salary
+                binary_operator: '*'
+                numeric_literal: '1.1'
           from_clause:
             keyword: FROM
             from_expression:
@@ -135,904 +183,981 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: employees
-        end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - numeric_literal: '207'
-        - comma: ','
-        - quoted_literal: "'Gregory'"
-        - comma: ','
-        - quoted_literal: "'pgregory@example.com'"
-        - comma: ','
-        - expression:
-            bare_function: sysdate
-        - comma: ','
-        - quoted_literal: "'PU_CLERK'"
-        - comma: ','
-        - numeric_literal: 1.2E3
-        - comma: ','
-        - null_literal: 'NULL'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: bonuses
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              naked_identifier: employee_id
-        - comma: ','
-        - select_clause_element:
+          where_clause:
+            keyword: WHERE
             expression:
               column_reference:
-                naked_identifier: salary
-              binary_operator: '*'
-              numeric_literal: '1.1'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: employees
-        where_clause:
-          keyword: WHERE
-          expression:
-            column_reference:
-              naked_identifier: commission_pct
-            comparison_operator:
-              raw_comparison_operator: '>'
-            numeric_literal: '0.25'
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: raises
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              naked_identifier: employee_id
-        - comma: ','
-        - select_clause_element:
+                naked_identifier: commission_pct
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0.25'
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: raises
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: employee_id
+          - comma: ','
+          - select_clause_element:
+              expression:
+                column_reference:
+                  naked_identifier: salary
+                binary_operator: '*'
+                numeric_literal: '1.1'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: employees
+          where_clause:
+            keyword: WHERE
             expression:
               column_reference:
-                naked_identifier: salary
-              binary_operator: '*'
-              numeric_literal: '1.1'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: employees
-        where_clause:
-          keyword: WHERE
+                naked_identifier: commission_pct
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0.2'
+      - keyword: LOG
+      - keyword: ERRORS
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: errlog
+      - bracketed:
+          start_bracket: (
           expression:
-            column_reference:
-              naked_identifier: commission_pct
-            comparison_operator:
-              raw_comparison_operator: '>'
-            numeric_literal: '0.2'
-    - keyword: LOG
-    - keyword: ERRORS
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: errlog
-    - bracketed:
-        start_bracket: (
-        expression:
-          quoted_literal: "'my_bad'"
-        end_bracket: )
-    - keyword: REJECT
-    - keyword: LIMIT
-    - numeric_literal: '10'
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-      - naked_identifier: employees
-      - at_sign: '@'
-      - naked_identifier: remote
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+            quoted_literal: "'my_bad'"
+          end_bracket: )
+      - keyword: REJECT
+      - keyword: LIMIT
+      - numeric_literal: '10'
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: employees
+        - at_sign: '@'
+        - naked_identifier: remote
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '8002'
+          - comma: ','
+          - quoted_literal: "'Juan'"
+          - comma: ','
+          - quoted_literal: "'Fernandez'"
+          - comma: ','
+          - quoted_literal: "'juanf@example.com'"
+          - comma: ','
+          - null_literal: 'NULL'
+          - comma: ','
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: TO_DATE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'04-OCT-1992'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'DD-MON-YYYY'"
+                  - end_bracket: )
+          - comma: ','
+          - quoted_literal: "'SH_CLERK'"
+          - comma: ','
+          - numeric_literal: '3000'
+          - comma: ','
+          - null_literal: 'NULL'
+          - comma: ','
+          - numeric_literal: '121'
+          - comma: ','
+          - numeric_literal: '20'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: departments
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: departments_seq
+              - dot: .
+              - naked_identifier: nextval
+          - comma: ','
+          - quoted_literal: "'Entertainment'"
+          - comma: ','
+          - numeric_literal: '162'
+          - comma: ','
+          - numeric_literal: '1400'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: employees
+      - bracketed:
         - start_bracket: (
-        - numeric_literal: '8002'
+        - column_reference:
+            naked_identifier: employee_id
         - comma: ','
-        - quoted_literal: "'Juan'"
+        - column_reference:
+            naked_identifier: last_name
         - comma: ','
-        - quoted_literal: "'Fernandez'"
+        - column_reference:
+            naked_identifier: email
         - comma: ','
-        - quoted_literal: "'juanf@example.com'"
+        - column_reference:
+            naked_identifier: hire_date
         - comma: ','
-        - null_literal: 'NULL'
+        - column_reference:
+            naked_identifier: job_id
         - comma: ','
-        - expression:
-            function:
-              function_name:
-                function_name_identifier: TO_DATE
-              function_contents:
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'04-OCT-1992'"
-                - comma: ','
-                - expression:
-                    quoted_literal: "'DD-MON-YYYY'"
-                - end_bracket: )
-        - comma: ','
-        - quoted_literal: "'SH_CLERK'"
-        - comma: ','
-        - numeric_literal: '3000'
-        - comma: ','
-        - null_literal: 'NULL'
-        - comma: ','
-        - numeric_literal: '121'
-        - comma: ','
-        - numeric_literal: '20'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: departments
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - expression:
-            column_reference:
-            - naked_identifier: departments_seq
-            - dot: .
-            - naked_identifier: nextval
-        - comma: ','
-        - quoted_literal: "'Entertainment'"
-        - comma: ','
-        - numeric_literal: '162'
-        - comma: ','
-        - numeric_literal: '1400'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: employees
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: employee_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: last_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: email
-      - comma: ','
-      - column_reference:
-          naked_identifier: hire_date
-      - comma: ','
-      - column_reference:
-          naked_identifier: job_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: salary
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - expression:
-            column_reference:
-            - naked_identifier: employees_seq
-            - dot: .
-            - naked_identifier: nextval
-        - comma: ','
-        - quoted_literal: "'Doe'"
-        - comma: ','
-        - quoted_literal: "'john.doe@example.com'"
-        - comma: ','
-        - expression:
-            bare_function: SYSDATE
-        - comma: ','
-        - quoted_literal: "'SH_CLERK'"
-        - comma: ','
-        - numeric_literal: '2400'
-        - end_bracket: )
-    - returning_clause:
-        keyword: RETURNING
-        expression:
-          column_reference:
+        - column_reference:
             naked_identifier: salary
-          binary_operator: '*'
-          numeric_literal: '12'
-        comma: ','
-        naked_identifier: job_id
-        into_clause:
-        - keyword: INTO
-        - sqlplus_variable:
-            colon: ':'
-            parameter: bnd1
-        - comma: ','
-        - sqlplus_variable:
-            colon: ':'
-            parameter: bnd2
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: persons
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-          start_bracket: (
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: employees_seq
+              - dot: .
+              - naked_identifier: nextval
+          - comma: ','
+          - quoted_literal: "'Doe'"
+          - comma: ','
+          - quoted_literal: "'john.doe@example.com'"
+          - comma: ','
+          - expression:
+              bare_function: SYSDATE
+          - comma: ','
+          - quoted_literal: "'SH_CLERK'"
+          - comma: ','
+          - numeric_literal: '2400'
+          - end_bracket: )
+      - returning_clause:
+          keyword: RETURNING
           expression:
-            function:
-              function_name:
-                function_name_identifier: person_t
-              function_contents:
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Bob'"
-                - comma: ','
-                - expression:
-                    numeric_literal: '1234'
-                - end_bracket: )
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: persons
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-          start_bracket: (
-          expression:
-            function:
-              function_name:
-                function_name_identifier: employee_t
-              function_contents:
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Joe'"
-                - comma: ','
-                - expression:
-                    numeric_literal: '32456'
-                - comma: ','
-                - expression:
-                    numeric_literal: '12'
-                - comma: ','
-                - expression:
-                    numeric_literal: '100000'
-                - end_bracket: )
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: persons
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-          start_bracket: (
-          expression:
-            function:
-              function_name:
-                function_name_identifier: part_time_emp_t
-              function_contents:
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Tim'"
-                - comma: ','
-                - expression:
-                    numeric_literal: '5678'
-                - comma: ','
-                - expression:
-                    numeric_literal: '13'
-                - comma: ','
-                - expression:
-                    numeric_literal: '1000'
-                - comma: ','
-                - expression:
-                    numeric_literal: '20'
-                - end_bracket: )
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: books
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-          start_bracket: (
-          quoted_literal: "'An Autobiography'"
+            column_reference:
+              naked_identifier: salary
+            binary_operator: '*'
+            numeric_literal: '12'
           comma: ','
-          expression:
-            function:
-              function_name:
-                function_name_identifier: person_t
-              function_contents:
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Bob'"
-                - comma: ','
-                - expression:
-                    numeric_literal: '1234'
-                - end_bracket: )
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: books
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-          start_bracket: (
-          quoted_literal: "'Business Rules'"
-          comma: ','
-          expression:
-            function:
-              function_name:
-                function_name_identifier: employee_t
-              function_contents:
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Joe'"
-                - comma: ','
-                - expression:
-                    numeric_literal: '3456'
-                - comma: ','
-                - expression:
-                    numeric_literal: '12'
-                - comma: ','
-                - expression:
-                    numeric_literal: '10000'
-                - end_bracket: )
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: books
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-          start_bracket: (
-          quoted_literal: "'Mixing School and Work'"
-          comma: ','
-          expression:
-            function:
-              function_name:
-                function_name_identifier: part_time_emp_t
-              function_contents:
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Tim'"
-                - comma: ','
-                - expression:
-                    numeric_literal: '5678'
-                - comma: ','
-                - expression:
-                    numeric_literal: '13'
-                - comma: ','
-                - expression:
-                    numeric_literal: '1000'
-                - comma: ','
-                - expression:
-                    numeric_literal: '20'
-                - end_bracket: )
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: lob_tab
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              naked_identifier: pic_id
-        - comma: ','
-        - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: TO_LOB
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: long_pics
-                  end_bracket: )
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: long_tab
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: ALL
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: sales
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: prod_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: cust_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: time_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: amount
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+          naked_identifier: job_id
+          into_clause:
+          - keyword: INTO
+          - sqlplus_variable:
+              colon: ':'
+              parameter: bnd1
+          - comma: ','
+          - sqlplus_variable:
+              colon: ':'
+              parameter: bnd2
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: persons
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: person_t
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Bob'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '1234'
+                  - end_bracket: )
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: persons
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: employee_t
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Joe'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '32456'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '12'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '100000'
+                  - end_bracket: )
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: persons
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: part_time_emp_t
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Tim'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '5678'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '13'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '1000'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '20'
+                  - end_bracket: )
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: books
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            quoted_literal: "'An Autobiography'"
+            comma: ','
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: person_t
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Bob'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '1234'
+                  - end_bracket: )
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: books
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            quoted_literal: "'Business Rules'"
+            comma: ','
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: employee_t
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Joe'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '3456'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '12'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '10000'
+                  - end_bracket: )
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: books
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            quoted_literal: "'Mixing School and Work'"
+            comma: ','
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: part_time_emp_t
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Tim'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '5678'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '13'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '1000'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '20'
+                  - end_bracket: )
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: lob_tab
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: pic_id
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: TO_LOB
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: long_pics
+                    end_bracket: )
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: long_tab
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: ALL
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: sales
+      - bracketed:
         - start_bracket: (
-        - expression:
-            column_reference:
-              naked_identifier: product_id
+        - column_reference:
+            naked_identifier: prod_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: customer_id
+        - column_reference:
+            naked_identifier: cust_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: weekly_start_date
+        - column_reference:
+            naked_identifier: time_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: sales_sun
+        - column_reference:
+            naked_identifier: amount
         - end_bracket: )
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: sales
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: prod_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: cust_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: time_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: amount
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: product_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: customer_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: weekly_start_date
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: sales_sun
+          - end_bracket: )
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: sales
+      - bracketed:
         - start_bracket: (
-        - expression:
-            column_reference:
-              naked_identifier: product_id
+        - column_reference:
+            naked_identifier: prod_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: customer_id
+        - column_reference:
+            naked_identifier: cust_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: weekly_start_date
-            binary_operator: +
-            numeric_literal: '1'
+        - column_reference:
+            naked_identifier: time_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: sales_mon
+        - column_reference:
+            naked_identifier: amount
         - end_bracket: )
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: sales
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: prod_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: cust_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: time_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: amount
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: product_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: customer_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: weekly_start_date
+              binary_operator: +
+              numeric_literal: '1'
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: sales_mon
+          - end_bracket: )
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: sales
+      - bracketed:
         - start_bracket: (
-        - expression:
-            column_reference:
-              naked_identifier: product_id
+        - column_reference:
+            naked_identifier: prod_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: customer_id
+        - column_reference:
+            naked_identifier: cust_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: weekly_start_date
-            binary_operator: +
-            numeric_literal: '2'
+        - column_reference:
+            naked_identifier: time_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: sales_tue
+        - column_reference:
+            naked_identifier: amount
         - end_bracket: )
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: sales
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: prod_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: cust_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: time_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: amount
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: product_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: customer_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: weekly_start_date
+              binary_operator: +
+              numeric_literal: '2'
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: sales_tue
+          - end_bracket: )
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: sales
+      - bracketed:
         - start_bracket: (
-        - expression:
-            column_reference:
-              naked_identifier: product_id
+        - column_reference:
+            naked_identifier: prod_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: customer_id
+        - column_reference:
+            naked_identifier: cust_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: weekly_start_date
-            binary_operator: +
-            numeric_literal: '3'
+        - column_reference:
+            naked_identifier: time_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: sales_wed
+        - column_reference:
+            naked_identifier: amount
         - end_bracket: )
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: sales
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: prod_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: cust_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: time_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: amount
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: product_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: customer_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: weekly_start_date
+              binary_operator: +
+              numeric_literal: '3'
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: sales_wed
+          - end_bracket: )
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: sales
+      - bracketed:
         - start_bracket: (
-        - expression:
-            column_reference:
-              naked_identifier: product_id
+        - column_reference:
+            naked_identifier: prod_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: customer_id
+        - column_reference:
+            naked_identifier: cust_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: weekly_start_date
-            binary_operator: +
-            numeric_literal: '4'
+        - column_reference:
+            naked_identifier: time_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: sales_thu
+        - column_reference:
+            naked_identifier: amount
         - end_bracket: )
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: sales
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: prod_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: cust_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: time_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: amount
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: product_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: customer_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: weekly_start_date
+              binary_operator: +
+              numeric_literal: '4'
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: sales_thu
+          - end_bracket: )
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: sales
+      - bracketed:
         - start_bracket: (
-        - expression:
-            column_reference:
-              naked_identifier: product_id
+        - column_reference:
+            naked_identifier: prod_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: customer_id
+        - column_reference:
+            naked_identifier: cust_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: weekly_start_date
-            binary_operator: +
-            numeric_literal: '5'
+        - column_reference:
+            naked_identifier: time_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: sales_fri
+        - column_reference:
+            naked_identifier: amount
         - end_bracket: )
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: sales
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: prod_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: cust_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: time_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: amount
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: product_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: customer_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: weekly_start_date
+              binary_operator: +
+              numeric_literal: '5'
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: sales_fri
+          - end_bracket: )
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: sales
+      - bracketed:
         - start_bracket: (
-        - expression:
-            column_reference:
-              naked_identifier: product_id
+        - column_reference:
+            naked_identifier: prod_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: customer_id
+        - column_reference:
+            naked_identifier: cust_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: weekly_start_date
-            binary_operator: +
-            numeric_literal: '6'
+        - column_reference:
+            naked_identifier: time_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: sales_sat
+        - column_reference:
+            naked_identifier: amount
         - end_bracket: )
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              naked_identifier: product_id
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: customer_id
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: weekly_start_date
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: sales_sun
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: sales_mon
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: sales_tue
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: sales_wed
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: sales_thu
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: sales_fri
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: sales_sat
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: sales_input_table
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: people
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: product_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: customer_id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: weekly_start_date
+              binary_operator: +
+              numeric_literal: '6'
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: sales_sat
+          - end_bracket: )
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: product_id
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: customer_id
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: weekly_start_date
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: sales_sun
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: sales_mon
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: sales_tue
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: sales_wed
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: sales_thu
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: sales_fri
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: sales_sat
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: sales_input_table
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: people
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - comma: ','
+          - quoted_literal: "'Dave'"
+          - comma: ','
+          - quoted_literal: "'Badger'"
+          - comma: ','
+          - quoted_literal: "'Mr'"
+          - comma: ','
+          - expression:
+              data_type:
+                data_type_identifier: date
+              quoted_literal: "'1960-05-01'"
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: people
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '2'
+          - comma: ','
+          - quoted_literal: "'Simon'"
+          - comma: ','
+          - quoted_literal: "'Fox'"
+          - comma: ','
+          - quoted_literal: "'Mr'"
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: people
+      - bracketed:
         - start_bracket: (
-        - numeric_literal: '1'
+        - column_reference:
+            naked_identifier: person_id
         - comma: ','
-        - quoted_literal: "'Dave'"
+        - column_reference:
+            naked_identifier: given_name
         - comma: ','
-        - quoted_literal: "'Badger'"
+        - column_reference:
+            naked_identifier: family_name
         - comma: ','
-        - quoted_literal: "'Mr'"
-        - comma: ','
-        - expression:
-            data_type:
-              data_type_identifier: date
-            quoted_literal: "'1960-05-01'"
+        - column_reference:
+            naked_identifier: title
         - end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: people
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '2'
+          - comma: ','
+          - quoted_literal: "'Simon'"
+          - comma: ','
+          - quoted_literal: "'Fox'"
+          - comma: ','
+          - quoted_literal: "'Mr'"
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: people
+      - bracketed:
         - start_bracket: (
-        - numeric_literal: '2'
+        - column_reference:
+            naked_identifier: person_id
         - comma: ','
-        - quoted_literal: "'Simon'"
+        - column_reference:
+            naked_identifier: given_name
         - comma: ','
-        - quoted_literal: "'Fox'"
+        - column_reference:
+            naked_identifier: family_name
         - comma: ','
-        - quoted_literal: "'Mr'"
+        - column_reference:
+            naked_identifier: title
         - end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: people
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: person_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: given_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: family_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: title
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '3'
+          - comma: ','
+          - quoted_literal: "'Dave'"
+          - comma: ','
+          - quoted_literal: "'Frog'"
+          - comma: ','
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        quoted_literal: "'Mr'"
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: dual
+                end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: people
+      - bracketed:
         - start_bracket: (
-        - numeric_literal: '2'
+        - column_reference:
+            naked_identifier: person_id
         - comma: ','
-        - quoted_literal: "'Simon'"
+        - column_reference:
+            naked_identifier: given_name
         - comma: ','
-        - quoted_literal: "'Fox'"
+        - column_reference:
+            naked_identifier: family_name
         - comma: ','
-        - quoted_literal: "'Mr'"
+        - column_reference:
+            naked_identifier: title
         - end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: people
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: person_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: given_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: family_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: title
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - numeric_literal: '3'
-        - comma: ','
-        - quoted_literal: "'Dave'"
-        - comma: ','
-        - quoted_literal: "'Frog'"
-        - comma: ','
-        - expression:
+      - with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: names
+            keyword: AS
             bracketed:
               start_bracket: (
-              expression:
-                select_statement:
+              set_expression:
+              - select_statement:
                   select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      quoted_literal: "'Mr'"
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Ruth'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Fox'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Mrs'"
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              - set_operator:
+                - keyword: UNION
+                - keyword: ALL
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '5'
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Isabelle'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Squirrel'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Miss'"
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              - set_operator:
+                - keyword: UNION
+                - keyword: ALL
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '6'
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Justin'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Frog'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Master'"
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              - set_operator:
+                - keyword: UNION
+                - keyword: ALL
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '7'
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Lisa'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Owl'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Dr'"
                   from_clause:
                     keyword: FROM
                     from_expression:
@@ -1041,582 +1166,458 @@ file:
                           table_reference:
                             naked_identifier: dual
               end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: names
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: people
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: person_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: given_name
+        - comma: ','
+        - column_reference:
+            naked_identifier: family_name
+        - comma: ','
+        - column_reference:
+            naked_identifier: title
         - end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: people
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: person_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: given_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: family_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: title
-      - end_bracket: )
-    - with_compound_statement:
-        keyword: WITH
-        common_table_expression:
-          naked_identifier: names
-          keyword: AS
+      - with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: names
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              set_expression:
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Ruth'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Fox'"
+                      alias_expression:
+                        naked_identifier: family_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Mrs'"
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              - set_operator:
+                - keyword: UNION
+                - keyword: ALL
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '5'
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Isabelle'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Squirrel'"
+                      alias_expression:
+                        naked_identifier: family_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Miss'"
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              - set_operator:
+                - keyword: UNION
+                - keyword: ALL
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '6'
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Justin'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Frog'"
+                      alias_expression:
+                        naked_identifier: family_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Master'"
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              - set_operator:
+                - keyword: UNION
+                - keyword: ALL
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '7'
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Lisa'"
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Owl'"
+                      alias_expression:
+                        naked_identifier: family_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Dr'"
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: names
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: family_name
+                keyword: LIKE
+                quoted_literal: "'F%'"
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: ALL
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: people
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: person_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: given_name
+        - comma: ','
+        - column_reference:
+            naked_identifier: family_name
+        - comma: ','
+        - column_reference:
+            naked_identifier: title
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
           bracketed:
-            start_bracket: (
-            set_expression:
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '4'
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Ruth'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Fox'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Mrs'"
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '5'
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Isabelle'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Squirrel'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Miss'"
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '6'
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Justin'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Frog'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Master'"
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '7'
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Lisa'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Owl'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Dr'"
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            end_bracket: )
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: names
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: people
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: person_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: given_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: family_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: title
-      - end_bracket: )
-    - with_compound_statement:
-        keyword: WITH
-        common_table_expression:
-          naked_identifier: names
-          keyword: AS
-          bracketed:
-            start_bracket: (
-            set_expression:
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '4'
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Ruth'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Fox'"
-                    alias_expression:
-                      naked_identifier: family_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Mrs'"
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '5'
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Isabelle'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Squirrel'"
-                    alias_expression:
-                      naked_identifier: family_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Miss'"
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '6'
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Justin'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Frog'"
-                    alias_expression:
-                      naked_identifier: family_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Master'"
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '7'
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Lisa'"
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Owl'"
-                    alias_expression:
-                      naked_identifier: family_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Dr'"
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            end_bracket: )
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: names
-          where_clause:
-            keyword: WHERE
-            expression:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: given_name
+          - comma: ','
+          - expression:
               column_reference:
                 naked_identifier: family_name
-              keyword: LIKE
-              quoted_literal: "'F%'"
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: ALL
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: people
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: person_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: given_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: family_name
-      - comma: ','
-      - column_reference:
-          naked_identifier: title
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: title
+          - end_bracket: )
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: patients
+      - bracketed:
         - start_bracket: (
-        - expression:
-            column_reference:
-              naked_identifier: id
+        - column_reference:
+            naked_identifier: patient_id
         - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: given_name
-        - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: family_name
-        - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: title
+        - column_reference:
+            naked_identifier: last_admission_date
         - end_bracket: )
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: patients
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: patient_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: last_admission_date
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - expression:
-            column_reference:
-              naked_identifier: id
-        - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: admission_date
-        - end_bracket: )
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: staff
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: staff_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: hired_date
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - expression:
-            column_reference:
-              naked_identifier: id
-        - comma: ','
-        - expression:
-            column_reference:
-              naked_identifier: hired_date
-        - end_bracket: )
-    - with_compound_statement:
-        keyword: WITH
-        common_table_expression:
-          naked_identifier: names
-          keyword: AS
+      - values_clause:
+          keyword: VALUES
           bracketed:
-            start_bracket: (
-            set_expression:
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '4'
-                    alias_expression:
-                      naked_identifier: id
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Ruth'"
-                    alias_expression:
-                      naked_identifier: given_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Fox'"
-                    alias_expression:
-                      naked_identifier: family_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Mrs'"
-                    alias_expression:
-                      naked_identifier: title
-                - comma: ','
-                - select_clause_element:
-                    null_literal: 'NULL'
-                    alias_expression:
-                      naked_identifier: hired_date
-                - comma: ','
-                - select_clause_element:
-                    expression:
-                      data_type:
-                        data_type_identifier: DATE
-                      quoted_literal: "'2009-12-31'"
-                    alias_expression:
-                      naked_identifier: admission_date
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '5'
-                    alias_expression:
-                      naked_identifier: id
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Isabelle'"
-                    alias_expression:
-                      naked_identifier: given_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Squirrel'"
-                    alias_expression:
-                      naked_identifier: family_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Miss'"
-                    alias_expression:
-                      naked_identifier: title
-                - comma: ','
-                - select_clause_element:
-                    null_literal: 'NULL'
-                    alias_expression:
-                      naked_identifier: hired_date
-                - comma: ','
-                - select_clause_element:
-                    expression:
-                      data_type:
-                        data_type_identifier: DATE
-                      quoted_literal: "'2014-01-01'"
-                    alias_expression:
-                      naked_identifier: admission_date
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '6'
-                    alias_expression:
-                      naked_identifier: id
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Justin'"
-                    alias_expression:
-                      naked_identifier: given_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Frog'"
-                    alias_expression:
-                      naked_identifier: family_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Master'"
-                    alias_expression:
-                      naked_identifier: title
-                - comma: ','
-                - select_clause_element:
-                    null_literal: 'NULL'
-                    alias_expression:
-                      naked_identifier: hired_date
-                - comma: ','
-                - select_clause_element:
-                    expression:
-                      data_type:
-                        data_type_identifier: DATE
-                      quoted_literal: "'2015-04-22'"
-                    alias_expression:
-                      naked_identifier: admission_date
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '7'
-                    alias_expression:
-                      naked_identifier: id
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Lisa'"
-                    alias_expression:
-                      naked_identifier: given_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Owl'"
-                    alias_expression:
-                      naked_identifier: family_name
-                - comma: ','
-                - select_clause_element:
-                    quoted_literal: "'Dr'"
-                    alias_expression:
-                      naked_identifier: title
-                - comma: ','
-                - select_clause_element:
-                    expression:
-                      data_type:
-                        data_type_identifier: DATE
-                      quoted_literal: "'2015-01-01'"
-                    alias_expression:
-                      naked_identifier: hired_date
-                - comma: ','
-                - select_clause_element:
-                    null_literal: 'NULL'
-                    alias_expression:
-                      naked_identifier: admission_date
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: dual
-            end_bracket: )
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: names
-- statement_terminator: ;
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: admission_date
+          - end_bracket: )
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: staff
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: staff_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: hired_date
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: id
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: hired_date
+          - end_bracket: )
+      - with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: names
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              set_expression:
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '4'
+                      alias_expression:
+                        naked_identifier: id
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Ruth'"
+                      alias_expression:
+                        naked_identifier: given_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Fox'"
+                      alias_expression:
+                        naked_identifier: family_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Mrs'"
+                      alias_expression:
+                        naked_identifier: title
+                  - comma: ','
+                  - select_clause_element:
+                      null_literal: 'NULL'
+                      alias_expression:
+                        naked_identifier: hired_date
+                  - comma: ','
+                  - select_clause_element:
+                      expression:
+                        data_type:
+                          data_type_identifier: DATE
+                        quoted_literal: "'2009-12-31'"
+                      alias_expression:
+                        naked_identifier: admission_date
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              - set_operator:
+                - keyword: UNION
+                - keyword: ALL
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '5'
+                      alias_expression:
+                        naked_identifier: id
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Isabelle'"
+                      alias_expression:
+                        naked_identifier: given_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Squirrel'"
+                      alias_expression:
+                        naked_identifier: family_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Miss'"
+                      alias_expression:
+                        naked_identifier: title
+                  - comma: ','
+                  - select_clause_element:
+                      null_literal: 'NULL'
+                      alias_expression:
+                        naked_identifier: hired_date
+                  - comma: ','
+                  - select_clause_element:
+                      expression:
+                        data_type:
+                          data_type_identifier: DATE
+                        quoted_literal: "'2014-01-01'"
+                      alias_expression:
+                        naked_identifier: admission_date
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              - set_operator:
+                - keyword: UNION
+                - keyword: ALL
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '6'
+                      alias_expression:
+                        naked_identifier: id
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Justin'"
+                      alias_expression:
+                        naked_identifier: given_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Frog'"
+                      alias_expression:
+                        naked_identifier: family_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Master'"
+                      alias_expression:
+                        naked_identifier: title
+                  - comma: ','
+                  - select_clause_element:
+                      null_literal: 'NULL'
+                      alias_expression:
+                        naked_identifier: hired_date
+                  - comma: ','
+                  - select_clause_element:
+                      expression:
+                        data_type:
+                          data_type_identifier: DATE
+                        quoted_literal: "'2015-04-22'"
+                      alias_expression:
+                        naked_identifier: admission_date
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              - set_operator:
+                - keyword: UNION
+                - keyword: ALL
+              - select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '7'
+                      alias_expression:
+                        naked_identifier: id
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Lisa'"
+                      alias_expression:
+                        naked_identifier: given_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Owl'"
+                      alias_expression:
+                        naked_identifier: family_name
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'Dr'"
+                      alias_expression:
+                        naked_identifier: title
+                  - comma: ','
+                  - select_clause_element:
+                      expression:
+                        data_type:
+                          data_type_identifier: DATE
+                        quoted_literal: "'2015-01-01'"
+                      alias_expression:
+                        naked_identifier: hired_date
+                  - comma: ','
+                  - select_clause_element:
+                      null_literal: 'NULL'
+                      alias_expression:
+                        naked_identifier: admission_date
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: dual
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: names
+  - statement_terminator: ;

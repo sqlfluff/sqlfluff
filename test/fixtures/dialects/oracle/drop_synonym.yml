@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 79b866073c56f7d9e2ad925ad86ae3698729de575fcbd02d19318ac7f35546cd
+_hash: af84de3d2ae7f6cc4e003d1df3a2727eba72f1caa6d6fe1a2263368aa3d6926e
 file:
-  statement:
-    drop_synonym_statement:
-    - keyword: DROP
-    - keyword: PUBLIC
-    - keyword: SYNONYM
-    - object_reference:
-        naked_identifier: customers
-  statement_terminator: ;
+  batch:
+    statement:
+      drop_synonym_statement:
+      - keyword: DROP
+      - keyword: PUBLIC
+      - keyword: SYNONYM
+      - object_reference:
+          naked_identifier: customers
+    statement_terminator: ;

@@ -3,87 +3,88 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 536341383952d140b9f33fde33d846482376e3b154d8e8fd49cbd82d2ddfa34e
+_hash: 0e4e6df3016fa742fa5d8a57a16ebff5617dae934ad5cdc87181320e78ccc16f
 file:
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-            naked_identifier: column_name
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table_name
-      fetch_clause:
-      - keyword: fetch
-      - keyword: first
-      - keyword: row
-      - keyword: only
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-            naked_identifier: column_name
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table_name
-      fetch_clause:
-      - keyword: fetch
-      - keyword: first
-      - keyword: rows
-      - keyword: only
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-            naked_identifier: column_name
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table_name
-      fetch_clause:
-      - keyword: fetch
-      - keyword: first
-      - numeric_literal: '2'
-      - keyword: row
-      - keyword: only
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-            naked_identifier: column_name
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table_name
-      fetch_clause:
-      - keyword: fetch
-      - keyword: first
-      - numeric_literal: '2'
-      - keyword: rows
-      - keyword: only
-- statement_terminator: ;
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: column_name
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+        fetch_clause:
+        - keyword: fetch
+        - keyword: first
+        - keyword: row
+        - keyword: only
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: column_name
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+        fetch_clause:
+        - keyword: fetch
+        - keyword: first
+        - keyword: rows
+        - keyword: only
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: column_name
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+        fetch_clause:
+        - keyword: fetch
+        - keyword: first
+        - numeric_literal: '2'
+        - keyword: row
+        - keyword: only
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: column_name
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+        fetch_clause:
+        - keyword: fetch
+        - keyword: first
+        - numeric_literal: '2'
+        - keyword: rows
+        - keyword: only
+  - statement_terminator: ;

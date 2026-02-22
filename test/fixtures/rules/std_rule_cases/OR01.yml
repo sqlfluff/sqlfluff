@@ -1,0 +1,128 @@
+---
+rule: OR01
+
+test_fail_empty_batch_1:
+  fail_str: |
+    CREATE TABLE test (val INT);
+    /
+    /
+  fix_str: |
+    CREATE TABLE test (val INT);
+    /
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_empty_batch_2:
+  fail_str: |
+    SELECT 1 FROM DUAL;
+    /
+    /
+  fix_str: |
+    SELECT 1 FROM DUAL;
+    /
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_empty_batch_3:
+  fail_str: |
+    SELECT 1 FROM DUAL;
+    /
+    /
+    SELECT 2 FROM DUAL;
+    /
+  fix_str: |
+    SELECT 1 FROM DUAL;
+    /
+    SELECT 2 FROM DUAL;
+    /
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_multiple_empty_batches:
+  fail_str: |
+    SELECT 1 FROM DUAL;
+    /
+    /
+    /
+    SELECT 2 FROM DUAL;
+    /
+  fix_str: |
+    SELECT 1 FROM DUAL;
+    /
+    SELECT 2 FROM DUAL;
+    /
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_no_empty_batches:
+  pass_str: |
+    SELECT 1 FROM DUAL;
+    SELECT 2 FROM DUAL;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_batch_with_content:
+  pass_str: |
+    CREATE TABLE test (val INT);
+    /
+    SELECT * FROM test;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_single_slash:
+  pass_str: |
+    SELECT 1 FROM DUAL;
+    /
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_multiple_statements_with_slash:
+  pass_str: |
+    SELECT 1 FROM DUAL;
+    /
+    SELECT 2 FROM DUAL;
+    /
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_empty_batch_with_comments:
+  fail_str: |
+    SELECT 1 FROM DUAL;
+    /
+    -- comment
+    /
+  fix_str: |
+    SELECT 1 FROM DUAL;
+    /
+    -- comment
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_empty_batch_with_multiline_comments:
+  fail_str: |
+    SELECT 1 FROM DUAL;
+    /
+    /*
+      multiline
+      comment
+    */
+    /
+  fix_str: |
+    SELECT 1 FROM DUAL;
+    /
+    /*
+      multiline
+      comment
+    */
+  configs:
+    core:
+      dialect: oracle
