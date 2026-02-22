@@ -46,18 +46,35 @@ impl PyNode {
     #[getter]
     fn node_type(&self) -> String {
         match &self.0 {
-            Node::Token { .. } => "token".to_string(),
-            Node::Ref { .. } => "ref".to_string(),
-            Node::Sequence { .. } => "sequence".to_string(),
-            Node::DelimitedList { .. } => "delimited_list".to_string(),
-            Node::Bracketed { .. } => "bracketed".to_string(),
+            Node::Raw { .. } => "raw".to_string(),
+            Node::Segment { .. } => "segment".to_string(),
             Node::Meta { .. } => "meta".to_string(),
-            Node::Empty => "empty".to_string(),
-            Node::Newline { .. } => "newline".to_string(),
-            Node::Comment { .. } => "comment".to_string(),
-            Node::EndOfFile { .. } => "end_of_file".to_string(),
             Node::Unparsable { .. } => "unparsable".to_string(),
+            Node::Empty => "empty".to_string(),
         }
+    }
+
+    /// Get the segment type (semantic type like "keyword", "select_statement", etc.)
+    #[getter]
+    fn segment_type(&self) -> Option<String> {
+        self.0.segment_type().map(|s| s.to_string())
+    }
+
+    /// Get the segment class name (e.g., "KeywordSegment", "SelectStatementSegment")
+    #[getter]
+    fn segment_class(&self) -> Option<String> {
+        match &self.0 {
+            Node::Raw { segment_class, .. } | Node::Segment { segment_class, .. } => {
+                Some(segment_class.clone())
+            }
+            _ => None,
+        }
+    }
+
+    /// Get raw text of this node (recursively joins children for containers)
+    #[getter]
+    fn raw(&self) -> String {
+        self.0.raw()
     }
 
     /// Check if node is empty
@@ -65,71 +82,28 @@ impl PyNode {
         self.0.is_empty()
     }
 
-    /// Get children nodes (if applicable)
+    /// Check if node is code (not whitespace/meta)
+    fn is_code(&self) -> bool {
+        self.0.is_code()
+    }
+
+    /// Get children nodes (for Segment and Unparsable nodes)
     fn children(&self) -> Option<Vec<PyNode>> {
         match &self.0 {
-            Node::Sequence { children }
-            | Node::DelimitedList { children }
-            | Node::Bracketed { children, .. }
-            | Node::Ref { children, .. } => {
-                Some(children.iter().map(|n| PyNode(n.clone())).collect())
-            }
-            Node::Unparsable { children, .. } => {
+            Node::Segment { children, .. } | Node::Unparsable { children, .. } => {
                 Some(children.iter().map(|n| PyNode(n.clone())).collect())
             }
             _ => None,
         }
     }
 
-    /// Get token information (for Token nodes)
-    /// Returns (token_type, raw, token_idx)
-    fn token_info(&self) -> Option<(String, String, usize)> {
+    /// Get instance_types (for Raw nodes)
+    fn instance_types(&self) -> Option<Vec<String>> {
         match &self.0 {
-            Node::Token {
-                token_type,
-                raw,
-                token_idx,
-            } => Some((token_type.clone(), raw.clone(), *token_idx)),
-            Node::Whitespace { raw, token_idx } => {
-                Some(("whitespace".to_string(), raw.clone(), *token_idx))
-            }
-            Node::Newline { raw, token_idx } => {
-                Some(("newline".to_string(), raw.clone(), *token_idx))
-            }
-            Node::Comment { raw, token_idx } => {
-                Some(("comment".to_string(), raw.clone(), *token_idx))
-            }
-            Node::EndOfFile { raw, token_idx } => {
-                Some(("end_of_file".to_string(), raw.clone(), *token_idx))
-            }
+            Node::Raw { instance_types, .. } => Some(instance_types.clone()),
             _ => None,
         }
     }
-
-    /// Get ref information (for Ref nodes)
-    fn ref_info(&self) -> Option<(String, Option<String>)> {
-        match &self.0 {
-            Node::Ref {
-                name, segment_type, ..
-            } => Some((name.clone(), segment_type.clone())),
-            _ => None,
-        }
-    }
-
-    /// Get bracket information (for Bracketed nodes)
-    fn bracket_persists(&self) -> Option<bool> {
-        match &self.0 {
-            Node::Bracketed {
-                bracket_persists, ..
-            } => Some(*bracket_persists),
-            _ => None,
-        }
-    }
-
-    // /// Convert to Python dict representation (for debugging/inspection)
-    // fn to_dict(&self, py: Python) -> PyResult<Py<PyAny>> {
-    //     self.to_dict_recursive(py, 0, 100)
-    // }
 
     /// Convert to tuple representation (mirrors Python's to_tuple)
     #[pyo3(signature = (code_only=false, show_raw=false, include_meta=false))]
@@ -141,7 +115,7 @@ impl PyNode {
         include_meta: bool,
     ) -> PyResult<Py<PyAny>> {
         let tuple_val = self.0.to_tuple(code_only, show_raw, include_meta);
-        self.tuple_value_to_python(py, &tuple_val)
+        Self::tuple_value_to_python(py, &tuple_val)
     }
 
     /// Get record representation (for YAML serialization)
@@ -155,7 +129,6 @@ impl PyNode {
     ) -> PyResult<Option<Py<PyAny>>> {
         match self.0.as_record(code_only, show_raw, include_meta) {
             Some(yaml_val) => {
-                // Convert serde_yaml::Value to Python object
                 let py_obj = Self::yaml_to_python(py, &yaml_val)?;
                 Ok(Some(py_obj))
             }
@@ -166,19 +139,35 @@ impl PyNode {
     /// Represent node as string
     fn __repr__(&self) -> String {
         match &self.0 {
-            Node::Token {
-                token_type, raw, ..
+            Node::Raw {
+                segment_type, raw, ..
             } => {
-                format!("RsNode(Token(type='{}', raw='{}'))", token_type, raw)
+                format!("RsNode(Raw(type='{}', raw='{}'))", segment_type, raw)
             }
-            Node::Ref { name, .. } => {
-                format!("RsNode(Ref(name='{}'))", name)
+            Node::Segment {
+                segment_class,
+                children,
+                ..
+            } => {
+                format!(
+                    "RsNode(Segment(class='{}', {} children))",
+                    segment_class,
+                    children.len()
+                )
             }
-            Node::Sequence { children } => {
-                format!("RsNode(Sequence({} children))", children.len())
+            Node::Meta { meta_type, .. } => {
+                format!("RsNode(Meta({:?}))", meta_type)
+            }
+            Node::Unparsable {
+                expected, children, ..
+            } => {
+                format!(
+                    "RsNode(Unparsable(expected='{}', {} children))",
+                    expected,
+                    children.len()
+                )
             }
             Node::Empty => "RsNode(Empty)".to_string(),
-            _ => format!("RsNode({})", self.node_type()),
         }
     }
 
@@ -189,108 +178,13 @@ impl PyNode {
 }
 
 impl PyNode {
-    // fn to_dict_recursive(&self, py: Python, depth: usize, max_depth: usize) -> PyResult<Py<PyAny>> {
-    //     if depth > max_depth {
-    //         return Ok("...".into_pyobject(py)?.into());
-    //     }
-
-    //     let dict = PyDict::new(py);
-    //     dict.set_item("node_type", self.node_type())?;
-
-    //     match &self.0 {
-    //         Node::Token {
-    //             token_type,
-    //             raw,
-    //             token_idx,
-    //         } => {
-    //             dict.set_item("token_type", token_type)?;
-    //             dict.set_item("raw", raw)?;
-    //             dict.set_item("token_idx", token_idx)?;
-    //         }
-    //         Node::Whitespace { raw, token_idx }
-    //         | Node::Newline { raw, token_idx }
-    //         | Node::Comment { raw, token_idx }
-    //         | Node::EndOfFile { raw, token_idx } => {
-    //             dict.set_item("raw", raw)?;
-    //             dict.set_item("token_idx", token_idx)?;
-    //         }
-    //         Node::Ref {
-    //             name,
-    //             segment_type,
-    //             children: child,
-    //         } => {
-    //             dict.set_item("name", name)?;
-    //             dict.set_item("segment_type", segment_type)?;
-    //             let child_node = PyNode((**child).clone());
-    //             dict.set_item(
-    //                 "child",
-    //                 child_node.to_dict_recursive(py, depth + 1, max_depth)?,
-    //             )?;
-    //         }
-    //         Node::Sequence { children } | Node::DelimitedList { children } => {
-    //             let py_children = PyList::empty(py);
-    //             for child in children {
-    //                 let child_node = PyNode(child.clone());
-    //                 py_children.append(child_node.to_dict_recursive(
-    //                     py,
-    //                     depth + 1,
-    //                     max_depth,
-    //                 )?)?;
-    //             }
-    //             dict.set_item("children", py_children)?;
-    //         }
-    //         Node::Bracketed {
-    //             children,
-    //             bracket_persists,
-    //         } => {
-    //             let py_children = PyList::empty(py);
-    //             for child in children {
-    //                 let child_node = PyNode(child.clone());
-    //                 py_children.append(child_node.to_dict_recursive(
-    //                     py,
-    //                     depth + 1,
-    //                     max_depth,
-    //                 )?)?;
-    //             }
-    //             dict.set_item("children", py_children)?;
-    //             dict.set_item("bracket_persists", bracket_persists)?;
-    //         }
-    //         Node::Unparsable {
-    //             expected_message,
-    //             children,
-    //         } => {
-    //             dict.set_item("expected_message", expected_message)?;
-    //             let py_children = PyList::empty(py);
-    //             for child in children {
-    //                 let child_node = PyNode(child.clone());
-    //                 py_children.append(child_node.to_dict_recursive(
-    //                     py,
-    //                     depth + 1,
-    //                     max_depth,
-    //                 )?)?;
-    //             }
-    //             dict.set_item("children", py_children)?;
-    //         }
-    //         Node::Meta {
-    //             token_type,
-    //             token_idx,
-    //         } => {
-    //             dict.set_item("token_type", token_type)?;
-    //             dict.set_item("token_idx", token_idx)?;
-    //         }
-    //         Node::Empty => {}
-    //     }
-
-    //     Ok(dict.into())
-    // }
-
-    fn tuple_value_to_python(&self, py: Python, val: &NodeTupleValue) -> PyResult<Py<PyAny>> {
+    fn tuple_value_to_python(py: Python, val: &NodeTupleValue) -> PyResult<Py<PyAny>> {
         match val {
             NodeTupleValue::Raw(key, s) => Ok((key, s).into_pyobject(py)?.into()),
             NodeTupleValue::Tuple(key, children) => {
                 let py_children = PyList::empty(py);
                 for child in children {
-                    py_children.append(self.tuple_value_to_python(py, child)?)?;
+                    py_children.append(Self::tuple_value_to_python(py, child)?)?;
                 }
                 Ok((key, py_children).into_pyobject(py)?.into())
             }
@@ -499,50 +393,8 @@ impl PyMatchResult {
     fn segment_kwargs(&self, py: Python) -> PyResult<Py<PyAny>> {
         let dict = PyDict::new(py);
 
-        if let Some(ref matched_class) = self.0.matched_class.as_ref() {
+        if let Some(matched_class) = self.0.matched_class.as_ref() {
             let sk = &matched_class.segment_kwargs;
-
-            // if let Some(ref instance_types) = sk.instance_types {
-            //     let py_list = PyList::empty(py);
-            //     for it in instance_types {
-            //         py_list.append(it.clone())?;
-            //     }
-            //     dict.set_item("instance_types", py_list)?;
-            // }
-
-            // if let Some(ref trim_chars) = sk.trim_chars {
-            //     let py_list = PyList::empty(py);
-            //     for t in trim_chars {
-            //         py_list.append(t.clone())?;
-            //     }
-            //     dict.set_item("trim_chars", py_list)?;
-            // }
-
-            // match sk.casefold {
-            //     sqlfluffrs_types::token::CaseFold::None => {}
-            //     sqlfluffrs_types::token::CaseFold::Upper => {
-            //         dict.set_item("casefold", "upper")?;
-            //     }
-            //     sqlfluffrs_types::token::CaseFold::Lower => {
-            //         dict.set_item("casefold", "lower")?;
-            //     }
-            // }
-
-            // if let Some((ref pattern, ref group)) = sk.quoted_value.as_ref() {
-            //     let py_group: Py<PyAny> = match group {
-            //         sqlfluffrs_types::regex::RegexModeGroup::Index(idx) => {
-            //             idx.into_pyobject(py).unwrap().into()
-            //         }
-            //         sqlfluffrs_types::regex::RegexModeGroup::Name(name) => {
-            //             name.clone().into_pyobject(py).unwrap().into()
-            //         }
-            //     };
-            //     dict.set_item("quoted_value", (pattern.clone(), py_group))?;
-            // }
-
-            // if let Some((ref a, ref b)) = sk.escape_replacement.as_ref() {
-            //     dict.set_item("escape_replacement", (a.clone(), b.clone()))?;
-            // }
 
             if let Some((ref msg, _pos)) = sk.parse_error.as_ref() {
                 dict.set_item("expected", msg.clone())?;
