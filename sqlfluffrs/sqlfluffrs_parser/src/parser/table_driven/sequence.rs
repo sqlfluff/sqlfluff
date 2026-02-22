@@ -320,6 +320,62 @@ impl Parser<'_> {
                 return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
             }
 
+            let child_start_pos = self.calculate_sequence_child_start_position(
+                matched_idx,
+                allow_gaps,
+                elements[next_element_idx],
+                max_idx,
+            );
+
+            // PYTHON PARITY: Check if we've run out of tokens before dispatching next child.
+            // In Python's sequence.py, `_idx >= max_idx` is checked before trying to match
+            // any element (including optional ones we've already skipped). If we're out of
+            // tokens and the *next required* element cannot be matched, wrap what we've got
+            // as an unparsable segment (in greedy modes), just as Python does.
+            //
+            // Only apply this when the next element is REQUIRED. If it's optional, we let it
+            // be dispatched normally so that the optional-skip loop can continue until either
+            // a required element is found or all elements are exhausted (-> combining).
+            let next_is_optional = self.grammar_ctx.is_optional(elements[next_element_idx]);
+            if child_start_pos >= max_idx && !next_is_optional {
+                if parse_mode == ParseMode::Strict || matched_idx == start_idx {
+                    return Ok(stack.complete_frame_empty_at_pos(&frame, start_idx));
+                }
+                // GREEDY modes with partial match - wrap as UnparsableSegment
+                let (insert_segments, child_matches) = {
+                    let ctx = frame.context.as_sequence_mut().unwrap();
+                    let appending_meta_segments = ctx
+                        .meta_buffer
+                        .iter()
+                        .cloned()
+                        .map(|m| (matched_idx, m))
+                        .collect::<Vec<_>>();
+                    ctx.insert_segments.extend(appending_meta_segments);
+                    (ctx.insert_segments.clone(), ctx.child_matches.clone())
+                };
+                let element_desc = self.grammar_ctx.grammar_repr(elements[next_element_idx]);
+                let error_token = self
+                    .tokens
+                    .get(matched_idx.saturating_sub(1))
+                    .map(|t| format!("{}", t))
+                    .unwrap_or_else(|| "start of input".to_string());
+                let error_message =
+                    format!("{} after {}. Found nothing.", element_desc, error_token);
+                let unparsable_match = MatchResult {
+                    matched_slice: start_idx..matched_idx,
+                    insert_segments,
+                    child_matches,
+                    ..Default::default()
+                }
+                .wrap(
+                    MatchedClass::unparsable(&error_message, matched_idx),
+                    vec![],
+                );
+                let end_pos = unparsable_match.end();
+                stack.insert_result(frame.frame_id, unparsable_match, end_pos);
+                return Ok(TableFrameResult::Done);
+            }
+
             let child_frame_id = stack.frame_id_counter;
             let child_frame = self.match_sequence_next_element(
                 &frame,
@@ -360,7 +416,7 @@ impl Parser<'_> {
             let error_token = self
                 .tokens
                 .get(child_start_pos)
-                .map(|t| format!("{:?}", t))
+                .map(|t| format!("{}", t))
                 .unwrap_or_else(|| "start of input".to_string());
             let error_message =
                 format!("{} to start sequence. Found {}.", element_desc, error_token);
@@ -380,12 +436,12 @@ impl Parser<'_> {
         let error_token = self
             .tokens
             .get(child_start_pos)
-            .map(|t| format!("{:?}", t))
+            .map(|t| format!("{}", t))
             .unwrap_or_else(|| "end of input".to_string());
         let last_matched_token = self
             .tokens
             .get(matched_idx.saturating_sub(1))
-            .map(|t| format!("{:?}", t))
+            .map(|t| format!("{}", t))
             .expect("There should be at least one matched token here.");
         let error_message = format!(
             "{} after {}. Found {}.",
@@ -555,7 +611,7 @@ impl Parser<'_> {
             let error_token = self
                 .tokens
                 .get(matched_idx.saturating_sub(1))
-                .map(|t| format!("{:?}", t))
+                .map(|t| format!("{}", t))
                 .unwrap_or_else(|| "start of input".to_string());
             let error_message = format!("{} after {}. Found nothing.", element_desc, error_token);
 
