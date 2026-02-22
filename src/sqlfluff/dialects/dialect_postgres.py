@@ -6957,7 +6957,7 @@ class MetaCommandQueryBufferStatement(BaseSegment):
 
 
 class PsqlCopyMetaCommandStatementSegment(BaseSegment):
-    """A psql \\copy meta-command statement.
+    r"""A psql \copy meta-command statement.
 
     https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-COPY
     """
@@ -6970,7 +6970,7 @@ class PsqlCopyMetaCommandStatementSegment(BaseSegment):
 
 
 class PsqlSetMetaCommandStatementSegment(BaseSegment):
-    """A psql \\set meta-command statement.
+    r"""A psql \set meta-command statement.
 
     https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-SET
     """
@@ -7257,13 +7257,13 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
 
 
 class FileSegment(BaseFileSegment):
-    """A segment representing a whole file or script.
+    r"""A segment representing a whole file or script.
 
     This is also the default "root" segment of the dialect,
     and so is usually instantiated directly. It therefore
     has no match_grammar.
 
-    Override ANSI to allow psql meta-commands (``\\copy``, ``\\set``) at the
+    Override ANSI to allow psql meta-commands (``\copy``, ``\set``) at the
     file level without requiring a semicolon delimiter.
     """
 
