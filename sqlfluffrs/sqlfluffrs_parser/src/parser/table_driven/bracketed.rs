@@ -1,5 +1,5 @@
 use crate::{
-    parser::{match_result::MatchedClass, MetaSegment},
+    parser::{match_result::{MatchedClass, SegmentKwargs}, MetaSegment},
     vdebug,
 };
 use smallvec::SmallVec;
@@ -563,22 +563,29 @@ impl Parser<'_> {
                 bracket_persists
             );
             // Use lazy evaluation - store child_matches instead of building Node
-            eprintln!(
-                "DEBUG: Building Bracketed MatchResult with {} children",
-                child_matches.len()
-            );
-            eprintln!("first match: {:?}", child_matches.first());
-            eprintln!("last match: {:?}", child_matches.last());
+            // PYTHON PARITY: Indent goes AFTER start_bracket (.end()), Dedent goes BEFORE
+            // end_bracket (.start()). Python uses start_match.stop and end_match.start.
+            // PYTHON PARITY: When bracket_persists=true, wrap in BracketedSegment node
+            // (Python's Bracketed._match_once calls result.wrap(BracketedSegment, ...)).
+            let matched_class = if bracket_persists {
+                Some(MatchedClass {
+                    class_name: "BracketedSegment".to_string(),
+                    segment_type: Some("bracketed".to_string()),
+                    segment_kwargs: SegmentKwargs::default(),
+                })
+            } else {
+                None
+            };
             MatchResult {
                 matched_slice: frame.pos..end_pos,
-                matched_class: None,
+                matched_class,
                 insert_segments: vec![
                     (
-                        child_matches[0].start(),
+                        child_matches[0].end(),
                         MetaSegment::Indent { is_implicit: false },
                     ),
                     (
-                        child_matches[child_matches.len() - 1].end(),
+                        child_matches[child_matches.len() - 1].start(),
                         MetaSegment::Dedent { is_implicit: false },
                     ),
                 ],
