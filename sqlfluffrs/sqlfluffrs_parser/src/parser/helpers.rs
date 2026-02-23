@@ -544,11 +544,44 @@ impl<'a> Parser<'a> {
             self.pos = init_pos;
             return false;
         }
-        // Check all terminators that might match at current position
+        // PYTHON PARITY: In Python, AnyNumberOf checks terminators via term.match().
+        // Python's StringParser type-gates: StringParser("FROM") only matches `keyword`
+        // type segments, never `word` type. So a `word`-type `from` token (as in
+        // `value:data:from::string`) never matches the FROM terminator.
+        //
+        // In Rust, StringParser does not type-gate today, so `from` (word type)
+        // incorrectly matches. We compensate: if the token at the current position
+        // is all-alphabetical code and is NOT preceded by whitespace, skip all
+        // non-TypedParser terminators (TypedParser matches by type, not raw string).
+        let current_tok_is_alpha_only = self.peek().is_some_and(|tok| {
+            tok.is_code()
+                && !tok.raw().is_empty()
+                && tok.raw().chars().all(|c| c.is_ascii_alphabetic())
+        });
+        let alpha_tok_has_whitespace_before = if current_tok_is_alpha_only {
+            self.is_preceded_by_whitespace(self.tokens, saved_pos, 0)
+        } else {
+            true // symbol terminators don't need this check
+        };
+
         for term_id in pruned_terminators.iter() {
             // Skip NONCODE - already handled above
             if *term_id == GrammarId::NONCODE {
                 continue;
+            }
+
+            // See block comment above: compensate for Rust StringParser not type-gating.
+            // TypedParser terminators are exempt (they match by token type, not raw string).
+            if current_tok_is_alpha_only && !alpha_tok_has_whitespace_before {
+                let tables = self.grammar_ctx.tables();
+                let variant = tables.get_inst(*term_id).variant;
+                if variant != sqlfluffrs_types::GrammarVariant::TypedParser {
+                    log::debug!(
+                        "  NOTERM All-alpha non-whitespace-preceded: skipping non-TypedParser terminator {:?} at pos {}",
+                        term_id, saved_pos
+                    );
+                    continue;
+                }
             }
 
             // Check terminator match cache first - key is (position after skipping transparent, grammar_id)
