@@ -74,7 +74,7 @@ add other, currently unsupported, dialects. Please [raise issues](https://github
 (or upvote any existing issues) to let us know of demand for missing support.
 
 Pull requests from those that know the missing syntax or dialects are especially
-welcomed and are the question way for you to get support added. We are happy
+welcomed and are the best way for you to get support added. We are happy
 to work with any potential contributors on this to help them add this support.
 Please raise an issue first for any large feature change to ensure it is a good
 fit for this project before spending time on this work.
