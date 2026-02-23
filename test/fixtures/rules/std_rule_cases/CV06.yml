@@ -719,3 +719,35 @@ test_pass_tsql_batch_already_has_semicolon:
     rules:
       convention.terminator:
         require_final_semicolon: true
+
+# BigQuery specific tests for multi_statement_segment handling (procedures)
+test_pass_bigquery_procedure_with_semicolon:
+  pass_str: |
+    CREATE OR REPLACE PROCEDURE test_proc ()
+    BEGIN
+      SELECT 1;
+    END;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_bigquery_procedure_missing_semicolon:
+  fail_str: |
+    CREATE OR REPLACE PROCEDURE test_proc ()
+    BEGIN
+      SELECT 1;
+    END
+  fix_str: |
+    CREATE OR REPLACE PROCEDURE test_proc ()
+    BEGIN
+      SELECT 1;
+    END;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
