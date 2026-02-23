@@ -1405,10 +1405,7 @@ impl<'a> Parser<'a> {
                 matched_class: Some(MatchedClass {
                     class_name: "BracketedSegment".to_string(),
                     segment_type: Some("bracketed".to_string()),
-                    segment_kwargs: SegmentKwargs {
-                        instance_types: Some(vec!["bracketed".to_string()]),
-                        ..Default::default()
-                    },
+                    segment_kwargs: SegmentKwargs::default(),
                 }),
                 child_matches: inner_child_matches,
                 insert_segments: vec![
