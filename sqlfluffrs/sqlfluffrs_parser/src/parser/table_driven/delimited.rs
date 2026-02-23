@@ -530,13 +530,19 @@ impl<'a> Parser<'_> {
                 // DON'T push the delimiter yet - we need to check for termination first.
                 // The delimiter will be pushed only if we're NOT terminated.
 
-                // Skip transparent tokens (whitespace, newlines, comments) after delimiter if allow_gaps
-                // NOTE: Don't constrain by max_idx - transparent tokens should be collected unconditionally
-                self.pos = if allow_gaps {
-                    self.skip_start_index_forward_to_code(*working_idx, self.tokens.len())
-                } else {
-                    *working_idx
-                };
+                // Skip transparent tokens (whitespace, newlines, comments) after delimiter if allow_gaps.
+                // NOTE: Don't constrain by max_idx - transparent tokens should be collected unconditionally.
+                // IMPORTANT: Update *working_idx as well as self.pos so the next element frame is
+                // created at the code token position, not the whitespace position. If we only update
+                // self.pos, the element frame starts at whitespace and that token incorrectly ends up
+                // as the first child of the element segment (e.g. ColumnReferenceSegment starts with
+                // a WhitespaceSegment). The gap between delimiter end and element start is handled
+                // correctly by Python's MatchResult.apply() which adds untouched tokens as siblings.
+                if allow_gaps {
+                    *working_idx =
+                        self.skip_start_index_forward_to_code(*working_idx, self.tokens.len());
+                }
+                self.pos = *working_idx;
 
                 // NOTE: The terminator check at pos_before_delimiter was already done above (line 510).
                 // We don't need to check again since pos_before_delimiter hasn't changed.
