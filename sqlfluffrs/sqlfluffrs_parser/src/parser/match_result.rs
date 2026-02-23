@@ -26,24 +26,8 @@ pub enum MetaSegment {
 }
 
 /// Describes a transparent token (whitespace/newline/comment/EOF) to insert
-#[derive(Debug, Clone, PartialEq)]
-pub struct TransparentInsert {
-    /// Position in the token array
-    pub token_idx: usize,
-    /// The raw text from the token
-    pub raw: String,
-    /// Type of transparent token
-    pub token_type: TransparentType,
-}
-
-/// Types of transparent tokens
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum TransparentType {
-    Whitespace,
-    Newline,
-    Comment,
-    EndOfFile,
-}
+// NOTE: TransparentInsert and TransparentType were removed as vestigial.
+// Transparent token handling now happens via gap-filling in MatchResult::apply().
 
 #[derive(Debug, Clone)]
 pub struct SegmentKwargs {
