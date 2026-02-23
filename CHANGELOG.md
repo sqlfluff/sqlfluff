@@ -4296,7 +4296,7 @@ of a _huge_ number of contributors that we've built out this from a fringe tool,
 which gets over 500k downloads a month and over 4k stars on Github.
 
 There's still a lot to do, and some more exciting things on the horizon. If you want to be
-part of this and join the team of contributors, come and hang out in our [slack community](https://join.slack.com/t/sqlfluff/shared_invite/zt-o1f4x0e8-pZzarAIlQmKj_6ZwD16w0g)
+part of this and join the team of contributors, come and hang out in our [slack community](https://join.slack.com/t/sqlfluff/shared_invite/zt-3qprhrisj-ClUo_1tLmYBzrVu5ZoDwIw)
 or on our [twitter account](https://twitter.com/SQLFluff) where people can help you get
 started. If you're a long time user, keep submitting bug reports and inputting
 on [issues on Github](https://github.com/sqlfluff/sqlfluff/issues).

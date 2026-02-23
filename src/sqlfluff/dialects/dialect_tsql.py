@@ -7,6 +7,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -822,6 +823,7 @@ class StatementSegment(ansi.StatementSegment):
             # https://learn.microsoft.com/en-us/sql/t-sql/statements/statements
             # Ref("CreateDatabaseStatementSegment") -> Override
             Ref("AlterDatabaseStatementSegment"),
+            Ref("RestoreDatabaseStatementSegment"),
             # Ref("DropDatabaseStatementSegment"),
             # Ref("CreateTableStatementSegment"),
             Ref("CreateTableGraphStatementSegment"),
@@ -903,6 +905,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreatePartitionSchemeSegment"),
             Ref("AlterPartitionFunctionSegment"),
             Ref("OpenSymmetricKeySegment"),
+            Ref("DbccStatementSegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
             Ref("CreateFullTextCatalogStatementSegment"),
@@ -1129,6 +1132,189 @@ class CreateDatabaseStatementSegment(BaseSegment):
             _create_database_normal,
             _create_database_attach,
             _create_database_snapshot,
+            optional=True,
+        ),
+    )
+
+
+class RestoreDatabaseStatementSegment(BaseSegment):
+    """A `RESTORE DATABASE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/restore-statements-transact-sql
+    """
+
+    # Backup device grammar (specific to RESTORE statements)
+    _backup_device = OneOf(
+        Sequence(
+            OneOf("DISK", "TAPE", "URL"),
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        OneOf(
+            Ref("NakedIdentifierSegment"),
+            Ref("ParameterNameSegment"),
+        ),
+    )
+
+    # Files or filegroups grammar (specific to RESTORE statements)
+    _files_or_filegroups = OneOf(
+        Sequence(
+            "FILE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("NakedIdentifierSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        Sequence(
+            "FILEGROUP",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("NakedIdentifierSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        "READ_WRITE_FILEGROUPS",
+    )
+
+    # General WITH options grammar (specific to RESTORE statements)
+    _general_WITH_options = OneOf(
+        # Recovery options
+        "RECOVERY",
+        "NORECOVERY",
+        Sequence(
+            "STANDBY",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        # Restore operation options
+        Sequence(
+            "MOVE",
+            Ref("QuotedLiteralSegment"),
+            "TO",
+            Ref("QuotedLiteralSegment"),
+        ),
+        "REPLACE",
+        "RESTART",
+        "RESTRICTED_USER",
+        "CREDENTIAL",
+        # Backup set options
+        Sequence(
+            "FILE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        Sequence(
+            "PASSWORD",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        # Media set options
+        Sequence(
+            "MEDIANAME",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        Sequence(
+            "MEDIAPASSWORD",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        Sequence(
+            "BLOCKSIZE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        # Data transfer options
+        Sequence(
+            "BUFFERCOUNT",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        Sequence(
+            "MAXTRANSFERSIZE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+        # Error management options
+        "CHECKSUM",
+        "NO_CHECKSUM",
+        "STOP_ON_ERROR",
+        "CONTINUE_AFTER_ERROR",
+        # Monitoring options
+        Sequence(
+            "STATS",
+            Sequence(
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+        # Tape options
+        "REWIND",
+        "NOREWIND",
+        "UNLOAD",
+        "NOUNLOAD",
+        # Related options
+        "NO_TRUNCATE",
+        # Enable broker options
+        "ENABLE_BROKER",
+        "ERROR_BROKER_CONVERSATIONS",
+        "NEW_BROKER",
+    )
+
+    type = "restore_database_statement"
+    match_grammar: Matchable = Sequence(
+        "RESTORE",
+        "DATABASE",
+        OneOf(
+            Ref("DatabaseReferenceSegment"),
+            Ref("ParameterNameSegment"),
+        ),
+        # Optional files or filegroups
+        Sequence(
+            Delimited(_files_or_filegroups),
+            optional=True,
+        ),
+        # Optional FROM clause
+        Sequence(
+            "FROM",
+            Delimited(_backup_device),
+            optional=True,
+        ),
+        # Optional WITH clause
+        Sequence(
+            "WITH",
+            Delimited(_general_WITH_options),
             optional=True,
         ),
     )
@@ -8776,6 +8962,87 @@ class OpenSymmetricKeySegment(BaseSegment):
         "DECRYPTION",
         "BY",
         _decryption_mechanism,
+    )
+
+
+class DbccStatementSegment(BaseSegment):
+    """A `DBCC` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/database-console-commands/dbcc-transact-sql
+
+    type = "dbcc_statement"
+
+    _statements = OneOf(
+        # informational
+        "INPUTBUFFER",
+        "SHOWCONTIG",
+        "OPENTRAN",
+        "OUTPUTBUFFER",
+        "PROCCACHE",
+        "SHOW_STATISTICS",
+        "SQLPERF",
+        "TRACESTATUS",
+        "USEROPTIONS",
+        # validation
+        "CHECKALLOC",
+        "CHECKCATALOG",
+        "CHECKCONSTRAINTS",
+        "CHECKDB",
+        "CHECKFILEGROUP",
+        "CHECKIDENT",
+        "CHECKTABLE",
+        # maintenance
+        "CLEANTABLE",
+        "DBREINDEX",
+        "DROPCLEANBUFFERS",
+        "FREEPROCCACHE",
+        "INDEXDEFRAG",
+        "SHRINKDATABASE",
+        "SHRINKFILE",
+        "UPDATEUSAGE",
+        # miscellaneous
+        "HELP",
+        "FLUSHAUTHCACHE",
+        "TRACEOFF",
+        "FREESESSIONCACHE",
+        "TRACEON",
+        "FREESYSTEMCACHE",
+        "CLONEDATABASE",
+    )
+
+    _with_options = Delimited(
+        "FAST",
+        "NO_INFOMSGS",
+        "ALL_INDEXES",
+        "TABLERESULTS",
+        "ALL_LEVELS",
+        "STAT_HEADER",
+        "DENSITY_VECTOR",
+        "HISTOGRAM",
+        "ALL_ERRORMSGS",
+        "TABLOCK",
+        "ESTIMATEONLY",
+        "ALL_CONSTRAINTS",
+        "EXTENDED_LOGICAL_CHECKS",
+        "PHYSICAL_ONLY",
+        "DATA_PURITY",
+        "COUNT_ROWS",
+        "MARK_IN_USE_FOR_REMOVAL",
+        "NO_STATISTICS",
+        "NO_QUERYSTORE",
+        "VERIFY_CLONEDB",
+        "BACKUP_CLONEDB",
+        "SERVICEBROKER",
+        Sequence("MAXDOP", Ref("RawEqualsSegment"), Ref("IntegerLiteralSegment")),
+        optional=True,
+    )
+
+    match_grammar: Matchable = Sequence(
+        "DBCC",
+        _statements,
+        # Using Anything as a catch-all for now, more specifics might be needed later
+        Sequence(Bracketed(Anything()), optional=True),
+        Sequence("WITH", _with_options, optional=True),
     )
 
 

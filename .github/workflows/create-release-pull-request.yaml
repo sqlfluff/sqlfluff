@@ -34,6 +34,9 @@ jobs:
         run: |
           pip install requests click pyyaml ghapi
 
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Prepare release
         run: |
           python util.py release ${{ github.event.inputs.newVersionNumber }}
