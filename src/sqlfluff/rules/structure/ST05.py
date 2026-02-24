@@ -144,19 +144,19 @@ class Rule_ST05(BaseRule):
         # generate an instance which will track and shape our output CTE
         ctes = _CTEBuilder()
         # Init the output/final select & populate existing CTEs.
+        # For WITH compound statements, collect all CTEs in document order,
+        # including expression CTEs (e.g. ClickHouse ``expr AS alias``) that
+        # are not captured by query.ctes (which only handles selectable CTEs).
+        # For non-WITH statements (select_statement, set_expression), query.ctes
+        # is always empty because Query.from_segment only populates ctes for
+        # with_compound_statement segments, so there is nothing to pre-populate.
         if is_with:
-            # For WITH compound statements, collect all CTEs in document order,
-            # including expression CTEs (e.g. ClickHouse ``expr AS alias``) that
-            # are not captured by query.ctes (which only handles selectable CTEs).
             for cte_seg in context.segment.recursive_crawl(
                 "common_table_expression",
                 recurse_into=False,
                 no_recursive_seg_type="with_compound_statement",
             ):
                 ctes.insert_cte(cast(CTEDefinitionSegment, cte_seg))
-        else:
-            for cte in query.ctes.values():
-                ctes.insert_cte(cte.cte_definition_segment)
 
         # Issue 3617: In T-SQL (and possibly other dialects) the automated fix
         # leaves parentheses in a location that causes a syntax error. This is an
