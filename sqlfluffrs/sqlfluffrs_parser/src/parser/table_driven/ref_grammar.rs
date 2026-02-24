@@ -6,6 +6,8 @@ use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
+#[cfg(feature = "verbose-debug")]
+use crate::vdebug;
 
 impl Parser<'_> {
     // ========================================================================
@@ -27,7 +29,7 @@ impl Parser<'_> {
         // stored in aux_data (generator packs ref names into aux_data).
         let rule_name = self.grammar_ctx.ref_name(grammar_id).to_string();
 
-        log::debug!(
+        vdebug!(
             "Ref[table] Initial: frame_id={}, pos={}, grammar_id={}, rule={}",
             frame.frame_id,
             start_pos,
@@ -40,7 +42,7 @@ impl Parser<'_> {
         // other options. This matches the Python Ref behavior.
         if let Some(parent_max) = frame.parent_max_idx {
             if start_pos >= parent_max {
-                log::debug!(
+                vdebug!(
                     "Ref[table]: pos {} >= parent_max_idx {}, returning Empty",
                     frame.pos,
                     parent_max
@@ -56,14 +58,14 @@ impl Parser<'_> {
             if let Ok(exclude_node) = self.parse_table_iterative(exclude_id, parent_terminators) {
                 self.pos = start_pos;
                 if !exclude_node.is_empty() {
-                    log::debug!(
+                    vdebug!(
                         "Ref[table]: exclude grammar matched at pos {}, returning Empty",
                         frame.pos
                     );
                     return Ok(stack.complete_frame_empty(&frame));
                 }
             }
-            log::debug!("Ref[table]: exclude grammar did not match, continuing");
+            vdebug!("Ref[table]: exclude grammar did not match, continuing");
         }
 
         self.pos = start_pos;
@@ -82,7 +84,7 @@ impl Parser<'_> {
             match self.dialect.get_segment_grammar(&rule_name) {
                 Some(root) => root.grammar_id,
                 None => {
-                    log::debug!(
+                    vdebug!(
                         "Ref[table]: No element children and no dialect mapping for '{}', returning Empty",
                         rule_name
                     );
@@ -109,7 +111,7 @@ impl Parser<'_> {
             .segment_class(grammar_id)
             .map(|s| s.to_string());
 
-        log::debug!(
+        vdebug!(
             "Ref[table]: rule_name='{}', table_segment_class={:?}",
             rule_name,
             table_segment_class
@@ -148,7 +150,7 @@ impl Parser<'_> {
             frame.parent_max_idx,
         );
 
-        log::debug!(
+        vdebug!(
             "Ref[table]: Parsing explicit child grammar_id={} (parent_frame_id={}, child_frame_id={}, start_pos={})",
             child_grammar_id.0,
             frame.frame_id,
@@ -176,7 +178,7 @@ impl Parser<'_> {
         };
         let original_pos = *saved_pos;
 
-        log::debug!(
+        vdebug!(
             "Ref[table] WaitingForChild: frame_id={}, child_empty={}, child_end_pos={}",
             frame.frame_id,
             child_match.is_empty(),
@@ -185,7 +187,7 @@ impl Parser<'_> {
 
         // Store child result and transition to Combining
         if !child_match.is_empty() {
-            log::debug!(
+            vdebug!(
                 "Ref[table]: frame_id={} child matched, setting pos to {}",
                 frame.frame_id,
                 child_end_pos
@@ -194,7 +196,7 @@ impl Parser<'_> {
             self.pos = *child_end_pos;
             frame.end_pos = Some(*child_end_pos);
         } else {
-            log::debug!(
+            vdebug!(
                 "Ref[table]: frame_id={} child was Empty, reverting pos {} -> {} and setting end_pos to {} (original_pos)",
                 frame.frame_id,
                 self.pos,
@@ -235,11 +237,11 @@ impl Parser<'_> {
             ));
         };
 
-        log::debug!("Ref[table] Combining: frame_id={}", frame.frame_id,);
+        vdebug!("Ref[table] Combining: frame_id={}", frame.frame_id,);
 
         // Debug: print accumulated children to inspect whether typed tokens are present
         if !match_result.is_empty() {
-            log::debug!(
+            vdebug!(
                 "Ref[table] Combining DEBUG: accumulated nodes={:?}",
                 match_result
             );
@@ -272,22 +274,23 @@ impl Parser<'_> {
                 if is_bare_token_match {
                     let token_idx = match_result.matched_slice.start;
                     if let Some(tok) = self.tokens.get(token_idx) {
-                        // Use the token's effective get_type():
+                        // Get effective type as &str WITHOUT cloning first so the common
+                        // case (types already match) pays no allocation cost.
                         // Python RawSegment.get_type() = instance_types[0] if set else class.type
-                        let tok_type = tok
+                        let effective = tok
                             .instance_types
                             .first()
-                            .cloned()
-                            .unwrap_or_else(|| tok.token_type.clone());
+                            .map(String::as_str)
+                            .unwrap_or(tok.token_type.as_str());
 
-                        if tok_type != seg_type {
-                            log::debug!(
+                        if effective != seg_type {
+                            vdebug!(
                                 "Ref[table] isinstance-path: preserving token type '{}' over segment_type '{}' for token '{}'",
-                                tok_type,
+                                effective,
                                 seg_type,
                                 tok.raw()
                             );
-                            tok_type
+                            effective.to_string()
                         } else {
                             seg_type.to_string()
                         }
@@ -301,7 +304,7 @@ impl Parser<'_> {
                 segment_type.clone().unwrap_or_default()
             };
 
-            log::debug!(
+            vdebug!(
                 "Ref[table] Combining: name='{}', effective_segment_type='{}', creating ref_match",
                 name,
                 effective_segment_type
@@ -309,7 +312,9 @@ impl Parser<'_> {
             let matched_class =
                 if !effective_segment_type.is_empty() || segment_class_name.is_some() {
                     Some(MatchedClass {
-                        class_name: segment_class_name.clone().unwrap_or_default(),
+                        // take() instead of clone() + unwrap — frame context is not read
+                        // again after this point (state transitions to Complete).
+                        class_name: segment_class_name.take().unwrap_or_default(),
                         segment_type: Some(effective_segment_type),
                         segment_kwargs: SegmentKwargs::default(),
                     })
@@ -320,7 +325,8 @@ impl Parser<'_> {
             // let start_idx = self.skip_start_index_forward_to_code(*saved_pos, final_pos);
 
             MatchResult::ref_match(
-                name.clone(),
+                // std::mem::take avoids a clone since the context won't be accessed again.
+                std::mem::take(name),
                 matched_class,
                 // start_idx,
                 *saved_pos,
