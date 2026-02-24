@@ -4,8 +4,6 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
 
-use sqlfluffrs_parser::parser::{MatchedClass, Node};
-
 fn node_to_yaml(
     node: &sqlfluffrs_parser::parser::Node,
     _tokens: &[sqlfluffrs_types::token::Token],

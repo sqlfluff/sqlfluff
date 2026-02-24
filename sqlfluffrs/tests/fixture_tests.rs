@@ -444,7 +444,7 @@ fn test_yaml_output_matches_python() {
 ///
 /// This test suite parses SQL files from test/fixtures/dialects/ and compares
 /// the output against expected YAML files.
-use sqlfluffrs_parser::parser::{MatchedClass, Node, Parser};
+use sqlfluffrs_parser::parser::{Node, Parser};
 use std::path::Path;
 use std::str::FromStr;
 

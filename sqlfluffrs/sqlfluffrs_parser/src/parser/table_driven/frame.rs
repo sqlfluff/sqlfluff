@@ -4,6 +4,9 @@ use std::sync::Arc;
 
 use crate::parser::{FrameContext, FrameState, MatchResult};
 
+#[cfg(feature = "verbose-debug")]
+use crate::vdebug;
+
 /// Result of frame processing - either finished or needs to push frame back
 pub enum TableFrameResult {
     /// Frame processing is complete, don't push back
@@ -249,6 +252,7 @@ impl TableParseFrameStack {
         let child_id = child_frame.frame_id;
 
         // Push parent back onto stack first
+        #[cfg(feature = "verbose-debug")]
         let parent_id = parent_frame.frame_id;
         self.push(parent_frame);
 
@@ -260,7 +264,7 @@ impl TableParseFrameStack {
                 ..
             } = &mut parent_frame.context
             {
-                log::debug!("DEBUG: push_sequence_child_and_update_parent (table) - parent {}, child {}, setting last_child_frame_id to {}",
+                vdebug!("DEBUG: push_sequence_child_and_update_parent (table) - parent {}, child {}, setting last_child_frame_id to {}",
                     parent_id, child_id, child_id);
                 *last_child_frame_id = Some(child_id);
                 *current_element_idx = next_element_idx;

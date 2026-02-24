@@ -1,7 +1,6 @@
-use env_logger;
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::Lexer;
-use sqlfluffrs_parser::parser::{MatchedClass, Node, Parser};
+use sqlfluffrs_parser::parser::{Node, Parser};
 
 /// Parse `sql` using a specific segment grammar (table-driven) and return
 /// true if a `Ref` node with `segment_type == expected` is present.

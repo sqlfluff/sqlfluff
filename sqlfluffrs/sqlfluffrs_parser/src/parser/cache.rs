@@ -18,6 +18,9 @@ use std::sync::Arc;
 
 use crate::parser::MatchResult;
 
+#[cfg(feature = "verbose-debug")]
+use crate::vdebug;
+
 // ============================================================================
 // Element-Level Parse Cache - REMOVED
 // ============================================================================
@@ -97,7 +100,7 @@ impl TableParseCache {
         match self.cache.get(key) {
             Some(result) => {
                 self.hits += 1;
-                log::debug!(
+                vdebug!(
                     "TableCache HIT at pos {} (grammar_id: {}, max_idx: {})",
                     key.pos,
                     key.grammar_id,
@@ -107,7 +110,7 @@ impl TableParseCache {
             }
             None => {
                 self.misses += 1;
-                log::debug!(
+                vdebug!(
                     "TableCache MISS at pos {} (grammar_id: {}, max_idx: {})",
                     key.pos,
                     key.grammar_id,
@@ -120,7 +123,7 @@ impl TableParseCache {
 
     /// Store a result in cache
     pub fn put(&mut self, key: TableCacheKey, result: TableCacheValue) {
-        log::debug!(
+        vdebug!(
             "TableCache INSERT at pos {} (grammar_id: {}, max_idx: {})",
             key.pos,
             key.grammar_id,

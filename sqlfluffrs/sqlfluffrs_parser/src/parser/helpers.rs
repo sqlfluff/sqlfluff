@@ -8,6 +8,9 @@ use hashbrown::HashSet;
 use super::core::Parser;
 use sqlfluffrs_types::{GrammarId, ParseMode, Token};
 
+#[cfg(feature = "verbose-debug")]
+use crate::vdebug;
+
 impl<'a> Parser<'a> {
     /// Combine parent and local terminators based on reset_terminators flag.
     ///
@@ -116,7 +119,7 @@ impl<'a> Parser<'a> {
             match tok {
                 // Skip only whitespace/newlines, NOT comments
                 tok if !tok.is_code() && !tok.is_comment() => {
-                    log::debug!("NOCODE skipping token: {:?}", tok);
+                    vdebug!("NOCODE skipping token: {:?}", tok);
                     self.bump() // bump() handles bracket depth tracking
                 }
                 _ => break,
@@ -173,7 +176,7 @@ impl<'a> Parser<'a> {
 
         // Validate the pre-computed index is within bounds
         if matching_idx >= self.tokens.len() {
-            log::debug!(
+            vdebug!(
                 "get_matching_bracket_idx: Pre-computed match {} is out of bounds (len={})",
                 matching_idx,
                 self.tokens.len()
@@ -194,7 +197,7 @@ impl<'a> Parser<'a> {
         if close_tok.raw() == expected_close {
             Some(matching_idx)
         } else {
-            log::debug!(
+            vdebug!(
                 "get_matching_bracket_idx: Pre-computed match {} points to '{}' not '{}', returning None",
                 matching_idx,
                 close_tok.raw(),
@@ -261,7 +264,7 @@ impl<'a> Parser<'a> {
             max_idx = max_idx.min(parent_limit);
         }
 
-        log::debug!(
+        vdebug!(
             "calculate_max_idx_table_driven: start_idx={}, terminators.len()={}, parse_mode={:?}, parent_max_idx={:?}, final_max_idx={}",
             start_idx, terminators.len(), parse_mode, parent_max_idx, max_idx
         );
@@ -292,7 +295,7 @@ impl<'a> Parser<'a> {
         let first_raw = first_token.raw_upper();
         let first_types: HashSet<String> = first_token.get_all_types();
 
-        log::debug!(
+        vdebug!(
             "Pruning {} options at pos {} (token: '{}', types: {:?})",
             options.len(),
             self.pos,
@@ -331,6 +334,9 @@ impl<'a> Parser<'a> {
         }
 
         // Compute human-readable names for kept and dropped options for debugging
+        // This is expensive (iterates all options, builds String vecs) so only
+        // compile it in when verbose-debug is enabled.
+        #[cfg(feature = "verbose-debug")]
         {
             let ctx = &self.grammar_ctx;
             let mut kept_names: Vec<String> = Vec::new();
@@ -356,7 +362,7 @@ impl<'a> Parser<'a> {
                     dropped_names.push(name);
                 }
             }
-            log::debug!(
+            vdebug!(
                 "Prune result: kept={} dropped={} kept_names={:?} dropped_names={:?}",
                 available_options.len(),
                 options.len() - available_options.len(),
@@ -381,7 +387,7 @@ impl<'a> Parser<'a> {
         // NONCODE should match non-code tokens at the CURRENT position,
         // not after skipping them. This is essential for allow_gaps=false behavior.
         let has_noncode_terminator = terminators.contains(&GrammarId::NONCODE);
-        log::debug!(
+        vdebug!(
             "  is_terminated_table_driven at pos {}: has_noncode_terminator={}",
             init_pos,
             has_noncode_terminator
@@ -389,13 +395,13 @@ impl<'a> Parser<'a> {
         if has_noncode_terminator {
             if let Some(tok) = self.peek() {
                 let is_code = tok.is_code();
-                log::debug!(
+                vdebug!(
                     "  is_terminated_table_driven: current token is_code={}, type={}",
                     is_code,
                     tok.get_type()
                 );
                 if !is_code {
-                    log::debug!("  TERMED NONCODE found non-code token at current position");
+                    vdebug!("  TERMED NONCODE found non-code token at current position");
                     self.terminator_hits.set(self.terminator_hits.get() + 1);
                     return true;
                 }
@@ -403,15 +409,18 @@ impl<'a> Parser<'a> {
         }
 
         // Filter out NONCODE from terminators for the rest of the check
-        // We've already checked it at the current position above
-        let terminators_without_noncode: Vec<GrammarId> = if has_noncode_terminator {
-            terminators
+        // We've already checked it at the current position above.
+        // Avoid allocation when no filtering is needed (the common case).
+        let filtered_storage: Vec<GrammarId>;
+        let terminators_without_noncode: &[GrammarId] = if has_noncode_terminator {
+            filtered_storage = terminators
                 .iter()
                 .filter(|&t| *t != GrammarId::NONCODE)
                 .copied()
-                .collect()
+                .collect();
+            &filtered_storage
         } else {
-            terminators.to_vec()
+            terminators
         };
 
         self.skip_transparent(true);
@@ -419,7 +428,7 @@ impl<'a> Parser<'a> {
 
         // Check if we've reached end of file
         if self.is_at_end() {
-            log::debug!("  TERMED Reached end of file");
+            vdebug!("  TERMED Reached end of file");
             self.pos = init_pos;
             self.terminator_hits.set(self.terminator_hits.get() + 1);
             return true;
@@ -428,7 +437,7 @@ impl<'a> Parser<'a> {
         // Check if current token is end_of_file type
         if let Some(tok) = self.peek() {
             if tok.get_type() == "end_of_file" {
-                log::debug!("  TERMED Found end_of_file token");
+                vdebug!("  TERMED Found end_of_file token");
                 self.pos = init_pos;
                 self.terminator_hits.set(self.terminator_hits.get() + 1);
                 return true;
@@ -436,14 +445,14 @@ impl<'a> Parser<'a> {
         }
 
         // Prune terminators before checking
-        log::debug!(
+        vdebug!(
             "  TERM Before prune: {} terminators at pos {}: {:?}",
             terminators_without_noncode.len(),
             self.pos,
             terminators_without_noncode
         );
         let pruned_terminators = self.prune_terminators_table_driven(&terminators_without_noncode);
-        log::debug!(
+        vdebug!(
             "  TERM Checking {} pruned terminators at pos {}",
             pruned_terminators.len(),
             self.pos
@@ -452,7 +461,7 @@ impl<'a> Parser<'a> {
         // Get current token for simple matching
         let current_token = self.peek();
         if current_token.is_none() {
-            log::debug!("  NOTERM No current token");
+            vdebug!("  NOTERM No current token");
             self.pos = init_pos;
             return false;
         }
@@ -488,7 +497,7 @@ impl<'a> Parser<'a> {
                 let tables = self.grammar_ctx.tables();
                 let variant = tables.get_inst(*term_id).variant;
                 if variant != sqlfluffrs_types::GrammarVariant::TypedParser {
-                    log::debug!(
+                    vdebug!(
                         "  NOTERM All-alpha non-whitespace-preceded: skipping non-TypedParser terminator {:?} at pos {}",
                         term_id, saved_pos
                     );
@@ -499,14 +508,14 @@ impl<'a> Parser<'a> {
             // Check terminator match cache first - key is (position after skipping transparent, grammar_id)
             let cache_key = (saved_pos, term_id.0);
             if let Some(&cached_result) = self.terminator_match_cache.borrow().get(&cache_key) {
-                log::debug!(
+                vdebug!(
                     "  TERMCACHE HIT at pos {} for {:?}: {}",
                     saved_pos,
                     term_id,
                     cached_result
                 );
                 if cached_result {
-                    log::debug!("  TERMED Terminator matched (cached): {:?}", term_id);
+                    vdebug!("  TERMED Terminator matched (cached): {:?}", term_id);
                     self.pos = init_pos;
                     self.terminator_hits.set(self.terminator_hits.get() + 1);
                     return true;
@@ -529,7 +538,7 @@ impl<'a> Parser<'a> {
                     .insert(cache_key, !is_empty);
 
                 if !is_empty {
-                    log::debug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
+                    vdebug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
                     self.pos = init_pos;
                     self.terminator_hits.set(self.terminator_hits.get() + 1);
                     return true;
@@ -541,10 +550,10 @@ impl<'a> Parser<'a> {
                     .borrow_mut()
                     .insert(cache_key, false);
             }
-            log::debug!("  Terminator did not match (table-driven): {:?}", term_id);
+            vdebug!("  Terminator did not match (table-driven): {:?}", term_id);
         }
 
-        log::debug!("  NOTERM No terminators matched");
+        vdebug!("  NOTERM No terminators matched");
         self.pos = init_pos;
         false
     }
@@ -565,7 +574,7 @@ impl<'a> Parser<'a> {
         let segments = self.tokens;
 
         if start_idx >= segments.len() {
-            log::debug!(
+            vdebug!(
                 "[TRIM_TO_TERM_TABLE] start_idx {} >= segments.len() {}, returning {}",
                 start_idx,
                 segments.len(),
@@ -575,21 +584,22 @@ impl<'a> Parser<'a> {
         }
 
         let pruned_terms = self.prune_options_table_driven(terminators);
-        log::debug!(
+        vdebug!(
             "[TRIM_TO_TERM_TABLE] Scanning for terminators from idx={}, pruned_terms={:?}",
             start_idx,
             pruned_terms
         );
         for term in pruned_terms.iter() {
+            #[cfg(feature = "verbose-debug")]
             let grammar_name = self.grammar_ctx.grammar_id_name(*term);
-            log::debug!(
+            vdebug!(
                 "[TRIM_TO_TERM_TABLE] Trying terminator {:?} (name: {}) at idx={}",
                 term,
                 grammar_name,
                 start_idx
             );
             if let Ok(_m) = self.try_match_grammar_table_driven(*term, start_idx, &[]) {
-                log::debug!(
+                vdebug!(
                     "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) matched immediately at idx={}, returning start_idx={}",
                     term,
                     grammar_name,
@@ -601,7 +611,7 @@ impl<'a> Parser<'a> {
                 // terminator and any content it covers.
                 return Ok(start_idx);
             } else {
-                log::debug!(
+                vdebug!(
                     "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) did NOT match at idx={}",
                     term,
                     grammar_name,
@@ -612,13 +622,13 @@ impl<'a> Parser<'a> {
 
         let term_match =
             self.greedy_match_table_driven(start_idx, terminators, self.tokens.len())?;
-        log::debug!(
+        vdebug!(
             "[TRIM_TO_TERM_TABLE] greedy_match_table_driven returned {:?}",
             term_match
         );
         // term_match.1 is already the last code index before the terminator (computed by greedy_match_table_driven)
         let final_idx = term_match.1;
-        log::debug!(
+        vdebug!(
             "[TRIM_TO_TERM_TABLE] Using term_match.1 as final_idx: {}",
             final_idx
         );

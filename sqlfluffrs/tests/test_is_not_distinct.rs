@@ -51,7 +51,7 @@ fn test_is_not_distinct_with_brackets() {
     println!("=== Total tokens: {} ===", tokens.len());
 
     let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-    let ast = parser
+    let _ast = parser
         .call_rule_as_root_match_result()
         .expect("Parse error");
 

@@ -351,7 +351,10 @@ impl Parser<'_> {
                         .map(|m| (matched_idx, m))
                         .collect::<Vec<_>>();
                     ctx.insert_segments.extend(appending_meta_segments);
-                    (ctx.insert_segments.clone(), ctx.child_matches.clone())
+                    (
+                        std::mem::take(ctx.insert_segments),
+                        std::mem::take(ctx.child_matches),
+                    )
                 };
                 let element_desc = self.grammar_ctx.grammar_repr(elements[next_element_idx]);
                 let error_token = self
@@ -604,7 +607,10 @@ impl Parser<'_> {
                     .map(|m| (matched_idx, m))
                     .collect::<Vec<_>>();
                 ctx.insert_segments.extend(appending_meta_segments);
-                (ctx.insert_segments.clone(), ctx.child_matches.clone())
+                (
+                    std::mem::take(ctx.insert_segments),
+                    std::mem::take(ctx.child_matches),
+                )
             };
 
             let element_desc = self.grammar_ctx.grammar_repr(next_element);
@@ -678,24 +684,30 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         _stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::SequenceTableDriven {
-            seq_grammar_id: grammar_id,
-            matched_idx,
-            max_idx,
-            child_matches,
-            insert_segments,
-            ..
-        } = &frame.context
-        else {
-            return Err(ParseError::new(
-                "Expected SequenceTableDriven context in combining".to_string(),
-            ));
+        // Take ownership of the context fields we need, avoiding clones.
+        // The frame is consumed after combining, so this is safe.
+        let (grammar_id, matched_idx, max_idx, mut child_matches, insert_segments) = {
+            let FrameContext::SequenceTableDriven {
+                seq_grammar_id,
+                matched_idx,
+                max_idx,
+                child_matches,
+                insert_segments,
+                ..
+            } = &mut frame.context
+            else {
+                return Err(ParseError::new(
+                    "Expected SequenceTableDriven context in combining".to_string(),
+                ));
+            };
+            (
+                *seq_grammar_id,
+                *matched_idx,
+                *max_idx,
+                std::mem::take(child_matches),
+                std::mem::take(insert_segments),
+            )
         };
-
-        // Copy values before mutable borrow
-        let grammar_id = *grammar_id;
-        let matched_idx = *matched_idx;
-        let max_idx = *max_idx;
 
         // Get parse_mode from grammar
         let inst = self.grammar_ctx.inst(grammar_id);
@@ -720,7 +732,6 @@ impl Parser<'_> {
         {
             Arc::new(MatchResult::empty_at(frame.pos))
         } else {
-            let mut child_matches = child_matches.clone();
             let mut final_matched_idx = matched_idx;
 
             // PYTHON PARITY: If we're in GREEDY mode and there's leftover content,
@@ -759,7 +770,7 @@ impl Parser<'_> {
 
             Arc::new(MatchResult {
                 matched_slice: frame.pos..final_matched_idx,
-                insert_segments: insert_segments.to_vec(),
+                insert_segments,
                 child_matches,
                 ..Default::default()
             })
