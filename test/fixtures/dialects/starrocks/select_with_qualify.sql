@@ -73,6 +73,14 @@ SELECT
 FROM my_table
 QUALIFY ROW_NUMBER() OVER (PARTITION BY col1 ORDER BY col2 DESC) <= 100;
 
+-- GROUP BY with QUALIFY
+SELECT
+    region,
+    product_id
+FROM sales
+GROUP BY region, product_id
+QUALIFY ROW_NUMBER() OVER (PARTITION BY region ORDER BY product_id) <= 5;
+
 -- GROUP BY with HAVING and QUALIFY - SELECT only columns
 SELECT
     category,
