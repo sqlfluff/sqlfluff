@@ -81,3 +81,62 @@ SELECT
 FROM orders
 QUALIFY ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date DESC) = 1
     AND order_amount > 1000;
+
+-- GROUP BY with HAVING and QUALIFY - SELECT only columns
+SELECT
+    category,
+    item
+FROM produce
+GROUP BY category, item
+HAVING COUNT(*) > 5
+QUALIFY RANK() OVER (PARTITION BY category ORDER BY item) <= 3;
+
+-- GROUP BY with HAVING, QUALIFY and WHERE
+SELECT
+    customer_id,
+    product_id
+FROM orders
+WHERE order_date > '2024-01-01'
+GROUP BY customer_id, product_id
+HAVING SUM(order_amount) > 1000
+QUALIFY ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY product_id) = 1;
+
+-- GROUP BY with HAVING, QUALIFY and ORDER BY
+SELECT
+    region,
+    store_id
+FROM sales
+GROUP BY region, store_id
+HAVING AVG(sales_amount) > 500
+QUALIFY DENSE_RANK() OVER (PARTITION BY region ORDER BY store_id DESC) <= 5
+ORDER BY region, store_id;
+
+-- GROUP BY with HAVING, QUALIFY and LIMIT
+SELECT
+    category,
+    subcategory
+FROM products
+GROUP BY category, subcategory
+HAVING MAX(price) > 100
+QUALIFY ROW_NUMBER() OVER (ORDER BY category, subcategory) <= 10
+LIMIT 10;
+
+-- GROUP BY with multiple HAVING conditions and QUALIFY
+SELECT
+    department,
+    employee_id
+FROM employees
+GROUP BY department, employee_id
+HAVING COUNT(*) > 1
+    AND MIN(salary) > 50000
+QUALIFY RANK() OVER (PARTITION BY department ORDER BY employee_id) < 100;
+
+-- GROUP BY with HAVING and QUALIFY with complex expression
+SELECT
+    brand,
+    model
+FROM vehicles
+GROUP BY brand, model
+HAVING COUNT(DISTINCT color) >= 3
+QUALIFY ROW_NUMBER() OVER (PARTITION BY brand ORDER BY model DESC) = 1
+    AND COUNT(*) > 10;

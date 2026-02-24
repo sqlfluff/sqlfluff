@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e2a854805a4c975aa754aaba0dce1c73d96d36e24ecba191a0c5408a09a62587
+_hash: a62a88e30d9c38acc7a5526a25ec47284743190d4f861aa3d5d0be89dcef158e
 file:
 - statement:
     select_statement:
@@ -29,35 +29,35 @@ file:
                 naked_identifier: produce
       qualify_clause:
         keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: RANK
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: category
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: purchases
+                - keyword: DESC
+              end_bracket: )
+        comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: '='
         expression:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '='
           numeric_literal: '3'
 - statement_terminator: ;
 - statement:
@@ -92,35 +92,35 @@ file:
           quoted_literal: "'vegetable'"
       qualify_clause:
         keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: RANK
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: category
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: purchases
+                - keyword: DESC
+              end_bracket: )
+        comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: '='
         expression:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '='
           numeric_literal: '3'
 - statement_terminator: ;
 - statement:
@@ -155,35 +155,35 @@ file:
           quoted_literal: "'vegetable'"
       qualify_clause:
         keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: RANK
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: category
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: purchases
+                - keyword: DESC
+              end_bracket: )
+        comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: '='
         expression:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '='
           numeric_literal: '3'
       orderby_clause:
       - keyword: ORDER
@@ -223,35 +223,35 @@ file:
           quoted_literal: "'vegetable'"
       qualify_clause:
         keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: RANK
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: category
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: purchases
+                - keyword: DESC
+              end_bracket: )
+        comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: '='
         expression:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '='
           numeric_literal: '3'
       limit_clause:
         keyword: LIMIT
@@ -277,33 +277,33 @@ file:
                 naked_identifier: functions
       qualify_clause:
         keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: ROW_NUMBER
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: schema_name
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: function_name
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: <
         expression:
-          function:
-            function_name:
-              function_name_identifier: ROW_NUMBER
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: schema_name
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: function_name
-                end_bracket: )
-          comparison_operator:
-            raw_comparison_operator: <
           numeric_literal: '3'
 - statement_terminator: ;
 - statement:
@@ -330,35 +330,35 @@ file:
                 naked_identifier: sales
       qualify_clause:
         keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: DENSE_RANK
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: product_id
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: sales_amount
+                - keyword: DESC
+              end_bracket: )
+        comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: '='
         expression:
-          function:
-            function_name:
-              function_name_identifier: DENSE_RANK
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: product_id
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: sales_amount
-                  - keyword: DESC
-                end_bracket: )
-          comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '='
           numeric_literal: '5'
 - statement_terminator: ;
 - statement:
@@ -381,27 +381,27 @@ file:
                 naked_identifier: user_events
       qualify_clause:
         keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: ROW_NUMBER
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: event_date
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '='
         expression:
-          function:
-            function_name:
-              function_name_identifier: ROW_NUMBER
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: event_date
-                end_bracket: )
-          comparison_operator:
-            raw_comparison_operator: '='
           numeric_literal: '1'
 - statement_terminator: ;
 - statement:
@@ -424,28 +424,28 @@ file:
                 naked_identifier: orders
       qualify_clause:
         keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: RANK
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: order_amount
+                - keyword: DESC
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '>'
         expression:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: order_amount
-                  - keyword: DESC
-                end_bracket: )
-          comparison_operator:
-            raw_comparison_operator: '>'
           numeric_literal: '10'
 - statement_terminator: ;
 - statement:
@@ -476,35 +476,35 @@ file:
                 naked_identifier: my_table
       qualify_clause:
         keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: ROW_NUMBER
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: col1
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: col2
+                - keyword: DESC
+              end_bracket: )
+        comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: '='
         expression:
-          function:
-            function_name:
-              function_name_identifier: ROW_NUMBER
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: col1
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: col2
-                  - keyword: DESC
-                end_bracket: )
-          comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '='
           numeric_literal: '100'
 - statement_terminator: ;
 - statement:
@@ -531,34 +531,34 @@ file:
                 naked_identifier: orders
       qualify_clause:
         keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: ROW_NUMBER
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: customer_id
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: order_date
+                - keyword: DESC
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '='
         expression:
-        - function:
-            function_name:
-              function_name_identifier: ROW_NUMBER
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: customer_id
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: order_date
-                  - keyword: DESC
-                end_bracket: )
-        - comparison_operator:
-            raw_comparison_operator: '='
         - numeric_literal: '1'
         - binary_operator: AND
         - column_reference:
@@ -566,4 +566,487 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal: '1000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: category
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: item
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: produce
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: category
+      - comma: ','
+      - column_reference:
+          naked_identifier: item
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '5'
+      qualify_clause:
+        keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: RANK
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: category
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: item
+              end_bracket: )
+        comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: '='
+        expression:
+          numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: order_date
+          comparison_operator:
+            raw_comparison_operator: '>'
+          quoted_literal: "'2024-01-01'"
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: customer_id
+      - comma: ','
+      - column_reference:
+          naked_identifier: product_id
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: SUM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: order_amount
+                end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '1000'
+      qualify_clause:
+        keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: ROW_NUMBER
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: customer_id
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: product_id
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: region
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: store_id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sales
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: region
+      - comma: ','
+      - column_reference:
+          naked_identifier: store_id
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: AVG
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: sales_amount
+                end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '500'
+      qualify_clause:
+        keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: DENSE_RANK
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: region
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: store_id
+                - keyword: DESC
+              end_bracket: )
+        comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: '='
+        expression:
+          numeric_literal: '5'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: region
+      - comma: ','
+      - column_reference:
+          naked_identifier: store_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: category
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: subcategory
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: products
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: category
+      - comma: ','
+      - column_reference:
+          naked_identifier: subcategory
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: MAX
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: price
+                end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '100'
+      qualify_clause:
+        keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: ROW_NUMBER
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: category
+                - comma: ','
+                - column_reference:
+                    naked_identifier: subcategory
+              end_bracket: )
+        comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: '='
+        expression:
+          numeric_literal: '10'
+      limit_clause:
+        keyword: LIMIT
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: department
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: department
+      - comma: ','
+      - column_reference:
+          naked_identifier: employee_id
+      having_clause:
+        keyword: HAVING
+        expression:
+        - function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: '1'
+        - binary_operator: AND
+        - function:
+            function_name:
+              function_name_identifier: MIN
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: salary
+                end_bracket: )
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: '50000'
+      qualify_clause:
+        keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: RANK
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: department
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: employee_id
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: <
+        expression:
+          numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: brand
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: model
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: vehicles
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: brand
+      - comma: ','
+      - column_reference:
+          naked_identifier: model
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: color
+                end_bracket: )
+          comparison_operator:
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: '='
+          numeric_literal: '3'
+      qualify_clause:
+        keyword: QUALIFY
+        function:
+          function_name:
+            function_name_identifier: ROW_NUMBER
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          over_clause:
+            keyword: OVER
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      naked_identifier: brand
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: model
+                - keyword: DESC
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+        - numeric_literal: '1'
+        - binary_operator: AND
+        - function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: '10'
 - statement_terminator: ;
