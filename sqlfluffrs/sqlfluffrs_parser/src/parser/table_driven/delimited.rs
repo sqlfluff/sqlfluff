@@ -1,6 +1,6 @@
 use crate::vdebug;
 use smallvec::SmallVec;
-use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
+use sqlfluffrs_types::{GrammarId, GrammarVariant};
 use std::sync::Arc;
 
 use crate::parser::{
@@ -623,13 +623,12 @@ impl<'a> Parser<'_> {
     /// Handle Delimited Combining state using table-driven approach
     pub(crate) fn handle_delimited_table_driven_combining(
         &mut self,
-        mut frame: TableParseFrame,
+        frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let FrameContext::DelimitedTableDriven {
             grammar_id,
             delimiter_count,
-            matched_idx,
             working_match,
             ..
         } = &frame.context

@@ -16,7 +16,7 @@ use crate::parser::types::{MetaType, Node, RawSegmentKwargs};
 use hashbrown::HashMap;
 use sqlfluffrs_types::regex::RegexModeGroup;
 use sqlfluffrs_types::token::CaseFold;
-use sqlfluffrs_types::{PositionMarker, Token};
+use sqlfluffrs_types::Token;
 
 /// Meta-segment types that can be inserted (like Python's Indent/Dedent)
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -459,20 +459,18 @@ impl MatchResult {
                 for idx in current_idx..pos {
                     if idx < tokens.len() {
                         let tok = &tokens[idx];
+                        // Skip meta tokens (EOF, Indent, Dedent, etc.) - they should
+                        // not be gap-filled as raw nodes into the AST.
+                        if tok.is_meta {
+                            continue;
+                        }
                         let raw = tok.raw().to_string();
 
-                        let (segment_class, segment_type) =
-                            if let Some(match_class) = self.matched_class.as_ref() {
-                                (
-                                    match_class.class_name.clone(),
-                                    match_class
-                                        .segment_type
-                                        .clone()
-                                        .unwrap_or_else(|| tok.token_type.clone()),
-                                )
-                            } else {
-                                (tok.class_name.clone(), tok.token_type.clone())
-                            };
+                        // Gap-fill tokens always use their own token class/type.
+                        // Using the parent's segment_type (e.g. "file") would be
+                        // incorrect and produces wrong YAML output.
+                        let segment_class = tok.class_name.clone();
+                        let segment_type = tok.token_type.clone();
 
                         // Create Raw node from token
                         result_nodes.push(Node::Raw {
@@ -520,20 +518,15 @@ impl MatchResult {
             for idx in current_idx..self.matched_slice.end {
                 if idx < tokens.len() {
                     let tok = &tokens[idx];
+                    // Skip meta tokens (EOF, Indent, Dedent, etc.)
+                    if tok.is_meta {
+                        continue;
+                    }
                     let raw = tok.raw().to_string();
 
-                    let (segment_class, segment_type) =
-                        if let Some(match_class) = self.matched_class.as_ref() {
-                            (
-                                match_class.class_name.clone(),
-                                match_class
-                                    .segment_type
-                                    .clone()
-                                    .unwrap_or_else(|| tok.token_type.clone()),
-                            )
-                        } else {
-                            (tok.class_name.clone(), tok.token_type.clone())
-                        };
+                    // Gap-fill tokens always use their own token class/type.
+                    let segment_class = tok.class_name.clone();
+                    let segment_type = tok.token_type.clone();
 
                     // Create Raw node from token
                     result_nodes.push(Node::Raw {
@@ -629,10 +622,6 @@ pub fn segment_kwargs_from_token(
         quoted_value: tok.quoted_value().cloned(),
         ..Default::default()
     }
-}
-
-fn get_point_pos_at_token_idx(_tokens: &[Token], _pos: usize) -> PositionMarker {
-    todo!()
 }
 
 /// Internal enum for tracking what to process at each position

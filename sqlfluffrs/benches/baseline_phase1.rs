@@ -37,7 +37,9 @@ fn bench_simple_select(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -50,7 +52,9 @@ fn bench_simple_insert(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -63,7 +67,9 @@ fn bench_simple_update(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -95,7 +101,9 @@ fn bench_complex_join(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -115,7 +123,9 @@ fn bench_multiple_joins(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -148,7 +158,9 @@ fn bench_nested_subqueries(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -171,7 +183,9 @@ fn bench_deeply_nested(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -198,7 +212,9 @@ fn bench_window_functions(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -233,7 +249,9 @@ fn bench_cte(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -253,7 +271,9 @@ fn bench_recursive_cte(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -276,7 +296,9 @@ fn bench_large_insert(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -296,7 +318,9 @@ fn bench_many_columns_select(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -323,7 +347,9 @@ fn bench_scaling_by_column_count(c: &mut Criterion) {
             b.iter(|| {
                 let mut parser =
                     Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-                parser.call_rule_as_root_match_result().expect("Parse failed")
+                parser
+                    .call_rule_as_root_match_result()
+                    .expect("Parse failed")
             })
         });
     }
@@ -345,7 +371,9 @@ fn bench_scaling_by_join_count(c: &mut Criterion) {
             b.iter(|| {
                 let mut parser =
                     Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-                parser.call_rule_as_root_match_result().expect("Parse failed")
+                parser
+                    .call_rule_as_root_match_result()
+                    .expect("Parse failed")
             })
         });
     }
@@ -368,7 +396,9 @@ fn bench_cache_on_vs_off(c: &mut Criterion) {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.set_cache_enabled(true);
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 
@@ -377,7 +407,9 @@ fn bench_cache_on_vs_off(c: &mut Criterion) {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.set_cache_enabled(false);
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 
@@ -395,7 +427,9 @@ fn bench_repeated_parsing(c: &mut Criterion) {
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.set_cache_enabled(true);
             // Parse twice to test cache effectiveness
-            let _first = parser.call_rule_as_root_match_result().expect("Parse failed");
+            let _first = parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed");
         })
     });
 }
@@ -412,7 +446,9 @@ fn bench_nested_functions(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }
@@ -432,7 +468,9 @@ fn bench_complex_where(c: &mut Criterion) {
         b.iter(|| {
             let mut parser =
                 Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
-            parser.call_rule_as_root_match_result().expect("Parse failed")
+            parser
+                .call_rule_as_root_match_result()
+                .expect("Parse failed")
         })
     });
 }

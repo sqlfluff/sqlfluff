@@ -1,5 +1,8 @@
 use crate::{
-    parser::{match_result::{MatchedClass, SegmentKwargs}, MetaSegment},
+    parser::{
+        match_result::{MatchedClass, SegmentKwargs},
+        MetaSegment,
+    },
     vdebug,
 };
 use smallvec::SmallVec;
@@ -220,7 +223,7 @@ impl Parser<'_> {
                         self.pos,
                         parent_limit
                     );
-                    let mut close_frame = create_table_driven_child_frame(
+                    let close_frame = create_table_driven_child_frame(
                         stack.frame_id_counter,
                         close_bracket_id,
                         self.pos,
@@ -384,7 +387,7 @@ impl Parser<'_> {
                         );
 
                         stack.insert_result(frame.frame_id, error_match, self.pos);
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
                 } else {
                     // STRICT mode check: All content elements must end at the closing bracket position
@@ -590,7 +593,6 @@ impl Parser<'_> {
                     ),
                 ],
                 child_matches,
-                ..Default::default()
             }
         } else {
             // Log the actual state for debugging

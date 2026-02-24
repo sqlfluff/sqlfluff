@@ -107,6 +107,7 @@ impl Parser<'_> {
         }
 
         // Initialize option counter for max_times_per_element tracking
+        #[cfg(feature = "verbose-debug")]
         let pruned_children_count = pruned_children.len();
         let first_element = pruned_children[0];
         let option_counter: hashbrown::HashMap<u64, usize> =

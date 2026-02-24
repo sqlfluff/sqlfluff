@@ -46,19 +46,18 @@ impl FrameContext {
                 matched_idx,
                 max_idx,
                 original_max_idx,
-                last_child_frame_id,
                 current_element_idx,
                 first_match,
                 meta_buffer,
                 insert_segments,
                 child_matches,
+                ..
             } => Some(SequenceContextMut {
                 seq_grammar_id,
                 start_idx,
                 matched_idx,
                 max_idx,
                 original_max_idx,
-                last_child_frame_id,
                 current_element_idx,
                 first_match,
                 meta_buffer,
@@ -138,7 +137,6 @@ pub struct SequenceContextMut<'a> {
     pub matched_idx: &'a mut usize,
     pub max_idx: &'a mut usize, // This may change due to GREEDY_ONCE_STARTED
     pub original_max_idx: &'a usize, // Max_idx before GREEDY_ONCE_STARTED trimming
-    pub last_child_frame_id: &'a mut Option<usize>,
     pub current_element_idx: &'a mut usize, // Track which element we're currently processing
     pub first_match: &'a mut bool, // For GREEDY_ONCE_STARTED: trim max_idx after first match
     pub meta_buffer: &'a mut Vec<MetaSegment>, // Buffer for meta elements to be flushed after matching content
@@ -147,11 +145,6 @@ pub struct SequenceContextMut<'a> {
 }
 
 impl<'a> SequenceContextMut<'a> {
-    #[inline]
-    pub(crate) fn next_candidate_idx(&self) -> usize {
-        *self.current_element_idx
-    }
-
     #[inline]
     pub(crate) fn advance_element_idx(&mut self) {
         *self.current_element_idx += 1;
@@ -173,13 +166,6 @@ impl<'a> SequenceContextMut<'a> {
     }
 
     #[inline]
-    pub(crate) fn extend_max_idx_if_needed(&mut self, child_end_pos: usize) {
-        if child_end_pos > *self.max_idx {
-            *self.max_idx = child_end_pos;
-        }
-    }
-
-    #[inline]
     pub(crate) fn trim_max_idx(&mut self, new_max_idx: usize) {
         *self.max_idx = new_max_idx.min(*self.original_max_idx);
     }
@@ -195,11 +181,6 @@ impl<'a> SequenceContextMut<'a> {
     }
 
     #[inline]
-    pub(crate) fn add_child_match(&mut self, child_match: Arc<MatchResult>) {
-        self.child_matches.push(child_match);
-    }
-
-    #[inline]
     pub(crate) fn matched_idx_value(&self) -> usize {
         *self.matched_idx
     }
@@ -207,10 +188,5 @@ impl<'a> SequenceContextMut<'a> {
     #[inline]
     pub(crate) fn max_idx_value(&self) -> usize {
         *self.max_idx
-    }
-
-    #[inline]
-    pub(crate) fn all_elements_processed(&self, total_elements: usize) -> bool {
-        *self.current_element_idx >= total_elements
     }
 }

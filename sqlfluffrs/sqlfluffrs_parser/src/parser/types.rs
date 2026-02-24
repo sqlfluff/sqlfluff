@@ -139,14 +139,36 @@ impl Node {
                 }
             }
             Node::Segment { children, .. } => {
-                let mut tupled = vec![];
-                for child in children {
-                    if code_only && !child.is_code() {
-                        continue;
+                // Collect relevant children (respecting code_only and include_meta).
+                let relevant_children: Vec<&Node> = children
+                    .iter()
+                    .filter(|c| {
+                        if code_only && !c.is_code() {
+                            return false;
+                        }
+                        if !include_meta && c.is_meta() {
+                            return false;
+                        }
+                        true
+                    })
+                    .collect();
+
+                // Special case: if the segment has exactly one child that is a Raw
+                // node, treat this segment as a leaf.  This mirrors Python's
+                // RawSegment behaviour where single-token parsed segments have no
+                // children of their own and return `(type, raw_string)` from
+                // `to_tuple`.
+                if show_raw && relevant_children.len() == 1 {
+                    if let Node::Raw { raw, .. } = relevant_children[0] {
+                        return NodeTupleValue::Raw(self.get_type(), raw.clone());
                     }
-                    let val = child.to_tuple(code_only, show_raw, include_meta);
-                    tupled.push(val);
                 }
+
+                // Normal case: tuple of all relevant children.
+                let tupled = relevant_children
+                    .iter()
+                    .map(|c| c.to_tuple(code_only, show_raw, include_meta))
+                    .collect();
                 NodeTupleValue::Tuple(self.get_type(), tupled)
             }
             Node::Unparsable { children, .. } => {
@@ -253,9 +275,28 @@ impl Node {
     pub fn is_code(&self) -> bool {
         match self {
             Node::Meta { .. } | Node::Empty => false,
-            Node::Raw { instance_types, .. } => !instance_types
-                .iter()
-                .any(|t| matches!(t.as_str(), "whitespace" | "newline" | "comment")),
+            Node::Raw {
+                segment_type,
+                instance_types,
+                ..
+            } => {
+                // A node is non-code if any of its instance types or its
+                // segment_type indicates whitespace or comment content.
+                let non_code_by_instance = instance_types.iter().any(|t| {
+                    matches!(
+                        t.as_str(),
+                        "whitespace"
+                            | "newline"
+                            | "comment"
+                            | "inline_comment"
+                            | "block_comment"
+                            | "trailing_newline"
+                    )
+                });
+                let non_code_by_type = segment_type.contains("comment")
+                    || matches!(segment_type.as_str(), "whitespace" | "newline");
+                !(non_code_by_instance || non_code_by_type)
+            }
             Node::Segment { children, .. } => children.iter().any(|c| c.is_code()),
             Node::Unparsable { .. } => true,
         }

@@ -714,7 +714,10 @@ impl Parser<'_> {
             vdebug!("  Combining accumulated[{}]: {:?}", i, child);
         }
 
-        let result_match = if child_matches.is_empty() && matched_idx == frame.pos && insert_segments.is_empty() {
+        let result_match = if child_matches.is_empty()
+            && matched_idx == frame.pos
+            && insert_segments.is_empty()
+        {
             Arc::new(MatchResult::empty_at(frame.pos))
         } else {
             let mut child_matches = child_matches.clone();

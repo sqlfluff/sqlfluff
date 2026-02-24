@@ -94,7 +94,6 @@ impl Parser<'_> {
         // If the explicit child grammar allows gaps, collect leading transparent
         // tokens so child parsing starts at the next non-transparent token.
         let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
-        let child_type = self.grammar_ctx.get_type(child_grammar_id);
         let this_type = self.grammar_ctx.get_type(grammar_id);
         let child_start_pos = if child_allows_gaps {
             self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
@@ -221,7 +220,6 @@ impl Parser<'_> {
     pub(crate) fn handle_ref_table_driven_combining(
         &mut self,
         mut frame: TableParseFrame,
-        stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let FrameContext::RefTableDriven {
             name,
@@ -252,24 +250,72 @@ impl Parser<'_> {
         let result_match = if match_result.is_empty() {
             MatchResult::empty_at(frame.pos)
         } else {
-            log::debug!(
-                "Ref[table] Combining: name='{}', segment_type={:?}, creating ref_match",
-                name,
-                segment_type
-            );
-            let matched_class = if segment_type.is_some() || segment_class_name.is_some() {
-                Some(MatchedClass {
-                    class_name: segment_class_name.clone().unwrap_or_default(),
-                    segment_type: segment_type.clone(),
-                    segment_kwargs: SegmentKwargs {
-                        // TODO: Add back later
-                        // instance_types: segment_type.clone().map(|t| vec![t]),
-                        ..Default::default()
-                    },
-                })
+            // TODO: make this cleaner
+            // Python parity for leaf token grammars (CodeSegment, WordSegment etc.):
+            // When `Ref("CodeSegment")` resolves to Token("raw") and matches a token,
+            // Python uses isinstance() which preserves the token's original class.
+            // A WordSegment token matched by CodeSegment stays a WordSegment (type="word"),
+            // not gets retyped to "raw".
+            //
+            // We detect this "isinstance path" when:
+            //   1. The resolved segment_type matches a "base" class type like "raw" (= CodeSegment.type)
+            //   2. The child match is a bare token match (no matched_class, exactly 1 token)
+            //
+            // In that case, use the actual token's effective type (instance_types[0] or token_type).
+            let effective_segment_type = if let Some(seg_type) = segment_type.as_deref() {
+                // Check if the child match is a bare single-token match (no matched_class)
+                // by looking at the match_result's matched_class and slice length
+                let is_bare_token_match = match_result.matched_class.is_none()
+                    && match_result.matched_slice.len() == 1
+                    && match_result.child_matches.is_empty();
+
+                if is_bare_token_match {
+                    let token_idx = match_result.matched_slice.start;
+                    if let Some(tok) = self.tokens.get(token_idx) {
+                        // Use the token's effective get_type():
+                        // Python RawSegment.get_type() = instance_types[0] if set else class.type
+                        let tok_type = tok
+                            .instance_types
+                            .first()
+                            .cloned()
+                            .unwrap_or_else(|| tok.token_type.clone());
+
+                        if tok_type != seg_type {
+                            log::debug!(
+                                "Ref[table] isinstance-path: preserving token type '{}' over segment_type '{}' for token '{}'",
+                                tok_type,
+                                seg_type,
+                                tok.raw()
+                            );
+                            tok_type
+                        } else {
+                            seg_type.to_string()
+                        }
+                    } else {
+                        seg_type.to_string()
+                    }
+                } else {
+                    seg_type.to_string()
+                }
             } else {
-                None
+                segment_type.clone().unwrap_or_default()
             };
+
+            log::debug!(
+                "Ref[table] Combining: name='{}', effective_segment_type='{}', creating ref_match",
+                name,
+                effective_segment_type
+            );
+            let matched_class =
+                if !effective_segment_type.is_empty() || segment_class_name.is_some() {
+                    Some(MatchedClass {
+                        class_name: segment_class_name.clone().unwrap_or_default(),
+                        segment_type: Some(effective_segment_type),
+                        segment_kwargs: SegmentKwargs::default(),
+                    })
+                } else {
+                    None
+                };
 
             // let start_idx = self.skip_start_index_forward_to_code(*saved_pos, final_pos);
 

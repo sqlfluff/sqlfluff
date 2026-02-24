@@ -84,103 +84,6 @@ pub(crate) fn skip_stop_index_backward_to_code(
     min_idx
 }
 
-pub(crate) fn greedy_match_table_driven<F>(
-    tokens: &[Token],
-    start_idx: usize,
-    terminators: &[GrammarId],
-    max_idx: usize,
-    try_match: &mut F,
-) -> Result<(usize, usize), ParseError>
-where
-    F: FnMut(GrammarId, usize, &[GrammarId]) -> Result<usize, ParseError>,
-{
-    let tokens_len = tokens.len();
-    // If no tokens left, return tokens_len
-    if start_idx >= tokens_len {
-        return Ok((tokens_len, tokens_len));
-    }
-
-    // If a terminator matches immediately, return start_idx and its end_pos
-    for term_id in terminators {
-        vdebug!(
-            "[GREEDY_MATCH_TABLE] greedy_match_table_driven: checking immediate terminator match for {:?} at {}",
-            term_id, start_idx
-        );
-        if let Ok(end_pos) = try_match(*term_id, start_idx, terminators) {
-            if end_pos > start_idx {
-                vdebug!(
-                    "[GREEDY_MATCH_TABLE] greedy_match_table_driven: immediate terminator {:?} matched at {}",
-                    term_id, start_idx
-                );
-                return Ok((start_idx, start_idx));
-            }
-        }
-    }
-
-    // Otherwise, scan forward until a terminator matches or we reach max_idx
-    // CRITICAL: Skip over brackets to avoid finding terminators inside them
-    let max_idx = std::cmp::min(max_idx, tokens_len);
-    let mut i = start_idx;
-    while i < max_idx {
-        // Check if current token is an opening bracket - if so, skip to matching close
-        let token = &tokens[i];
-        let raw = token.raw();
-        if raw == "(" || raw == "[" || raw == "{" {
-            // Check if we have a pre-computed matching bracket index
-            if let Some(matching_idx) = token.matching_bracket_idx {
-                vdebug!(
-                    "[GREEDY_MATCH_TABLE] greedy_match_table_driven: skipping bracket at {} to {}",
-                    i,
-                    matching_idx + 1
-                );
-                // Skip past the closing bracket
-                i = matching_idx + 1;
-                continue;
-            } else {
-                // PYTHON PARITY: No matching closing bracket found - raise parse error
-                // This matches Python's resolve_bracket() behavior which raises
-                // SQLParseError("Couldn't find closing bracket for opening bracket.")
-                vdebug!(
-                    "[GREEDY_MATCH_TABLE] greedy_match_table_driven: no matching closing bracket for opening bracket at {}",
-                    i
-                );
-                return Err(ParseError::with_context(
-                    "Couldn't find closing bracket for opening bracket.".to_string(),
-                    Some(i),
-                    None,
-                ));
-            }
-        }
-
-        // Check terminators at this position
-        for &term_id in terminators {
-            vdebug!(
-                "[GREEDY_MATCH_TABLE] greedy_match_table_driven: checking terminator {:?} at {}",
-                term_id,
-                i
-            );
-            if let Ok(end_pos) = try_match(term_id, i, terminators) {
-                if end_pos > i {
-                    vdebug!(
-                        "[GREEDY_MATCH_TABLE] greedy_match_table_driven: terminator {:?} matched at {}",
-                        term_id, i
-                    );
-                    let last_code_idx = skip_stop_index_backward_to_code(tokens, i, start_idx);
-                    // Return last_code_idx + 1 because max_idx is used as an EXCLUSIVE bound
-                    // We want to include the token at last_code_idx in the match range
-                    return Ok((i, last_code_idx + 1));
-                }
-            }
-        }
-        i += 1;
-    }
-    vdebug!(
-        "[GREEDY_MATCH_TABLE] greedy_match_table_driven: returning max_idx={}",
-        max_idx
-    );
-    Ok((start_idx, max_idx))
-}
-
 impl Parser<'_> {
     pub(crate) fn try_match_grammar_table_driven(
         &mut self,
@@ -206,7 +109,12 @@ impl Parser<'_> {
     ///
     /// Edge case: if the terminator is at the very start of the search range
     /// (`_start_idx == working_idx`), Python allows it without whitespace.
-    pub(crate) fn is_preceded_by_whitespace(&self, tokens: &[Token], i: usize, start_idx: usize) -> bool {
+    pub(crate) fn is_preceded_by_whitespace(
+        &self,
+        tokens: &[Token],
+        i: usize,
+        start_idx: usize,
+    ) -> bool {
         if i == 0 || i <= start_idx {
             // At the very start — Python allows these (working_idx == start_idx case)
             return true;
@@ -219,7 +127,9 @@ impl Parser<'_> {
                 continue;
             }
             // Found a concrete token before position i
-            return tok.is_whitespace() || tok.get_type() == "newline" || tok.get_type() == "whitespace";
+            return tok.is_whitespace()
+                || tok.get_type() == "newline"
+                || tok.get_type() == "whitespace";
         }
         // Went all the way back to start_idx — allow it (first element)
         true
@@ -245,7 +155,9 @@ impl Parser<'_> {
                 "[GREEDY_MATCH_TABLE] greedy_match_table_driven: checking immediate terminator match for {:?} at {}",
                 term_id, start_idx
             );
-            if let Ok(end_pos) = self.try_match_grammar_table_driven(term_id, start_idx, terminators) {
+            if let Ok(end_pos) =
+                self.try_match_grammar_table_driven(term_id, start_idx, terminators)
+            {
                 if end_pos > start_idx {
                     vdebug!(
                         "[GREEDY_MATCH_TABLE] greedy_match_table_driven: immediate terminator {:?} matched at {}",

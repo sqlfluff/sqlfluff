@@ -763,7 +763,7 @@ impl Parser<'_> {
             GrammarVariant::AnyNumberOf | GrammarVariant::AnySetOf => {
                 self.handle_anynumberof_table_driven_combining(frame, stack)
             }
-            GrammarVariant::Ref => self.handle_ref_table_driven_combining(frame, stack),
+            GrammarVariant::Ref => self.handle_ref_table_driven_combining(frame),
             _ => {
                 // Combining should not be reached for terminal/simple variants
                 unimplemented!(

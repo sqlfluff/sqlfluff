@@ -234,7 +234,7 @@ impl<'a> Parser<'a> {
 
         if token_slice.is_empty() {
             // Return empty match result
-            return Ok(MatchResult::empty_at(0).apply(&token_slice)[0].clone());
+            return Ok(MatchResult::empty_at(0).apply(token_slice)[0].clone());
         }
 
         self.tokens = token_slice;
@@ -243,15 +243,15 @@ impl<'a> Parser<'a> {
         let grammar_id = root_grammar.grammar_id;
         let tables = root_grammar.tables;
         self.grammar_ctx = GrammarContext::new(tables);
-        let grammar_name = self.grammar_ctx.grammar_id_name(grammar_id);
+        let _grammar_name = self.grammar_ctx.grammar_id_name(grammar_id);
         let match_result = self.parse_table_iterative_match_result(grammar_id, &[])?;
         let match_end = match_result.end();
         self.tokens = token_slice_orig;
 
-        let matched = match_result.apply(&self.tokens);
+        let matched = match_result.apply(self.tokens);
         // We expect exactly one root node after applying the match result
         assert_eq!(matched.len(), 1);
-        let unmatched = self.tokens[match_end..last_code_pos].to_vec();
+        let _unmatched = self.tokens[match_end..last_code_pos].to_vec();
 
         // let mut content;
         // if match_result.is_empty() {
@@ -455,12 +455,8 @@ impl<'a> Parser<'a> {
         match self.peek() {
             Some(tok) if tok.raw().eq_ignore_ascii_case(&template) && tok.is_code() => {
                 let token_pos = self.pos;
-                let mut segment_kwargs = match_result::segment_kwargs_from_token(
-                    tok,
-                    &token_type,
-                    None,
-                    casefold,
-                );
+                let mut segment_kwargs =
+                    match_result::segment_kwargs_from_token(tok, &token_type, None, casefold);
                 if let Some(grammar_tc) = grammar_trim_chars {
                     segment_kwargs.trim_chars = Some(grammar_tc);
                 }
@@ -573,43 +569,85 @@ impl<'a> Parser<'a> {
                     );
                 }
 
-                // Build instance_types following Python TypedParser logic:
-                // 1. Override type (token_type) - e.g., "quoted_literal"
-                // 2. Segment class type - e.g., "literal" from "LiteralSegment"
-                // 3. Template type - e.g., "single_quote" (if not in class hierarchy)
-                let mut instance_types_vec = vec![token_type.clone()];
-
-                // Add the segment class type if different from override
-                // Use the dialect's pre-built segment type lookup (robust, authoritative)
+                // Build instance_types following Python TypedParser logic.
+                //
+                // Python parity note: `Ref("CodeSegment")` in Python resolves to
+                // `CodeSegment.match()` which uses `isinstance(seg, CodeSegment)`.
+                // When a token matches via isinstance (e.g. WordSegment is-a CodeSegment),
+                // Python returns the segment UNCHANGED - preserving its original type.
+                //
+                // TypedParser only overrides the type when an explicit `type=` argument
+                // was given. This is detectable: if `_instance_types[0] == raw_class.type`
+                // there was no explicit override. If they differ, there was.
+                //
+                // In Rust, "no explicit override" means `token_type == cls_type` (the
+                // TypedParser's configured type equals the class's base type). In that
+                // case we preserve the token's own type (isinstance semantics). Otherwise
+                // we keep the TypedParser's configured override type.
                 let class_type = self.dialect.get_segment_type(&raw_class);
-                if let Some(cls_type) = class_type {
-                    if cls_type != token_type {
-                        instance_types_vec.push(cls_type.to_string());
-                    }
 
-                    // Add template type if not already added
-                    // The segment class (e.g., LiteralSegment) has a fixed hierarchy that
-                    // doesn't include token-specific types like "single_quote", so we add it
-                    // Python checks: if not raw_class.class_is_type(template)
-                    // For simplicity, we add template if it's different from what we already have
-                    if template != token_type && template != cls_type {
-                        instance_types_vec.push(template.clone());
+                let (effective_segment_type, instance_types_vec) = if let Some(cls_type) =
+                    class_type
+                {
+                    if token_type == cls_type {
+                        // No explicit type override: TypedParser was invoked like Python's
+                        // isinstance path. Preserve the token's own type and instance_types
+                        // so that e.g. a WordSegment token matching Ref("CodeSegment") outputs
+                        // `word: value` instead of `raw: value`, or a double_quote token outputs
+                        // `double_quote: "value"` instead of `raw: "value"`.
+                        //
+                        // This mirrors Python's RawSegment.get_type():
+                        //   if instance_types: return instance_types[0]
+                        //   return super().get_type()  (= class type attribute)
+                        let tok_effective_type = tok
+                            .instance_types
+                            .first()
+                            .cloned()
+                            .unwrap_or_else(|| tok.token_type.clone());
+                        let tok_inst = tok.instance_types.clone();
+                        vdebug!(
+                            "TypedParser[table] isinstance-path: token_type='{}' == cls_type='{}', preserving effective_type='{}', instance_types={:?}",
+                            token_type,
+                            cls_type,
+                            tok_effective_type,
+                            tok_inst
+                        );
+                        (tok_effective_type, tok_inst)
+                    } else {
+                        // Explicit type override: build instance_types from TypedParser config
+                        // (e.g. TypedParser("single_quote", LiteralSegment, type="quoted_literal"))
+                        let mut vec = vec![token_type.clone()];
+                        if cls_type != token_type {
+                            vec.push(cls_type.to_string());
+                        }
+                        if template != token_type && template != cls_type {
+                            vec.push(template.clone());
+                        }
+                        vdebug!(
+                            "TypedParser[table] explicit-override-path: token_type='{}' != cls_type='{}', instance_types={:?}",
+                            token_type,
+                            cls_type,
+                            vec
+                        );
+                        (token_type.clone(), vec)
                     }
                 } else {
-                    // Fallback: if lookup fails, just add template if different from token_type
+                    // Fallback: no class type info available, use TypedParser config as-is
                     log::warn!(
                         "Could not find segment type for class '{}', using fallback",
                         raw_class
                     );
+                    let mut vec = vec![token_type.clone()];
                     if template != token_type {
-                        instance_types_vec.push(template.clone());
+                        vec.push(template.clone());
                     }
-                }
+                    (token_type.clone(), vec)
+                };
 
                 vdebug!(
-                    "TypedParser[table] Built instance_types: {:?} (token_type={}, raw_class={}, class_type={:?}, template={})",
+                    "TypedParser[table] final: effective_segment_type='{}', instance_types={:?} (raw_class={}, class_type={:?}, template={})",
+                    effective_segment_type,
                     instance_types_vec,
-                    token_type,
                     raw_class,
                     class_type,
                     template
@@ -619,7 +657,7 @@ impl<'a> Parser<'a> {
                 // and computed instance_types (semantic type hierarchy)
                 let mut segment_kwargs = match_result::segment_kwargs_from_token(
                     tok,
-                    &token_type,
+                    &effective_segment_type,
                     Some(instance_types_vec),
                     casefold,
                 );
@@ -630,7 +668,7 @@ impl<'a> Parser<'a> {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(MatchedClass {
                         class_name: raw_class.clone(),
-                        segment_type: Some(token_type.clone()),
+                        segment_type: Some(effective_segment_type.clone()),
                         segment_kwargs,
                     }),
                     ..Default::default()
@@ -747,12 +785,8 @@ impl<'a> Parser<'a> {
 
                 // PYTHON PARITY: matched_class is the raw_class (segment class name)
                 // and instance_types contains the token_type from the parser
-                let mut segment_kwargs = match_result::segment_kwargs_from_token(
-                    tok,
-                    &token_type,
-                    None,
-                    casefold,
-                );
+                let mut segment_kwargs =
+                    match_result::segment_kwargs_from_token(tok, &token_type, None, casefold);
                 if let Some(grammar_tc) = grammar_trim_chars {
                     segment_kwargs.trim_chars = Some(grammar_tc);
                 }
@@ -1003,12 +1037,8 @@ impl<'a> Parser<'a> {
                     let token_type = token_type_opt.unwrap_or_default();
                     let casefold = self.grammar_ctx.casefold(grammar_id);
                     let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
-                    let mut segment_kwargs = match_result::segment_kwargs_from_token(
-                        tok,
-                        &token_type,
-                        None,
-                        casefold,
-                    );
+                    let mut segment_kwargs =
+                        match_result::segment_kwargs_from_token(tok, &token_type, None, casefold);
                     if let Some(grammar_tc) = grammar_trim_chars {
                         segment_kwargs.trim_chars = Some(grammar_tc);
                     }

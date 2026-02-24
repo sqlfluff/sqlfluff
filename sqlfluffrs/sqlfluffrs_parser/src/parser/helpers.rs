@@ -6,7 +6,6 @@
 use hashbrown::HashSet;
 
 use super::core::Parser;
-use super::Node;
 use sqlfluffrs_types::{GrammarId, ParseMode, Token};
 
 impl<'a> Parser<'a> {
@@ -158,93 +157,6 @@ impl<'a> Parser<'a> {
             }
         }
         min_idx
-    }
-
-    /// Find the matching closing bracket for an opening bracket.
-    /// Returns the index of the closing bracket, or None if not found.
-    ///
-    /// OPTIMIZATION: Uses pre-computed bracket pairs from lexer for O(1) lookup.
-    /// Falls back to O(n) scanning if pre-computation failed or wasn't run.
-    fn find_matching_bracket(&self, open_idx: usize) -> Option<usize> {
-        if open_idx >= self.tokens.len() {
-            return None;
-        }
-
-        let open_tok = self.tokens.get(open_idx)?;
-        let open_raw = open_tok.raw();
-
-        // Determine which closing bracket we're looking for based on the opening bracket
-        // Note: Angle brackets (<>) are handled as comparison operators by the lexer
-        // (less_than/greater_than), so they won't reach this function.
-        let (is_matching_open, is_matching_close): (fn(&str) -> bool, fn(&str) -> bool) =
-            match open_raw.as_str() {
-                "(" => (|s| s == "(", |s| s == ")"),
-                "[" => (|s| s == "[", |s| s == "]"),
-                "{" => (|s| s == "{", |s| s == "}"),
-                _ => return None, // Not an opening bracket
-            };
-
-        // FAST PATH: Use pre-computed bracket pair if available (O(1))
-        // IMPORTANT: Validate the pre-computed index is within bounds AND points
-        // to the correct closing bracket type. When tokens are trimmed (e.g.,
-        // leading comments removed), the pre-computed indices from lexing may be
-        // invalid for the trimmed array - they might point to the wrong token.
-        if let Some(matching_idx) = open_tok.matching_bracket_idx {
-            if matching_idx < self.tokens.len() {
-                // Verify the token at matching_idx is actually the expected closing bracket
-                if let Some(close_tok) = self.tokens.get(matching_idx) {
-                    if is_matching_close(&close_tok.raw()) {
-                        log::debug!(
-                            "find_matching_bracket: Using pre-computed match {} -> {}",
-                            open_idx,
-                            matching_idx
-                        );
-                        return Some(matching_idx);
-                    }
-                    // Pre-computed index points to wrong token type - fall through to scan
-                    log::debug!(
-                        "find_matching_bracket: Pre-computed match {} -> {} points to '{}' not closing bracket, falling back to scan",
-                        open_idx,
-                        matching_idx,
-                        close_tok.raw()
-                    );
-                }
-            } else {
-                // Pre-computed index out of bounds - fall through to scan
-                log::debug!(
-                    "find_matching_bracket: Pre-computed match {} -> {} is out of bounds (len={}), falling back to scan",
-                    open_idx,
-                    matching_idx,
-                    self.tokens.len()
-                );
-            }
-        }
-
-        // SLOW PATH: Fallback to scanning (for tokens created without lexer,
-        // or when pre-computed indices are invalid due to token trimming)
-        log::debug!(
-            "find_matching_bracket: Pre-computed match not available for index {}, falling back to scan",
-            open_idx
-        );
-
-        let mut depth = 1; // We've already seen the opening bracket
-        for idx in (open_idx + 1)..self.tokens.len() {
-            if let Some(tok) = self.tokens.get(idx) {
-                let tok_raw = tok.raw();
-
-                // Check for matching bracket type
-                if is_matching_open(&tok_raw) {
-                    depth += 1;
-                } else if is_matching_close(&tok_raw) {
-                    depth -= 1;
-                    if depth == 0 {
-                        return Some(idx);
-                    }
-                }
-            }
-        }
-
-        None // No matching closing bracket found
     }
 
     /// Get the pre-computed matching bracket index for a token.
