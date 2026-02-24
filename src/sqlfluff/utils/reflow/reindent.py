@@ -1738,6 +1738,7 @@ def lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: str,
     skip_indentation_in: frozenset[str] = frozenset(),
+    skip_implicit_indents_in: frozenset[str] = frozenset(),
     implicit_indents: str = "forbid",
     ignore_comment_lines: bool = False,
     indentation_align_following: Optional[dict[str, int]] = None,
@@ -1832,13 +1833,38 @@ def lint_indent_points(
                 reflow_logger.info("          %s", res.description)
         results += line_results
 
-    # Now handle require implicit_indents by converting newlines to spaces at
-    # tracked positions
+    # Handle implicit indent collapsing when implicit_indents = require.
     if implicit_indents == "require" and implicit_indent_locs:
-        implicit_results = _convert_newlines_to_spaces(
-            elem_buffer, implicit_indent_locs
-        )
-        results = implicit_results + results
+        # Exclude elements listed in skip_implicit_indents_in.
+        if skip_implicit_indents_in:
+            filtered_locs = set()
+            for i in implicit_indent_locs:
+                # Check the adjacent block for ancestry
+                next_elem = elem_buffer[i + 1] if i + 1 < len(elem_buffer) else None
+                if isinstance(next_elem, ReflowBlock):
+                    stack_types = next_elem.depth_info.stack_class_types
+                else:
+                    stack_types = ()
+                if stack_types and any(
+                    skip_implicit_indents_in.intersection(types)
+                    for types in stack_types
+                ):
+                    reflow_logger.debug(
+                        "Skipping implicit indent collapse at %s "
+                        "because it is within one of %s",
+                        i,
+                        skip_implicit_indents_in,
+                    )
+                    continue
+                filtered_locs.add(i)
+            implicit_indent_locs = filtered_locs
+
+        # Convert remaining newlines to spaces at tracked positions.
+        if implicit_indent_locs:
+            implicit_results = _convert_newlines_to_spaces(
+                elem_buffer, implicit_indent_locs
+            )
+            results = implicit_results + results
 
     return elem_buffer, results
 
