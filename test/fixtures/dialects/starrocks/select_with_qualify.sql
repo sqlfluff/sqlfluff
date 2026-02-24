@@ -72,3 +72,12 @@ SELECT
     col4
 FROM my_table
 QUALIFY ROW_NUMBER() OVER (PARTITION BY col1 ORDER BY col2 DESC) <= 100;
+
+-- QUALIFY with complex expression
+SELECT
+    customer_id,
+    order_date,
+    order_amount
+FROM orders
+QUALIFY ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date DESC) = 1
+    AND order_amount > 1000;

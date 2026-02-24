@@ -259,20 +259,11 @@ class DistributionSegment(BaseSegment):
 class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`.
 
-    StarRocks QUALIFY has strict requirements:
-    1. QUALIFY syntax: QUALIFY <window_function> <comparison_operator> <value>
-    2. SELECT clause can ONLY contain plain column references (no functions, CAST, etc.)
-    3. Window function is only allowed in the QUALIFY clause itself
+    StarRocks QUALIFY constraints:
+    - Only supports three window functions: ROW_NUMBER(), RANK(), and DENSE_RANK()
+    - Execution order: FROM → WHERE → GROUP BY → HAVING → WINDOW → QUALIFY → DISTINCT → ORDER BY → LIMIT
 
-    Valid example:
-        SELECT col1, col2 FROM table
-        QUALIFY ROW_NUMBER() OVER (PARTITION BY col1 ORDER BY col2) <= 3
-
-    Invalid example (function in SELECT):
-        SELECT col1, RANK() OVER (...) AS rank FROM table
-        QUALIFY RANK() OVER (...) <= 3
-
-    https://docs.starrocks.io/docs/sql-reference/sql-statements/data-manipulation/SELECT/
+    https://docs.starrocks.io/docs/sql-reference/sql-functions/Window_function/#qualify
     """
 
     type = "qualify_clause"
@@ -444,6 +435,7 @@ class UnorderedSelectStatementSegment(mysql.UnorderedSelectStatementSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
     Enhanced for StarRocks to include QUALIFY clause support.
+    QUALIFY is positioned after WINDOW clause per StarRocks execution order.
     """
 
     type = "select_statement"
@@ -465,7 +457,6 @@ class SelectStatementSegment(mysql.SelectStatementSegment):
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
-            Ref("NamedWindowSegment", optional=True),
             Ref("IntoClauseSegment", optional=True),
         ],
         terminators=[
