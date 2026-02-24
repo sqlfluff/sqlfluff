@@ -382,43 +382,16 @@ class Rule_CV06(BaseRule):
                     # Edge case: multiple statements without delimiters between them
                     break
 
-        # If the last statement is deeply nested (not a direct child of
-        # statement_container, e.g. BigQuery's multi_statement_segment wrapping
-        # procedures), check if there's a semicolon at the parent level.
-        if (
-            not semi_colon_exist_flag
-            and not found_last_statement
-            and statement_container is not parent_segment
-        ):
-            found_container = False
-            for seg in parent_segment.segments:
-                if seg is statement_container:
-                    found_container = True
-                elif found_container:
-                    if seg.is_type(
-                        "statement_terminator"
-                    ) and self._is_segment_semicolon(seg):
-                        semi_colon_exist_flag = True
-                        break
-                    elif seg.is_code:
-                        break
-
         if semi_colon_exist_flag:
             return None  # Semicolon already exists
 
-        # When the last statement is deeply nested, anchor at the parent level
-        # so the fix inserts the semicolon after the outermost container.
-        if not found_last_statement and statement_container is not parent_segment:
-            anchor_container = parent_segment
-        else:
-            anchor_container = statement_container
-
         # Iterate backwards over complete stack to find anchor point
-        anchor_segment = anchor_container.segments[-1]
-        trigger_segment = anchor_container.segments[-1]
+        # Start from the statement container, not the parent
+        anchor_segment = statement_container.segments[-1]
+        trigger_segment = statement_container.segments[-1]
         is_one_line = False
         before_segment = []
-        for segment in anchor_container.segments[::-1]:
+        for segment in statement_container.segments[::-1]:
             anchor_segment = segment
             if segment.is_code:
                 is_one_line = self._is_one_line_statement(
