@@ -442,6 +442,7 @@ impl<'a> Parser<'a> {
         let token_type = tables.get_string(token_type_id).to_string();
         let raw_class = tables.get_string(raw_class_id).to_string();
         let casefold = self.grammar_ctx.casefold(grammar_id);
+        let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
 
         vdebug!(
             "StringParser[table]: pos={}, template='{}', token_type='{}', raw_class='{}'",
@@ -454,17 +455,21 @@ impl<'a> Parser<'a> {
         match self.peek() {
             Some(tok) if tok.raw().eq_ignore_ascii_case(&template) && tok.is_code() => {
                 let token_pos = self.pos;
+                let mut segment_kwargs = match_result::segment_kwargs_from_token(
+                    tok,
+                    &token_type,
+                    None,
+                    casefold,
+                );
+                if let Some(grammar_tc) = grammar_trim_chars {
+                    segment_kwargs.trim_chars = Some(grammar_tc);
+                }
                 let result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(MatchedClass {
                         class_name: raw_class.clone(),
                         segment_type: Some(token_type.clone()),
-                        segment_kwargs: match_result::segment_kwargs_from_token(
-                            tok,
-                            &token_type,
-                            None,
-                            casefold,
-                        ),
+                        segment_kwargs,
                     }),
                     ..Default::default()
                 };
@@ -528,6 +533,7 @@ impl<'a> Parser<'a> {
         let token_type = tables.get_string(token_type_id).to_string();
         let raw_class = tables.get_string(raw_class_id).to_string();
         let casefold = self.grammar_ctx.casefold(grammar_id);
+        let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
 
         self.pos = frame.pos;
 
@@ -611,17 +617,21 @@ impl<'a> Parser<'a> {
 
                 // Return MatchResult with raw_class as matched_class (segment class)
                 // and computed instance_types (semantic type hierarchy)
+                let mut segment_kwargs = match_result::segment_kwargs_from_token(
+                    tok,
+                    &token_type,
+                    Some(instance_types_vec),
+                    casefold,
+                );
+                if let Some(grammar_tc) = grammar_trim_chars {
+                    segment_kwargs.trim_chars = Some(grammar_tc);
+                }
                 let match_result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(MatchedClass {
                         class_name: raw_class.clone(),
                         segment_type: Some(token_type.clone()),
-                        segment_kwargs: match_result::segment_kwargs_from_token(
-                            tok,
-                            &token_type,
-                            Some(instance_types_vec),
-                            casefold,
-                        ),
+                        segment_kwargs,
                     }),
                     ..Default::default()
                 };
@@ -707,6 +717,7 @@ impl<'a> Parser<'a> {
         };
 
         let casefold = self.grammar_ctx.casefold(grammar_id);
+        let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
 
         vdebug!(
             "MultiStringParser[table]: pos={}, templates={:?}, token_type='{}', raw_class='{}'",
@@ -736,17 +747,21 @@ impl<'a> Parser<'a> {
 
                 // PYTHON PARITY: matched_class is the raw_class (segment class name)
                 // and instance_types contains the token_type from the parser
+                let mut segment_kwargs = match_result::segment_kwargs_from_token(
+                    tok,
+                    &token_type,
+                    None,
+                    casefold,
+                );
+                if let Some(grammar_tc) = grammar_trim_chars {
+                    segment_kwargs.trim_chars = Some(grammar_tc);
+                }
                 let result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(MatchedClass {
                         class_name: raw_class.clone(),
                         segment_type: Some(token_type.clone()),
-                        segment_kwargs: match_result::segment_kwargs_from_token(
-                            tok,
-                            &token_type,
-                            None,
-                            casefold,
-                        ),
+                        segment_kwargs,
                     }),
                     ..Default::default()
                 };
@@ -987,17 +1002,22 @@ impl<'a> Parser<'a> {
                     // Return MatchResult with raw_class as matched_class
                     let token_type = token_type_opt.unwrap_or_default();
                     let casefold = self.grammar_ctx.casefold(grammar_id);
+                    let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
+                    let mut segment_kwargs = match_result::segment_kwargs_from_token(
+                        tok,
+                        &token_type,
+                        None,
+                        casefold,
+                    );
+                    if let Some(grammar_tc) = grammar_trim_chars {
+                        segment_kwargs.trim_chars = Some(grammar_tc);
+                    }
                     let result = MatchResult {
                         matched_slice: token_pos..token_pos + 1,
                         matched_class: Some(MatchedClass {
                             class_name: raw_class.clone(),
                             segment_type: Some(token_type.clone()),
-                            segment_kwargs: match_result::segment_kwargs_from_token(
-                                tok,
-                                &token_type,
-                                None,
-                                casefold,
-                            ),
+                            segment_kwargs,
                         }),
                         ..Default::default()
                     };
