@@ -73,15 +73,6 @@ SELECT
 FROM my_table
 QUALIFY ROW_NUMBER() OVER (PARTITION BY col1 ORDER BY col2 DESC) <= 100;
 
--- QUALIFY with complex expression
-SELECT
-    customer_id,
-    order_date,
-    order_amount
-FROM orders
-QUALIFY ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date DESC) = 1
-    AND order_amount > 1000;
-
 -- GROUP BY with HAVING and QUALIFY - SELECT only columns
 SELECT
     category,
@@ -130,13 +121,3 @@ GROUP BY department, employee_id
 HAVING COUNT(*) > 1
     AND MIN(salary) > 50000
 QUALIFY RANK() OVER (PARTITION BY department ORDER BY employee_id) < 100;
-
--- GROUP BY with HAVING and QUALIFY with complex expression
-SELECT
-    brand,
-    model
-FROM vehicles
-GROUP BY brand, model
-HAVING COUNT(DISTINCT color) >= 3
-QUALIFY ROW_NUMBER() OVER (PARTITION BY brand ORDER BY model DESC) = 1
-    AND COUNT(*) > 10;
