@@ -1239,6 +1239,7 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 Ref("StringAggFunctionNameSegment"),
                 Ref("StringAggFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
             ),
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone
