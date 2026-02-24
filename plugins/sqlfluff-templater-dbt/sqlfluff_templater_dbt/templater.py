@@ -574,6 +574,17 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
+            # Fallback: try symlink resolution for dbt local packages.
+            # dbt deps creates symlinks (e.g., dbt_packages/my_pkg -> packages/my_pkg)
+            # and records the symlink path in the manifest. When the input file is
+            # specified via the real path, the selector above finds nothing. Resolve
+            # both sides to handle the mismatch.
+            for uid, node in self.dbt_manifest.nodes.items():
+                if (Path(dbt_dir) / node.original_file_path).resolve() == abs_path:
+                    results = [node]
+                    break
+
+        if not results:
             skip_reason = self._find_skip_reason(abs_path)
             if skip_reason:
                 raise SQLFluffSkipFile(
@@ -676,6 +687,10 @@ class DbtTemplater(JinjaTemplater):
         # NOTE: _find_node will raise a compilation exception if the project
         # fails to compile, and we catch that in the outer `.process()` method.
         node = self._find_node(fname, config, dbt_dir)
+        # Use the node's original_file_path for the from_string comparison below.
+        # This handles symlinked paths (e.g., dbt local packages) where fname
+        # may differ from what the manifest records.
+        original_file_path = node.original_file_path
 
         templater_logger.debug(
             "_find_node for path %r returned object of type %s.", fname, type(node)
