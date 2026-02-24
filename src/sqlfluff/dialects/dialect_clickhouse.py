@@ -1461,15 +1461,43 @@ class CreateViewStatementSegment(BaseSegment):
 
     type = "create_view_statement"
 
+    _view_column_list = Bracketed(
+        Delimited(Ref("SingleIdentifierGrammar")),
+        optional=True,
+    )
+    _definer_clause = Sequence(
+        "DEFINER",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            "CURRENT_USER",
+        ),
+        optional=True,
+    )
+    _sql_security_clause = Sequence(
+        "SQL",
+        "SECURITY",
+        # NOTE: "NONE" is deprecated but still accepted by ClickHouse.
+        OneOf("DEFINER", "INVOKER", "NONE"),
+        optional=True,
+    )
+
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        _view_column_list,
         Ref("OnClusterClauseSegment", optional=True),
+        _definer_clause,
+        _sql_security_clause,
         "AS",
-        Ref("SelectableGrammar"),
+        Ref(
+            "SelectableGrammar",
+            terminators=[Sequence("COMMENT", Ref("QuotedLiteralSegment"))],
+        ),
+        Ref("CommentClauseSegment", optional=True),
         Ref("TableEndClauseSegment", optional=True),
     )
 
@@ -1481,6 +1509,23 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
     """
 
     type = "create_materialized_view_statement"
+
+    _definer_clause = Sequence(
+        "DEFINER",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            "CURRENT_USER",
+        ),
+        optional=True,
+    )
+    _sql_security_clause = Sequence(
+        "SQL",
+        "SECURITY",
+        # NOTE: "NONE" is deprecated but still accepted by ClickHouse.
+        OneOf("DEFINER", "NONE"),
+        optional=True,
+    )
 
     match_grammar = Sequence(
         "CREATE",
@@ -1520,9 +1565,127 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
                 Sequence("POPULATE", optional=True),
             ),
         ),
+        _definer_clause,
+        _sql_security_clause,
         "AS",
-        Ref("SelectableGrammar"),
+        Ref(
+            "SelectableGrammar",
+            terminators=[Sequence("COMMENT", Ref("QuotedLiteralSegment"))],
+        ),
+        Ref("CommentClauseSegment", optional=True),
         Ref("TableEndClauseSegment", optional=True),
+    )
+
+
+class CreateDictionaryStatementSegment(BaseSegment):
+    """A `CREATE DICTIONARY` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/create/dictionary
+    """
+
+    type = "create_dictionary_statement"
+
+    _dictionary_attribute = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("DatatypeSegment"),
+        Sequence(
+            OneOf("DEFAULT", "EXPRESSION"),
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+        AnySetOf(
+            "IS_OBJECT_ID",
+            "HIERARCHICAL",
+            "INJECTIVE",
+            optional=True,
+        ),
+    )
+    _dictionary_parameter = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+            Ref("BooleanLiteralGrammar"),
+            Ref("NakedIdentifierSegment"),
+        ),
+    )
+    _dictionary_parameter_list = AnyNumberOf(
+        _dictionary_parameter,
+        min_times=1,
+        optional=True,
+    )
+    _dictionary_parameters = Bracketed(
+        _dictionary_parameter_list,
+    )
+    _dictionary_function = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        _dictionary_parameters,
+    )
+    _dictionary_source_clause = Sequence(
+        "SOURCE",
+        Bracketed(
+            _dictionary_function,
+        ),
+    )
+    _dictionary_layout_clause = Sequence(
+        "LAYOUT",
+        Bracketed(
+            _dictionary_function,
+        ),
+    )
+    _dictionary_lifetime_clause = Sequence(
+        "LIFETIME",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    "MIN",
+                    Ref("NumericLiteralSegment"),
+                    "MAX",
+                    Ref("NumericLiteralSegment"),
+                ),
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
+        optional=True,
+    )
+    _dictionary_settings_clause = Sequence(
+        "SETTINGS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("NumericLiteralSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                ),
+            ),
+        ),
+        optional=True,
+    )
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "DICTIONARY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        Bracketed(
+            Delimited(
+                _dictionary_attribute,
+            ),
+        ),
+        "PRIMARY",
+        "KEY",
+        Delimited(Ref("SingleIdentifierGrammar")),
+        _dictionary_source_clause,
+        _dictionary_layout_clause,
+        _dictionary_lifetime_clause,
+        _dictionary_settings_clause,
+        Ref("CommentClauseSegment", optional=True),
     )
 
 
@@ -2371,6 +2534,7 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CreateUserStatementSegment"),
+            Ref("CreateDictionaryStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("DropDictionaryStatementSegment"),
             Ref("DropQuotaStatementSegment"),
