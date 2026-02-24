@@ -70,6 +70,16 @@ CREATE MATERIALIZED VIEW filtered_mv
 WITH ROW FILTER row_filter_func ON (department, salary)
 AS SELECT * FROM employees;
 
+-- ROW FILTER with a schema-qualified function and a literal argument
+CREATE MATERIALIZED VIEW filtered_literal_mv
+WITH ROW FILTER my_schema.my_filter ON (department, 'ACTIVE')
+AS SELECT * FROM employees;
+
+-- ROW FILTER with empty column list (zero-parameter UDF)
+CREATE MATERIALIZED VIEW filtered_empty_mv
+WITH ROW FILTER my_schema.my_filter ON ()
+AS SELECT * FROM employees;
+
 CREATE OR REPLACE MATERIALIZED VIEW comprehensive_mv (
     id INT NOT NULL,
     region STRING,
@@ -106,3 +116,18 @@ CREATE OR REFRESH PRIVATE MATERIALIZED VIEW dlt_refresh_private_mat_view (
 )
 COMMENT 'DLT refreshed private materialized view'
 AS SELECT a, b FROM live.dlt_bronze;
+
+CREATE OR REPLACE MATERIALIZED VIEW view1
+(
+    col1 BIGINT,
+    col2 STRING,
+    col3 BOOLEAN,
+    CONSTRAINT pk_view1 PRIMARY KEY (col1),
+    CONSTRAINT fk_view1_table1 FOREIGN KEY (col2) REFERENCES table1 (col2)
+)
+AS
+SELECT
+    col1,
+    col2,
+    col3
+FROM source_table;

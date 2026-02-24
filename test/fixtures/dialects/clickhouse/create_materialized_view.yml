@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 13787818f29237f6320c00fa239f0cf7be43cbfbe558b40b5c96fc6e3fd77fc9
+_hash: 3782eb6e30fd4124b40aed397c8745b7162aade8d8851c4e8b749f53eace7823
 file:
 - statement:
     create_materialized_view_statement:
@@ -1393,4 +1393,100 @@ file:
             comparison_operator:
               raw_comparison_operator: '>'
             numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: secure_mv
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: mycluster
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: secure_target
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: event_date
+      - comma: ','
+      - naked_identifier: user_id
+      - comma: ','
+      - naked_identifier: revenue
+      - end_bracket: )
+    - keyword: DEFINER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: CURRENT_USER
+    - keyword: SQL
+    - keyword: SECURITY
+    - keyword: DEFINER
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: toDate
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: event_time
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: event_date
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: user_id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: amount
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: revenue
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: events
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: event_date
+        - comma: ','
+        - column_reference:
+            naked_identifier: user_id
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Materialized view with security options'"
 - statement_terminator: ;

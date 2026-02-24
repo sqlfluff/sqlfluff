@@ -73,6 +73,13 @@ class Rule_ST09(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"from_expression"})
     is_fix_compatible = True
 
+    # Operators that are either commutative (can swap sides without change) or
+    # have known inverses (swap sides and flip operator). Directional operators
+    # such as ~ (PostgreSQL regex match) are not included and will be ignored.
+    _REORDERABLE_OPERATORS: frozenset[str] = frozenset(
+        {"=", "!=", "<>", "<=>", "<", ">", "<=", ">="}
+    )
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Find rule violations and provide fixes.
 
@@ -193,6 +200,19 @@ class Rule_ST09(BaseRule):
             raw_comparison_operators = comparison_operator.get_children(
                 "raw_comparison_operator"
             )
+
+            # Skip operators that cannot be safely reordered. Build the
+            # operator string from raw_comparison_operator children if
+            # present, otherwise fall back to the comparison_operator raw
+            # value (e.g. for ~ or <=> which have no raw_comparison_operator
+            # children).
+            operator_str = (
+                "".join(r.raw for r in raw_comparison_operators)
+                if raw_comparison_operators
+                else comparison_operator.raw.strip()
+            )
+            if operator_str not in self._REORDERABLE_OPERATORS:
+                continue
 
             first_table_seg = first_column_reference.get_child(
                 "naked_identifier", "quoted_identifier"

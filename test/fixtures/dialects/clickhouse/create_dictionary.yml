@@ -1,0 +1,139 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e6d154272c3b76cfe94b6c47aac1aaada12c4736c349664bbf242f43b3c499f8
+file:
+  statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DICTIONARY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: analytics
+      - dot: .
+      - naked_identifier: dict_countries
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: mycluster
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: country_code
+      - data_type:
+          data_type_identifier: String
+      - keyword: DEFAULT
+      - expression:
+          quoted_literal: "''"
+      - keyword: IS_OBJECT_ID
+      - comma: ','
+      - naked_identifier: country_id
+      - data_type:
+          data_type_identifier: UInt64
+      - comma: ','
+      - naked_identifier: country_name
+      - data_type:
+          data_type_identifier: String
+      - keyword: DEFAULT
+      - expression:
+          quoted_literal: "'UNKNOWN'"
+      - comma: ','
+      - naked_identifier: country_name_lower
+      - data_type:
+          data_type_identifier: String
+      - keyword: EXPRESSION
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: lower
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: country_name
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: region
+      - data_type:
+          data_type_identifier: String
+      - comma: ','
+      - naked_identifier: parent_code
+      - data_type:
+          data_type_identifier: String
+      - keyword: DEFAULT
+      - expression:
+          quoted_literal: "''"
+      - keyword: HIERARCHICAL
+      - comma: ','
+      - naked_identifier: is_active
+      - data_type:
+          data_type_identifier: UInt8
+      - keyword: DEFAULT
+      - expression:
+          numeric_literal: '1'
+      - keyword: INJECTIVE
+      - end_bracket: )
+    - keyword: PRIMARY
+    - keyword: KEY
+    - naked_identifier: country_code
+    - comma: ','
+    - naked_identifier: country_id
+    - keyword: SOURCE
+    - bracketed:
+        start_bracket: (
+        naked_identifier: CLICKHOUSE
+        bracketed:
+        - start_bracket: (
+        - naked_identifier: HOST
+        - quoted_literal: "'localhost'"
+        - naked_identifier: PORT
+        - numeric_literal: '9000'
+        - naked_identifier: USER
+        - quoted_literal: "'default'"
+        - naked_identifier: PASSWORD
+        - quoted_literal: "'<PASSWORD>'"
+        - naked_identifier: TABLE
+        - quoted_literal: "'dim_countries'"
+        - naked_identifier: DB
+        - quoted_literal: "'analytics'"
+        - end_bracket: )
+        end_bracket: )
+    - keyword: LAYOUT
+    - bracketed:
+        start_bracket: (
+        naked_identifier: HASHED
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+        end_bracket: )
+    - keyword: LIFETIME
+    - bracketed:
+      - start_bracket: (
+      - keyword: MIN
+      - numeric_literal: '300'
+      - keyword: MAX
+      - numeric_literal: '600'
+      - end_bracket: )
+    - keyword: SETTINGS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: min_idle_time
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '10'
+      - comma: ','
+      - naked_identifier: max_block_size
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '10000'
+      - end_bracket: )
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Country dictionary with defaults and expressions'"
+  statement_terminator: ;

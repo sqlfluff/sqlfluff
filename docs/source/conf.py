@@ -32,7 +32,7 @@ stable_version = config.get("tool.sqlfluff_docs", "stable_version")
 # -- Project information -----------------------------------------------------
 
 project = "SQLFluff"
-copyright = "2024, Alan Cruickshank"
+copyright = "2018-2026, Alan Cruickshank"
 author = "Alan Cruickshank"
 
 # The full version, including alpha/beta/rc tags

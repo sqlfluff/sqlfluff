@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 81e016a9a7a3cf97a83fb36eff4e6debb60c74711505115cf67d987d439462ad
+_hash: cb4449e3f689b62380dcd9908fb116858f0f3ac98cd9491e6a4752d08018c65f
 file:
 - statement:
     create_materialized_view_statement:
@@ -593,8 +593,8 @@ file:
     - keyword: WITH
     - keyword: ROW
     - keyword: FILTER
-    - function_name:
-        function_name_identifier: row_filter_func
+    - object_reference:
+        naked_identifier: row_filter_func
     - keyword: 'ON'
     - bracketed:
       - start_bracket: (
@@ -604,6 +604,79 @@ file:
       - column_reference:
           naked_identifier: salary
       - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: filtered_literal_mv
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: FILTER
+    - object_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_filter
+    - keyword: 'ON'
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: department
+      - comma: ','
+      - column_reference:
+          quoted_identifier: "'ACTIVE'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: filtered_empty_mv
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: FILTER
+    - object_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_filter
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
     - keyword: AS
     - select_statement:
         select_clause:
@@ -907,4 +980,91 @@ file:
                 - naked_identifier: live
                 - dot: .
                 - naked_identifier: dlt_bronze
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: col1
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: col2
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: col3
+          data_type:
+            primitive_type:
+              keyword: BOOLEAN
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: pk_view1
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: fk_view1_table1
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col2
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: table1
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col2
+            end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col3
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
 - statement_terminator: ;

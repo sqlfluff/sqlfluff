@@ -111,6 +111,16 @@ duckdb_dialect.add(
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
     EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
     UnpackingOperatorSegment=TypedParser("star", SymbolSegment, "unpacking_operator"),
+    # DuckDB math operators
+    PowerOperatorSegment=TypedParser(
+        "power_operator", SymbolSegment, type="binary_operator"
+    ),
+    AbsoluteValueOperatorSegment=TypedParser(
+        "at", SymbolSegment, type="sign_indicator"
+    ),
+    FactorialOperatorSegment=TypedParser(
+        "not", SymbolSegment, type="factorial_operator"
+    ),
 )
 
 duckdb_dialect.replace(
@@ -200,6 +210,27 @@ duckdb_dialect.replace(
             Ref("ColumnReferenceSegment"),
         ),
     ),
+    # Add DuckDB math operators
+    ArithmeticBinaryOperatorGrammar=postgres_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("PowerOperatorSegment"),
+        ]
+    ),
+    # Add @ prefix operator for absolute value
+    Expression_A_Unary_Operator_Grammar=postgres_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(
+        insert=[
+            Ref("AbsoluteValueOperatorSegment"),
+        ]
+    ),
+    # Add postfix factorial operator support
+    Expression_C_Grammar=Sequence(
+        postgres_dialect.get_grammar("Expression_C_Grammar"),
+        Ref("FactorialOperatorSegment", optional=True),
+    ),
     ComparisonOperatorGrammar=ansi_dialect.get_grammar(
         "ComparisonOperatorGrammar"
     ).copy(
@@ -217,11 +248,39 @@ duckdb_dialect.replace(
             Sequence(Ref.keyword("WHERE", optional=True), Ref("ExpressionSegment"))
         ),
     ),
+    BaseExpressionElementGrammar=OneOf(
+        postgres_dialect.get_grammar("BaseExpressionElementGrammar"),
+        Ref("ColumnIndexSegment"),
+    ),
+)
+
+# Patch lexers before adding segments
+duckdb_dialect.patch_lexer_matchers(
+    [
+        # Remove @ from postgis_operator regex since
+        # we use it for absolute value
+        # Maybe even the postgres version is strange,
+        # as postgis operators shouldn't use @ either?
+        RegexLexer(
+            "postgis_operator",
+            r"\&\&\&|\&<\||<<\||\|\&>|\|>>|\~=|<\->|\|=\||<\#>|<<\->>|<<\#>>",
+            SymbolSegment,
+        ),
+    ]
+)
+
+duckdb_dialect.insert_lexer_matchers(
+    [
+        StringLexer("power_operator", "**", CodeSegment),
+    ],
+    before="star",
 )
 
 duckdb_dialect.insert_lexer_matchers(
     [
         StringLexer("double_divide", "//", CodeSegment),
+        # Column indexes: #1, #2, etc.
+        RegexLexer("column_index", r"#[0-9]+", CodeSegment),
     ],
     before="divide",
 )
@@ -282,6 +341,21 @@ class IntervalExpressionSegment(BaseSegment):
                 Ref("DatetimeUnitSegment"),
             ),
         ),
+    )
+
+
+class ColumnIndexSegment(BaseSegment):
+    """Column index reference using positional syntax.
+
+    DuckDB allows referencing columns by their position using #<number> syntax.
+    https://duckdb.org/docs/stable/sql/statements/select
+    """
+
+    type = "column_index"
+    match_grammar = TypedParser(
+        "column_index",
+        CodeSegment,
+        type="column_index",
     )
 
 

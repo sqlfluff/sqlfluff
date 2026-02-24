@@ -1,0 +1,427 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8dea4678495c263a3b79da5700c45145edbe1d8659149dea55f66314a682a7b3
+file:
+  batch:
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: INPUTBUFFER
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '52'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: SHOWCONTIG
+      - bracketed:
+          start_bracket: (
+          single_quote: "'HumanResources.Employee'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: SHOWCONTIG
+      - bracketed:
+        - start_bracket: (
+        - atsign: '@id'
+        - comma: ','
+        - atsign: '@indid'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: SHOWCONTIG
+      - bracketed:
+          start_bracket: (
+          single_quote: "'Production.Product'"
+          comma: ','
+          numeric_literal: '1'
+          end_bracket: )
+      - keyword: WITH
+      - keyword: FAST
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: SHOWCONTIG
+      - keyword: WITH
+      - keyword: TABLERESULTS
+      - comma: ','
+      - keyword: ALL_INDEXES
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: OPENTRAN
+      - keyword: WITH
+      - keyword: TABLERESULTS
+      - comma: ','
+      - keyword: NO_INFOMSGS
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: OPENTRAN
+      - bracketed:
+          start_bracket: (
+          word: AdventureWorks2022
+          end_bracket: )
+      - keyword: WITH
+      - keyword: TABLERESULTS
+      - comma: ','
+      - keyword: NO_INFOMSGS
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: OUTPUTBUFFER
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '52'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: PROCCACHE
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: SHOW_STATISTICS
+      - bracketed:
+          start_bracket: (
+          double_quote: '"Person.Address"'
+          comma: ','
+          word: AK_Address_rowguid
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: SHOW_STATISTICS
+      - bracketed:
+          start_bracket: (
+          double_quote: '"dbo.DimCustomer"'
+          comma: ','
+          word: Customer_LastName
+          end_bracket: )
+      - keyword: WITH
+      - keyword: HISTOGRAM
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: SQLPERF
+      - bracketed:
+          start_bracket: (
+          double_quote: '"sys.dm_os_wait_stats"'
+          comma: ','
+          word: CLEAR
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: TRACESTATUS
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '2528'
+        - comma: ','
+        - numeric_literal: '3205'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: USEROPTIONS
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CHECKALLOC
+      - bracketed:
+          start_bracket: (
+          word: AdventureWorks2022
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CHECKCATALOG
+      - bracketed:
+          start_bracket: (
+          word: AdventureWorks2022
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CHECKCONSTRAINTS
+      - bracketed:
+          start_bracket: (
+          word: Table1
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CHECKCONSTRAINTS
+      - keyword: WITH
+      - keyword: ALL_CONSTRAINTS
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CHECKDB
+      - bracketed:
+        - start_bracket: (
+        - word: AdventureWorks2022
+        - comma: ','
+        - word: NOINDEX
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CHECKFILEGROUP
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          end_bracket: )
+      - keyword: WITH
+      - keyword: ESTIMATEONLY
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CHECKIDENT
+      - bracketed:
+          start_bracket: (
+          single_quote: "'Person.AddressType'"
+          comma: ','
+          word: NORESEED
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CHECKTABLE
+      - bracketed:
+          start_bracket: (
+          single_quote: "'Production.Product'"
+          comma: ','
+          atsign: '@indid'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CHECKTABLE
+      - bracketed:
+          start_bracket: (
+          single_quote: "'HumanResources.Employee'"
+          end_bracket: )
+      - keyword: WITH
+      - keyword: EXTENDED_LOGICAL_CHECKS
+      - comma: ','
+      - keyword: PHYSICAL_ONLY
+      - comma: ','
+      - keyword: TABLOCK
+      - comma: ','
+      - keyword: ESTIMATEONLY
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CHECKDB
+      - bracketed:
+          start_bracket: (
+          word: AdventureWorks2022
+          end_bracket: )
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
+      - comma: ','
+      - keyword: MAXDOP
+      - raw_comparison_operator: '='
+      - integer_literal: '8'
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CLEANTABLE
+      - bracketed:
+        - start_bracket: (
+        - word: AdventureWorks2022
+        - comma: ','
+        - single_quote: "'Production.Document'"
+        - comma: ','
+        - numeric_literal: '0'
+        - end_bracket: )
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: DBREINDEX
+      - bracketed:
+        - start_bracket: (
+        - single_quote: "'HumanResources.Employee'"
+        - comma: ','
+        - word: PK_Employee_BusinessEntityID
+        - comma: ','
+        - numeric_literal: '80'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: DROPCLEANBUFFERS
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: FREEPROCCACHE
+      - bracketed:
+          start_bracket: (
+          single_quote: "'default'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: INDEXDEFRAG
+      - bracketed:
+        - start_bracket: (
+        - word: AdventureWorks2022
+        - comma: ','
+        - single_quote: "'Production.Product'"
+        - comma: ','
+        - word: PK_Product_ProductID
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: SHRINKDATABASE
+      - bracketed:
+        - start_bracket: (
+        - word: AdventureWorks2022
+        - comma: ','
+        - word: TRUNCATEONLY
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: SHRINKFILE
+      - bracketed:
+          start_bracket: (
+          word: DataFile1
+          comma: ','
+          numeric_literal: '7'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: UPDATEUSAGE
+      - bracketed:
+          start_bracket: (
+          word: AdventureWorks2022
+          comma: ','
+          single_quote: "'HumanResources.Employee'"
+          end_bracket: )
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
+      - comma: ','
+      - keyword: COUNT_ROWS
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: FLUSHAUTHCACHE
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: TRACEOFF
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '3205'
+        - comma: ','
+        - numeric_literal: '260'
+        - comma: ','
+        - minus: '-'
+        - numeric_literal: '1'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: TRACEON
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '3205'
+        - comma: ','
+        - minus: '-'
+        - numeric_literal: '1'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: FREESESSIONCACHE
+      - keyword: WITH
+      - keyword: NO_INFOMSGS
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: FREESYSTEMCACHE
+      - bracketed:
+          start_bracket: (
+          single_quote: "'ALL'"
+          end_bracket: )
+      - keyword: WITH
+      - keyword: MARK_IN_USE_FOR_REMOVAL
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: CLONEDATABASE
+      - bracketed:
+        - start_bracket: (
+        - word: AdventureWorks2022
+        - comma: ','
+        - word: AdventureWorks_Clone
+        - end_bracket: )
+      - keyword: WITH
+      - keyword: NO_STATISTICS
+      - comma: ','
+      - keyword: NO_QUERYSTORE
+  - statement_terminator: ;
+  - statement:
+      dbcc_statement:
+      - keyword: DBCC
+      - keyword: HELP
+      - bracketed:
+          start_bracket: (
+          single_quote: "'CHECKDB'"
+          end_bracket: )
+  - statement_terminator: ;

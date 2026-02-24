@@ -3,7 +3,7 @@
 SQLFluff Slack
 ==============
 
-We have a fast-growing `community on Slack <https://join.slack.com/t/sqlfluff/shared_invite/zt-2qtu36kdt-OS4iONPbQ3aCz2DIbYJdWg>`_, come and join us!
+We have a fast-growing `community on Slack <https://join.slack.com/t/sqlfluff/shared_invite/zt-3qprhrisj-ClUo_1tLmYBzrVu5ZoDwIw>`_, come and join us!
 
 
 SQLFluff on Twitter

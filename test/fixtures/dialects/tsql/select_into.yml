@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 571e816a81663534057907cc5669e5ee844180a98182353e94f101aca0e2c5c4
+_hash: b7f7c60e693c476e5041bf0082bbdc7227e05bdf187835b1eb2ac38c06b7f88b
 file:
   batch:
-    statement:
+  - statement:
       select_statement:
         select_clause:
         - keyword: SELECT
@@ -58,3 +58,72 @@ file:
         - comma: ','
         - column_reference:
             quoted_identifier: '[Date]'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            keyword: identity
+            bracketed:
+            - start_bracket: (
+            - data_type:
+                keyword: int
+            - comma: ','
+            - sign_indicator: '-'
+            - numeric_literal: '1'
+            - comma: ','
+            - sign_indicator: '-'
+            - numeric_literal: '1'
+            - end_bracket: )
+            alias_expression:
+              naked_identifier: ID
+        into_table_clause:
+          keyword: INTO
+          object_reference:
+            hash_identifier: '#temp'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: sys
+                - dot: .
+                - naked_identifier: objects
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            keyword: identity
+            bracketed:
+              start_bracket: (
+              data_type:
+                keyword: int
+              end_bracket: )
+            alias_expression:
+              naked_identifier: ID
+        into_table_clause:
+          keyword: INTO
+          object_reference:
+            hash_identifier: '#temp2'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: sys
+                - dot: .
+                - naked_identifier: objects
+  - statement_terminator: ;

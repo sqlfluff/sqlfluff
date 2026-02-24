@@ -137,3 +137,5 @@ EXECUTE Production.ProductList '%tire%' WITH RESULT SETS
 
 -- Use EXECUTE with AT DATA_SOURCE data_source_name to query a remote SQL Server
 EXECUTE ( 'SELECT @@SERVERNAME' ) AT DATA_SOURCE my_sql_server;
+
+EXECUTE ('sp_who2') AS USER = 'dbo' WITH RESULT SETS UNDEFINED;

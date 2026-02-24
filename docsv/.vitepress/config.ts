@@ -117,7 +117,8 @@ export default defineConfig({
         socialLinks: [
             { icon: 'github', link: 'https://github.com/sqlfluff/sqlfluff' },
             { icon: 'twitter', link: 'https://twitter.com/sqlfluff' },
-            { icon: 'slack', link: 'https://join.slack.com/t/sqlfluff/shared_invite/zt-2qtu36kdt-OS4iONPbQ3aCz2DIbYJdWg' },
+            { icon: 'bluesky', link: 'https://bsky.app/profile/sqlfluff.com' },
+            { icon: 'slack', link: 'https://join.slack.com/t/sqlfluff/shared_invite/zt-3qprhrisj-ClUo_1tLmYBzrVu5ZoDwIw' },
         ],
 
         editLink: {
@@ -127,7 +128,7 @@ export default defineConfig({
 
         footer: {
             message: 'Released under the MIT License.',
-            copyright: 'Copyright © 2025 SQLFluff Contributors'
+            copyright: 'Copyright © 2026 SQLFluff Contributors'
         }
     },
 

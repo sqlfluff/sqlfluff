@@ -1,0 +1,68 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 37c44e6507ecb3165cbda89308dbc41aeb8489162ba2a855f8c9f6150920b6eb
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_index:
+            column_index: '#1'
+      - comma: ','
+      - select_clause_element:
+          column_index:
+            column_index: '#3'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_index:
+            column_index: '#1'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: first_col
+      - comma: ','
+      - select_clause_element:
+          column_index:
+            column_index: '#2'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: second_col
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_index:
+            column_index: '#1'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: data
+- statement_terminator: ;

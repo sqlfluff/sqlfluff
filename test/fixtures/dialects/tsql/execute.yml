@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 15b04386989a9df620cbc8c8996fb3fe4f11b2981a3869f5e82e81681cf6253a
+_hash: 9345daec21a584bb050cecc837df2cc90f54910647c4d2e27d910c059d22991c
 file:
 - batch:
   - statement:
@@ -794,4 +794,22 @@ file:
       - keyword: DATA_SOURCE
       - object_reference:
           naked_identifier: my_sql_server
+  - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXECUTE
+      - bracketed:
+          start_bracket: (
+          quoted_literal: "'sp_who2'"
+          end_bracket: )
+      - login_user_segment:
+        - keyword: AS
+        - keyword: USER
+        - raw_comparison_operator: '='
+        - quoted_literal: "'dbo'"
+      - keyword: WITH
+      - execute_option:
+        - keyword: RESULT
+        - keyword: SETS
+        - keyword: UNDEFINED
   - statement_terminator: ;
