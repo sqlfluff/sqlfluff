@@ -62,9 +62,8 @@ class Rule_LT15(BaseRule):
             # If directly inside a with_compound_statement (between CTEs or between
             # the last CTE and the main query), use between_statements limit to avoid
             # conflicts with LT08 which requires blank lines after CTEs.
-            if (
-                context.parent_stack
-                and context.parent_stack[-1].is_type("with_compound_statement")
+            if context.parent_stack and context.parent_stack[-1].is_type(
+                "with_compound_statement"
             ):
                 maximum_empty_lines = self.maximum_empty_lines_between_statements
             else:
