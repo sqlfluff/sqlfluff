@@ -1843,7 +1843,7 @@ def lint_indent_points(
                 next_elem = elem_buffer[i + 1] if i + 1 < len(elem_buffer) else None
                 if isinstance(next_elem, ReflowBlock):
                     stack_types = next_elem.depth_info.stack_class_types
-                else:
+                else:  # pragma: no cover
                     stack_types = ()
                 if stack_types and any(
                     skip_implicit_indents_in.intersection(types)
