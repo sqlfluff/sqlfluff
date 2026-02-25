@@ -1989,6 +1989,7 @@ test_require_implicit_indents_case:
   configs:
     indentation:
       implicit_indents: require
+      skip_implicit_indents_in: ""
 
 test_skip_implicit_indents_allow:
   # skip_implicit_indents_in has no effect when implicit_indents = allow.
