@@ -118,7 +118,9 @@ class ReflowConfig:
             hanging_indents=config.get("hanging_indents", ["indentation"]),
             max_line_length=config.get("max_line_length"),
             skip_indentation_in=frozenset(
-                config.get("skip_indentation_in", ["indentation"]).split(",")
+                split_comma_separated_string(
+                    config.get("skip_indentation_in", ["indentation"])
+                )
             ),
             skip_implicit_indents_in=frozenset(
                 split_comma_separated_string(
