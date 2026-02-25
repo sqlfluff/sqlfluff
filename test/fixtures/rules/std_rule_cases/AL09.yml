@@ -22,6 +22,19 @@ test_pass_no_self_alias_tsql:
             dialect: tsql
 
 
+test_pass_tsql_assignment_alias_different_case:
+    # Test that T-SQL assignment alias syntax with different casing doesn't
+    # trigger an ambiguous self-alias violation. ID = Orders.id is NOT a
+    # self-alias - it's the idiomatic T-SQL way to name a column.
+    pass_str: |
+        SELECT
+            ID = Orders.id
+            ,CustomerName = Orders.customer_name
+        FROM
+            dbo.Orders AS Orders
+    configs: *tsql_dialect
+
+
 test_pass_no_self_alias_tsql_no_spaces:
     # Test that the rule passes when there's no self alias.
     pass_str: |

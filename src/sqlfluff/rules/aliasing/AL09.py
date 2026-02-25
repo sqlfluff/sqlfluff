@@ -203,8 +203,12 @@ class Rule_AL09(BaseRule):
             # i.e. did they mean to change the case (and so the correct
             # resolution is quoting), or did they mistakenly add an unnecessary
             # alias?
+            # NOTE: T-SQL assignment alias syntax (alias = expression) is
+            # excluded here because it's an explicit, idiomatic way to name
+            # columns in T-SQL, and the case difference is intentional.
             elif (
-                context.dialect.name not in case_sensitive_dialects
+                alias_keyword_raw != "="
+                and context.dialect.name not in case_sensitive_dialects
                 and column_identifier.is_type("naked_identifier")
                 and alias_identifier is not None
                 and alias_identifier.is_type("naked_identifier")
