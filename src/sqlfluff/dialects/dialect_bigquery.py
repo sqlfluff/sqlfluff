@@ -1231,10 +1231,12 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 Ref("ArrayAggFunctionNameSegment"),
                 Ref("ArrayAggFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
             ),
             Sequence(
                 Ref("ArrayConcatAggFunctionNameSegment"),
                 Ref("ArrayConcatAggFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
             ),
             Sequence(
                 Ref("StringAggFunctionNameSegment"),
