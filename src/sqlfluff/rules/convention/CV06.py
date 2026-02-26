@@ -90,19 +90,6 @@ class Rule_CV06(BaseRule):
                 return not self._is_segment_semicolon(last_terminator)
         return False
 
-    def _statement_has_trailing_semicolon(self, statement_segment: BaseSegment) -> bool:
-        """Return whether a statement ends with a semicolon.
-
-        This intentionally checks only the trailing raw code segment of the
-        statement to avoid incorrectly treating nested semicolons (e.g. inside
-        a procedure body) as the statement terminator.
-        """
-        for seg in reversed(statement_segment.raw_segments):
-            if seg.is_type("whitespace", "newline"):
-                continue
-            return self._is_segment_semicolon(seg)
-        return False
-
     @staticmethod
     def _handle_preceding_inline_comments(
         before_segment: Sequence[BaseSegment], anchor_segment: BaseSegment
@@ -384,7 +371,9 @@ class Rule_CV06(BaseRule):
 
         # Check if there's a semicolon terminator after the last statement
         # or if the last statement itself ends with a semicolon.
-        semi_colon_exist_flag = self._statement_has_trailing_semicolon(last_statement)
+        semi_colon_exist_flag = bool(
+            last_statement.raw_segments
+        ) and self._is_segment_semicolon(last_statement.raw_segments[-1])
 
         found_last_statement = False
         for seg in statement_container.segments:

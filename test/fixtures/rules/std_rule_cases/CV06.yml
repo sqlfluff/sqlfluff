@@ -47,6 +47,13 @@ test_fail_no_semi_colon_custom_require:
       convention.terminator:
         require_final_semicolon: true
 
+test_pass_final_semicolon_with_trailing_whitespace_custom_require:
+  pass_str: "SELECT a FROM foo;\t"
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
 test_fail_no_semi_colon_custom_require_oneline:
   fail_str: |
     SELECT a FROM foo
