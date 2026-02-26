@@ -59,7 +59,15 @@ class Rule_LT15(BaseRule):
         # Determine the appropriate maximum based on context
         # Check if we're inside a statement first (highest priority)
         if any(seg.is_type("statement") for seg in context.parent_stack):
-            maximum_empty_lines = self.maximum_empty_lines_inside_statements
+            # If directly inside a with_compound_statement (between CTEs or between
+            # the last CTE and the main query), use between_statements limit to avoid
+            # conflicts with LT08 which requires blank lines after CTEs.
+            if context.parent_stack and context.parent_stack[-1].is_type(
+                "with_compound_statement"
+            ):
+                maximum_empty_lines = self.maximum_empty_lines_between_statements
+            else:
+                maximum_empty_lines = self.maximum_empty_lines_inside_statements
         # Check if we're inside a batch but not in a statement
         elif any(seg.is_type("batch") for seg in context.parent_stack):
             # Inside a batch (between statements in a batch)
