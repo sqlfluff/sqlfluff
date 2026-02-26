@@ -660,7 +660,6 @@ class MultiStatementSegment(BaseSegment):
         Ref("WhileStatementSegment"),
         Ref("LoopStatementSegment"),
         Ref("IfStatementSegment"),
-        Ref("CreateProcedureStatementSegment"),
         Ref("BeginStatementSegment"),
     )
 
@@ -719,6 +718,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
+            Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("UndropSchemaStatementSegment"),
             Ref("AlterOrganizationStatementSegment"),
