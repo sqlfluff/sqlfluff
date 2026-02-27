@@ -205,22 +205,12 @@ impl Parser<'_> {
                 );
                 if let Ok(end_pos) = self.try_match_grammar_table_driven(term_id, i, terminators) {
                     if end_pos > i {
-                        // PYTHON PARITY: In Python's greedy_match(), after finding a match
-                        // the matcher's simple() result is checked:
-                        //   `if all(_s.isalpha() for _s in _strings) and not _types`
-                        // If all strings are alphabetical and there are no token-type hints,
-                        // whitespace before the match is required.
-                        //
-                        // In Python this is rarely triggered for compound terminators like
-                        // SelectClauseTerminatorGrammar (which includes "(", making it non-all-alpha)
-                        // because Python's StringParser type-gates: a `word`-type token `from`
-                        // never matches StringParser("FROM") which requires `keyword` type.
-                        //
-                        // In Rust, StringParser does not type-gate today, so `from` (word type)
-                        // incorrectly matches. We compensate with this whitespace check:
-                        // if the token is all-alpha and has no preceding whitespace, reject
-                        // it for all non-TypedParser terminators (TypedParser matches by type,
-                        // not by raw string, so it's exempt — matching Python's `not _types`).
+                        // If the matched terminator is a simple all-alphabetic token and the
+                        // token is not preceded by whitespace, reject it. This prevents
+                        // accidental matches of bare word tokens (e.g. identifiers) by
+                        // string-based terminators when the string matcher does not enforce
+                        // token-type constraints. Terminators implemented as TypedParser
+                        // (which match by token type rather than raw text) are exempt.
                         let tok_is_alpha = tokens[i].is_code()
                             && !tokens[i].raw().is_empty()
                             && tokens[i].raw().chars().all(|c| c.is_ascii_alphabetic());
