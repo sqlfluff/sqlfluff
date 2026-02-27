@@ -206,8 +206,33 @@ impl Parser<'_> {
                 *content_ids = content_ids_local.clone();
                 *content_idx = 0;
 
-                let content_grammar_id = if content_ids_local.is_empty() {
-                    // No elements - skip to closing bracket
+                // Consume any leading Meta content elements inline.
+                // Meta grammar elements must not be pushed as child frames - handle them directly
+                // so the parser never hits the "Meta grammar should be consumed by a sequence or
+                // bracketed" warning path in iterative.rs.
+                while *content_idx < content_ids_local.len()
+                    && self.grammar_ctx.variant(content_ids_local[*content_idx])
+                        == GrammarVariant::Meta
+                {
+                    vdebug!(
+                        "Bracketed[table]: consuming leading Meta at content_idx={} inline",
+                        *content_idx
+                    );
+                    if let Some(meta_seg) =
+                        self.grammar_id_to_meta_segment(content_ids_local[*content_idx])
+                    {
+                        let meta_match = MatchResult {
+                            matched_slice: self.pos..self.pos,
+                            insert_segments: vec![(self.pos, meta_seg)],
+                            ..Default::default()
+                        };
+                        child_matches.push(Arc::new(meta_match));
+                    }
+                    *content_idx += 1;
+                }
+
+                let content_grammar_id = if *content_idx >= content_ids_local.len() {
+                    // No (remaining) elements - skip to closing bracket
                     // update the state in the frame context to MatchingClose
                     vdebug!("DEBUG: Transitioning to MatchingClose!");
                     *bracket_state = BracketedState::MatchingClose;
@@ -230,12 +255,13 @@ impl Parser<'_> {
                     *last_child_frame_id = Some(stack.frame_id_counter);
                     return Ok(stack.push_child_and_wait(&mut frame, close_frame, 0));
                 } else {
-                    // Start with the first content element
+                    // Start with the first non-Meta content element
                     vdebug!(
-                        "Bracketed[table]: content_ids.len()={}, starting with element 0",
-                        content_ids_local.len()
+                        "Bracketed[table]: content_ids.len()={}, starting with element {}",
+                        content_ids_local.len(),
+                        *content_idx
                     );
-                    content_ids_local[0]
+                    content_ids_local[*content_idx]
                 };
 
                 // Push content frame
@@ -315,41 +341,67 @@ impl Parser<'_> {
                 if *content_idx + 1 < content_ids.len() {
                     // More content elements remain - parse the next one
                     *content_idx += 1;
-                    let next_content_id = content_ids[*content_idx];
-                    vdebug!(
-                        "Attempting MatchingContent: content_idx={}, content_ids.len()={}, child_empty={}, next_content_id={:?}",
-                        *content_idx,
-                        content_ids.len(),
-                        child_is_empty,
-                        next_content_id.0
-                    );
 
-                    // Stay in MatchingContent state and push next content child
-                    // NOTE: We do NOT pass close_bracket_id as a terminator!
-                    // This is important because nested brackets (like convert(varchar, col, 23))
-                    // would incorrectly match the terminator and cause early termination.
-                    // Instead, we rely on bracket_max_idx to constrain parsing via parent_max_idx.
-                    let context = FrameContext::BracketedTableDriven {
-                        grammar_id: *grammar_id,
-                        state: BracketedState::MatchingContent,
-                        last_child_frame_id: *last_child_frame_id,
-                        bracket_max_idx: *bracket_max_idx,
-                        content_ids: content_ids.clone(),
-                        content_idx: *content_idx,
-                        parse_mode_override: *parse_mode_override,
-                        child_matches: child_matches.clone(),
-                    };
-                    let child_frame = create_table_driven_child_frame(
-                        stack.frame_id_counter,
-                        next_content_id,
-                        self.pos,
-                        &[], // Don't pass close bracket as terminator - use bracket_max_idx instead
-                        context,
-                        *bracket_max_idx,
-                        *parse_mode_override, // Pass override to content
-                    );
-                    *last_child_frame_id = Some(stack.frame_id_counter);
-                    return Ok(stack.push_child_and_wait(&mut frame, child_frame, 0));
+                    // Consume consecutive Meta elements inline, same reasoning as above.
+                    while *content_idx < content_ids.len()
+                        && self.grammar_ctx.variant(content_ids[*content_idx])
+                            == GrammarVariant::Meta
+                    {
+                        vdebug!(
+                            "Bracketed[table]: consuming Meta at content_idx={} inline",
+                            *content_idx
+                        );
+                        if let Some(meta_seg) =
+                            self.grammar_id_to_meta_segment(content_ids[*content_idx])
+                        {
+                            let meta_match = MatchResult {
+                                matched_slice: self.pos..self.pos,
+                                insert_segments: vec![(self.pos, meta_seg)],
+                                ..Default::default()
+                            };
+                            child_matches.push(Arc::new(meta_match));
+                        }
+                        *content_idx += 1;
+                    }
+
+                    if *content_idx < content_ids.len() {
+                        let next_content_id = content_ids[*content_idx];
+                        vdebug!(
+                            "Attempting MatchingContent: content_idx={}, content_ids.len()={}, child_empty={}, next_content_id={:?}",
+                            *content_idx,
+                            content_ids.len(),
+                            child_is_empty,
+                            next_content_id.0
+                        );
+
+                        // Stay in MatchingContent state and push next content child
+                        // NOTE: We do NOT pass close_bracket_id as a terminator!
+                        // This is important because nested brackets (like convert(varchar, col, 23))
+                        // would incorrectly match the terminator and cause early termination.
+                        // Instead, we rely on bracket_max_idx to constrain parsing via parent_max_idx.
+                        let context = FrameContext::BracketedTableDriven {
+                            grammar_id: *grammar_id,
+                            state: BracketedState::MatchingContent,
+                            last_child_frame_id: *last_child_frame_id,
+                            bracket_max_idx: *bracket_max_idx,
+                            content_ids: content_ids.clone(),
+                            content_idx: *content_idx,
+                            parse_mode_override: *parse_mode_override,
+                            child_matches: child_matches.clone(),
+                        };
+                        let child_frame = create_table_driven_child_frame(
+                            stack.frame_id_counter,
+                            next_content_id,
+                            self.pos,
+                            &[], // Don't pass close bracket as terminator - use bracket_max_idx instead
+                            context,
+                            *bracket_max_idx,
+                            *parse_mode_override, // Pass override to content
+                        );
+                        *last_child_frame_id = Some(stack.frame_id_counter);
+                        return Ok(stack.push_child_and_wait(&mut frame, child_frame, 0));
+                    }
+                    // All remaining content elements were Meta - fall through to MatchingClose
                 }
 
                 // All content elements parsed or current element failed - try closing bracket

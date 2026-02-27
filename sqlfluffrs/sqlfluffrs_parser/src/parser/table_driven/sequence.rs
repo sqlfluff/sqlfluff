@@ -894,7 +894,7 @@ impl Parser<'_> {
 
     /// Convert a Grammar ID for a Meta element to a MetaSegment enum variant
     #[inline]
-    fn grammar_id_to_meta_segment(&self, grammar_id: GrammarId) -> Option<MetaSegment> {
+    pub(crate) fn grammar_id_to_meta_segment(&self, grammar_id: GrammarId) -> Option<MetaSegment> {
         // Meta elements have their token_type stored in aux_data
         let inst = self.grammar_ctx.inst(grammar_id);
         let is_conditional = inst.flags.is_conditional();
