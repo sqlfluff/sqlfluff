@@ -97,7 +97,7 @@ impl FixtureTest {
 
         // Try to parse as a file (top-level rule)
         // FileSegment always has segment_type "file"
-        let mr_ast = match parser.call_rule_as_root_match_result() {
+        let mr_ast = match parser.call_rule_as_root() {
             Ok(match_result) => match_result,
             Err(e) => {
                 return TestResult {
@@ -275,9 +275,7 @@ mod tests {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-        let _ast = parser
-            .call_rule_as_root_match_result()
-            .expect("Parse failed");
+        let _ast = parser.call_rule_as_root().expect("Parse failed");
 
         // Print pruning statistics
         parser.print_cache_stats();
@@ -296,9 +294,7 @@ mod tests {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-        let _ast = parser
-            .call_rule_as_root_match_result()
-            .expect("Parse failed");
+        let _ast = parser.call_rule_as_root().expect("Parse failed");
 
         // Print cache statistics for complex query
         println!("\n=== Complex Query Cache Stats ===");

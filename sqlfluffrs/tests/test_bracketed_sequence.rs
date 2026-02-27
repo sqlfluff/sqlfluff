@@ -25,7 +25,7 @@ fn test_bracketed_implicit_sequence() {
 
     let mut parser = Parser::new(&tokens, Dialect::Ansi, hashbrown::HashMap::new());
     let ast = parser
-        .call_rule_as_root_match_result()
+        .call_rule_as_root()
         .map(|mr| mr.apply_as_root(&tokens));
 
     match &ast {

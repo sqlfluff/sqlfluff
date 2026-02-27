@@ -41,7 +41,7 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
         let mut parser =
             sqlfluffrs_parser::parser::Parser::new(&tokens, dialect_obj, hashbrown::HashMap::new());
         let ast = parser
-            .call_rule_as_root_match_result()
+            .call_rule_as_root()
             .expect("Parse error")
             .apply_as_root(&tokens);
 
@@ -406,7 +406,7 @@ fn test_yaml_output_matches_python() {
     let mut parser =
         sqlfluffrs_parser::parser::Parser::new(&tokens, Dialect::Ansi, hashbrown::HashMap::new());
     let ast = parser
-        .call_rule_as_root_match_result()
+        .call_rule_as_root()
         .expect("Parse error")
         .apply_as_root(&tokens);
 
@@ -507,7 +507,7 @@ impl FixtureTest {
 
         // Try to parse as a file (top-level rule)
         let ast = parser
-            .call_rule_as_root_match_result()
+            .call_rule_as_root()
             .expect("Parse error")
             .apply_as_root(&tokens);
         Ok(ast)

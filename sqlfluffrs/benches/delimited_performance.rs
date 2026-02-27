@@ -20,7 +20,7 @@ fn parse_query(sql: &str) {
     let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
     let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-    let _ = parser.call_rule_as_root_match_result();
+    let _ = parser.call_rule_as_root();
 }
 
 fn bench_delimited_lists(c: &mut Criterion) {

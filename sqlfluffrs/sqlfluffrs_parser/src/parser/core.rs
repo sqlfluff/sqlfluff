@@ -118,7 +118,7 @@ impl<'a> Parser<'a> {
     ///
     /// This allows Python to apply the match result using its own apply() logic,
     /// avoiding double-counting issues in Rust's apply() implementation.
-    pub fn call_rule_as_root_match_result(&mut self) -> Result<MatchResult, ParseError> {
+    pub fn call_rule_as_root(&mut self) -> Result<MatchResult, ParseError> {
         // Obtain the root grammar for this dialect
         let root_grammar = self.dialect.get_root_grammar().clone();
 

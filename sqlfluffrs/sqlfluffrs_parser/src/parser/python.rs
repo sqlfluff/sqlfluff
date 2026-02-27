@@ -494,9 +494,7 @@ impl PyParser {
         let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
 
         // Parse and get the MatchResult directly
-        let match_result = parser
-            .call_rule_as_root_match_result()
-            .map_err(parse_error_to_pyerr)?;
+        let match_result = parser.call_rule_as_root().map_err(parse_error_to_pyerr)?;
 
         Ok(PyMatchResult(match_result))
     }
@@ -531,7 +529,7 @@ impl PyParser {
 
         // Parse and get the MatchResult directly
         let match_result = parser
-            .call_rule_as_root_match_result()
+            .call_rule_as_root()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
 
         // Collect statistics
@@ -585,7 +583,7 @@ impl PyParser {
         // Track grammar calls using cache misses as a proxy
         // Each unique (grammar_id, pos) pair in the cache represents one grammar call
         let match_result = parser
-            .call_rule_as_root_match_result()
+            .call_rule_as_root()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
 
         // Count calls per grammar by iterating cache entries

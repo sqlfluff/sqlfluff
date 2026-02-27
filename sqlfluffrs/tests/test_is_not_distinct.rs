@@ -25,9 +25,7 @@ fn test_is_not_distinct_simple() {
     }
 
     let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-    let ast = parser
-        .call_rule_as_root_match_result()
-        .expect("Parse error");
+    let ast = parser.call_rule_as_root().expect("Parse error");
 
     println!("\n=== Parse successful ===");
     println!("AST type: {:?}", std::any::type_name_of_val(&ast));
@@ -51,9 +49,7 @@ fn test_is_not_distinct_with_brackets() {
     println!("=== Total tokens: {} ===", tokens.len());
 
     let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-    let _ast = parser
-        .call_rule_as_root_match_result()
-        .expect("Parse error");
+    let _ast = parser.call_rule_as_root().expect("Parse error");
 
     println!("\n=== Parse successful ===");
 }
