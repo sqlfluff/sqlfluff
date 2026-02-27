@@ -3,276 +3,280 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 66c1d78a739302ac039e3efad57ad888fc3287f0f1299d165d48b6e42d4b064c
+_hash: 2f74899e9685a4ac044e6ac8444225d74dec0995978f578435ac0097d381fa49
 file:
-- statement:
-    begin_end_block:
-    - declare_segment:
-        keyword: DECLARE
-        naked_identifier: x
-        data_type:
-          data_type_identifier: NUMBER
-        assignment_operator: :=
-        expression:
-          numeric_literal: '0'
-        statement_terminator: ;
-    - keyword: BEGIN
-    - statement:
-        loop_statement:
-        - keyword: LOOP
-        - statement:
-            function:
-              function_name:
-                naked_identifier: DBMS_OUTPUT
-                dot: .
-                function_name_identifier: PUT_LINE
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'Inside loop:  x = '"
-                    binary_operator:
-                    - pipe: '|'
-                    - pipe: '|'
-                    function:
-                      function_name:
-                        function_name_identifier: TO_CHAR
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: x
-                          end_bracket: )
-                  end_bracket: )
-        - statement_terminator: ;
-        - statement:
-            assignment_segment_statement:
-              object_reference:
-                naked_identifier: x
-              assignment_operator: :=
-              expression:
-                column_reference:
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+          keyword: DECLARE
+          naked_identifier: x
+          data_type:
+            data_type_identifier: NUMBER
+          assignment_operator: :=
+          expression:
+            numeric_literal: '0'
+          statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'Inside loop:  x = '"
+                      binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                      function:
+                        function_name:
+                          function_name_identifier: TO_CHAR
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: x
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              assignment_segment_statement:
+                object_reference:
                   naked_identifier: x
-                binary_operator: +
-                numeric_literal: '1'
-        - statement_terminator: ;
-        - statement:
-            if_then_statement:
-            - if_clause:
+                assignment_operator: :=
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                  binary_operator: +
+                  numeric_literal: '1'
+          - statement_terminator: ;
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - expression:
+                    column_reference:
+                      naked_identifier: x
+                    comparison_operator:
+                      raw_comparison_operator: <
+                    numeric_literal: '3'
+                - keyword: THEN
+              - statement:
+                  continue_statement:
+                    keyword: CONTINUE
+              - statement_terminator: ;
+              - keyword: END
               - keyword: IF
+          - statement_terminator: ;
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'Inside loop, after CONTINUE:  x = '"
+                      binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                      function:
+                        function_name:
+                          function_name_identifier: TO_CHAR
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: x
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              exit_statement:
+              - keyword: EXIT
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+      - statement_terminator: ;
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "' After loop:  x = '"
+                  binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                  function:
+                    function_name:
+                      function_name_identifier: TO_CHAR
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: x
+                        end_bracket: )
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+          keyword: DECLARE
+          naked_identifier: x
+          data_type:
+            data_type_identifier: NUMBER
+          assignment_operator: :=
+          expression:
+            numeric_literal: '0'
+          statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'Inside loop:  x = '"
+                      binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                      function:
+                        function_name:
+                          function_name_identifier: TO_CHAR
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: x
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              assignment_segment_statement:
+                object_reference:
+                  naked_identifier: x
+                assignment_operator: :=
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                  binary_operator: +
+                  numeric_literal: '1'
+          - statement_terminator: ;
+          - statement:
+              continue_statement:
+              - keyword: CONTINUE
+              - keyword: WHEN
               - expression:
                   column_reference:
                     naked_identifier: x
                   comparison_operator:
                     raw_comparison_operator: <
                   numeric_literal: '3'
-              - keyword: THEN
-            - statement:
-                continue_statement:
-                  keyword: CONTINUE
-            - statement_terminator: ;
-            - keyword: END
-            - keyword: IF
-        - statement_terminator: ;
-        - statement:
-            function:
-              function_name:
-                naked_identifier: DBMS_OUTPUT
-                dot: .
-                function_name_identifier: PUT_LINE
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'Inside loop, after CONTINUE:  x = '"
-                    binary_operator:
-                    - pipe: '|'
-                    - pipe: '|'
-                    function:
-                      function_name:
-                        function_name_identifier: TO_CHAR
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: x
-                          end_bracket: )
-                  end_bracket: )
-        - statement_terminator: ;
-        - statement:
-            exit_statement:
-            - keyword: EXIT
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  naked_identifier: x
-                comparison_operator:
-                  raw_comparison_operator: '='
-                numeric_literal: '5'
-        - statement_terminator: ;
-        - keyword: END
-        - keyword: LOOP
-    - statement_terminator: ;
-    - statement:
-        function:
-          function_name:
-            naked_identifier: DBMS_OUTPUT
-            dot: .
-            function_name_identifier: PUT_LINE
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "' After loop:  x = '"
-                binary_operator:
-                - pipe: '|'
-                - pipe: '|'
-                function:
-                  function_name:
-                    function_name_identifier: TO_CHAR
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: x
-                      end_bracket: )
-              end_bracket: )
-    - statement_terminator: ;
-    - keyword: END
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    begin_end_block:
-    - declare_segment:
-        keyword: DECLARE
-        naked_identifier: x
-        data_type:
-          data_type_identifier: NUMBER
-        assignment_operator: :=
-        expression:
-          numeric_literal: '0'
-        statement_terminator: ;
-    - keyword: BEGIN
-    - statement:
-        loop_statement:
-        - keyword: LOOP
-        - statement:
-            function:
-              function_name:
-                naked_identifier: DBMS_OUTPUT
-                dot: .
-                function_name_identifier: PUT_LINE
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'Inside loop:  x = '"
-                    binary_operator:
-                    - pipe: '|'
-                    - pipe: '|'
-                    function:
-                      function_name:
-                        function_name_identifier: TO_CHAR
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: x
-                          end_bracket: )
-                  end_bracket: )
-        - statement_terminator: ;
-        - statement:
-            assignment_segment_statement:
-              object_reference:
-                naked_identifier: x
-              assignment_operator: :=
-              expression:
-                column_reference:
-                  naked_identifier: x
-                binary_operator: +
-                numeric_literal: '1'
-        - statement_terminator: ;
-        - statement:
-            continue_statement:
-            - keyword: CONTINUE
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  naked_identifier: x
-                comparison_operator:
-                  raw_comparison_operator: <
-                numeric_literal: '3'
-        - statement_terminator: ;
-        - statement:
-            function:
-              function_name:
-                naked_identifier: DBMS_OUTPUT
-                dot: .
-                function_name_identifier: PUT_LINE
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'Inside loop, after CONTINUE:  x = '"
-                    binary_operator:
-                    - pipe: '|'
-                    - pipe: '|'
-                    function:
-                      function_name:
-                        function_name_identifier: TO_CHAR
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: x
-                          end_bracket: )
-                  end_bracket: )
-        - statement_terminator: ;
-        - statement:
-            exit_statement:
-            - keyword: EXIT
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  naked_identifier: x
-                comparison_operator:
-                  raw_comparison_operator: '='
-                numeric_literal: '5'
-        - statement_terminator: ;
-        - keyword: END
-        - keyword: LOOP
-    - statement_terminator: ;
-    - statement:
-        function:
-          function_name:
-            naked_identifier: DBMS_OUTPUT
-            dot: .
-            function_name_identifier: PUT_LINE
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "' After loop:  x = '"
-                binary_operator:
-                - pipe: '|'
-                - pipe: '|'
-                function:
-                  function_name:
-                    function_name_identifier: TO_CHAR
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: x
-                      end_bracket: )
-              end_bracket: )
-    - statement_terminator: ;
-    - keyword: END
-- statement_terminator: ;
-- statement_terminator: /
+          - statement_terminator: ;
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'Inside loop, after CONTINUE:  x = '"
+                      binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                      function:
+                        function_name:
+                          function_name_identifier: TO_CHAR
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: x
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              exit_statement:
+              - keyword: EXIT
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+      - statement_terminator: ;
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "' After loop:  x = '"
+                  binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                  function:
+                    function_name:
+                      function_name_identifier: TO_CHAR
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: x
+                        end_bracket: )
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /

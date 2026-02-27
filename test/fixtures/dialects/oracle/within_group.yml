@@ -3,277 +3,278 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 088c1674b18b21fef3f58ffe274a3fc6854f5d490f599e5f8e4cf5c418723b07
+_hash: 97c80c67f9df14a8dd7e3c6cf59c1d706b4b65a18aaa6a6ee6f66fd62bd74018
 file:
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: LISTAGG
-            function_contents:
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: last_name
-              - comma: ','
-              - expression:
-                  quoted_literal: "'; '"
-              - end_bracket: )
-            withingroup_clause:
-            - keyword: WITHIN
-            - keyword: GROUP
-            - bracketed:
-                start_bracket: (
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    naked_identifier: hire_date
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: LISTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: last_name
                 - comma: ','
-                - column_reference:
-                    naked_identifier: last_name
-                end_bracket: )
-          alias_expression:
-            quoted_identifier: '"Emp_list"'
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: MIN
-            function_contents:
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: hire_date
-                end_bracket: )
-          alias_expression:
-            quoted_identifier: '"Earliest"'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: employees
-      where_clause:
-        keyword: WHERE
-        expression:
-          column_reference:
-            naked_identifier: department_id
-          comparison_operator:
-            raw_comparison_operator: '='
-          numeric_literal: '30'
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: department_id
-          alias_expression:
-            quoted_identifier: '"Dept."'
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: LISTAGG
-            function_contents:
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: last_name
-              - comma: ','
-              - expression:
-                  quoted_literal: "'; '"
-              - end_bracket: )
-            withingroup_clause:
-            - keyword: WITHIN
-            - keyword: GROUP
-            - bracketed:
-                start_bracket: (
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    naked_identifier: hire_date
-                end_bracket: )
-          alias_expression:
-            quoted_identifier: '"Employees"'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: employees
-      groupby_clause:
-      - keyword: GROUP
-      - keyword: BY
-      - column_reference:
-          naked_identifier: department_id
-      orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-          naked_identifier: department_id
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: department_id
-          alias_expression:
-            quoted_identifier: '"Dept."'
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: LISTAGG
-            function_contents:
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: last_name
-              - comma: ','
-              - expression:
-                  quoted_literal: "'; '"
-              - listagg_overflow_clause:
-                - keyword: 'ON'
-                - keyword: OVERFLOW
-                - keyword: TRUNCATE
-                - quoted_identifier: "'...'"
-              - end_bracket: )
-            withingroup_clause:
-            - keyword: WITHIN
-            - keyword: GROUP
-            - bracketed:
-                start_bracket: (
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    naked_identifier: hire_date
-                end_bracket: )
-          alias_expression:
-            quoted_identifier: '"Employees"'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: employees
-      groupby_clause:
-      - keyword: GROUP
-      - keyword: BY
-      - column_reference:
-          naked_identifier: department_id
-      orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-          naked_identifier: department_id
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: department_id
-          alias_expression:
-            quoted_identifier: '"Dept"'
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: hire_date
-          alias_expression:
-            quoted_identifier: '"Date"'
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: last_name
-          alias_expression:
-            quoted_identifier: '"Name"'
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: LISTAGG
-            function_contents:
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: last_name
-              - comma: ','
-              - expression:
-                  quoted_literal: "'; '"
-              - end_bracket: )
-            withingroup_clause:
-            - keyword: WITHIN
-            - keyword: GROUP
-            - bracketed:
-                start_bracket: (
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    naked_identifier: hire_date
-                - comma: ','
-                - column_reference:
-                    naked_identifier: last_name
-                end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
+                - expression:
+                    quoted_literal: "'; '"
+                - end_bracket: )
+              withingroup_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
                   - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: department_id
-                end_bracket: )
-          alias_expression:
-            alias_operator:
-              keyword: as
-            quoted_identifier: '"Emp_list"'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: employees
-      where_clause:
-        keyword: WHERE
-        expression:
-          column_reference:
-            naked_identifier: hire_date
-          comparison_operator:
-            raw_comparison_operator: <
-          quoted_literal: "'01-SEP-2003'"
-      orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-          quoted_identifier: '"Dept"'
-      - comma: ','
-      - column_reference:
-          quoted_identifier: '"Date"'
-      - comma: ','
-      - column_reference:
-          quoted_identifier: '"Name"'
-- statement_terminator: ;
+                  - column_reference:
+                      naked_identifier: hire_date
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: last_name
+                  end_bracket: )
+            alias_expression:
+              quoted_identifier: '"Emp_list"'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: MIN
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: hire_date
+                  end_bracket: )
+            alias_expression:
+              quoted_identifier: '"Earliest"'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: department_id
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '30'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: department_id
+            alias_expression:
+              quoted_identifier: '"Dept."'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: LISTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: last_name
+                - comma: ','
+                - expression:
+                    quoted_literal: "'; '"
+                - end_bracket: )
+              withingroup_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: hire_date
+                  end_bracket: )
+            alias_expression:
+              quoted_identifier: '"Employees"'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: department_id
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: department_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: department_id
+            alias_expression:
+              quoted_identifier: '"Dept."'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: LISTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: last_name
+                - comma: ','
+                - expression:
+                    quoted_literal: "'; '"
+                - listagg_overflow_clause:
+                  - keyword: 'ON'
+                  - keyword: OVERFLOW
+                  - keyword: TRUNCATE
+                  - quoted_identifier: "'...'"
+                - end_bracket: )
+              withingroup_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: hire_date
+                  end_bracket: )
+            alias_expression:
+              quoted_identifier: '"Employees"'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: department_id
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: department_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: department_id
+            alias_expression:
+              quoted_identifier: '"Dept"'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: hire_date
+            alias_expression:
+              quoted_identifier: '"Date"'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: last_name
+            alias_expression:
+              quoted_identifier: '"Name"'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: LISTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: last_name
+                - comma: ','
+                - expression:
+                    quoted_literal: "'; '"
+                - end_bracket: )
+              withingroup_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: hire_date
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: last_name
+                  end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - expression:
+                        column_reference:
+                          naked_identifier: department_id
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              quoted_identifier: '"Emp_list"'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: hire_date
+            comparison_operator:
+              raw_comparison_operator: <
+            quoted_literal: "'01-SEP-2003'"
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            quoted_identifier: '"Dept"'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '"Date"'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '"Name"'
+  - statement_terminator: ;

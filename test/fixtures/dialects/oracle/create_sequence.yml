@@ -3,41 +3,42 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0a40d9159b67e8652d7b8b7e98cdc9607afa6d3abac9f020f7ca8690da54b2e2
+_hash: 6a444e4077ce6f0fce9bb8f75083f49f244fedb5c91486f35566ce06d4d44770
 file:
-- statement:
-    create_sequence_statement:
-    - keyword: CREATE
-    - keyword: SEQUENCE
-    - sequence_reference:
-        naked_identifier: TBL_SERVICEALERTMESSAGE_S
-    - create_sequence_options_segment:
-      - keyword: INCREMENT
-      - keyword: BY
-      - numeric_literal: '1'
-    - create_sequence_options_segment:
-      - keyword: START
-      - keyword: WITH
-      - numeric_literal: '1'
-    - create_sequence_options_segment:
-        keyword: NOMAXVALUE
-    - create_sequence_options_segment:
-        keyword: NOCYCLE
-- statement_terminator: ;
-- statement:
-    create_sequence_statement:
-    - keyword: CREATE
-    - keyword: SEQUENCE
-    - sequence_reference:
-        naked_identifier: TBL_SERVICEALERTMESSAGE_S2
-    - create_sequence_options_segment:
-      - keyword: INCREMENT
-      - keyword: BY
-      - numeric_literal: '1'
-    - create_sequence_options_segment:
-        keyword: NOMINVALUE
-    - create_sequence_options_segment:
-        keyword: NOMAXVALUE
-    - create_sequence_options_segment:
-        keyword: NOCYCLE
-- statement_terminator: ;
+  batch:
+  - statement:
+      create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - sequence_reference:
+          naked_identifier: TBL_SERVICEALERTMESSAGE_S
+      - create_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - numeric_literal: '1'
+      - create_sequence_options_segment:
+        - keyword: START
+        - keyword: WITH
+        - numeric_literal: '1'
+      - create_sequence_options_segment:
+          keyword: NOMAXVALUE
+      - create_sequence_options_segment:
+          keyword: NOCYCLE
+  - statement_terminator: ;
+  - statement:
+      create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - sequence_reference:
+          naked_identifier: TBL_SERVICEALERTMESSAGE_S2
+      - create_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - numeric_literal: '1'
+      - create_sequence_options_segment:
+          keyword: NOMINVALUE
+      - create_sequence_options_segment:
+          keyword: NOMAXVALUE
+      - create_sequence_options_segment:
+          keyword: NOCYCLE
+  - statement_terminator: ;
