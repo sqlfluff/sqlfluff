@@ -3,38 +3,39 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 27978468b93e9dba77b130443f65ee299dd445cf77d0644ba5f3bfacf393db49
+_hash: cb7072455c5275ed4d5485ed0d568b9f0814888076e30496752e5d415269b5b8
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          bare_function: column_value
-          alias_expression:
-            alias_operator:
-              keyword: AS
-            naked_identifier: mnth
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  naked_identifier: sys
-                  dot: .
-                  function_name_identifier: dbms_debug_vc2coll
-                function_contents:
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'01'"
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'05'"
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'09'"
-                  - end_bracket: )
-  statement_terminator: ;
+  batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            bare_function: column_value
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: mnth
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    naked_identifier: sys
+                    dot: .
+                    function_name_identifier: dbms_debug_vc2coll
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: "'01'"
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'05'"
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'09'"
+                    - end_bracket: )
+    statement_terminator: ;
