@@ -138,15 +138,6 @@ impl MatchResult {
         }
     }
 
-    /// Create a MatchResult for a Sequence with child matches (lazy evaluation)
-    pub fn sequence(start_idx: usize, end_idx: usize, children: Vec<Arc<MatchResult>>) -> Self {
-        MatchResult {
-            matched_slice: start_idx..end_idx,
-            child_matches: children,
-            ..Default::default()
-        }
-    }
-
     /// Create a MatchResult for a Ref with child matches (lazy evaluation)
     pub fn ref_match(
         _name: String,
