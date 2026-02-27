@@ -380,14 +380,6 @@ impl Parser<'_> {
 
         // Try next child
         if *tried_elements < pruned_children.len() {
-            // CRITICAL: Restore collected positions before trying next child
-            // This ensures each child gets a fresh view of which whitespace to collect.
-            // Without this, the first child collects whitespace, marks it collected,
-            // and subsequent children skip that whitespace - leading to missing whitespace
-            // in the final AST if a later child wins.
-            // OPTIMIZATION: Use truncate instead of clone for O(1) rollback
-
-            // Try next child
             self.pos = *post_skip_pos;
             let next_child = pruned_children[*tried_elements];
             *current_child_id = Some(next_child);
@@ -453,11 +445,6 @@ impl Parser<'_> {
                 best_consumed,
                 best_node
             );
-        } else {
-            // vdebug!(
-            //     "OneOf[table] Combining DEBUG: no match found, frame.accumulated_matches={}",
-            //     frame.accumulated_matches.len()
-            // );
         }
 
         // Build final result
