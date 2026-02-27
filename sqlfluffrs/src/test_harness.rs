@@ -302,170 +302,77 @@ mod tests {
     }
 }
 
-// #[cfg(test)]
-// mod whitespace_tests {
-//     use super::*;
-//     use sqlfluffrs_dialects::Dialect;
-//     use sqlfluffrs_lexer::{LexInput, Lexer};
-//     use std::collections::HashSet;
+#[cfg(test)]
+mod whitespace_tests {
+    use super::*;
+    use sqlfluffrs_dialects::Dialect;
+    use sqlfluffrs_lexer::{LexInput, Lexer};
 
-//     fn collect_token_positions(node: &Node, positions: &mut HashSet<usize>) {
-//         match node {
-//             Node::Raw { token_idx, .. }
-//             | Node::Whitespace { token_idx, .. }
-//             | Node::Newline { token_idx, .. }
-//             | Node::Comment { token_idx, .. }
-//             | Node::EndOfFile { token_idx, .. } => {
-//                 positions.insert(*token_idx);
-//             }
-//             Node::Sequence { children, .. }
-//             | Node::Ref { children, .. }
-//             | Node::DelimitedList { children, .. }
-//             | Node::Bracketed { children, .. } => {
-//                 for c in children {
-//                     collect_token_positions(c, positions);
-//                 }
-//             }
-//             Node::Unparsable { children, .. } => {
-//                 for c in children {
-//                     collect_token_positions(c, positions);
-//                 }
-//             }
-//             Node::Meta { .. } | Node::Empty => {}
-//         }
-//     }
+    #[test]
+    fn test_select_from_alias() {
+        let _ = env_logger::builder().is_test(true).try_init();
 
-//     #[test]
-//     fn test_select_from_alias() {
-//         let _ = env_logger::builder().is_test(true).try_init();
+        let sql = "SELECT x FROM foo AS t";
+        let input = LexInput::String(sql.to_string());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
+        let (tokens, _errors) = lexer.lex(input, false);
 
-//         let sql = "SELECT x FROM foo AS t";
-//         let input = LexInput::String(sql.to_string());
-//         let dialect = Dialect::Ansi;
-//         let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
-//         let (tokens, _errors) = lexer.lex(input, false);
+        println!("\n=== TOKENS ===");
+        for (idx, token) in tokens.iter().enumerate() {
+            println!(
+                "Token {}: {:?} (type: {})",
+                idx,
+                token.raw(),
+                token.get_type()
+            );
+        }
 
-//         println!("\n=== TOKENS ===");
-//         for (idx, token) in tokens.iter().enumerate() {
-//             println!(
-//                 "Token {}: {:?} (type: {})",
-//                 idx,
-//                 token.raw(),
-//                 token.get_type()
-//             );
-//         }
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+        let mr = parser.call_rule_as_root().expect("Parse failed");
+        let ast = mr.apply_as_root(&tokens);
 
-//         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-//         let ast = parser
-//             .call_rule_as_root_match_result()
-//             .expect("Parse failed")
-//             .apply(&tokens);
+        println!("\n=== AST STRUCTURE ===");
+        println!("{:#?}", ast);
 
-//         println!("\n=== AST STRUCTURE ===");
-//         println!("{:#?}", ast);
+        let raw_text = ast.raw();
+        println!("\nReconstructed: {:?}", raw_text);
+        println!("Original: {:?}", sql);
 
-//         let mut ast_positions = HashSet::new();
-//         collect_token_positions(&ast[0], &mut ast_positions);
+        assert_eq!(raw_text, sql, "Whitespace mismatch in reconstructed SQL");
+    }
 
-//         println!("\n=== AST POSITIONS ===");
-//         let mut sorted: Vec<_> = ast_positions.iter().copied().collect();
-//         sorted.sort();
-//         println!("{:?}", sorted);
+    #[test]
+    fn test_select_function_alias() {
+        let _ = env_logger::builder().is_test(true).try_init();
 
-//         println!("\n=== MISSING POSITIONS ===");
-//         for (idx, token) in tokens.iter().enumerate() {
-//             if !ast_positions.contains(&idx) && token.get_type() != "end_of_file" {
-//                 println!(
-//                     "Missing {}: {:?} (type: {})",
-//                     idx,
-//                     token.raw(),
-//                     token.get_type()
-//                 );
-//             }
-//         }
+        let sql = "SELECT a (x) AS y";
+        let input = LexInput::String(sql.to_string());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
+        let (tokens, _errors) = lexer.lex(input, false);
 
-//         // Reconstruct raw text from tokens in AST
-//         let mut raw_parts: Vec<(usize, String)> = vec![];
-//         for idx in &sorted {
-//             raw_parts.push((*idx, tokens[*idx].raw().to_string()));
-//         }
-//         raw_parts.sort_by_key(|(idx, _)| *idx);
-//         let raw_text: String = raw_parts.iter().map(|(_, s)| s.as_str()).collect();
+        println!("\n=== TOKENS ===");
+        for (idx, token) in tokens.iter().enumerate() {
+            println!(
+                "Token {}: {:?} (type: {})",
+                idx,
+                token.raw(),
+                token.get_type()
+            );
+        }
 
-//         println!("\nReconstructed: {:?}", raw_text);
-//         println!("Original: {:?}", sql);
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+        let mr = parser.call_rule_as_root().expect("Parse failed");
+        let ast = mr.apply_as_root(&tokens);
 
-//         assert_eq!(raw_text, sql, "Whitespace mismatch in reconstructed SQL");
-//     }
+        println!("\n=== AST STRUCTURE ===");
+        println!("{:#?}", ast);
 
-//     #[test]
-//     fn test_select_function_alias() {
-//         let _ = env_logger::builder().is_test(true).try_init();
+        let raw_text = ast.raw();
+        println!("\nReconstructed: {:?}", raw_text);
+        println!("Original: {:?}", sql);
 
-//         let sql = "SELECT a (x) AS y";
-//         let input = LexInput::String(sql.to_string());
-//         let dialect = Dialect::Ansi;
-//         let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
-//         let (tokens, _errors) = lexer.lex(input, false);
-
-//         println!("\n=== TOKENS ===");
-//         for (idx, token) in tokens.iter().enumerate() {
-//             println!(
-//                 "Token {}: {:?} (type: {})",
-//                 idx,
-//                 token.raw(),
-//                 token.get_type()
-//             );
-//         }
-
-//         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-//         let mr = parser
-//             .call_rule_as_root_match_result()
-//             .expect("Parse failed");
-
-//         let top_nodes = mr.apply(&tokens);
-//         let (segment_class, segment_type) = {
-//             let mc = MatchedClass::root();
-//             (mc.class_name.clone(), mc.segment_type.clone())
-//         };
-//         let ast = Node::Segment {
-//             segment_class,
-//             segment_type,
-//             pos_marker: None,
-//             children: top_nodes,
-//         };
-
-//         let mut ast_positions = HashSet::new();
-//         collect_token_positions(&ast, &mut ast_positions);
-
-//         println!("\n=== AST POSITIONS ===");
-//         let mut sorted: Vec<_> = ast_positions.iter().copied().collect();
-//         sorted.sort();
-//         println!("{:?}", sorted);
-
-//         println!("\n=== MISSING POSITIONS ===");
-//         for (idx, token) in tokens.iter().enumerate() {
-//             if !ast_positions.contains(&idx) && token.get_type() != "end_of_file" {
-//                 println!(
-//                     "Missing {}: {:?} (type: {})",
-//                     idx,
-//                     token.raw(),
-//                     token.get_type()
-//                 );
-//             }
-//         }
-
-//         // Reconstruct raw text from tokens in AST
-//         let mut raw_parts: Vec<(usize, String)> = vec![];
-//         for idx in &sorted {
-//             raw_parts.push((*idx, tokens[*idx].raw().to_string()));
-//         }
-//         raw_parts.sort_by_key(|(idx, _)| *idx);
-//         let raw_text: String = raw_parts.iter().map(|(_, s)| s.as_str()).collect();
-
-//         println!("\nReconstructed: {:?}", raw_text);
-//         println!("Original: {:?}", sql);
-
-//         assert_eq!(raw_text, sql, "Whitespace mismatch in reconstructed SQL");
-//     }
-// }
+        assert_eq!(raw_text, sql, "Whitespace mismatch in reconstructed SQL");
+    }
+}
