@@ -787,6 +787,39 @@ available:
   By default for most clauses this is unset, which implies no particular keyword
   line position requirements. The available options are:
 
+   * **How this differs from** `line_position`: The
+      `line_position` setting applies to the configured *segment type as a
+      whole* (for example, where a `where_clause` should break relative to
+      surrounding SQL). The `keyword_line_position` setting applies to the
+      clause's *leading keyword token(s)* (for example `WHERE` or
+      `ORDER BY`) inside that segment.
+
+      In practice, for clause-like types, these settings are often used together.
+      For example:
+
+      ```ini
+      [sqlfluff:layout:type:where_clause]
+      line_position = alone
+      keyword_line_position = leading
+      ```
+
+      This combination means:
+
+      * the `WHERE` clause is treated as its own line-oriented block
+         (`line_position = alone`), and
+      * the `WHERE` keyword itself should start a line
+         (`keyword_line_position = leading`).
+
+      Another example:
+
+      ```ini
+      [sqlfluff:layout:type:join_on_condition]
+      keyword_line_position = trailing
+      ```
+
+      This places the `ON` keyword at the end of the line, with the
+      condition expression on the following line.
+
   * `leading` and `alone`, which are most common in the
     placement of keywords. Both of these settings *also* allow the option
     of a keyword to end on a line. By default we assume *leading* `WHERE`
