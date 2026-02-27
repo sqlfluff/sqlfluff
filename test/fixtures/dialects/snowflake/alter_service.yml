@@ -1,0 +1,163 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e751663c9d0eb729e53a204aeeec8c333ea35af282b0fdceadaa0632029c0b41
+file:
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: RESUME
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: SET
+    - keyword: MIN_INSTANCES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '2'
+    - keyword: MAX_INSTANCES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '5'
+    - keyword: LOG_LEVEL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'WARN'"
+    - keyword: AUTO_SUSPEND_SECS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '600'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'updated service'"
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: UNSET
+    - keyword: MIN_INSTANCES
+    - comma: ','
+    - keyword: MAX_INSTANCES
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: FROM
+    - stage_path: '@my_stage'
+    - keyword: SPECIFICATION_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'new_spec.yaml'"
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: FROM
+    - stage_path: '@my_stage'
+    - keyword: SPECIFICATION_TEMPLATE_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'spec.yaml'"
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: key1
+      - parameter_assigner: =>
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - naked_identifier: key2
+      - parameter_assigner: =>
+      - quoted_literal: "'value2'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: FROM
+    - keyword: SPECIFICATION_TEMPLATE
+    - quoted_literal: "$$\n    spec:\n      containers:\n      - name: main\n    \
+        \    image: /my_db/my_schema/my_repo/my_image:latest\n  $$"
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        naked_identifier: env
+        parameter_assigner: =>
+        quoted_literal: "'production'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: FROM
+    - keyword: SPECIFICATION_TEMPLATE_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'template.yaml'"
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: replicas
+      - parameter_assigner: =>
+      - numeric_literal: '3'
+      - comma: ','
+      - naked_identifier: region
+      - parameter_assigner: =>
+      - quoted_literal: "'us-east-1'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_service_statement:
+    - keyword: ALTER
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: my_service
+    - keyword: RESTORE
+    - keyword: VOLUME
+    - quoted_literal: "'data_vol'"
+    - keyword: INSTANCES
+    - numeric_literal: '0'
+    - comma: ','
+    - numeric_literal: '1'
+    - keyword: FROM
+    - keyword: SNAPSHOT
+    - object_reference:
+        naked_identifier: my_snapshot
+- statement_terminator: ;

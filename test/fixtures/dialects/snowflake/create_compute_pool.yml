@@ -1,0 +1,91 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cf1ba53ab60ccea25543b9d92b00d75d42219938c33a78c2e7528fe965898941
+file:
+- statement:
+    create_compute_pool_statement:
+    - keyword: CREATE
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_pool
+    - keyword: MIN_NODES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - keyword: MAX_NODES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3'
+    - keyword: INSTANCE_FAMILY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: CPU_X64_XS
+- statement_terminator: ;
+- statement:
+    create_compute_pool_statement:
+    - keyword: CREATE
+    - keyword: COMPUTE
+    - keyword: POOL
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_pool
+    - keyword: FOR
+    - keyword: APPLICATION
+    - object_reference:
+        naked_identifier: my_app
+    - keyword: MIN_NODES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '2'
+    - keyword: MAX_NODES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '10'
+    - keyword: INSTANCE_FAMILY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: GPU_NV_S
+    - keyword: AUTO_RESUME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: INITIALLY_SUSPENDED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: AUTO_SUSPEND_SECS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3600'
+    - keyword: PLACEMENT_GROUP
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_placement_group'"
+    - tag_bracketed_equals:
+        keyword: TAG
+        bracketed:
+        - start_bracket: (
+        - tag_reference:
+            naked_identifier: env
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'prod'"
+        - comma: ','
+        - tag_reference:
+            naked_identifier: team
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'ml'"
+        - end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'GPU compute pool'"
+- statement_terminator: ;

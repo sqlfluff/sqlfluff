@@ -1551,6 +1551,47 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropResourceMonitorStatementSegment"),
             Ref("ScriptingIfStatementSegment"),
             Ref("ScriptingRaiseStatementSegment"),
+            Ref("CreateAlertStatementSegment"),
+            Ref("AlterAlertStatementSegment"),
+            Ref("CreateSecretStatementSegment"),
+            Ref("AlterSecretStatementSegment"),
+            Ref("CreateConnectionStatementSegment"),
+            Ref("AlterConnectionStatementSegment"),
+            Ref("CreateSessionPolicyStatementSegment"),
+            Ref("AlterSessionPolicyStatementSegment"),
+            Ref("CreateManagedAccountStatementSegment"),
+            Ref("AlterNetworkRuleStatementSegment"),
+            Ref("CreateFailoverGroupStatementSegment"),
+            Ref("AlterFailoverGroupStatementSegment"),
+            Ref("CreateReplicationGroupStatementSegment"),
+            Ref("AlterReplicationGroupStatementSegment"),
+            Ref("CreateAggregationPolicyStatementSegment"),
+            Ref("AlterAggregationPolicyStatementSegment"),
+            Ref("CreateProjectionPolicyStatementSegment"),
+            Ref("AlterProjectionPolicyStatementSegment"),
+            Ref("CreatePackagesPolicyStatementSegment"),
+            Ref("AlterPackagesPolicyStatementSegment"),
+            Ref("CreateDataMetricFunctionStatementSegment"),
+            Ref("CreateServiceStatementSegment"),
+            Ref("AlterServiceStatementSegment"),
+            Ref("CreateComputePoolStatementSegment"),
+            Ref("AlterComputePoolStatementSegment"),
+            Ref("CreateImageRepositoryStatementSegment"),
+            Ref("CreateGitRepositoryStatementSegment"),
+            Ref("AlterGitRepositoryStatementSegment"),
+            Ref("CreateSnapshotStatementSegment"),
+            Ref("AlterSnapshotStatementSegment"),
+            Ref("CreateApplicationStatementSegment"),
+            Ref("AlterApplicationStatementSegment"),
+            Ref("CreateApplicationPackageStatementSegment"),
+            Ref("AlterApplicationPackageStatementSegment"),
+            Ref("CreateNotebookStatementSegment"),
+            Ref("AlterNotebookStatementSegment"),
+            Ref("CreateModelStatementSegment"),
+            Ref("AlterModelStatementSegment"),
+            Ref("CreateListingStatementSegment"),
+            Ref("AlterListingStatementSegment"),
+            Ref("AlterCatalogIntegrationStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2313,6 +2354,46 @@ class DataGovernancePolicyTagActionSegment(BaseSegment):
             "JOIN",
             "POLICY",
         ),
+        Sequence(
+            "ADD",
+            "DATA",
+            "METRIC",
+            "FUNCTION",
+            Ref("ObjectReferenceSegment"),
+            "ON",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "DROP",
+            "DATA",
+            "METRIC",
+            "FUNCTION",
+            Ref("ObjectReferenceSegment"),
+            "ON",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            OneOf("ALTER", "MODIFY"),
+            "DATA",
+            "METRIC",
+            "FUNCTION",
+            Ref("ObjectReferenceSegment"),
+            "ON",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+            OneOf("SUSPEND", "RESUME"),
+        ),
     )
 
 
@@ -2467,6 +2548,22 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                             Ref("ColumnReferenceSegment"),
                             "UNSET",
                             "MASKING",
+                            "POLICY",
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "SET",
+                            "PROJECTION",
+                            "POLICY",
+                            Ref("FunctionNameSegment"),
+                            Ref.keyword("FORCE", optional=True),
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "UNSET",
+                            "PROJECTION",
                             "POLICY",
                         ),
                         Sequence(
@@ -3246,6 +3343,12 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         Sequence("MASKING", "POLICY"),
         Sequence("ROW", "ACCESS", "POLICY"),
         Sequence("CORTEX", "SEARCH", "SERVICE"),
+        "SECRET",
+        "SERVICE",
+        Sequence("COMPUTE", "POOL"),
+        Sequence("NETWORK", "RULE"),
+        Sequence("IMAGE", "REPOSITORY"),
+        Sequence("GIT", "REPOSITORY"),
     )
 
 
@@ -3267,6 +3370,9 @@ class AccessSchemaPluralObjectSegment(ansi.AccessSchemaPluralObjectSegment):
         "NOTEBOOKS",
         "MODELS",
         "WORKSPACES",
+        "SECRETS",
+        "SERVICES",
+        Sequence("COMPUTE", "POOLS"),
     )
 
 
@@ -3302,6 +3408,8 @@ class AccessObjectSegment(ansi.AccessObjectSegment):
                     OneOf("DATABASE", "SCHEMA"),
                 ),
                 Sequence("DATABASE", "ROLE"),
+                Sequence("APPLICATION", "PACKAGE"),
+                "APPLICATION",
                 optional=True,
             ),
             Delimited(
@@ -3333,8 +3441,12 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
                 "TAG",
                 Sequence("DATA", "EXCHANGE", "LISTING"),
                 Sequence("NETWORK", "POLICY"),
+                Sequence("COMPUTE", "POOL"),
+                "APPLICATION",
+                Sequence("APPLICATION", "PACKAGE"),
             ),
         ),
+        Sequence("BIND", "SERVICE", "ENDPOINT"),
         Sequence(
             "DEFINE",
             OneOf(
@@ -4568,6 +4680,12 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                 optional=True,
             ),
         ),
+        Sequence(
+            Sequence("WITH", optional=True),
+            "PROJECTION",
+            "POLICY",
+            Ref("FunctionNameSegment"),
+        ),
         Ref("TagBracketedEqualsSegment", optional=True),
         Ref("InlineConstraintPropertiesSegment"),
         Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
@@ -5174,6 +5292,12 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 optional=True,
             ),
             Sequence(
+                "ENABLE_SCHEMA_EVOLUTION",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
                 "DEFAULT_DDL_COLLATION",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
@@ -5192,6 +5316,23 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Ref("ObjectReferenceSegment"),
                 "ON",
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "AGGREGATION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "ENTITY",
+                    "KEY",
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
                 optional=True,
             ),
             Ref("IcebergTableOptionsSegment", optional=True),
@@ -6072,6 +6213,13 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                             ),
                             optional=True,
                         ),
+                        Sequence(
+                            Ref.keyword("WITH", optional=True),
+                            "PROJECTION",
+                            "POLICY",
+                            Ref("FunctionNameSegment"),
+                            optional=True,
+                        ),
                         Ref("TagBracketedEqualsSegment", optional=True),
                         Ref("CommentClauseSegment", optional=True),
                     ),
@@ -6086,6 +6234,22 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 "ON",
                 Bracketed(
                     Delimited(Ref("ColumnReferenceSegment")),
+                ),
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "AGGREGATION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "ENTITY",
+                    "KEY",
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                    optional=True,
                 ),
             ),
             Ref("TagBracketedEqualsSegment"),
@@ -6130,8 +6294,36 @@ class AlterViewStatementSegment(BaseSegment):
                 OneOf("SET", "UNSET"),
                 "SECURE",
             ),
+            Sequence(
+                "SET",
+                "CHANGE_TRACKING",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
             Sequence("SET", Ref("TagEqualsSegment")),
             Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET",
+                "AGGREGATION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "ENTITY",
+                    "KEY",
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence(
+                "UNSET",
+                "AGGREGATION",
+                "POLICY",
+            ),
             Delimited(
                 Sequence(
                     "ADD",
@@ -6149,6 +6341,46 @@ class AlterViewStatementSegment(BaseSegment):
                     "POLICY",
                     Ref("FunctionNameSegment"),
                 ),
+            ),
+            Sequence(
+                "ADD",
+                "DATA",
+                "METRIC",
+                "FUNCTION",
+                Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "DROP",
+                "DATA",
+                "METRIC",
+                "FUNCTION",
+                Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                OneOf("ALTER", "MODIFY"),
+                "DATA",
+                "METRIC",
+                "FUNCTION",
+                Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                OneOf("SUSPEND", "RESUME"),
             ),
             Sequence(
                 OneOf("ALTER", "MODIFY"),
@@ -6173,6 +6405,14 @@ class AlterViewStatementSegment(BaseSegment):
                                     Ref.keyword("FORCE", optional=True),
                                 ),
                                 Sequence("UNSET", "MASKING", "POLICY"),
+                                Sequence(
+                                    "SET",
+                                    "PROJECTION",
+                                    "POLICY",
+                                    Ref("FunctionNameSegment"),
+                                    Ref.keyword("FORCE", optional=True),
+                                ),
+                                Sequence("UNSET", "PROJECTION", "POLICY"),
                                 Sequence("SET", Ref("TagEqualsSegment")),
                             ),
                         ),
@@ -8031,6 +8271,33 @@ class ShowStatementSegment(BaseSegment):
         Sequence("PASSWORD", "POLICIES"),
         Sequence("CORTEX", "SEARCH", "SERVICES"),
         Sequence("RESOURCE", "MONITORS"),
+        Sequence("DYNAMIC", "TABLES"),
+        Sequence("EVENT", "TABLES"),
+        Sequence("AUTHENTICATION", "POLICIES"),
+        Sequence("ROW", "ACCESS", "POLICIES"),
+        Sequence("NETWORK", "RULES"),
+        Sequence("SESSION", "POLICIES"),
+        Sequence("AGGREGATION", "POLICIES"),
+        Sequence("PROJECTION", "POLICIES"),
+        "ALERTS",
+        "SECRETS",
+        "CONNECTIONS",
+        Sequence("MANAGED", "ACCOUNTS"),
+        Sequence("FAILOVER", "GROUPS"),
+        Sequence("REPLICATION", "GROUPS"),
+        Sequence("PACKAGES", "POLICIES"),
+        Sequence("DATA", "METRIC", "FUNCTIONS"),
+        "SERVICES",
+        Sequence("COMPUTE", "POOLS"),
+        Sequence("IMAGE", "REPOSITORIES"),
+        Sequence("GIT", "REPOSITORIES"),
+        "SNAPSHOTS",
+        "APPLICATIONS",
+        Sequence("APPLICATION", "PACKAGES"),
+        "NOTEBOOKS",
+        "MODELS",
+        "LISTINGS",
+        Sequence("CATALOG", "INTEGRATIONS"),
     )
 
     _object_scope_types = OneOf(
@@ -8909,6 +9176,109 @@ class DescribeStatementSegment(BaseSegment):
                 "SERVICE",
                 Ref("ObjectReferenceSegment"),
             ),
+            Sequence(
+                "DYNAMIC",
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "EVENT",
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "AUTHENTICATION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "NETWORK",
+                "RULE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "AGGREGATION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "PROJECTION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "ALERT",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SECRET",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "CONNECTION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "PACKAGES",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DATA",
+                "METRIC",
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatatypeSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
+                "SERVICE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "COMPUTE",
+                "POOL",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "IMAGE",
+                "REPOSITORY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "GIT",
+                "REPOSITORY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SNAPSHOT",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "APPLICATION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "APPLICATION",
+                "PACKAGE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "NOTEBOOK",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "MODEL",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "LISTING",
+                Ref("ObjectReferenceSegment"),
+            ),
         ),
     )
 
@@ -9007,6 +9377,10 @@ class UndropStatementSegment(BaseSegment):
                 "EXTERNAL",
                 "VOLUME",
                 Ref("ExternalVolumeReferenceSegment"),
+            ),
+            Sequence(
+                "TAG",
+                Ref("ObjectReferenceSegment"),
             ),
         ),
     )
@@ -9319,6 +9693,7 @@ class DropObjectStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 OneOf(
+                    "ALERT",
                     "CONNECTION",
                     Sequence("CORTEX", "SEARCH", "SERVICE"),
                     Sequence("FILE", "FORMAT"),
@@ -9328,13 +9703,30 @@ class DropObjectStatementSegment(BaseSegment):
                         ),
                         "INTEGRATION",
                     ),
+                    Sequence("NETWORK", "RULE"),
                     "PIPE",
                     Sequence("ROW", "ACCESS", "POLICY"),
+                    "SECRET",
                     "STAGE",
                     "STREAM",
                     "STREAMLIT",
                     "TAG",
                     "TASK",
+                    Sequence("FAILOVER", "GROUP"),
+                    Sequence("REPLICATION", "GROUP"),
+                    Sequence("AGGREGATION", "POLICY"),
+                    Sequence("PROJECTION", "POLICY"),
+                    Sequence("PACKAGES", "POLICY"),
+                    "SERVICE",
+                    Sequence("COMPUTE", "POOL"),
+                    Sequence("IMAGE", "REPOSITORY"),
+                    Sequence("GIT", "REPOSITORY"),
+                    "SNAPSHOT",
+                    "APPLICATION",
+                    Sequence("APPLICATION", "PACKAGE"),
+                    "NOTEBOOK",
+                    "MODEL",
+                    "LISTING",
                 ),
                 Ref("IfExistsGrammar", optional=True),
                 Ref("ObjectReferenceSegment"),
@@ -10324,5 +10716,2232 @@ class CreateAuthenticationPolicySegment(BaseSegment):
         Ref(
             "CommentEqualsClauseSegment",
             optional=True,
+        ),
+    )
+
+
+class CreateAlertStatementSegment(BaseSegment):
+    """A Snowflake `CREATE ALERT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-alert
+    """
+
+    type = "create_alert_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "ALERT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Ref("TagBracketedEqualsSegment", optional=True),
+            Sequence(
+                "SCHEDULE",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "WAREHOUSE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+        ),
+        "IF",
+        Bracketed(
+            "EXISTS",
+            Bracketed(
+                Ref("SelectableGrammar"),
+            ),
+        ),
+        "THEN",
+        Ref("StatementSegment"),
+    )
+
+
+class AlterAlertStatementSegment(BaseSegment):
+    """A Snowflake `ALTER ALERT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-alert
+    """
+
+    type = "alter_alert_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "ALERT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "RESUME",
+            "SUSPEND",
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "SCHEDULE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("WAREHOUSE", "COMMENT"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "MODIFY",
+                "CONDITION",
+                "EXISTS",
+                Bracketed(
+                    Ref("SelectableGrammar"),
+                ),
+            ),
+            Sequence(
+                "MODIFY",
+                "ACTION",
+                Ref("StatementSegment"),
+            ),
+        ),
+    )
+
+
+class CreateSecretStatementSegment(BaseSegment):
+    """A Snowflake `CREATE SECRET` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-secret
+    """
+
+    type = "create_secret_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "SECRET",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "TYPE",
+        Ref("EqualsSegment"),
+        OneOf(
+            "OAUTH2",
+            "PASSWORD",
+            "GENERIC_STRING",
+        ),
+        AnySetOf(
+            Sequence(
+                "API_AUTHENTICATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "OAUTH_SCOPES",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "OAUTH_REFRESH_TOKEN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "OAUTH_REFRESH_TOKEN_EXPIRY_TIME",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "USERNAME",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "PASSWORD",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "SECRET_STRING",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+        ),
+    )
+
+
+class AlterSecretStatementSegment(BaseSegment):
+    """A Snowflake `ALTER SECRET` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-secret
+    """
+
+    type = "alter_secret_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SECRET",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "SET",
+        AnySetOf(
+            Sequence(
+                "OAUTH_SCOPES",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "OAUTH_REFRESH_TOKEN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "OAUTH_REFRESH_TOKEN_EXPIRY_TIME",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "USERNAME",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "PASSWORD",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "SECRET_STRING",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+        ),
+    )
+
+
+class CreateConnectionStatementSegment(BaseSegment):
+    """A Snowflake `CREATE CONNECTION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-connection
+    """
+
+    type = "create_connection_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "CONNECTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "AS",
+            "REPLICA",
+            "OF",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+class AlterConnectionStatementSegment(BaseSegment):
+    """A Snowflake `ALTER CONNECTION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-connection
+    """
+
+    type = "alter_connection_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "CONNECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                OneOf("ENABLE", "DISABLE"),
+                "FAILOVER",
+                "TO",
+                "ACCOUNTS",
+                Delimited(Ref("ObjectReferenceSegment")),
+            ),
+            Sequence("PRIMARY"),
+            Ref("CommentEqualsClauseSegment"),
+            Sequence("UNSET", "COMMENT"),
+        ),
+    )
+
+
+class CreateSessionPolicyStatementSegment(BaseSegment):
+    """A Snowflake `CREATE SESSION POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-session-policy
+    """
+
+    type = "create_session_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "SESSION",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Sequence(
+                "SESSION_IDLE_TIMEOUT_MINS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "SESSION_UI_IDLE_TIMEOUT_MINS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+        ),
+    )
+
+
+class AlterSessionPolicyStatementSegment(BaseSegment):
+    """A Snowflake `ALTER SESSION POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-session-policy
+    """
+
+    type = "alter_session_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SESSION",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "SESSION_IDLE_TIMEOUT_MINS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "SESSION_UI_IDLE_TIMEOUT_MINS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    "SESSION_IDLE_TIMEOUT_MINS",
+                    "SESSION_UI_IDLE_TIMEOUT_MINS",
+                    "COMMENT",
+                ),
+            ),
+        ),
+    )
+
+
+class CreateManagedAccountStatementSegment(BaseSegment):
+    """A Snowflake `CREATE MANAGED ACCOUNT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-managed-account
+    """
+
+    type = "create_managed_account_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "MANAGED",
+        "ACCOUNT",
+        Ref("ObjectReferenceSegment"),
+        "ADMIN_NAME",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+        Ref("CommaSegment"),
+        "ADMIN_PASSWORD",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            Ref("CommaSegment"),
+            "TYPE",
+            Ref("EqualsSegment"),
+            "READER",
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+class AlterNetworkRuleStatementSegment(BaseSegment):
+    """A Snowflake `ALTER NETWORK RULE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-network-rule
+    """
+
+    type = "alter_network_rule_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "NETWORK",
+        "RULE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "VALUE_LIST",
+                        Ref("EqualsSegment"),
+                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "MODE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                "COMMENT",
+            ),
+        ),
+    )
+
+
+class CreateFailoverGroupStatementSegment(BaseSegment):
+    """A Snowflake `CREATE FAILOVER GROUP` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-failover-group
+    """
+
+    type = "create_failover_group_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "FAILOVER",
+        "GROUP",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "OBJECT_TYPES",
+                Ref("EqualsSegment"),
+                Delimited(Ref("ObjectReferenceSegment")),
+                AnySetOf(
+                    Sequence(
+                        "ALLOWED_DATABASES",
+                        Ref("EqualsSegment"),
+                        Delimited(Ref("ObjectReferenceSegment")),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "ALLOWED_SHARES",
+                        Ref("EqualsSegment"),
+                        Delimited(Ref("ObjectReferenceSegment")),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "ALLOWED_INTEGRATION_TYPES",
+                        Ref("EqualsSegment"),
+                        Delimited(Ref("ObjectReferenceSegment")),
+                        optional=True,
+                    ),
+                ),
+                "ALLOWED_ACCOUNTS",
+                Ref("EqualsSegment"),
+                Delimited(Ref("ObjectReferenceSegment")),
+                Sequence(
+                    "IGNORE_EDITION_CHECK",
+                    optional=True,
+                ),
+                Sequence(
+                    "REPLICATION_SCHEDULE",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "AS",
+                "REPLICA",
+                "OF",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class AlterFailoverGroupStatementSegment(BaseSegment):
+    """A Snowflake `ALTER FAILOVER GROUP` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-failover-group
+    """
+
+    type = "alter_failover_group_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "FAILOVER",
+        "GROUP",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "OBJECT_TYPES",
+                        Ref("EqualsSegment"),
+                        Delimited(Ref("ObjectReferenceSegment")),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "REPLICATION_SCHEDULE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
+                "ADD",
+                Delimited(Ref("ObjectReferenceSegment")),
+                "TO",
+                OneOf(
+                    "ALLOWED_DATABASES",
+                    "ALLOWED_SHARES",
+                    "ALLOWED_ACCOUNTS",
+                ),
+            ),
+            Sequence(
+                "REMOVE",
+                Delimited(Ref("ObjectReferenceSegment")),
+                "FROM",
+                OneOf(
+                    "ALLOWED_DATABASES",
+                    "ALLOWED_SHARES",
+                    "ALLOWED_ACCOUNTS",
+                ),
+            ),
+            Sequence("REFRESH"),
+            Sequence("PRIMARY"),
+            "SUSPEND",
+            "RESUME",
+        ),
+    )
+
+
+class CreateReplicationGroupStatementSegment(BaseSegment):
+    """A Snowflake `CREATE REPLICATION GROUP` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-replication-group
+    """
+
+    type = "create_replication_group_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "REPLICATION",
+        "GROUP",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "OBJECT_TYPES",
+                Ref("EqualsSegment"),
+                Delimited(Ref("ObjectReferenceSegment")),
+                AnySetOf(
+                    Sequence(
+                        "ALLOWED_DATABASES",
+                        Ref("EqualsSegment"),
+                        Delimited(Ref("ObjectReferenceSegment")),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "ALLOWED_SHARES",
+                        Ref("EqualsSegment"),
+                        Delimited(Ref("ObjectReferenceSegment")),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "ALLOWED_INTEGRATION_TYPES",
+                        Ref("EqualsSegment"),
+                        Delimited(Ref("ObjectReferenceSegment")),
+                        optional=True,
+                    ),
+                ),
+                "ALLOWED_ACCOUNTS",
+                Ref("EqualsSegment"),
+                Delimited(Ref("ObjectReferenceSegment")),
+                Sequence(
+                    "IGNORE_EDITION_CHECK",
+                    optional=True,
+                ),
+                Sequence(
+                    "REPLICATION_SCHEDULE",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "AS",
+                "REPLICA",
+                "OF",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class AlterReplicationGroupStatementSegment(BaseSegment):
+    """A Snowflake `ALTER REPLICATION GROUP` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-replication-group
+    """
+
+    type = "alter_replication_group_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "REPLICATION",
+        "GROUP",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "OBJECT_TYPES",
+                        Ref("EqualsSegment"),
+                        Delimited(Ref("ObjectReferenceSegment")),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "REPLICATION_SCHEDULE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
+                "ADD",
+                Delimited(Ref("ObjectReferenceSegment")),
+                "TO",
+                OneOf(
+                    "ALLOWED_DATABASES",
+                    "ALLOWED_SHARES",
+                    "ALLOWED_ACCOUNTS",
+                ),
+            ),
+            Sequence(
+                "REMOVE",
+                Delimited(Ref("ObjectReferenceSegment")),
+                "FROM",
+                OneOf(
+                    "ALLOWED_DATABASES",
+                    "ALLOWED_SHARES",
+                    "ALLOWED_ACCOUNTS",
+                ),
+            ),
+            Sequence("REFRESH"),
+            "SUSPEND",
+            "RESUME",
+        ),
+    )
+
+
+class CreateAggregationPolicyStatementSegment(BaseSegment):
+    """A Snowflake `CREATE AGGREGATION POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-aggregation-policy
+    """
+
+    type = "create_aggregation_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "AGGREGATION",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Bracketed(),
+        "RETURNS",
+        "AGGREGATION_CONSTRAINT",
+        Ref("LambdaArrowSegment"),
+        Ref("ExpressionSegment"),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+class AlterAggregationPolicyStatementSegment(BaseSegment):
+    """A Snowflake `ALTER AGGREGATION POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-aggregation-policy
+    """
+
+    type = "alter_aggregation_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "AGGREGATION",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                "BODY",
+                Ref("LambdaArrowSegment"),
+                Ref("ExpressionSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
+            Sequence("UNSET", "COMMENT"),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+        ),
+    )
+
+
+class CreateProjectionPolicyStatementSegment(BaseSegment):
+    """A Snowflake `CREATE PROJECTION POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-projection-policy
+    """
+
+    type = "create_projection_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "PROJECTION",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Bracketed(),
+        "RETURNS",
+        "PROJECTION_CONSTRAINT",
+        Ref("LambdaArrowSegment"),
+        Ref("ExpressionSegment"),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+class AlterProjectionPolicyStatementSegment(BaseSegment):
+    """A Snowflake `ALTER PROJECTION POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-projection-policy
+    """
+
+    type = "alter_projection_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "PROJECTION",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                "BODY",
+                Ref("LambdaArrowSegment"),
+                Ref("ExpressionSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
+            Sequence("UNSET", "COMMENT"),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+        ),
+    )
+
+
+class CreatePackagesPolicyStatementSegment(BaseSegment):
+    """A Snowflake `CREATE PACKAGES POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-packages-policy
+    """
+
+    type = "create_packages_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "PACKAGES",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "LANGUAGE",
+        "PYTHON",
+        AnySetOf(
+            Sequence(
+                "ALLOWLIST",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+                optional=True,
+            ),
+            Sequence(
+                "BLOCKLIST",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+                optional=True,
+            ),
+            Sequence(
+                "ADDITIONAL_CREATION_BLOCKLIST",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+        ),
+    )
+
+
+class AlterPackagesPolicyStatementSegment(BaseSegment):
+    """A Snowflake `ALTER PACKAGES POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-packages-policy
+    """
+
+    type = "alter_packages_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "PACKAGES",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "ALLOWLIST",
+                        Ref("EqualsSegment"),
+                        Bracketed(
+                            Delimited(Ref("QuotedLiteralSegment"), optional=True)
+                        ),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "BLOCKLIST",
+                        Ref("EqualsSegment"),
+                        Bracketed(
+                            Delimited(Ref("QuotedLiteralSegment"), optional=True)
+                        ),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "ADDITIONAL_CREATION_BLOCKLIST",
+                        Ref("EqualsSegment"),
+                        Bracketed(
+                            Delimited(Ref("QuotedLiteralSegment"), optional=True)
+                        ),
+                        optional=True,
+                    ),
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    "ALLOWLIST",
+                    "BLOCKLIST",
+                    "ADDITIONAL_CREATION_BLOCKLIST",
+                    "COMMENT",
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class CreateDataMetricFunctionStatementSegment(BaseSegment):
+    """A Snowflake `CREATE DATA METRIC FUNCTION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    """
+
+    type = "create_data_metric_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("SECURE", optional=True),
+        "DATA",
+        "METRIC",
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    "TABLE",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("NakedIdentifierSegment"),
+                                Ref("DatatypeSegment"),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        "RETURNS",
+        Ref("DatatypeSegment"),
+        Sequence(Ref.keyword("NOT", optional=True), "NULL", optional=True),
+        Sequence("LANGUAGE", "SQL", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        "AS",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+class CreateServiceStatementSegment(BaseSegment):
+    """A Snowflake `CREATE SERVICE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-service
+    """
+
+    type = "create_service_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SERVICE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "IN",
+        "COMPUTE",
+        "POOL",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "FROM",
+                OneOf(
+                    Sequence(
+                        Ref("StagePath"),
+                        OneOf("SPECIFICATION_FILE", "SPECIFICATION_TEMPLATE_FILE"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        OneOf("SPECIFICATION_FILE", "SPECIFICATION_TEMPLATE_FILE"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "SPECIFICATION",
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "SPECIFICATION_TEMPLATE",
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "USING",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("ParameterAssignerSegment"),
+                        Ref("LiteralGrammar"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        AnySetOf(
+            Sequence(
+                "AUTO_SUSPEND_SECS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Ref("ExternalAccessIntegrationsEqualsSegment", optional=True),
+            Sequence(
+                "AUTO_RESUME",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "MIN_INSTANCES",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "MIN_READY_INSTANCES",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "MAX_INSTANCES",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "LOG_LEVEL",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "QUERY_WAREHOUSE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            Ref("TagBracketedEqualsSegment", optional=True),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            optional=True,
+        ),
+    )
+
+
+class AlterServiceStatementSegment(BaseSegment):
+    """A Snowflake `ALTER SERVICE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-service
+    """
+
+    type = "alter_service_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SERVICE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "SUSPEND",
+            "RESUME",
+            Sequence(
+                "FROM",
+                OneOf(
+                    Sequence(
+                        Ref("StagePath"),
+                        OneOf("SPECIFICATION_FILE", "SPECIFICATION_TEMPLATE_FILE"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        OneOf("SPECIFICATION_FILE", "SPECIFICATION_TEMPLATE_FILE"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "SPECIFICATION",
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "SPECIFICATION_TEMPLATE",
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+                Sequence(
+                    "USING",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("NakedIdentifierSegment"),
+                                Ref("ParameterAssignerSegment"),
+                                Ref("LiteralGrammar"),
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "RESTORE",
+                "VOLUME",
+                Ref("QuotedLiteralSegment"),
+                "INSTANCES",
+                Delimited(Ref("NumericLiteralSegment")),
+                "FROM",
+                "SNAPSHOT",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "MIN_INSTANCES",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "MAX_INSTANCES",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "LOG_LEVEL",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "AUTO_SUSPEND_SECS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "MIN_READY_INSTANCES",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "QUERY_WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "AUTO_RESUME",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Ref("ExternalAccessIntegrationsEqualsSegment", optional=True),
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                    Sequence(
+                        "TAG",
+                        Ref("TagReferenceSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        AnyNumberOf(
+                            Ref("CommaSegment"),
+                            Ref("TagReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    OneOf(
+                        "MIN_INSTANCES",
+                        "AUTO_SUSPEND_SECS",
+                        "MAX_INSTANCES",
+                        "LOG_LEVEL",
+                        "MIN_READY_INSTANCES",
+                        "QUERY_WAREHOUSE",
+                        "AUTO_RESUME",
+                        "EXTERNAL_ACCESS_INTEGRATIONS",
+                        "COMMENT",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class CreateComputePoolStatementSegment(BaseSegment):
+    """A Snowflake `CREATE COMPUTE POOL` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-compute-pool
+    """
+
+    type = "create_compute_pool_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "COMPUTE",
+        "POOL",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FOR",
+            "APPLICATION",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        "MIN_NODES",
+        Ref("EqualsSegment"),
+        Ref("NumericLiteralSegment"),
+        "MAX_NODES",
+        Ref("EqualsSegment"),
+        Ref("NumericLiteralSegment"),
+        "INSTANCE_FAMILY",
+        Ref("EqualsSegment"),
+        Ref("NakedIdentifierSegment"),
+        AnySetOf(
+            Sequence(
+                "AUTO_RESUME",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "INITIALLY_SUSPENDED",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "AUTO_SUSPEND_SECS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Ref("TagBracketedEqualsSegment", optional=True),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            Sequence(
+                "PLACEMENT_GROUP",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
+class AlterComputePoolStatementSegment(BaseSegment):
+    """A Snowflake `ALTER COMPUTE POOL` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-compute-pool
+    """
+
+    type = "alter_compute_pool_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "COMPUTE",
+        "POOL",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "SUSPEND",
+            "RESUME",
+            Sequence(
+                "STOP",
+                "ALL",
+                Sequence(
+                    "OF",
+                    "TYPE",
+                    Delimited(Ref("NakedIdentifierSegment")),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "MIN_NODES",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "MAX_NODES",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "AUTO_RESUME",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "AUTO_SUSPEND_SECS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "PLACEMENT_GROUP",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "INSTANCE_FAMILY",
+                        Ref("EqualsSegment"),
+                        Ref("NakedIdentifierSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "TAG",
+                        Ref("TagReferenceSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        AnyNumberOf(
+                            Ref("CommaSegment"),
+                            Ref("TagReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    OneOf(
+                        "AUTO_SUSPEND_SECS",
+                        "AUTO_RESUME",
+                        "PLACEMENT_GROUP",
+                        "COMMENT",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class CreateImageRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `CREATE IMAGE REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-image-repository
+    """
+
+    type = "create_image_repository_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "IMAGE",
+        "REPOSITORY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "ENCRYPTION",
+            Ref("EqualsSegment"),
+            Bracketed(
+                "TYPE",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class CreateGitRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `CREATE GIT REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-git-repository
+    """
+
+    type = "create_git_repository_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "GIT",
+        "REPOSITORY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "ORIGIN",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+        "API_INTEGRATION",
+        Ref("EqualsSegment"),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Sequence(
+                "GIT_CREDENTIALS",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            Ref("TagBracketedEqualsSegment", optional=True),
+            optional=True,
+        ),
+    )
+
+
+class AlterGitRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `ALTER GIT REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-git-repository
+    """
+
+    type = "alter_git_repository_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "GIT",
+        "REPOSITORY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "FETCH",
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "GIT_CREDENTIALS",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "API_INTEGRATION",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                        optional=True,
+                    ),
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                    Sequence(
+                        "TAG",
+                        Ref("TagReferenceSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        AnyNumberOf(
+                            Ref("CommaSegment"),
+                            Ref("TagReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence(
+                        "TAG",
+                        Delimited(Ref("TagReferenceSegment")),
+                    ),
+                    Delimited(
+                        OneOf(
+                            "GIT_CREDENTIALS",
+                            "COMMENT",
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class CreateSnapshotStatementSegment(BaseSegment):
+    """A Snowflake `CREATE SNAPSHOT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-snapshot
+    """
+
+    type = "create_snapshot_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "SNAPSHOT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "FROM",
+        "SERVICE",
+        Ref("ObjectReferenceSegment"),
+        "VOLUME",
+        Ref("QuotedLiteralSegment"),
+        "INSTANCE",
+        Ref("NumericLiteralSegment"),
+        AnySetOf(
+            Ref("CommentEqualsClauseSegment", optional=True),
+            Ref("TagBracketedEqualsSegment", optional=True),
+            optional=True,
+        ),
+    )
+
+
+class AlterSnapshotStatementSegment(BaseSegment):
+    """A Snowflake `ALTER SNAPSHOT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-snapshot
+    """
+
+    type = "alter_snapshot_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SNAPSHOT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "SET",
+        Ref("CommentEqualsClauseSegment"),
+    )
+
+
+class CreateApplicationStatementSegment(BaseSegment):
+    """A Snowflake `CREATE APPLICATION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-application
+    """
+
+    type = "create_application_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "APPLICATION",
+        Ref("ObjectReferenceSegment"),
+        "FROM",
+        OneOf(
+            Sequence(
+                "APPLICATION",
+                "PACKAGE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "LISTING",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+        OneOf(
+            Sequence(
+                "USING",
+                OneOf(
+                    Sequence(
+                        "RELEASE",
+                        "CHANNEL",
+                        OneOf("QA", "ALPHA", "DEFAULT"),
+                    ),
+                    Sequence(
+                        "VERSION",
+                        Ref("NakedIdentifierSegment"),
+                        Sequence(
+                            "PATCH",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Ref("StagePath"),
+                ),
+            ),
+            optional=True,
+        ),
+        AnySetOf(
+            Sequence(
+                "DEBUG_MODE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            Ref("TagBracketedEqualsSegment", optional=True),
+            Sequence(
+                "AUTHORIZE_TELEMETRY_EVENT_SHARING",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "BACKGROUND_INSTALL",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
+class AlterApplicationStatementSegment(BaseSegment):
+    """A Snowflake `ALTER APPLICATION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-application
+    """
+
+    type = "alter_application_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "APPLICATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                    Sequence(
+                        "SHARE_EVENTS_WITH_PROVIDER",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "DEBUG_MODE",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "AUTHORIZE_TELEMETRY_EVENT_SHARING",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "TAG",
+                        Ref("TagReferenceSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        AnyNumberOf(
+                            Ref("CommaSegment"),
+                            Ref("TagReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    OneOf(
+                        "COMMENT",
+                        "SHARE_EVENTS_WITH_PROVIDER",
+                        "DEBUG_MODE",
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                "TAG",
+                Delimited(Ref("TagReferenceSegment")),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            "UPGRADE",
+            Sequence(
+                "UPGRADE",
+                "USING",
+                OneOf(
+                    Sequence(
+                        "VERSION",
+                        Ref("NakedIdentifierSegment"),
+                        Sequence(
+                            "PATCH",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Ref("StagePath"),
+                ),
+            ),
+        ),
+    )
+
+
+class CreateApplicationPackageStatementSegment(BaseSegment):
+    """A Snowflake `CREATE APPLICATION PACKAGE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-application-package
+    """
+
+    type = "create_application_package_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "APPLICATION",
+        "PACKAGE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Sequence(
+                "DATA_RETENTION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "DEFAULT_DDL_COLLATION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            Ref("TagBracketedEqualsSegment", optional=True),
+            Sequence(
+                "DISTRIBUTION",
+                Ref("EqualsSegment"),
+                OneOf("INTERNAL", "EXTERNAL"),
+                optional=True,
+            ),
+            Sequence(
+                "LISTING_AUTO_REFRESH",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "MULTIPLE_INSTANCES",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "ENABLE_RELEASE_CHANNELS",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
+class AlterApplicationPackageStatementSegment(BaseSegment):
+    """A Snowflake `ALTER APPLICATION PACKAGE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-application-package
+    """
+
+    type = "alter_application_package_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "APPLICATION",
+        "PACKAGE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "DATA_RETENTION_TIME_IN_DAYS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "DEFAULT_DDL_COLLATION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                    Sequence(
+                        "DISTRIBUTION",
+                        Ref("EqualsSegment"),
+                        OneOf("INTERNAL", "EXTERNAL"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "MULTIPLE_INSTANCES",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "ENABLE_RELEASE_CHANNELS",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "LISTING_AUTO_REFRESH",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "TAG",
+                        Ref("TagReferenceSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        AnyNumberOf(
+                            Ref("CommaSegment"),
+                            Ref("TagReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence(
+                        "TAG",
+                        Delimited(Ref("TagReferenceSegment")),
+                    ),
+                    Delimited(
+                        OneOf(
+                            "DATA_RETENTION_TIME_IN_DAYS",
+                            "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                            "DEFAULT_DDL_COLLATION",
+                            "COMMENT",
+                            "DISTRIBUTION",
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class CreateNotebookStatementSegment(BaseSegment):
+    """A Snowflake `CREATE NOTEBOOK` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-notebook
+    """
+
+    type = "create_notebook_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "NOTEBOOK",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Sequence(
+                "FROM",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "MAIN_FILE",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            Sequence(
+                "QUERY_WAREHOUSE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "IDLE_AUTO_SHUTDOWN_TIME_SECONDS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "RUNTIME_NAME",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "COMPUTE_POOL",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "WAREHOUSE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
+class AlterNotebookStatementSegment(BaseSegment):
+    """A Snowflake `ALTER NOTEBOOK` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-notebook
+    """
+
+    type = "alter_notebook_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "NOTEBOOK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                    Sequence(
+                        "QUERY_WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "IDLE_AUTO_SHUTDOWN_TIME_SECONDS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    OneOf(
+                        "QUERY_WAREHOUSE",
+                        "COMMENT",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class CreateModelStatementSegment(BaseSegment):
+    """A Snowflake `CREATE MODEL` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-model
+    """
+
+    type = "create_model_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "MODEL",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "WITH",
+            "VERSION",
+            Ref("NakedIdentifierSegment"),
+            optional=True,
+        ),
+        "FROM",
+        OneOf(
+            Sequence(
+                "MODEL",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "VERSION",
+                    Ref("NakedIdentifierSegment"),
+                    optional=True,
+                ),
+            ),
+            Ref("StagePath"),
+        ),
+    )
+
+
+class AlterModelStatementSegment(BaseSegment):
+    """A Snowflake `ALTER MODEL` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-model
+    """
+
+    type = "alter_model_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "MODEL",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                    Sequence(
+                        "DEFAULT_VERSION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "TAG",
+                        Ref("TagReferenceSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        AnyNumberOf(
+                            Ref("CommaSegment"),
+                            Ref("TagReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence(
+                        "TAG",
+                        Delimited(Ref("TagReferenceSegment")),
+                    ),
+                    "COMMENT",
+                ),
+            ),
+            Sequence(
+                "VERSION",
+                Ref("NakedIdentifierSegment"),
+                "SET",
+                "ALIAS",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "VERSION",
+                Ref("NakedIdentifierSegment"),
+                "UNSET",
+                "ALIAS",
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class CreateListingStatementSegment(BaseSegment):
+    """A Snowflake `CREATE LISTING` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-listing
+    """
+
+    type = "create_listing_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref.keyword("EXTERNAL", optional=True),
+        "LISTING",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            OneOf(
+                Sequence("SHARE", Ref("ObjectReferenceSegment")),
+                Sequence("APPLICATION", "PACKAGE", Ref("ObjectReferenceSegment")),
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Sequence("AS", Ref("QuotedLiteralSegment")),
+            Sequence("FROM", Ref("QuotedLiteralSegment")),
+        ),
+        AnySetOf(
+            Sequence(
+                "PUBLISH",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "REVIEW",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            optional=True,
+        ),
+    )
+
+
+class AlterListingStatementSegment(BaseSegment):
+    """A Snowflake `ALTER LISTING` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-listing
+    """
+
+    type = "alter_listing_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "LISTING",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "PUBLISH",
+            "UNPUBLISH",
+            "REVIEW",
+            Sequence(
+                "AS",
+                Ref("QuotedLiteralSegment"),
+                AnySetOf(
+                    Sequence(
+                        "PUBLISH",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "REVIEW",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Ref("CommentEqualsClauseSegment", optional=True),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                Ref("CommentEqualsClauseSegment"),
+            ),
+            Sequence(
+                OneOf("ADD", "REMOVE"),
+                "TARGETS",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
+class AlterCatalogIntegrationStatementSegment(BaseSegment):
+    """A Snowflake `ALTER CATALOG INTEGRATION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-catalog-integration
+    """
+
+    type = "alter_catalog_integration_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "CATALOG",
+        "INTEGRATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "SET",
+        AnySetOf(
+            Sequence(
+                "REST_AUTHENTICATION",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    OneOf(
+                        Sequence(
+                            "OAUTH_CLIENT_SECRET",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "BEARER_TOKEN",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "REFRESH_INTERVAL_SECONDS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
         ),
     )

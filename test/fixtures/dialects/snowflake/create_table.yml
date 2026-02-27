@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5eb9b8fdbd02c3c803bae3ea9de4f8c57a2f9907316a4848ff461dfa6ace58a0
+_hash: 5671dd09338eded6cc29bd49bb097420b600dad58f720a2cd3e0d38135cd055b
 file:
 - statement:
     create_table_statement:
@@ -2642,4 +2642,167 @@ file:
           data_type:
             data_type_identifier: INT
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: ENABLE_SCHEMA_EVOLUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: ENABLE_SCHEMA_EVOLUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+    - keyword: CHANGE_TRACKING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_policy
+    - keyword: ENTITY
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: col2
+          data_type:
+            data_type_identifier: INT
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_policy
+    - keyword: ENTITY
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: WITH
+          - keyword: PROJECTION
+          - keyword: POLICY
+          - function_name:
+            - naked_identifier: my_db
+            - dot: .
+            - naked_identifier: my_schema
+            - dot: .
+            - function_name_identifier: my_proj_policy
+      - comma: ','
+      - column_definition:
+          naked_identifier: col2
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '100'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: PROJECTION
+          - keyword: POLICY
+          - function_name:
+              function_name_identifier: my_proj_policy
+      - end_bracket: )
 - statement_terminator: ;

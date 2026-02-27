@@ -1,0 +1,94 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7e2a4dc944c816917b5b0b056f4e9ccd02793c3c453c7085697285813fcced0b
+file:
+- statement:
+    create_aggregation_policy_statement:
+    - keyword: CREATE
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURNS
+    - keyword: AGGREGATION_CONSTRAINT
+    - lambda_arrow: ->
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: AGGREGATION_CONSTRAINT
+          function_contents:
+            bracketed:
+              start_bracket: (
+              snowflake_keyword_expression:
+                parameter: MIN_GROUP_SIZE
+                parameter_assigner: =>
+                numeric_literal: '5'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_aggregation_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURNS
+    - keyword: AGGREGATION_CONSTRAINT
+    - lambda_arrow: ->
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: NO_AGGREGATION_CONSTRAINT
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'no restrictions'"
+- statement_terminator: ;
+- statement:
+    create_aggregation_policy_statement:
+    - keyword: CREATE
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_agg_policy
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURNS
+    - keyword: AGGREGATION_CONSTRAINT
+    - lambda_arrow: ->
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: AGGREGATION_CONSTRAINT
+          function_contents:
+            bracketed:
+              start_bracket: (
+              snowflake_keyword_expression:
+                parameter: MIN_GROUP_SIZE
+                parameter_assigner: =>
+                numeric_literal: '1000'
+              end_bracket: )
+- statement_terminator: ;

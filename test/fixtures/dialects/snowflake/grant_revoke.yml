@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a67ef733b964d84d3610036aa4aec341d0204c30735fc515282c76313142c730
+_hash: 3da839fc2a8a352cb297a7e9281999ed4c865c68a258d11c91cecb2b53254bbc
 file:
 - statement:
     access_statement:
@@ -2392,4 +2392,297 @@ file:
           keyword: ROLE
           role_reference:
             naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: SECRET
+          object_reference:
+            naked_identifier: my_secret
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: SERVICE
+          object_reference:
+            naked_identifier: my_service
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+          - keyword: COMPUTE
+          - keyword: POOL
+          object_reference:
+            naked_identifier: my_pool
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+          - keyword: NETWORK
+          - keyword: RULE
+          object_reference:
+            naked_identifier: my_rule
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+          - keyword: IMAGE
+          - keyword: REPOSITORY
+          object_reference:
+            naked_identifier: my_repo
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+          - keyword: GIT
+          - keyword: REPOSITORY
+          object_reference:
+            naked_identifier: my_git_repo
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+        - keyword: APPLICATION
+        - keyword: PACKAGE
+        - object_reference:
+            naked_identifier: my_pkg
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          keyword: APPLICATION
+          object_reference:
+            naked_identifier: my_app
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+            keyword: SECRETS
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+            naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+            keyword: SERVICES
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+            naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+          - keyword: COMPUTE
+          - keyword: POOLS
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+            naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: CREATE
+          - keyword: COMPUTE
+          - keyword: POOL
+      - keyword: 'ON'
+      - access_object:
+          keyword: ACCOUNT
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: CREATE
+          - keyword: APPLICATION
+      - keyword: 'ON'
+      - access_object:
+          keyword: ACCOUNT
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: CREATE
+          - keyword: APPLICATION
+          - keyword: PACKAGE
+      - keyword: 'ON'
+      - access_object:
+          keyword: ACCOUNT
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: BIND
+          - keyword: SERVICE
+          - keyword: ENDPOINT
+      - keyword: 'ON'
+      - access_object:
+          keyword: ACCOUNT
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
 - statement_terminator: ;

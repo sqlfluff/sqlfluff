@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f2b506daf1713ff9acc73d48c9d4fde98eed33469dc6229bb26856750e07cf7
+_hash: 503227a1444c16b205d722c46781894d3d40c3ce566f65aa9ed338ea18e13cc3
 file:
 - statement:
     alter_view_statement:
@@ -217,4 +217,203 @@ file:
     - function_name:
         function_name_identifier: my_masking_policy
     - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: CHANGE_TRACKING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: CHANGE_TRACKING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_policy
+    - keyword: ENTITY
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: UNSET
+    - keyword: AGGREGATION
+    - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: ADD
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: my_dmf
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: DROP
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: my_dmf
+    - keyword: 'ON'
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: MODIFY
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: my_dmf
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        end_bracket: )
+    - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: ALTER
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: my_dmf
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        end_bracket: )
+    - keyword: RESUME
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: col1
+    - keyword: SET
+    - keyword: PROJECTION
+    - keyword: POLICY
+    - function_name:
+        function_name_identifier: my_proj_policy
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: col1
+    - keyword: SET
+    - keyword: PROJECTION
+    - keyword: POLICY
+    - function_name:
+        function_name_identifier: my_proj_policy
+    - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: col1
+    - keyword: UNSET
+    - keyword: PROJECTION
+    - keyword: POLICY
 - statement_terminator: ;
