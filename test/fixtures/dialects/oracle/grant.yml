@@ -1,0 +1,270 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 171171db8b369c26530be3aa171d7eff2a5c147251ec79dafa53d37527681e70
+file:
+  batch:
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            access_permission:
+              keyword: CREATE
+            access_object:
+              keyword: SESSION
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: hr
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            access_permission:
+              keyword: CREATE
+            access_object:
+              keyword: SESSION
+        - keyword: TO
+        - access_target:
+          - object_reference:
+              naked_identifier: hr
+          - comma: ','
+          - object_reference:
+              naked_identifier: newuser
+        - keyword: IDENTIFIED
+        - keyword: BY
+        - naked_identifier: password1
+        - comma: ','
+        - naked_identifier: password2
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+          - access_permission:
+              keyword: CREATE
+          - keyword: ANY
+          - access_object:
+            - keyword: MATERIALIZED
+            - keyword: VIEW
+          - comma: ','
+          - access_permission:
+              keyword: ALTER
+          - keyword: ANY
+          - access_object:
+            - keyword: MATERIALIZED
+            - keyword: VIEW
+          - comma: ','
+          - access_permission:
+              keyword: DROP
+          - keyword: ANY
+          - access_object:
+            - keyword: MATERIALIZED
+            - keyword: VIEW
+          - comma: ','
+          - access_permission:
+            - keyword: QUERY
+            - keyword: REWRITE
+          - comma: ','
+          - access_permission:
+            - keyword: GLOBAL
+            - keyword: QUERY
+            - keyword: REWRITE
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: dw_manager
+        - keyword: WITH
+        - keyword: ADMIN
+        - keyword: OPTION
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            role_reference:
+              naked_identifier: dw_manager
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: sh
+        - keyword: WITH
+        - keyword: ADMIN
+        - keyword: OPTION
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            role_reference:
+              naked_identifier: dw_manager
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: sh
+        - keyword: WITH
+        - keyword: DELEGATE
+        - keyword: OPTION
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            access_permission:
+              keyword: SELECT
+        - keyword: 'ON'
+        - object_reference:
+          - naked_identifier: sh
+          - dot: .
+          - naked_identifier: sales
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: warehouse_user
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            role_reference:
+              naked_identifier: warehouse_user
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: dw_manager
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            access_permission:
+              keyword: INHERIT
+            access_object:
+              keyword: PRIVILEGES
+        - keyword: 'ON'
+        - keyword: USER
+        - object_reference:
+            naked_identifier: sh
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: hr
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            access_permission:
+              keyword: READ
+        - keyword: 'ON'
+        - keyword: DIRECTORY
+        - object_reference:
+            naked_identifier: bfile_dir
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: hr
+        - keyword: WITH
+        - keyword: GRANT
+        - keyword: OPTION
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            access_permission:
+              keyword: ALL
+        - keyword: 'ON'
+        - object_reference:
+            naked_identifier: bonuses
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: hr
+        - keyword: WITH
+        - keyword: GRANT
+        - keyword: OPTION
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+          - access_permission:
+              keyword: SELECT
+          - comma: ','
+          - access_permission:
+              keyword: UPDATE
+        - keyword: 'ON'
+        - object_reference:
+            naked_identifier: emp_view
+        - keyword: TO
+        - access_target:
+            keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            access_permission:
+              keyword: SELECT
+        - keyword: 'ON'
+        - object_reference:
+          - naked_identifier: oe
+          - dot: .
+          - naked_identifier: customers_seq
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: hr
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+          - access_permission:
+              keyword: REFERENCES
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: employee_id
+              end_bracket: )
+          - comma: ','
+          - access_permission:
+              keyword: UPDATE
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: employee_id
+            - comma: ','
+            - column_reference:
+                naked_identifier: salary
+            - comma: ','
+            - column_reference:
+                naked_identifier: commission_pct
+            - end_bracket: )
+        - keyword: 'ON'
+        - object_reference:
+          - naked_identifier: hr
+          - dot: .
+          - naked_identifier: employees
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: oe
+  - statement_terminator: ;

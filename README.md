@@ -74,7 +74,7 @@ add other, currently unsupported, dialects. Please [raise issues](https://github
 (or upvote any existing issues) to let us know of demand for missing support.
 
 Pull requests from those that know the missing syntax or dialects are especially
-welcomed and are the question way for you to get support added. We are happy
+welcomed and are the best way for you to get support added. We are happy
 to work with any potential contributors on this to help them add this support.
 Please raise an issue first for any large feature change to ensure it is a good
 fit for this project before spending time on this work.
@@ -158,7 +158,7 @@ New releases are made monthly. For more information, visit
 # SQLFluff on Slack
 
 We have a fast-growing community
-[on Slack](https://join.slack.com/t/sqlfluff/shared_invite/zt-2qtu36kdt-OS4iONPbQ3aCz2DIbYJdWg),
+[on Slack](https://join.slack.com/t/sqlfluff/shared_invite/zt-3qprhrisj-ClUo_1tLmYBzrVu5ZoDwIw),
 come and join us!
 
 # SQLFluff on Twitter
@@ -180,5 +180,5 @@ the guide to [contributing](CONTRIBUTING.md).
 
 # Sponsors
 
-<img src="images/datacoves.png" alt="Datacoves" width="150"/><br>
+<img src="https://raw.githubusercontent.com/sqlfluff/sqlfluff/refs/heads/main/images/datacoves.png" alt="Datacoves" width="150"/><br>
 The turnkey analytics stack, find out more at [Datacoves.com](https://datacoves.com/).

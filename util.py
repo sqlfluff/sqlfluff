@@ -5,12 +5,12 @@
 NB: This is not part of the core sqlfluff code.
 """
 
-
 # This contains various utility scripts
 
 import os
 import re
 import shutil
+import subprocess
 import time
 
 import click
@@ -43,6 +43,53 @@ def clean_tests(path):
 
     os.mkdir(path)
     click.echo(f"Created {path!r}")
+
+
+def convert_pep440_to_semver(version: str) -> str:
+    """Convert Python PEP 440 version to Rust SemVer format.
+
+    Maturin automatically converts SemVer back to PEP 440 for Python packages.
+    See: https://www.maturin.rs/metadata.html
+
+    Examples:
+        4.0.0a1 -> 4.0.0-alpha.1
+        4.0.0b2 -> 4.0.0-beta.2
+        4.0.0rc3 -> 4.0.0-rc.3
+        4.0.0 -> 4.0.0 (stable versions unchanged)
+    """
+    # Match PEP 440 pre-release versions: X.Y.Z{a|b|rc}N
+    pep440_pattern = r"^(\d+\.\d+\.\d+)(a|b|rc)(\d+)$"
+    match = re.match(pep440_pattern, version)
+
+    if not match:
+        # Not a pre-release or doesn't match pattern, return as-is
+        return version
+
+    base_version, pre_type, pre_num = match.groups()
+
+    # Map PEP 440 pre-release identifiers to SemVer
+    pre_type_map = {"a": "alpha", "b": "beta", "rc": "rc"}
+
+    semver_pre_type = pre_type_map.get(pre_type, pre_type)
+    return f"{base_version}-{semver_pre_type}.{pre_num}"
+
+
+def check_cargo_installed():
+    """Check if cargo is installed and available.
+
+    Returns:
+        bool: True if cargo is installed, False otherwise.
+    """
+    try:
+        result = subprocess.run(
+            ["cargo", "--version"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return result.returncode == 0
+    except FileNotFoundError:
+        return False
 
 
 @cli.command()
@@ -188,7 +235,7 @@ def release(new_version_num):
 
             else:
                 click.echo(f"...creating new entry for {new_version_num}")
-                write_changelog.write(f"\n{new_heading}\n## Highlights\n\n")
+                write_changelog.write(f"\n{new_heading}\n")
                 write_changelog.write(whats_changed_text)
                 write_changelog.write("\n## New Contributors\n\n")
                 # Ensure contributor names don't appear in input_changelog list
@@ -216,6 +263,45 @@ def release(new_version_num):
             write_file.write(line)
         write_file.close()
 
+    click.echo("Updating sqlfluffrs/Cargo.toml")
+    filename = "sqlfluffrs/Cargo.toml"
+    # Convert Python PEP 440 version to Rust SemVer format
+    # Maturin will automatically convert this back to PEP 440 for the Python package
+    rust_version = convert_pep440_to_semver(new_version_num)
+    click.echo(f"  Converting version: {new_version_num} -> {rust_version} (SemVer)")
+    # NOTE: Toml files are always encoded in UTF-8.
+    input_file = open(filename, "r", encoding="utf-8").readlines()
+    # Regardless of platform, write newlines as \n
+    write_file = open(filename, "w", encoding="utf-8", newline="\n")
+    for line in input_file:
+        if line.startswith("version"):
+            line = f'version = "{rust_version}"\n'
+        write_file.write(line)
+    write_file.close()
+
+    # Update Cargo.lock via `cargo update --workspace`
+    # Note: `cargo check` does NOT update workspace member versions in Cargo.lock,
+    # only `cargo update --workspace` properly updates all workspace crate versions.
+    if check_cargo_installed():
+        click.echo("Running cargo update --workspace to update Cargo.lock...")
+        result = subprocess.run(
+            ["cargo", "update", "--workspace"],
+            cwd="sqlfluffrs",
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            click.echo("✓ Rust Cargo.lock updated")
+        else:
+            click.echo("✗ Rust cargo update failed:")
+            if result.stdout:
+                click.echo(result.stdout)
+            if result.stderr:
+                click.echo(result.stderr)
+    else:
+        click.echo("Error: cargo not installed, unable to update Cargo.lock")
+
     keys = ["version"]
     if not is_pre_release:
         # Only update stable_version if it's not a pre-release.
@@ -232,6 +318,9 @@ def release(new_version_num):
                     # For pyproject.toml we quote the version identifier.
                     line = f'{key} = "{new_version_num}"\n'
                     break
+            # Update sqlfluffrs dependency version
+            if line.startswith('rs = ["sqlfluffrs'):
+                line = f'rs = ["sqlfluffrs=={new_version_num}"]\n'
             write_file.write(line)
         write_file.close()
 

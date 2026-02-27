@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 00691c223254aae3b281e0b6ac8e31d4b4c89a5591f343c9ff6ba22653c53aa1
+_hash: a9113b4f61a16017ba798f9635d2b9bb9ab7d7f27019e0e8324d35547248b279
 file:
 - batch:
     statement:
@@ -79,7 +79,7 @@ file:
                         quoted_identifier: '[POPULATION]'
                     keyword: AS
                     data_type:
-                      data_type_identifier: BIGINT
+                      keyword: BIGINT
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -102,7 +102,7 @@ file:
                         quoted_identifier: '[WEEKLY_COUNT]'
                     keyword: AS
                     data_type:
-                      data_type_identifier: BIGINT
+                      keyword: BIGINT
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -161,7 +161,7 @@ file:
                           - end_bracket: )
                     keyword: AS
                     data_type:
-                      data_type_identifier: DATE
+                      keyword: DATE
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -226,7 +226,7 @@ file:
                             end_bracket: )
                     keyword: AS
                     data_type:
-                      data_type_identifier: DATE
+                      keyword: DATE
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -245,7 +245,7 @@ file:
                         quoted_identifier: '[RATE_14_DAY]'
                     keyword: AS
                     data_type:
-                      data_type_identifier: FLOAT
+                      keyword: FLOAT
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -264,7 +264,7 @@ file:
                         quoted_identifier: '[CUMULATIVE_COUNT]'
                     keyword: AS
                     data_type:
-                      data_type_identifier: BIGINT
+                      keyword: BIGINT
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -342,7 +342,7 @@ file:
                     table_expression:
                       table_reference:
                         naked_identifier: EmployeeTemp
-                statement_terminator: ;
+      - statement_terminator: ;
       - keyword: END
     go_statement:
       keyword: GO
@@ -400,7 +400,7 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: EmployeeTemp
-            statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -465,3 +465,32 @@ file:
           - end_bracket: )
     go_statement:
       keyword: GO
+- batch:
+    statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: TOP
+      - bracketed:
+          start_bracket: (
+          expression:
+            integer_literal: '10'
+          end_bracket: )
+      - keyword: PERCENT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: SomeTable
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: SomeOtherTable
+    statement_terminator: ;

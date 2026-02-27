@@ -1900,3 +1900,42 @@ def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
     root_final_slice = final_source_slices[0]
     for additional_final_slice in final_source_slices[1:]:
         assert additional_final_slice == root_final_slice
+
+
+def test__templater_jinja_dotted_context_config():
+    """Test that dotted notation in Jinja context config creates nested structures.
+
+    This is a regression test for issue #7318 where dotted keys like
+    'namespace.projectname' in the config file should create a nested
+    structure {'namespace': {'projectname': 'value'}} rather than a
+    flat key 'namespace.projectname': 'value'.
+    """
+    # Create a config with dotted notation in the context section
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "bigquery"},
+            "templater": {
+                "jinja": {
+                    "context": {
+                        "namespace": {
+                            "projectname": "myproject",
+                            "env": "prod",
+                        },
+                    },
+                },
+            },
+        }
+    )
+
+    t = JinjaTemplater()
+    outstr, _ = t.process(
+        in_str=(
+            "SELECT * FROM `{{ namespace.projectname }}."
+            "{{ namespace.env }}_test.table`"
+        ),
+        fname="test.sql",
+        config=config,
+    )
+
+    # The template should render with the nested values
+    assert str(outstr) == "SELECT * FROM `myproject.prod_test.table`"

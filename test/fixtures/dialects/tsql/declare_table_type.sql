@@ -21,3 +21,13 @@ DECLARE
             END
         )
     );
+
+DECLARE @TableVar Table (
+    ID int NOT NULL primary key,
+    name varchar(128) NULL index _name (name)
+);
+
+declare @var table (
+  id int not null,
+  index idx (id)
+)

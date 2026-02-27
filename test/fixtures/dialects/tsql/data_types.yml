@@ -1,0 +1,1122 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a5c0b0194015a606735493aaa6ead91ff50b4fc42cc1704eb59598a0acecca3c
+file:
+- batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@tinyint_var'
+        data_type:
+          keyword: TINYINT
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@smallint_var'
+        data_type:
+          keyword: SMALLINT
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@int_var'
+        data_type:
+          keyword: INT
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@bigint_var'
+        data_type:
+          keyword: BIGINT
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@bit_var'
+        data_type:
+          keyword: BIT
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@money_var'
+        data_type:
+          keyword: MONEY
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@smallmoney_var'
+        data_type:
+          keyword: SMALLMONEY
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@decimal_var'
+        data_type:
+          keyword: DECIMAL
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@decimal_p_var'
+        data_type:
+          keyword: DECIMAL
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '10'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@decimal_ps_var'
+        data_type:
+          keyword: DECIMAL
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                integer_literal: '10'
+            - comma: ','
+            - expression:
+                integer_literal: '2'
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@numeric_var'
+        data_type:
+          keyword: NUMERIC
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@numeric_p_var'
+        data_type:
+          keyword: NUMERIC
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '18'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@numeric_ps_var'
+        data_type:
+          keyword: NUMERIC
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                integer_literal: '18'
+            - comma: ','
+            - expression:
+                integer_literal: '4'
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@dec_var'
+        data_type:
+          keyword: DEC
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@dec_p_var'
+        data_type:
+          keyword: DEC
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '15'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@dec_ps_var'
+        data_type:
+          keyword: DEC
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                integer_literal: '15'
+            - comma: ','
+            - expression:
+                integer_literal: '3'
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@float_var'
+        data_type:
+          keyword: FLOAT
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@float_p_var'
+        data_type:
+          keyword: FLOAT
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '24'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@real_var'
+        data_type:
+          keyword: REAL
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@date_var'
+        data_type:
+          keyword: DATE
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@smalldatetime_var'
+        data_type:
+          keyword: SMALLDATETIME
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@datetime_var'
+        data_type:
+          keyword: DATETIME
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@time_var'
+        data_type:
+          keyword: TIME
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@time_p_var'
+        data_type:
+          keyword: TIME
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '7'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@datetime2_var'
+        data_type:
+          keyword: DATETIME2
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@datetime2_p_var'
+        data_type:
+          keyword: DATETIME2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '7'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@datetimeoffset_var'
+        data_type:
+          keyword: DATETIMEOFFSET
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@datetimeoffset_p_var'
+        data_type:
+          keyword: DATETIMEOFFSET
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '7'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@char_var'
+        data_type:
+          keyword: CHAR
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@char_n_var'
+        data_type:
+          keyword: CHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '10'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@character_var'
+        data_type:
+          keyword: CHARACTER
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@character_n_var'
+        data_type:
+          keyword: CHARACTER
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '10'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@char_varying_var'
+        data_type:
+        - keyword: CHAR
+        - keyword: VARYING
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@char_varying_n_var'
+        data_type:
+        - keyword: CHAR
+        - keyword: VARYING
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '100'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@character_varying_var'
+        data_type:
+        - keyword: CHARACTER
+        - keyword: VARYING
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@character_varying_n_var'
+        data_type:
+        - keyword: CHARACTER
+        - keyword: VARYING
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '100'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@varchar_var'
+        data_type:
+          keyword: VARCHAR
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@varchar_n_var'
+        data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '50'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@varchar_max_var'
+        data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: MAX
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@text_var'
+        data_type:
+          keyword: TEXT
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@nchar_var'
+        data_type:
+          keyword: NCHAR
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@nchar_n_var'
+        data_type:
+          keyword: NCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '10'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@national_char_n_var'
+        data_type:
+        - keyword: NATIONAL
+        - keyword: CHAR
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '10'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@national_character_var'
+        data_type:
+        - keyword: NATIONAL
+        - keyword: CHARACTER
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@national_character_n_var'
+        data_type:
+        - keyword: NATIONAL
+        - keyword: CHARACTER
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '10'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@nchar_varying_var'
+        data_type:
+        - keyword: NCHAR
+        - keyword: VARYING
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@nchar_varying_n_var'
+        data_type:
+        - keyword: NCHAR
+        - keyword: VARYING
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '100'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@nvarchar_var'
+        data_type:
+          keyword: NVARCHAR
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@nvarchar_n_var'
+        data_type:
+          keyword: NVARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '50'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@nvarchar_max_var'
+        data_type:
+          keyword: NVARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: MAX
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@national_char_varying_var'
+        data_type:
+        - keyword: NATIONAL
+        - keyword: CHARACTER
+        - keyword: VARYING
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@national_char_varying_n_var'
+        data_type:
+        - keyword: NATIONAL
+        - keyword: CHARACTER
+        - keyword: VARYING
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '100'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@ntext_var'
+        data_type:
+          keyword: NTEXT
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@binary_var'
+        data_type:
+          keyword: BINARY
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@binary_n_var'
+        data_type:
+          keyword: BINARY
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '10'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@varbinary_var'
+        data_type:
+          keyword: VARBINARY
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@varbinary_n_var'
+        data_type:
+          keyword: VARBINARY
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '50'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@varbinary_max_var'
+        data_type:
+          keyword: VARBINARY
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: MAX
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@image_var'
+        data_type:
+          keyword: IMAGE
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@cursor_var'
+        data_type:
+          keyword: CURSOR
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@sql_variant_var'
+        data_type:
+          keyword: SQL_VARIANT
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@timestamp_var'
+        data_type:
+          keyword: TIMESTAMP
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@rowversion_var'
+        data_type:
+          keyword: ROWVERSION
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@uniqueidentifier_var'
+        data_type:
+          keyword: UNIQUEIDENTIFIER
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@xml_var'
+        data_type:
+          keyword: XML
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@json_var'
+        data_type:
+          keyword: JSON
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@geography_var'
+        data_type:
+          keyword: GEOGRAPHY
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@geometry_var'
+        data_type:
+          keyword: GEOMETRY
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@hierarchyid_var'
+        data_type:
+          keyword: HIERARCHYID
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@vector_var'
+        data_type:
+          keyword: VECTOR
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@vector_n_var'
+        data_type:
+          keyword: VECTOR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '1536'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@custom_type'
+        data_type:
+          data_type_identifier: MyCustomType
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@sys_type'
+        data_type:
+          naked_identifier: sys
+          dot: .
+          data_type_identifier: sysname
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@bracketed_type'
+        data_type:
+          quoted_identifier: '[sys]'
+          dot: .
+          data_type_identifier: '[sysname]'
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: DataTypesTest
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: col_tinyint
+            data_type:
+              keyword: TINYINT
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_smallint
+            data_type:
+              keyword: SMALLINT
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_int
+            data_type:
+              keyword: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_bigint
+            data_type:
+              keyword: BIGINT
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_bit
+            data_type:
+              keyword: BIT
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_money
+            data_type:
+              keyword: MONEY
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_smallmoney
+            data_type:
+              keyword: SMALLMONEY
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_decimal
+            data_type:
+              keyword: DECIMAL
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    integer_literal: '18'
+                - comma: ','
+                - expression:
+                    integer_literal: '2'
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_numeric
+            data_type:
+              keyword: NUMERIC
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    integer_literal: '10'
+                - comma: ','
+                - expression:
+                    integer_literal: '5'
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_float
+            data_type:
+              keyword: FLOAT
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_real
+            data_type:
+              keyword: REAL
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_date
+            data_type:
+              keyword: DATE
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_time
+            data_type:
+              keyword: TIME
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '7'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_datetime
+            data_type:
+              keyword: DATETIME
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_datetime2
+            data_type:
+              keyword: DATETIME2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '7'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_datetimeoffset
+            data_type:
+              keyword: DATETIMEOFFSET
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '7'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_smalldatetime
+            data_type:
+              keyword: SMALLDATETIME
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_char
+            data_type:
+              keyword: CHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '10'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_varchar
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_varchar_max
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  keyword: MAX
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_text
+            data_type:
+              keyword: TEXT
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_nchar
+            data_type:
+              keyword: NCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '10'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_nvarchar
+            data_type:
+              keyword: NVARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_nvarchar_max
+            data_type:
+              keyword: NVARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  keyword: MAX
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_ntext
+            data_type:
+              keyword: NTEXT
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_binary
+            data_type:
+              keyword: BINARY
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '10'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_varbinary
+            data_type:
+              keyword: VARBINARY
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_varbinary_max
+            data_type:
+              keyword: VARBINARY
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  keyword: MAX
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_image
+            data_type:
+              keyword: IMAGE
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_uniqueidentifier
+            data_type:
+              keyword: UNIQUEIDENTIFIER
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_xml
+            data_type:
+              keyword: XML
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_json
+            data_type:
+              keyword: JSON
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_geography
+            data_type:
+              keyword: GEOGRAPHY
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_geometry
+            data_type:
+              keyword: GEOMETRY
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_hierarchyid
+            data_type:
+              keyword: HIERARCHYID
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_sql_variant
+            data_type:
+              keyword: SQL_VARIANT
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_timestamp
+            data_type:
+              keyword: TIMESTAMP
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_rowversion
+            data_type:
+              keyword: ROWVERSION
+        - end_bracket: )
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: TestDataTypes
+      - function_parameter_list:
+          bracketed:
+          - start_bracket: (
+          - parameter: '@param_int'
+          - data_type:
+              keyword: INT
+          - comma: ','
+          - parameter: '@param_varchar'
+          - data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
+          - comma: ','
+          - parameter: '@param_decimal'
+          - data_type:
+              keyword: DECIMAL
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    integer_literal: '10'
+                - comma: ','
+                - expression:
+                    integer_literal: '2'
+                - end_bracket: )
+          - comma: ','
+          - parameter: '@param_datetime'
+          - data_type:
+              keyword: DATETIME2
+          - comma: ','
+          - parameter: '@param_nvarchar'
+          - data_type:
+              keyword: NVARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  keyword: MAX
+                  end_bracket: )
+          - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+          keyword: INT
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  expression:
+                    integer_literal: '1'
+            - statement_terminator: ;
+            - keyword: END
+          statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+          naked_identifier: TestDataTypesProc
+      - procedure_parameter_list:
+        - parameter: '@param_bigint'
+        - data_type:
+            keyword: BIGINT
+        - comma: ','
+        - parameter: '@param_nchar'
+        - data_type:
+            keyword: NCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  integer_literal: '50'
+                end_bracket: )
+        - comma: ','
+        - parameter: '@param_varbinary'
+        - data_type:
+            keyword: VARBINARY
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                keyword: MAX
+                end_bracket: )
+        - comma: ','
+        - parameter: '@param_xml'
+        - data_type:
+            keyword: XML
+        - comma: ','
+        - parameter: '@param_geography'
+        - data_type:
+            keyword: GEOGRAPHY
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      parameter: '@param_bigint'
+            - statement_terminator: ;
+            - keyword: END
+          statement_terminator: ;

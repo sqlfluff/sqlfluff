@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d3b0ec3d8c84a39c2771499a6b77a972f064f9e171c3b882ebe8126707853168
+_hash: 2abc4d8c8f9263d4f84374f3e9ec7ef3eb9dc8cf2258687af4258550a79b2106
 file:
   batch:
   - statement:
@@ -16,7 +16,7 @@ file:
         - column_definition:
             naked_identifier: EmpID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -24,17 +24,17 @@ file:
         - column_definition:
             naked_identifier: OldVacationHours
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: NewVacationHours
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: ModifiedDate
             data_type:
-              data_type_identifier: DATETIME
+              keyword: DATETIME
         - comma: ','
         - table_constraint:
           - keyword: PRIMARY
@@ -46,7 +46,7 @@ file:
                   naked_identifier: EmpID
                 end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
       - keyword: DECLARE
@@ -57,17 +57,17 @@ file:
         - column_definition:
             naked_identifier: ID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: MyCol1
             data_type:
-              data_type_identifier: BIT
+              keyword: BIT
         - comma: ','
         - column_definition:
             naked_identifier: MyCol2
             data_type:
-              data_type_identifier: BIT
+              keyword: BIT
         - comma: ','
         - computed_column_definition:
             naked_identifier: MyComputedCol
@@ -110,4 +110,72 @@ file:
                 - keyword: END
               end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@TableVar'
+      - keyword: Table
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ID
+          - data_type:
+              keyword: int
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: primary
+            - keyword: key
+        - comma: ','
+        - column_definition:
+            naked_identifier: name
+            data_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '128'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: 'NULL'
+            table_index_segment:
+              keyword: index
+              object_reference:
+                naked_identifier: _name
+              bracketed_index_column_list_grammar:
+                bracketed:
+                  start_bracket: (
+                  index_column_definition:
+                    naked_identifier: name
+                  end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+      - keyword: declare
+      - parameter: '@var'
+      - keyword: table
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              keyword: int
+            column_constraint_segment:
+            - keyword: not
+            - keyword: 'null'
+          comma: ','
+          table_index_segment:
+            keyword: index
+            object_reference:
+              naked_identifier: idx
+            bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  naked_identifier: id
+                end_bracket: )
+          end_bracket: )

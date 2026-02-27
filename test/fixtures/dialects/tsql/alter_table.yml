@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5de14ee956b14a5f09c9c51727b853ca119ab45abb334d90527c0b40ff275464
+_hash: e33d22bcef7f0a9a64fa9fa9161218dac793fbb880a0719a6b4d18d83fd6edc9
 file:
 - batch:
     statement:
@@ -19,9 +19,9 @@ file:
           column_definition:
             naked_identifier: column_a
             data_type:
-              data_type_identifier: INT
+              keyword: INT
           end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -37,7 +37,7 @@ file:
       - column_definition:
           naked_identifier: column_b
           data_type:
-            data_type_identifier: VARCHAR
+            keyword: VARCHAR
             bracketed_arguments:
               bracketed:
                 start_bracket: (
@@ -63,50 +63,8 @@ file:
           column_definition:
             naked_identifier: column_a
             data_type:
-              data_type_identifier: INT
+              keyword: INT
           end_bracket: )
-      - statement_terminator: ;
-    go_statement:
-      keyword: GO
-- batch:
-    statement:
-      alter_table_statement:
-      - keyword: ALTER
-      - keyword: TABLE
-      - table_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: doc_exc
-      - keyword: ADD
-      - column_definition:
-        - naked_identifier: column_b
-        - data_type:
-            data_type_identifier: VARCHAR
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                expression:
-                  integer_literal: '20'
-                end_bracket: )
-        - column_constraint_segment:
-            keyword: 'NULL'
-        - column_constraint_segment:
-          - keyword: CONSTRAINT
-          - object_reference:
-              naked_identifier: exb_unique
-          - keyword: UNIQUE
-      - comma: ','
-      - keyword: DROP
-      - keyword: COLUMN
-      - column_reference:
-          naked_identifier: column_a
-      - comma: ','
-      - keyword: DROP
-      - keyword: COLUMN
-      - keyword: IF
-      - keyword: EXISTS
-      - column_reference:
-          naked_identifier: column_c
     statement_terminator: ;
     go_statement:
       keyword: GO
@@ -119,7 +77,7 @@ file:
         expression:
           column_reference:
             naked_identifier: doc_exc
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -131,7 +89,7 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: doc_exc
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -148,14 +106,14 @@ file:
         - column_definition:
             naked_identifier: column_a
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: column_b
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -244,7 +202,7 @@ file:
                 - naked_identifier: dbo
                 - dot: .
                 - naked_identifier: doc_exz
-          statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -256,7 +214,7 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: doc_exz
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -298,7 +256,7 @@ file:
       - column_definition:
           naked_identifier: rec_number
           data_type:
-            data_type_identifier: VARCHAR
+            keyword: VARCHAR
             bracketed_arguments:
               bracketed:
                 start_bracket: (
@@ -334,6 +292,17 @@ file:
       - keyword: EXISTS
       - object_reference:
           naked_identifier: PK_TransactionHistoryArchive_TransactionID
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: Transactionhistoryarchive
+      - keyword: DROP
+      - object_reference:
+          naked_identifier: Pk_transactionhistoryarchive_transactionid
   - statement:
       alter_table_statement:
       - keyword: ALTER
@@ -385,7 +354,92 @@ file:
     go_statement:
       keyword: GO
 - batch:
-    statement:
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[Production]'
+        - dot: .
+        - quoted_identifier: '[ProductCostHistory]'
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: Purchasing
+        - dot: .
+        - naked_identifier: PurchaseOrderHeader
+      - keyword: NOCHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: FK_PurchaseOrderHeader_Employee_EmployeeID
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: CHECK
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: CHECK
+      - keyword: NOCHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: NOCHECK
+      - keyword: NOCHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: NOCHECK
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
       alter_table_statement:
       - keyword: ALTER
       - keyword: TABLE
@@ -395,13 +449,13 @@ file:
       - column_definition:
           naked_identifier: my_col_1
           data_type:
-            data_type_identifier: INT
+            keyword: INT
       - comma: ','
       - column_definition:
           naked_identifier: my_col_2
           data_type:
-            data_type_identifier: INT
-    go_statement:
+            keyword: INT
+  - go_statement:
       keyword: GO
 - batch:
     statement:
@@ -913,7 +967,7 @@ file:
                     quoted_identifier: '[InventoryTs]'
                 keyword: AS
                 data_type:
-                  data_type_identifier: date
+                  keyword: date
                 end_bracket: )
     statement_terminator: ;
     go_statement:
@@ -1061,7 +1115,7 @@ file:
                   keyword: ASC
                 end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       alter_table_statement:
       - keyword: ALTER
@@ -1118,4 +1172,169 @@ file:
           - column_reference:
               naked_identifier: EndDate
           - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: PAGE
+        - comma: ','
+        - keyword: XML_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: ROW
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALL
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: XML_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - comma: ','
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: NONE
+        - on_partitions_clause:
+          - keyword: 'ON'
+          - keyword: PARTITIONS
+          - bracketed:
+              start_bracket: (
+              numeric_literal: '4'
+              end_bracket: )
+        - comma: ','
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: COLUMNSTORE
+        - on_partitions_clause:
+          - keyword: 'ON'
+          - keyword: PARTITIONS
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '5'
+            - keyword: TO
+            - numeric_literal: '7'
+            - comma: ','
+            - numeric_literal: '10'
+            - comma: ','
+            - numeric_literal: '20'
+            - keyword: TO
+            - numeric_literal: '40'
+            - end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+          naked_identifier: SomeConstraint
+      - comma: ','
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: SomeOtherConstraint
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: SomeColumn
+      - comma: ','
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: SomeOtherColumn
   - statement_terminator: ;

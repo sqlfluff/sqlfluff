@@ -107,6 +107,11 @@ class Rule_CP02(Rule_CP01):
         ):
             return None
 
+        # Skip templated segments (e.g., placeholder parameters like :accountId)
+        # to avoid incorrect qualification suggestions
+        if context.segment.is_templated:
+            return [LintResult(memory=context.memory)]
+
         if identifiers_policy_applicable(
             self.unquoted_identifiers_policy,  # type: ignore
             context.parent_stack,

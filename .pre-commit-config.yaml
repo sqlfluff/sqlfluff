@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: no-commit-to-branch
         args: [--branch, main]
@@ -32,11 +32,11 @@ repos:
             test/fixtures/linter/sqlfluffignore/
           )$
   - repo: https://github.com/psf/black
-    rev: 25.1.0
+    rev: 26.1.0
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.1
+    rev: v1.19.1
     hooks:
       - id: mypy
         additional_dependencies:
@@ -67,29 +67,29 @@ repos:
         # CI job.
         args: []
   - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1
+    rev: 7.3.0
     hooks:
       - id: flake8
         additional_dependencies: [flake8-black>=0.3.7]
   - repo: https://github.com/pycqa/doc8
-    rev: v1.1.2
+    rev: v2.0.0
     hooks:
       - id: doc8
         args: [--file-encoding, utf8]
         files: docs/source/.*\.rst$
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.35.1
+    rev: v1.38.0
     hooks:
       - id: yamllint
         args: [-c=.yamllint]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: "v0.9.3"
+    rev: "v0.14.13"
     hooks:
       - id: ruff
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
       - id: codespell
-        exclude: (?x)^(test/fixtures/.*|pyproject.toml)$
+        exclude: (?x)^(test/fixtures/.*|pyproject.toml|docsv/pnpm-lock.yaml)$
         additional_dependencies: [tomli]

@@ -78,6 +78,7 @@ vertica_dialect.insert_lexer_matchers(
 
 vertica_dialect.insert_lexer_matchers(
     [
+        StringLexer("lambda_arrow", "->", CodeSegment),
         # This is similar to the Unicode regex, the key differences being:
         # - [eE] - must start with e or E
         # - The final quote character must be preceded by:
@@ -245,9 +246,14 @@ vertica_dialect.add(
         ),
     ),
     IntegerDivideSegment=StringParser("//", SymbolSegment, type="binary_operator"),
+    LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
 )
 
 vertica_dialect.replace(
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("LambdaExpressionSegment"),
+        Ref("ExpressionSegment"),
+    ),
     FunctionContentsGrammar=AnyNumberOf(
         Ref("ExpressionSegment"),
         OptionallyBracketed(Ref("SetExpressionSegment")),
@@ -503,7 +509,9 @@ vertica_dialect.replace(
             r"[\p{L}_][\p{L}\p{N}$_]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
             casefold=str.upper,
         )
     ),
@@ -1851,6 +1859,23 @@ class CopyStatementSegment(BaseSegment):
         ),
         OneOf("NATIVE", Sequence("NATIVE", "VARCHAR"), "ORC", "PARQUET", optional=True),
         Ref("CopyOptionsSegment", optional=True),
+    )
+
+
+class LambdaExpressionSegment(BaseSegment):
+    """Lambda function used in a function.
+
+    https://docs.vertica.com/latest/en/sql-reference/functions/array-functions/array-find/
+    """
+
+    type = "lambda_function"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("ParameterNameSegment"),
+            Bracketed(Delimited(Ref("ParameterNameSegment"))),
+        ),
+        Ref("LambdaArrowSegment"),
+        Ref("ExpressionSegment"),
     )
 
 

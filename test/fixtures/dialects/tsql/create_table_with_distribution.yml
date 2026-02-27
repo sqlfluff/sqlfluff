@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a58aaa74fa016934f74518e90e45149957d9085e84d4ad7b316468b03e493539
+_hash: 642b8a9acbcaa45ee7a8797a5c99828ae1ef394f62d8aa75b7353cbe71563f86
 file:
 - batch:
     statement:
@@ -30,7 +30,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -41,7 +41,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -67,7 +67,7 @@ file:
                 raw_comparison_operator: '='
             - keyword: ROUND_ROBIN
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -106,7 +106,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -117,7 +117,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -141,7 +141,7 @@ file:
                 raw_comparison_operator: '='
             - keyword: REPLICATE
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -180,7 +180,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -191,7 +191,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -223,7 +223,7 @@ file:
                   quoted_identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -262,7 +262,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -273,7 +273,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -310,7 +310,7 @@ file:
                   quoted_identifier: '[Column B]'
                 end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -349,7 +349,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -360,7 +360,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -395,7 +395,7 @@ file:
                   quoted_identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -407,7 +407,7 @@ file:
         - quoted_identifier: '[dbo]'
         - dot: .
         - quoted_identifier: '[EC DC]'
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -435,7 +435,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -446,7 +446,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -483,7 +483,7 @@ file:
                   quoted_identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -495,7 +495,7 @@ file:
         - quoted_identifier: '[dbo]'
         - dot: .
         - quoted_identifier: '[EC DC]'
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:

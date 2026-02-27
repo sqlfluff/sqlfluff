@@ -3,27 +3,28 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 35d74f03abcec25009bdcbeddff50fa383676308f2d496ad49df2e789c456b4b
+_hash: 7446ec88767508d0c5e89f796950ee6be99e889b48ffb77661202445e33cd754
 file:
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        naked_identifier: oe
-        dot: .
-        function_name_identifier: get_bal
-    - keyword: COMPILE
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: PROCEDURE
-    - keyword: IF
-    - keyword: EXISTS
-    - function_name:
-        naked_identifier: hr
-        dot: .
-        function_name_identifier: remove_emp
-    - keyword: COMPILE
-- statement_terminator: ;
+  batch:
+  - statement:
+      alter_function_statement:
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - function_name:
+          naked_identifier: oe
+          dot: .
+          function_name_identifier: get_bal
+      - keyword: COMPILE
+  - statement_terminator: ;
+  - statement:
+      alter_function_statement:
+      - keyword: ALTER
+      - keyword: PROCEDURE
+      - keyword: IF
+      - keyword: EXISTS
+      - function_name:
+          naked_identifier: hr
+          dot: .
+          function_name_identifier: remove_emp
+      - keyword: COMPILE
+  - statement_terminator: ;

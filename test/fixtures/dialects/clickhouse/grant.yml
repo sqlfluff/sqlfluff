@@ -1,0 +1,265 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 98ad14f80019dcb6ecb4ffa09bf9e5a56ae39a856b16724ef9d58defbaef732c
+file:
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: INSERT
+      - keyword: 'ON'
+      - access_object:
+          wildcard_identifier:
+            naked_identifier: db_name
+            dot: .
+            star: '*'
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: DELETE
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: UPDATE
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: ALTER
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: ALTER
+          - keyword: TABLE
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: ALTER
+          - keyword: DELETE
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: ALTER
+          - keyword: UPDATE
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: ALTER
+          - keyword: ADD
+          - keyword: COLUMN
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: ALTER
+          - keyword: DROP
+          - keyword: COLUMN
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: CREATE
+          - keyword: TABLE
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+            keyword: SELECT
+        - comma: ','
+        - access_permission:
+            keyword: INSERT
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: ALTER
+          - keyword: DELETE
+        - comma: ','
+        - access_permission:
+          - keyword: ALTER
+          - keyword: UPDATE
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: ALL
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: db_name
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user_name
+- statement_terminator: ;

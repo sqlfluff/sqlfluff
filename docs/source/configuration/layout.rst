@@ -457,7 +457,10 @@ at time of writing (including the `dbt Labs SQL style guide`_
 and the `Mozilla SQL style guide`_), and so are disabled by default.
 To enable them, set the :code:`implicit_indents` flag in
 :code:`sqluff.indentation` to :code:`allow`, or the more strict
-:code:`require`.
+:code:`require`. When using :code:`require`, the
+:code:`skip_implicit_indents_in` option (defaulting to
+:code:`case_expression`) excludes specific element types from
+collapsing.
 
 .. _templatedindents:
 
@@ -785,6 +788,25 @@ available:
 
          [sqlfluff:layout:type:comma]
          line_position = leading
+
+   *  :code:`leading` can be qualified with the :code:`:align-following` modifier
+      - which allows the line position to be aligned with the following element,
+      instead of the configured element itself. For example, when the modifier is
+      added to comma line position:
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:comma]
+         line_position = leading:align-following
+
+      then the following query would be allowed:
+
+      .. code-block:: sql
+
+         SELECT
+            col_a AS a
+          , col_b AS b
+         FROM foo;
 
    *  :code:`alone`, which means if there is a line break on either side,
       then there must be a line break on *both sides* (i.e. that it should

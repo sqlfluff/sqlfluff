@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76336c897d6317a32237c1a1205214cb97800056732bca57d892e348f1915c3e
+_hash: 411076bc86e760f278ff1c18d47af183f154c64f1456b3f9a11b3e50e99d8b80
 file:
   batch:
   - statement:
@@ -58,7 +58,7 @@ file:
                 raw_comparison_operator: '='
               quoted_literal: "'Cases'"
             end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       update_statement:
         keyword: update
@@ -106,7 +106,7 @@ file:
                   - naked_identifier: src
                   - dot: .
                   - naked_identifier: _id
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       update_statement:
         keyword: UPDATE
@@ -138,3 +138,48 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: SomeColumn
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              quoted_literal: "'Update'"
+        where_current_of_cursor_segment:
+        - keyword: WHERE
+        - keyword: CURRENT
+        - keyword: OF
+        - naked_identifier: db_cursor
+  - statement_terminator: ;
+  - statement:
+      update_statement:
+      - keyword: UPDATE
+      - keyword: TOP
+      - bracketed:
+          start_bracket: (
+          expression:
+            integer_literal: '10'
+          end_bracket: )
+      - keyword: PERCENT
+      - table_reference:
+          naked_identifier: SomeTable
+      - set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: SomeColumn
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              quoted_literal: "'Updated'"
+  - statement_terminator: ;

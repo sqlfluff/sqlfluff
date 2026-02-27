@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 637c2e2a32c9698f23f64da4a21fa2b37c69c28ff1082463c9058df30bf7cfaa
+_hash: e9cb82cb36f6a88875f3e05ea858bd7e3267b1df2bcbb1f211fa3c04d7c13982
 file:
 - batch:
     statement:
@@ -117,7 +117,7 @@ file:
                 bracketed:
                 - start_bracket: (
                 - data_type:
-                    data_type_identifier: varchar
+                    keyword: varchar
                 - comma: ','
                 - expression:
                     column_reference:
@@ -125,7 +125,8 @@ file:
                     - dot: .
                     - naked_identifier: column1
                 - comma: ','
-                - numeric_literal: '23'
+                - expression:
+                    integer_literal: '23'
                 - end_bracket: )
             alias_expression:
               alias_operator:
@@ -154,10 +155,11 @@ file:
             start_bracket: (
             parameter: '@admit'
             data_type:
-              data_type_identifier: DATE
+              keyword: DATE
             end_bracket: )
       - keyword: RETURNS
-      - keyword: TABLE
+      - data_type:
+          keyword: TABLE
       - keyword: AS
       - procedure_statement:
           statement:
@@ -182,7 +184,7 @@ file:
                                 dot: .
                                 quoted_identifier: '[RandomDate]'
                   end_bracket: )
-              statement_terminator: ;
+          statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -200,7 +202,7 @@ file:
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: INT
+          keyword: INT
       - keyword: AS
       - procedure_statement:
           statement:
@@ -211,7 +213,7 @@ file:
                   keyword: RETURN
                   expression:
                     integer_literal: '2'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
     go_statement:
       keyword: GO
@@ -280,6 +282,6 @@ file:
             - naked_identifier: FIN
             keyword: IS
             null_literal: 'NULL'
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO

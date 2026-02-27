@@ -5,9 +5,6 @@ GO
 
 CREATE TABLE dbo.doc_exc (column_a INT) ;
 GO
-ALTER TABLE dbo.doc_exc ADD column_b VARCHAR(20) NULL
-    CONSTRAINT exb_unique UNIQUE, DROP COLUMN column_a, DROP COLUMN IF EXISTS column_c ;
-GO
 EXEC sp_help doc_exc ;
 GO
 DROP TABLE dbo.doc_exc ;
@@ -44,6 +41,9 @@ DROP CONSTRAINT PK_TransactionHistoryArchive_TransactionID
 ALTER TABLE Production.TransactionHistoryArchive
 DROP CONSTRAINT IF EXISTS PK_TransactionHistoryArchive_TransactionID
 
+ALTER TABLE Production.Transactionhistoryarchive
+DROP Pk_transactionhistoryarchive_transactionid
+
 ALTER TABLE [Production].[ProductCostHistory]
 WITH CHECK ADD CONSTRAINT [FK_ProductCostHistory_Product_ProductID] FOREIGN KEY([ProductID])
 REFERENCES [Production].[Product] ([ProductID])
@@ -52,6 +52,28 @@ GO
 ALTER TABLE [Production].[ProductCostHistory]
 CHECK CONSTRAINT [FK_ProductCostHistory_Product_ProductID]
 GO
+
+ALTER TABLE [Production].[ProductCostHistory]
+CHECK CONSTRAINT [FK_ProductCostHistory_Product_ProductID]
+
+ALTER TABLE Purchasing.PurchaseOrderHeader
+NOCHECK CONSTRAINT FK_PurchaseOrderHeader_Employee_EmployeeID;
+
+ALTER TABLE [dbo].[Attachment]
+WITH CHECK
+CHECK CONSTRAINT [FK_Attachment_EmailMessage];
+
+ALTER TABLE [dbo].[Attachment]
+WITH CHECK
+NOCHECK CONSTRAINT [FK_Attachment_EmailMessage];
+
+ALTER TABLE [dbo].[Attachment]
+WITH NOCHECK
+NOCHECK CONSTRAINT [FK_Attachment_EmailMessage];
+
+ALTER TABLE [dbo].[Attachment]
+WITH NOCHECK
+CHECK CONSTRAINT [FK_Attachment_EmailMessage];
 
 ALTER TABLE my_table
 ADD my_col_1 INT
@@ -139,3 +161,22 @@ GO
 
 ALTER TABLE [TestTable] DROP PERIOD FOR SYSTEM_TIME;
 ALTER TABLE [TestTable] ADD PERIOD FOR SYSTEM_TIME (StartDate, EndDate);
+
+ALTER TABLE [TestTable] REBUILD;
+ALTER TABLE [TestTable] REBUILD PARTITION=ALL;
+ALTER TABLE [TestTable] REBUILD PARTITION=1;
+ALTER TABLE [TestTable] REBUILD WITH (DATA_COMPRESSION=PAGE, XML_COMPRESSION=ON);
+ALTER TABLE [TestTable] REBUILD PARTITION=1 WITH (DATA_COMPRESSION=ROW);
+ALTER TABLE [TestTable] REBUILD PARTITION=ALL WITH (
+  XML_COMPRESSION = ON,
+  DATA_COMPRESSION = NONE ON PARTITIONS (4),
+  DATA_COMPRESSION = COLUMNSTORE ON PARTITIONS (1, 5 TO 7, 10, 20 TO 40)
+  );
+
+ALTER TABLE dbo.SomeTable DROP
+  CONSTRAINT IF EXISTS SomeConstraint,
+  CONSTRAINT SomeOtherConstraint;
+
+ALTER TABLE dbo.SomeTable DROP
+  COLUMN SomeColumn,
+  COLUMN IF EXISTS SomeOtherColumn;

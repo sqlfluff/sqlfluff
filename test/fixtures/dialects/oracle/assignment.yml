@@ -3,492 +3,496 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 27c89f3f773c4ab48fd82b38dc7e2e469c8eb1cf038769db5fc8ed49ae00a05c
+_hash: bfbf650d3b90eadefaad14e52bb3e4016107c0ab9ee240647a97f007d6f23706
 file:
-- statement:
-    begin_end_block:
-    - declare_segment:
-      - keyword: DECLARE
-      - naked_identifier: wages
-      - data_type:
-          data_type_identifier: NUMBER
-      - statement_terminator: ;
-      - naked_identifier: hours_worked
-      - data_type:
-          data_type_identifier: NUMBER
-      - assignment_operator: :=
-      - expression:
-          numeric_literal: '40'
-      - statement_terminator: ;
-      - naked_identifier: hourly_salary
-      - data_type:
-          data_type_identifier: NUMBER
-      - assignment_operator: :=
-      - expression:
-          numeric_literal: '22.50'
-      - statement_terminator: ;
-      - naked_identifier: bonus
-      - data_type:
-          data_type_identifier: NUMBER
-      - assignment_operator: :=
-      - expression:
-          numeric_literal: '150'
-      - statement_terminator: ;
-      - naked_identifier: country
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '128'
-              end_bracket: )
-      - statement_terminator: ;
-      - naked_identifier: counter
-      - data_type:
-          data_type_identifier: NUMBER
-      - assignment_operator: :=
-      - expression:
-          numeric_literal: '0'
-      - statement_terminator: ;
-      - naked_identifier: done
-      - data_type:
-          data_type_identifier: BOOLEAN
-      - statement_terminator: ;
-      - naked_identifier: valid_id
-      - data_type:
-          data_type_identifier: BOOLEAN
-      - statement_terminator: ;
-      - naked_identifier: emp_rec1
-      - row_type_reference:
-          table_reference:
-            naked_identifier: employees
-          binary_operator: '%'
-          keyword: ROWTYPE
-      - statement_terminator: ;
-      - naked_identifier: emp_rec2
-      - row_type_reference:
-          table_reference:
-            naked_identifier: employees
-          binary_operator: '%'
-          keyword: ROWTYPE
-      - statement_terminator: ;
-      - collection_type:
-        - keyword: TYPE
-        - naked_identifier: commissions
-        - keyword: IS
-        - keyword: TABLE
-        - keyword: OF
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: wages
         - data_type:
             data_type_identifier: NUMBER
-        - keyword: INDEX
-        - keyword: BY
-        - data_type:
-            data_type_identifier: PLS_INTEGER
-      - statement_terminator: ;
-      - naked_identifier: comm_tab
-      - data_type:
-          data_type_identifier: commissions
-      - statement_terminator: ;
-      - naked_identifier: current_date
-      - data_type:
-          data_type_identifier: DATE
-      - assignment_operator: :=
-      - expression:
-          bare_function: SYSDATE
-      - statement_terminator: ;
-    - keyword: BEGIN
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-            naked_identifier: wages
-          assignment_operator: :=
-          expression:
-            bracketed:
-              start_bracket: (
-              expression:
-              - column_reference:
-                  naked_identifier: hours_worked
-              - binary_operator: '*'
-              - column_reference:
-                  naked_identifier: hourly_salary
-              end_bracket: )
-            binary_operator: +
-            column_reference:
-              naked_identifier: bonus
-    - statement_terminator: ;
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-            naked_identifier: country
-          assignment_operator: :=
-          expression:
-            quoted_literal: "'France'"
-    - statement_terminator: ;
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-            naked_identifier: country
-          assignment_operator: :=
-          expression:
-            function:
-              function_name:
-                function_name_identifier: UPPER
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'Canada'"
-                  end_bracket: )
-    - statement_terminator: ;
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-            naked_identifier: done
-          assignment_operator: :=
-          expression:
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: counter
-                comparison_operator:
-                  raw_comparison_operator: '>'
-                numeric_literal: '100'
-              end_bracket: )
-    - statement_terminator: ;
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-            naked_identifier: valid_id
-          assignment_operator: :=
-          expression:
-            boolean_literal: 'TRUE'
-    - statement_terminator: ;
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-          - naked_identifier: emp_rec1
-          - dot: .
-          - naked_identifier: first_name
-          assignment_operator: :=
-          expression:
-            quoted_literal: "'Antonio'"
-    - statement_terminator: ;
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-          - naked_identifier: emp_rec1
-          - dot: .
-          - naked_identifier: last_name
-          assignment_operator: :=
-          expression:
-            quoted_literal: "'Ortiz'"
-    - statement_terminator: ;
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-            naked_identifier: emp_rec1
-          assignment_operator: :=
-          expression:
-            column_reference:
-              naked_identifier: emp_rec2
-    - statement_terminator: ;
-    - statement:
-        function:
-          function_name:
-            function_name_identifier: comm_tab
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '5'
-              end_bracket: )
-    - statement:
-        assignment_segment_statement:
-          assignment_operator: :=
-          expression:
-          - numeric_literal: '20000'
-          - binary_operator: '*'
-          - numeric_literal: '0.15'
-    - statement_terminator: ;
-    - statement:
-        if_then_statement:
-        - if_clause:
-          - keyword: IF
-          - expression:
-              column_reference:
-                naked_identifier: counter
-              comparison_operator:
-                raw_comparison_operator: '>'
-              numeric_literal: '5'
-          - keyword: THEN
-        - statement:
-            assignment_segment_statement:
-              object_reference:
-                naked_identifier: wages
-              assignment_operator: :=
-              expression:
-                column_reference:
-                  naked_identifier: wages
-                binary_operator: '*'
-                numeric_literal: '1.10'
         - statement_terminator: ;
-        - keyword: END
-        - keyword: IF
-    - statement_terminator: ;
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-            naked_identifier: bonus
-          assignment_operator: :=
-          expression:
-            case_expression:
-            - keyword: CASE
-            - when_clause:
-              - keyword: WHEN
-              - expression:
-                  column_reference:
-                    naked_identifier: wages
-                  comparison_operator:
-                    raw_comparison_operator: '>'
-                  numeric_literal: '60000'
-              - keyword: THEN
-              - expression:
-                  column_reference:
-                    naked_identifier: wages
-                  binary_operator: '*'
-                  numeric_literal: '0.15'
-            - else_clause:
-                keyword: ELSE
-                expression:
-                  column_reference:
-                    naked_identifier: wages
-                  binary_operator: '*'
-                  numeric_literal: '0.10'
-            - keyword: END
-    - statement_terminator: ;
-    - keyword: END
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    begin_end_block:
-    - declare_segment:
-      - keyword: DECLARE
-      - naked_identifier: done
-      - data_type:
-          data_type_identifier: BOOLEAN
-      - statement_terminator: ;
-      - naked_identifier: counter
-      - data_type:
-          data_type_identifier: NUMBER
-      - assignment_operator: :=
-      - expression:
-          numeric_literal: '0'
-      - statement_terminator: ;
-    - keyword: BEGIN
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-            naked_identifier: done
-          assignment_operator: :=
-          expression:
-            boolean_literal: 'FALSE'
-    - statement_terminator: ;
-    - statement:
-        while_loop_statement:
-          keyword: WHILE
-          expression:
-            column_reference:
-              naked_identifier: done
-            comparison_operator:
-            - raw_comparison_operator: '!'
-            - raw_comparison_operator: '='
-            boolean_literal: 'TRUE'
-          loop_statement:
-          - keyword: LOOP
-          - statement:
-              assignment_segment_statement:
-                object_reference:
-                  naked_identifier: counter
-                assignment_operator: :=
-                expression:
-                  column_reference:
-                    naked_identifier: counter
-                  binary_operator: +
-                  numeric_literal: '1'
-          - statement_terminator: ;
-          - statement:
-              assignment_segment_statement:
-                object_reference:
-                  naked_identifier: done
-                assignment_operator: :=
-                expression:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: counter
-                      comparison_operator:
-                        raw_comparison_operator: '>'
-                      numeric_literal: '500'
-                    end_bracket: )
-          - statement_terminator: ;
-          - keyword: END
-          - keyword: LOOP
-    - statement_terminator: ;
-    - keyword: END
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    begin_end_block:
-    - declare_segment:
-      - keyword: DECLARE
-      - collection_type:
-        - keyword: TYPE
-        - naked_identifier: triplet
-        - keyword: IS
+        - naked_identifier: hours_worked
         - data_type:
-            data_type_identifier: VARRAY
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '3'
-                end_bracket: )
-        - keyword: OF
+            data_type_identifier: NUMBER
+        - assignment_operator: :=
+        - expression:
+            numeric_literal: '40'
+        - statement_terminator: ;
+        - naked_identifier: hourly_salary
+        - data_type:
+            data_type_identifier: NUMBER
+        - assignment_operator: :=
+        - expression:
+            numeric_literal: '22.50'
+        - statement_terminator: ;
+        - naked_identifier: bonus
+        - data_type:
+            data_type_identifier: NUMBER
+        - assignment_operator: :=
+        - expression:
+            numeric_literal: '150'
+        - statement_terminator: ;
+        - naked_identifier: country
         - data_type:
             data_type_identifier: VARCHAR2
             bracketed_arguments:
               bracketed:
                 start_bracket: (
-                numeric_literal: '15'
+                numeric_literal: '128'
                 end_bracket: )
-      - statement_terminator: ;
-      - collection_type:
-        - keyword: TYPE
-        - naked_identifier: trio
-        - keyword: IS
-        - data_type:
-            data_type_identifier: VARRAY
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '3'
-                end_bracket: )
-        - keyword: OF
-        - data_type:
-            data_type_identifier: VARCHAR2
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '15'
-                end_bracket: )
-      - statement_terminator: ;
-      - naked_identifier: group1
-      - data_type:
-          data_type_identifier: triplet
-      - assignment_operator: :=
-      - expression:
-          function:
-            function_name:
-              function_name_identifier: triplet
-            function_contents:
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  quoted_literal: "'Jones'"
-              - comma: ','
-              - expression:
-                  quoted_literal: "'Wong'"
-              - comma: ','
-              - expression:
-                  quoted_literal: "'Marceau'"
-              - end_bracket: )
-      - statement_terminator: ;
-      - naked_identifier: group2
-      - data_type:
-          data_type_identifier: triplet
-      - statement_terminator: ;
-      - naked_identifier: group3
-      - data_type:
-          data_type_identifier: trio
-      - statement_terminator: ;
-    - keyword: BEGIN
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-            naked_identifier: group2
-          assignment_operator: :=
-          expression:
-            column_reference:
-              naked_identifier: group1
-    - statement_terminator: ;
-    - statement:
-        assignment_segment_statement:
-          object_reference:
-            naked_identifier: group3
-          assignment_operator: :=
-          expression:
-            column_reference:
-              naked_identifier: group1
-    - statement_terminator: ;
-    - keyword: END
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_function_statement:
-    - keyword: CREATE
-    - keyword: OR
-    - keyword: REPLACE
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: CALCULATE_BONUS
-    - function_parameter_list:
-        bracketed:
-        - start_bracket: (
-        - parameter: base_salary
+        - statement_terminator: ;
+        - naked_identifier: counter
         - data_type:
             data_type_identifier: NUMBER
         - assignment_operator: :=
         - expression:
-            numeric_literal: '50000'
-        - comma: ','
-        - parameter: bonus_rate
+            numeric_literal: '0'
+        - statement_terminator: ;
+        - naked_identifier: done
         - data_type:
-            data_type_identifier: NUMBER
+            data_type_identifier: BOOLEAN
+        - statement_terminator: ;
+        - naked_identifier: valid_id
+        - data_type:
+            data_type_identifier: BOOLEAN
+        - statement_terminator: ;
+        - naked_identifier: emp_rec1
+        - row_type_reference:
+            table_reference:
+              naked_identifier: employees
+            binary_operator: '%'
+            keyword: ROWTYPE
+        - statement_terminator: ;
+        - naked_identifier: emp_rec2
+        - row_type_reference:
+            table_reference:
+              naked_identifier: employees
+            binary_operator: '%'
+            keyword: ROWTYPE
+        - statement_terminator: ;
+        - collection_type:
+          - keyword: TYPE
+          - naked_identifier: commissions
+          - keyword: IS
+          - keyword: TABLE
+          - keyword: OF
+          - data_type:
+              data_type_identifier: NUMBER
+          - keyword: INDEX
+          - keyword: BY
+          - data_type:
+              data_type_identifier: PLS_INTEGER
+        - statement_terminator: ;
+        - naked_identifier: comm_tab
+        - data_type:
+            data_type_identifier: commissions
+        - statement_terminator: ;
+        - naked_identifier: current_date
+        - data_type:
+            data_type_identifier: DATE
         - assignment_operator: :=
         - expression:
-            numeric_literal: '0.10'
-        - end_bracket: )
-    - keyword: RETURN
-    - data_type:
-        data_type_identifier: NUMBER
-    - keyword: AS
-    - declare_segment:
-        naked_identifier: result_bonus
-        data_type:
-          data_type_identifier: NUMBER
-        statement_terminator: ;
-    - begin_end_block:
+            bare_function: SYSDATE
+        - statement_terminator: ;
       - keyword: BEGIN
       - statement:
           assignment_segment_statement:
             object_reference:
-              naked_identifier: result_bonus
+              naked_identifier: wages
             assignment_operator: :=
             expression:
-            - column_reference:
-                naked_identifier: base_salary
-            - binary_operator: '*'
-            - column_reference:
-                naked_identifier: bonus_rate
+              bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                    naked_identifier: hours_worked
+                - binary_operator: '*'
+                - column_reference:
+                    naked_identifier: hourly_salary
+                end_bracket: )
+              binary_operator: +
+              column_reference:
+                naked_identifier: bonus
       - statement_terminator: ;
       - statement:
-          return_statement:
-            keyword: RETURN
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: country
+            assignment_operator: :=
+            expression:
+              quoted_literal: "'France'"
+      - statement_terminator: ;
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: country
+            assignment_operator: :=
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: UPPER
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'Canada'"
+                    end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: done
+            assignment_operator: :=
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: counter
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '100'
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: valid_id
+            assignment_operator: :=
+            expression:
+              boolean_literal: 'TRUE'
+      - statement_terminator: ;
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+            - naked_identifier: emp_rec1
+            - dot: .
+            - naked_identifier: first_name
+            assignment_operator: :=
+            expression:
+              quoted_literal: "'Antonio'"
+      - statement_terminator: ;
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+            - naked_identifier: emp_rec1
+            - dot: .
+            - naked_identifier: last_name
+            assignment_operator: :=
+            expression:
+              quoted_literal: "'Ortiz'"
+      - statement_terminator: ;
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: emp_rec1
+            assignment_operator: :=
             expression:
               column_reference:
-                naked_identifier: result_bonus
+                naked_identifier: emp_rec2
+      - statement_terminator: ;
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: comm_tab
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+            assignment_operator: :=
+            expression:
+            - numeric_literal: '20000'
+            - binary_operator: '*'
+            - numeric_literal: '0.15'
+      - statement_terminator: ;
+      - statement:
+          if_then_statement:
+          - if_clause:
+            - keyword: IF
+            - expression:
+                column_reference:
+                  naked_identifier: counter
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '5'
+            - keyword: THEN
+          - statement:
+              assignment_segment_statement:
+                object_reference:
+                  naked_identifier: wages
+                assignment_operator: :=
+                expression:
+                  column_reference:
+                    naked_identifier: wages
+                  binary_operator: '*'
+                  numeric_literal: '1.10'
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: bonus
+            assignment_operator: :=
+            expression:
+              case_expression:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                      naked_identifier: wages
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '60000'
+                - keyword: THEN
+                - expression:
+                    column_reference:
+                      naked_identifier: wages
+                    binary_operator: '*'
+                    numeric_literal: '0.15'
+              - else_clause:
+                  keyword: ELSE
+                  expression:
+                    column_reference:
+                      naked_identifier: wages
+                    binary_operator: '*'
+                    numeric_literal: '0.10'
+              - keyword: END
       - statement_terminator: ;
       - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: done
+        - data_type:
+            data_type_identifier: BOOLEAN
+        - statement_terminator: ;
+        - naked_identifier: counter
+        - data_type:
+            data_type_identifier: NUMBER
+        - assignment_operator: :=
+        - expression:
+            numeric_literal: '0'
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: done
+            assignment_operator: :=
+            expression:
+              boolean_literal: 'FALSE'
+      - statement_terminator: ;
+      - statement:
+          while_loop_statement:
+            keyword: WHILE
+            expression:
+              column_reference:
+                naked_identifier: done
+              comparison_operator:
+              - raw_comparison_operator: '!'
+              - raw_comparison_operator: '='
+              boolean_literal: 'TRUE'
+            loop_statement:
+            - keyword: LOOP
+            - statement:
+                assignment_segment_statement:
+                  object_reference:
+                    naked_identifier: counter
+                  assignment_operator: :=
+                  expression:
+                    column_reference:
+                      naked_identifier: counter
+                    binary_operator: +
+                    numeric_literal: '1'
+            - statement_terminator: ;
+            - statement:
+                assignment_segment_statement:
+                  object_reference:
+                    naked_identifier: done
+                  assignment_operator: :=
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: counter
+                        comparison_operator:
+                          raw_comparison_operator: '>'
+                        numeric_literal: '500'
+                      end_bracket: )
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+        - keyword: DECLARE
+        - collection_type:
+          - keyword: TYPE
+          - naked_identifier: triplet
+          - keyword: IS
+          - data_type:
+              data_type_identifier: VARRAY
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '3'
+                  end_bracket: )
+          - keyword: OF
+          - data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '15'
+                  end_bracket: )
+        - statement_terminator: ;
+        - collection_type:
+          - keyword: TYPE
+          - naked_identifier: trio
+          - keyword: IS
+          - data_type:
+              data_type_identifier: VARRAY
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '3'
+                  end_bracket: )
+          - keyword: OF
+          - data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '15'
+                  end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: group1
+        - data_type:
+            data_type_identifier: triplet
+        - assignment_operator: :=
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: triplet
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'Jones'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'Wong'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'Marceau'"
+                - end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: group2
+        - data_type:
+            data_type_identifier: triplet
+        - statement_terminator: ;
+        - naked_identifier: group3
+        - data_type:
+            data_type_identifier: trio
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: group2
+            assignment_operator: :=
+            expression:
+              column_reference:
+                naked_identifier: group1
+      - statement_terminator: ;
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: group3
+            assignment_operator: :=
+            expression:
+              column_reference:
+                naked_identifier: group1
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: CALCULATE_BONUS
+      - function_parameter_list:
+          bracketed:
+          - start_bracket: (
+          - parameter: base_salary
+          - data_type:
+              data_type_identifier: NUMBER
+          - assignment_operator: :=
+          - expression:
+              numeric_literal: '50000'
+          - comma: ','
+          - parameter: bonus_rate
+          - data_type:
+              data_type_identifier: NUMBER
+          - assignment_operator: :=
+          - expression:
+              numeric_literal: '0.10'
+          - end_bracket: )
+      - keyword: RETURN
+      - data_type:
+          data_type_identifier: NUMBER
+      - keyword: AS
+      - declare_segment:
+          naked_identifier: result_bonus
+          data_type:
+            data_type_identifier: NUMBER
+          statement_terminator: ;
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            assignment_segment_statement:
+              object_reference:
+                naked_identifier: result_bonus
+              assignment_operator: :=
+              expression:
+              - column_reference:
+                  naked_identifier: base_salary
+              - binary_operator: '*'
+              - column_reference:
+                  naked_identifier: bonus_rate
+        - statement_terminator: ;
+        - statement:
+            return_statement:
+              keyword: RETURN
+              expression:
+                column_reference:
+                  naked_identifier: result_bonus
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /

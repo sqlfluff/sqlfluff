@@ -518,6 +518,8 @@ class ReflowSequence:
                 root_segment=self.root_segment,
                 lint_results=lint_results,
                 strip_newlines=strip_newlines,
+                indent_unit=self.reflow_config.indent_unit,
+                tab_space_size=self.reflow_config.tab_space_size,
             )
             # If filter has been set, optionally unset the returned values.
             if (
@@ -574,10 +576,18 @@ class ReflowSequence:
 
         # Delegate to the rebreak algorithm
         if rebreak_type == "lines":
-            elem_buff, lint_results = rebreak_sequence(self.elements, self.root_segment)
+            elem_buff, lint_results = rebreak_sequence(
+                self.elements,
+                self.root_segment,
+                self.reflow_config.indent_unit,
+                self.reflow_config.tab_space_size,
+            )
         elif rebreak_type == "keywords":
             elem_buff, lint_results = rebreak_keywords_sequence(
-                self.elements, self.root_segment
+                self.elements,
+                self.root_segment,
+                self.reflow_config.indent_unit,
+                self.reflow_config.tab_space_size,
             )
         else:  # pragma: no cover
             raise NotImplementedError(
@@ -604,13 +614,35 @@ class ReflowSequence:
             tab_space_size=self.reflow_config.tab_space_size,
         )
 
+        # For comma and binary operator, allow indentation to be anchored to
+        # the first non-whitespace element following the comma or binary operator
+        indentation_align_following: dict[str, int] = {}
+        for t in {"comma", "binary_operator"}:
+            block_config = self.reflow_config.get_block_config({t})
+
+            if block_config.line_position == "leading:align-following":
+                # For future proofing, in case `spacing_after` can be set to `touch`
+                if block_config.spacing_after == "single":
+                    spaces_after = 1
+                elif block_config.spacing_after == "touch":
+                    spaces_after = 0
+                else:
+                    raise NotImplementedError(
+                        f"spacing after type of `{block_config.spacing_after}` "
+                        + "is not supported."
+                    )
+
+                indentation_align_following[t] = spaces_after
+
         reflow_logger.info("# Evaluating indents.")
         elements, indent_results = lint_indent_points(
             self.elements,
             single_indent=single_indent,
             skip_indentation_in=self.reflow_config.skip_indentation_in,
+            skip_implicit_indents_in=self.reflow_config.skip_implicit_indents_in,
             implicit_indents=self.reflow_config.implicit_indents,
             ignore_comment_lines=self.reflow_config.ignore_comment_lines,
+            indentation_align_following=indentation_align_following,
         )
 
         return ReflowSequence(
