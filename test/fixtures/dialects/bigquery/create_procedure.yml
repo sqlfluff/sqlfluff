@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e057f9770b1f4fd5da3ba204d259fc4558f840c0eb7b21dacbdd3a31b3b82d7
+_hash: e264f2b60f8e76868c4d23a724d28eff3a4f585a5c2342a50a16d64fbc19dff5
 file:
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -37,7 +37,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
@@ -73,7 +73,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
@@ -110,7 +110,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
@@ -284,7 +284,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -364,7 +364,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -458,7 +458,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -550,7 +550,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -600,7 +600,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -685,7 +685,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -824,7 +824,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -931,7 +931,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: OR

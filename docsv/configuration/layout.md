@@ -435,7 +435,10 @@ at time of writing (including the [dbt Labs SQL style guide](https://github.com/
 and the [Mozilla SQL style guide](https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins)), and so are disabled by default.
 To enable them, set the `implicit_indents` flag in
 `sqluff.indentation` to `allow`, or the more strict
-`require`.
+`require`. When using `require`, the
+`skip_implicit_indents_in` option (defaulting to
+`case_expression`) excludes specific element types from
+collapsing.
 
 ### Templated Indents
 

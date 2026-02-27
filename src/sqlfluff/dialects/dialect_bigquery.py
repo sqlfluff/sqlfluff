@@ -660,7 +660,6 @@ class MultiStatementSegment(BaseSegment):
         Ref("WhileStatementSegment"),
         Ref("LoopStatementSegment"),
         Ref("IfStatementSegment"),
-        Ref("CreateProcedureStatementSegment"),
         Ref("BeginStatementSegment"),
     )
 
@@ -719,6 +718,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
+            Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("UndropSchemaStatementSegment"),
             Ref("AlterOrganizationStatementSegment"),
@@ -1231,14 +1231,17 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 Ref("ArrayAggFunctionNameSegment"),
                 Ref("ArrayAggFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
             ),
             Sequence(
                 Ref("ArrayConcatAggFunctionNameSegment"),
                 Ref("ArrayConcatAggFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
             ),
             Sequence(
                 Ref("StringAggFunctionNameSegment"),
                 Ref("StringAggFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
             ),
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone

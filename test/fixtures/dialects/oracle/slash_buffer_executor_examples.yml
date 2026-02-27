@@ -1,0 +1,216 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6a710195c6caa6b80990e695e7cfbcd1481d6f90643e2a11d29b56d40c18142e
+file:
+- batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - function_name:
+          function_name_identifier: proc1
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            function:
+              function_name:
+                naked_identifier: DBMS_OUTPUT
+                dot: .
+                function_name_identifier: PUT_LINE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'Procedure 1'"
+                  end_bracket: )
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: func1
+      - keyword: RETURN
+      - data_type:
+          data_type_identifier: VARCHAR2
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            return_statement:
+              keyword: RETURN
+              expression:
+                quoted_literal: "'Function 1'"
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'Anonymous block'"
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - function_name:
+          function_name_identifier: proc2
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            function:
+              function_name:
+                naked_identifier: DBMS_OUTPUT
+                dot: .
+                function_name_identifier: PUT_LINE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'Procedure 2'"
+                  end_bracket: )
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: func3
+      - keyword: RETURN
+      - data_type:
+          data_type_identifier: VARCHAR2
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            return_statement:
+              keyword: RETURN
+              expression:
+                quoted_literal: "'Function with comments'"
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - function_name:
+          function_name_identifier: proc4
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            null_statement:
+              keyword: 'NULL'
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - function_name:
+          function_name_identifier: proc5
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            null_statement:
+              keyword: 'NULL'
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - function_name:
+          function_name_identifier: proc6
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            null_statement:
+              keyword: 'NULL'
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - function_name:
+          function_name_identifier: proc7
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            null_statement:
+              keyword: 'NULL'
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /

@@ -691,9 +691,6 @@ oracle_dialect.add(
         Ref("NumericLiteralSegment"),
         RegexParser(r"[KMGTPE]?", LiteralSegment, type="size_prefix"),
     ),
-    SlashStatementTerminatorSegment=StringParser(
-        "/", SymbolSegment, type="statement_terminator"
-    ),
     TriggerPredicatesGrammar=OneOf(
         "INSERTING",
         Sequence("UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
@@ -760,6 +757,7 @@ oracle_dialect.add(
         ),
         Sequence("WITH", "CREDENTIAL"),
     ),
+    BatchDelimiterGrammar=Ref("SlashBufferExecutorSegment"),
 )
 
 oracle_dialect.replace(
@@ -954,9 +952,6 @@ oracle_dialect.replace(
                 ),
             ),
         ),
-    ),
-    DelimiterGrammar=Sequence(
-        Ref("SemicolonSegment"), Ref("SlashStatementTerminatorSegment", optional=True)
     ),
     ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
         "ArithmeticBinaryOperatorGrammar"
@@ -1188,7 +1183,7 @@ class ExecuteFileSegment(BaseSegment):
         AnyNumberOf(
             Ref("SingleIdentifierGrammar"),
             Ref("DotSegment"),
-            Ref("SlashStatementTerminatorSegment"),
+            Ref("SlashSegment"),
         ),
     )
 
@@ -1257,23 +1252,46 @@ class StatementSegment(ansi.StatementSegment):
 class FileSegment(BaseFileSegment):
     """A segment representing a whole file or script.
 
+    We override default as Oracle allows concept of several
+    batches of commands separated by '/' as well as usual
+    semicolon-separated statement lines and ExecuteFileSegment.
+
     This is also the default "root" segment of the dialect,
     and so is usually instantiated directly. It therefore
     has no match_grammar.
-
-    Override ANSI to allow addition of ExecuteFileSegment without
-    ending in DelimiterGrammar
     """
 
-    match_grammar = AnyNumberOf(
-        Ref("ExecuteFileSegment"),
-        Delimited(
-            Ref("StatementSegment"),
-            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
-            allow_gaps=True,
-            allow_trailing=True,
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Ref("BatchSegment"),
+            Ref("ExecuteFileSegment"),
         ),
     )
+
+
+class BatchSegment(BaseSegment):
+    """A segment representing a '/' batch within a file or script."""
+
+    type = "batch"
+    match_grammar = OneOf(
+        Sequence(
+            Delimited(
+                Ref("StatementSegment"),
+                delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+                allow_gaps=True,
+                allow_trailing=True,
+            ),
+            Ref("BatchDelimiterGrammar", optional=True),
+        ),
+        Ref("BatchDelimiterGrammar"),
+    )
+
+
+class SlashBufferExecutorSegment(BaseSegment):
+    """A `/` standalone, functioning as a batch delimiter for SQL*Plus."""
+
+    type = "slash_buffer_executor"
+    match_grammar = Ref("SlashSegment")
 
 
 class CommentStatementSegment(BaseSegment):

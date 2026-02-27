@@ -3,52 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 62114f25ffce8ea134fb6398e5e7eeb35b12863a419f2d62040cc6d6e5057778
+_hash: 0fda06607118ed643b1804c466cde2b92e172bd30f2a0eda618b0cad7d2ff031
 file:
-- statement:
-    create_database_link_statement:
-    - keyword: CREATE
-    - keyword: PUBLIC
-    - keyword: DATABASE
-    - keyword: LINK
-    - database_link_reference:
-        naked_identifier: remote
-    - keyword: USING
-    - quoted_identifier: "'remote'"
-- statement_terminator: ;
-- statement:
-    create_database_link_statement:
-    - keyword: CREATE
-    - keyword: DATABASE
-    - keyword: LINK
-    - database_link_reference:
-        naked_identifier: local
-    - keyword: CONNECT
-    - keyword: TO
-    - role_reference:
-        naked_identifier: hr
-    - keyword: IDENTIFIED
-    - keyword: BY
-    - naked_identifier: password
-    - keyword: USING
-    - quoted_identifier: "'local'"
-- statement_terminator: ;
-- statement:
-    create_database_link_statement:
-    - keyword: CREATE
-    - keyword: DATABASE
-    - keyword: LINK
-    - database_link_reference:
-      - naked_identifier: remote
-      - dot: .
-      - naked_identifier: us
-      - dot: .
-      - naked_identifier: example
-      - dot: .
-      - naked_identifier: com
-    - keyword: CONNECT
-    - keyword: TO
-    - keyword: CURRENT_USER
-    - keyword: USING
-    - quoted_identifier: "'remote'"
-- statement_terminator: ;
+  batch:
+  - statement:
+      create_database_link_statement:
+      - keyword: CREATE
+      - keyword: PUBLIC
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: remote
+      - keyword: USING
+      - quoted_identifier: "'remote'"
+  - statement_terminator: ;
+  - statement:
+      create_database_link_statement:
+      - keyword: CREATE
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: local
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: hr
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: password
+      - keyword: USING
+      - quoted_identifier: "'local'"
+  - statement_terminator: ;
+  - statement:
+      create_database_link_statement:
+      - keyword: CREATE
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+        - naked_identifier: remote
+        - dot: .
+        - naked_identifier: us
+        - dot: .
+        - naked_identifier: example
+        - dot: .
+        - naked_identifier: com
+      - keyword: CONNECT
+      - keyword: TO
+      - keyword: CURRENT_USER
+      - keyword: USING
+      - quoted_identifier: "'remote'"
+  - statement_terminator: ;

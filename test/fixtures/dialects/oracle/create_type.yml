@@ -3,487 +3,521 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 077f26cb3da5612a2e421697b9c7a968da02430f65c4908a0d9b8350f61b1234
+_hash: b10c544bc2d8d6374985867e1ba3ea443d29baed3deff5100566623b66301a8d
 file:
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: customer_typ_demo
-    - keyword: AS
-    - keyword: OBJECT
-    - bracketed:
-      - start_bracket: (
-      - naked_identifier: customer_id
-      - data_type:
-          data_type_identifier: NUMBER
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '6'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: cust_first_name
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '20'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: cust_last_name
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '20'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: cust_address
-      - data_type:
-          data_type_identifier: CUST_ADDRESS_TYP
-      - comma: ','
-      - naked_identifier: phone_numbers
-      - data_type:
-          data_type_identifier: PHONE_LIST_TYP
-      - comma: ','
-      - naked_identifier: nls_language
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '3'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: nls_territory
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '30'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: credit_limit
-      - data_type:
-          data_type_identifier: NUMBER
-          bracketed_arguments:
-            bracketed:
-            - start_bracket: (
-            - numeric_literal: '9'
-            - comma: ','
-            - numeric_literal: '2'
-            - end_bracket: )
-      - comma: ','
-      - naked_identifier: cust_email
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '30'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: cust_orders
-      - data_type:
-          data_type_identifier: ORDER_LIST_TYP
-      - end_bracket: )
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: data_typ1
-    - keyword: AS
-    - keyword: OBJECT
-    - bracketed:
-        start_bracket: (
-        naked_identifier: year
-        data_type:
-          data_type_identifier: NUMBER
-        comma: ','
-        keyword: MEMBER
-        create_function_statement:
-        - keyword: FUNCTION
-        - function_name:
-            function_name_identifier: prod
-        - function_parameter_list:
-            bracketed:
-              start_bracket: (
-              parameter: invent
-              data_type:
-                data_type_identifier: NUMBER
-              end_bracket: )
-        - keyword: RETURN
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: customer_typ_demo
+      - keyword: AS
+      - keyword: OBJECT
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: customer_id
         - data_type:
             data_type_identifier: NUMBER
-        end_bracket: )
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: corporate_customer_typ_demo
-    - keyword: UNDER
-    - object_reference:
-        naked_identifier: customer_typ
-    - bracketed:
-        start_bracket: (
-        naked_identifier: account_mgr_id
-        data_type:
-          data_type_identifier: NUMBER
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '6'
-              end_bracket: )
-        end_bracket: )
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: person_t
-    - keyword: AS
-    - keyword: OBJECT
-    - bracketed:
-      - start_bracket: (
-      - naked_identifier: name
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: ssn
-      - data_type:
-          data_type_identifier: NUMBER
-      - end_bracket: )
-    - keyword: NOT
-    - keyword: FINAL
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: employee_t
-    - keyword: UNDER
-    - object_reference:
-        naked_identifier: person_t
-    - bracketed:
-      - start_bracket: (
-      - naked_identifier: department_id
-      - data_type:
-          data_type_identifier: NUMBER
-      - comma: ','
-      - naked_identifier: salary
-      - data_type:
-          data_type_identifier: NUMBER
-      - end_bracket: )
-    - keyword: NOT
-    - keyword: FINAL
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: part_time_emp_t
-    - keyword: UNDER
-    - object_reference:
-        naked_identifier: employee_t
-    - bracketed:
-        start_bracket: (
-        naked_identifier: num_hrs
-        data_type:
-          data_type_identifier: NUMBER
-        end_bracket: )
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: phone_list_typ_demo
-    - keyword: AS
-    - keyword: VARRAY
-    - bracketed:
-        start_bracket: (
-        numeric_literal: '5'
-        end_bracket: )
-    - keyword: OF
-    - data_type:
-        data_type_identifier: VARCHAR2
-        bracketed_arguments:
-          bracketed:
-            start_bracket: (
-            numeric_literal: '25'
-            end_bracket: )
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - type_reference:
-        naked_identifier: varr_int
-    - keyword: AS
-    - keyword: VARRAY
-    - bracketed:
-        start_bracket: (
-        numeric_literal: '10'
-        end_bracket: )
-    - keyword: OF
-    - bracketed:
-        start_bracket: (
-        data_type:
-          data_type_identifier: PLS_INTEGER
-        end_bracket: )
-    - keyword: NOT
-    - keyword: PERSISTABLE
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: plsint
-    - keyword: AS
-    - keyword: OBJECT
-    - bracketed:
-        start_bracket: (
-        naked_identifier: I
-        data_type:
-          data_type_identifier: PLS_INTEGER
-        end_bracket: )
-    - keyword: NOT
-    - keyword: PERSISTABLE
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: tab_plsint
-    - keyword: AS
-    - keyword: TABLE
-    - keyword: OF
-    - bracketed:
-        start_bracket: (
-        data_type:
-          data_type_identifier: PLS_INTEGER
-        end_bracket: )
-    - keyword: NOT
-    - keyword: PERSISTABLE
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: textdoc_typ
-    - keyword: AS
-    - keyword: OBJECT
-    - bracketed:
-      - start_bracket: (
-      - naked_identifier: document_typ
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '32'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: formatted_doc
-      - data_type:
-          data_type_identifier: BLOB
-      - end_bracket: )
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: textdoc_tab
-    - keyword: AS
-    - keyword: TABLE
-    - keyword: OF
-    - data_type:
-        data_type_identifier: textdoc_typ
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: cust_address_typ2
-    - keyword: AS
-    - keyword: OBJECT
-    - bracketed:
-      - start_bracket: (
-      - naked_identifier: street_address
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '40'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: postal_code
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '10'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: city
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '30'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: state_province
-      - data_type:
-          data_type_identifier: VARCHAR2
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '10'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: country_id
-      - data_type:
-          data_type_identifier: CHAR
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '2'
-              end_bracket: )
-      - comma: ','
-      - naked_identifier: phone
-      - data_type:
-          data_type_identifier: phone_list_typ_demo
-      - end_bracket: )
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: cust_nt_address_typ
-    - keyword: AS
-    - keyword: TABLE
-    - keyword: OF
-    - data_type:
-        data_type_identifier: cust_address_typ2
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: demo_typ1
-    - keyword: AS
-    - keyword: OBJECT
-    - bracketed:
-      - start_bracket: (
-      - naked_identifier: a1
-      - data_type:
-          data_type_identifier: NUMBER
-      - comma: ','
-      - naked_identifier: a2
-      - data_type:
-          data_type_identifier: NUMBER
-      - end_bracket: )
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: demo_typ2
-    - keyword: AS
-    - keyword: OBJECT
-    - bracketed:
-        start_bracket: (
-        naked_identifier: a1
-        data_type:
-          data_type_identifier: NUMBER
-        comma: ','
-        keyword: MEMBER
-        create_function_statement:
-        - keyword: FUNCTION
-        - function_name:
-            function_name_identifier: get_square
-        - keyword: RETURN
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: cust_first_name
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: cust_last_name
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: cust_address
+        - data_type:
+            data_type_identifier: CUST_ADDRESS_TYP
+        - comma: ','
+        - naked_identifier: phone_numbers
+        - data_type:
+            data_type_identifier: PHONE_LIST_TYP
+        - comma: ','
+        - naked_identifier: nls_language
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: nls_territory
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '30'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: credit_limit
         - data_type:
             data_type_identifier: NUMBER
-        end_bracket: )
-- statement_terminator: ;
-- statement_terminator: /
-- statement:
-    create_type_statement:
-    - keyword: CREATE
-    - keyword: OR
-    - keyword: REPLACE
-    - keyword: TYPE
-    - type_reference:
-        naked_identifier: department_t
-    - keyword: AS
-    - keyword: OBJECT
-    - bracketed:
-      - start_bracket: (
-      - naked_identifier: deptno
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '9'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+        - comma: ','
+        - naked_identifier: cust_email
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '30'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: cust_orders
+        - data_type:
+            data_type_identifier: ORDER_LIST_TYP
+        - end_bracket: )
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: data_typ1
+      - keyword: AS
+      - keyword: OBJECT
+      - bracketed:
+          start_bracket: (
+          naked_identifier: year
+          data_type:
+            data_type_identifier: NUMBER
+          comma: ','
+          keyword: MEMBER
+          create_function_statement:
+          - keyword: FUNCTION
+          - function_name:
+              function_name_identifier: prod
+          - function_parameter_list:
+              bracketed:
+                start_bracket: (
+                parameter: invent
+                data_type:
+                  data_type_identifier: NUMBER
+                end_bracket: )
+          - keyword: RETURN
+          - data_type:
+              data_type_identifier: NUMBER
+          end_bracket: )
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: corporate_customer_typ_demo
+      - keyword: UNDER
+      - object_reference:
+          naked_identifier: customer_typ
+      - bracketed:
+          start_bracket: (
+          naked_identifier: account_mgr_id
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          end_bracket: )
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: person_t
+      - keyword: AS
+      - keyword: OBJECT
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: name
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '100'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: ssn
+        - data_type:
+            data_type_identifier: NUMBER
+        - end_bracket: )
+      - keyword: NOT
+      - keyword: FINAL
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: employee_t
+      - keyword: UNDER
+      - object_reference:
+          naked_identifier: person_t
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: department_id
+        - data_type:
+            data_type_identifier: NUMBER
+        - comma: ','
+        - naked_identifier: salary
+        - data_type:
+            data_type_identifier: NUMBER
+        - end_bracket: )
+      - keyword: NOT
+      - keyword: FINAL
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: part_time_emp_t
+      - keyword: UNDER
+      - object_reference:
+          naked_identifier: employee_t
+      - bracketed:
+          start_bracket: (
+          naked_identifier: num_hrs
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: phone_list_typ_demo
+      - keyword: AS
+      - keyword: VARRAY
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '5'
+          end_bracket: )
+      - keyword: OF
       - data_type:
-          data_type_identifier: number
+          data_type_identifier: VARCHAR2
           bracketed_arguments:
             bracketed:
               start_bracket: (
-              numeric_literal: '10'
+              numeric_literal: '25'
               end_bracket: )
-      - comma: ','
-      - naked_identifier: dname
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - type_reference:
+          naked_identifier: varr_int
+      - keyword: AS
+      - keyword: VARRAY
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '10'
+          end_bracket: )
+      - keyword: OF
+      - bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: PLS_INTEGER
+          end_bracket: )
+      - keyword: NOT
+      - keyword: PERSISTABLE
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: plsint
+      - keyword: AS
+      - keyword: OBJECT
+      - bracketed:
+          start_bracket: (
+          naked_identifier: I
+          data_type:
+            data_type_identifier: PLS_INTEGER
+          end_bracket: )
+      - keyword: NOT
+      - keyword: PERSISTABLE
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: tab_plsint
+      - keyword: AS
+      - keyword: TABLE
+      - keyword: OF
+      - bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: PLS_INTEGER
+          end_bracket: )
+      - keyword: NOT
+      - keyword: PERSISTABLE
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: textdoc_typ
+      - keyword: AS
+      - keyword: OBJECT
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: document_typ
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '32'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: formatted_doc
+        - data_type:
+            data_type_identifier: BLOB
+        - end_bracket: )
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: textdoc_tab
+      - keyword: AS
+      - keyword: TABLE
+      - keyword: OF
       - data_type:
-          data_type_identifier: CHAR
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              numeric_literal: '30'
-              end_bracket: )
-      - end_bracket: )
-- statement_terminator: ;
-- statement_terminator: /
+          data_type_identifier: textdoc_typ
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: cust_address_typ2
+      - keyword: AS
+      - keyword: OBJECT
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: street_address
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '40'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: postal_code
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: city
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '30'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: state_province
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: country_id
+        - data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '2'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: phone
+        - data_type:
+            data_type_identifier: phone_list_typ_demo
+        - end_bracket: )
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: cust_nt_address_typ
+      - keyword: AS
+      - keyword: TABLE
+      - keyword: OF
+      - data_type:
+          data_type_identifier: cust_address_typ2
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: demo_typ1
+      - keyword: AS
+      - keyword: OBJECT
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: a1
+        - data_type:
+            data_type_identifier: NUMBER
+        - comma: ','
+        - naked_identifier: a2
+        - data_type:
+            data_type_identifier: NUMBER
+        - end_bracket: )
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: demo_typ2
+      - keyword: AS
+      - keyword: OBJECT
+      - bracketed:
+          start_bracket: (
+          naked_identifier: a1
+          data_type:
+            data_type_identifier: NUMBER
+          comma: ','
+          keyword: MEMBER
+          create_function_statement:
+          - keyword: FUNCTION
+          - function_name:
+              function_name_identifier: get_square
+          - keyword: RETURN
+          - data_type:
+              data_type_identifier: NUMBER
+          end_bracket: )
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: TYPE
+      - type_reference:
+          naked_identifier: department_t
+      - keyword: AS
+      - keyword: OBJECT
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: deptno
+        - data_type:
+            data_type_identifier: number
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+        - comma: ','
+        - naked_identifier: dname
+        - data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '30'
+                end_bracket: )
+        - end_bracket: )
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /

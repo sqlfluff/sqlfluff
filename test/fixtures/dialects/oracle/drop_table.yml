@@ -3,38 +3,39 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db58b5ebc6efad7ee53b2673aefe4004241b0b3f282079aa6e02b48745243b16
+_hash: dafc41aabaed6856946dec8bfd9cfbcfa5e23f12d047c789c69af0b113610bb2
 file:
-- statement:
-    drop_table_statement:
-    - keyword: DROP
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: foo
-      - dot: .
-      - naked_identifier: bar
-    - keyword: CASCADE
-    - keyword: CONSTRAINTS
-    - keyword: PURGE
-- statement_terminator: ;
-- statement:
-    drop_table_statement:
-    - keyword: DROP
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: foo
-      - dot: .
-      - naked_identifier: bar
-    - keyword: CASCADE
-    - keyword: CONSTRAINTS
-- statement_terminator: ;
-- statement:
-    drop_table_statement:
-    - keyword: DROP
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: foo
-      - dot: .
-      - naked_identifier: bar
-    - keyword: PURGE
-- statement_terminator: ;
+  batch:
+  - statement:
+      drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: foo
+        - dot: .
+        - naked_identifier: bar
+      - keyword: CASCADE
+      - keyword: CONSTRAINTS
+      - keyword: PURGE
+  - statement_terminator: ;
+  - statement:
+      drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: foo
+        - dot: .
+        - naked_identifier: bar
+      - keyword: CASCADE
+      - keyword: CONSTRAINTS
+  - statement_terminator: ;
+  - statement:
+      drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: foo
+        - dot: .
+        - naked_identifier: bar
+      - keyword: PURGE
+  - statement_terminator: ;

@@ -3,92 +3,93 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a5fdbbf6eaa08251ecd5c0f8ccd12e22cf310f3710e32772b2131433c037dfa5
+_hash: 3837d32ccbd24f9014b2cccaf21d11ccd144ca272b24f676def0d79b5f896a6e
 file:
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: my_function
-            function_contents:
-              bracketed:
-              - start_bracket: (
-              - named_argument:
-                  naked_identifier: arg1
-                  right_arrow: =>
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: my_function
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - named_argument:
+                    naked_identifier: arg1
+                    right_arrow: =>
+                    expression:
+                      numeric_literal: '3'
+                - comma: ','
+                - named_argument:
+                    naked_identifier: arg2
+                    right_arrow: =>
+                    expression:
+                      numeric_literal: '4'
+                - end_bracket: )
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: my_function
+              function_contents:
+                bracketed:
+                  start_bracket: (
                   expression:
                     numeric_literal: '3'
-              - comma: ','
-              - named_argument:
-                  naked_identifier: arg2
-                  right_arrow: =>
+                  comma: ','
+                  named_argument:
+                    naked_identifier: arg2
+                    right_arrow: =>
+                    expression:
+                      numeric_literal: '4'
+                  end_bracket: )
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: my_function
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  named_argument:
+                    naked_identifier: arg1
+                    right_arrow: =>
+                    expression:
+                      numeric_literal: '3'
+                  comma: ','
                   expression:
                     numeric_literal: '4'
-              - end_bracket: )
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: my_function
-            function_contents:
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '3'
-                comma: ','
-                named_argument:
-                  naked_identifier: arg2
-                  right_arrow: =>
-                  expression:
-                    numeric_literal: '4'
-                end_bracket: )
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: my_function
-            function_contents:
-              bracketed:
-                start_bracket: (
-                named_argument:
-                  naked_identifier: arg1
-                  right_arrow: =>
-                  expression:
-                    numeric_literal: '3'
-                comma: ','
-                expression:
-                  numeric_literal: '4'
-                end_bracket: )
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-- statement_terminator: ;
+                  end_bracket: )
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;

@@ -3,58 +3,59 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 60c4002a0a46717b7f7585fd94f08af0d21c73b1481783df59889ef0cdda8c50
+_hash: 0767f714ec5fb433044abfc2d78a122198b95864b637a804a24f9700dc0ec481
 file:
-- statement:
-    comment_statement:
-    - keyword: COMMENT
-    - keyword: 'ON'
-    - keyword: COLUMN
-    - column_reference:
-      - naked_identifier: employees
-      - dot: .
-      - naked_identifier: job_id
-    - keyword: IS
-    - quoted_literal: "'abbreviated job title'"
-- statement_terminator: ;
-- statement:
-    comment_statement:
-    - keyword: COMMENT
-    - keyword: 'ON'
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: employees
-    - keyword: IS
-    - quoted_literal: "'employees table'"
-- statement_terminator: ;
-- statement:
-    comment_statement:
-    - keyword: COMMENT
-    - keyword: 'ON'
-    - keyword: INDEXTYPE
-    - indextype_reference:
-        naked_identifier: employees_indextype
-    - keyword: IS
-    - quoted_literal: "'employees indextype'"
-- statement_terminator: ;
-- statement:
-    comment_statement:
-    - keyword: COMMENT
-    - keyword: 'ON'
-    - keyword: OPERATOR
-    - object_reference:
-        naked_identifier: employees_operator
-    - keyword: IS
-    - quoted_literal: "'employees operator'"
-- statement_terminator: ;
-- statement:
-    comment_statement:
-    - keyword: COMMENT
-    - keyword: 'ON'
-    - keyword: MATERIALIZED
-    - keyword: VIEW
-    - table_reference:
-        naked_identifier: employees_mv
-    - keyword: IS
-    - quoted_literal: "'employees materialized view'"
-- statement_terminator: ;
+  batch:
+  - statement:
+      comment_statement:
+      - keyword: COMMENT
+      - keyword: 'ON'
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: employees
+        - dot: .
+        - naked_identifier: job_id
+      - keyword: IS
+      - quoted_literal: "'abbreviated job title'"
+  - statement_terminator: ;
+  - statement:
+      comment_statement:
+      - keyword: COMMENT
+      - keyword: 'ON'
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: employees
+      - keyword: IS
+      - quoted_literal: "'employees table'"
+  - statement_terminator: ;
+  - statement:
+      comment_statement:
+      - keyword: COMMENT
+      - keyword: 'ON'
+      - keyword: INDEXTYPE
+      - indextype_reference:
+          naked_identifier: employees_indextype
+      - keyword: IS
+      - quoted_literal: "'employees indextype'"
+  - statement_terminator: ;
+  - statement:
+      comment_statement:
+      - keyword: COMMENT
+      - keyword: 'ON'
+      - keyword: OPERATOR
+      - object_reference:
+          naked_identifier: employees_operator
+      - keyword: IS
+      - quoted_literal: "'employees operator'"
+  - statement_terminator: ;
+  - statement:
+      comment_statement:
+      - keyword: COMMENT
+      - keyword: 'ON'
+      - keyword: MATERIALIZED
+      - keyword: VIEW
+      - table_reference:
+          naked_identifier: employees_mv
+      - keyword: IS
+      - quoted_literal: "'employees materialized view'"
+  - statement_terminator: ;

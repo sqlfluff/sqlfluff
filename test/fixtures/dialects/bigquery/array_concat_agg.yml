@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5dbdf17b16aac40ad5558be7de458dcf35101b2d76b16b058829bf4e7dab67eb
+_hash: c259719d70357359518922b5a4a6784b18f89020d81ce433135a799c5573e1e3
 file:
 - statement:
     select_statement:
@@ -212,6 +212,93 @@ file:
                 limit_clause:
                   keyword: LIMIT
                   numeric_literal: '5'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: array_concat_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ARRAY_CONCAT_AGG
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: y
+                limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '5'
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: z
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: array_concat_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ARRAY_CONCAT_AGG
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: z
                 end_bracket: )
           alias_expression:
             alias_operator:

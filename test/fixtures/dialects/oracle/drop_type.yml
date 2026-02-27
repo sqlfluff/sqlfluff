@@ -3,23 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 12cc8c15b864c7b5b34bc9f57d9be238033e44de56a382c618f704c9d757d1cb
+_hash: 6c282050944d7687d915164083a047afe5b273f11948a6e14984b9e45b96b6dc
 file:
-- statement:
-    drop_type_statement:
-    - keyword: DROP
-    - keyword: TYPE
-    - keyword: IF
-    - keyword: EXISTS
-    - object_reference:
-        naked_identifier: person_t
-    - keyword: FORCE
-- statement_terminator: ;
-- statement:
-    drop_type_statement:
-    - keyword: DROP
-    - keyword: TYPE
-    - keyword: BODY
-    - object_reference:
-        naked_identifier: data_typ1
-- statement_terminator: ;
+  batch:
+  - statement:
+      drop_type_statement:
+      - keyword: DROP
+      - keyword: TYPE
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+          naked_identifier: person_t
+      - keyword: FORCE
+  - statement_terminator: ;
+  - statement:
+      drop_type_statement:
+      - keyword: DROP
+      - keyword: TYPE
+      - keyword: BODY
+      - object_reference:
+          naked_identifier: data_typ1
+  - statement_terminator: ;
