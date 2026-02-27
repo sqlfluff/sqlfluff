@@ -371,14 +371,9 @@ class Rule_CV06(BaseRule):
 
         # Check if there's a semicolon terminator after the last statement
         # or if the last statement itself ends with a semicolon.
-        semi_colon_exist_flag = False
-        last_statement_terminators = list(
-            last_statement.recursive_crawl("statement_terminator")
-        )
-        if last_statement_terminators and self._is_segment_semicolon(
-            last_statement_terminators[-1]
-        ):
-            semi_colon_exist_flag = True
+        semi_colon_exist_flag = bool(
+            last_statement.raw_segments
+        ) and self._is_segment_semicolon(last_statement.raw_segments[-1])
 
         found_last_statement = False
         for seg in statement_container.segments:

@@ -639,6 +639,7 @@ class ReflowSequence:
             self.elements,
             single_indent=single_indent,
             skip_indentation_in=self.reflow_config.skip_indentation_in,
+            skip_implicit_indents_in=self.reflow_config.skip_implicit_indents_in,
             implicit_indents=self.reflow_config.implicit_indents,
             ignore_comment_lines=self.reflow_config.ignore_comment_lines,
             indentation_align_following=indentation_align_following,

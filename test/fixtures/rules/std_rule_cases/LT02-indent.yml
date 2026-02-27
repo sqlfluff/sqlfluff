@@ -1989,6 +1989,118 @@ test_require_implicit_indents_case:
   configs:
     indentation:
       implicit_indents: require
+      skip_implicit_indents_in: ""
+
+test_skip_implicit_indents_allow:
+  # skip_implicit_indents_in has no effect when implicit_indents = allow.
+  pass_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: allow
+      skip_implicit_indents_in: case_expression
+
+test_require_implicit_indents_skip_none:
+  # With no types skipped, both CASE and WHERE collapse.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  fix_str: |
+    SELECT
+        CASE WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: require
+      skip_implicit_indents_in: ""
+
+test_require_implicit_indents_skip_where:
+  # Skipping where_clause: WHERE keeps line break, CASE collapses.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  fix_str: |
+    SELECT
+        CASE WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: require
+      skip_implicit_indents_in: where_clause
+
+test_require_implicit_indents_skip_case:
+  # Skipping case_expression: CASE keeps line break, WHERE collapses.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  fix_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: require
+      skip_implicit_indents_in: case_expression
+
+test_require_implicit_indents_skip_both:
+  # Skipping both: nothing collapses, input is already correct.
+  pass_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: require
+      skip_implicit_indents_in: where_clause, case_expression
 
 test_jinja_nested_tracking:
   # This tests the caching features of BlockTracker

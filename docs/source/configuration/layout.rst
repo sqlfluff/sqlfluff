@@ -457,7 +457,10 @@ at time of writing (including the `dbt Labs SQL style guide`_
 and the `Mozilla SQL style guide`_), and so are disabled by default.
 To enable them, set the :code:`implicit_indents` flag in
 :code:`sqluff.indentation` to :code:`allow`, or the more strict
-:code:`require`.
+:code:`require`. When using :code:`require`, the
+:code:`skip_implicit_indents_in` option (defaulting to
+:code:`case_expression`) excludes specific element types from
+collapsing.
 
 .. _templatedindents:
 
