@@ -3,98 +3,99 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c51b711fd30141bde95ddc56f3cd3112fb6372dfe3f0fa34a0d93d21a980b960
+_hash: 7b174e6a8796e33727cbe26ec486a0e1b80c8aba0327ad38cca616d77f6c14aa
 file:
-  statement:
-    create_trigger_statement:
-    - keyword: CREATE
-    - keyword: OR
-    - keyword: REPLACE
-    - keyword: TRIGGER
-    - trigger_reference:
-        naked_identifier: example_trigger
-    - keyword: BEFORE
-    - dml_event_clause:
-      - keyword: INSERT
+  batch:
+    statement:
+      create_trigger_statement:
+      - keyword: CREATE
       - keyword: OR
-      - keyword: UPDATE
-      - keyword: 'ON'
-      - table_reference:
-          naked_identifier: example_table
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: ROW
-    - statement:
-        begin_end_block:
-        - keyword: BEGIN
-        - statement:
-            assignment_segment_statement:
-              bind_variable:
-                colon_delimiter: ':'
-                trigger_correlation_name:
-                  keyword: NEW
-                dot: .
-                naked_identifier: column_name
-              assignment_operator: :=
-              expression:
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: example_trigger
+      - keyword: BEFORE
+      - dml_event_clause:
+        - keyword: INSERT
+        - keyword: OR
+        - keyword: UPDATE
+        - keyword: 'ON'
+        - table_reference:
+            naked_identifier: example_table
+      - keyword: FOR
+      - keyword: EACH
+      - keyword: ROW
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              assignment_segment_statement:
                 bind_variable:
                   colon_delimiter: ':'
                   trigger_correlation_name:
-                    keyword: OLD
+                    keyword: NEW
                   dot: .
                   naked_identifier: column_name
-        - statement_terminator: ;
-        - statement:
-            if_then_statement:
-            - if_clause:
-              - keyword: IF
-              - expression:
-                - bind_variable:
-                    colon_delimiter: ':'
-                    trigger_correlation_name:
-                      keyword: NEW
-                    dot: .
-                    naked_identifier: val
-                - comparison_operator:
-                    raw_comparison_operator: '>'
-                - bind_variable:
+                assignment_operator: :=
+                expression:
+                  bind_variable:
                     colon_delimiter: ':'
                     trigger_correlation_name:
                       keyword: OLD
                     dot: .
-                    naked_identifier: val
-              - keyword: THEN
-            - statement:
-                assignment_segment_statement:
-                  bind_variable:
-                    colon_delimiter: ':'
-                    trigger_correlation_name:
-                      keyword: NEW
-                    dot: .
-                    naked_identifier: status
-                  assignment_operator: :=
-                  expression:
-                    quoted_literal: "'changed'"
-            - statement_terminator: ;
-            - keyword: END
-            - keyword: IF
-        - statement_terminator: ;
-        - statement:
-            assignment_segment_statement:
-              bind_variable:
-                colon_delimiter: ':'
-                trigger_correlation_name:
-                  keyword: NEW
-                dot: .
-                naked_identifier: parent_val
-              assignment_operator: :=
-              expression:
+                    naked_identifier: column_name
+          - statement_terminator: ;
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - expression:
+                  - bind_variable:
+                      colon_delimiter: ':'
+                      trigger_correlation_name:
+                        keyword: NEW
+                      dot: .
+                      naked_identifier: val
+                  - comparison_operator:
+                      raw_comparison_operator: '>'
+                  - bind_variable:
+                      colon_delimiter: ':'
+                      trigger_correlation_name:
+                        keyword: OLD
+                      dot: .
+                      naked_identifier: val
+                - keyword: THEN
+              - statement:
+                  assignment_segment_statement:
+                    bind_variable:
+                      colon_delimiter: ':'
+                      trigger_correlation_name:
+                        keyword: NEW
+                      dot: .
+                      naked_identifier: status
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'changed'"
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - statement:
+              assignment_segment_statement:
                 bind_variable:
                   colon_delimiter: ':'
                   trigger_correlation_name:
-                    keyword: PARENT
+                    keyword: NEW
                   dot: .
-                  naked_identifier: val
-        - statement_terminator: ;
-        - keyword: END
-    - statement_terminator: ;
+                  naked_identifier: parent_val
+                assignment_operator: :=
+                expression:
+                  bind_variable:
+                    colon_delimiter: ':'
+                    trigger_correlation_name:
+                      keyword: PARENT
+                    dot: .
+                    naked_identifier: val
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;

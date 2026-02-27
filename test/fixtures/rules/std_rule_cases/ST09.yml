@@ -514,3 +514,27 @@ test_fail_later_table_first_quoted_table_not_columns:
     left join "bar"
         on "foo"."a" = "bar"."a"
         and foo."b" = "bar"."b"
+
+test_pass_directional_operator_tilde_postgres:
+  # The ~ operator is directional in PostgreSQL (regex match, case-sensitive).
+  # Reordering the operands would change the meaning, so ST09 should ignore it.
+  pass_str: |
+    SELECT *
+    FROM table1 AS t0
+    INNER JOIN other_table AS t1
+        ON t1.col ~ t0.regex
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_directional_operator_not_tilde_postgres:
+  # The !~ operator is directional in PostgreSQL (regex not match, case-sensitive).
+  # Reordering the operands would change the meaning, so ST09 should ignore it.
+  pass_str: |
+    SELECT *
+    FROM table1 AS t0
+    INNER JOIN other_table AS t1
+        ON t1.col !~ t0.regex
+  configs:
+    core:
+      dialect: postgres

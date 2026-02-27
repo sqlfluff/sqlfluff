@@ -15,3 +15,9 @@ FROM t;
 
 SELECT ARRAY_CONCAT_AGG(x ORDER BY y, z LIMIT 5) AS array_concat_agg
 FROM t;
+
+SELECT ARRAY_CONCAT_AGG(x ORDER BY y LIMIT 5) OVER (PARTITION BY z) AS array_concat_agg
+FROM t;
+
+SELECT ARRAY_CONCAT_AGG(x) OVER (PARTITION BY z) AS array_concat_agg
+FROM t;
