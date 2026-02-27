@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74274f8f0745af9a44b0c9fd7d899c9fbbb82cd4c2a1e7e071b28f2dfea34b46
+_hash: ceef2079119948cc2bbcf06b921ce0b71bb0b784a00f66fb74c2897fb928beb9
 file:
 - statement:
     create_database_statement:
@@ -373,7 +373,9 @@ file:
           keyword: OFFSET
           parameter_assigner: =>
           expression:
-            numeric_literal: '3600'
+            numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '3600'
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -527,11 +529,7 @@ file:
     - keyword: CREATE
     - keyword: OR
     - keyword: REPLACE
-    - keyword: TRANSIENT
     - keyword: DATABASE
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
     - database_reference:
         naked_identifier: MY_DATABASE
     - keyword: DATA_RETENTION_TIME_IN_DAYS
@@ -546,10 +544,6 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'my_ext_volume'"
-    - keyword: CATALOG
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'my_catalog_integration'"
     - keyword: REPLACE_INVALID_CHARACTERS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -567,18 +561,6 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'Full example database'"
-    - keyword: CATALOG_SYNC
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'my_open_catalog'"
-    - keyword: CATALOG_SYNC_NAMESPACE_MODE
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: NEST
-    - keyword: CATALOG_SYNC_NAMESPACE_FLATTEN_DELIMITER
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - catalog_sync_namespace_flatten_delimeter: "'$'"
     - log_level_equals:
       - keyword: LOG_LEVEL
       - comparison_operator:
