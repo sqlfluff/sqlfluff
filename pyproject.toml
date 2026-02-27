@@ -68,7 +68,11 @@ keywords = [
 ]
 dependencies = [
     # Used for finding os-specific application config dirs
-    "platformdirs",
+    # Pinned to <4.6.0 due to breaking changes in 4.6.0 (released 2026-02-12)
+    # which added XDG_CONFIG_HOME support to macOS (https://github.com/tox-dev/platformdirs/pull/375)
+    # This breaks our tests which expect the old macOS behavior.
+    # TODO: Update tests to support both old and new behavior.
+    "platformdirs<4.6.0",
     # To get the encoding of files.
     "chardet",
     # Click can include breaking changes in minor releases. Make sure to test
@@ -131,6 +135,7 @@ sqlfluff_rules_structure = "sqlfluff.rules.structure"
 sqlfluff_rules_convention = "sqlfluff.rules.convention"
 sqlfluff_rules_jinja = "sqlfluff.rules.jinja"
 sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
+sqlfluff_rules_oracle = "sqlfluff.rules.oracle"
 
 
 [tool.sqlfluff_docs]

@@ -84,6 +84,26 @@ Ignore files can also be placed in subdirectories of a path which is being
 linted and the sub files will also be applied within that subdirectory.
 
 
+:code:`pyproject.toml`
+^^^^^^^^^^^^^^^^^^^^^^
+
+If you use :code:`pyproject.toml` for SQLFluff configuration, you can also
+ignore files and directories using ``ignore_paths`` in
+``[tool.sqlfluff.core]``.
+
+.. code-block:: toml
+
+    [tool.sqlfluff.core]
+    ignore_paths = [
+        "target/",
+        "supabase/migrations/*",
+        "generated/*.sql",
+    ]
+
+The patterns in ``ignore_paths`` use the same matching rules as
+:ref:`sqlfluffignore`.
+
+
 .. _`Git's`: https://git-scm.com/docs/gitignore#_pattern_format
 .. _`Docker's`: https://docs.docker.com/engine/reference/builder/#dockerignore-file
 .. _`pathspec library`: https://python-path-specification.readthedocs.io/

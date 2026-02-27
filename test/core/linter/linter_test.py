@@ -497,6 +497,28 @@ def test__linter__templating_fail():
                 ("CP01", 2, 52),
             ],
         ),
+        (
+            "test/fixtures/linter/jinja_variants/branching_cp01.sql",
+            "CP01",
+            False,
+            [
+                # Nested IF/ELIF blocks should surface keyword violations
+                # from every variant we render.
+                ("CP01", 3, 1),
+                ("CP01", 5, 11),
+                ("CP01", 7, 11),
+                ("CP01", 9, 1),
+                ("CP01", 11, 1),
+                ("CP01", 11, 15),
+                ("CP01", 11, 25),
+                ("CP01", 13, 1),
+                ("CP01", 13, 15),
+                ("CP01", 13, 25),
+                ("CP01", 15, 1),
+                ("CP01", 15, 15),
+                ("CP01", 15, 25),
+            ],
+        ),
     ],
 )
 def test__linter__mask_templated_violations(

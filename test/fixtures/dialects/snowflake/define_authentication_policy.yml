@@ -1,0 +1,31 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7b7120a1d233dbad21a65bf0a89e330ffb25154e500913c026c0339d72ff8e5d
+file:
+  statement:
+    create_authentication_policy_segment:
+    - keyword: DEFINE
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - table_reference:
+      - naked_identifier: DCM_PROJECT_DEV
+      - dot: .
+      - naked_identifier: RAW
+      - dot: .
+      - naked_identifier: PAT_AUTH_POLICY
+    - keyword: CLIENT_TYPES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'SNOWFLAKE_UI'"
+        end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Auth policy that only allows access through the web interface'"
+  statement_terminator: ;
