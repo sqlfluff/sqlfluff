@@ -16,7 +16,7 @@ use crate::parser::types::{MetaType, Node, RawSegmentKwargs};
 use hashbrown::HashMap;
 use sqlfluffrs_types::regex::RegexModeGroup;
 use sqlfluffrs_types::token::CaseFold;
-use sqlfluffrs_types::Token;
+use sqlfluffrs_types::{PositionMarker, Token};
 
 /// Meta-segment types that can be inserted (like Python's Indent/Dedent)
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -405,7 +405,8 @@ impl MatchResult {
             }
             // Only meta/transparent inserts - create them as children
             for (idx, meta_type) in &self.insert_segments {
-                result.push(meta_to_node(*idx, meta_type));
+                let pos_marker = get_point_pos_at_token_idx(tokens, *idx);
+                result.push(meta_to_node(meta_type, pos_marker));
             }
             return result;
         }
@@ -481,10 +482,8 @@ impl MatchResult {
                 for trigger in triggers {
                     match trigger {
                         TriggerItem::Meta(meta_type) => {
-                            // TODO: Get position marker for meta segment, make a token at that position
-                            // then add that token to the Node/result.
-                            // let pos_marker = get_point_pos_at_token_idx(tokens, pos);
-                            result_nodes.push(meta_to_node(pos, meta_type));
+                            let pos_marker = get_point_pos_at_token_idx(tokens, pos);
+                            result_nodes.push(meta_to_node(meta_type, pos_marker));
                         }
                         TriggerItem::ChildMatch(child) => {
                             let child_node = child.clone().apply(tokens);
@@ -616,11 +615,28 @@ enum TriggerItem {
     ChildMatch(MatchResult),
 }
 
-/// Convert a meta segment type to a Node
-fn meta_to_node(_idx: usize, meta_type: &MetaSegment) -> Node {
-    // TODO: Get position marker for meta segment - for now use None
-    let pos_marker = None;
+/// Get a point position marker at a given token index.
+/// Mirrors Python's `_get_point_pos_at_idx`:
+/// - If `idx < tokens.len()`: use the start point of `tokens[idx]`
+/// - Otherwise: use the end point of `tokens[idx - 1]`
+fn get_point_pos_at_token_idx(tokens: &[Token], idx: usize) -> Option<PositionMarker> {
+    if idx < tokens.len() {
+        tokens[idx]
+            .pos_marker
+            .as_ref()
+            .map(|pm| pm.start_point_marker())
+    } else if idx > 0 {
+        tokens[idx - 1]
+            .pos_marker
+            .as_ref()
+            .map(|pm| pm.end_point_marker())
+    } else {
+        None
+    }
+}
 
+/// Convert a meta segment type to a Node with an optional position marker.
+fn meta_to_node(meta_type: &MetaSegment, pos_marker: Option<PositionMarker>) -> Node {
     match meta_type {
         MetaSegment::Indent { is_implicit } => Node::Meta {
             meta_type: MetaType::Indent {
