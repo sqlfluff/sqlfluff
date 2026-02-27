@@ -114,10 +114,9 @@ impl<'a> Parser<'a> {
         self.cache_enabled = enabled;
     }
 
-    /// Parse and return MatchResult instead of Node
+    /// Parse and return MatchResult
     ///
-    /// This allows Python to apply the match result using its own apply() logic,
-    /// avoiding double-counting issues in Rust's apply() implementation.
+    /// We can pass either Rust's or Python's implementation of `apply` to convert the MatchResult into a Node.
     pub fn call_rule_as_root(&mut self) -> Result<MatchResult, ParseError> {
         // Obtain the root grammar for this dialect
         let root_grammar = self.dialect.get_root_grammar().clone();
@@ -1238,42 +1237,6 @@ impl<'a> Parser<'a> {
         };
         inner_child_matches.push(Arc::new(close_bracket_match));
 
-        if persists {
-            // Create a BracketedSegment match
-            // Note: bracket_persists is NOT stored in segment_kwargs.
-            // In Python, it's only used as a decision flag for whether to wrap in BracketedSegment.
-            // When wrapping, Python stores start_bracket/end_bracket (extracted from children), not bracket_persists.
-            MatchResult {
-                matched_slice: bracket_start..bracket_end,
-                matched_class: Some(MatchedClass {
-                    class_name: "BracketedSegment".to_string(),
-                    segment_type: Some("bracketed".to_string()),
-                    segment_kwargs: SegmentKwargs::default(),
-                }),
-                child_matches: inner_child_matches,
-                insert_segments: vec![
-                    (
-                        bracket_start + 1,
-                        MetaSegment::Indent { is_implicit: false },
-                    ),
-                    (bracket_end - 1, MetaSegment::Dedent { is_implicit: false }),
-                ],
-            }
-        } else {
-            // For non-persisting brackets, return a simple match with indent/dedent
-            // but no BracketedSegment wrapper
-            MatchResult {
-                matched_slice: bracket_start..bracket_end,
-                child_matches: inner_child_matches,
-                insert_segments: vec![
-                    (
-                        bracket_start + 1,
-                        MetaSegment::Indent { is_implicit: false },
-                    ),
-                    (bracket_end - 1, MetaSegment::Dedent { is_implicit: false }),
-                ],
-                ..Default::default()
-            }
-        }
+        MatchResult::bracketed(bracket_start, bracket_end, inner_child_matches, persists)
     }
 }

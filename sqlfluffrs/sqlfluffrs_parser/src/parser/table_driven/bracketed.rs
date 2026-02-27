@@ -1,10 +1,4 @@
-use crate::{
-    parser::{
-        match_result::{MatchedClass, SegmentKwargs},
-        MetaSegment,
-    },
-    vdebug,
-};
+use crate::{parser::match_result::MatchedClass, vdebug};
 use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
@@ -565,35 +559,7 @@ impl Parser<'_> {
                 frame.frame_id,
                 bracket_persists
             );
-            // Use lazy evaluation - store child_matches instead of building Node
-            // PYTHON PARITY: Indent goes AFTER start_bracket (.end()), Dedent goes BEFORE
-            // end_bracket (.start()). Python uses start_match.stop and end_match.start.
-            // PYTHON PARITY: When bracket_persists=true, wrap in BracketedSegment node
-            // (Python's Bracketed._match_once calls result.wrap(BracketedSegment, ...)).
-            let matched_class = if bracket_persists {
-                Some(MatchedClass {
-                    class_name: "BracketedSegment".to_string(),
-                    segment_type: Some("bracketed".to_string()),
-                    segment_kwargs: SegmentKwargs::default(),
-                })
-            } else {
-                None
-            };
-            MatchResult {
-                matched_slice: frame.pos..end_pos,
-                matched_class,
-                insert_segments: vec![
-                    (
-                        child_matches[0].end(),
-                        MetaSegment::Indent { is_implicit: false },
-                    ),
-                    (
-                        child_matches[child_matches.len() - 1].start(),
-                        MetaSegment::Dedent { is_implicit: false },
-                    ),
-                ],
-                child_matches,
-            }
+            MatchResult::bracketed(frame.pos, end_pos, child_matches, bracket_persists)
         } else {
             // Log the actual state for debugging
             #[cfg(feature = "verbose-debug")]

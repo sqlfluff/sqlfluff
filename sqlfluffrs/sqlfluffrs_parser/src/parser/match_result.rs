@@ -25,10 +25,6 @@ pub enum MetaSegment {
     Dedent { is_implicit: bool },
 }
 
-/// Describes a transparent token (whitespace/newline/comment/EOF) to insert
-// NOTE: TransparentInsert and TransparentType were removed as vestigial.
-// Transparent token handling now happens via gap-filling in MatchResult::apply().
-
 #[derive(Debug, Clone)]
 pub struct SegmentKwargs {
     pub instance_types: Option<Vec<String>>,
@@ -207,7 +203,7 @@ impl MatchResult {
         bracket_persists: bool,
     ) -> Self {
         // Python parity: Insert Indent after opening bracket and Dedent before closing bracket
-        // Python code (sequence.py Bracketed.match() lines ~580-582):
+        // Python code:
         //   insert_segments=(
         //       (start_match.matched_slice.stop, Indent),
         //       (end_match.matched_slice.start, Dedent),
