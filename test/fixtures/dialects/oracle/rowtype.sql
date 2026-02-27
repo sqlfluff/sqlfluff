@@ -95,3 +95,11 @@ BEGIN
  );
 END;
 /
+
+create or replace procedure MY_PROCEDURE(
+    var1 table_name%rowtype
+) is
+begin
+    null;
+end;
+/

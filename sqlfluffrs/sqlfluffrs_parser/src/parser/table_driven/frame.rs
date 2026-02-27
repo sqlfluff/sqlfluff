@@ -65,6 +65,45 @@ impl TableParseFrameStack {
         self.frame_id_counter += 1;
     }
 
+    #[inline]
+    pub(crate) fn insert_empty_result(&mut self, frame_id: usize, pos: usize) {
+        self.results
+            .insert(frame_id, (Arc::new(MatchResult::empty_at(pos)), pos, None));
+    }
+
+    #[inline]
+    pub(crate) fn insert_result(
+        &mut self,
+        frame_id: usize,
+        match_result: MatchResult,
+        end_pos: usize,
+    ) {
+        self.results
+            .insert(frame_id, (Arc::new(match_result), end_pos, None));
+    }
+
+    #[inline]
+    pub(crate) fn insert_arc_result(
+        &mut self,
+        frame_id: usize,
+        match_result: Arc<MatchResult>,
+        end_pos: usize,
+    ) {
+        self.results.insert(frame_id, (match_result, end_pos, None));
+    }
+
+    #[inline]
+    pub(crate) fn insert_result_with_key(
+        &mut self,
+        frame_id: usize,
+        match_result: MatchResult,
+        end_pos: usize,
+        element_key: Option<u64>,
+    ) {
+        self.results
+            .insert(frame_id, (Arc::new(match_result), end_pos, element_key));
+    }
+
     // Add more helper methods as needed for dispatch or state management
 }
 
@@ -290,5 +329,18 @@ impl TableParseFrame {
         // Increment counter and push child
         stack.increment_frame_id_counter();
         stack.push(&mut child_frame);
+    }
+
+    pub(crate) fn transition_to_combining(
+        mut self,
+        end_pos: Option<usize>,
+        stack: &mut TableParseFrameStack,
+    ) -> TableFrameResult {
+        if let Some(pos) = end_pos {
+            self.end_pos = Some(pos);
+        }
+        self.state = FrameState::Combining;
+        stack.push(&mut self);
+        TableFrameResult::Done
     }
 }

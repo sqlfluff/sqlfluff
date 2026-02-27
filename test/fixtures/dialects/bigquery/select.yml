@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0cb963b53f2fa31526a616181c1f190315dc4c1c0e8ba540fa8cfdc9463f0286
+_hash: 4fbee18ba70643373c0bb207e94e1983fe9e8b5e62263f00e40e4765f5691d9b
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -22,4 +22,173 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: foo
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '0x01'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: hex1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '0xFF'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: hex2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '0xDEADBEEF'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: hex3
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  boolean_literal: 'TRUE'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '0x01'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0x00'
+            - keyword: END
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '0x01'
+          - binary_operator:
+              pipe: '|'
+          - numeric_literal: '0x02'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: bitwise_or
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: l
+              - dot: .
+              - naked_identifier: vss
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: _stage
+      where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - naked_identifier: _stage
+          - dot: .
+          - naked_identifier: valid_from
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '>'
+        - column_reference:
+          - naked_identifier: _stage
+          - dot: .
+          - naked_identifier: valid_to
+      qualify_clause:
+        keyword: qualify
+        expression:
+          function:
+            function_name:
+              function_name_identifier: max
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: _stage
+                  - dot: .
+                  - naked_identifier: valid_to
+                end_bracket: )
+            over_clause:
+              keyword: over
+              naked_identifier: w
+          comparison_operator:
+            raw_comparison_operator: '='
+          column_reference:
+          - naked_identifier: _stage
+          - dot: .
+          - naked_identifier: valid_to
+      named_window:
+        keyword: window
+        named_window_expression:
+          naked_identifier: w
+          keyword: as
+          bracketed:
+            start_bracket: (
+            window_specification:
+              partitionby_clause:
+              - keyword: partition
+              - keyword: by
+              - expression:
+                  column_reference:
+                  - naked_identifier: _stage
+                  - dot: .
+                  - naked_identifier: _id
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: _stage
+                  - dot: .
+                  - naked_identifier: os_id
+              orderby_clause:
+              - keyword: order
+              - keyword: by
+              - column_reference:
+                - naked_identifier: _stage
+                - dot: .
+                - naked_identifier: _id
+            end_bracket: )
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: _id
+      - keyword: asc
+      - comma: ','
+      - column_reference:
+          naked_identifier: valid_from
+      - keyword: asc
+- statement_terminator: ;

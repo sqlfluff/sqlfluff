@@ -103,10 +103,7 @@ impl Parser<'_> {
             if parse_mode == ParseMode::Strict {
                 // Rollback checkpoint before returning Empty
                 self.rollback_collection_checkpoint(current_frame_id);
-                stack.results.insert(
-                    current_frame_id,
-                    (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
-                );
+                stack.insert_empty_result(current_frame_id, start_idx);
                 return Ok(TableFrameResult::Done);
             }
 
@@ -114,10 +111,7 @@ impl Parser<'_> {
             if self.grammar_ctx.is_optional(elements[0]) {
                 // Rollback checkpoint before returning Empty
                 self.rollback_collection_checkpoint(current_frame_id);
-                stack.results.insert(
-                    current_frame_id,
-                    (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
-                );
+                stack.insert_empty_result(current_frame_id, start_idx);
                 return Ok(TableFrameResult::Done);
             } else {
                 // If start_idx == max_idx, there are no tokens to wrap - return Empty
@@ -129,10 +123,7 @@ impl Parser<'_> {
                     );
                     // Rollback checkpoint before returning Empty
                     self.rollback_collection_checkpoint(current_frame_id);
-                    stack.results.insert(
-                        current_frame_id,
-                        (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
-                    );
+                    stack.insert_empty_result(current_frame_id, start_idx);
                     return Ok(TableFrameResult::Done);
                 }
 
@@ -153,10 +144,7 @@ impl Parser<'_> {
 
                 // Commit checkpoint since we're producing a result (even if unparsable)
                 self.commit_collection_checkpoint(current_frame_id);
-                stack.results.insert(
-                    current_frame_id,
-                    (Arc::new(unparsable_match), max_idx, None),
-                );
+                stack.insert_result(current_frame_id, unparsable_match, max_idx);
                 return Ok(TableFrameResult::Done);
             }
         }
@@ -531,10 +519,7 @@ impl Parser<'_> {
                         );
                         self.pos = start_idx;
                         self.rollback_collection_checkpoint(frame.frame_id);
-                        stack.results.insert(
-                            frame.frame_id,
-                            (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
-                        );
+                        stack.insert_empty_result(frame.frame_id, start_idx);
                         return Ok(TableFrameResult::Done);
                     }
 
@@ -607,9 +592,7 @@ impl Parser<'_> {
 
                     self.pos = matched_idx_val;
                     self.commit_collection_checkpoint(frame.frame_id);
-                    stack
-                        .results
-                        .insert(frame.frame_id, (Arc::new(result), matched_idx_val, None));
+                    stack.insert_result(frame.frame_id, result, matched_idx_val);
                     return Ok(TableFrameResult::Done);
                 }
 
@@ -808,10 +791,7 @@ impl Parser<'_> {
                 );
                 self.pos = start_idx;
                 self.rollback_collection_checkpoint(frame.frame_id);
-                stack.results.insert(
-                    frame.frame_id,
-                    (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
-                );
+                stack.insert_empty_result(frame.frame_id, start_idx);
                 return Ok(TableFrameResult::Done);
             }
 
@@ -823,10 +803,7 @@ impl Parser<'_> {
                 );
                 self.pos = start_idx;
                 self.rollback_collection_checkpoint(frame.frame_id);
-                stack.results.insert(
-                    frame.frame_id,
-                    (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
-                );
+                stack.insert_empty_result(frame.frame_id, start_idx);
                 return Ok(TableFrameResult::Done);
             }
 
@@ -882,9 +859,7 @@ impl Parser<'_> {
 
                 self.pos = max_idx;
                 self.commit_collection_checkpoint(frame.frame_id);
-                stack
-                    .results
-                    .insert(frame.frame_id, (Arc::new(unparsable_match), max_idx, None));
+                stack.insert_result(frame.frame_id, unparsable_match, max_idx);
             } else {
                 // Case 3b: Partial match - return accumulated matches + remaining as UnparsableSegment child
                 // Find where unparsable section starts (skip whitespace forward)
@@ -924,9 +899,7 @@ impl Parser<'_> {
 
                 self.pos = max_idx;
                 self.commit_collection_checkpoint(frame.frame_id);
-                stack
-                    .results
-                    .insert(frame.frame_id, (Arc::new(result), max_idx, None));
+                stack.insert_result(frame.frame_id, result, max_idx);
             }
 
             Ok(TableFrameResult::Done)

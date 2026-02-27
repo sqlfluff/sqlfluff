@@ -672,10 +672,10 @@ test_limit_and_qualify_and_window_indent:
     my_tbl
     QUALIFY
     1
-    LIMIT
-    1
     WINDOW
     some_window AS (PARTITION BY 1)
+    LIMIT
+    1
   fix_str: |
     SELECT
         a,
@@ -684,10 +684,10 @@ test_limit_and_qualify_and_window_indent:
         my_tbl
     QUALIFY
         1
-    LIMIT
-        1
     WINDOW
         some_window AS (PARTITION BY 1)
+    LIMIT
+        1
   configs:
     core:
       dialect: bigquery
@@ -701,8 +701,8 @@ test_limit_and_qualify_and_window_single_line:
     FROM
         my_tbl
     QUALIFY 1
-    LIMIT 1
     WINDOW some_window AS (PARTITION BY 1)
+    LIMIT 1
   configs:
     core:
       dialect: bigquery
@@ -1989,6 +1989,118 @@ test_require_implicit_indents_case:
   configs:
     indentation:
       implicit_indents: require
+      skip_implicit_indents_in: ""
+
+test_skip_implicit_indents_allow:
+  # skip_implicit_indents_in has no effect when implicit_indents = allow.
+  pass_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: allow
+      skip_implicit_indents_in: case_expression
+
+test_require_implicit_indents_skip_none:
+  # With no types skipped, both CASE and WHERE collapse.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  fix_str: |
+    SELECT
+        CASE WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: require
+      skip_implicit_indents_in: ""
+
+test_require_implicit_indents_skip_where:
+  # Skipping where_clause: WHERE keeps line break, CASE collapses.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  fix_str: |
+    SELECT
+        CASE WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: require
+      skip_implicit_indents_in: where_clause
+
+test_require_implicit_indents_skip_case:
+  # Skipping case_expression: CASE keeps line break, WHERE collapses.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  fix_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: require
+      skip_implicit_indents_in: case_expression
+
+test_require_implicit_indents_skip_both:
+  # Skipping both: nothing collapses, input is already correct.
+  pass_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: require
+      skip_implicit_indents_in: where_clause, case_expression
 
 test_jinja_nested_tracking:
   # This tests the caching features of BlockTracker
@@ -2605,3 +2717,63 @@ test_jinja_value_error_6378:
           tables: ["tbl_a", "tbl_b", "tbl_c"]
           each_table_cols:
             [["aa", "ab", "ac"], ["ba", "bb", "bc"], ["ca", "cb", "cc"]]
+
+test_indent_leading_comma_align_following:
+  fail_str: |
+    SELECT
+        a
+        , b
+    FROM foo;
+  fix_str: |
+    SELECT
+        a
+      , b
+    FROM foo;
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: "leading:align-following"
+
+test_indent_leading_segment_align_following_window_function:
+  fail_str: |
+    SELECT
+        table_1.a AS col_1
+        , table_1.b
+        , ROW_NUMBER() OVER (
+            PARTITION BY table_1.a
+            ORDER BY table_1.d
+        )         AS col_2
+    FROM
+        table_1
+        INNER JOIN table_2
+            ON
+                table_1.a = table_2.a
+                AND table_1.b = table_2.b
+                OR table_1.c = table_2.c;
+  fix_str: |
+    SELECT
+        table_1.a AS col_1
+      , table_1.b
+      , ROW_NUMBER() OVER (
+            PARTITION BY table_1.a
+            ORDER BY table_1.d
+        )         AS col_2
+    FROM
+        table_1
+        INNER JOIN table_2
+            ON
+                table_1.a = table_2.a
+            AND table_1.b = table_2.b
+             OR table_1.c = table_2.c;
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: "leading:align-following"
+        binary_operator:
+          line_position: "leading:align-following"
+    indentation:
+      indented_joins: True
+      allow_implicit_indents: False
+      indented_on_contents: True

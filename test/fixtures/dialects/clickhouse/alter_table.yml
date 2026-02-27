@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6dbe11ccf20071e36fd4bc834de1d67b8aa497152ce9849f6ff363b157c4701d
+_hash: 12cc1d35c03f95ca0b3dc51ae0d0cb8f4c7ef6c785feb56e2933835cdfe3af60
 file:
 - statement:
     alter_table_statement:
@@ -603,11 +603,12 @@ file:
     - naked_identifier: browser
     - data_type:
         data_type_identifier: Array
-        bracketed:
-          start_bracket: (
-          data_type:
-            data_type_identifier: String
-          end_bracket: )
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: String
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1355,4 +1356,360 @@ file:
     - keyword: FROM
     - table_reference:
         naked_identifier: z
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Int32
+    - keyword: ALIAS
+    - expression:
+        column_reference:
+          naked_identifier: z
+        binary_operator: +
+        numeric_literal: '10'
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: abc
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: UPDATE
+    - naked_identifier: column_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        quoted_literal: "'new_value'"
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: condition
+          comparison_operator:
+            raw_comparison_operator: '='
+          boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: UPDATE
+    - naked_identifier: column_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        quoted_literal: "'new_value'"
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: condition
+          comparison_operator:
+            raw_comparison_operator: '='
+          boolean_literal: 'true'
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: mutations_sync
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: users
+    - keyword: UPDATE
+    - naked_identifier: age
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        column_reference:
+          naked_identifier: age
+        binary_operator: +
+        numeric_literal: '1'
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: users
+    - keyword: UPDATE
+    - naked_identifier: status
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        quoted_literal: "'active'"
+    - comma: ','
+    - naked_identifier: last_login
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: now
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: user_id
+          keyword: IN
+          tuple:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '2'
+            - comma: ','
+            - numeric_literal: '3'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: products
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: UPDATE
+    - naked_identifier: price
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        column_reference:
+          naked_identifier: price
+        binary_operator: '*'
+        numeric_literal: '1.1'
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: category
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'electronics'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: events
+    - keyword: UPDATE
+    - naked_identifier: event_count
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        column_reference:
+          naked_identifier: event_count
+        binary_operator: +
+        numeric_literal: '1'
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: event_date
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: today
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: mutations_sync
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DELETE
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: condition
+          comparison_operator:
+            raw_comparison_operator: '='
+          boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DELETE
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: condition
+          comparison_operator:
+            raw_comparison_operator: '='
+          boolean_literal: 'true'
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: mutations_sync
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: logs
+    - keyword: DELETE
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: log_date
+          comparison_operator:
+            raw_comparison_operator: <
+          function:
+            function_name:
+              function_name_identifier: today
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+          binary_operator: '-'
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '30'
+            date_part: DAY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: users
+    - keyword: DELETE
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: deleted
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '1'
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: last_activity
+        - comparison_operator:
+            raw_comparison_operator: <
+        - function:
+            function_name:
+              function_name_identifier: now
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        - binary_operator: '-'
+        - interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: YEAR
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sessions
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: DELETE
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: session_id
+          keyword: IN
+          tuple:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: id
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: expired_sessions
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: temp_data
+    - keyword: DELETE
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: created_at
+          comparison_operator:
+            raw_comparison_operator: <
+          quoted_literal: "'2023-01-01'"
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: mutations_sync
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '2'
 - statement_terminator: ;

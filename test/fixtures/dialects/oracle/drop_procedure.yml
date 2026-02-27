@@ -3,14 +3,15 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 11d2b406537784262f8d1ff4dcf1f7d7ca200480a0f958c6387e9d990db0a493
+_hash: b3316184bb4a2c37aa99f80e55d770015fe3d9cdec33983c88e26209aa19d2b2
 file:
-  statement:
-    drop_procedure_statement:
-    - keyword: DROP
-    - keyword: PROCEDURE
-    - function_name:
-        naked_identifier: hr
-        dot: .
-        function_name_identifier: remove_emp
-  statement_terminator: ;
+  batch:
+    statement:
+      drop_procedure_statement:
+      - keyword: DROP
+      - keyword: PROCEDURE
+      - function_name:
+          naked_identifier: hr
+          dot: .
+          function_name_identifier: remove_emp
+    statement_terminator: ;

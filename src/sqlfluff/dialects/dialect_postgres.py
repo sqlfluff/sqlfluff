@@ -5,6 +5,7 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
     Anything,
+    BaseFileSegment,
     BaseSegment,
     Bracketed,
     BracketedSegment,
@@ -194,7 +195,7 @@ postgres_dialect.insert_lexer_matchers(
             # them. In future we may want to enhance this to actually parse them to
             # ensure they are valid meta commands.
             "meta_command",
-            r"\\(?!gset|gexec)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
+            r"\\(?!gset|gexec|copy\b|set\b)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
             CommentSegment,
         ),
         RegexLexer(
@@ -206,6 +207,21 @@ postgres_dialect.insert_lexer_matchers(
             "dollar_numeric_literal",
             r"\$\d+",
             LiteralSegment,
+        ),
+        RegexLexer(
+            # Matches the psql \copy meta-command, including the form with a
+            # parenthesized query that can span multiple lines.
+            # https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-COPY
+            "psql_copy_command",
+            r"\\copy\b(\s*\((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*\)[^\r\n]*|[^\r\n]+)",
+            CodeSegment,
+        ),
+        RegexLexer(
+            # Matches the psql \set meta-command.
+            # https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-SET
+            "psql_set_command",
+            r"\\set\b[^\r\n]*",
+            CodeSegment,
         ),
         RegexLexer(
             # For now we'll just treat meta syntax like comments and so just ignore
@@ -294,6 +310,37 @@ postgres_dialect.patch_lexer_matchers(
             ),
         ),
         RegexLexer("word", r"[\p{L}_][\p{L}\p{N}_$]*", WordSegment),
+        # Numeric literal matches integers, decimals, and exponential formats,
+        # Patch to support single underscores.
+        # Pattern breakdown:
+        # (?>                      Atomic grouping
+        #                          (https://www.regular-expressions.info/atomic.html).
+        #  \d+(_\d+)*\.\d+(_\d+)*  e.g. 123.456 or 123_000.456_000
+        #  |\d+(_\d+)*\.(?![\.\w]) e.g. 123. or 1_23.
+        #                          (N.B. negative lookahead assertion to ensure we
+        #                          don't match range operators `..` in Exasol, and
+        #                          that in bigquery we don't match the "."
+        #                          in "asd-12.foo").
+        #     |\.\d+(_\d+)*        e.g. .456 or .456_000
+        #     |\d+(_\d+)*          e.g. 123 or 123_000
+        # )
+        # (\.?[eE][+-]?\d+)?          Optional exponential.
+        # (
+        #     (?<=\.)              If matched character ends with . (e.g. 123.) then
+        #                          don't worry about word boundary check.
+        #     |(?=\b)              Check that we are at word boundary to avoid matching
+        #                          valid naked identifiers (e.g. 123column).
+        # )
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+(_\d+)*\.\d+(_\d+)*"  # Decimal numbers with underscores
+            r"|\d+(_\d+)*\.(?![\.\w])"  # Integer with trailing dot
+            r"|\.\d+(_\d+)*"  # Decimal starting with dot
+            r"|\d+(_\d+)*)"  # Integer with underscores
+            r"(\.?[eE][+-]?\d+)?"  # Optional exponential
+            r"((?<=\.)|(?=\b))",  # Word boundary check
+            LiteralSegment,
+        ),
     ]
 )
 
@@ -442,6 +489,12 @@ postgres_dialect.add(
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     MetaCommandQueryBufferSegment=TypedParser(
         "meta_command_query_buffer", SymbolSegment, type="meta_command"
+    ),
+    PsqlCopyMetaCommandSegment=TypedParser(
+        "psql_copy_command", CodeSegment, type="psql_copy_command"
+    ),
+    PsqlSetMetaCommandSegment=TypedParser(
+        "psql_set_command", CodeSegment, type="psql_set_command"
     ),
     FullTextSearchOperatorSegment=TypedParser(
         "full_text_search_operator", LiteralSegment, type="full_text_search_operator"
@@ -5002,6 +5055,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("AlterSystemStatementSegment"),
             Ref("AlterPolicyStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("DropPolicyStatementSegment"),
@@ -5416,6 +5470,37 @@ class SetStatementSegment(BaseSegment):
             ),
             Sequence("SCHEMA", Ref("QuotedLiteralSegment")),
             Sequence("ROLE", OneOf("NONE", Ref("RoleReferenceSegment"))),
+        ),
+    )
+
+
+class AlterSystemStatementSegment(BaseSegment):
+    """An `ALTER SYSTEM` statement.
+
+    As specified in https://www.postgresql.org/docs/current/sql-altersystem.html
+    """
+
+    type = "alter_system_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SYSTEM",
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    "DEFAULT",
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedIdentifierSegment"),
+                        Ref("OnKeywordAsIdentifierSegment"),
+                    ),
+                ),
+            ),
+            Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
         ),
     )
 
@@ -6871,6 +6956,32 @@ class MetaCommandQueryBufferStatement(BaseSegment):
     )
 
 
+class PsqlCopyMetaCommandStatementSegment(BaseSegment):
+    r"""A psql \copy meta-command statement.
+
+    https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-COPY
+    """
+
+    type = "psql_copy_meta_command_statement"
+
+    match_grammar = Sequence(
+        Ref("PsqlCopyMetaCommandSegment"),
+    )
+
+
+class PsqlSetMetaCommandStatementSegment(BaseSegment):
+    r"""A psql \set meta-command statement.
+
+    https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-SET
+    """
+
+    type = "psql_set_meta_command_statement"
+
+    match_grammar = Sequence(
+        Ref("PsqlSetMetaCommandSegment"),
+    )
+
+
 class DropForeignTableStatement(BaseSegment):
     """A `DROP FOREIGN TABLE` Statement.
 
@@ -7141,5 +7252,28 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
                 "COLLATE",
                 Ref("CollationReferenceSegment"),
             ),
+        ),
+    )
+
+
+class FileSegment(BaseFileSegment):
+    r"""A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+
+    Override ANSI to allow psql meta-commands (``\copy``, ``\set``) at the
+    file level without requiring a semicolon delimiter.
+    """
+
+    match_grammar = AnyNumberOf(
+        Ref("PsqlCopyMetaCommandStatementSegment"),
+        Ref("PsqlSetMetaCommandStatementSegment"),
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            allow_trailing=True,
         ),
     )

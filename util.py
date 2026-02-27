@@ -5,7 +5,6 @@
 NB: This is not part of the core sqlfluff code.
 """
 
-
 # This contains various utility scripts
 
 import os
@@ -236,7 +235,7 @@ def release(new_version_num):
 
             else:
                 click.echo(f"...creating new entry for {new_version_num}")
-                write_changelog.write(f"\n{new_heading}\n## Highlights\n\n")
+                write_changelog.write(f"\n{new_heading}\n")
                 write_changelog.write(whats_changed_text)
                 write_changelog.write("\n## New Contributors\n\n")
                 # Ensure contributor names don't appear in input_changelog list
@@ -280,20 +279,22 @@ def release(new_version_num):
         write_file.write(line)
     write_file.close()
 
-    # Update Cargo.lock via `cargo check`
+    # Update Cargo.lock via `cargo update --workspace`
+    # Note: `cargo check` does NOT update workspace member versions in Cargo.lock,
+    # only `cargo update --workspace` properly updates all workspace crate versions.
     if check_cargo_installed():
-        click.echo("Running cargo check to update Cargo.lock...")
+        click.echo("Running cargo update --workspace to update Cargo.lock...")
         result = subprocess.run(
-            ["cargo", "check"],
+            ["cargo", "update", "--workspace"],
             cwd="sqlfluffrs",
             capture_output=True,
             text=True,
             check=False,
         )
         if result.returncode == 0:
-            click.echo("✓ Rust cargo check complete")
+            click.echo("✓ Rust Cargo.lock updated")
         else:
-            click.echo("✗ Rust cargo check failed:")
+            click.echo("✗ Rust cargo update failed:")
             if result.stdout:
                 click.echo(result.stdout)
             if result.stderr:

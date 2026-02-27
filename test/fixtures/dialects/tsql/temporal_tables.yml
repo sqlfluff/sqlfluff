@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b2fdeb90ef3c094941357d2bbda4dcc9cebb8d2f80f2e5e5a3c9825b1d12d6b
+_hash: fc4d8ba55413681e936969ce01220f4cf2e419b16464d278829e1cd3a2b788d5
 file:
 - batch:
   - statement:
@@ -213,10 +213,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -398,10 +400,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -457,10 +461,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -528,10 +534,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -605,10 +613,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -698,10 +708,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -736,16 +748,18 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: ROW
+          - comma: ','
           - keyword: XML_COMPRESSION
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: 'ON'
-          - keyword: 'ON'
-          - keyword: PARTITIONS
-          - bracketed:
-              start_bracket: (
-              numeric_literal: '2'
-              end_bracket: )
+          - on_partitions_clause:
+            - keyword: 'ON'
+            - keyword: PARTITIONS
+            - bracketed:
+                start_bracket: (
+                numeric_literal: '2'
+                end_bracket: )
           - end_bracket: )
     statement_terminator: ;
     go_statement:
@@ -765,10 +779,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -803,14 +819,16 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: PAGE
-          - keyword: 'ON'
-          - keyword: PARTITIONS
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '3'
-            - comma: ','
-            - numeric_literal: '5'
-            - end_bracket: )
+          - on_partitions_clause:
+            - keyword: 'ON'
+            - keyword: PARTITIONS
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '3'
+              - comma: ','
+              - numeric_literal: '5'
+              - end_bracket: )
+          - comma: ','
           - keyword: XML_COMPRESSION
           - comparison_operator:
               raw_comparison_operator: '='
@@ -834,10 +852,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
@@ -872,14 +892,15 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: 'ON'
-          - keyword: 'ON'
-          - keyword: PARTITIONS
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '3'
-            - keyword: TO
-            - numeric_literal: '5'
-            - end_bracket: )
+          - on_partitions_clause:
+            - keyword: 'ON'
+            - keyword: PARTITIONS
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '3'
+              - keyword: TO
+              - numeric_literal: '5'
+              - end_bracket: )
           - comma: ','
           - keyword: FILETABLE_DIRECTORY
           - comparison_operator:
@@ -928,10 +949,12 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-            bracketed:
-              start_bracket: (
-              numeric_literal: '100'
-              end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'

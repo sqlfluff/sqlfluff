@@ -92,7 +92,11 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         _ => false,
     }""",
         "numeric_literal": "|input| input.starts_with("
-        "['x','X','.','0','1','2','3','4','5','6','7','8','9'])",
+        "['x','X','.','0','1','2','3','4','5','6','7','8','9', "
+        "'-', '+', '$', '¢', '£', '¤', '¥', '৲', '৳', '฿', '៛', "
+        "'₠', '₡', '₢', '₣', '₤', '₥', '₦', '₧', '₨', '₩', '₪', "
+        "'₫', '€', '₭', '₮', '₯', '₰', '₱', '﹩', '＄', "
+        "'￠', '￡', '￥', '￦'])",
         "inline_comment": "|input| input.starts_with(['#','-','/'])",
         "escaped_single_quote": "|input| input.starts_with(['E', 'e'])",
         "meta_command": r"|input| input.starts_with(['\\'])",
@@ -239,13 +243,11 @@ def generate_extract_nested_block_comments(dialect: str):
     Since this function is now shared across all dialects, we just need
     to generate a wrapper that passes the dialect name to the shared implementation.
     """
-    print(
-        f"""
+    print(f"""
 // Wrapper function that passes the dialect name to the shared implementation
 fn extract_nested_block_comment(input: &str) -> Option<&str> {{
     crate::extract_nested_block_comment(input, "{dialect}")
-}}"""
-    )
+}}""")
 
 
 if __name__ == "__main__":

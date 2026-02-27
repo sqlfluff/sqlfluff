@@ -48,10 +48,7 @@ impl Parser<'_> {
                         "OneOf[table]: exclude grammar matched at pos {}, returning Empty",
                         start_pos
                     );
-                    stack.results.insert(
-                        frame.frame_id,
-                        (Arc::new(MatchResult::empty_at(start_pos)), start_pos, None),
-                    );
+                    stack.insert_empty_result(frame.frame_id, start_pos);
                     return Ok(TableFrameResult::Done);
                 }
             }
@@ -99,14 +96,7 @@ impl Parser<'_> {
         {
             vdebug!("OneOf[table]: Early termination - at terminator position");
             if optional {
-                stack.results.insert(
-                    frame.frame_id,
-                    (
-                        Arc::new(MatchResult::empty_at(post_skip_pos)),
-                        post_skip_pos,
-                        None,
-                    ),
-                );
+                stack.insert_empty_result(frame.frame_id, post_skip_pos);
                 return Ok(TableFrameResult::Done);
             }
         }
@@ -142,14 +132,7 @@ impl Parser<'_> {
 
         if pruned_children.is_empty() {
             vdebug!("OneOf[table]: No children after pruning, returning Empty");
-            stack.results.insert(
-                frame.frame_id,
-                (
-                    Arc::new(MatchResult::empty_at(post_skip_pos)),
-                    post_skip_pos,
-                    None,
-                ),
-            );
+            stack.insert_empty_result(frame.frame_id, post_skip_pos);
             return Ok(TableFrameResult::Done);
         }
 

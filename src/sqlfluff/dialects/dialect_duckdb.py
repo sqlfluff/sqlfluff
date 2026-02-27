@@ -86,11 +86,41 @@ duckdb_dialect.sets("unreserved_keywords").update(
     ]
 )
 
+# Add plural datetime units for interval expressions
+# DuckDB supports both singular and plural forms (e.g., DAY and DAYS)
+# Note: ANSI has MILLISECOND (singular), PostgreSQL adds MILLISECONDS and
+# MICROSECONDS (both plural). We add the missing MICROSECOND (singular) and
+# all other plural forms (DAYS, HOURS, MINUTES, MONTHS, QUARTERS, SECONDS,
+# WEEKS, YEARS).
+duckdb_dialect.sets("datetime_units").update(
+    [
+        "DAYS",
+        "HOURS",
+        "MICROSECOND",  # Singular form missing from ANSI/PostgreSQL
+        "MINUTES",
+        "MONTHS",
+        "QUARTERS",
+        "SECONDS",
+        "WEEKS",
+        "YEARS",
+    ]
+)
+
 duckdb_dialect.add(
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
     EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
     UnpackingOperatorSegment=TypedParser("star", SymbolSegment, "unpacking_operator"),
+    # DuckDB math operators
+    PowerOperatorSegment=TypedParser(
+        "power_operator", SymbolSegment, type="binary_operator"
+    ),
+    AbsoluteValueOperatorSegment=TypedParser(
+        "at", SymbolSegment, type="sign_indicator"
+    ),
+    FactorialOperatorSegment=TypedParser(
+        "not", SymbolSegment, type="factorial_operator"
+    ),
 )
 
 duckdb_dialect.replace(
@@ -180,6 +210,27 @@ duckdb_dialect.replace(
             Ref("ColumnReferenceSegment"),
         ),
     ),
+    # Add DuckDB math operators
+    ArithmeticBinaryOperatorGrammar=postgres_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("PowerOperatorSegment"),
+        ]
+    ),
+    # Add @ prefix operator for absolute value
+    Expression_A_Unary_Operator_Grammar=postgres_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(
+        insert=[
+            Ref("AbsoluteValueOperatorSegment"),
+        ]
+    ),
+    # Add postfix factorial operator support
+    Expression_C_Grammar=Sequence(
+        postgres_dialect.get_grammar("Expression_C_Grammar"),
+        Ref("FactorialOperatorSegment", optional=True),
+    ),
     ComparisonOperatorGrammar=ansi_dialect.get_grammar(
         "ComparisonOperatorGrammar"
     ).copy(
@@ -197,11 +248,39 @@ duckdb_dialect.replace(
             Sequence(Ref.keyword("WHERE", optional=True), Ref("ExpressionSegment"))
         ),
     ),
+    BaseExpressionElementGrammar=OneOf(
+        postgres_dialect.get_grammar("BaseExpressionElementGrammar"),
+        Ref("ColumnIndexSegment"),
+    ),
+)
+
+# Patch lexers before adding segments
+duckdb_dialect.patch_lexer_matchers(
+    [
+        # Remove @ from postgis_operator regex since
+        # we use it for absolute value
+        # Maybe even the postgres version is strange,
+        # as postgis operators shouldn't use @ either?
+        RegexLexer(
+            "postgis_operator",
+            r"\&\&\&|\&<\||<<\||\|\&>|\|>>|\~=|<\->|\|=\||<\#>|<<\->>|<<\#>>",
+            SymbolSegment,
+        ),
+    ]
+)
+
+duckdb_dialect.insert_lexer_matchers(
+    [
+        StringLexer("power_operator", "**", CodeSegment),
+    ],
+    before="star",
 )
 
 duckdb_dialect.insert_lexer_matchers(
     [
         StringLexer("double_divide", "//", CodeSegment),
+        # Column indexes: #1, #2, etc.
+        RegexLexer("column_index", r"#[0-9]+", CodeSegment),
     ],
     before="divide",
 )
@@ -231,6 +310,53 @@ duckdb_dialect.patch_lexer_matchers(
         RegexLexer("equals", r"==?", CodeSegment),
     ]
 )
+
+
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    Extends ANSI to support dynamic intervals with parenthesized expressions.
+    https://duckdb.org/docs/stable/sql/data_types/interval
+    """
+
+    type = "interval_expression"
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
+            # The String version
+            Ref("QuotedLiteralSegment"),
+            # Combine version
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
+            # Expression version - for dynamic intervals with parenthesized expressions
+            Sequence(
+                Ref("ExpressionSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+        ),
+    )
+
+
+class ColumnIndexSegment(BaseSegment):
+    """Column index reference using positional syntax.
+
+    DuckDB allows referencing columns by their position using #<number> syntax.
+    https://duckdb.org/docs/stable/sql/statements/select
+    """
+
+    type = "column_index"
+    match_grammar = TypedParser(
+        "column_index",
+        CodeSegment,
+        type="column_index",
+    )
 
 
 class StructTypeSegment(ansi.StructTypeSegment):
@@ -305,12 +431,12 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         OneOf(
             Sequence("DEFAULT", "VALUES"),
-            Ref("SelectStatementSegment"),
+            Ref("SelectableGrammar"),
             Sequence(
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
                 OneOf(
                     Ref("ValuesClauseSegment"),
-                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
                 ),
             ),
         ),
@@ -893,23 +1019,21 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
         Delimited(
             Sequence(
                 OneOf(
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                    ),
-                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                    Bracketed(Delimited(Ref("ExpressionSegment"))),
                 ),
                 Ref("AliasExpressionSegment", optional=True),
             ),
-            Ref("ColumnsExpressionGrammar"),
         ),
-        "INTO",
-        "NAME",
-        Ref("SingleIdentifierGrammar"),
-        "VALUE",
-        Delimited(
+        Sequence(
+            "INTO",
+            "NAME",
             Ref("SingleIdentifierGrammar"),
+            "VALUE",
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+            ),
+            optional=True,
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
@@ -1080,6 +1204,45 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
     )
 
 
+class SetStatementSegment(postgres.SetStatementSegment):
+    """A `SET` Statement.
+
+    DuckDB documentation: https://duckdb.org/docs/sql/statements/set
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            Sequence(
+                "VARIABLE",
+                Ref("NakedIdentifierSegment"),  # variable_name
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                ),
+            ),
+            Sequence(
+                OneOf("SESSION", "LOCAL", "GLOBAL", optional=True),
+                Ref("ParameterNameSegment"),
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    "DEFAULT",
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedIdentifierSegment"),
+                        Ref("OnKeywordAsIdentifierSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment.
 
@@ -1096,4 +1259,28 @@ class ArrayLiteralSegment(BaseSegment):
             Ref("BaseExpressionElementGrammar"), optional=True, allow_trailing=True
         ),
         bracket_type="square",
+    )
+
+
+class ValuesClauseSegment(postgres.ValuesClauseSegment):
+    """A `VALUES` clause within in `WITH` or `SELECT`."""
+
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(
+            Bracketed(
+                Delimited(
+                    Ref("ExpressionSegment"),
+                    # DEFAULT keyword used in
+                    # INSERT INTO statement.
+                    "DEFAULT",
+                    allow_trailing=True,
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            allow_trailing=True,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
     )

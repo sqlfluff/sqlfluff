@@ -3,7 +3,7 @@ name = "sqlfluffrs"
 # NOTE: Version uses Rust SemVer format (e.g., "4.0.0-alpha.1").
 # Maturin automatically converts this to PEP 440 format for the Python package (e.g., "4.0.0a1").
 # See: https://www.maturin.rs/metadata.html
-version = "4.0.0"
+version = "4.0.4"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -17,7 +17,11 @@ members = [
     "sqlfluffrs_lexer",
     "sqlfluffrs_parser",
     "sqlfluffrs_types",
+    "sqlfluffrs_python",
 ]
+
+[workspace.package]
+version = "4.0.4"
 
 [features]
 unicode = []
@@ -27,7 +31,7 @@ python = [
     "pyo3",
     "sqlfluffrs_lexer/python",
     "sqlfluffrs_parser/python",
-    "sqlfluffrs_types/python",
+    "sqlfluffrs_python",
 ]
 
 [dependencies]
@@ -56,6 +60,7 @@ sqlfluffrs_types = { path = "sqlfluffrs_types" }
 sqlfluffrs_lexer = { path = "sqlfluffrs_lexer" }
 sqlfluffrs_dialects = { path = "sqlfluffrs_dialects" }
 sqlfluffrs_parser = { path = "sqlfluffrs_parser" }
+sqlfluffrs_python = { path = "sqlfluffrs_python", optional = true }
 
 [dev-dependencies]
 env_logger = "0.11.6"
@@ -69,4 +74,5 @@ harness = false
 [profile.bench]
 debug = true
 [profile.release]
-debug = true
+debug = false
+strip = true
