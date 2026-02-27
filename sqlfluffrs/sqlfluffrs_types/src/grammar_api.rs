@@ -569,19 +569,19 @@ pub mod patterns {
     use super::*;
 
     /// Check if any child matches a predicate
-    pub fn any_child<F>(ctx: &GrammarContext, id: GrammarId, mut predicate: F) -> bool
+    pub fn any_child<F>(ctx: &GrammarContext, id: GrammarId, predicate: F) -> bool
     where
         F: FnMut(GrammarId) -> bool,
     {
-        ctx.children(id).any(|child| predicate(child))
+        ctx.children(id).any(predicate)
     }
 
     /// Check if all children match a predicate
-    pub fn all_children<F>(ctx: &GrammarContext, id: GrammarId, mut predicate: F) -> bool
+    pub fn all_children<F>(ctx: &GrammarContext, id: GrammarId, predicate: F) -> bool
     where
         F: FnMut(GrammarId) -> bool,
     {
-        ctx.children(id).all(|child| predicate(child))
+        ctx.children(id).all(predicate)
     }
 
     /// Find first child matching a predicate

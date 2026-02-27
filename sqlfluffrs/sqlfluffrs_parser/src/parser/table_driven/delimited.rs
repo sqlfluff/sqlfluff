@@ -8,7 +8,7 @@ use crate::parser::{
     DelimitedState, FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 
-impl<'a> Parser<'_> {
+impl Parser<'_> {
     // ========================================================================
     // Table-Driven Delimited Handlers
     // ========================================================================

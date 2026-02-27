@@ -242,7 +242,6 @@ impl MatchResult {
             matched_class,
             child_matches: children,
             insert_segments,
-            ..Default::default()
         }
     }
 
@@ -380,7 +379,6 @@ impl MatchResult {
             class_name: outer_class.class_name.clone(),
             segment_type: outer_class.segment_type.clone(),
             segment_kwargs: outer_class.segment_kwargs.clone(),
-            ..self.matched_class.unwrap_or_default()
         };
 
         MatchResult {

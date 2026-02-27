@@ -451,7 +451,7 @@ impl<'a> Parser<'a> {
             self.pos,
             terminators_without_noncode
         );
-        let pruned_terminators = self.prune_terminators_table_driven(&terminators_without_noncode);
+        let pruned_terminators = self.prune_terminators_table_driven(terminators_without_noncode);
         vdebug!(
             "  TERM Checking {} pruned terminators at pos {}",
             pruned_terminators.len(),

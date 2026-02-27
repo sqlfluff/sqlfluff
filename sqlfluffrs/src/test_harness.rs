@@ -191,7 +191,7 @@ fn compare_yaml(generated: &str, expected: &str) -> bool {
             // Remove _hash fields for comparison by creating new mappings
             let gen_clean = if let Value::Mapping(gen_map) = gen {
                 let mut clean = gen_map.clone();
-                clean.remove(&Value::String("_hash".to_string()));
+                clean.remove(Value::String("_hash".to_string()));
                 Value::Mapping(clean)
             } else {
                 gen
@@ -199,7 +199,7 @@ fn compare_yaml(generated: &str, expected: &str) -> bool {
 
             let exp_clean = if let Value::Mapping(exp_map) = exp {
                 let mut clean = exp_map.clone();
-                clean.remove(&Value::String("_hash".to_string()));
+                clean.remove(Value::String("_hash".to_string()));
                 Value::Mapping(clean)
             } else {
                 exp
