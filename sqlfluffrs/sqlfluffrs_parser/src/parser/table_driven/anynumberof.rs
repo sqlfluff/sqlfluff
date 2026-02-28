@@ -228,7 +228,7 @@ impl Parser<'_> {
     pub(crate) fn handle_anynumberof_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_match: &MatchResult,
+        child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -277,7 +277,7 @@ impl Parser<'_> {
         // Update longest_match if this child is better
         if !child_match.is_empty() && *child_end_pos <= *ctx.max_idx {
             ctx.update_longest_match(
-                Arc::new(child_match.clone()),
+                Arc::clone(child_match),
                 *child_end_pos,
                 current_candidate,
             );

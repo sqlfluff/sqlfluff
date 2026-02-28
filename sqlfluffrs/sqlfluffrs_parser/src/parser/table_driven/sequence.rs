@@ -177,7 +177,7 @@ impl Parser<'_> {
     pub(crate) fn handle_sequence_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_match: &MatchResult,
+        child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -467,7 +467,7 @@ impl Parser<'_> {
     fn handle_sequence_child_success(
         &mut self,
         mut frame: TableParseFrame,
-        child_match: &MatchResult,
+        child_match: &Arc<MatchResult>,
         child_end_pos: usize,
         allow_gaps: bool,
         parse_mode: ParseMode,
@@ -523,7 +523,7 @@ impl Parser<'_> {
         {
             let mut ctx = frame.context.as_sequence_mut().unwrap();
             if child_match.matched_class.is_some() {
-                ctx.child_matches.push(Arc::new(child_match.clone()));
+                ctx.child_matches.push(Arc::clone(child_match));
             } else {
                 ctx.child_matches.extend(child_match.child_matches.clone());
                 ctx.insert_segments

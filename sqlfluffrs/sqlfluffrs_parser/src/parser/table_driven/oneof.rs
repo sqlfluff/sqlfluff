@@ -187,7 +187,7 @@ impl Parser<'_> {
     pub(crate) fn handle_oneof_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_match: &MatchResult,
+        child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -208,7 +208,7 @@ impl Parser<'_> {
         let current_child = current_child_id.expect("current_child_id should be set");
 
         // Store the child result for reuse
-        let child_match_rc = Arc::new(child_match.clone());
+        let child_match_rc = Arc::clone(child_match);
 
         // Values needed for logic (always computed)
         let child_end_pos_val = *child_end_pos;
@@ -465,7 +465,7 @@ impl Parser<'_> {
         };
 
         // Transition to Complete
-        stack.complete_frame(frame, result_match.as_ref().clone());
+        stack.complete_frame(frame, result_match);
         Ok(TableFrameResult::Done)
     }
 }

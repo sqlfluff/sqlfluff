@@ -181,7 +181,7 @@ impl Parser<'_> {
     pub(crate) fn handle_delimited_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_match: &MatchResult,
+        child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -349,7 +349,7 @@ impl Parser<'_> {
                 }
 
                 // Add the matched element
-                *working_match = working_match.clone().append(Arc::new(child_match.clone()));
+                *working_match = working_match.clone().append(Arc::clone(child_match));
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
 
@@ -466,7 +466,7 @@ impl Parser<'_> {
                 // terminates before the next element.
 
                 // Store delimiter match for later (will be added when next element matches)
-                *delimiter_match = Some(Arc::new(child_match.clone()));
+                *delimiter_match = Some(Arc::clone(child_match));
                 *pos_before_delimiter = Some(*matched_idx);
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
@@ -630,7 +630,7 @@ impl Parser<'_> {
             working_match.clone()
         };
 
-        stack.complete_frame(frame, result_match.as_ref().clone());
+        stack.complete_frame(frame, result_match);
         Ok(TableFrameResult::Done)
     }
 }

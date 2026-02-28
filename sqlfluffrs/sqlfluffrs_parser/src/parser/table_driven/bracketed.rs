@@ -73,7 +73,7 @@ impl Parser<'_> {
     pub(crate) fn handle_bracketed_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_match: &MatchResult,
+        child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -142,7 +142,7 @@ impl Parser<'_> {
                     parse_mode
                 );
 
-                child_matches.push(Arc::new(child_match.clone()));
+                child_matches.push(Arc::clone(child_match));
                 let content_start_idx = *child_end_pos;
                 // Compute bracket_max_idx from the opening bracket's token position
                 let computed_bracket_max_idx = if !child_match.matched_slice.is_empty() {
@@ -313,13 +313,13 @@ impl Parser<'_> {
                     if child_match.matched_class.is_some() && !child_match.child_matches.is_empty()
                     {
                         // Has a matched_class and children - add the whole match
-                        child_matches.push(Arc::new(child_match.clone()));
+                        child_matches.push(Arc::clone(child_match));
                     } else if !child_match.child_matches.is_empty() {
                         // No matched_class but has children - flatten the children
                         child_matches.extend(child_match.child_matches.iter().cloned());
                     } else {
                         // Leaf match - add it directly
-                        child_matches.push(Arc::new(child_match.clone()));
+                        child_matches.push(Arc::clone(child_match));
                     }
                 }
 
@@ -538,7 +538,7 @@ impl Parser<'_> {
                         return Ok(TableFrameResult::Done);
                     }
                 } else {
-                    child_matches.push(Arc::new(child_match.clone()));
+                    child_matches.push(Arc::clone(child_match));
                     self.pos = *child_end_pos;
                     vdebug!(
                         "Bracketed[table] SUCCESS: {} children, transitioning to Combining at frame_id={}",

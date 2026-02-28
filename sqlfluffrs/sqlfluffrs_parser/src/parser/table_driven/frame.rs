@@ -96,15 +96,15 @@ impl TableParseFrameStack {
     }
 
     #[inline]
-    pub(crate) fn insert_result_with_key(
+    pub(crate) fn insert_arc_result_with_key(
         &mut self,
         frame_id: usize,
-        match_result: MatchResult,
+        match_result: Arc<MatchResult>,
         end_pos: usize,
         element_key: Option<u64>,
     ) {
         self.results
-            .insert(frame_id, (Arc::new(match_result), end_pos, element_key));
+            .insert(frame_id, (match_result, end_pos, element_key));
     }
 
     /// Push child frame and update parent to wait for it
@@ -138,11 +138,11 @@ impl TableParseFrameStack {
     pub(crate) fn complete_frame(
         &mut self,
         mut frame: TableParseFrame,
-        result: MatchResult,
+        result: Arc<MatchResult>,
     ) -> TableFrameResult {
         let pos = result.end();
         frame.end_pos = Some(pos);
-        frame.state = FrameState::Complete(Arc::new(result.clone()));
+        frame.state = FrameState::Complete(result);
         self.push(&mut frame);
         // self.insert_result(frame.frame_id, result, pos);
         TableFrameResult::Done

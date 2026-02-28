@@ -21,7 +21,7 @@ use crate::{
     regex::{RegexMode, RegexModeGroup},
 };
 
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum CaseFold {
     #[default]
     None,

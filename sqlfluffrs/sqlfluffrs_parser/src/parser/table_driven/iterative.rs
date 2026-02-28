@@ -778,7 +778,7 @@ impl Parser<'_> {
         &mut self,
         stack: &mut TableParseFrameStack,
         frame: &TableParseFrame,
-        match_result: &MatchResult,
+        match_result: &Arc<MatchResult>,
     ) {
         // Log grammar path - different indicator for Empty vs matched nodes
         #[cfg(feature = "verbose-debug")]
@@ -805,7 +805,7 @@ impl Parser<'_> {
         let element_key = frame.element_key;
 
         // This frame is done - insert result
-        stack.insert_result_with_key(frame.frame_id, match_result.clone(), end_pos, element_key);
+        stack.insert_arc_result_with_key(frame.frame_id, Arc::clone(match_result), end_pos, element_key);
 
         // Cache the result for future reuse
         // Cache non-empty results always, but only cache Empty results when
@@ -865,7 +865,7 @@ impl Parser<'_> {
                     let cache_key = TableCacheKey::new(frame.pos, frame.grammar_id, max_idx);
                     // Cache as Arc<MatchResult> (cheap to clone later)
                     self.table_cache
-                        .put(cache_key, (Arc::new(match_result.clone()), end_pos));
+                        .put(cache_key, (Arc::clone(match_result), end_pos));
                 }
             }
         }

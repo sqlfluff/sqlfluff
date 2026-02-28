@@ -167,7 +167,7 @@ impl Parser<'_> {
     pub(crate) fn handle_ref_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_match: &MatchResult,
+        child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
     ) -> Result<TableFrameResult, ParseError> {
         let FrameContext::RefTableDriven {
@@ -194,7 +194,7 @@ impl Parser<'_> {
                 frame.frame_id,
                 child_end_pos
             );
-            *match_result = Arc::new(child_match.clone());
+            *match_result = Arc::clone(child_match);
             self.pos = *child_end_pos;
             frame.end_pos = Some(*child_end_pos);
         } else {

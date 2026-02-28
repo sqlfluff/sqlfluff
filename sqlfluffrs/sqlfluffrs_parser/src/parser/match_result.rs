@@ -19,7 +19,7 @@ use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::{PositionMarker, Token};
 
 /// Meta-segment types that can be inserted (like Python's Indent/Dedent)
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MetaSegment {
     Indent { is_implicit: bool },
     Dedent { is_implicit: bool },
@@ -351,28 +351,27 @@ impl MatchResult {
             panic!("Cannot wrap inserts onto an empty MatchResult.");
         }
 
-        let mut child_matches = vec![];
-        let mut new_insert_segments;
         if self.matched_class.is_some() {
-            child_matches.push(Arc::new(self.clone()));
-            new_insert_segments = insert_segments.to_vec();
+            // Already has a class — wrap self as a child.
+            // Extract matched_slice before moving self into Arc.
+            let matched_slice = self.matched_slice.clone();
+            MatchResult {
+                matched_slice,
+                matched_class: Some(outer_class),
+                insert_segments,
+                child_matches: vec![Arc::new(self)],
+            }
         } else {
-            new_insert_segments = self.insert_segments.clone();
+            // No current class, flatten children into new wrapper.
+            // Move fields out of self instead of cloning.
+            let mut new_insert_segments = self.insert_segments;
             new_insert_segments.extend(insert_segments);
-            child_matches.extend(self.child_matches.clone());
-        }
-
-        let wrap_class = MatchedClass {
-            class_name: outer_class.class_name.clone(),
-            segment_type: outer_class.segment_type.clone(),
-            segment_kwargs: outer_class.segment_kwargs.clone(),
-        };
-
-        MatchResult {
-            matched_slice: self.matched_slice.clone(),
-            matched_class: Some(wrap_class),
-            insert_segments: new_insert_segments,
-            child_matches,
+            MatchResult {
+                matched_slice: self.matched_slice,
+                matched_class: Some(outer_class),
+                insert_segments: new_insert_segments,
+                child_matches: self.child_matches,
+            }
         }
     }
 
