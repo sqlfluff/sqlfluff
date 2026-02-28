@@ -42,7 +42,7 @@ fn try_match_grammar_table_driven(
 
     // Capture end_pos
     let end_pos = parser.pos;
-    log::info!(
+    vdebug!(
         "[TRY_MATCH_TABLE] try_match_grammar_table_driven: grammar_id={:?}, pos={} -> end_pos={}, result={:?}",
         grammar_id, pos, end_pos, result
     );
