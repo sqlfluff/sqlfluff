@@ -38,7 +38,7 @@ fn try_match_grammar_table_driven(
     // Set position for tentative parse
     parser.pos = pos;
 
-    let result = parser.parse_table_iterative(grammar_id, terminators);
+    let result = parser.parse_table_iterative_match_result(grammar_id, terminators);
 
     // Capture end_pos
     let end_pos = parser.pos;
@@ -51,8 +51,8 @@ fn try_match_grammar_table_driven(
     parser.pos = saved_pos;
 
     match result {
-        Ok(node) => {
-            if end_pos > pos && !node.is_empty() {
+        Ok(mr) => {
+            if end_pos > pos && !mr.is_empty() {
                 Ok(end_pos)
             } else {
                 Err(ParseError::with_context(

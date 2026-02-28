@@ -55,9 +55,11 @@ impl Parser<'_> {
         let exclude_id_opt = self.grammar_ctx.exclude(grammar_id);
         if let Some(exclude_id) = exclude_id_opt {
             self.pos = start_pos;
-            if let Ok(exclude_node) = self.parse_table_iterative(exclude_id, parent_terminators) {
+            if let Ok(exclude_mr) =
+                self.parse_table_iterative_match_result(exclude_id, parent_terminators)
+            {
                 self.pos = start_pos;
-                if !exclude_node.is_empty() {
+                if !exclude_mr.is_empty() {
                     vdebug!(
                         "Ref[table]: exclude grammar matched at pos {}, returning Empty",
                         frame.pos

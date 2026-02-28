@@ -342,7 +342,9 @@ impl Parser<'_> {
                         }
 
                         self.pos = next_code_pos;
-                        if let Ok(term_result) = self.parse_table_iterative(*terminator_id, &[]) {
+                        if let Ok(term_result) =
+                            self.parse_table_iterative_match_result(*terminator_id, &[])
+                        {
                             if !term_result.is_empty() {
                                 vdebug!(
                                     "OneOf[table]: Early termination - terminator {} matched at pos {}",

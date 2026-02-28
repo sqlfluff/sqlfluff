@@ -528,8 +528,8 @@ impl<'a> Parser<'a> {
             let check_pos = self.pos;
             self.pos = saved_pos;
 
-            if let Ok(node) = self.parse_table_iterative(*term_id, &[]) {
-                let is_empty = node.is_empty();
+            if let Ok(mr) = self.parse_table_iterative_match_result(*term_id, &[]) {
+                let is_empty = mr.is_empty();
                 self.pos = check_pos;
 
                 // Cache the result
