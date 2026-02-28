@@ -525,7 +525,8 @@ impl MatchResult {
             }
         }
 
-        if let Some(match_class) = self.matched_class.clone() {
+        // self is owned — consume matched_class directly without clone
+        if let Some(match_class) = self.matched_class {
             vdebug!(
                 "[APPLY-DEBUG] {:?} wrapping {} nodes",
                 match_class.class_name,
@@ -541,10 +542,10 @@ impl MatchResult {
                 _ => None,
             });
 
-            // Create Segment node
+            // Create Segment node — move class_name/segment_type without clone
             vec![Node::Segment {
-                segment_class: match_class.class_name.clone(),
-                segment_type: match_class.segment_type.clone(),
+                segment_class: match_class.class_name,
+                segment_type: match_class.segment_type,
                 pos_marker,
                 children: result_nodes,
             }]
