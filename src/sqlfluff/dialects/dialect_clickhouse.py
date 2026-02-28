@@ -604,6 +604,16 @@ class SettingsClauseSegment(BaseSegment):
         optional=True,
     )
 
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`."""
+
+    type = "qualify_clause"
+    match_grammar = Sequence(
+        "QUALIFY",
+        ImplicitIndent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
@@ -613,6 +623,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         before=Ref("WhereClauseSegment", optional=True),
     ).copy(
         insert=[
+            Ref("QualifyClauseSegment", optional=True),
             Ref("FormatClauseSegment", optional=True),
             Ref("IntoOutfileClauseSegment", optional=True),
             Ref("SettingsClauseSegment", optional=True),
