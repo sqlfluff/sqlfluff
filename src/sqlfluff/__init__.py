@@ -23,9 +23,9 @@ __version__ = metadata.version("sqlfluff")
 if sys.version_info[0] < 3:
     raise Exception("Sqlfluff does not support Python 2. Please upgrade to Python 3.")
 # Check minor python version
-elif sys.version_info[1] < 8:
+elif sys.version_info[1] < 10:
     raise Exception(
-        "Sqlfluff %s only supports Python 3.9 and beyond. "
+        "Sqlfluff %s only supports Python 3.10 and beyond. "
         "Use an earlier version of sqlfluff or a later version of Python" % __version__
     )
 
