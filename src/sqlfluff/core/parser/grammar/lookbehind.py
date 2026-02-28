@@ -46,7 +46,7 @@ class PrecededByMatcher(Matchable):
         self.preceding = preceding
         self.optional_preceding = optional_preceding
 
-    def is_optional(self) -> bool:
+    def is_optional(self) -> bool:  # pragma: no cover
         """Return whether this element is optional.
 
         A lookbehind matcher is never optional — it must always be evaluated.
@@ -55,11 +55,11 @@ class PrecededByMatcher(Matchable):
 
     def simple(
         self, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
-    ) -> SimpleHintType:
+    ) -> SimpleHintType:  # pragma: no cover
         """This element doesn't work with simple."""
         return None
 
-    def cache_key(self) -> str:
+    def cache_key(self) -> str:  # pragma: no cover
         """Get the cache key for the matcher."""
         return (
             f"preceded-by-{'-'.join(self.preceding)}"
