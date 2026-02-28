@@ -47,7 +47,7 @@ impl Parser<'_> {
         let open_bracket_id = all_children[start_bracket_idx];
         initialize_table_driven_bracketed_frame(grammar_id, frame, stack, &all_terminators);
         let parent_max_idx = stack.last_mut().unwrap().parent_max_idx;
-        let mut child_frame = create_table_driven_child_frame(
+        let child_frame = create_table_driven_child_frame(
             stack.frame_id_counter,
             open_bracket_id,
             start_idx,
@@ -65,7 +65,7 @@ impl Parser<'_> {
         stack.update_parent_last_child_id(GrammarVariant::Bracketed, stack.frame_id_counter);
         // update_parent_last_child_frame(stack);
         stack.increment_frame_id_counter();
-        stack.push(&mut child_frame);
+        stack.push(child_frame);
         Ok(TableFrameResult::Done) // Child pushed, continue main loop
     }
 
@@ -126,7 +126,7 @@ impl Parser<'_> {
                     // Transition to Combining to finalize Empty result
                     frame.end_pos = Some(frame.pos);
                     frame.state = FrameState::Combining;
-                    stack.push(&mut frame);
+                    stack.push(frame);
                     return Ok(TableFrameResult::Done);
                 }
 
@@ -172,7 +172,7 @@ impl Parser<'_> {
                         // Transition to Combining to finalize Empty result
                         frame.end_pos = Some(frame.pos);
                         frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
+                        stack.push(frame);
                         return Ok(TableFrameResult::Done);
                     }
                 }
@@ -253,7 +253,7 @@ impl Parser<'_> {
                     );
 
                     *last_child_frame_id = Some(stack.frame_id_counter);
-                    return Ok(stack.push_child_and_wait(&mut frame, close_frame, 0));
+                    return Ok(stack.push_child_and_wait(frame, close_frame, 0));
                 } else {
                     // Start with the first non-Meta content element
                     vdebug!(
@@ -289,7 +289,7 @@ impl Parser<'_> {
                     *parse_mode_override, // Pass override to content
                 );
                 *last_child_frame_id = Some(stack.frame_id_counter);
-                Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
+                Ok(stack.push_child_and_wait(frame, child_frame, 0))
             }
             BracketedState::MatchingContent => {
                 // Python reference: sequence.py Bracketed.match() lines ~530-570
@@ -399,7 +399,7 @@ impl Parser<'_> {
                             *parse_mode_override, // Pass override to content
                         );
                         *last_child_frame_id = Some(stack.frame_id_counter);
-                        return Ok(stack.push_child_and_wait(&mut frame, child_frame, 0));
+                        return Ok(stack.push_child_and_wait(frame, child_frame, 0));
                     }
                     // All remaining content elements were Meta - fall through to MatchingClose
                 }
@@ -414,7 +414,7 @@ impl Parser<'_> {
                         // Transition to Combining to finalize Empty result
                         frame.end_pos = Some(frame.pos);
                         frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
+                        stack.push(frame);
                         Ok(TableFrameResult::Done)
                     } else {
                         // GREEDY mode: Create parse error result for unclosed bracket
@@ -448,7 +448,7 @@ impl Parser<'_> {
                                 // Transition to Combining to finalize Empty result
                                 frame.end_pos = Some(frame.pos);
                                 frame.state = FrameState::Combining;
-                                stack.push(&mut frame);
+                                stack.push(frame);
                                 return Ok(TableFrameResult::Done);
                             } else {
                                 // GREEDY mode: Create unparsable section for tokens between content end and closing bracket
@@ -494,7 +494,7 @@ impl Parser<'_> {
                         None, // No override for closing bracket
                     );
                     *last_child_frame_id = Some(stack.frame_id_counter);
-                    Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
+                    Ok(stack.push_child_and_wait(frame, child_frame, 0))
                 }
             }
             BracketedState::MatchingClose => {
@@ -514,7 +514,7 @@ impl Parser<'_> {
                         frame.end_pos = Some(frame.pos);
                         // Transition to Combining to finalize Empty result
                         frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
+                        stack.push(frame);
                         return Ok(TableFrameResult::Done);
                     } else {
                         // GREEDY mode: Closing bracket not found - raise parse error
@@ -551,7 +551,7 @@ impl Parser<'_> {
                 }
                 // Transition to Combining to finalize result
                 frame.state = FrameState::Combining;
-                stack.push(&mut frame);
+                stack.push(frame);
                 Ok(TableFrameResult::Done)
             }
             BracketedState::Complete => {
@@ -657,7 +657,7 @@ fn initialize_table_driven_bracketed_frame(
         child_matches: Vec::new(),
     };
     frame.table_terminators = SmallVec::from_slice(all_terminators);
-    stack.push(&mut frame);
+    stack.push(frame);
 }
 
 fn create_table_driven_child_frame(

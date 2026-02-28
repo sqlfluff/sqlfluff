@@ -160,7 +160,7 @@ impl Parser<'_> {
             child_start_pos
         );
 
-        Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
+        Ok(stack.push_child_and_wait(frame, child_frame, 0))
     }
 
     /// Handle Ref WaitingForChild state using table-driven approach

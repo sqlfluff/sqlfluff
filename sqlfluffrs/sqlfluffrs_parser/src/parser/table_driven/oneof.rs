@@ -180,7 +180,7 @@ impl Parser<'_> {
         );
 
         // Transition: push child and wait
-        Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
+        Ok(stack.push_child_and_wait(frame, child_frame, 0))
     }
 
     /// Handle OneOf WaitingForChild state using table-driven approach
@@ -278,7 +278,7 @@ impl Parser<'_> {
             *longest_match = Some((child_match_rc, consumed, current_child));
             // Skip directly to Combining state
             frame.state = FrameState::Combining;
-            stack.push(&mut frame);
+            stack.push(frame);
             return Ok(TableFrameResult::Done);
         }
 
@@ -376,7 +376,7 @@ impl Parser<'_> {
                 pruned_children.len()
             );
             frame.state = FrameState::Combining;
-            stack.push(&mut frame);
+            stack.push(frame);
             return Ok(TableFrameResult::Done);
         }
 
@@ -402,7 +402,7 @@ impl Parser<'_> {
                 Some(*max_idx),
             );
 
-            stack.push_child_and_update_parent(&mut frame, child_frame, GrammarVariant::OneOf);
+            stack.push_child_and_update_parent(frame, child_frame, GrammarVariant::OneOf);
             Ok(TableFrameResult::Done)
         } else {
             // Should never reach here due to early termination logic above

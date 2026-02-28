@@ -40,8 +40,8 @@ impl TableParseFrameStack {
         }
     }
 
-    pub fn push(&mut self, frame: &mut TableParseFrame) {
-        self.stack.push(frame.clone());
+    pub fn push(&mut self, frame: TableParseFrame) {
+        self.stack.push(frame);
     }
 
     pub fn pop(&mut self) -> Option<TableParseFrame> {
@@ -111,13 +111,13 @@ impl TableParseFrameStack {
     #[inline]
     pub(crate) fn push_child_and_wait(
         &mut self,
-        parent: &mut TableParseFrame,
+        mut parent: TableParseFrame,
         child: TableParseFrame,
         child_index: usize,
     ) -> TableFrameResult {
         parent.state = FrameState::WaitingForChild { child_index };
         self.push(parent);
-        self.push(&mut child.clone());
+        self.push(child);
         self.increment_frame_id_counter();
         TableFrameResult::Done
     }
@@ -125,7 +125,7 @@ impl TableParseFrameStack {
     #[inline]
     pub(crate) fn transition_to_combining(
         &mut self,
-        frame: &mut TableParseFrame,
+        mut frame: TableParseFrame,
         end_pos: Option<usize>,
     ) -> TableFrameResult {
         frame.transition_to_combining(end_pos);
@@ -143,7 +143,7 @@ impl TableParseFrameStack {
         let pos = result.end();
         frame.end_pos = Some(pos);
         frame.state = FrameState::Complete(result);
-        self.push(&mut frame);
+        self.push(frame);
         // self.insert_result(frame.frame_id, result, pos);
         TableFrameResult::Done
     }
@@ -225,62 +225,95 @@ impl TableParseFrameStack {
     /// Returns the new frame_id_counter value
     pub fn push_child_and_update_parent(
         &mut self,
-        parent_frame: &mut TableParseFrame,
-        mut child_frame: TableParseFrame,
+        mut parent_frame: TableParseFrame,
+        child_frame: TableParseFrame,
         parent_context_type: GrammarVariant,
     ) {
         let child_id = child_frame.frame_id;
 
-        // Push parent back onto stack first
+        // Update parent's last_child_frame_id BEFORE pushing
+        match (&mut parent_frame.context, parent_context_type) {
+            (
+                FrameContext::SequenceTableDriven {
+                    last_child_frame_id,
+                    ..
+                },
+                GrammarVariant::Sequence,
+            )
+            | (
+                FrameContext::OneOfTableDriven {
+                    last_child_frame_id,
+                    ..
+                },
+                GrammarVariant::OneOf,
+            )
+            | (
+                FrameContext::BracketedTableDriven {
+                    last_child_frame_id,
+                    ..
+                },
+                GrammarVariant::Bracketed,
+            )
+            | (
+                FrameContext::DelimitedTableDriven {
+                    last_child_frame_id,
+                    ..
+                },
+                GrammarVariant::Delimited,
+            )
+            | (
+                FrameContext::RefTableDriven {
+                    last_child_frame_id,
+                    ..
+                },
+                GrammarVariant::Ref,
+            ) => {
+                *last_child_frame_id = Some(child_id);
+            }
+            _ => {}
+        }
+
+        // Push parent and child
         self.push(parent_frame);
-
-        // Update parent's last_child_frame_id
-        Self::update_parent_last_child_id(self, parent_context_type, child_id);
-
-        // Increment counter and push child
         self.increment_frame_id_counter();
-        self.push(&mut child_frame);
+        self.push(child_frame);
     }
 
     /// Specialized version for Sequence that also updates current_element_idx
     pub fn push_sequence_child_and_update_parent(
         &mut self,
-        parent_frame: &mut TableParseFrame,
-        mut child_frame: TableParseFrame,
+        mut parent_frame: TableParseFrame,
+        child_frame: TableParseFrame,
         next_element_idx: usize,
     ) {
         let child_id = child_frame.frame_id;
 
-        // Push parent back onto stack first
+        // Update parent's last_child_frame_id AND current_element_idx BEFORE pushing
         #[cfg(feature = "verbose-debug")]
         let parent_id = parent_frame.frame_id;
-        self.push(parent_frame);
-
-        // Update parent's last_child_frame_id AND current_element_idx
-        if let Some(parent_frame) = self.last_mut() {
-            if let FrameContext::SequenceTableDriven {
-                last_child_frame_id,
-                current_element_idx,
-                ..
-            } = &mut parent_frame.context
-            {
-                vdebug!("DEBUG: push_sequence_child_and_update_parent (table) - parent {}, child {}, setting last_child_frame_id to {}",
-                    parent_id, child_id, child_id);
-                *last_child_frame_id = Some(child_id);
-                *current_element_idx = next_element_idx;
-            }
+        if let FrameContext::SequenceTableDriven {
+            last_child_frame_id,
+            current_element_idx,
+            ..
+        } = &mut parent_frame.context
+        {
+            vdebug!("DEBUG: push_sequence_child_and_update_parent (table) - parent {}, child {}, setting last_child_frame_id to {}",
+                parent_id, child_id, child_id);
+            *last_child_frame_id = Some(child_id);
+            *current_element_idx = next_element_idx;
         }
 
-        // Increment counter and push child
+        // Push parent and child
+        self.push(parent_frame);
         self.increment_frame_id_counter();
-        self.push(&mut child_frame);
+        self.push(child_frame);
     }
 
     /// Update Sequence parent on stack and push child (for WaitingForChild state)
     /// Assumes parent is already on the stack
     pub fn update_sequence_parent_and_push_child(
         &mut self,
-        mut child_frame: TableParseFrame,
+        child_frame: TableParseFrame,
         next_element_idx: usize,
     ) -> TableFrameResult {
         let child_id = child_frame.frame_id;
@@ -304,7 +337,7 @@ impl TableParseFrameStack {
 
         // Increment counter and push child
         self.increment_frame_id_counter();
-        self.push(&mut child_frame);
+        self.push(child_frame);
         TableFrameResult::Done
     }
 

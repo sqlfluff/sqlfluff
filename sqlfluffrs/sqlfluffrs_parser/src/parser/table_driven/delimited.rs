@@ -170,7 +170,7 @@ impl Parser<'_> {
             child_terminators.len()
         );
 
-        Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
+        Ok(stack.push_child_and_wait(frame, child_frame, 0))
     }
 
     /// Handle Delimited WaitingForChild state using table-driven approach
@@ -264,7 +264,7 @@ impl Parser<'_> {
                     let final_pos = match (delimiter_match, pos_before_delimiter, allow_trailing) {
                         (Some(delimiter_match), _, true) => {
                             // Include trailing delimiter
-                            *working_match = working_match.clone().append(delimiter_match.clone());
+                            MatchResult::append_into(working_match, delimiter_match.clone());
                             *delimiter_count += 1;
                             *matched_idx
                         }
@@ -283,13 +283,13 @@ impl Parser<'_> {
                     if *delimiter_count < min_delimiters {
                         frame.end_pos = Some(frame.pos);
                         frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
+                        stack.push(frame);
                         return Ok(TableFrameResult::Done);
                     }
 
                     frame.end_pos = Some(final_pos);
                     frame.state = FrameState::Combining;
-                    stack.push(&mut frame);
+                    stack.push(frame);
                     return Ok(TableFrameResult::Done);
                 }
 
@@ -304,9 +304,10 @@ impl Parser<'_> {
 
                     // Determine final position
                     let final_pos = if allow_trailing && delimiter_match.is_some() {
-                        *working_match = working_match
-                            .clone()
-                            .append(delimiter_match.take().unwrap());
+                        MatchResult::append_into(
+                            working_match,
+                            delimiter_match.take().unwrap(),
+                        );
                         *delimiter_count += 1;
                         *matched_idx
                     } else if delimiter_match.is_some() && pos_before_delimiter.is_some() {
@@ -322,13 +323,13 @@ impl Parser<'_> {
                     if *delimiter_count < min_delimiters {
                         frame.end_pos = Some(frame.pos);
                         frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
+                        stack.push(frame);
                         return Ok(TableFrameResult::Done);
                     }
 
                     frame.end_pos = Some(final_pos);
                     frame.state = FrameState::Combining;
-                    stack.push(&mut frame);
+                    stack.push(frame);
                     return Ok(TableFrameResult::Done);
                 }
 
@@ -344,12 +345,12 @@ impl Parser<'_> {
                 // The delimiter is only added when the next element successfully matches,
                 // preventing accumulation of trailing delimiters.
                 if let Some(dm) = delimiter_match.take() {
-                    *working_match = working_match.clone().append(dm.clone());
+                    MatchResult::append_into(working_match, dm);
                     *delimiter_count += 1;
                 }
 
                 // Add the matched element
-                *working_match = working_match.clone().append(Arc::clone(child_match));
+                MatchResult::append_into(working_match, Arc::clone(child_match));
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
 
@@ -387,7 +388,7 @@ impl Parser<'_> {
                 frame.state = FrameState::WaitingForChild { child_index: 0 };
 
                 stack.push_child_and_update_parent(
-                    &mut frame,
+                    frame,
                     delimiter_frame,
                     GrammarVariant::Delimited,
                 );
@@ -421,7 +422,7 @@ impl Parser<'_> {
                         frame.state = FrameState::WaitingForChild { child_index: 0 };
 
                         stack.push_child_and_update_parent(
-                            &mut frame,
+                            frame,
                             element_frame,
                             GrammarVariant::Delimited,
                         );
@@ -435,19 +436,19 @@ impl Parser<'_> {
                         self.pos = frame.pos;
                         frame.end_pos = Some(frame.pos);
                         frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
+                        stack.push(frame);
                     } else {
                         // Handle trailing delimiter if allowed and present
                         if allow_trailing {
                             if let Some(dm) = delimiter_match.take() {
-                                *working_match = working_match.clone().append(dm.clone());
+                                MatchResult::append_into(working_match, dm);
                                 *delimiter_count += 1;
                             }
                         }
                         self.pos = *matched_idx;
                         frame.end_pos = Some(*matched_idx);
                         frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
+                        stack.push(frame);
                     }
                     return Ok(TableFrameResult::Done);
                 }
@@ -496,7 +497,7 @@ impl Parser<'_> {
                     if allow_trailing {
                         // Include the trailing delimiter
                         if let Some(dm) = delimiter_match.take() {
-                            *working_match = working_match.clone().append(dm.clone());
+                            MatchResult::append_into(working_match, dm);
                             *delimiter_count += 1;
                         }
                     } else {
@@ -508,13 +509,13 @@ impl Parser<'_> {
                     if *delimiter_count < min_delimiters {
                         frame.end_pos = Some(frame.pos);
                         frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
+                        stack.push(frame);
                         return Ok(TableFrameResult::Done);
                     }
 
                     frame.end_pos = Some(*matched_idx);
                     frame.state = FrameState::Combining;
-                    stack.push(&mut frame);
+                    stack.push(frame);
                     return Ok(TableFrameResult::Done);
                 }
 
@@ -576,7 +577,7 @@ impl Parser<'_> {
                 frame.state = FrameState::WaitingForChild { child_index: 0 };
 
                 stack.push_child_and_update_parent(
-                    &mut frame,
+                    frame,
                     element_frame,
                     GrammarVariant::Delimited,
                 );

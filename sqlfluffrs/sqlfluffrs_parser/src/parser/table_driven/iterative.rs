@@ -79,7 +79,7 @@ impl Parser<'_> {
         let mut stack = TableParseFrameStack::new();
         let initial_frame_id = stack.frame_id_counter;
         stack.frame_id_counter += 1;
-        stack.push(&mut TableParseFrame {
+        stack.push(TableParseFrame {
             frame_id: initial_frame_id,
             grammar_id: grammar,
             pos: self.pos,
@@ -136,8 +136,8 @@ impl Parser<'_> {
 
                     match self.handle_table_driven_initial(frame, &mut stack, iteration_count)? {
                         TableFrameResult::Done => continue,
-                        TableFrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
+                        TableFrameResult::Push(updated_frame) => {
+                            stack.push(updated_frame);
                         }
                     }
                 }
@@ -148,8 +148,8 @@ impl Parser<'_> {
                         iteration_count,
                     )? {
                         TableFrameResult::Done => continue,
-                        TableFrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
+                        TableFrameResult::Push(updated_frame) => {
+                            stack.push(updated_frame);
                         }
                     }
                 }
@@ -168,8 +168,8 @@ impl Parser<'_> {
                     // Delegate to specific handler based on grammar type
                     match self.handle_table_driven_combining(frame, &mut stack)? {
                         TableFrameResult::Done => {}
-                        TableFrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
+                        TableFrameResult::Push(updated_frame) => {
+                            stack.push(updated_frame);
                         }
                     }
                 }
@@ -246,13 +246,13 @@ impl Parser<'_> {
             stack.results.len(),
             initial_frame_id
         );
-        if let Some((match_result, end_pos, _element_key)) = stack.results.get(&initial_frame_id) {
+        if let Some((match_result, end_pos, _element_key)) = stack.results.remove(&initial_frame_id) {
             vdebug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
                 initial_frame_id,
                 end_pos
             );
-            self.pos = *end_pos;
+            self.pos = end_pos;
 
             // If the parse failed (returned Empty), provide diagnostic information
             #[cfg(feature = "verbose-debug")]
@@ -261,12 +261,12 @@ impl Parser<'_> {
                 vdebug!("Parser stopped at position: {}", end_pos);
                 vdebug!("Total tokens: {}", self.tokens.len());
 
-                if *end_pos < self.tokens.len() {
+                if end_pos < self.tokens.len() {
                     vdebug!("\nTokens around failure point:");
                     let start = end_pos.saturating_sub(3);
-                    let end = (*end_pos + 4).min(self.tokens.len());
+                    let end = (end_pos + 4).min(self.tokens.len());
                     for i in start..end {
-                        let marker = if i == *end_pos { " <<< HERE" } else { "" };
+                        let marker = if i == end_pos { " <<< HERE" } else { "" };
                         if let Some(tok) = self.tokens.get(i) {
                             vdebug!(
                                 "  [{}]: '{}' (type: {}){}",
@@ -284,8 +284,8 @@ impl Parser<'_> {
                 vdebug!("===================\n");
             }
 
-            // Apply global deduplication to remove sibling duplicates
-            Ok((**match_result).clone())
+            // Extract result — try_unwrap avoids a full deep clone when refcount==1
+            Ok(Arc::try_unwrap(match_result).unwrap_or_else(|arc| (*arc).clone()))
         } else {
             // Parse error - don't cache errors for now (to keep it simple)
             let error = ParseError::new(format!(
@@ -594,8 +594,8 @@ impl Parser<'_> {
                         stack,
                     )? {
                         TableFrameResult::Done => {}
-                        TableFrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
+                        TableFrameResult::Push(updated_frame) => {
+                            stack.push(updated_frame);
                         }
                     }
                     Ok(TableFrameResult::Done)
@@ -608,8 +608,8 @@ impl Parser<'_> {
                         stack,
                     )? {
                         TableFrameResult::Done => {}
-                        TableFrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
+                        TableFrameResult::Push(updated_frame) => {
+                            stack.push(updated_frame);
                         }
                     }
                     Ok(TableFrameResult::Done)
@@ -621,8 +621,8 @@ impl Parser<'_> {
                         child_end_pos,
                     )? {
                         TableFrameResult::Done => {}
-                        TableFrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
+                        TableFrameResult::Push(updated_frame) => {
+                            stack.push(updated_frame);
                         }
                     }
                     Ok(TableFrameResult::Done)
@@ -635,8 +635,8 @@ impl Parser<'_> {
                         stack,
                     )? {
                         TableFrameResult::Done => {}
-                        TableFrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
+                        TableFrameResult::Push(updated_frame) => {
+                            stack.push(updated_frame);
                         }
                     }
                     Ok(TableFrameResult::Done)
@@ -649,8 +649,8 @@ impl Parser<'_> {
                         stack,
                     )? {
                         TableFrameResult::Done => {}
-                        TableFrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
+                        TableFrameResult::Push(updated_frame) => {
+                            stack.push(updated_frame);
                         }
                     }
                     Ok(TableFrameResult::Done)
@@ -663,8 +663,8 @@ impl Parser<'_> {
                         stack,
                     )? {
                         TableFrameResult::Done => {}
-                        TableFrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
+                        TableFrameResult::Push(updated_frame) => {
+                            stack.push(updated_frame);
                         }
                     }
                     Ok(TableFrameResult::Done)

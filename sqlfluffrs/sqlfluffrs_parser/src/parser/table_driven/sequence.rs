@@ -132,7 +132,7 @@ impl Parser<'_> {
         // Check if we buffered all elements (all were meta)
         if current_element_idx >= elements.len() {
             // All elements were meta - transition to combining
-            return Ok(stack.transition_to_combining(&mut frame, Some(frame_pos)));
+            return Ok(stack.transition_to_combining(frame, Some(frame_pos)));
         }
 
         // Create child frame with potentially new element after meta buffering
@@ -145,7 +145,7 @@ impl Parser<'_> {
         );
 
         // Match the first child
-        Ok(stack.push_child_and_wait(&mut frame, child_frame, current_element_idx))
+        Ok(stack.push_child_and_wait(frame, child_frame, current_element_idx))
     }
 
     /// Helper function to buffer trailing meta elements starting from current_element_idx
@@ -292,7 +292,7 @@ impl Parser<'_> {
                     ctx.insert_segments.extend(insert_positions);
                 }
                 // All children processed - go to combining
-                return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
+                return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
             }
 
             self.buffer_trailing_meta_elements(&mut frame, elements);
@@ -317,7 +317,7 @@ impl Parser<'_> {
                     ctx.insert_segments.extend(insert_positions);
                 }
                 // All children processed - go to combining
-                return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
+                return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
             }
 
             let child_start_pos = self.calculate_sequence_child_start_position(
@@ -389,7 +389,7 @@ impl Parser<'_> {
                 elements,
                 child_frame_id,
             );
-            stack.push(&mut frame);
+            stack.push(frame);
             // continue to next element
             return Ok(stack.update_sequence_parent_and_push_child(child_frame, next_element_idx));
         }
@@ -561,7 +561,7 @@ impl Parser<'_> {
             self.pos = matched_idx;
             frame.end_pos = Some(matched_idx);
             frame.state = FrameState::Combining;
-            stack.push(&mut frame);
+            stack.push(frame);
             return Ok(TableFrameResult::Done);
         }
 
@@ -585,7 +585,7 @@ impl Parser<'_> {
                     frame.table_terminators.to_vec(),
                     Some(max_idx),
                 );
-                stack.push(&mut frame);
+                stack.push(frame);
                 return Ok(stack.update_sequence_parent_and_push_child(child_frame, current_idx));
             }
 
@@ -647,7 +647,7 @@ impl Parser<'_> {
             Some(max_idx),
         );
 
-        stack.push(&mut frame);
+        stack.push(frame);
         Ok(stack.update_sequence_parent_and_push_child(child_frame, current_idx))
     }
 

@@ -163,16 +163,27 @@ impl MatchResult {
                 && !child.insert_segments.is_empty()
                 && !child.contains_unparsable()
             {
-                // Lift insert_segments from grammar wrapper to segment class
-                let insert_segments = child.insert_segments.clone();
-                // Use the child's children directly (unwrap the grammar wrapper)
-                let unwrapped_children = child.child_matches.clone();
-                return MatchResult {
-                    matched_slice: start_idx..end_idx,
-                    matched_class,
-                    child_matches: unwrapped_children,
-                    insert_segments,
-                };
+                // Try to move data out of the Arc instead of cloning
+                let mut children = children;
+                let child_arc = children.pop().unwrap();
+                match Arc::try_unwrap(child_arc) {
+                    Ok(owned) => {
+                        return MatchResult {
+                            matched_slice: start_idx..end_idx,
+                            matched_class,
+                            child_matches: owned.child_matches,
+                            insert_segments: owned.insert_segments,
+                        };
+                    }
+                    Err(shared) => {
+                        return MatchResult {
+                            matched_slice: start_idx..end_idx,
+                            matched_class,
+                            child_matches: shared.child_matches.clone(),
+                            insert_segments: shared.insert_segments.clone(),
+                        };
+                    }
+                }
             }
         }
 
@@ -313,17 +324,26 @@ impl MatchResult {
         let mut insert_segments = vec![];
         let mut child_matches = vec![];
 
-        // Process both matches
+        // Process both matches — use try_unwrap to move data when refcount==1
+        // instead of cloning. This is critical for the delimited handler's repeated
+        // append pattern: avoids O(n²) child copies over N elements.
         for m in [self, other] {
-            match &m.matched_class {
-                None => {
-                    // No class, flatten into parent
-                    insert_segments.extend(m.insert_segments.iter().cloned());
-                    child_matches.extend(m.child_matches.iter().cloned());
-                }
-                _ => {
-                    // Has a class, add as child match (wrapped in Rc)
-                    child_matches.push(m);
+            if m.matched_class.is_some() {
+                // Has a class, add as child match
+                child_matches.push(m);
+            } else {
+                // No class, flatten into parent
+                match Arc::try_unwrap(m) {
+                    Ok(owned) => {
+                        // Refcount was 1 — move data out, no cloning
+                        insert_segments.extend(owned.insert_segments);
+                        child_matches.extend(owned.child_matches);
+                    }
+                    Err(shared) => {
+                        // Shared — must clone
+                        insert_segments.extend(shared.insert_segments.iter().cloned());
+                        child_matches.extend(shared.child_matches.iter().cloned());
+                    }
                 }
             }
         }
@@ -334,6 +354,16 @@ impl MatchResult {
             insert_segments,
             child_matches,
         })
+    }
+
+    /// In-place append: swaps out the current Arc, giving `append()` sole ownership
+    /// so that `Arc::try_unwrap` succeeds and data is moved instead of cloned.
+    /// This avoids the O(n²) repeated-clone problem in the old `x = x.clone().append(y)` pattern.
+    #[inline]
+    pub fn append_into(target: &mut Arc<MatchResult>, other: Arc<MatchResult>) {
+        // Swap a temporary empty Arc into the field, giving us sole ownership of the old value.
+        let old = std::mem::replace(target, Arc::new(MatchResult::empty_at(0)));
+        *target = old.append(other);
     }
 
     /// Wrap this result with an outer segment class.
@@ -421,12 +451,12 @@ impl MatchResult {
                 .push(TriggerItem::Meta(meta_type.clone()));
         }
 
-        // Add child matches
+        // Add child matches — store Arc directly, avoid deep clone
         for child_rc in &self.child_matches {
             trigger_map
                 .entry(child_rc.matched_slice.start)
                 .or_default()
-                .push(TriggerItem::ChildMatch((**child_rc).clone()));
+                .push(TriggerItem::ChildMatch(Arc::clone(child_rc)));
         }
 
         // Walk through the slice, processing triggers at each position
@@ -476,19 +506,23 @@ impl MatchResult {
                 );
             }
 
-            // Process triggers at this position
-            if let Some(triggers) = trigger_map.get(&pos) {
+            // Process triggers at this position — remove from map to take ownership
+            if let Some(triggers) = trigger_map.remove(&pos) {
                 for trigger in triggers {
                     match trigger {
                         TriggerItem::Meta(meta_type) => {
                             let pos_marker = get_point_pos_at_token_idx(tokens, pos);
-                            result_nodes.push(meta_to_node(meta_type, pos_marker));
+                            result_nodes.push(meta_to_node(&meta_type, pos_marker));
                         }
-                        TriggerItem::ChildMatch(child) => {
-                            let child_node = child.clone().apply(tokens);
+                        TriggerItem::ChildMatch(child_arc) => {
+                            let end = child_arc.matched_slice.end;
+                            // try_unwrap avoids a deep clone when refcount==1
+                            let child_owned = Arc::try_unwrap(child_arc)
+                                .unwrap_or_else(|arc| (*arc).clone());
+                            let child_node = child_owned.apply(tokens);
                             // Only add non-empty nodes
                             result_nodes.extend(child_node);
-                            current_idx = child.matched_slice.end;
+                            current_idx = end;
                         }
                     }
                 }
@@ -609,10 +643,10 @@ pub fn segment_kwargs_from_token(
 }
 
 /// Internal enum for tracking what to process at each position
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 enum TriggerItem {
     Meta(MetaSegment),
-    ChildMatch(MatchResult),
+    ChildMatch(Arc<MatchResult>),
 }
 
 /// Get a point position marker at a given token index.

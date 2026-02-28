@@ -221,7 +221,7 @@ impl Parser<'_> {
         }
 
         // Push parent then child (parent.last_child_frame_id was set in context)
-        Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
+        Ok(stack.push_child_and_wait(frame, child_frame, 0))
     }
 
     /// Handle AnyNumberOf WaitingForChild state using table-driven approach
@@ -326,7 +326,7 @@ impl Parser<'_> {
         // Update last_child_frame_id
         *ctx.last_child_frame_id = Some(stack.frame_id_counter);
 
-        Ok(stack.push_child_and_wait(&mut frame, child_frame, next_element_idx))
+        Ok(stack.push_child_and_wait(frame, child_frame, next_element_idx))
     }
 
     /// Process the longest match after all candidates are tried
@@ -365,7 +365,7 @@ impl Parser<'_> {
                 ctx.count
             );
             let matched_idx = *ctx.matched_idx;
-            return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
+            return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
         };
 
         // Check for zero-width match
@@ -374,7 +374,7 @@ impl Parser<'_> {
                 "AnyNumberOf[table]: zero-width match at {}, stopping",
                 ctx.working_idx
             );
-            return Ok(stack.transition_to_combining(&mut frame, None));
+            return Ok(stack.transition_to_combining(frame, None));
         }
 
         // We no longer "collect tokens", it's all lazy evaluation now.
@@ -387,7 +387,7 @@ impl Parser<'_> {
             if *ctx.count >= max {
                 vdebug!("AnyNumberOf[table]: Reached max_times={}", max);
                 let matched_idx = *ctx.matched_idx;
-                return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
+                return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
             }
         }
 
@@ -403,12 +403,12 @@ impl Parser<'_> {
                     max_per
                 );
                 let matched_idx = *ctx.matched_idx;
-                return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
+                return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
             }
         }
 
         // Match succeeded - accumulate and continue
-        *ctx.matched = ctx.matched.clone().append(best_match.clone());
+        MatchResult::append_into(ctx.matched, best_match.clone());
         *ctx.matched_idx = best_match.end();
         *ctx.working_idx = *ctx.matched_idx;
         *ctx.count += 1;
@@ -444,7 +444,7 @@ impl Parser<'_> {
                 ctx.max_idx
             );
             let matched_idx = *ctx.matched_idx;
-            return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
+            return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
         }
 
         // Continue matching - re-prune at new position
@@ -479,7 +479,7 @@ impl Parser<'_> {
         if repruned_children.is_empty() {
             vdebug!("AnyNumberOf[table]: All elements pruned after match");
             let matched_idx = *ctx.matched_idx;
-            return Ok(stack.transition_to_combining(&mut frame, Some(matched_idx)));
+            return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
         }
 
         // Reset for next repetition
@@ -498,7 +498,7 @@ impl Parser<'_> {
         *ctx.last_child_frame_id = Some(stack.frame_id_counter);
 
         // Update frame state
-        Ok(stack.push_child_and_wait(&mut frame, child_frame, 0))
+        Ok(stack.push_child_and_wait(frame, child_frame, 0))
     }
 
     /// Handle AnyNumberOf Combining state using table-driven approach
