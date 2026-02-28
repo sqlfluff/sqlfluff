@@ -388,7 +388,7 @@ class TableBuilder:
             return self._handle_conditional(grammar, parse_context)
 
         # MetaSegment
-        elif issubclass(grammar, MetaSegment):
+        elif isinstance(grammar, type) and issubclass(grammar, MetaSegment):
             return self._handle_meta(grammar, parse_context)
 
         # SegmentMetaclass with match_grammar
@@ -418,7 +418,11 @@ class TableBuilder:
             )
 
         # BaseSegment without match_grammar (Token)
-        elif issubclass(grammar, BaseSegment) and not hasattr(grammar, "match_grammar"):
+        elif (
+            isinstance(grammar, type)
+            and issubclass(grammar, BaseSegment)
+            and not hasattr(grammar, "match_grammar")
+        ):
             return self._handle_token(grammar, parse_context)
 
         # Fallback: Missing
