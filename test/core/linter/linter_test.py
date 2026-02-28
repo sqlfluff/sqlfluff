@@ -404,6 +404,7 @@ def test__linter__linting_unexpected_error_handled_gracefully(
 
 def test__linter__lint_paths_closes_runner_iterator_on_early_break(monkeypatch):
     """Ensure lint_paths closes runner iterator when loop exits early."""
+    test_path = os.path.normpath("test/fixtures/linter/passing.sql")
 
     class ClosableIterator:
         """Simple iterator tracking whether close() gets called."""
@@ -437,7 +438,7 @@ def test__linter__lint_paths_closes_runner_iterator_on_early_break(monkeypatch):
     fatal_error = DummyLintError(line_no=1)
     fatal_error.fatal = True
     linted_file = runner.LintedFile(
-        path="test/fixtures/linter/passing.sql",
+        path=test_path,
         violations=[fatal_error],
         timings=None,
         tree=None,
@@ -454,7 +455,7 @@ def test__linter__lint_paths_closes_runner_iterator_on_early_break(monkeypatch):
     )
 
     lntr = Linter(dialect="ansi")
-    lntr.lint_paths(("test/fixtures/linter/passing.sql",), processes=2)
+    lntr.lint_paths((test_path,), processes=2)
 
     assert closable_iterator.closed
 
