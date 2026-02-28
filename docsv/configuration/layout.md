@@ -810,6 +810,34 @@ available:
       * the `WHERE` keyword itself should start a line
          (`keyword_line_position = leading`).
 
+      A concrete `where_clause` example:
+
+      ```sql
+      SELECT
+         a
+      FROM t
+      WHERE b = 1
+         AND c = 2
+      ```
+
+      In this shape:
+
+      * `line_position` controls where the whole `where_clause` sits relative
+        to surrounding clauses (e.g. forcing a break before/around the clause).
+      * `keyword_line_position` controls where the `WHERE` keyword sits relative
+        to its expression (e.g. `WHERE b = 1` vs `WHERE` on its own line).
+
+      For example, setting `keyword_line_position = alone` would produce:
+
+      ```sql
+      SELECT
+         a
+      FROM t
+      WHERE
+         b = 1
+         AND c = 2
+      ```
+
       Another example:
 
       ```ini

@@ -864,6 +864,36 @@ available:
       * the :code:`WHERE` keyword itself should start a line
         (:code:`keyword_line_position = leading`).
 
+         A concrete :code:`where_clause` example:
+
+         .. code-block:: sql
+
+             SELECT
+                  a
+             FROM t
+             WHERE b = 1
+                  AND c = 2
+
+         In this shape:
+
+         * :code:`line_position` controls where the whole :code:`where_clause` sits
+            relative to surrounding clauses (e.g. forcing a break before/around the
+            clause).
+         * :code:`keyword_line_position` controls where the :code:`WHERE` keyword
+            sits relative to its expression (e.g. :code:`WHERE b = 1` vs
+            :code:`WHERE` on its own line).
+
+         For example, setting :code:`keyword_line_position = alone` would produce:
+
+         .. code-block:: sql
+
+             SELECT
+                  a
+             FROM t
+             WHERE
+                  b = 1
+                  AND c = 2
+
       Another example:
 
       .. code-block:: cfg
