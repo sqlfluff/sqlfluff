@@ -17,6 +17,7 @@ from sqlfluff.core.parser.grammar.anyof import (
 from sqlfluff.core.parser.grammar.base import Anything, Nothing, Ref
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.grammar.delimited import Delimited, OptionallyDelimited
+from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.parsers import (
     MultiStringParser,
@@ -386,6 +387,10 @@ class TableBuilder:
         # Conditional
         elif grammar.__class__ is Conditional:
             return self._handle_conditional(grammar, parse_context)
+
+        # PrecededByMatcher
+        elif isinstance(grammar, PrecededByMatcher):
+            return self._handle_preceded_by(grammar, parse_context)
 
         # MetaSegment
         elif isinstance(grammar, type) and issubclass(grammar, MetaSegment):
@@ -1134,6 +1139,44 @@ class TableBuilder:
             aux_data_offset=type_id,
             simple_hint_idx=0,
             comment=f'Meta("{type_name}")',
+        )
+
+    def _handle_preceded_by(self, grammar, parse_context) -> GrammarInstData:
+        """Convert PrecededByMatcher to PrecededBy instruction."""
+        preceding_ids = [self._add_string(keyword) for keyword in grammar.preceding]
+        optional_ids = [
+            self._add_string(keyword) for keyword in grammar.optional_preceding
+        ]
+
+        aux_offset = len(self.aux_data)
+        self.aux_data.extend([0, len(preceding_ids), 0, len(optional_ids)])
+
+        preceding_start = len(self.aux_data)
+        self.aux_data.extend(preceding_ids)
+
+        optional_start = len(self.aux_data)
+        self.aux_data.extend(optional_ids)
+
+        self.aux_data[aux_offset] = preceding_start
+        self.aux_data[aux_offset + 2] = optional_start
+
+        return GrammarInstData(
+            variant="PrecededBy",
+            flags=0,
+            parse_mode="Strict",
+            first_child_idx=len(self.child_ids),
+            child_count=0,
+            min_times=0,
+            first_terminator_idx=len(self.terminators),
+            terminator_count=0,
+            aux_data_offset=aux_offset,
+            simple_hint_idx=0,
+            comment=(
+                "PrecededBy("
+                f"preceding={grammar.preceding}, "
+                f"optional={grammar.optional_preceding}"
+                ")"
+            ),
         )
 
     def _handle_token(self, grammar, parse_context) -> GrammarInstData:
