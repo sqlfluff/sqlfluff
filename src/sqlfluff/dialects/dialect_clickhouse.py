@@ -616,7 +616,10 @@ class QualifyClauseSegment(BaseSegment):
     )
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
-    """Enhance `SELECT` statement to include QUALIFY."""
+    """Enhance `SELECT` statement to include QUALIFY.
+
+    https://clickhouse.com/docs/sql-reference/statements/select/qualify
+    """
 
     match_grammar = (
         ansi.SelectStatementSegment.match_grammar.copy(
