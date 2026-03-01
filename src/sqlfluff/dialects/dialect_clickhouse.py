@@ -605,7 +605,10 @@ class SettingsClauseSegment(BaseSegment):
     )
 
 class QualifyClauseSegment(BaseSegment):
-    """A `QUALIFY` clause like in `SELECT`."""
+    """A `QUALIFY` clause like in `SELECT`.
+
+    https://clickhouse.com/docs/sql-reference/statements/select/qualify
+    """
 
     type = "qualify_clause"
     match_grammar = Sequence(
@@ -616,10 +619,7 @@ class QualifyClauseSegment(BaseSegment):
     )
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
-    """Enhance `SELECT` statement to include QUALIFY.
-
-    https://clickhouse.com/docs/sql-reference/statements/select/qualify
-    """
+    """Enhance `SELECT` statement to include QUALIFY."""
 
     match_grammar = (
         ansi.SelectStatementSegment.match_grammar.copy(
