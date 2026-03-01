@@ -65,3 +65,26 @@ ON table1.col_1 = table2.col_1
 WHERE table1.col_1 = 'active'
 WINDOW test_window AS (PARTITION BY table1.col_1)
 QUALIFY ROW_NUMBER() OVER test_window = 1;
+
+SELECT
+    table2.col_a,
+    table1.col_b,
+    count(*) AS total,
+    row_number() OVER (PARTITION BY table1.col_b ORDER BY count(*) DESC) AS rank
+FROM table1
+LEFT JOIN table2 ON table1.col_1 = table2.col_1
+WHERE table1.col_1 LIKE '%test%'
+GROUP BY table2.col_a,table1.col_b
+QUALIFY rank = 1;
+
+SELECT
+    table2.col_a,
+    table1.col_b,
+    count(*) AS total,
+    row_number() OVER (PARTITION BY table1.col_b ORDER BY count(*) DESC) AS rank
+FROM table1
+LEFT JOIN table2 ON table1.col_1 = table2.col_1
+WHERE table1.col_1 LIKE '%test%'
+GROUP BY table2.col_a,table1.col_b
+HAVING count(*) > 1
+QUALIFY rank = 1;
