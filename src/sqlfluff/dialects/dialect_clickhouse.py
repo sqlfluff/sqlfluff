@@ -628,6 +628,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("IntoOutfileClauseSegment", optional=True),
             Ref("SettingsClauseSegment", optional=True),
         ],
+    ).copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
     )
 
 
