@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67a3f0ef0663eb555b9e3fcaddd5cf0dcb166f4e92b8b33556db1d0b3bc55b66
+_hash: 1e3f5328371c01f59e3756a76e104c967983eb68be6ea6f46d32cdfc28041390
 file:
 - statement:
     select_statement:
@@ -586,6 +586,272 @@ file:
             over_clause:
               keyword: OVER
               naked_identifier: test_window
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: table2
+          - dot: .
+          - naked_identifier: col_a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: table1
+          - dot: .
+          - naked_identifier: col_b
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: total
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: row_number
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                      - naked_identifier: table1
+                      - dot: .
+                      - naked_identifier: col_b
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: count
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            star: '*'
+                            end_bracket: )
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: table1
+                - dot: .
+                - naked_identifier: col_1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: table2
+                - dot: .
+                - naked_identifier: col_1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: table1
+          - dot: .
+          - naked_identifier: col_1
+          keyword: LIKE
+          quoted_literal: "'%test%'"
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: table2
+        - dot: .
+        - naked_identifier: col_a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: table1
+        - dot: .
+        - naked_identifier: col_b
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            naked_identifier: rank
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: table2
+          - dot: .
+          - naked_identifier: col_a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: table1
+          - dot: .
+          - naked_identifier: col_b
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: total
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: row_number
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                      - naked_identifier: table1
+                      - dot: .
+                      - naked_identifier: col_b
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: count
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            star: '*'
+                            end_bracket: )
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: table1
+                - dot: .
+                - naked_identifier: col_1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: table2
+                - dot: .
+                - naked_identifier: col_1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: table1
+          - dot: .
+          - naked_identifier: col_1
+          keyword: LIKE
+          quoted_literal: "'%test%'"
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: table2
+        - dot: .
+        - naked_identifier: col_a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: table1
+        - dot: .
+        - naked_identifier: col_b
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '1'
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            naked_identifier: rank
           comparison_operator:
             raw_comparison_operator: '='
           numeric_literal: '1'
