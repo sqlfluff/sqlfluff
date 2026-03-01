@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     Matchable,
     OneOf,
     OptionallyBracketed,
+    OptionallyDelimited,
     ParseMode,
     Ref,
     RegexLexer,
@@ -1544,12 +1545,205 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
+class TableOptionsSegment(BaseSegment):
+    """MySQL table options for CREATE/ALTER TABLE statements.
+
+    https://dev.mysql.com/doc/refman/8.4/en/alter-table.html
+    """
+
+    type = "table_options"
+
+    match_grammar = OptionallyDelimited(
+        OneOf(
+            # AUTOEXTEND_SIZE [=] value
+            Sequence(
+                "AUTOEXTEND_SIZE",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # AUTO_INCREMENT [=] value
+            Sequence(
+                "AUTO_INCREMENT",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # AVG_ROW_LENGTH [=] value
+            Sequence(
+                "AVG_ROW_LENGTH",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # [DEFAULT] CHARACTER SET [=] charset_name
+            Sequence(
+                Ref.keyword("DEFAULT", optional=True),
+                "CHARACTER",
+                "SET",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # CHECKSUM [=] {0 | 1}
+            Sequence(
+                "CHECKSUM",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # [DEFAULT] COLLATE [=] collation_name
+            Sequence(
+                Ref.keyword("DEFAULT", optional=True),
+                "COLLATE",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # COMMENT [=] 'string'
+            Sequence(
+                "COMMENT",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # COMPRESSION [=] {'ZLIB' | 'LZ4' | 'NONE'}
+            Sequence(
+                "COMPRESSION",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # CONNECTION [=] 'connect_string'
+            Sequence(
+                "CONNECTION",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # {DATA | INDEX} DIRECTORY [=] 'absolute path to directory'
+            Sequence(
+                OneOf("DATA", "INDEX"),
+                "DIRECTORY",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # DELAY_KEY_WRITE [=] {0 | 1}
+            Sequence(
+                "DELAY_KEY_WRITE",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # ENCRYPTION [=] {'Y' | 'N'}
+            Sequence(
+                "ENCRYPTION",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # ENGINE [=] engine_name
+            Sequence(
+                "ENGINE",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # ENGINE_ATTRIBUTE [=] 'string'
+            Sequence(
+                "ENGINE_ATTRIBUTE",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # INSERT_METHOD [=] { NO | FIRST | LAST }
+            Sequence(
+                "INSERT_METHOD",
+                Ref("EqualsSegment", optional=True),
+                OneOf("NO", "FIRST", "LAST"),
+            ),
+            # KEY_BLOCK_SIZE [=] value
+            Sequence(
+                "KEY_BLOCK_SIZE",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # MAX_ROWS [=] value
+            Sequence(
+                "MAX_ROWS",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # MIN_ROWS [=] value
+            Sequence(
+                "MIN_ROWS",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # PACK_KEYS [=] {0 | 1 | DEFAULT}
+            Sequence(
+                "PACK_KEYS",
+                Ref("EqualsSegment", optional=True),
+                OneOf(Ref("NumericLiteralSegment"), "DEFAULT"),
+            ),
+            # PASSWORD [=] 'string'
+            Sequence(
+                "PASSWORD",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # ROW_FORMAT [=] {DEFAULT | DYNAMIC | FIXED
+            # | COMPRESSED | REDUNDANT | COMPACT}
+            Sequence(
+                "ROW_FORMAT",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    "DEFAULT", "DYNAMIC", "FIXED", "COMPRESSED", "REDUNDANT", "COMPACT"
+                ),
+            ),
+            # SECONDARY_ENGINE_ATTRIBUTE [=] 'string'
+            Sequence(
+                "SECONDARY_ENGINE_ATTRIBUTE",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # STATS_AUTO_RECALC [=] {DEFAULT | 0 | 1}
+            Sequence(
+                "STATS_AUTO_RECALC",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    "DEFAULT",
+                    Ref("NumericLiteralSegment"),
+                ),
+            ),
+            # STATS_PERSISTENT [=] {DEFAULT | 0 | 1}
+            Sequence(
+                "STATS_PERSISTENT",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    "DEFAULT",
+                    Ref("NumericLiteralSegment"),
+                ),
+            ),
+            # STATS_SAMPLE_PAGES [=] value
+            Sequence(
+                "STATS_SAMPLE_PAGES",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            # TABLESPACE tablespace_name [STORAGE {DISK | MEMORY}]
+            Sequence(
+                "TABLESPACE",
+                Ref("NakedIdentifierSegment"),
+                Sequence(
+                    "STORAGE",
+                    OneOf("DISK", "MEMORY"),
+                    optional=True,
+                ),
+            ),
+            # UNION [=] (tbl_name[,tbl_name]...)
+            Sequence(
+                "UNION",
+                Ref("EqualsSegment", optional=True),
+                Bracketed(Delimited(Ref("TableReferenceSegment"))),
+            ),
+        ),
+    )
+
+
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE .. ALTER COLUMN` statement.
 
     Overriding ANSI to add `CHANGE COLUMN` and `DROP COLUMN` support.
 
-    https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+    https://dev.mysql.com/doc/refman/8.4/en/alter-table.html
     https://mariadb.com/kb/en/alter-table/
 
     """
@@ -1562,11 +1756,7 @@ class AlterTableStatementSegment(BaseSegment):
         Delimited(
             OneOf(
                 # Table options
-                Sequence(
-                    Ref("ParameterNameSegment"),
-                    Ref("EqualsSegment", optional=True),
-                    OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
-                ),
+                Ref("TableOptionsSegment"),
                 # Add column
                 Sequence(
                     "ADD",
