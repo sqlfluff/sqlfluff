@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03b392bd977fce1dbcbc460dcb6e9b5765213d1d2192edb3c16fc98f18c074d7
+_hash: b03a1ccab02d6f193f15af145f7be16e4b710101fae4b60fa0c05c81289423f4
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
       - keyword: select
@@ -112,4 +112,127 @@ file:
               - expression:
                   quoted_literal: "'lax $.unstructured.abcd[*].field?(@ > 0.5)'"
               - end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_array
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - keyword: 'null'
+              - keyword: 'on'
+              - keyword: 'null'
+              - keyword: returning
+              - data_type:
+                  primitive_type:
+                    keyword: varbinary
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_array
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - keyword: absent
+              - keyword: 'on'
+              - keyword: 'null'
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_array
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - keyword: returning
+              - data_type:
+                  primitive_type:
+                    keyword: json
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_array
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - keyword: 'null'
+              - keyword: 'on'
+              - keyword: 'null'
+              - keyword: returning
+              - data_type:
+                  primitive_type:
+                    keyword: json
+              - keyword: format
+              - keyword: json
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_array
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - keyword: 'null'
+              - keyword: 'on'
+              - keyword: 'null'
+              - keyword: returning
+              - data_type:
+                  primitive_type:
+                    keyword: varchar
+              - keyword: format
+              - keyword: json
+              - keyword: encoding
+              - keyword: utf8
+              - end_bracket: )
+- statement_terminator: ;
