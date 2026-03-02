@@ -603,7 +603,7 @@ def test_delayed_exception():
 
 
 def test__attempt_to_change_templater_warning():
-    """Test warning when changing templater in .sqlfluff file in subdirectory."""
+    """Test that changing templater per-file actually works (no longer warns)."""
     initial_config = FluffConfig(
         configs={"core": {"templater": "jinja", "dialect": "ansi"}}
     )
@@ -611,14 +611,61 @@ def test__attempt_to_change_templater_warning():
     updated_config = FluffConfig(
         configs={"core": {"templater": "python", "dialect": "ansi"}}
     )
-    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
-        lntr.render_string(
-            in_str="select * from table",
-            fname="test.sql",
-            config=updated_config,
-            encoding="utf-8",
-        )
-    assert "Attempt to set templater to " in caplog.text
+    # The templater should now be changed to python, not warned about
+    result = lntr.render_string(
+        in_str="select * from table",
+        fname="test.sql",
+        config=updated_config,
+        encoding="utf-8",
+    )
+    # Verify the result was successfully rendered
+    assert result.templated_variants
+    # Verify no templater errors occurred
+    assert not result.templater_violations
+
+
+def test__inline_dialect_config():
+    """Test that inline dialect configuration is respected."""
+    # SQL with T-SQL specific syntax (SELECT TOP)
+    sql = """-- sqlfluff:dialect:tsql
+SELECT TOP 10 * FROM users;
+"""
+    # Create linter without a dialect specified
+    config = FluffConfig.from_kwargs(require_dialect=False)
+    linter = Linter(config=config)
+
+    # Lint the string - should pick up inline dialect
+    result = linter.lint_string(sql)
+
+    # Should parse successfully (no fatal errors)
+    assert not any(v.fatal for v in result.violations)
+    # Verify it was parsed (has a tree)
+    assert result.tree is not None
+
+
+def test__inline_templater_config():
+    """Test that inline templater configuration is respected."""
+    # SQL with placeholder syntax
+    sql = """-- sqlfluff:dialect:ansi
+-- sqlfluff:templater:placeholder
+-- sqlfluff:templater:placeholder:param_style:question_mark
+-- sqlfluff:templater:placeholder:1:'test_value'
+SELECT * FROM table WHERE col = ?;
+"""
+    # Create linter with jinja templater (default)
+    config = FluffConfig(
+        configs={"core": {"templater": "jinja"}}, require_dialect=False
+    )
+    linter = Linter(config=config)
+
+    # Lint the string - should pick up inline templater config
+    result = linter.lint_string(sql)
+
+    # Should parse successfully
+    assert not any(v.fatal for v in result.violations)
+    assert result.tree is not None
+    # Verify placeholder was replaced (no ? in parsed tree)
+    assert "?" not in result.tree.raw
 
 
 def test_advanced_api_methods():
