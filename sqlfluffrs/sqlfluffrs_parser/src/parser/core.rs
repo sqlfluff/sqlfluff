@@ -154,7 +154,16 @@ impl<'a> Parser<'a> {
         // Obtain the root grammar for this dialect
         let root_grammar = self.dialect.get_root_grammar().clone();
 
-        // Find the last code token position (for trailing non-code tokens)
+        // Find first code position (trim leading non-code), mirroring Python's _start_idx loop
+        let mut first_code_pos = self.tokens.len();
+        for (i, token) in self.tokens.iter().enumerate() {
+            if token.is_code() {
+                first_code_pos = i;
+                break;
+            }
+        }
+
+        // Find last code position (trim trailing non-code), mirroring Python's _end_idx loop
         let mut last_code_pos = self.tokens.len();
         for (i, token) in self.tokens.iter().enumerate().rev() {
             if token.is_code() {
@@ -163,52 +172,88 @@ impl<'a> Parser<'a> {
             }
         }
 
-        let token_slice_orig = self.tokens;
-        let token_slice = &self.tokens[..last_code_pos];
-
-        if token_slice.is_empty() {
-            // Return empty match result
-            return Ok(MatchResult::empty_at(0).apply(token_slice)[0].clone());
+        // No code tokens at all — return a file segment containing only non-code, mirroring
+        // Python's `if _start_idx == _end_idx: return cls(segments, fname=fname)`.
+        if first_code_pos >= last_code_pos {
+            let file_mr = MatchResult {
+                matched_slice: 0..self.tokens.len(),
+                matched_class: Some(MatchedClass::root()),
+                insert_segments: vec![],
+                child_matches: vec![],
+            };
+            let nodes = file_mr.apply(self.tokens);
+            return Ok(nodes.into_iter().next().unwrap_or_default());
         }
 
-        self.tokens = token_slice;
+        let token_slice_orig = self.tokens;
+        // Mirror Python: pass segments[:_end_idx] and start matching at _start_idx
+        self.tokens = &token_slice_orig[..last_code_pos];
+        self.pos = first_code_pos;
 
         // Parse using the root grammar
         let grammar_id = root_grammar.grammar_id;
         let tables = root_grammar.tables;
         self.grammar_ctx = GrammarContext::new(tables);
-        let _grammar_name = self.grammar_ctx.grammar_id_name(grammar_id);
+        let grammar_name = self.grammar_ctx.grammar_id_name(grammar_id).to_string();
         let match_result = self.parse_table_iterative_match_result(grammar_id, &[])?;
         let match_end = match_result.end();
+
+        // Restore parser state
         self.tokens = token_slice_orig;
+        self.pos = 0;
 
-        let matched = match_result.apply(self.tokens);
-        // We expect exactly one root node after applying the match result
-        assert_eq!(matched.len(), 1);
-        let _unmatched = self.tokens[match_end..last_code_pos].to_vec();
+        // Build the content child, mirroring Python's three-way branch:
+        //   if not match      → UnparsableSegment(segments[_start_idx:_end_idx])
+        //   elif _unmatched   → matched + non-code gap + UnparsableSegment(first_code..)
+        //   else              → matched (+ any trailing non-code via gap-fill)
+        let content_child: Arc<MatchResult> = if match_result.is_empty() {
+            // No match at all – wrap the entire code region as unparsable
+            Arc::new(MatchResult::with_error(
+                first_code_pos,
+                last_code_pos,
+                grammar_name,
+                first_code_pos,
+            ))
+        } else if match_end < last_code_pos {
+            // Partial match – find the first code token in the unmatched tail
+            let first_code_in_unmatched = token_slice_orig[match_end..last_code_pos]
+                .iter()
+                .position(|t| t.is_code())
+                .map(|i| match_end + i)
+                .unwrap_or(last_code_pos);
 
-        // let mut content;
-        // if match_result.is_empty() {
-        //     content = Node::Unparsable {
-        //         expected_message: grammar_name,
-        //         children: vec![],
-        //     };
-        // } else if !unmatched.is_empty() {
-        //     content = matched
-        //         + unmatched
-        //             .iter()
-        //             .take_while(|t| !t.is_code())
-        //             .collect::<Vec<_>>();
-        // } else {
-        //     // Some tokens were not matched; wrap in Unparsable
-        //     content = Node::Unparsable {
-        //         expected_message: format!("{} (with unmatched tokens)", grammar_name),
-        //         children: matched,
-        //     };
-        // }
+            // Wrap the code tail as UnparsableSegment("Nothing else in FileSegment.")
+            let unparsable = Arc::new(MatchResult::with_error(
+                first_code_in_unmatched,
+                last_code_pos,
+                "Nothing else in FileSegment.".to_string(),
+                first_code_in_unmatched,
+            ));
 
-        // Ok(content)
-        Ok(matched[0].clone())
+            // A wrapper (no segment class) that holds both the matched result and
+            // the unparsable tail; gap-fill handles non-code between them.
+            Arc::new(MatchResult {
+                matched_slice: first_code_pos..last_code_pos,
+                matched_class: None,
+                insert_segments: vec![],
+                child_matches: vec![Arc::new(match_result), unparsable],
+            })
+        } else {
+            // Full match — trailing non-code is captured by gap-fill in apply()
+            Arc::new(match_result)
+        };
+
+        // Wrap content in a root (file) node spanning ALL tokens so that leading and
+        // trailing non-code are gap-filled, mirroring Python's
+        // `cls(segments[:_start_idx] + content + segments[_end_idx:], fname=fname)`.
+        let file_mr = MatchResult {
+            matched_slice: 0..token_slice_orig.len(),
+            matched_class: Some(MatchedClass::root()),
+            insert_segments: vec![],
+            child_matches: vec![content_child],
+        };
+        let root_nodes = file_mr.apply(token_slice_orig);
+        Ok(root_nodes.into_iter().next().unwrap_or_default())
     }
 
     // ============================================================================
