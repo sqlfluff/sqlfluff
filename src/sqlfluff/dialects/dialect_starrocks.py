@@ -261,7 +261,8 @@ class QualifyClauseSegment(BaseSegment):
 
     StarRocks QUALIFY constraints:
     - Only supports three window functions: ROW_NUMBER(), RANK(), and DENSE_RANK()
-    - Execution order: FROM → WHERE → GROUP BY → HAVING → WINDOW → QUALIFY → DISTINCT → ORDER BY → LIMIT
+    - Execution order: FROM → WHERE → GROUP BY → HAVING →
+        WINDOW → QUALIFY → DISTINCT → ORDER BY → LIMIT
 
     https://docs.starrocks.io/docs/sql-reference/sql-functions/Window_function/#qualify
     """
