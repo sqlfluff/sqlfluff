@@ -604,6 +604,7 @@ class SettingsClauseSegment(BaseSegment):
         optional=True,
     )
 
+
 class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`.
 
@@ -617,6 +618,7 @@ class QualifyClauseSegment(BaseSegment):
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
+
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
