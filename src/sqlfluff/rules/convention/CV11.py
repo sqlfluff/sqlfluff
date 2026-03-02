@@ -73,8 +73,13 @@ class Rule_CV11(BaseRule):
                         "newline",
                         "casting_operator",
                         "comma",
-                        "keyword",
                     )
+                ),
+                # Keep literals (e.g. null_literal, boolean_literal) even though
+                # they are also keyword types in the segment hierarchy.
+                sp.or_(
+                    sp.not_(sp.is_type("keyword")),
+                    sp.is_type("literal"),
                 ),
             )
         )
