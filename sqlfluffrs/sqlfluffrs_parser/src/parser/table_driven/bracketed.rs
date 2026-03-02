@@ -11,11 +11,10 @@ use crate::parser::{
 impl Parser<'_> {
     pub(crate) fn handle_bracketed_table_driven_initial(
         &mut self,
-        grammar_id: GrammarId,
         frame: TableParseFrame,
-        parent_terminators: &[GrammarId],
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
+        let grammar_id = frame.grammar_id;
         vdebug!(
             "Bracketed[table] Initial: grammar_id={}, frame_id={}, pos={}",
             grammar_id,
@@ -30,7 +29,7 @@ impl Parser<'_> {
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
         let all_terminators = self.combine_table_terminators(
             &local_terminators,
-            parent_terminators,
+            &frame.table_terminators,
             reset_terminators,
         );
         let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
@@ -203,23 +202,22 @@ impl Parser<'_> {
                 // CRITICAL: Store all content IDs in the frame context.
                 // Multiple content grammars (e.g., DatatypeSegment, "AS", DatatypeSegment)
                 // will be parsed sequentially as an implicit Sequence.
-                *content_ids = content_ids_local.clone();
+                *content_ids = content_ids_local; // Move instead of clone
                 *content_idx = 0;
 
                 // Consume any leading Meta content elements inline.
                 // Meta grammar elements must not be pushed as child frames - handle them directly
                 // so the parser never hits the "Meta grammar should be consumed by a sequence or
                 // bracketed" warning path in iterative.rs.
-                while *content_idx < content_ids_local.len()
-                    && self.grammar_ctx.variant(content_ids_local[*content_idx])
-                        == GrammarVariant::Meta
+                while *content_idx < content_ids.len()
+                    && self.grammar_ctx.variant(content_ids[*content_idx]) == GrammarVariant::Meta
                 {
                     vdebug!(
                         "Bracketed[table]: consuming leading Meta at content_idx={} inline",
                         *content_idx
                     );
                     if let Some(meta_seg) =
-                        self.grammar_id_to_meta_segment(content_ids_local[*content_idx])
+                        self.grammar_id_to_meta_segment(content_ids[*content_idx])
                     {
                         let meta_match = MatchResult {
                             matched_slice: self.pos..self.pos,
@@ -231,7 +229,7 @@ impl Parser<'_> {
                     *content_idx += 1;
                 }
 
-                let content_grammar_id = if *content_idx >= content_ids_local.len() {
+                let content_grammar_id = if *content_idx >= content_ids.len() {
                     // No (remaining) elements - skip to closing bracket
                     // update the state in the frame context to MatchingClose
                     vdebug!("DEBUG: Transitioning to MatchingClose!");
@@ -258,10 +256,10 @@ impl Parser<'_> {
                     // Start with the first non-Meta content element
                     vdebug!(
                         "Bracketed[table]: content_ids.len()={}, starting with element {}",
-                        content_ids_local.len(),
+                        content_ids.len(),
                         *content_idx
                     );
-                    content_ids_local[*content_idx]
+                    content_ids[*content_idx]
                 };
 
                 // Push content frame
@@ -269,22 +267,15 @@ impl Parser<'_> {
                 // This is important because nested brackets (like COUNT(*)) would
                 // incorrectly match the terminator and cause early termination.
                 // Instead, we rely on bracket_max_idx to constrain parsing via parent_max_idx.
-                let context = FrameContext::BracketedTableDriven {
-                    grammar_id: *grammar_id,
-                    state: BracketedState::MatchingContent,
-                    last_child_frame_id: *last_child_frame_id,
-                    bracket_max_idx: *bracket_max_idx,
-                    content_ids: content_ids.clone(),
-                    content_idx: *content_idx,
-                    parse_mode_override: *parse_mode_override,
-                    child_matches: child_matches.clone(),
-                };
+                // NOTE: The child frame's context is always overwritten by the handler that
+                // processes it (Sequence, OneOf, etc.), so we pass None to avoid cloning
+                // content_ids and child_matches into dead storage.
                 let child_frame = create_table_driven_child_frame(
                     stack.frame_id_counter,
                     content_grammar_id,
                     self.pos,
                     &[], // Don't pass close bracket as terminator - use bracket_max_idx instead
-                    context,
+                    FrameContext::None,
                     *bracket_max_idx,
                     *parse_mode_override, // Pass override to content
                 );
@@ -379,22 +370,14 @@ impl Parser<'_> {
                         // This is important because nested brackets (like convert(varchar, col, 23))
                         // would incorrectly match the terminator and cause early termination.
                         // Instead, we rely on bracket_max_idx to constrain parsing via parent_max_idx.
-                        let context = FrameContext::BracketedTableDriven {
-                            grammar_id: *grammar_id,
-                            state: BracketedState::MatchingContent,
-                            last_child_frame_id: *last_child_frame_id,
-                            bracket_max_idx: *bracket_max_idx,
-                            content_ids: content_ids.clone(),
-                            content_idx: *content_idx,
-                            parse_mode_override: *parse_mode_override,
-                            child_matches: child_matches.clone(),
-                        };
+                        // NOTE: The child frame's context is always overwritten by the handler that
+                        // processes it, so we pass None to avoid cloning content_ids and child_matches.
                         let child_frame = create_table_driven_child_frame(
                             stack.frame_id_counter,
                             next_content_id,
                             self.pos,
                             &[], // Don't pass close bracket as terminator - use bracket_max_idx instead
-                            context,
+                            FrameContext::None,
                             *bracket_max_idx,
                             *parse_mode_override, // Pass override to content
                         );
@@ -578,14 +561,14 @@ impl Parser<'_> {
                 grammar_id,
                 child_matches,
                 ..
-            } = &frame.context
+            } = &mut frame.context
             {
                 let complete = matches!(state, BracketedState::Complete);
 
                 // Determine bracket_persists using the GrammarInst for this GrammarId
                 let persists = self.grammar_ctx.bracketed_persists(*grammar_id);
 
-                (complete, persists, child_matches.clone())
+                (complete, persists, std::mem::take(child_matches))
             } else {
                 panic!("Expected BracketedTableDriven context in combining state");
             };

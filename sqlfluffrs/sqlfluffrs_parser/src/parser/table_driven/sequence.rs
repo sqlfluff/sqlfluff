@@ -20,7 +20,6 @@ impl Parser<'_> {
     pub(crate) fn handle_sequence_table_driven_initial(
         &mut self,
         mut frame: TableParseFrame,
-        parent_terminators: &[GrammarId],
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         self.pos = frame.pos;
@@ -62,10 +61,10 @@ impl Parser<'_> {
             return Ok(stack.complete_frame_empty(&frame));
         }
 
-        // combine parent and local terminators
+        // combine parent and local terminators (read parent from frame directly)
         let all_terminators = self.combine_table_terminators(
             &local_terminators,
-            parent_terminators,
+            &frame.table_terminators,
             reset_terminators,
         );
 
@@ -118,7 +117,7 @@ impl Parser<'_> {
             insert_segments: Vec::new(), // (position, segments) to insert
             child_matches: Vec::new(),   // Store child matches here until sequence is complete
         };
-        frame.table_terminators = SmallVec::from_vec(all_terminators.clone());
+        frame.table_terminators = SmallVec::from_vec(all_terminators);
 
         // Buffer any leading meta elements before creating first child
         self.buffer_trailing_meta_elements(&mut frame, &elements);
@@ -140,7 +139,7 @@ impl Parser<'_> {
             child_frame_id,
             elements[current_element_idx],
             child_start_pos,
-            all_terminators,
+            frame.table_terminators.to_vec(),
             Some(max_idx),
         );
 
@@ -510,10 +509,10 @@ impl Parser<'_> {
             ctx.mark_first_match_done();
 
             let matched_idx = ctx.matched_idx_value();
-            let terminators = frame.table_terminators.clone();
+            let new_max_idx =
+                self.trim_to_terminator_table_driven(matched_idx, &frame.table_terminators)?;
 
-            let new_max_idx = self.trim_to_terminator_table_driven(matched_idx, &terminators)?;
-
+            let mut ctx = frame.context.as_sequence_mut().unwrap();
             ctx.trim_max_idx(new_max_idx);
         }
 

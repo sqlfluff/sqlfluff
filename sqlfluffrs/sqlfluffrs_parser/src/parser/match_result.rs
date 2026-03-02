@@ -517,8 +517,8 @@ impl MatchResult {
                         TriggerItem::ChildMatch(child_arc) => {
                             let end = child_arc.matched_slice.end;
                             // try_unwrap avoids a deep clone when refcount==1
-                            let child_owned = Arc::try_unwrap(child_arc)
-                                .unwrap_or_else(|arc| (*arc).clone());
+                            let child_owned =
+                                Arc::try_unwrap(child_arc).unwrap_or_else(|arc| (*arc).clone());
                             let child_node = child_owned.apply(tokens);
                             // Only add non-empty nodes
                             result_nodes.extend(child_node);

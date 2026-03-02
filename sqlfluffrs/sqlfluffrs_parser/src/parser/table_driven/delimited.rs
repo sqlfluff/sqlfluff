@@ -21,7 +21,6 @@ impl Parser<'_> {
     pub(crate) fn handle_delimited_table_driven_initial(
         &mut self,
         mut frame: TableParseFrame,
-        parent_terminators: &[GrammarId],
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         self.pos = frame.pos;
@@ -70,7 +69,8 @@ impl Parser<'_> {
         // delimiter, even though we filtered out the child's specific delimiter GrammarId.
         let delimiter_name = self.grammar_ctx.grammar_id_name(delimiter_id);
 
-        let filtered_parent_terminators: Vec<GrammarId> = parent_terminators
+        let filtered_parent_terminators: Vec<GrammarId> = frame
+            .table_terminators
             .iter()
             .filter(|&term_id| {
                 // Filter out ANY grammar with the same name as the delimiter
@@ -98,9 +98,8 @@ impl Parser<'_> {
 
         // Terminators for Delimited-level checks (includes local)
         let mut all_terminators: Vec<GrammarId> = filtered_local
-            .clone()
             .into_iter()
-            .chain(filtered_parent_terminators.clone())
+            .chain(filtered_parent_terminators.iter().copied())
             .collect();
 
         // Terminators for child element matching (EXCLUDES local, only delimiter + parent)
@@ -122,13 +121,14 @@ impl Parser<'_> {
         );
 
         // Store local terminators for terminator checks at Delimited level
-        frame.table_terminators = SmallVec::from_vec(all_terminators.clone());
+        // Move all_terminators into frame (no clone)
+        frame.table_terminators = SmallVec::from_vec(all_terminators);
 
-        // Calculate max_idx with terminators
+        // Calculate max_idx with terminators (read from frame)
         let grammar_parse_mode = inst.parse_mode;
         let max_idx = self.calculate_max_idx_table_driven(
             start_pos,
-            &all_terminators,
+            &frame.table_terminators,
             grammar_parse_mode,
             frame.parent_max_idx,
         )?;
@@ -149,7 +149,7 @@ impl Parser<'_> {
             delimiter_match: None,
             pos_before_delimiter: None,
             element_children: vec![elements_id], // Single entry: the OneOf or single element
-            child_terminators: child_terminators.clone(), // Terminators for element matching
+            child_terminators,                   // Move, no clone
             working_match: Arc::new(MatchResult::empty_at(start_pos)),
         };
 
@@ -160,7 +160,15 @@ impl Parser<'_> {
             stack.frame_id_counter,
             elements_id,
             start_pos,
-            child_terminators.clone(),
+            {
+                let FrameContext::DelimitedTableDriven {
+                    child_terminators, ..
+                } = &frame.context
+                else {
+                    unreachable!()
+                };
+                child_terminators.clone()
+            },
             Some(max_idx),
         );
 
@@ -203,10 +211,11 @@ impl Parser<'_> {
             unreachable!("Expected DelimitedTableDriven context");
         };
 
-        // Clone child_terminators before mutable borrow to use later
+        // Clone child_terminators before mutable borrow to use in child frame creation.
+        // This is necessary because child_terminators is borrowed from frame.context,
+        // and we need to pass frame to push helpers later. The clone also preserves
+        // the context for subsequent WaitingForChild iterations.
         let child_terminators_clone = child_terminators.clone();
-
-        let frame_terminators = frame.table_terminators.clone();
 
         // Get children: [elements_or_oneof, delimiter]
         let all_children: Vec<GrammarId> = self.grammar_ctx.children(*grammar_id).collect();
@@ -249,7 +258,7 @@ impl Parser<'_> {
                 // The terminator check happens at working_idx, which is positioned AFTER
                 // the previous delimiter (if any was matched). This ensures we properly
                 // detect terminators that may appear between delimiters and elements.
-                let is_terminated = self.is_terminated_table_driven(&frame_terminators);
+                let is_terminated = self.is_terminated_table_driven(&frame.table_terminators);
 
                 // Handle termination or end of input
                 if self.is_at_end() || is_terminated {
@@ -304,10 +313,7 @@ impl Parser<'_> {
 
                     // Determine final position
                     let final_pos = if allow_trailing && delimiter_match.is_some() {
-                        MatchResult::append_into(
-                            working_match,
-                            delimiter_match.take().unwrap(),
-                        );
+                        MatchResult::append_into(working_match, delimiter_match.take().unwrap());
                         *delimiter_count += 1;
                         *matched_idx
                     } else if delimiter_match.is_some() && pos_before_delimiter.is_some() {
@@ -488,7 +494,7 @@ impl Parser<'_> {
                 let saved_pos = self.pos;
                 let check_pos_1 = pos_before_delimiter.unwrap();
                 self.pos = check_pos_1;
-                let is_terminated = self.is_terminated_table_driven(&frame_terminators);
+                let is_terminated = self.is_terminated_table_driven(&frame.table_terminators);
                 self.pos = saved_pos;
 
                 if is_terminated {
@@ -576,11 +582,7 @@ impl Parser<'_> {
 
                 frame.state = FrameState::WaitingForChild { child_index: 0 };
 
-                stack.push_child_and_update_parent(
-                    frame,
-                    element_frame,
-                    GrammarVariant::Delimited,
-                );
+                stack.push_child_and_update_parent(frame, element_frame, GrammarVariant::Delimited);
                 Ok(TableFrameResult::Done)
             }
         }

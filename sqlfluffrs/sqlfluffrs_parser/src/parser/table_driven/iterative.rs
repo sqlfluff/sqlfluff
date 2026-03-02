@@ -246,7 +246,8 @@ impl Parser<'_> {
             stack.results.len(),
             initial_frame_id
         );
-        if let Some((match_result, end_pos, _element_key)) = stack.results.remove(&initial_frame_id) {
+        if let Some((match_result, end_pos, _element_key)) = stack.results.remove(&initial_frame_id)
+        {
             vdebug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
                 initial_frame_id,
@@ -309,7 +310,6 @@ impl Parser<'_> {
         let grammar_id = frame.grammar_id;
         let inst = self.grammar_ctx.inst(grammar_id);
         let variant = inst.variant;
-        let table_terminators = frame.table_terminators.clone();
 
         vdebug!(
             "Table-driven Initial: frame_id={}, grammar_id={}, variant={:?}",
@@ -325,28 +325,15 @@ impl Parser<'_> {
         self.pos = frame.pos;
 
         match variant {
-            GrammarVariant::OneOf => {
-                self.handle_oneof_table_driven_initial(frame, &table_terminators, stack)
-            }
-            GrammarVariant::Sequence => {
-                self.handle_sequence_table_driven_initial(frame, &table_terminators, stack)
-            }
-            GrammarVariant::Delimited => {
-                self.handle_delimited_table_driven_initial(frame, &table_terminators, stack)
-            }
-            GrammarVariant::Bracketed => self.handle_bracketed_table_driven_initial(
-                grammar_id,
-                frame,
-                &table_terminators,
-                stack,
-            ),
+            GrammarVariant::OneOf => self.handle_oneof_table_driven_initial(frame, stack),
+            GrammarVariant::Sequence => self.handle_sequence_table_driven_initial(frame, stack),
+            GrammarVariant::Delimited => self.handle_delimited_table_driven_initial(frame, stack),
+            GrammarVariant::Bracketed => self.handle_bracketed_table_driven_initial(frame, stack),
             GrammarVariant::AnyNumberOf | GrammarVariant::AnySetOf => {
                 // AnySetOf currently delegates to AnyNumberOf semantics in table-driven handlers
-                self.handle_anynumberof_table_driven_initial(frame, &table_terminators, stack)
+                self.handle_anynumberof_table_driven_initial(frame, stack)
             }
-            GrammarVariant::Ref => {
-                self.handle_ref_table_driven_initial(frame, &table_terminators, stack)
-            }
+            GrammarVariant::Ref => self.handle_ref_table_driven_initial(frame, stack),
             // Terminal/simple variants should be handled synchronously here
             GrammarVariant::StringParser => {
                 // Synchronous match: call the table-driven string parser and store result for parent
@@ -500,7 +487,7 @@ impl Parser<'_> {
             GrammarVariant::Anything => {
                 let res = self.handle_anything_table_driven(
                     grammar_id,
-                    &table_terminators,
+                    &frame.table_terminators,
                     frame.parent_max_idx,
                 );
                 match res {
@@ -805,7 +792,12 @@ impl Parser<'_> {
         let element_key = frame.element_key;
 
         // This frame is done - insert result
-        stack.insert_arc_result_with_key(frame.frame_id, Arc::clone(match_result), end_pos, element_key);
+        stack.insert_arc_result_with_key(
+            frame.frame_id,
+            Arc::clone(match_result),
+            end_pos,
+            element_key,
+        );
 
         // Cache the result for future reuse
         // Cache non-empty results always, but only cache Empty results when

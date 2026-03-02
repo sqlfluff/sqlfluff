@@ -18,7 +18,6 @@ impl Parser<'_> {
     pub(crate) fn handle_ref_table_driven_initial(
         &mut self,
         mut frame: TableParseFrame,
-        parent_terminators: &[GrammarId],
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let grammar_id = frame.grammar_id;
@@ -56,7 +55,7 @@ impl Parser<'_> {
         if let Some(exclude_id) = exclude_id_opt {
             self.pos = start_pos;
             if let Ok(exclude_mr) =
-                self.parse_table_iterative_match_result(exclude_id, parent_terminators)
+                self.parse_table_iterative_match_result(exclude_id, &frame.table_terminators)
             {
                 self.pos = start_pos;
                 if !exclude_mr.is_empty() {
@@ -140,7 +139,7 @@ impl Parser<'_> {
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
         let child_terminators = Self::combine_terminators_table_driven(
             &local_terminators,
-            parent_terminators,
+            &frame.table_terminators,
             reset_terminators,
         );
 

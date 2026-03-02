@@ -17,7 +17,6 @@ impl Parser<'_> {
     pub(crate) fn handle_oneof_table_driven_initial(
         &mut self,
         mut frame: TableParseFrame,
-        parent_terminators: &[GrammarId],
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         // CRITICAL: Restore parser position from frame
@@ -44,7 +43,7 @@ impl Parser<'_> {
         if let Some(exclude_id) = self.grammar_ctx.exclude(grammar_id) {
             // Try matching exclude grammar
             if let Ok(exclude_result) =
-                self.parse_table_iterative_match_result(exclude_id, parent_terminators)
+                self.parse_table_iterative_match_result(exclude_id, &frame.table_terminators)
             {
                 if !exclude_result.is_empty() {
                     vdebug!(
@@ -65,11 +64,11 @@ impl Parser<'_> {
             start_pos
         };
 
-        // Combine terminators
+        // Combine terminators (read parent terminators from frame directly)
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
         let all_terminators = Parser::combine_terminators_table_driven(
             &local_terminators,
-            parent_terminators,
+            &frame.table_terminators,
             reset_terminators,
         );
 
@@ -142,33 +141,36 @@ impl Parser<'_> {
         self.match_attempts
             .set(self.match_attempts.get() + pruned_children.len());
 
+        // Save first child before moving pruned_children into context
+        let first_child = pruned_children[0];
+
         vdebug!(
             "OneOf[table]: Trying first of {} pruned children, grammar_id={}",
             pruned_children.len(),
-            pruned_children[0].0
+            first_child.0
         );
 
-        // Store context for WaitingForChild state
+        // Store context for WaitingForChild state (move pruned_children, no clone)
         frame.context = FrameContext::OneOfTableDriven {
             grammar_id,
-            pruned_children: pruned_children.clone(),
+            pruned_children,
             post_skip_pos,
             longest_match: None,
             tried_elements: 0,
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
-            current_child_id: Some(pruned_children[0]),
+            current_child_id: Some(first_child),
         };
 
-        // CRITICAL: Store terminators in frame for use when trying subsequent children
-        frame.table_terminators = SmallVec::from_vec(all_terminators.clone());
+        // Move terminators into frame (no clone)
+        frame.table_terminators = SmallVec::from_vec(all_terminators);
 
-        // Create table-driven child frame with filtered terminators
+        // Create table-driven child frame (copy terminators from frame)
         let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
-            pruned_children[0],
+            first_child,
             post_skip_pos,
-            all_terminators.clone(),
+            frame.table_terminators.to_vec(),
             Some(max_idx),
         );
 
@@ -176,7 +178,7 @@ impl Parser<'_> {
             "OneOf[table]: Pushing child frame: parent_frame_id={}, child_frame_id={}, child_gid={}",
             frame.frame_id,
             child_frame.frame_id,
-            pruned_children[0].0
+            first_child.0
         );
 
         // Transition: push child and wait
