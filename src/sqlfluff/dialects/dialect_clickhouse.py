@@ -605,18 +605,40 @@ class SettingsClauseSegment(BaseSegment):
     )
 
 
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`.
+
+    https://clickhouse.com/docs/sql-reference/statements/select/qualify
+    """
+
+    type = "qualify_clause"
+    match_grammar = Sequence(
+        "QUALIFY",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
-        insert=[Ref("PreWhereClauseSegment", optional=True)],
-        before=Ref("WhereClauseSegment", optional=True),
-    ).copy(
-        insert=[
-            Ref("FormatClauseSegment", optional=True),
-            Ref("IntoOutfileClauseSegment", optional=True),
-            Ref("SettingsClauseSegment", optional=True),
-        ],
+    match_grammar = (
+        ansi.SelectStatementSegment.match_grammar.copy(
+            insert=[Ref("PreWhereClauseSegment", optional=True)],
+            before=Ref("WhereClauseSegment", optional=True),
+        )
+        .copy(
+            insert=[
+                Ref("FormatClauseSegment", optional=True),
+                Ref("IntoOutfileClauseSegment", optional=True),
+                Ref("SettingsClauseSegment", optional=True),
+            ],
+        )
+        .copy(
+            insert=[Ref("QualifyClauseSegment", optional=True)],
+            before=Ref("OrderByClauseSegment", optional=True),
+        )
     )
 
 
