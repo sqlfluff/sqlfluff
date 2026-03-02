@@ -493,6 +493,21 @@ impl Parser<'_> {
                     Err(e) => Err(e),
                 }
             }
+            GrammarVariant::PrecededBy => {
+                let res = self.handle_preceded_by_table_driven(grammar_id);
+                match res {
+                    Ok(match_result) => {
+                        vdebug!(
+                            "[SYNC INSERT] frame_id={} PrecededBy result at pos {} -> MatchResult",
+                            frame.frame_id,
+                            self.pos
+                        );
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
+                        Ok(TableFrameResult::Done)
+                    }
+                    Err(e) => Err(e),
+                }
+            }
             GrammarVariant::Meta => {
                 let res = self.handle_meta_table_driven(grammar_id);
                 match res {

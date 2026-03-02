@@ -38,6 +38,7 @@ from sqlfluff.core.parser import (
     WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects.dialect_ansi import _is_distinct_from_lookbehind
 from sqlfluff.dialects.dialect_postgres_keywords import (
     get_keywords,
     postgres_keywords,
@@ -784,7 +785,10 @@ postgres_dialect.replace(
     UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     SelectClauseTerminatorGrammar=OneOf(
         "INTO",
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=_is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",

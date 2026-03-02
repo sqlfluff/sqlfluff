@@ -41,6 +41,7 @@ from sqlfluff.core.parser import (
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects.dialect_ansi import _is_distinct_from_lookbehind
 from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
     bigquery_unreserved_keywords,
@@ -394,7 +395,10 @@ bigquery_dialect.replace(
     NotEnforcedGrammar=Sequence("NOT", "ENFORCED"),
     ReferenceMatchGrammar=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=_is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
