@@ -3033,3 +3033,21 @@ class DeallocateStatementSegment(postgres.DeallocateStatementSegment):
         Ref.keyword("PREPARE", optional=True),
         Ref("ObjectReferenceSegment"),
     )
+
+
+class AccessTargetSegment(ansi.AccessTargetSegment):
+    """An access target for GRANT/REVOKE statements.
+
+    Redshift allows multiple GROUP targets, each with the GROUP keyword:
+    https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
+    """
+
+    match_grammar: Matchable = OneOf(
+        Delimited(Sequence("GROUP", Ref("ObjectReferenceSegment"))),
+        Sequence("USER", Delimited(Ref("UserReferenceSegment"))),
+        Sequence("ROLE", Delimited(Ref("RoleReferenceSegment"))),
+        Sequence("SHARE", Delimited(Ref("ObjectReferenceSegment"))),
+        Delimited(Ref("RoleReferenceSegment")),
+        Delimited(Ref("FunctionSegment")),
+        "PUBLIC",
+    )
