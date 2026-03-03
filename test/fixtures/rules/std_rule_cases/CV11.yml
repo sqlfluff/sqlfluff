@@ -420,7 +420,7 @@ test_pass_macro_cast:
     from tbl
 
 test_fail_consistent_null_shorthand_cast:
-  # https://github.com/sqlfluff/sqlfluff/issues/6733
+  # https://github.com/sqlfluff/sqlfluff/issues/7489
   # null_literal is also a keyword type, so _get_children must not filter it
   fail_str: |
     SELECT
@@ -437,7 +437,7 @@ test_fail_consistent_null_shorthand_cast:
       dialect: snowflake
 
 test_fail_cast_preferred_null_shorthand_cast:
-  # https://github.com/sqlfluff/sqlfluff/issues/6733
+  # https://github.com/sqlfluff/sqlfluff/issues/7489
   # null_literal is also a keyword type, so _get_children must not filter it
   fail_str: |
     SELECT
