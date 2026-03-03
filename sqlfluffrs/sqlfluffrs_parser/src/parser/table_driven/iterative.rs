@@ -101,10 +101,23 @@ impl Parser<'_> {
         });
 
         let mut iteration_count = 0_usize;
-        let max_iterations = 1_750_000_usize; // Higher limit for complex grammars
+        let max_iterations = self.max_parser_iterations;
+        let warn_threshold = self.parser_warn_threshold;
+        let mut warn_threshold_triggered = false;
 
         while let Some(frame_from_stack) = stack.pop() {
             iteration_count += 1;
+
+            if !warn_threshold_triggered && iteration_count > warn_threshold {
+                warn_threshold_triggered = true;
+                log::warn!(
+                    "Parser exceeded prior iteration limit of {} (now at {}). \
+                     Complex grammar detected; continuing up to {}.",
+                    warn_threshold,
+                    iteration_count,
+                    max_iterations
+                );
+            }
 
             // Re-check the cache ONLY for Initial frames
             // WaitingForChild frames have already started processing and have a child computing the result
@@ -197,6 +210,12 @@ impl Parser<'_> {
         }
 
         // Return the result from the initial frame
+        if warn_threshold_triggered {
+            log::warn!(
+                "Parser main loop completed in {} iterations.",
+                iteration_count
+            );
+        }
         vdebug!("DEBUG: Main loop ended. Stack has {} frames left. Results has {} entries. Looking for frame_id={}",
             stack.len(),
             stack.results.len(),
@@ -1037,7 +1056,11 @@ impl Parser<'_> {
             }
         }
 
-        panic!("Infinite loop detected in iterative parser");
+        panic!(
+            "Parser exceeded maximum iteration limit ({}). This may be caused by \
+             runaway parser logic or a very complex SQL query.",
+            _max_iterations
+        );
     }
 
     /// Logs debug information about the current frame and stack.
