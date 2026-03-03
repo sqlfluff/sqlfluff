@@ -999,10 +999,10 @@ impl Parser<'_> {
     fn handle_table_max_iterations_exceeded(
         &mut self,
         _stack: &mut TableParseFrameStack,
-        _max_iterations: usize,
+        max_iterations: usize,
         _frame: &mut TableParseFrame,
-    ) {
-        vdebug!("ERROR: Exceeded max iterations ({})", _max_iterations);
+    ) -> ! {
+        vdebug!("ERROR: Exceeded max iterations ({})", max_iterations);
         vdebug!("Last frame: {:?}", _frame.grammar_id);
         vdebug!("Stack depth: {}", _stack.len());
         vdebug!("Results count: {}", _stack.results.len());
@@ -1059,7 +1059,7 @@ impl Parser<'_> {
         panic!(
             "Parser exceeded maximum iteration limit ({}). This may be caused by \
              runaway parser logic or a very complex SQL query.",
-            _max_iterations
+            max_iterations
         );
     }
 
