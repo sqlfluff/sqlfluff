@@ -48,7 +48,7 @@ def test__iteration_limit__default_config_values():
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__iteration_limit__rs_parser_constructor_accepts_limits():
-    """RsParser constructor accepts and stores keyword arguments without error."""
+    """Rust parser constructor accepts and stores keyword arguments without error."""
     # Low values — just checking the constructor signature, not triggering limits.
     p = RsParser(
         dialect="ansi",
