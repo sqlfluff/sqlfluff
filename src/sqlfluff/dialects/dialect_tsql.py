@@ -5313,6 +5313,7 @@ class CreateFullTextCatalogStatementSegment(BaseSegment):
         ),
     )
 
+
 class CreateFullTextStoplistStatementSegment(BaseSegment):
     """CREATE FULLTEXT STOPLIST statement segment.
 
