@@ -1,5 +1,6 @@
 """File Helpers for the parser module."""
 
+import codecs
 import os.path
 from collections.abc import Iterator
 from pathlib import Path
@@ -15,7 +16,21 @@ def get_encoding(fname: str, config_encoding: str = "autodetect") -> str:
 
     with open(fname, "rb") as f:
         data = f.read()
-    return chardet.detect(data)["encoding"]
+
+    if data.startswith((codecs.BOM_UTF32_BE, codecs.BOM_UTF32_LE)):
+        return "utf-32"
+    if data.startswith((codecs.BOM_UTF16_BE, codecs.BOM_UTF16_LE)):
+        return "utf-16"
+    if data.startswith(codecs.BOM_UTF8):
+        return "utf-8-sig"
+
+    if all(char < 128 for char in data):
+        return "ascii"
+
+    detected_encoding = chardet.detect(data).get("encoding")
+    if not detected_encoding:
+        return "utf-8"
+    return detected_encoding
 
 
 def iter_intermediate_paths(inner_path: Path, outer_path: Path) -> Iterator[Path]:
