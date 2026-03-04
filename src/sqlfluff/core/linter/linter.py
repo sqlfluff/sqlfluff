@@ -1138,33 +1138,41 @@ class Linter:
             disable=files_count <= 1 or progress_bar_configuration.disable_progress_bar,
         )
 
-        for i, linted_file in enumerate(runner.run(expanded_paths, fix), start=1):
-            linted_dir = expanded_path_to_linted_dir[linted_file.path]
-            linted_dir.add(linted_file)
-            # If any fatal errors, then stop iteration.
-            if any(v.fatal for v in linted_file.violations):  # pragma: no cover
-                linter_logger.error("Fatal linting error. Halting further linting.")
-                break
+        runner_iterator = runner.run(expanded_paths, fix)
+        try:
+            for i, linted_file in enumerate(runner_iterator, start=1):
+                linted_dir = expanded_path_to_linted_dir[linted_file.path]
+                linted_dir.add(linted_file)
+                # If any fatal errors, then stop iteration.
+                if any(v.fatal for v in linted_file.violations):  # pragma: no cover
+                    linter_logger.error("Fatal linting error. Halting further linting.")
+                    break
 
-            # If we're applying fixes, then do that here.
-            if apply_fixes:
-                num_tmp_prs_errors = linted_file.num_violations(
-                    types=TMP_PRS_ERROR_TYPES,
-                    filter_ignore=False,
-                    filter_warning=False,
-                )
-                if fix_even_unparsable or num_tmp_prs_errors == 0:
-                    linted_file.persist_tree(
-                        suffix=fixed_file_suffix, formatter=self.formatter
+                # If we're applying fixes, then do that here.
+                if apply_fixes:
+                    num_tmp_prs_errors = linted_file.num_violations(
+                        types=TMP_PRS_ERROR_TYPES,
+                        filter_ignore=False,
+                        filter_warning=False,
                     )
+                    if fix_even_unparsable or num_tmp_prs_errors == 0:
+                        linted_file.persist_tree(
+                            suffix=fixed_file_suffix, formatter=self.formatter
+                        )
 
-            # Progress bar for files is rendered only when there is more than one file.
-            # Additionally, as it's updated after each loop, we need to get file name
-            # from the next loop. This is why `enumerate` starts with `1` and there
-            # is `i < len` to not exceed files list length.
-            progress_bar_files.update(n=1)
-            if i < len(expanded_paths):
-                progress_bar_files.set_description(f"file {expanded_paths[i]}")
+                # Progress bar for files is rendered only when there is more
+                # than one file. Additionally, as it's updated after each loop,
+                # we need to get file name from the next loop. This is why
+                # `enumerate` starts with `1` and there is `i < len` to not
+                # exceed files list length.
+                progress_bar_files.update(n=1)
+                if i < len(expanded_paths):
+                    progress_bar_files.set_description(f"file {expanded_paths[i]}")
+        finally:
+            progress_bar_files.close()
+            runner_close = getattr(runner_iterator, "close", None)
+            if runner_close:
+                runner_close()
 
         result.stop_timer()
         return result
