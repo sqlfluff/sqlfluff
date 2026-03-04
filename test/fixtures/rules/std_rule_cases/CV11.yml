@@ -418,3 +418,55 @@ test_pass_macro_cast:
         {{ cast_macro('b') }},
         c::date as d
     from tbl
+
+test_fail_consistent_null_shorthand_cast:
+  # https://github.com/sqlfluff/sqlfluff/issues/7489
+  # null_literal is also a keyword type, so _get_children must not filter it
+  fail_str: |
+    SELECT
+        CONVERT(int, 1) AS bar,
+        null::int as id
+    FROM table1
+  fix_str: |
+    SELECT
+        CONVERT(int, 1) AS bar,
+        convert(int, null) as id
+    FROM table1
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_cast_preferred_null_shorthand_cast:
+  # https://github.com/sqlfluff/sqlfluff/issues/7489
+  # null_literal is also a keyword type, so _get_children must not filter it
+  fail_str: |
+    SELECT
+        null::int as id
+    FROM table1
+  fix_str: |
+    SELECT
+        cast(null as int) as id
+    FROM table1
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_cast_preferred_boolean_shorthand_cast:
+  # boolean_literal is also a keyword type, same fix as null_literal
+  fail_str: |
+    SELECT
+        true::text as flag
+    FROM table1
+  fix_str: |
+    SELECT
+        cast(true as text) as flag
+    FROM table1
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
