@@ -70,6 +70,12 @@ pub struct Parser<'a> {
     pub root: Option<RootGrammar>,
     // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
     regex_cache: std::cell::RefCell<hashbrown::HashMap<String, RegexMode>>,
+    /// Maximum number of main-loop iterations before aborting.
+    /// Configurable via `rust_parser_max_iterations` in `.sqlfluff`.
+    pub max_parser_iterations: usize,
+    /// Iteration count at which a warning is emitted (the former hard limit).
+    /// Configurable via `rust_parser_warn_threshold` in `.sqlfluff`.
+    pub parser_warn_threshold: usize,
 }
 
 impl<'a> Parser<'a> {
@@ -106,7 +112,16 @@ impl<'a> Parser<'a> {
             indent_config,
             root: None,
             regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
+            max_parser_iterations: 3_000_000,
+            parser_warn_threshold: 2_000_000,
         }
+    }
+
+    /// Override the iteration limits for this parser (builder pattern).
+    pub fn with_parser_limits(mut self, max_parser_iterations: usize, parser_warn_threshold: usize) -> Self {
+        self.max_parser_iterations = max_parser_iterations;
+        self.parser_warn_threshold = parser_warn_threshold;
+        self
     }
 
     /// Enable or disable the parse cache (for debugging)
