@@ -3810,7 +3810,7 @@ class ChainedFunctionCallSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("DotSegment"),
-        Ref("NakedIdentifierSegment"),
+        Ref("FunctionNameIdentifierSegment"),
         Bracketed(
             Ref("FunctionContentsGrammar", optional=True),
         ),
