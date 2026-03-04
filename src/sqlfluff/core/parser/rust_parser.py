@@ -88,7 +88,12 @@ try:
 
             # Create the Rust parser
             self._rs_parser = RsParser(
-                dialect=self.config.get("dialect"), indent_config=indent_config
+                dialect=self.config.get("dialect"),
+                indent_config=indent_config,
+                max_parser_iterations=self.config.get("rust_parser_max_iterations")
+                or None,
+                parser_warn_threshold=self.config.get("rust_parser_warn_threshold")
+                or None,
             )
 
         def parse(
