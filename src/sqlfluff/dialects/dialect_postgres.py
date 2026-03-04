@@ -2774,6 +2774,7 @@ class AlterTableActionSegment(BaseSegment):
                 Sequence(
                     "SET", "STORAGE", OneOf("PLAIN", "EXTERNAL", "EXTENDED", "MAIN")
                 ),
+                Sequence("SET", "COMPRESSION", Ref("ParameterNameSegment")),
             ),
         ),
         Sequence("ADD", Ref("TableConstraintSegment")),

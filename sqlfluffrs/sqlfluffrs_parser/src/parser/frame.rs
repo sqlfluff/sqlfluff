@@ -5,6 +5,8 @@
 use hashbrown::HashMap;
 use std::sync::Arc;
 
+use crate::parser::MetaSegment;
+
 use super::match_result::MatchResult;
 use sqlfluffrs_types::{GrammarId, ParseMode};
 
@@ -14,10 +16,7 @@ pub enum FrameState {
     /// Initial state - need to start parsing
     Initial,
     /// Waiting for child results (for grammars with children)
-    WaitingForChild {
-        child_index: usize,
-        total_children: usize,
-    },
+    WaitingForChild { child_index: usize },
     /// Processing results after all children complete
     Combining,
     /// Ready to return result
@@ -32,34 +31,35 @@ pub enum FrameContext {
     OneOfTableDriven {
         grammar_id: GrammarId,
         pruned_children: Vec<GrammarId>, // Children after simple_hint pruning
-        leading_ws: Vec<Arc<MatchResult>>,
         post_skip_pos: usize,
         longest_match: Option<(Arc<MatchResult>, usize, GrammarId)>, // (match_result, consumed, child_grammar_id)
         tried_elements: usize,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
         current_child_id: Option<GrammarId>, // Child currently being tried
-        initial_collected_count: usize,      // Length snapshot for O(1) rollback via truncate
     },
     SequenceTableDriven {
-        grammar_id: GrammarId,
+        seq_grammar_id: GrammarId,
+        start_idx: usize,
         matched_idx: usize,
         max_idx: usize,
         original_max_idx: usize, // Max_idx before GREEDY_ONCE_STARTED trimming
         last_child_frame_id: Option<usize>,
         current_element_idx: usize, // Track which element we're currently processing
         first_match: bool,          // For GREEDY_ONCE_STARTED: trim max_idx after first match
-        optional: bool,             // Sequence-level optional flag
-        meta_buffer: Vec<GrammarId>, // Buffer for meta elements to be flushed after matching content
+        meta_buffer: Vec<MetaSegment>, // Buffer for meta elements to be flushed after matching content
+        insert_segments: Vec<(usize, MetaSegment)>, // (position, segments) to insert
+        child_matches: Vec<Arc<MatchResult>>, // Store child matches here until sequence is complete
     },
     RefTableDriven {
         grammar_id: GrammarId,
         name: String,
+        segment_class_name: Option<String>,
         segment_type: Option<String>,
         saved_pos: usize, // Position before skipping transparent tokens
         last_child_frame_id: Option<usize>,
-        leading_transparent: Vec<Arc<MatchResult>>,
         child_grammar_id: GrammarId, // The actual grammar this Ref resolves to (for casefold lookup)
+        match_result: Arc<MatchResult>,
     },
     DelimitedTableDriven {
         grammar_id: GrammarId,
@@ -69,13 +69,14 @@ pub enum FrameContext {
         max_idx: usize,
         state: DelimitedState,
         last_child_frame_id: Option<usize>,
-        delimiter_match: Option<MatchResult>,
+        delimiter_match: Option<Arc<MatchResult>>,
         pos_before_delimiter: Option<usize>,
         element_children: Vec<GrammarId>,
         /// Terminators to pass to child element frames (excludes local terminators)
         /// Python parity: local terminators (e.g., ObjectReferenceTerminatorGrammar)
         /// are checked at Delimited level, not passed to longest_match
         child_terminators: Vec<GrammarId>,
+        working_match: Arc<MatchResult>,
     },
     BracketedTableDriven {
         grammar_id: GrammarId,
@@ -87,6 +88,7 @@ pub enum FrameContext {
         /// When Some, override content grammar's parse_mode with this value
         /// Python parity: Bracketed inherits from Sequence, so content uses Bracketed's parse_mode
         parse_mode_override: Option<ParseMode>,
+        child_matches: Vec<Arc<MatchResult>>, // Store child matches here until sequence is complete
     },
     AnyNumberOfTableDriven {
         grammar_id: GrammarId,
@@ -97,9 +99,10 @@ pub enum FrameContext {
         option_counter: HashMap<u64, usize>,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
+        matched: Arc<MatchResult>,
         /// Track longest match among element candidates for current repetition
         /// (match_result, end_pos, matched_grammar_id)
-        longest_match: Option<(Arc<MatchResult>, usize, GrammarId)>,
+        longest_match: (Arc<MatchResult>, Option<GrammarId>),
         /// Number of elements tried for current repetition
         tried_elements: usize,
     },
