@@ -54,14 +54,14 @@ def test__parser__helper_get_encoding(fname, config_encoding, result):
     )
 
 
-def test__parser__helper_get_encoding_utf8_bom(tmp_path):
-    """Test get_encoding returns utf-8-sig for UTF-8 BOM files."""
-    test_file = tmp_path / "utf8_bom.sql"
-    test_file.write_bytes(b"\xef\xbb\xbfSELECT 1;\n")
-
-    assert (
-        get_encoding(fname=str(test_file), config_encoding="autodetect") == "utf-8-sig"
+def test__parser__helper_get_encoding_utf16_bom(tmp_path):
+    """Test get_encoding returns utf-16 for UTF-16 BOM files."""
+    test_file = tmp_path / "utf16_bom.sql"
+    test_file.write_bytes(
+        b"\xff\xfeS\x00E\x00L\x00E\x00C\x00T\x00 \x001\x00;\x00\n\x00"
     )
+
+    assert get_encoding(fname=str(test_file), config_encoding="autodetect") == "utf-16"
 
 
 def test__parser__helper_get_encoding_chardet_path(tmp_path, monkeypatch):
@@ -78,6 +78,19 @@ def test__parser__helper_get_encoding_chardet_path(tmp_path, monkeypatch):
         get_encoding(fname=str(test_file), config_encoding="autodetect")
         == "Windows-1252"
     )
+
+
+def test__parser__helper_get_encoding_chardet_none_fallback(tmp_path, monkeypatch):
+    """Test get_encoding falls back to utf-8 when chardet returns no encoding."""
+    test_file = tmp_path / "fallback_utf8.sql"
+    test_file.write_bytes(b"\x80\x81\x82")
+
+    monkeypatch.setattr(
+        "sqlfluff.core.helpers.file.chardet.detect",
+        lambda data: {"encoding": None},
+    )
+
+    assert get_encoding(fname=str(test_file), config_encoding="autodetect") == "utf-8"
 
 
 @pytest.mark.parametrize(
