@@ -3804,7 +3804,7 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
 
 
 class ChainedFunctionCallSegment(BaseSegment):
-    """BigQuery chained function call: (expr).FUNC(args...)."""
+    """Postfix chained function call accessor: .FUNC(args...) in BigQuery."""
 
     type = "chained_function_call"
 
