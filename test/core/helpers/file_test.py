@@ -54,6 +54,32 @@ def test__parser__helper_get_encoding(fname, config_encoding, result):
     )
 
 
+def test__parser__helper_get_encoding_utf8_bom(tmp_path):
+    """Test get_encoding returns utf-8-sig for UTF-8 BOM files."""
+    test_file = tmp_path / "utf8_bom.sql"
+    test_file.write_bytes(b"\xef\xbb\xbfSELECT 1;\n")
+
+    assert (
+        get_encoding(fname=str(test_file), config_encoding="autodetect") == "utf-8-sig"
+    )
+
+
+def test__parser__helper_get_encoding_chardet_path(tmp_path, monkeypatch):
+    """Test get_encoding returns detected encoding when chardet provides one."""
+    test_file = tmp_path / "detected_encoding.sql"
+    test_file.write_bytes(b"\x93quoted text\x94\n")
+
+    monkeypatch.setattr(
+        "sqlfluff.core.helpers.file.chardet.detect",
+        lambda data: {"encoding": "Windows-1252"},
+    )
+
+    assert (
+        get_encoding(fname=str(test_file), config_encoding="autodetect")
+        == "Windows-1252"
+    )
+
+
 @pytest.mark.parametrize(
     "path,working_path,result",
     [
