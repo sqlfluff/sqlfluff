@@ -19,7 +19,7 @@ from sqlfluff.core.helpers.file import get_encoding, iter_intermediate_paths
         (
             "test/fixtures/linter/encoding-utf-8-sig.sql",
             "autodetect",
-            "UTF-8-SIG",
+            "utf-8-sig",
         ),
         (
             "test/fixtures/linter/encoding-utf-8.sql",
