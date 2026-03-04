@@ -386,7 +386,7 @@ impl GrammarId {
 
     /// Convenience: get instruction from GRAMMAR_TABLE
     #[inline]
-    pub fn inst<'a>(self, grammar_table: &'a [GrammarInst]) -> &'a GrammarInst {
+    pub fn inst(self, grammar_table: &[GrammarInst]) -> &GrammarInst {
         &grammar_table[self.0 as usize]
     }
 }

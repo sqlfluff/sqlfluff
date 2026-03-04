@@ -26,7 +26,7 @@ pub mod python;
 
 // Re-export public types
 pub use core::Parser;
-pub use match_result::{MatchResult, MetaSegmentType, TransparentInsert, TransparentType};
+pub use match_result::{MatchResult, MatchedClass, MetaSegment};
 pub use sqlfluffrs_types::ParseMode;
 pub use types::{Node, ParseError, ParseErrorType};
 
