@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bad4adba0558094556dd1e41e33b39fa5476c2758cbe2eaae3b59e233751b783
+_hash: 81f1a1f5d14621376dbed561a1ce0cafe8ac849a3a662992cf09bc8df5bb2c18
 file:
 - batch:
   - statement:
@@ -568,6 +568,49 @@ file:
   - statement:
       revoke_statement:
       - keyword: REVOKE
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: public_data
+      - keyword: FROM
+      - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+      - comma: ','
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+      - keyword: CASCADE
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: GRANT
+      - keyword: OPTION
+      - keyword: FOR
       - permissions_segment:
           keyword: SELECT
       - keyword: 'ON'
