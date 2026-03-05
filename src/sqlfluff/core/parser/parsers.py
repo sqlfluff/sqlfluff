@@ -324,8 +324,7 @@ class RegexParser(BaseParser):
     ) -> MatchResult:
         """Match against this matcher.
 
-        NOTE: This method uses .raw_upper and so case sensitivity is
-        not supported.
+        NOTE: This method's case sensitivity is based on objects ignore_case property
         """
         _raw = segments[idx].raw_upper if self.ignore_case else segments[idx].raw
         result = self._template.match(_raw)
