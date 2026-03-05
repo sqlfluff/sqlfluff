@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24b19457759acdc11c8dd1ce74effdf17e79e26c0fbc43963fa832ec55581713
+_hash: 704f1501b685e078765e1b850a8a32fe8fc25ac519a15e70738a6aad3a23c5be
 file:
 - batch:
   - statement:
@@ -88,9 +88,9 @@ file:
           naked_identifier: MyColl
       - keyword: ADD
       - expression:
-          quoted_literal: "'  \n  <schema xmlns=\"http://www.w3.org/2001/XMLSchema\"\
-            \   \n         targetNamespace=\"https://MySchema/test_xml_schema\"> \
-            \  \n     <element name=\"anotherElement\" type=\"byte\"/>   \n </schema>'"
+          quoted_literal: "'\n  <schema xmlns=\"http://www.w3.org/2001/XMLSchema\"\
+            \n         targetNamespace=\"https://MySchema/test_xml_schema\">\n   \
+            \  <element name=\"anotherElement\" type=\"byte\"/>\n </schema>'"
   - statement_terminator: ;
   - statement:
       declare_segment:
@@ -107,9 +107,9 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
-          quoted_literal: "'  \n  <schema xmlns=\"http://www.w3.org/2001/XMLSchema\"\
-            \   \n         targetNamespace=\"https://MySchema/test_xml_schema\"> \
-            \  \n     <element name=\"yetAnotherElement\" type=\"byte\"/>   \n </schema>'"
+          quoted_literal: "'\n  <schema xmlns=\"http://www.w3.org/2001/XMLSchema\"\
+            \n         targetNamespace=\"https://MySchema/test_xml_schema\">\n   \
+            \  <element name=\"yetAnotherElement\" type=\"byte\"/>\n </schema>'"
   - statement_terminator: ;
   - statement:
       alter_xml_schema_collection_statement:
