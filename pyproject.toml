@@ -296,3 +296,10 @@ uri-ignore-words-list = "crate"
 # file
 #  D = "-"
 #  dictionary = "dev/tools/codespell/codespell-dict.txt"
+
+[tool.uv.workspace]
+members = ["sqlfluff", "sqlfluffrs"]
+
+[tool.uv.sources]
+sqlfluff = { workspace = true }
+sqlfluffrs = { workspace = true }

@@ -55,3 +55,6 @@ Source = "https://github.com/sqlfluff/sqlfluff"
 
 [tool.maturin]
 features = ["pyo3/extension-module", "python"]
+
+[tool.uv.sources]
+sqlfluff = { workspace = true }
