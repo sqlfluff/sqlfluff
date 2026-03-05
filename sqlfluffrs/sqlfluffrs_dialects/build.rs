@@ -10,19 +10,29 @@
 //!
 //! from the repository root.
 //!
-//! This build script detects when those files are absent (e.g. fresh
-//! `git clone`) and runs the code-generation step automatically, so that
-//! both plain `cargo build` and `pip install git+...` succeed without
-//! manual pre-steps.
+//! ## Rebuild logic
 //!
-//! When building via pip/maturin the isolated build environment does not have
-//! pip, so the script cannot install packages.  Instead, the repo's `src/`
-//! directory is prepended to `PYTHONPATH` before calling `rustify.py`,
-//! making `sqlfluff` importable directly from the source tree without any
-//! installation step.
+//! The script avoids both over- and under-building:
 //!
-//! **Regular developer workflow** (generated files already on disk) exits
-//! immediately — the generation step is skipped entirely.
+//! * It emits `cargo:rerun-if-changed` for every Python dialect source file
+//!   and every build-utility script, so Cargo tracks them precisely.
+//! * It re-runs code generation when `mod.rs` is absent **or** when any
+//!   watched Python file is newer than `mod.rs` (Makefile-style mtime check).
+//!
+//! This means the generated sources are kept in sync automatically — a
+//! developer who edits a dialect definition and runs `cargo build` gets fresh
+//! Rust sources without running `tox -e generate-rs` manually.
+//!
+//! ## Installation from a git VCS URL
+//!
+//! When building via `pip install git+...#subdirectory=sqlfluffrs`, pip
+//! creates an isolated build environment that only has packages listed in
+//! `[build-system] requires` (`maturin` + `regex`).  The script prepends
+//! `<repo_root>/src` to `PYTHONPATH` so the build sub-scripts can import
+//! `sqlfluff` directly from the cloned source tree.  `sqlfluff`'s package
+//! `__init__` files are guarded with `try/except ImportError` so they load
+//! successfully even when their non-essential runtime dependencies (tblib,
+//! click, pytest, ...) are absent.
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -33,37 +43,46 @@ fn main() {
         .expect("CARGO_MANIFEST_DIR not set – this script must be run by cargo");
 
     let crate_root = PathBuf::from(&manifest_dir);
-    let dialect_dir = crate_root.join("src").join("dialect");
-    let mod_rs = dialect_dir.join("mod.rs");
 
-    // Always re-run when this script changes.
-    println!("cargo:rerun-if-changed=build.rs");
-
-    if mod_rs.exists() {
-        // Generated files are already present – nothing to do.
-        println!("cargo:rerun-if-changed={}", mod_rs.display());
-        return;
-    }
-
-    // -----------------------------------------------------------------------
-    // Generated files are missing.  Locate the repo root and run rustify.py.
-    // -----------------------------------------------------------------------
-    //
     // Directory structure:
     //   <repo_root>/
     //     sqlfluffrs/
     //       sqlfluffrs_dialects/   ← CARGO_MANIFEST_DIR
+    //     src/sqlfluff/dialects/
     //     utils/
-    //       rustify.py
-    //
     let repo_root = crate_root
         .parent() // sqlfluffrs/
         .and_then(|p| p.parent()) // <repo_root>/
         .map(PathBuf::from)
         .expect("Cannot determine repo root from CARGO_MANIFEST_DIR");
 
-    let rustify = repo_root.join("utils").join("rustify.py");
+    let mod_rs = crate_root.join("src").join("dialect").join("mod.rs");
 
+    // Always re-run if this script itself changes.
+    println!("cargo:rerun-if-changed=build.rs");
+
+    // -----------------------------------------------------------------------
+    // Collect the Python source files that influence generated output.
+    // -----------------------------------------------------------------------
+    let sources = collect_python_sources(&repo_root);
+
+    // Register every source with Cargo so incremental rebuilds are precise.
+    for src in &sources {
+        println!("cargo:rerun-if-changed={}", src.display());
+    }
+
+    // -----------------------------------------------------------------------
+    // Staleness check: regenerate when mod.rs is absent or older than any
+    // Python source (Makefile-style mtime comparison).
+    // -----------------------------------------------------------------------
+    if !needs_regeneration(&mod_rs, &sources) {
+        return;
+    }
+
+    // -----------------------------------------------------------------------
+    // Run code generation.
+    // -----------------------------------------------------------------------
+    let rustify = repo_root.join("utils").join("rustify.py");
     if !rustify.exists() {
         panic!(
             "\n\
@@ -76,13 +95,13 @@ fn main() {
 
     let python = find_python();
     println!(
-        "cargo:warning=sqlfluffrs_dialects: dialect sources missing – \
-         running code generation with '{python}' …"
+        "cargo:warning=sqlfluffrs_dialects: regenerating dialect sources \
+         with '{python}' …"
     );
 
-    // Prepend <repo_root>/src to PYTHONPATH so that rustify.py can import
-    // sqlfluff directly from the source tree.  This avoids needing pip (which
-    // is absent in maturin's isolated PEP 517 build environment).
+    // Prepend <repo_root>/src to PYTHONPATH so that rustify.py and the build
+    // sub-scripts can import sqlfluff directly from the source tree without a
+    // full installation (maturin's isolated PEP 517 build env has no pip).
     let src_dir = repo_root.join("src");
     let pythonpath = match std::env::var("PYTHONPATH") {
         Ok(existing) if !existing.is_empty() => {
@@ -111,11 +130,69 @@ fn main() {
             code = status.code()
         );
     }
+}
 
-    // Tell cargo to watch the generated mod.rs once it exists.
-    if mod_rs.exists() {
-        println!("cargo:rerun-if-changed={}", mod_rs.display());
+/// Returns `true` when code generation must run.
+///
+/// Generation is required when:
+/// * `mod.rs` does not exist (fresh clone or cleaned build), or
+/// * any Python source file is *strictly newer* than `mod.rs` (a dialect or
+///   build script was edited since the last generation run).
+fn needs_regeneration(mod_rs: &Path, sources: &[PathBuf]) -> bool {
+    let mod_mtime = match mod_rs.metadata().and_then(|m| m.modified()) {
+        Ok(t) => t,
+        Err(_) => return true, // mod.rs missing or unreadable → must generate
+    };
+
+    sources.iter().any(|src| {
+        src.metadata()
+            .and_then(|m| m.modified())
+            .map(|src_mtime| src_mtime > mod_mtime)
+            .unwrap_or(false)
+    })
+}
+
+/// Collect the Python source files whose content influences generated output.
+///
+/// Includes:
+/// * `src/sqlfluff/dialects/dialect_*.py` – one per SQL dialect
+/// * `utils/rustify.py` and `utils/build_*.py` – code-generation scripts
+fn collect_python_sources(repo_root: &Path) -> Vec<PathBuf> {
+    let mut sources = Vec::new();
+
+    // Dialect definitions
+    let dialects_dir = repo_root.join("src").join("sqlfluff").join("dialects");
+    if let Ok(entries) = std::fs::read_dir(&dialects_dir) {
+        for entry in entries.filter_map(|e| e.ok()) {
+            let path = entry.path();
+            if path.extension().and_then(|e| e.to_str()) == Some("py") {
+                let stem = path
+                    .file_stem()
+                    .and_then(|s| s.to_str())
+                    .unwrap_or_default();
+                if stem.starts_with("dialect_") {
+                    sources.push(path);
+                }
+            }
+        }
     }
+
+    // Build utility scripts
+    let utils_dir = repo_root.join("utils");
+    for name in &[
+        "rustify.py",
+        "build_dialect.py",
+        "build_dialects.py",
+        "build_lexers.py",
+        "build_parsers.py",
+    ] {
+        let p = utils_dir.join(name);
+        if p.exists() {
+            sources.push(p);
+        }
+    }
+
+    sources
 }
 
 /// Locate a usable Python interpreter.
@@ -125,7 +202,7 @@ fn main() {
 /// 2. Active virtual-environment (`VIRTUAL_ENV`).
 /// 3. Common names on `PATH`.
 fn find_python() -> String {
-    // 1. Maturin's interpreter (always has the build requirements installed).
+    // 1. Maturin's interpreter.
     if let Ok(p) = std::env::var("MATURIN_PYTHON_INTERPRETER") {
         if Path::new(&p).exists() {
             return p;
@@ -141,7 +218,13 @@ fn find_python() -> String {
     }
 
     // 3. Common fallback names on PATH.
-    for name in &["python3", "python", "python3.13", "python3.12", "python3.11"] {
+    for name in &[
+        "python3",
+        "python",
+        "python3.13",
+        "python3.12",
+        "python3.11",
+    ] {
         if Command::new(name)
             .arg("--version")
             .output()
