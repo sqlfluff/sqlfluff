@@ -1,6 +1,6 @@
 """Defines the jinja builtins for dbt."""
 
-from typing import Any, Union
+from typing import Any, Callable, Union
 
 from sqlfluff.core.templaters.builtins.common import FunctionWrapper
 
@@ -37,6 +37,27 @@ class RelationEmulator:
         return self.identifier
 
 
+class MacroReturn(Exception):
+    """Exception used to allow macros to return non-string values."""
+    def __init__(self, value: Any) -> None:
+        self.value = value
+
+
+def builtin_return(value: Any) -> None:
+    raise MacroReturn(value)
+
+
+class DbtMacroWrapper:
+    def __init__(self, macro: Callable[..., Any]):
+        self.macro = macro
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        try:
+            return self.macro(*args, **kwargs)
+        except MacroReturn as e:
+            return e.value
+
+
 # NOTE: we use `FunctionWrapper` on all of the callable builtins here
 # so that there's a sensible error message if someone tries to render
 # them directly.
@@ -64,4 +85,5 @@ DBT_BUILTINS = {
             zip(*args) if all(hasattr(arg, "__iter__") for arg in args) else default
         ),
     ),
+    "return": FunctionWrapper("return", builtin_return)
 }
