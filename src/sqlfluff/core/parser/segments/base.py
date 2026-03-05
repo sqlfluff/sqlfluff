@@ -502,8 +502,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                             fwd_seg.is_type("placeholder")
                             and is_zero_slice(fwd_seg.pos_marker.templated_slice)
                             and not is_zero_slice(fwd_seg.pos_marker.source_slice)
-                            and getattr(fwd_seg, "block_type", "")
-                            in ("templated", "comment")
+                            and getattr(fwd_seg, "block_type", "") == "templated"
                         ):
                             continue
                         # NOTE: Use raw segments because it's more reliable.

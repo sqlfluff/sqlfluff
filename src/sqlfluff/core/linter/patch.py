@@ -153,7 +153,7 @@ def _iter_templated_patches(
                 and seg.raw == ""
                 and is_zero_slice(seg.pos_marker.templated_slice)
                 and not is_zero_slice(seg.pos_marker.source_slice)
-                and getattr(seg, "block_type", "") in ("templated", "comment")
+                and getattr(seg, "block_type", "") == "templated"
             ):
                 # Yield any embedded source fixes (rare, but possible).
                 yield from _iter_source_fix_patches(seg, templated_file=templated_file)
