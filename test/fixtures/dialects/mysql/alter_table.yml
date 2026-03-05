@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8082eef7bfbfcd1c980183caceacdb86e81fa23401f733cb71de54d83dcb534b
+_hash: 58b78cce5b8979d036330220bbca8fbd5934bc641e4da86a65186e7a41f11176
 file:
 - statement:
     alter_table_statement:
@@ -26,8 +26,9 @@ file:
         - keyword: NOT
         - keyword: 'NULL'
     - comma: ','
-    - parameter: COMMENT
-    - quoted_literal: '"name of user"'
+    - table_options:
+        keyword: COMMENT
+        quoted_literal: '"name of user"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -943,4 +944,108 @@ file:
     - keyword: VISIBLE
     - keyword: DROP
     - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - table_options:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'InnoDB'"
+      - keyword: AUTO_INCREMENT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: AVG_ROW_LENGTH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '10'
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'utf8_unicode_ci'"
+      - keyword: CHECKSUM
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'utf8mb4_unicode_ci'"
+      - keyword: COMMENT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'comment'"
+      - keyword: CONNECTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'connection_string'"
+      - keyword: DELAY_KEY_WRITE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '0'
+      - keyword: ENCRYPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'Y'"
+      - keyword: INSERT_METHOD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: LAST
+      - keyword: KEY_BLOCK_SIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1024'
+      - keyword: MAX_ROWS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '100000'
+      - keyword: MIN_ROWS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: PACK_KEYS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'password'"
+      - keyword: ROW_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DYNAMIC
+      - keyword: STATS_AUTO_RECALC
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: STATS_PERSISTENT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: STATS_SAMPLE_PAGES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '4'
+      - keyword: TABLESPACE
+      - naked_identifier: tablespace_name
+      - keyword: UNION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - table_reference:
+            quoted_identifier: '`tbl1`'
+        - comma: ','
+        - table_reference:
+            quoted_identifier: '`tbl2`'
+        - end_bracket: )
 - statement_terminator: ;
