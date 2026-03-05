@@ -1092,7 +1092,7 @@ DATATYPE_METHODS = [
     "STSrid",
     # Point and curve access
     "STStartPoint",
-    "STEndpoint",
+    "STEndPoint",
     "STPointN",
     "STPointOnSurface",
     "STCurveN",
