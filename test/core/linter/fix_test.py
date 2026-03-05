@@ -231,3 +231,26 @@ def test__fix__jinja_empty_rendering_placeholder_adjacent_to_quotes(caplog):
     assert changed
     assert fixed_sql == "SELECT\n    '{{ foo.bar }}'\nFROM baz\n"
     assert "Skipping edit patch on uncertain templated section" not in caplog.text
+
+
+def test__fix__jinja_non_empty_context_adjacent_to_quotes(caplog):
+    """Regression test for quoted templated literals with non-empty context."""
+    sql = "SELECT\n  '{{ foo.bar }}'\nFROM baz\n"
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "rules": "LT02",
+            "templater": "jinja",
+            "templater.jinja.context.foo": {"bar": "bar"},
+            "templater.jinja.context.bar": "bar",
+        }
+    )
+    linter = Linter(config=config)
+
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
+        linted_file = linter.lint_string(sql, fix=True)
+        fixed_sql, changed = linted_file.fix_string()
+
+    assert changed
+    assert fixed_sql == "SELECT\n    '{{ foo.bar }}'\nFROM baz\n"
+    assert "Skipping edit patch on uncertain templated section" not in caplog.text
