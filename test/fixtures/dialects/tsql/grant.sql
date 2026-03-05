@@ -36,3 +36,8 @@ GRANT SELECT, INSERT (Column1)
     TO SomeUser, AnotherUser
     WITH GRANT OPTION AS SomeAdmin;
 GO
+
+GRANT SELECT ON public_data TO PUBLIC;
+GRANT SELECT ON OBJECT::dbo.public_data TO PUBLIC;
+DENY SELECT ON public_data TO PUBLIC;
+REVOKE SELECT ON public_data FROM PUBLIC;
