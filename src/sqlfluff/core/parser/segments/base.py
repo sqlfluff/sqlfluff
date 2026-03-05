@@ -500,6 +500,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         # See: https://github.com/sqlfluff/sqlfluff/issues/6461
                         if (
                             fwd_seg.is_type("placeholder")
+                            and fwd_seg.raw == ""
                             and is_zero_slice(fwd_seg.pos_marker.templated_slice)
                             and not is_zero_slice(fwd_seg.pos_marker.source_slice)
                             and getattr(fwd_seg, "block_type", "") == "templated"

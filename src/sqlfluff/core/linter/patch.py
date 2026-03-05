@@ -147,7 +147,7 @@ def _iter_templated_patches(
             # logic below, we would generate a spurious deletion patch for the
             # source characters between `templated_idx` and the placeholder's
             # templated position (e.g. the opening quote of a quoted literal).
-            # See: https://github.com/sqlfluff/sqlfluff/issues/6461
+            # See: https://github.com/sqlfluff/sqlfluff/issues/6261
             if (
                 seg.is_type("placeholder")
                 and seg.raw == ""
