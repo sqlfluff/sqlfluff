@@ -1131,41 +1131,7 @@ DATATYPE_METHODS = [
     "STIsRing",
     "STIsSimple",
     "STIsValid",
-    # geography
+    # geography methods share the same ST-prefixed names as geometry methods
+    # and are already covered by the geometry section above.
     # https://learn.microsoft.com/en-us/sql/t-sql/spatial-geography/ogc-methods-on-geography-instances
-    # Shape properties
-    "SSTArea",
-    "SSTLength",
-    # Geography representation
-    "SSTAsBinary",
-    "SSTAsText",
-    # Geography type information
-    "SSTGeometryType",
-    "SSTDimension",
-    "SSTSrid",
-    # Point and curve access
-    "SSTStartPoint",
-    "SSTEndpoint",
-    "SSTPointN",
-    "SSTCurveN",
-    "SSTCurveToLine",
-    # Collection access
-    "SSTGeometryN",
-    "SSTNumGeometries",
-    "SSTNumPoints",
-    "SSTNumCurves",
-    # Spatial relationship tests
-    "SSTDisjoint",
-    "SSTEquals",
-    "SSTIntersects",
-    "SSTDistance",
-    # Spatial operations
-    "SSTBuffer",
-    "SSTDifference",
-    "SSTIntersection",
-    "SSTSymDifference",
-    "SSTUnion",
-    # Validity tests
-    "SSTIsClosed",
-    "SSTIsEmptySSTIsValid",
 ]
