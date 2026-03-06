@@ -33,6 +33,9 @@ def test_max_parse_depth_exceeded_nested_brackets():
     assert isinstance(err, SQLParseError)
     assert MESSAGE_PREFIX in err.desc()
     assert str(MAX_DEPTH_LIMIT) in err.desc()
+    assert err.segment is not None
+    assert err.line_no > 0
+    assert err.line_pos > 0
 
 
 def test_max_parse_depth_simple_sql_parses():
@@ -73,3 +76,6 @@ def test_max_parse_depth_rust_parser_exceeds_limit():
         parser.parse(segments, fname="test.sql")
     assert MESSAGE_PREFIX in exc_info.value.desc()
     assert str(MAX_DEPTH_LIMIT) in exc_info.value.desc()
+    assert exc_info.value.segment is not None
+    assert exc_info.value.line_no > 0
+    assert exc_info.value.line_pos > 0
