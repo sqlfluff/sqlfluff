@@ -696,6 +696,62 @@ jobs:
       run: |
         sqlfluff lint --dialect=ansi <(echo "select 1")
 
+  pip-test-pull-request-rust:
+    # Test that a source install of sqlfluffrs works (simulates git-based install).
+    # maturin invokes build.rs which calls rustify.py to generate dialect files.
+    name: pip install rust tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+
+    - name: Set git to use LF
+      if: matrix.os == 'windows-latest'
+      run: |
+        git config --global core.autocrlf false
+        git config --global core.eol lf
+
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 1
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.14'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+
+    - name: Install sqlfluff
+      shell: bash
+      run: uv pip install --system .
+
+    - name: Install sqlfluffrs from source (maturin builds & generates dialect files)
+      shell: bash
+      run: uv pip install --system ./sqlfluffrs
+
+    - name: Run the version test
+      shell: bash
+      run: sqlfluff --version
+
+    - name: Verify sqlfluffrs is importable
+      shell: bash
+      run: python -c "import sqlfluffrs; print('sqlfluffrs loaded successfully')"
+
+    - name: Run a simple select parse test
+      shell: bash
+      run: |
+        echo "select 1" > temp_test.sql
+        sqlfluff parse --dialect=ansi temp_test.sql
+
+    - name: Run a simple select lint test
+      shell: bash
+      run: sqlfluff lint --dialect=ansi temp_test.sql
+
   coverage_check:
     name: Combine & check 100% coverage.
     runs-on: ubuntu-latest
