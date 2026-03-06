@@ -350,6 +350,79 @@ def test_dbt_fails_stdin(dbt_templater, dbt_fluff_config):
         )
 
 
+def test__find_node_with_symlinked_local_package(tmp_path):
+    """Test that _find_node resolves symlinks for dbt local packages.
+
+    When a dbt local package is used (via 'local:' in packages.yml), dbt deps
+    creates a symlink in dbt_packages/ pointing to the local package directory.
+    The manifest records the symlink path (dbt_packages/...) as original_file_path.
+    _find_node must resolve symlinks to match input paths against manifest entries.
+    """
+    # Create a real file structure with a symlink mimicking dbt local packages:
+    #   dbt_dir/
+    #     packages/my_pkg/models/my_model.sql  <- real file
+    #     dbt_packages/my_pkg -> ../packages/my_pkg  <- symlink created by dbt deps
+    real_dir = tmp_path / "packages" / "my_pkg" / "models"
+    real_dir.mkdir(parents=True)
+    (real_dir / "my_model.sql").write_text("select 1 as id")
+
+    pkg_dir = tmp_path / "dbt_packages"
+    pkg_dir.mkdir()
+    (pkg_dir / "my_pkg").symlink_to(tmp_path / "packages" / "my_pkg")
+
+    # The manifest records the symlink path as original_file_path
+    symlink_rel_path = "dbt_packages/my_pkg/models/my_model.sql"
+    real_rel_path = "packages/my_pkg/models/my_model.sql"
+
+    # Build a mock node whose original_file_path is the symlink path
+    mock_node = mock.MagicMock()
+    mock_node.original_file_path = symlink_rel_path
+
+    # Build a mock manifest with this node
+    mock_manifest = mock.MagicMock()
+    mock_manifest.nodes = {"model.my_pkg.my_model": mock_node}
+    mock_manifest.macros = {}
+    mock_manifest.disabled = {}
+
+    # The dbt path selector returns nothing (simulating the path mismatch)
+    mock_selector = mock.MagicMock()
+    mock_selector.search.return_value = []
+
+    dbt_templater = FluffConfig(
+        overrides={"dialect": "ansi", "templater": "dbt"}
+    ).get_templater()
+    dbt_templater.project_dir = str(tmp_path)
+    config = FluffConfig(overrides={"dialect": "ansi", "templater": "dbt"})
+
+    with (
+        mock.patch.object(
+            type(dbt_templater),
+            "dbt_manifest",
+            new_callable=lambda: property(lambda self: mock_manifest),
+        ),
+        mock.patch.object(
+            type(dbt_templater),
+            "dbt_selector_method",
+            new_callable=lambda: property(lambda self: mock_selector),
+        ),
+    ):
+        # Input via real path (packages/my_pkg/...) should find the node
+        node = dbt_templater._find_node(
+            fname=str(tmp_path / real_rel_path),
+            config=config,
+            dbt_dir=str(tmp_path),
+        )
+        assert node is mock_node
+
+        # Input via symlink path (dbt_packages/my_pkg/...) should also find the node
+        node = dbt_templater._find_node(
+            fname=str(tmp_path / symlink_rel_path),
+            config=config,
+            dbt_dir=str(tmp_path),
+        )
+        assert node is mock_node
+
+
 @pytest.mark.parametrize(
     "fname",
     [
