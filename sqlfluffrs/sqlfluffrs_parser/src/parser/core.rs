@@ -76,14 +76,30 @@ pub struct Parser<'a> {
     /// Iteration count at which a warning is emitted (the former hard limit).
     /// Configurable via `rust_parser_warn_threshold` in `.sqlfluff`.
     pub parser_warn_threshold: usize,
+    /// Maximum parse depth (frame stack). None = no limit. Used for DoS mitigation.
+    pub max_parse_depth: Option<usize>,
 }
 
 impl<'a> Parser<'a> {
-    /// Create a new Parser instance with table-driven grammar support
+    /// Default max parse depth when not specified (DoS mitigation; matches Python config default).
+    pub const DEFAULT_MAX_PARSE_DEPTH: usize = 255;
+
+    /// Create a new Parser instance with table-driven grammar support.
+    /// Uses DEFAULT_MAX_PARSE_DEPTH (255) unless overridden via new_with_max_parse_depth.
     pub fn new(
         tokens: &'a [Token],
         dialect: Dialect,
         indent_config: hashbrown::HashMap<&'static str, bool>,
+    ) -> Parser<'a> {
+        Self::new_with_max_parse_depth(tokens, dialect, indent_config, Some(Self::DEFAULT_MAX_PARSE_DEPTH))
+    }
+
+    /// Create a new Parser with an optional max parse depth (DoS mitigation).
+    pub fn new_with_max_parse_depth(
+        tokens: &'a [Token],
+        dialect: Dialect,
+        indent_config: hashbrown::HashMap<&'static str, bool>,
+        max_parse_depth: Option<usize>,
     ) -> Parser<'a> {
         let root = dialect.get_root_grammar();
         let grammar_ctx = GrammarContext::new(root.tables);
@@ -114,6 +130,7 @@ impl<'a> Parser<'a> {
             regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
             max_parser_iterations: 3_000_000,
             parser_warn_threshold: 2_000_000,
+            max_parse_depth,
         }
     }
 
@@ -1300,3 +1317,4 @@ impl<'a> Parser<'a> {
         MatchResult::bracketed(bracket_start, bracket_end, inner_child_matches, persists)
     }
 }
+
