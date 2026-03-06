@@ -1,4 +1,3 @@
-
 -- Function Case mismatch
 SELECT SomeSchema.XValue();
 SELECT SomeSchema.Value();
@@ -17,3 +16,6 @@ SELECT convert(hierarchyid, '/1/1/2').GetAncestor(2) parent;
 select @geometry.STEndPoint() EndPt;
 
 SELECT convert(hierarchyid, '/1/1/2').GetAncestor(2).GetAncestor(2) parent;
+
+SELECT @geography.STArea() area;
+SELECT @geography.STDistance(@other_geography) dist;
