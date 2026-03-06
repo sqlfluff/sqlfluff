@@ -42,6 +42,7 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
+    DATATYPE_METHODS,
     FUTURE_RESERVED_KEYWORDS,
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
@@ -59,9 +60,11 @@ tsql_dialect = ansi_dialect.copy_as(
 tsql_dialect.sets("reserved_keywords").clear()
 tsql_dialect.sets("unreserved_keywords").clear()
 tsql_dialect.sets("future_reserved_keywords").clear()
+tsql_dialect.sets("datatype_methods").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 tsql_dialect.sets("future_reserved_keywords").update(FUTURE_RESERVED_KEYWORDS)
+tsql_dialect.sets("datatype_methods").update(DATATYPE_METHODS)
 
 # Set the datetime units
 tsql_dialect.sets("datetime_units").clear()
@@ -501,6 +504,14 @@ tsql_dialect.add(
     ActionParameterSegment=RegexParser(
         r"\$ACTION", CodeSegment, type="action_parameter"
     ),
+    DatatypeMethodNameIdentifierSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"^(" + r"|".join(sorted(dialect.sets("datatype_methods"))) + r")$",
+            CodeSegment,
+            type="datatype_method_name_identifier",
+            ignore_case=False,
+        )
+    ),
 )
 
 tsql_dialect.replace(
@@ -851,6 +862,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("CreateServerRoleStatementSegment"),
+            Ref("CreateXmlSchemaCollectionStatementSegment"),
+            Ref("AlterXmlSchemaCollectionStatementSegment"),
+            Ref("DropXmlSchemaCollectionStatementSegment"),
             # DML Data Manipulation Language
             # https://learn.microsoft.com/en-us/sql/t-sql/queries/queries
             Ref("BulkInsertStatementSegment"),
@@ -1537,6 +1551,33 @@ class LessThanOrEqualToSegment(CompositeComparisonOperatorSegment):
             Ref("RawNotSegment"),
             Ref("RawGreaterThanSegment"),
         ),
+    )
+
+
+class FunctionNameSegment(BaseSegment):
+    """Function name, including any prefix bits, e.g. project or schema.
+
+    Override in TSQL to exclude DatatypeMethodNameIdentifierSegment
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+            terminators=[Ref("BracketedSegment")],
+        ),
+        # Base function name
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+            exclude=Ref("DatatypeMethodNameIdentifierSegment"),
+            terminators=[Ref("BracketedSegment")],
+        ),
+        allow_gaps=False,
     )
 
 
@@ -3195,18 +3236,20 @@ class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
 
     Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
     So Square Bracketed identifiers can be matched.
+    And add support for datatype methods
     """
 
     # match grammar (allow whitespace)
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
         AnyNumberOf(
-            Sequence(
-                Ref("DotSegment"),
-                Ref("SingleIdentifierGrammar", optional=True),
+            OneOf(
+                Ref("DatatypeMethodSegment"),
+                Sequence(
+                    Ref("DotSegment"),
+                    Ref("SingleIdentifierGrammar", optional=True),
+                ),
             ),
-            min_times=0,
-            max_times=3,
         ),
     )
 
@@ -3531,7 +3574,14 @@ class DatatypeSegment(BaseSegment):
             "TIMESTAMP",
             "ROWVERSION",
             "UNIQUEIDENTIFIER",
-            "XML",
+            Sequence(
+                "XML",
+                Bracketed(
+                    OneOf("DOCUMENT", "CONTENT", optional=True),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
             "JSON",
             # Spatial types
             "GEOGRAPHY",
@@ -4759,6 +4809,18 @@ class RankFunctionContentsSegment(BaseSegment):
         Bracketed(
             Ref("NumericLiteralSegment", optional=True),
         ),
+    )
+
+
+class DatatypeMethodSegment(BaseSegment):
+    """Datatype Method segment."""
+
+    type = "datatype_method"
+
+    match_grammar: Matchable = Sequence(
+        Ref("DotSegment"),
+        Ref("DatatypeMethodNameIdentifierSegment"),
+        Ref("FunctionContentsSegment"),
     )
 
 
@@ -8217,6 +8279,58 @@ class CreateServerRoleStatementSegment(ansi.CreateRoleStatementSegment):
     )
 
 
+class CreateXmlSchemaCollectionStatementSegment(BaseSegment):
+    """A `CREATE XML SCHEMA COLLECTION` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-xml-schema-collection-transact-sql?view=sql-server-ver17
+    """
+
+    type = "create_xml_schema_collection_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "XML",
+        "SCHEMA",
+        "COLLECTION",
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("ExpressionSegment"),
+    )
+
+
+class AlterXmlSchemaCollectionStatementSegment(BaseSegment):
+    """A `ALTER XML SCHEMA COLLECTION` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-xml-schema-collection-transact-sql
+    """
+
+    type = "alter_xml_schema_collection_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "XML",
+        "SCHEMA",
+        "COLLECTION",
+        Ref("ObjectReferenceSegment"),
+        "ADD",
+        Ref("ExpressionSegment"),
+    )
+
+
+class DropXmlSchemaCollectionStatementSegment(BaseSegment):
+    """A `DROP XML SCHEMA COLLECTION` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-xml-schema-collection-transact-sql?view=sql-server-ver17
+    """
+
+    type = "drop_xml_schema_collection_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "XML",
+        "SCHEMA",
+        "COLLECTION",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
 class CreateLoginStatementSegment(BaseSegment):
     """A `CREATE LOGIN` statement.
 
@@ -9055,7 +9169,13 @@ class ExpressionSegment(BaseSegment):
     type = "expression"
 
     match_grammar: Matchable = OneOf(
-        Ref("Expression_A_Grammar"), Ref("NextValueSequenceSegment")
+        Sequence(
+            Ref("Expression_A_Grammar"),
+            AnyNumberOf(
+                Ref("DatatypeMethodSegment"),
+            ),
+        ),
+        Ref("NextValueSequenceSegment"),
     )
 
 
