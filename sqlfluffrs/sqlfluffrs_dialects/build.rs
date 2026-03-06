@@ -105,9 +105,10 @@ fn main() {
     // sub-scripts can import sqlfluff directly from the source tree without a
     // full installation (maturin's isolated PEP 517 build env has no pip).
     let src_dir = repo_root.join("src");
+    let sep = if cfg!(target_os = "windows") { ";" } else { ":" };
     let pythonpath = match std::env::var("PYTHONPATH") {
         Ok(existing) if !existing.is_empty() => {
-            format!("{}:{}", src_dir.display(), existing)
+            format!("{}{}{}", src_dir.display(), sep, existing)
         }
         _ => src_dir.to_string_lossy().into_owned(),
     };
@@ -213,6 +214,9 @@ fn find_python() -> String {
 
     // 2. Active virtual-environment interpreter.
     if let Ok(venv) = std::env::var("VIRTUAL_ENV") {
+        #[cfg(target_os = "windows")]
+        let candidate = PathBuf::from(&venv).join("Scripts").join("python.exe");
+        #[cfg(not(target_os = "windows"))]
         let candidate = PathBuf::from(&venv).join("bin").join("python");
         if candidate.exists() {
             return candidate.to_string_lossy().into_owned();
