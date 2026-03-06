@@ -301,12 +301,11 @@ uri-ignore-words-list = "crate"
 # When installed from a Git URL (e.g. `uvx --from git+... sqlfluff`), uv treats
 # the repository as a workspace root. Declaring members tells uv which local
 # packages are part of that workspace so it can build from source in this repo.
-members = ["sqlfluff", "sqlfluffrs"]
+members = ["sqlfluffrs"]
 
 [tool.uv.sources]
 # Force uv to resolve these package names from the local workspace members
 # instead of PyPI. This is what makes Git-based builds work reliably for:
 # - the main `sqlfluff` package
 # - the optional `sqlfluffrs` package
-sqlfluff = { workspace = true }
 sqlfluffrs = { workspace = true }
