@@ -21,6 +21,7 @@ env
 .tox
 venv
 .venv
+.virtualenv_app_data
 .python-version
 uv.lock
 
