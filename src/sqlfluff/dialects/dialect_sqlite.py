@@ -32,6 +32,7 @@ from sqlfluff.core.parser import (
     WhitespaceSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects.dialect_ansi import _is_distinct_from_lookbehind
 from sqlfluff.dialects.dialect_sqlite_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
@@ -304,7 +305,10 @@ sqlite_dialect.replace(
     ),
     IgnoreRespectNullsGrammar=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=_is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",

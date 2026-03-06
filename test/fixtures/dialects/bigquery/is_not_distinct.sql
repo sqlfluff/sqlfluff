@@ -1,7 +1,9 @@
 -- 1. Column distinctness in SELECT expression
--- TODO allow this to work without brackets
 SELECT (a_column IS DISTINCT FROM b_column) FROM t_table;
 SELECT (b_column IS NOT DISTINCT FROM c_column) FROM t_table;
+-- Without brackets (previously required brackets as workaround)
+SELECT a_column IS DISTINCT FROM b_column FROM t_table;
+SELECT b_column IS NOT DISTINCT FROM c_column FROM t_table;
 
 -- 2. Column distinctness in WHERE expression
 SELECT a_column FROM t_table WHERE a_column IS DISTINCT FROM b_column;

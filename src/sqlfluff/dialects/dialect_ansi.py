@@ -61,10 +61,19 @@ from sqlfluff.core.parser import (
     WhitespaceSegment,
     WordSegment,
 )
+from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
 from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
 )
+
+# Exclude pattern for the FROM keyword in SelectClauseTerminatorGrammar.
+# Prevents FROM in "IS [NOT] DISTINCT FROM" being treated as a FROM clause.
+_is_distinct_from_lookbehind = PrecededByMatcher(
+    preceding=("IS", "DISTINCT"),
+    optional_preceding=("NOT",),
+)
+
 
 ansi_dialect = Dialect(
     "ansi",
@@ -518,7 +527,10 @@ ansi_dialect.add(
         ),
     ),
     SelectClauseTerminatorGrammar=OneOf(
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=_is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         Ref("LimitClauseSegment"),

@@ -39,6 +39,7 @@ from sqlfluff.core.parser import (
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects.dialect_ansi import _is_distinct_from_lookbehind
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
@@ -800,7 +801,10 @@ snowflake_dialect.replace(
     ),
     SelectClauseTerminatorGrammar=OneOf(
         "INTO",
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=_is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         Ref("LimitClauseSegment"),
