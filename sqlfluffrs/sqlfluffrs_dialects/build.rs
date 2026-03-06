@@ -27,12 +27,14 @@
 //!
 //! When building via `pip install git+...#subdirectory=sqlfluffrs`, pip
 //! creates an isolated build environment that only has packages listed in
-//! `[build-system] requires` (`maturin` + `regex`).  The script prepends
+//! `[build-system] requires` (`maturin` + `sqlfluff`).  The script prepends
 //! `<repo_root>/src` to `PYTHONPATH` so the build sub-scripts can import
-//! `sqlfluff` directly from the cloned source tree.  `sqlfluff`'s package
-//! `__init__` files are guarded with `try/except ImportError` so they load
-//! successfully even when their non-essential runtime dependencies (tblib,
-//! click, pytest, ...) are absent.
+//! `sqlfluff` directly from the cloned source tree.
+//!
+//! This also allows for `uvx sqlfluff` or `uv tool sqlfluff` using
+//! `--with sqlfluffrs@<git+...#subdirectory=sqlfluffrs>` to install from
+//! a branch or fork without a published release, and have the Rust
+//! sources generated correctly from that branch's Python code.
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -221,9 +223,12 @@ fn find_python() -> String {
     for name in &[
         "python3",
         "python",
+        "python3.14",
         "python3.13",
         "python3.12",
         "python3.11",
+        "python3.10",
+        "python3.9",
     ] {
         if Command::new(name)
             .arg("--version")
