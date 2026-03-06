@@ -7,7 +7,7 @@ name = "sqlfluffrs"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE.md" }
 description = "The SQL Linter for Humans"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
@@ -20,7 +20,6 @@ classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
