@@ -39,6 +39,7 @@ class RelationEmulator:
 
 class MacroReturn(Exception):
     """Exception used to allow macros to return non-string values."""
+
     def __init__(self, value: Any) -> None:
         self.value = value
 
@@ -48,6 +49,13 @@ def builtin_return(value: Any) -> None:
 
 
 class DbtMacroWrapper:
+    """Class that wraps macros to catch MacroReturn exceptions during execution."""
+
+    # Tell Jinja this object is safe to call and does not alter data.
+    # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+    unsafe_callable = False
+    alters_data = False
+
     def __init__(self, macro: Callable[..., Any]):
         self.macro = macro
 
@@ -85,5 +93,5 @@ DBT_BUILTINS = {
             zip(*args) if all(hasattr(arg, "__iter__") for arg in args) else default
         ),
     ),
-    "return": FunctionWrapper("return", builtin_return)
+    "return": FunctionWrapper("return", builtin_return),
 }
