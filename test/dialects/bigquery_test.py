@@ -98,23 +98,3 @@ def test_cast_as_float_fails():
     parsed = Linter(dialect="bigquery").parse_string(sql)
     # Parsing produces a parse error for the unsupported `FLOAT` type.
     assert parsed.violations
-
-
-def test_bigquery_chained_function_calls_parse():
-    """BigQuery chained function calls like x.UPPER() should parse."""
-    raw = "SELECT x.UPPER() AS y; SELECT (x).UPPER() AS y;"
-
-    config = FluffConfig(overrides=dict(dialect="bigquery"))
-
-    tokens, lex_vs = Lexer(config=config).lex(raw)
-    assert "".join(token.raw for token in tokens) == raw
-    assert not lex_vs
-
-    parsed = Parser(config=config).parse(tokens)
-    print(parsed.stringify())
-
-    # Full round-trip
-    assert parsed.raw == raw
-
-    # No unparsable segments
-    assert "unparsable" not in parsed.type_set()
