@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ce874e21329fd0acab5338f2411c957122f84d34f121cf5516a6440c9396a09
+_hash: 02aa8b2f3ad66da187151aa8f32207d32a6783b523df4c1bda354cf4012c8265
 file:
 - batch:
     statement:
@@ -535,4 +535,54 @@ file:
             raw_comparison_operator: '='
         - keyword: 'OFF'
         - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[database_name]'
+      - keyword: SET
+      - naked_identifier: SINGLE_USER
+      - keyword: WITH
+      - keyword: ROLLBACK
+      - keyword: IMMEDIATE
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[database_name]'
+      - keyword: SET
+      - naked_identifier: MULTI_USER
+      - keyword: WITH
+      - keyword: NO_WAIT
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[database_name]'
+      - keyword: SET
+      - naked_identifier: RESTRICTED_USER
+      - keyword: WITH
+      - keyword: ROLLBACK
+      - keyword: AFTER
+      - numeric_literal: '60'
+      - keyword: SECONDS
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[database_name]'
+      - keyword: SET
+      - naked_identifier: RESTRICTED_USER
+      - keyword: WITH
+      - keyword: ROLLBACK
+      - keyword: AFTER
+      - numeric_literal: '60'
   - statement_terminator: ;
