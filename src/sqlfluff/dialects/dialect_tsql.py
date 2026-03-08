@@ -7408,7 +7408,7 @@ class GrantStatementSegment(BaseSegment):
         "ON",
         Ref("SecurableSegment"),
         "TO",
-        Delimited(OneOf(Ref("RoleReferenceSegment"), "PUBLIC")),
+        Delimited(Ref("RoleReferenceSegment"), "PUBLIC"),
         Sequence(
             "WITH",
             "GRANT",
@@ -7440,9 +7440,7 @@ class DenyStatementSegment(BaseSegment):
         "ON",
         Ref("SecurableSegment"),
         "TO",
-        Delimited(
-            OneOf(Ref("RoleReferenceSegment"), "PUBLIC"),
-        ),
+        Delimited(Ref("RoleReferenceSegment"), "PUBLIC"),
         Sequence(
             Ref.keyword("CASCADE", optional=True),
             Ref("ObjectReferenceSegment", optional=True),
@@ -7474,9 +7472,7 @@ class RevokeStatementSegment(BaseSegment):
         "ON",
         Ref("SecurableSegment"),
         OneOf("TO", "FROM"),
-        Delimited(
-            OneOf(Ref("RoleReferenceSegment"), "PUBLIC"),
-        ),
+        Delimited(Ref("RoleReferenceSegment"), "PUBLIC"),
         Sequence(
             Ref.keyword("CASCADE", optional=True),
             Ref("ObjectReferenceSegment", optional=True),
