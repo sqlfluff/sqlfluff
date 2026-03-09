@@ -1,0 +1,379 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 54b909948ac155b59ecfa813c4d684fa091cd3b00f963bc1f36174f546d26a22
+file:
+  batch:
+  - statement:
+      create_external_table_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: populationExternalTable
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            quoted_identifier: '[country_code]'
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '5'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: COLLATE
+              collation_reference:
+                naked_identifier: Latin1_General_BIN2
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[country_name]'
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: COLLATE
+              collation_reference:
+                naked_identifier: Latin1_General_BIN2
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[year]'
+            data_type:
+              keyword: SMALLINT
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[population]'
+            data_type:
+              keyword: BIGINT
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_location_clause:
+            keyword: LOCATION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'csv/population/population.csv'"
+        - comma: ','
+        - keyword: DATA_SOURCE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: sqlondemanddemo
+        - comma: ','
+        - keyword: FILE_FORMAT
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: QuotedCSVWithHeaderFormat
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_table_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: Taxi
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: vendor_id
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: COLLATE
+              collation_reference:
+                naked_identifier: Latin1_General_BIN2
+        - comma: ','
+        - column_definition:
+            naked_identifier: pickup_datetime
+            data_type:
+              keyword: DATETIME2
+        - comma: ','
+        - column_definition:
+            naked_identifier: dropoff_datetime
+            data_type:
+              keyword: DATETIME2
+        - comma: ','
+        - column_definition:
+            naked_identifier: passenger_count
+            data_type:
+              keyword: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: trip_distance
+            data_type:
+              keyword: FLOAT
+        - comma: ','
+        - column_definition:
+            naked_identifier: fare_amount
+            data_type:
+              keyword: FLOAT
+        - comma: ','
+        - column_definition:
+            naked_identifier: tip_amount
+            data_type:
+              keyword: FLOAT
+        - comma: ','
+        - column_definition:
+            naked_identifier: tolls_amount
+            data_type:
+              keyword: FLOAT
+        - comma: ','
+        - column_definition:
+            naked_identifier: total_amount
+            data_type:
+              keyword: FLOAT
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_location_clause:
+            keyword: LOCATION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'yellow/puYear=*/puMonth=*/*.parquet'"
+        - comma: ','
+        - keyword: DATA_SOURCE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: nyctlc
+        - comma: ','
+        - keyword: FILE_FORMAT
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: ParquetFormat
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_table_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: populationAppendable
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            quoted_identifier: '[country_code]'
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '5'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: COLLATE
+              collation_reference:
+                naked_identifier: Latin1_General_BIN2
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[country_name]'
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: COLLATE
+              collation_reference:
+                naked_identifier: Latin1_General_BIN2
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[year]'
+            data_type:
+              keyword: SMALLINT
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[population]'
+            data_type:
+              keyword: BIGINT
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_location_clause:
+            keyword: LOCATION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'csv/population/population.csv'"
+        - comma: ','
+        - keyword: DATA_SOURCE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: sqlondemanddemo
+        - comma: ','
+        - keyword: FILE_FORMAT
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: QuotedCSVWithHeaderFormat
+        - comma: ','
+        - keyword: TABLE_OPTIONS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "N'{\"READ_OPTIONS\":[\"ALLOW_INCONSISTENT_READS\"]}'"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_table_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: Covid
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: date_rep
+            data_type:
+              keyword: DATE
+        - comma: ','
+        - column_definition:
+            naked_identifier: cases
+            data_type:
+              keyword: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: geo_id
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '6'
+                  end_bracket: )
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_location_clause:
+            keyword: LOCATION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'covid'"
+        - comma: ','
+        - keyword: DATA_SOURCE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: DeltaLakeStorage
+        - comma: ','
+        - keyword: FILE_FORMAT
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: DeltaLakeFormat
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_table_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - object_reference:
+        - naked_identifier: schema_name
+        - dot: .
+        - naked_identifier: table_name
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: column_name_1
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: column_name_2
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: column_name_3
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_location_clause:
+            keyword: LOCATION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "N'/path/to/folder/'"
+        - comma: ','
+        - keyword: DATA_SOURCE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: external_data_source
+        - comma: ','
+        - keyword: FILE_FORMAT
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: parquetfileformat
+        - comma: ','
+        - keyword: REJECT_TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: VALUE
+        - comma: ','
+        - keyword: REJECT_VALUE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '0'
+        - comma: ','
+        - keyword: REJECTED_ROW_LOCATION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'/REJECT_Directory'"
+        - end_bracket: )
+  - statement_terminator: ;

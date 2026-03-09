@@ -1,0 +1,84 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2edfa547900fe1f51a2bd11c0416c22c89d42f4068d42b50ca4aca351acbb791
+file:
+  batch:
+  - statement:
+      create_external_file_format:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: FILE
+      - keyword: FORMAT
+      - object_reference:
+          naked_identifier: QuotedCsvWithHeaderFormat
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          external_file_delimited_text_clause:
+          - keyword: FORMAT_TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: DELIMITEDTEXT
+          - comma: ','
+          - keyword: FORMAT_OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - external_file_delimited_text_format_options_clause:
+                keyword: FIELD_TERMINATOR
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "','"
+            - comma: ','
+            - external_file_delimited_text_format_options_clause:
+                keyword: STRING_DELIMITER
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'\"'"
+            - comma: ','
+            - external_file_delimited_text_format_options_clause:
+                keyword: FIRST_ROW
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '2'
+            - end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_file_format:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: FILE
+      - keyword: FORMAT
+      - object_reference:
+          naked_identifier: ParquetFormat
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          external_file_parquet_clause:
+          - keyword: FORMAT_TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: PARQUET
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_file_format:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: FILE
+      - keyword: FORMAT
+      - object_reference:
+          naked_identifier: DeltaLakeFormat
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          external_file_delta_clause:
+          - keyword: FORMAT_TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: DELTA
+          end_bracket: )
+  - statement_terminator: ;

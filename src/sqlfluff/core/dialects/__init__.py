@@ -47,6 +47,7 @@ _dialect_lookup = {
     "starrocks": ("dialect_starrocks", "starrocks_dialect"),
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "trino": ("dialect_trino", "trino_dialect"),
+    "synapse": ("dialect_synapse", "synapse_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
     "vertica": ("dialect_vertica", "vertica_dialect"),
 }

@@ -60,6 +60,7 @@ keywords = [
     "sparksql",
     "sqlite",
     "starrocks",
+    "synapse",
     "teradata",
     "trino",
     "tsql",
