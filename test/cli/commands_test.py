@@ -31,6 +31,7 @@ from sqlfluff.cli.commands import (
     rules,
     version,
 )
+from sqlfluff.core.config import clear_config_caches
 from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
@@ -1270,10 +1271,13 @@ where processdate ! 3
     if fix_even_unparsable:
         with open(fixed_path, "r") as f:
             fixed_sql = f.read()
-            assert fixed_sql == """SELECT my_col
+            assert (
+                fixed_sql
+                == """SELECT my_col
 FROM my_schema.my_table
 WHERE processdate ! 3
 """
+            )
     else:
         assert not os.path.isfile(fixed_path)
 
@@ -1660,6 +1664,42 @@ def test__cli__command_fail_nice_not_found(command):
             "exist(s): this_file_does_not_exist.sql"
         ),
     )
+
+
+def test__cli__command_invalid_pyproject_toml_user_error(tmp_path, monkeypatch):
+    """Invalid pyproject.toml should surface a concise user error."""
+    import sqlfluff.core.config.loader as config_loader
+
+    (tmp_path / "pyproject.toml").write_text(
+        '\ufeff[tool.sqlfluff.core]\ndialect = "ansi"\n',
+        encoding="utf-8",
+    )
+    sql_file = tmp_path / "query.sql"
+    sql_file.write_text("select 1", encoding="utf-8")
+
+    original_load_config_at_path = config_loader.load_config_at_path
+    home_path = os.path.expanduser("~")
+
+    def safe_load_config_at_path(path):
+        if os.path.abspath(path) == os.path.abspath(home_path):
+            return {}
+        return original_load_config_at_path(path)
+
+    monkeypatch.setattr(config_loader, "load_config_at_path", safe_load_config_at_path)
+
+    try:
+        result = invoke_assert_code(
+            ret_code=2,
+            args=[lint, ["--dialect", "ansi", str(sql_file)]],
+            assert_stderr_contains="User Error: Failed to parse TOML config file",
+        )
+    finally:
+        clear_config_caches()
+
+    stderr = result.stderr.replace("\\", "/")
+    assert str(tmp_path / "pyproject.toml").replace("\\", "/") in stderr
+    assert "UTF-8 BOM" in stderr
+    assert "Traceback" not in result.output
 
 
 @patch("click.utils.should_strip_ansi")
@@ -2384,10 +2424,12 @@ def test__cli__fix_multiple_errors_quiet_check():
             # Test with the confirmation step.
             "y",
         ],
-        assert_stdout_contains=("""2 fixable linting violations found
+        assert_stdout_contains=(
+            """2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
 == [test/fixtures/linter/multiple_sql_errors.sql] FIXED
-All Finished"""),
+All Finished"""
+        ),
     )
 
 
