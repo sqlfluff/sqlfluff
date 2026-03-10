@@ -9,9 +9,9 @@ This script:
 5. Creates VitePress sidebar configuration
 """
 
+import inspect
 import json
 import re
-import subprocess
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -20,7 +20,7 @@ from sqlfluff.core.plugin.host import get_plugin_manager
 
 
 def rst_to_markdown(rst_text: str) -> str:
-    """Convert RST docstring to Markdown using pandoc.
+    """Convert RST docstring to Markdown.
 
     Args:
         rst_text: RST-formatted text
@@ -31,109 +31,221 @@ def rst_to_markdown(rst_text: str) -> str:
     if not rst_text:
         return ""
 
-    # Remove common leading indentation
-    # Python docstrings often have an unindented summary line followed by indented body
-    # We need to remove the indentation to prevent pandoc from creating blockquotes
-    lines = rst_text.split("\n")
-    cleaned_lines = []
-    for line in lines:
-        # Remove up to 4 leading spaces (common Python docstring indentation)
-        if line.startswith("    "):
-            cleaned_lines.append(line[4:])
-        else:
-            cleaned_lines.append(line)
-    rst_text = "\n".join(cleaned_lines)
+    md = inspect.cleandoc(rst_text)
 
-    try:
-        # Use pandoc to convert RST to Markdown
-        result = subprocess.run(
-            ["pandoc", "--from", "rst", "--to", "markdown", "--wrap=none"],
-            input=rst_text,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+    # Convert RST admonitions first, before other substitutions that can
+    # alter indentation and break block detection.
+    md = _convert_rst_admonitions(md)
 
-        md = result.stdout
+    # Convert reference-style RST links and strip link definition lines.
+    md = _convert_rst_reference_links(md)
 
-        # Post-process the markdown
-        # Convert cfg code blocks to ini (handle both with and without space)
-        md = re.sub(r"```\s*cfg", "```ini", md)
+    # Convert RST links to markdown links.
+    md = re.sub(r"`([^`<]+)\s+<(https?://[^>]+)>`_", r"[\1](\2)", md)
+    md = re.sub(r"`([^`<]+)\s+<(https?://[^>]+)>`", r"[\1](\2)", md)
 
-        # Fix inline code that pandoc might convert
-        md = re.sub(r":code:`([^`]+)`", r"`\1`", md)
-        md = re.sub(r":ref:`([^`]+)`", r"`\1`", md)
-        md = re.sub(r":sqlfluff:ref:`([^`]+)`", r"`\1`", md)
-
-        # Convert RST note/warning/important directives to VitePress format
-        # Pattern: ::: note\n::: title\nNote\n:::\n becomes ::: info
-        md = re.sub(
-            r"::: note\s*\n::: title\s*\nNote\s*\n:::\s*\n",
-            ":::info\n",
-            md,
-            flags=re.IGNORECASE,
-        )
-        # Close the info block where we find the next ::: that closes the note
-        # This is tricky because the content is between the markers
-        # Better approach: match the full note block
-        pattern = (
-            r"::: note\s*\n::: title\s*\n"
-            r"(?:Note|Warning|Important)\s*\n:::\s*\n(.*?)\n:::"
-        )
-        md = re.sub(
-            pattern,
-            r":::info\n\1\n:::",
-            md,
-            flags=re.IGNORECASE | re.DOTALL,
-        )
-
-        # Fix escaped characters that pandoc adds
-        md = re.sub(r'\\"', '"', md)
-        md = re.sub(r"\\'", "'", md)
-        md = re.sub(r"\\-", "-", md)
-
-        # Clean up extra blank lines
-        md = re.sub(r"\n{3,}", "\n\n", md)
-
-        return md.strip()
-
-    except subprocess.CalledProcessError as e:
-        print(f"Warning: pandoc conversion failed: {e.stderr}")
-        print("Falling back to simple conversion...")
-        return simple_rst_to_markdown(rst_text)
-    except FileNotFoundError:
-        print("Warning: pandoc not found. Install with: sudo apt install pandoc")
-        print("Falling back to simple conversion...")
-        return simple_rst_to_markdown(rst_text)
-
-
-def simple_rst_to_markdown(rst_text: str) -> str:
-    """Simple fallback RST to Markdown converter when pandoc is not available.
-
-    This is a basic converter that handles common patterns but may not be perfect.
-    """
-    if not rst_text:
-        return ""
-
-    md = rst_text
-
-    # Convert code blocks
-    md = re.sub(
-        r"^\s*\.\.\s+code-block::\s+(\w+)\s*$",
-        r"```\1",
-        md,
-        flags=re.MULTILINE,
-    )
-
-    # Convert inline code
+    # Convert rst inline roles/inline literals to markdown code spans.
     md = re.sub(r":code:`([^`]+)`", r"`\1`", md)
     md = re.sub(r":ref:`([^`]+)`", r"`\1`", md)
     md = re.sub(r":sqlfluff:ref:`([^`]+)`", r"`\1`", md)
+    md = re.sub(r"``([^`]+)``", r"`\1`", md)
 
-    # Clean up
+    # Normalize visible-space symbols to a clearer glyph.
+    md = md.replace("•", "◦")
+
+    # Convert RST code-block directives to Markdown code fences.
+    md = _convert_rst_code_blocks(md)
+
     md = re.sub(r"\n{3,}", "\n\n", md)
-
     return md.strip()
+
+
+def _convert_rst_code_blocks(text: str) -> str:
+    """Convert rst code-block directives to fenced markdown code blocks."""
+    lines = text.split("\n")
+    output: list[str] = []
+    i = 0
+
+    while i < len(lines):
+        line = lines[i]
+        match = re.match(r"^\.\.\s+code-block::\s*([\w+-]+)?\s*$", line)
+        if not match:
+            output.append(line)
+            i += 1
+            continue
+
+        language = (match.group(1) or "").strip()
+        if language == "cfg":
+            language = "ini"
+
+        i += 1
+
+        # Consume block lines (blank lines and indented lines).
+        block_lines: list[str] = []
+        while i < len(lines):
+            current = lines[i]
+            if current == "" or current.startswith((" ", "\t")):
+                block_lines.append(current)
+                i += 1
+                continue
+            break
+
+        # Drop rst option lines like ':force:' and preserve only content.
+        content_lines: list[str] = []
+        for block_line in block_lines:
+            if re.match(r"^\s*:[a-zA-Z_][\w-]*:\s*$", block_line):
+                continue
+            content_lines.append(block_line)
+
+        # Trim leading/trailing blank lines from content.
+        while content_lines and not content_lines[0].strip():
+            content_lines.pop(0)
+        while content_lines and not content_lines[-1].strip():
+            content_lines.pop()
+
+        # Dedent based on minimum indentation for non-empty lines.
+        min_indent = min(
+            (
+                len(content_line) - len(content_line.lstrip())
+                for content_line in content_lines
+                if content_line.strip()
+            ),
+            default=0,
+        )
+        dedented_lines = [
+            content_line[min_indent:] if content_line.strip() else ""
+            for content_line in content_lines
+        ]
+        # Improve readability of visible-space examples in code samples.
+        dedented_lines = [line.replace("•", "◦") for line in dedented_lines]
+        code_content = "\n".join(dedented_lines)
+
+        output.append(f"```{language}")
+        output.append(code_content)
+        output.append("```")
+
+    return "\n".join(output)
+
+
+def _convert_rst_admonitions(text: str) -> str:
+    """Convert rst note/warning/important directives to VitePress admonitions."""
+    lines = text.split("\n")
+    output: list[str] = []
+    i = 0
+
+    while i < len(lines):
+        line = lines[i]
+        match = re.match(r"^\.\.\s+(note|warning|important)::\s*$", line, re.IGNORECASE)
+        if not match:
+            output.append(line)
+            i += 1
+            continue
+
+        admonition_type = match.group(1).lower()
+        i += 1
+
+        # Optional blank line directly after the directive.
+        if i < len(lines) and lines[i] == "":
+            i += 1
+
+        # Collect indented content lines, allowing blank lines between paragraphs.
+        content_lines: list[str] = []
+        while i < len(lines):
+            current = lines[i]
+            if current.startswith((" ", "\t")):
+                content_lines.append(current)
+                i += 1
+                continue
+
+            if current == "":
+                next_nonempty = i + 1
+                while next_nonempty < len(lines) and lines[next_nonempty] == "":
+                    next_nonempty += 1
+
+                if next_nonempty < len(lines) and lines[next_nonempty].startswith(
+                    (" ", "\t")
+                ):
+                    content_lines.append(current)
+                    i += 1
+                    continue
+
+            break
+
+        # Dedent content while preserving paragraph breaks.
+        min_indent = min(
+            (
+                len(content_line) - len(content_line.lstrip())
+                for content_line in content_lines
+                if content_line.strip()
+            ),
+            default=0,
+        )
+        dedented_lines = [
+            content_line[min_indent:] if content_line.strip() else ""
+            for content_line in content_lines
+        ]
+
+        # Trim outer blank lines but preserve internal paragraph spacing.
+        while dedented_lines and not dedented_lines[0].strip():
+            dedented_lines.pop(0)
+        while dedented_lines and not dedented_lines[-1].strip():
+            dedented_lines.pop()
+
+        content_text = "\n".join(dedented_lines)
+
+        if admonition_type == "note":
+            output.append("::: tip NOTE")
+        elif admonition_type == "warning":
+            output.append("::: warning WARNING")
+        else:
+            output.append("::: tip IMPORTANT")
+        output.append(content_text)
+        output.append(":::")
+
+    return "\n".join(output)
+
+
+def _convert_rst_reference_links(text: str) -> str:
+    """Convert rst reference links and remove their definitions.
+
+    Supports both forms:
+    - .. _name: https://example.com
+    - .. _`Link Name`: https://example.com
+    and references:
+    - name_
+    - `Link Name`_
+    """
+    link_defs: dict[str, str] = {}
+
+    def collect_definition(match: re.Match[str]) -> str:
+        link_name = match.group(1) or match.group(2)
+        link_url = match.group(3)
+        if link_name:
+            link_defs[link_name] = link_url
+        return ""
+
+    definition_pattern = r"^\.\.\s+_(?:`([^`]+)`|([^\s:]+)):\s+(\S+)\s*$"
+    text = re.sub(definition_pattern, collect_definition, text, flags=re.MULTILINE)
+
+    def replace_backtick_ref(match: re.Match[str]) -> str:
+        link_text = match.group(1)
+        link_url = link_defs.get(link_text)
+        if link_url:
+            return f"[{link_text}]({link_url})"
+        return link_text
+
+    text = re.sub(r"`([^`]+)`_", replace_backtick_ref, text)
+
+    def replace_plain_ref(match: re.Match[str]) -> str:
+        link_text = match.group(1)
+        link_url = link_defs.get(link_text)
+        if link_url:
+            return f"[{link_text}]({link_url})"
+        return match.group(0)
+
+    text = re.sub(r"\b([A-Za-z0-9][A-Za-z0-9_.-]*)_\b", replace_plain_ref, text)
+
+    return text
 
 
 def get_bundle_name(bundle_key: str) -> str:
@@ -183,14 +295,14 @@ def format_configuration_section(markdown_text: str) -> str:
     )
 
     # Pattern to match Configuration section with bullet points
-    config_pattern = r"\*\*Configuration\*\*\s*\n\n((?:-\s+`[^`]+`:[^\n]+\n?)+)"
+    config_pattern = r"\*\*Configuration\*\*\s*\n\n((?:[-*]\s+`[^`]+`:[^\n]+\n?)+)"
 
     def replace_config(match):
         config_text = match.group(1)
 
         # Parse each configuration option
         # Pattern: -   `option_name`: Description. Must be one of `[values]`.
-        option_pattern = r"-\s+`([^`]+)`:\s+([^\n]+)"
+        option_pattern = r"[-*]\s+`([^`]+)`:\s+([^\n]+)"
         options = re.findall(option_pattern, config_text)
 
         if not options:
@@ -333,7 +445,7 @@ def generate_rules_documentation(output_dir: Path) -> dict[str, Any]:
     # Generate index page
     index_content = "# SQLFluff Rules\n\n"
     index_content += f"SQLFluff has **{len(all_rules)} linting rules** "
-    index_content += "organized into {len(rule_bundles)} categories.\n\n"
+    index_content += f"organized into {len(rule_bundles)} categories.\n\n"
     index_content += "## Rule Categories\n\n"
 
     for bundle_key, rules in sorted_bundles:
