@@ -923,6 +923,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
             Ref("CreateFullTextCatalogStatementSegment"),
+            Ref("CreateFullTextStoplistStatementSegment"),
             Ref("AlterAuthorizationStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterUserStatementSegment"),
@@ -5370,6 +5371,34 @@ class CreateFullTextCatalogStatementSegment(BaseSegment):
                 Ref("RoleReferenceSegment"),
                 optional=True,
             ),
+            optional=True,
+        ),
+    )
+
+
+class CreateFullTextStoplistStatementSegment(BaseSegment):
+    """CREATE FULLTEXT STOPLIST statement segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-fulltext-stoplist-transact-sql
+    """
+
+    type = "create_fulltext_stoplist_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "FULLTEXT",
+        "STOPLIST",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FROM",
+            OneOf(
+                Ref("ObjectReferenceSegment"),
+                Sequence("SYSTEM", "STOPLIST"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("RoleReferenceSegment"),
             optional=True,
         ),
     )
