@@ -3048,6 +3048,5 @@ class AccessTargetSegment(ansi.AccessTargetSegment):
         Sequence("ROLE", Ref("RoleReferenceSegment")),
         Sequence("SHARE", Ref("ObjectReferenceSegment")),
         Ref("RoleReferenceSegment"),
-        Ref("FunctionSegment"),
         "PUBLIC",
     )
