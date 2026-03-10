@@ -923,6 +923,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
             Ref("CreateFullTextCatalogStatementSegment"),
+            Ref("CreateFullTextStoplistStatementSegment"),
             Ref("AlterAuthorizationStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterUserStatementSegment"),
@@ -5391,6 +5392,34 @@ class CreateFullTextCatalogStatementSegment(BaseSegment):
     )
 
 
+class CreateFullTextStoplistStatementSegment(BaseSegment):
+    """CREATE FULLTEXT STOPLIST statement segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-fulltext-stoplist-transact-sql
+    """
+
+    type = "create_fulltext_stoplist_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "FULLTEXT",
+        "STOPLIST",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FROM",
+            OneOf(
+                Ref("ObjectReferenceSegment"),
+                Sequence("SYSTEM", "STOPLIST"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("RoleReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+
 class OpenXmlSegment(BaseSegment):
     """`OPENXML` segment.
 
@@ -7486,7 +7515,7 @@ class GrantStatementSegment(BaseSegment):
         "ON",
         Ref("SecurableSegment"),
         "TO",
-        Delimited(Ref("RoleReferenceSegment")),
+        Delimited(Ref("RoleReferenceSegment"), "PUBLIC"),
         Sequence(
             "WITH",
             "GRANT",
@@ -7518,9 +7547,7 @@ class DenyStatementSegment(BaseSegment):
         "ON",
         Ref("SecurableSegment"),
         "TO",
-        Delimited(
-            Ref("RoleReferenceSegment"),
-        ),
+        Delimited(Ref("RoleReferenceSegment"), "PUBLIC"),
         Sequence(
             Ref.keyword("CASCADE", optional=True),
             Ref("ObjectReferenceSegment", optional=True),
@@ -7552,9 +7579,7 @@ class RevokeStatementSegment(BaseSegment):
         "ON",
         Ref("SecurableSegment"),
         OneOf("TO", "FROM"),
-        Delimited(
-            Ref("RoleReferenceSegment"),
-        ),
+        Delimited(Ref("RoleReferenceSegment"), "PUBLIC"),
         Sequence(
             Ref.keyword("CASCADE", optional=True),
             Ref("ObjectReferenceSegment", optional=True),
