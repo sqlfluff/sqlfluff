@@ -15,6 +15,7 @@ _build
 dist
 .pytest_cache
 /sqlfluff-*
+.tmp
 
 # Ignore the Environment
 env

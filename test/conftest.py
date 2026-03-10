@@ -3,7 +3,7 @@
 import hashlib
 import io
 import os
-from typing import NamedTuple
+from typing import Any, NamedTuple, Optional
 
 import pytest
 import yaml
@@ -113,9 +113,14 @@ def process_struct(obj):
         raise TypeError(f"Not sure how to deal with type {type(obj)}: {obj!r}")
 
 
-def parse_example_file(dialect: str, sqlfile: str):
+def parse_example_file(
+    dialect: str, sqlfile: str, config_overrides: Optional[dict[str, Any]] = None
+):
     """Parse example SQL file, return parse tree."""
-    config = FluffConfig(overrides=dict(dialect=dialect))
+    overrides = {"dialect": dialect}
+    if config_overrides:
+        overrides.update(config_overrides)
+    config = FluffConfig(overrides=overrides)
     # Load the SQL
     raw = load_file(dialect, sqlfile)
     # Lex and parse the file
@@ -302,3 +307,4 @@ def test_verbosity_level(request):
     Has a verbosity level of 0
     """
     return request.config.getoption("verbose")
+

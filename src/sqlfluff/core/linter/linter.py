@@ -569,6 +569,7 @@ class Linter:
                                 crawler.code,
                                 anchor_info,
                                 fix_even_unparsable=config.get("fix_even_unparsable"),
+                                max_parse_depth=config.get("max_parse_depth"),
                             )
 
                             # Check for infinite loops. We use a combination of the

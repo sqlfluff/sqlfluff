@@ -25,6 +25,19 @@ parse_success_examples, parse_structure_examples = get_parse_fixtures(
     fail_on_missing_yml=True
 )
 
+DEEP_PARSE_DEPTH_OVERRIDES = {
+    ("ansi", "expression_recursion.sql"): 2000,
+}
+
+
+def _config_overrides_for_fixture(dialect: str, sqlfile: str) -> dict[str, Any]:
+    """Return config overrides for fixtures that intentionally stress recursion."""
+    overrides = {"dialect": dialect}
+    max_parse_depth = DEEP_PARSE_DEPTH_OVERRIDES.get((dialect, sqlfile))
+    if max_parse_depth is not None:
+        overrides["max_parse_depth"] = max_parse_depth
+    return overrides
+
 
 def lex_and_parse(config_overrides: dict[str, Any], raw: str) -> Optional[ParsedString]:
     """Performs a Lex and Parse, with cacheable inputs within fixture."""
@@ -62,7 +75,7 @@ def lex_and_parse(config_overrides: dict[str, Any], raw: str) -> Optional[Parsed
 def test__dialect__base_file_parse(dialect, file):
     """For given test examples, check successful parsing."""
     raw = load_file(dialect, file)
-    config_overrides = dict(dialect=dialect)
+    config_overrides = _config_overrides_for_fixture(dialect, file)
     # Use the helper function to avoid parsing twice
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
@@ -76,7 +89,10 @@ def test__dialect__base_file_parse(dialect, file):
     # When testing the validity of fixes we re-parse sections of the file.
     # To ensure this is safe - here we re-parse the unfixed file to ensure
     # it's still valid even in the case that no fixes have been applied.
-    assert parsed.tree.validate_segment_with_reparse(parsed.config.get("dialect_obj"))
+    assert parsed.tree.validate_segment_with_reparse(
+        parsed.config.get("dialect_obj"),
+        max_parse_depth=parsed.config.get("max_parse_depth"),
+    )
 
 
 @pytest.mark.integration
@@ -101,7 +117,7 @@ def test__dialect__base_broad_fix(
     noisy.
     """
     raw = load_file(dialect, file)
-    config_overrides = dict(dialect=dialect)
+    config_overrides = _config_overrides_for_fixture(dialect, file)
 
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
@@ -131,7 +147,11 @@ def test__dialect__base_parse_struct(
     yaml_loader,
 ):
     """For given test examples, check parsed structure against yaml."""
-    parsed: Optional[BaseSegment] = parse_example_file(dialect, sqlfile)
+    parsed: Optional[BaseSegment] = parse_example_file(
+        dialect,
+        sqlfile,
+        config_overrides=_config_overrides_for_fixture(dialect, sqlfile),
+    )
     actual_hash = compute_parse_tree_hash(parsed)
     # Load the YAML
     expected_hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
@@ -155,3 +175,4 @@ def test__dialect__base_parse_struct(
         "'python test/generate_parse_fixture_yml.py' to create YAML files "
         "in test/fixtures/dialects."
     )
+
