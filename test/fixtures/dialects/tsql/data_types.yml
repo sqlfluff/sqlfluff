@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a5c0b0194015a606735493aaa6ead91ff50b4fc42cc1704eb59598a0acecca3c
+_hash: d03e669b6c5f9c91441883c6c321fceb60da3d43050ace0a8ccf0383942164c3
 file:
 - batch:
   - statement:
@@ -646,6 +646,76 @@ file:
   - statement:
       declare_segment:
         keyword: DECLARE
+        parameter: '@typed_xml'
+        data_type:
+          keyword: XML
+          bracketed:
+            start_bracket: (
+            object_reference:
+              naked_identifier: SomeSchemaCollection
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@typed_xml'
+        data_type:
+          keyword: XML
+          bracketed:
+            start_bracket: (
+            object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: SomeSchemaCollection
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@typed_xml'
+        data_type:
+          keyword: XML
+          bracketed:
+            start_bracket: (
+            object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[SomeSchemaCollection]'
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@typed_xml_document'
+        data_type:
+          keyword: XML
+          bracketed:
+            start_bracket: (
+            keyword: DOCUMENT
+            object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: SomeSchemaCollection
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@typed_xml_cnt'
+        data_type:
+          keyword: XML
+          bracketed:
+            start_bracket: (
+            keyword: CONTENT
+            object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: SomeSchemaCollection
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
         parameter: '@geography_var'
         data_type:
           keyword: GEOGRAPHY
@@ -708,6 +778,19 @@ file:
           quoted_identifier: '[sys]'
           dot: .
           data_type_identifier: '[sysname]'
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@bracketed_varchar'
+        data_type:
+          data_type_identifier: '[varchar]'
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '32'
+              end_bracket: )
   - statement_terminator: ;
   - go_statement:
       keyword: GO
@@ -996,6 +1079,44 @@ file:
             naked_identifier: col_rowversion
             data_type:
               keyword: ROWVERSION
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_xml_typed
+            data_type:
+              keyword: XML
+              bracketed:
+                start_bracket: (
+                object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: SomeXMLSchemaCollection
+                end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_xml_typed_doc
+            data_type:
+              keyword: XML
+              bracketed:
+                start_bracket: (
+                keyword: DOCUMENT
+                object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: SomeXMLSchemaCollection
+                end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_xml_typed_con
+            data_type:
+              keyword: XML
+              bracketed:
+                start_bracket: (
+                keyword: CONTENT
+                object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: SomeXMLSchemaCollection
+                end_bracket: )
         - end_bracket: )
     statement_terminator: ;
     go_statement:
