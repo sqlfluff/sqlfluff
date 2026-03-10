@@ -16,6 +16,8 @@ GRANT SELECT ON TABLE secret_data TO USER admin_user;
 -- Grant to role
 GRANT SELECT ON TABLE data TO ROLE analyst_role;
 
+GRANT SELECT ON TABLE data TO ROLE analyst_role, TO ROLE second_role;
+
 GRANT ALL ON TABLE qa_tickit.sales TO GROUP qa_users, GROUP ro_users;
 
 GRANT ALL ON SCHEMA qa_tickit TO schema_user;
