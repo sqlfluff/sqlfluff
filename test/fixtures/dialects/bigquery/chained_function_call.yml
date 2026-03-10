@@ -1,0 +1,202 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 79569e3f22dae68da91a5f1468f9bf5f8a247befe136ebffc3f0911a4d4ee824
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: x
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: UPPER
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: y
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: x
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: SUBSTR
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: y
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'one two three four five'"
+              end_bracket: )
+          - chained_function_call:
+              dot: .
+              function_name_identifier: REPLACE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'one'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'1'"
+              - end_bracket: )
+          - chained_function_call:
+              dot: .
+              function_name_identifier: REPLACE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'two'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'2'"
+              - end_bracket: )
+          - chained_function_call:
+              dot: .
+              function_name_identifier: REPLACE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'three'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'3'"
+              - end_bracket: )
+          - chained_function_call:
+              dot: .
+              function_name_identifier: REPLACE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'four'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'4'"
+              - end_bracket: )
+          - chained_function_call:
+              dot: .
+              function_name_identifier: REPLACE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'five'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'5'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: x
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: STRPOS
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: '"pattern string"'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: x
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: ARRAY_CONCAT
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: y
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: '"Two birds and one mouse"'
+          - chained_function_call:
+              dot: .
+              function_name_identifier: REPLACE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: '"bird"'
+              - comma: ','
+              - expression:
+                  quoted_literal: '"dog"'
+              - end_bracket: )
+          - chained_function_call:
+              dot: .
+              function_name_identifier: REPLACE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: '"mouse"'
+              - comma: ','
+              - expression:
+                  quoted_literal: '"cat"'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+- statement_terminator: ;
