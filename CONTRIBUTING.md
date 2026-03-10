@@ -85,8 +85,8 @@ changes.
 
 The simplest way to set up a development environment is to use [`tox`](https://tox.wiki/en/latest/installation.html).
 
-**IMPORTANT:** Python 3.9 is the minimum version we support. Feel free
-to test on anything between `python3.9` and `python3.14`.
+**IMPORTANT:** Python 3.10 is the minimum version we support. Feel free
+to test on anything between `python3.10` and `python3.14`.
 
 #### Creating a virtual environment
 
@@ -102,7 +102,7 @@ source .venv/bin/activate
 ```
 (The `dbt180` environment is a good default choice.
 However any version can be installed by replacing `dbt180` with
-`py`, `py39` through `py314`, `dbt170` through `dbt1100`, etc.
+`py`, `py310` through `py314`, `dbt170` through `dbt1100`, etc.
 `py` defaults to the python version that was used to install tox.
 To be able to run all tests including the dbt templater,
 choose one of the dbt environments.)
@@ -163,19 +163,19 @@ tox
 This will build and test for several Python versions, and also lint the project.
 Practically on a day-to-day basis, you might only want to lint and test for one
 Python version, so you can always specify a particular environment. For example,
-if you are developing in Python 3.9 you might call...
+if you are developing in Python 3.10 you might call...
 
 ```shell
-tox -e generate-fixture-yml,py39,linting,mypy
+tox -e generate-fixture-yml,py310,linting,mypy
 ```
 
 ...or if you also want to see the coverage reporting...
 
 ```shell
-tox -e generate-fixture-yml,cov-init,py39,cov-report,linting,mypy
+tox -e generate-fixture-yml,cov-init,py310,cov-report,linting,mypy
 ```
 
-> NB: The `cov-init` task clears the previous test results, the `py39` environment
+> NB: The `cov-init` task clears the previous test results, the `py310` environment
 > generates the results for tests in that Python version and the `cov-report`
 > environment reports those results out to you (excluding dbt).
 
@@ -184,13 +184,13 @@ faster while working on an issue, before running full tests at the end.
 For example, you can run specific tests by making use of the `-k` option in `pytest`:
 
 ```
-tox -e py39 -- -k AL02 test
+tox -e py310 -- -k AL02 test
 ```
 
 Alternatively, you can also run tests from a specific directory or file only:
 ```
-tox -e py39 -- test/cli
-tox -e py39 -- test/cli/commands_test.py
+tox -e py310 -- test/cli
+tox -e py310 -- test/cli/commands_test.py
 ```
 
 You can also manually test your updated code against a SQL file via:
@@ -229,37 +229,37 @@ for development, and which parts of the test suite you may find most useful.
      found in [test/fixtures/rules/std_rule_cases](./test/fixtures/rules/std_rule_cases).
      The easiest way to run these is by calling that part of the suite
      directly and filtering to just that rule. For example:
-     - `tox -e py39 -- test/rules/yaml_test_cases_test.py -k AL01`
+     - `tox -e py310 -- test/rules/yaml_test_cases_test.py -k AL01`
      - `pytest test/rules/yaml_test_cases_test.py -k AL01`
    - When developing on some more complicated rules, or ones known to
      have interactions with other rules, there are a set of rule fixing
      tests which apply a set combination of those rules. These are best
      run via the `autofix` tests. For example:
-     - `tox -e py39 -- test/rules/std_fix_auto_test.py`
+     - `tox -e py310 -- test/rules/std_fix_auto_test.py`
      - `pytest test/rules/std_fix_auto_test.py`
-     - Potentially even the full rules suite `tox -e py39 -- test/rules`
+     - Potentially even the full rules suite `tox -e py310 -- test/rules`
    - A small number of core rules are also used in making sure that inner
      parts of SQLFluff are also functioning. This isn't great isolation
      but does mean that occasionally you may find side effects of your
      changes in the wider test suite. These can usually be caught by
-     running the full `tox -e py39` suite as a final check (or using the
+     running the full `tox -e py310` suite as a final check (or using the
      test suite on GitHub when posting your PR).
 4. When developing the internals of SQLFluff (i.e. anything not
    already mentioned above), the test suite typically mirrors the structure
    of the internal submodules of sqlfluff:
    - When working with the CLI, the `sqlfluff.cli` module has a test suite
-     called via `tox -e py39 -- test/cli`.
+     called via `tox -e py310 -- test/cli`.
    - When working with the templaters (i.e. `sqlfluff.core.templaters`), the
-     corresponding test suite is found via `tox -e py39 -- test/core/templaters`.
+     corresponding test suite is found via `tox -e py310 -- test/core/templaters`.
    - This rough guidance and may however not apply for all of the internals.
      For example, changes to the internals of the parsing module (`sqlfluff.core.parser`)
      are very likely to have knock-on implications across the rest of the test
      suite and it may be necessary to run the whole thing. In these
      situations however you can usually work slowly outward, for example:
-     1. If your change is to the `AnyOf()` grammar, first running `tox -e py39 -- test/core/parser/grammar_test.py` would be wise.
-     2. ...followed by `tox -e py39 -- test/core/parser` once the above is passing.
-     3. ...and then `tox -e py39 -- test/core`.
-     4. ...and finally the full suite `tox -e py39`.
+     1. If your change is to the `AnyOf()` grammar, first running `tox -e py310 -- test/core/parser/grammar_test.py` would be wise.
+     2. ...followed by `tox -e py310 -- test/core/parser` once the above is passing.
+     3. ...and then `tox -e py310 -- test/core`.
+     4. ...and finally the full suite `tox -e py310`.
 
 #### dbt templater tests
 
@@ -270,7 +270,7 @@ We recommend using https://postgresapp.com/.
 To run the dbt-related tests you will have to explicitly include these tests:
 
 ```shell
-tox -e cov-init,dbt019-py39,cov-report-dbt -- plugins/sqlfluff-templater-dbt
+tox -e cov-init,dbt019-py310,cov-report-dbt -- plugins/sqlfluff-templater-dbt
 ```
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/dialects/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
