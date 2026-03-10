@@ -15,3 +15,12 @@ GRANT SELECT ON TABLE secret_data TO USER admin_user;
 
 -- Grant to role
 GRANT SELECT ON TABLE data TO ROLE analyst_role;
+
+GRANT ALL ON TABLE qa_tickit.sales TO GROUP qa_users, GROUP ro_users;
+
+GRANT ALL ON SCHEMA qa_tickit TO schema_user;
+
+GRANT SELECT(cust_name, cust_phone) ON cust_profile TO user1;
+
+GRANT ROLE sample_role1 TO user1 WITH ADMIN OPTION;
+GRANT ROLE sample_role1 TO user2;

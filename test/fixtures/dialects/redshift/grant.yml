@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9599bfbf46bd3c147b3f1f219de3827cb608c96503277b7301af5c1fb0f39f50
+_hash: dde58fbad0d3398c9cfca1ad510cec1263603612bb901281d024b4b8ddeefd28
 file:
 - statement:
     access_statement:
@@ -133,4 +133,97 @@ file:
           keyword: ROLE
           role_reference:
             naked_identifier: analyst_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: ALL
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+          - naked_identifier: qa_tickit
+          - dot: .
+          - naked_identifier: sales
+      - keyword: TO
+      - access_target:
+        - keyword: GROUP
+        - object_reference:
+            naked_identifier: qa_users
+        - comma: ','
+        - keyword: GROUP
+        - object_reference:
+            naked_identifier: ro_users
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: ALL
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+            naked_identifier: qa_tickit
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: schema_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: cust_name
+            - comma: ','
+            - column_reference:
+                naked_identifier: cust_phone
+            - end_bracket: )
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: cust_profile
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - keyword: ROLE
+      - role_reference:
+          naked_identifier: sample_role1
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user1
+      - keyword: WITH
+      - keyword: ADMIN
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - keyword: ROLE
+      - role_reference:
+          naked_identifier: sample_role1
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user2
 - statement_terminator: ;

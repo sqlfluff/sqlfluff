@@ -3042,12 +3042,12 @@ class AccessTargetSegment(ansi.AccessTargetSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
     """
 
-    match_grammar: Matchable = OneOf(
-        Delimited(Sequence("GROUP", Ref("ObjectReferenceSegment"))),
-        Sequence("USER", Delimited(Ref("UserReferenceSegment"))),
-        Sequence("ROLE", Delimited(Ref("RoleReferenceSegment"))),
-        Sequence("SHARE", Delimited(Ref("ObjectReferenceSegment"))),
-        Delimited(Ref("RoleReferenceSegment")),
-        Delimited(Ref("FunctionSegment")),
+    match_grammar = Delimited(
+        Sequence("GROUP", Ref("ObjectReferenceSegment")),
+        Sequence("USER", Ref("UserReferenceSegment")),
+        Sequence("ROLE", Ref("RoleReferenceSegment")),
+        Sequence("SHARE", Ref("ObjectReferenceSegment")),
+        Ref("RoleReferenceSegment"),
+        Ref("FunctionSegment"),
         "PUBLIC",
     )
