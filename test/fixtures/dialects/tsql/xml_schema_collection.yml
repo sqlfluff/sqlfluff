@@ -1,0 +1,149 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 704f1501b685e078765e1b850a8a32fe8fc25ac519a15e70738a6aad3a23c5be
+file:
+- batch:
+  - statement:
+      create_xml_schema_collection_statement:
+      - keyword: CREATE
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeXmlSchemaCollection
+      - keyword: AS
+      - expression:
+          quoted_literal: "N'<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<xsd:schema\
+            \ targetNamespace=\"https://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions\"\
+            \n   xmlns          =\"https://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions\"\
+            \n   elementFormDefault=\"qualified\"\n   attributeFormDefault=\"unqualified\"\
+            \n   xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" >\n\n    <xsd:complexType\
+            \ name=\"StepType\" mixed=\"true\" >\n        <xsd:choice  minOccurs=\"\
+            0\" maxOccurs=\"unbounded\" >\n            <xsd:element name=\"tool\"\
+            \ type=\"xsd:string\" />\n            <xsd:element name=\"material\" type=\"\
+            xsd:string\" />\n            <xsd:element name=\"blueprint\" type=\"xsd:string\"\
+            \ />\n            <xsd:element name=\"specs\" type=\"xsd:string\" />\n\
+            \            <xsd:element name=\"diag\" type=\"xsd:string\" />\n     \
+            \   </xsd:choice>\n    </xsd:complexType>\n\n    <xsd:element  name=\"\
+            root\">\n        <xsd:complexType mixed=\"true\">\n            <xsd:sequence>\n\
+            \                <xsd:element name=\"Location\" minOccurs=\"1\" maxOccurs=\"\
+            unbounded\">\n                    <xsd:complexType mixed=\"true\">\n \
+            \                       <xsd:sequence>\n                            <xsd:element\
+            \ name=\"step\" type=\"StepType\" minOccurs=\"1\" maxOccurs=\"unbounded\"\
+            \ />\n                        </xsd:sequence>\n                      \
+            \  <xsd:attribute name=\"LocationID\" type=\"xsd:integer\" use=\"required\"\
+            />\n                        <xsd:attribute name=\"SetupHours\" type=\"\
+            xsd:decimal\" use=\"optional\"/>\n                        <xsd:attribute\
+            \ name=\"MachineHours\" type=\"xsd:decimal\" use=\"optional\"/>\n    \
+            \                    <xsd:attribute name=\"LaborHours\" type=\"xsd:decimal\"\
+            \ use=\"optional\"/>\n                        <xsd:attribute name=\"LotSize\"\
+            \ type=\"xsd:decimal\" use=\"optional\"/>\n                    </xsd:complexType>\n\
+            \                </xsd:element>\n            </xsd:sequence>\n       \
+            \ </xsd:complexType>\n    </xsd:element>\n</xsd:schema>'"
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@MySchemaCollection'
+      - keyword: AS
+      - data_type:
+          keyword: NVARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: MAX
+              end_bracket: )
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "''"
+  - statement_terminator: ;
+  - statement:
+      create_xml_schema_collection_statement:
+      - keyword: CREATE
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+          naked_identifier: AnotherXmlSchemaCollection
+      - keyword: AS
+      - expression:
+          parameter: '@MySchemaCollection'
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      alter_xml_schema_collection_statement:
+      - keyword: ALTER
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+          naked_identifier: MyColl
+      - keyword: ADD
+      - expression:
+          quoted_literal: "'\n  <schema xmlns=\"http://www.w3.org/2001/XMLSchema\"\
+            \n         targetNamespace=\"https://MySchema/test_xml_schema\">\n   \
+            \  <element name=\"anotherElement\" type=\"byte\"/>\n </schema>'"
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@NewItem'
+      - keyword: AS
+      - data_type:
+          keyword: NVARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: MAX
+              end_bracket: )
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'\n  <schema xmlns=\"http://www.w3.org/2001/XMLSchema\"\
+            \n         targetNamespace=\"https://MySchema/test_xml_schema\">\n   \
+            \  <element name=\"yetAnotherElement\" type=\"byte\"/>\n </schema>'"
+  - statement_terminator: ;
+  - statement:
+      alter_xml_schema_collection_statement:
+      - keyword: ALTER
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: MyColl
+      - keyword: ADD
+      - expression:
+          parameter: '@NewItem'
+  - statement_terminator: ;
+  - statement:
+      drop_xml_schema_collection_statement:
+      - keyword: DROP
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeXmlSchemaCollection
+  - statement_terminator: ;
+  - statement:
+      drop_xml_schema_collection_statement:
+      - keyword: DROP
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+          naked_identifier: AnotherXmlSchemaCollection
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
