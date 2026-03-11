@@ -1271,13 +1271,10 @@ where processdate ! 3
     if fix_even_unparsable:
         with open(fixed_path, "r") as f:
             fixed_sql = f.read()
-            assert (
-                fixed_sql
-                == """SELECT my_col
+            assert fixed_sql == """SELECT my_col
 FROM my_schema.my_table
 WHERE processdate ! 3
 """
-            )
     else:
         assert not os.path.isfile(fixed_path)
 
