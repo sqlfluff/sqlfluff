@@ -35,9 +35,9 @@ autogen_header = """..
 """
 
 table_header = f"""
-+{'-' * 42}+{'-' * 50}+{'-' * 30}+{'-' * 20}+
-|{'Bundle' : <42}|{'Rule Name' : <50}|{'Code' : <30}|{'Core Rule' : <20}|
-+{'=' * 42}+{'=' * 50}+{'=' * 30}+{'=' * 20}+
++{"-" * 42}+{"-" * 50}+{"-" * 30}+{"-" * 20}+
+|{"Bundle": <42}|{"Rule Name": <50}|{"Code": <30}|{"Core Rule": <20}|
++{"=" * 42}+{"=" * 50}+{"=" * 30}+{"=" * 20}+
 """
 
 # Extract all the rules.
@@ -69,8 +69,8 @@ with open(base_path / "source/_partials/rule_table.rst", "w", encoding="utf8") a
             name_ref = f":sqlfluff:ref:`{rule.name}`"
             code_ref = f":sqlfluff:ref:`{rule.code}`"
             f.write(
-                f"| {_bundle_name : <40} | {name_ref : <48} "
-                f"| {code_ref : <28} | {is_core_rule : <18} |\n"
+                f"| {_bundle_name: <40} | {name_ref: <48} "
+                f"| {code_ref: <28} | {is_core_rule: <18} |\n"
             )
 
             if idx + 1 < len(rule_bundles[bundle]):
@@ -100,8 +100,7 @@ with open(base_path / "source/_partials/rule_summaries.rst", "w", encoding="utf8
         )
         for rule in rule_bundles[bundle]:
             f.write(
-                f".. sqlfluff:rule:: {rule.code}\n"
-                f"                   {rule.name}\n\n"
+                f".. sqlfluff:rule:: {rule.code}\n                   {rule.name}\n\n"
             )
             # Separate off the heading so we can bold it.
             heading, _, doc_body = rule.__doc__.partition("\n")
