@@ -459,11 +459,10 @@ impl PyMatchResult {
         let rust_leading: Vec<Token> = leading.into_iter().map(|t| t.into()).collect();
         let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
         let rust_trailing: Vec<Token> = trailing.into_iter().map(|t| t.into()).collect();
-        let node = self.0.clone().apply_as_root(
-            &rust_tokens,
-            &rust_leading,
-            &rust_trailing,
-        );
+        let node = self
+            .0
+            .clone()
+            .apply_as_root(&rust_tokens, &rust_leading, &rust_trailing);
         PyNode(node)
     }
 }

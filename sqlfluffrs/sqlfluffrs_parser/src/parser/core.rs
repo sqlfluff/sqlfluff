@@ -143,7 +143,11 @@ impl<'a> Parser<'a> {
     }
 
     /// Override the iteration limits for this parser (builder pattern).
-    pub fn with_parser_limits(mut self, max_parser_iterations: usize, parser_warn_threshold: usize) -> Self {
+    pub fn with_parser_limits(
+        mut self,
+        max_parser_iterations: usize,
+        parser_warn_threshold: usize,
+    ) -> Self {
         self.max_parser_iterations = max_parser_iterations;
         self.parser_warn_threshold = parser_warn_threshold;
         self
@@ -367,8 +371,12 @@ impl<'a> Parser<'a> {
                     .iter()
                     .map(|id| tables.get_string(*id).to_string())
                     .collect::<Vec<_>>();
-                let mut segment_kwargs =
-                    match_result::segment_kwargs_from_token(tok, token_type, Some(configured_instance_types), casefold);
+                let mut segment_kwargs = match_result::segment_kwargs_from_token(
+                    tok,
+                    token_type,
+                    Some(configured_instance_types),
+                    casefold,
+                );
                 segment_kwargs.raw_class_class_types = Some(raw_class_class_types);
                 if let Some(grammar_tc) = grammar_trim_chars {
                     segment_kwargs.trim_chars = Some(grammar_tc);
@@ -1005,11 +1013,13 @@ impl<'a> Parser<'a> {
             let ct_ids = read_string_ids_from_aux(tables, inst_end, aux_end);
             (inst_ids, ct_ids)
         } else {
-            (token_type_opt
-                .as_ref()
-                .map(|_| vec![token_type_id])
-                .unwrap_or_default(),
-            vec![])
+            (
+                token_type_opt
+                    .as_ref()
+                    .map(|_| vec![token_type_id])
+                    .unwrap_or_default(),
+                vec![],
+            )
         };
 
         // Compile regex patterns (with caching). Normalize patterns by
