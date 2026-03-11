@@ -105,6 +105,14 @@ impl PyNode {
         }
     }
 
+    /// Get class_types (for Raw nodes) — mirrors Python's class_types property.
+    fn class_types(&self) -> Option<Vec<String>> {
+        match &self.0 {
+            Node::Raw { class_types, .. } => Some(class_types.clone()),
+            _ => None,
+        }
+    }
+
     /// Convert to tuple representation (mirrors Python's to_tuple)
     #[pyo3(signature = (code_only=false, show_raw=false, include_meta=false))]
     fn to_tuple(
@@ -428,6 +436,35 @@ impl PyMatchResult {
             self.0.matched_class,
             self.0.child_matches.len()
         )
+    }
+
+    /// Build a Rust Node tree from this MatchResult and tokens.
+    ///
+    /// This applies the match result against the provided tokens to build
+    /// the full AST as an RsNode, which can then be used for Rust-side
+    /// linting rules (e.g., respace/LT01) without round-tripping through
+    /// Python's segment tree.
+    /// Build the full AST as an RsNode from the match result and tokens,
+    /// optionally prepending `leading` and appending `trailing` non-code
+    /// tokens to the root.
+    ///
+    /// This is the single PyO3 entry-point for node construction.
+    #[pyo3(signature = (tokens, leading=vec![], trailing=vec![]))]
+    fn apply_as_node(
+        &self,
+        tokens: Vec<PyToken>,
+        leading: Vec<PyToken>,
+        trailing: Vec<PyToken>,
+    ) -> PyNode {
+        let rust_leading: Vec<Token> = leading.into_iter().map(|t| t.into()).collect();
+        let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
+        let rust_trailing: Vec<Token> = trailing.into_iter().map(|t| t.into()).collect();
+        let node = self.0.clone().apply_as_root(
+            &rust_tokens,
+            &rust_leading,
+            &rust_trailing,
+        );
+        PyNode(node)
     }
 }
 

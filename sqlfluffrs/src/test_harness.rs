@@ -115,7 +115,7 @@ impl FixtureTest {
 
         // Use apply_as_root so the AST is wrapped in a file-level node, matching
         // the expected YAML which has `file:` at the top level.
-        let ast = mr_ast.apply_as_root(&tokens);
+        let ast = mr_ast.apply_as_root(&tokens, &[], &[]);
 
         // Convert AST to YAML using as_record, the canonical serialization path
         // that mirrors Python's BaseSegment.as_record().
@@ -330,7 +330,7 @@ mod whitespace_tests {
 
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
         let mr = parser.call_rule_as_root().expect("Parse failed");
-        let ast = mr.apply_as_root(&tokens);
+        let ast = mr.apply_as_root(&tokens, &[], &[]);
 
         println!("\n=== AST STRUCTURE ===");
         println!("{:#?}", ast);
@@ -364,7 +364,7 @@ mod whitespace_tests {
 
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
         let mr = parser.call_rule_as_root().expect("Parse failed");
-        let ast = mr.apply_as_root(&tokens);
+        let ast = mr.apply_as_root(&tokens, &[], &[]);
 
         println!("\n=== AST STRUCTURE ===");
         println!("{:#?}", ast);

@@ -28,6 +28,9 @@ pub enum MetaSegment {
 #[derive(Debug, Clone)]
 pub struct SegmentKwargs {
     pub instance_types: Option<Vec<String>>,
+    /// Class types inherited from the raw_class hierarchy (e.g. ``SymbolSegment``
+    /// → ``["symbol", "raw", "base"]``).  Populated from codegen aux_data.
+    pub raw_class_class_types: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub casefold: CaseFold,
     pub quoted_value: Option<(String, RegexModeGroup)>,
@@ -39,6 +42,7 @@ impl Default for SegmentKwargs {
     fn default() -> Self {
         SegmentKwargs {
             instance_types: None,
+            raw_class_class_types: None,
             trim_chars: None,
             casefold: CaseFold::None,
             quoted_value: None,
@@ -468,34 +472,14 @@ impl MatchResult {
         positions.sort();
 
         for pos in positions {
-            // PYTHON PARITY: Fill gap with raw tokens - any segments between child matches
-            // should be included unchanged (this captures whitespace/comments between code)
+            // PYTHON PARITY: Fill gap with all tokens between child matches.
+            // Meta tokens become Node::Meta, non-meta become Node::Raw.
+            // This matches Python's `result_segments += segments[max_idx:idx]`
+            // which includes ALL segments (including meta) in gap-fill.
             if pos > current_idx {
                 for idx in current_idx..pos {
                     if idx < tokens.len() {
-                        let tok = &tokens[idx];
-                        // Skip meta tokens (EOF, Indent, Dedent, etc.) - they should
-                        // not be gap-filled as raw nodes into the AST.
-                        if tok.is_meta {
-                            continue;
-                        }
-                        let raw = tok.raw().to_string();
-
-                        // Gap-fill tokens always use their own token class/type.
-                        // Using the parent's segment_type (e.g. "file") would be
-                        // incorrect and produces wrong YAML output.
-                        let segment_class = tok.class_name.clone();
-                        let segment_type = tok.token_type.clone();
-
-                        // Create Raw node from token
-                        result_nodes.push(Node::Raw {
-                            segment_class,
-                            segment_type,
-                            raw,
-                            pos_marker: tok.pos_marker.clone(),
-                            instance_types: tok.instance_types.clone(),
-                            segment_kwargs: RawSegmentKwargs::default(),
-                        });
+                        result_nodes.push(token_to_node(&tokens[idx]));
                     }
                 }
                 current_idx = pos;
@@ -530,30 +514,12 @@ impl MatchResult {
         }
 
         // PYTHON PARITY: If we finish processing triggers and there are still tokens
-        // left in the matched_slice, add them too (captures trailing whitespace/comments)
+        // left in the matched_slice, add them too (captures trailing whitespace/comments).
+        // Include ALL tokens (meta and non-meta) to match Python's gap-fill behavior.
         if current_idx < self.matched_slice.end {
             for idx in current_idx..self.matched_slice.end {
                 if idx < tokens.len() {
-                    let tok = &tokens[idx];
-                    // Skip meta tokens (EOF, Indent, Dedent, etc.)
-                    if tok.is_meta {
-                        continue;
-                    }
-                    let raw = tok.raw().to_string();
-
-                    // Gap-fill tokens always use their own token class/type.
-                    let segment_class = tok.class_name.clone();
-                    let segment_type = tok.token_type.clone();
-
-                    // Create Raw node from token
-                    result_nodes.push(Node::Raw {
-                        segment_class,
-                        segment_type,
-                        raw,
-                        pos_marker: tok.pos_marker.clone(),
-                        instance_types: tok.instance_types.clone(),
-                        segment_kwargs: RawSegmentKwargs::default(),
-                    });
+                    result_nodes.push(token_to_node(&tokens[idx]));
                 }
             }
         }
@@ -565,6 +531,79 @@ impl MatchResult {
                 match_class.class_name,
                 result_nodes.len()
             );
+
+            // PYTHON PARITY: Base parser matches (String/Typed/MultiString)
+            // produce a RawSegment with parser-provided instance_types.
+            // In Rust, those arrive as a single-token match with no child
+            // matches/inserts. Retag the raw node directly rather than wrapping
+            // it in a synthetic Segment node.
+            //
+            // This path fires for ALL single-token base parser matches (no
+            // hardcoded allowlist) so that every parser-assigned type gets
+            // correct class_types from the codegen-provided raw_class hierarchy.
+            if self.child_matches.is_empty()
+                && self.insert_segments.is_empty()
+                && self.matched_slice.end == self.matched_slice.start + 1
+                && result_nodes.len() == 1
+                && !match_class.is_unparsable()
+                && match_class.segment_type.is_some()
+            {
+                if let Some(Node::Raw {
+                    raw, pos_marker, ..
+                }) = result_nodes.pop()
+                {
+                    let mut instance_types = match_class
+                        .segment_kwargs
+                        .instance_types
+                        .unwrap_or_default();
+                    if instance_types.is_empty() {
+                        if let Some(seg_type) = &match_class.segment_type {
+                            instance_types.push(seg_type.clone());
+                        }
+                    }
+
+                    let effective_segment_type = match_class
+                        .segment_type
+                        .clone()
+                        .or_else(|| instance_types.first().cloned())
+                        .unwrap_or_else(|| "raw".to_string());
+
+                    let raw_class_ct = match_class
+                        .segment_kwargs
+                        .raw_class_class_types
+                        .unwrap_or_default();
+
+                    let quoted_value =
+                        match_class
+                            .segment_kwargs
+                            .quoted_value
+                            .map(|(pattern, group)| {
+                                let group_str = match group {
+                                    RegexModeGroup::Index(idx) => idx.to_string(),
+                                    RegexModeGroup::Name(name) => name,
+                                };
+                                (pattern, group_str)
+                            });
+                    let escape_replacements = match_class
+                        .segment_kwargs
+                        .escape_replacement
+                        .map(|(pattern, replacement)| vec![(pattern, replacement)]);
+
+                    return vec![Node::new_raw_with_class_types(
+                        match_class.class_name,
+                        effective_segment_type,
+                        raw,
+                        pos_marker,
+                        instance_types,
+                        &raw_class_ct,
+                        RawSegmentKwargs {
+                            trim_chars: match_class.segment_kwargs.trim_chars,
+                            quoted_value,
+                            escape_replacements,
+                        },
+                    )];
+                }
+            }
 
             // Calculate position marker from first child
             let pos_marker = result_nodes.first().and_then(|n| match n {
@@ -588,7 +627,19 @@ impl MatchResult {
         }
     }
 
-    pub fn apply_as_root(self, tokens: &[Token]) -> Node {
+    /// Build a root `Node::Segment` (FileSegment) from this match result,
+    /// optionally prepending `leading` and appending `trailing` non-code
+    /// tokens as direct children of the root.
+    ///
+    /// This is the single entry-point for constructing the Rust AST node
+    /// that is attached to the Python segment tree for Rust-side linting.
+    ///
+    /// * `tokens` — the code-only token slice that match indices refer to.
+    /// * `leading` — non-code tokens before the first code token (e.g.
+    ///   leading whitespace/newlines).  Pass `&[]` when there are none.
+    /// * `trailing` — non-code tokens after the last code token (e.g.
+    ///   trailing newline + end_of_file).  Pass `&[]` when there are none.
+    pub fn apply_as_root(self, tokens: &[Token], leading: &[Token], trailing: &[Token]) -> Node {
         let file_mr = MatchResult {
             matched_slice: 0..tokens.len(),
             matched_class: Some(MatchedClass::root()),
@@ -602,7 +653,22 @@ impl MatchResult {
                 root_node.len()
             );
         }
-        root_node.first().cloned().unwrap_or_default()
+        let mut root = root_node.first().cloned().unwrap_or_default();
+
+        // Prepend leading and append trailing token-derived children.
+        if let Node::Segment { children, .. } = &mut root {
+            if !trailing.is_empty() {
+                children.extend(trailing.iter().map(token_to_node));
+            }
+            if !leading.is_empty() {
+                let leading_nodes: Vec<Node> = leading.iter().map(token_to_node).collect();
+                let mut new_children = leading_nodes;
+                new_children.extend(children.drain(..));
+                *children = new_children;
+            }
+        }
+
+        root
     }
 
     pub fn stringify(&self, indent: usize) -> String {
@@ -666,6 +732,53 @@ fn get_point_pos_at_token_idx(tokens: &[Token], idx: usize) -> Option<PositionMa
             .map(|pm| pm.end_point_marker())
     } else {
         None
+    }
+}
+
+/// Convert a single Token into a Node suitable for use as a trailing child.
+///
+/// Meta tokens (is_meta=true) become `Node::Meta` using the token_type to
+/// determine the variant.  All other tokens become `Node::Raw`.
+fn token_to_node(tok: &Token) -> Node {
+    if tok.is_meta {
+        let meta_type = match tok.token_type.as_str() {
+            "end_of_file" => MetaType::EndOfFile,
+            "indent" => MetaType::Indent { is_implicit: false },
+            "dedent" => MetaType::Dedent { is_implicit: false },
+            "template_loop" => MetaType::TemplateLoop,
+            _ => MetaType::Template {
+                source_str: tok.raw(),
+                block_type: tok.block_type().expect("block_type for template"),
+            },
+        };
+        Node::Meta {
+            meta_type,
+            pos_marker: tok.pos_marker.clone(),
+        }
+    } else {
+        // Populate class_types from the Token's own class_types (from lexer)
+        // + instance_types.  This mirrors Python's RawSegment.class_types
+        // property which is frozenset(instance_types) | super().class_types.
+        let raw_class_ct: Vec<String> = tok.class_types.iter().cloned().collect();
+        // PYTHON PARITY: RawSegment.get_type() returns instance_types[0] if
+        // instance_types is set, otherwise falls back to the class `type` attr.
+        // In Rust, tok.token_type holds the class-level type (e.g. "raw") while
+        // tok.instance_types holds the per-instance override (e.g. ["double_quote"]).
+        // Use instance_types[0] as the segment_type to match Python's behavior.
+        let segment_type = tok
+            .instance_types
+            .first()
+            .cloned()
+            .unwrap_or_else(|| tok.token_type.clone());
+        Node::new_raw_with_class_types(
+            tok.class_name.clone(),
+            segment_type,
+            tok.raw.to_string(),
+            tok.pos_marker.clone(),
+            tok.instance_types.clone(),
+            &raw_class_ct,
+            RawSegmentKwargs::default(),
+        )
     }
 }
 

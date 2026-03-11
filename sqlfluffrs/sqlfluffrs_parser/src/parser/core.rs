@@ -18,6 +18,37 @@ use sqlfluffrs_types::{SimpleHint, Token};
 // NEW: Table-driven grammar support
 use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant, RootGrammar};
 
+/// Read ``raw_class._class_types`` from the aux_data region starting at
+/// ``offset``.  The layout is ``[count, string_id_0, string_id_1, ...]``.
+///
+/// Returns an empty Vec when the data is absent (old-schema tables that
+/// predate the class-types extension).
+fn read_class_types_from_aux(
+    tables: &sqlfluffrs_types::GrammarTables,
+    offset: usize,
+    aux_end: usize,
+) -> Vec<String> {
+    if offset >= aux_end {
+        return Vec::new();
+    }
+    let count = tables.aux_data[offset] as usize;
+    let start = offset + 1;
+    let end = start.saturating_add(count);
+    if end > aux_end {
+        return Vec::new();
+    }
+    tables.aux_data[start..end]
+        .iter()
+        .filter_map(|id| {
+            if *id == 0xFFFFFFFF {
+                None
+            } else {
+                Some(tables.get_string(*id).to_string())
+            }
+        })
+        .collect()
+}
+
 /// A checkpoint in the collection history that tracks which tokens were collected
 /// at a specific point. Used for backtracking.
 #[derive(Debug, Clone)]
@@ -283,9 +314,17 @@ impl<'a> Parser<'a> {
         // Extract all data from tables first (before any self methods)
         let tables = self.grammar_ctx.tables();
 
-        // StringParser stores: [template_id, token_type_id, raw_class_id] in aux_data
-        // aux_data_offsets maps instruction -> aux_data start for variable-length aux
+        // StringParser stores either:
+        //   old schema: [template_id, token_type_id, raw_class_id]
+        //   new schema: [template_id, token_type_id, raw_class_id, inst_count, inst_type_ids...,
+        //                class_types_count, class_type_ids...]
+        // aux_data_offsets maps instruction -> aux_data start for variable-length aux.
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
+        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
+            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
+        } else {
+            tables.aux_data.len()
+        };
         let template_id = tables.aux_data[aux_start];
         let token_type_id = tables.aux_data[aux_start + 1];
         let raw_class_id = tables.aux_data[aux_start + 2];
@@ -293,6 +332,30 @@ impl<'a> Parser<'a> {
         let template = tables.get_string(template_id).to_string();
         let token_type = tables.get_string(token_type_id).to_string();
         let raw_class = tables.get_string(raw_class_id).to_string();
+        let (configured_instance_types, raw_class_class_types) = if aux_end >= aux_start + 4 {
+            let inst_count = tables.aux_data[aux_start + 3] as usize;
+            let inst_start = aux_start + 4;
+            let inst_end = inst_start.saturating_add(inst_count);
+            let inst_types = if inst_end <= aux_end {
+                tables.aux_data[inst_start..inst_end]
+                    .iter()
+                    .filter_map(|id| {
+                        if *id == 0xFFFFFFFF {
+                            None
+                        } else {
+                            Some(tables.get_string(*id).to_string())
+                        }
+                    })
+                    .collect::<Vec<_>>()
+            } else {
+                vec![token_type.clone()]
+            };
+            // Read raw_class._class_types from aux_data (after instance_types)
+            let ct = read_class_types_from_aux(tables, inst_end, aux_end);
+            (inst_types, ct)
+        } else {
+            (vec![token_type.clone()], vec![])
+        };
         let casefold = self.grammar_ctx.casefold(grammar_id);
         let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
 
@@ -308,7 +371,13 @@ impl<'a> Parser<'a> {
             Some(tok) if tok.raw().eq_ignore_ascii_case(&template) && tok.is_code() => {
                 let token_pos = self.pos;
                 let mut segment_kwargs =
-                    match_result::segment_kwargs_from_token(tok, &token_type, None, casefold);
+                    match_result::segment_kwargs_from_token(
+                        tok,
+                        &token_type,
+                        Some(configured_instance_types.clone()),
+                        casefold,
+                    );
+                segment_kwargs.raw_class_class_types = Some(raw_class_class_types);
                 if let Some(grammar_tc) = grammar_trim_chars {
                     segment_kwargs.trim_chars = Some(grammar_tc);
                 }
@@ -370,9 +439,17 @@ impl<'a> Parser<'a> {
         // Extract all data from tables first (before any self methods)
         let tables = ctx.tables();
 
-        // TypedParser stores: [template_id, token_type_id, raw_class_id] in aux_data
-        // aux_data_offsets maps instruction -> aux_data start for variable-length aux
+        // TypedParser stores either:
+        //   old schema: [template_id, token_type_id, raw_class_id]
+        //   new schema: [template_id, token_type_id, raw_class_id, inst_count, inst_type_ids...,
+        //                class_types_count, class_type_ids...]
+        // aux_data_offsets maps instruction -> aux_data start for variable-length aux.
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
+        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
+            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
+        } else {
+            tables.aux_data.len()
+        };
         let template_id = tables.aux_data[aux_start];
         let token_type_id = tables.aux_data[aux_start + 1];
         let raw_class_id = tables.aux_data[aux_start + 2];
@@ -380,6 +457,29 @@ impl<'a> Parser<'a> {
         let template = tables.get_string(template_id).to_string();
         let token_type = tables.get_string(token_type_id).to_string();
         let raw_class = tables.get_string(raw_class_id).to_string();
+        let (configured_instance_types, raw_class_class_types) = if aux_end >= aux_start + 4 {
+            let inst_count = tables.aux_data[aux_start + 3] as usize;
+            let inst_start = aux_start + 4;
+            let inst_end = inst_start.saturating_add(inst_count);
+            let inst_types = if inst_end <= aux_end {
+                tables.aux_data[inst_start..inst_end]
+                    .iter()
+                    .filter_map(|id| {
+                        if *id == 0xFFFFFFFF {
+                            None
+                        } else {
+                            Some(tables.get_string(*id).to_string())
+                        }
+                    })
+                    .collect::<Vec<_>>()
+            } else {
+                vec![token_type.clone()]
+            };
+            let ct = read_class_types_from_aux(tables, inst_end, aux_end);
+            (inst_types, ct)
+        } else {
+            (vec![token_type.clone()], vec![])
+        };
         let casefold = self.grammar_ctx.casefold(grammar_id);
         let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
 
@@ -466,22 +566,32 @@ impl<'a> Parser<'a> {
                         );
                         (tok_effective_type, tok_inst)
                     } else {
-                        // Explicit type override: build instance_types from TypedParser config
-                        // (e.g. TypedParser("single_quote", LiteralSegment, type="quoted_literal"))
-                        let mut vec = vec![token_type.clone()];
-                        if cls_type != token_type {
+                        // Explicit type override: use configured instance_types from
+                        // codegen (Python parity), with old-schema fallback.
+                        let mut vec = configured_instance_types.clone();
+                        if vec.is_empty() {
+                            vec.push(token_type.clone());
+                        }
+                        if cls_type != token_type && !vec.iter().any(|t| t == cls_type) {
                             vec.push(cls_type.to_string());
                         }
-                        if template != token_type && template != cls_type {
+                        if template != token_type
+                            && template != cls_type
+                            && !vec.iter().any(|t| t == &template)
+                        {
                             vec.push(template.clone());
                         }
+                        let effective_type = vec
+                            .first()
+                            .cloned()
+                            .unwrap_or_else(|| token_type.clone());
                         vdebug!(
                             "TypedParser[table] explicit-override-path: token_type='{}' != cls_type='{}', instance_types={:?}",
                             token_type,
                             cls_type,
                             vec
                         );
-                        (token_type.clone(), vec)
+                        (effective_type, vec)
                     }
                 } else {
                     // Fallback: no class type info available, use TypedParser config as-is
@@ -489,11 +599,18 @@ impl<'a> Parser<'a> {
                         "Could not find segment type for class '{}', using fallback",
                         raw_class
                     );
-                    let mut vec = vec![token_type.clone()];
-                    if template != token_type {
-                        vec.push(template.clone());
+                    let mut vec = configured_instance_types.clone();
+                    if vec.is_empty() {
+                        vec.push(token_type.clone());
+                        if template != token_type {
+                            vec.push(template.clone());
+                        }
                     }
-                    (token_type.clone(), vec)
+                    let effective_type = vec
+                        .first()
+                        .cloned()
+                        .unwrap_or_else(|| token_type.clone());
+                    (effective_type, vec)
                 };
 
                 vdebug!(
@@ -513,6 +630,7 @@ impl<'a> Parser<'a> {
                     Some(instance_types_vec),
                     casefold,
                 );
+                segment_kwargs.raw_class_class_types = Some(raw_class_class_types);
                 if let Some(grammar_tc) = grammar_trim_chars {
                     segment_kwargs.trim_chars = Some(grammar_tc);
                 }
@@ -571,9 +689,17 @@ impl<'a> Parser<'a> {
         // Extract all data from tables first (before any self methods)
         let tables = self.grammar_ctx.tables();
 
-        // MultiStringParser stores: [templates_start, templates_count, token_type_id, raw_class_id] in aux_data
+        // MultiStringParser stores either:
+        //   old schema: [templates_start, templates_count, token_type_id, raw_class_id]
+        //   new schema: [templates_start, templates_count, token_type_id, raw_class_id,
+        //                inst_count, inst_type_ids..., class_types_count, class_type_ids...]
         // The aux_data offset is stored in the separate AUX_DATA_OFFSETS table, NOT in first_child_idx
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
+        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
+            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
+        } else {
+            tables.aux_data.len()
+        };
         let templates_start = tables.aux_data[aux_start] as usize;
         let templates_count = tables.aux_data[aux_start + 1] as usize;
         let token_type_id = tables.aux_data[aux_start + 2];
@@ -598,6 +724,29 @@ impl<'a> Parser<'a> {
             "".to_string()
         } else {
             tables.get_string(token_type_id).to_string()
+        };
+        let (configured_instance_types, raw_class_class_types) = if aux_end >= aux_start + 5 {
+            let inst_count = tables.aux_data[aux_start + 4] as usize;
+            let inst_start = aux_start + 5;
+            let inst_end = inst_start.saturating_add(inst_count);
+            let inst_types = if inst_end <= aux_end {
+                tables.aux_data[inst_start..inst_end]
+                    .iter()
+                    .filter_map(|id| {
+                        if *id == 0xFFFFFFFF {
+                            None
+                        } else {
+                            Some(tables.get_string(*id).to_string())
+                        }
+                    })
+                    .collect::<Vec<_>>()
+            } else {
+                vec![token_type.clone()]
+            };
+            let ct = read_class_types_from_aux(tables, inst_end, aux_end);
+            (inst_types, ct)
+        } else {
+            (vec![token_type.clone()], vec![])
         };
 
         let raw_class = if raw_class_id == 0xFFFFFFFF {
@@ -637,8 +786,13 @@ impl<'a> Parser<'a> {
 
                 // PYTHON PARITY: matched_class is the raw_class (segment class name)
                 // and instance_types contains the token_type from the parser
-                let mut segment_kwargs =
-                    match_result::segment_kwargs_from_token(tok, &token_type, None, casefold);
+                let mut segment_kwargs = match_result::segment_kwargs_from_token(
+                    tok,
+                    &token_type,
+                    Some(configured_instance_types.clone()),
+                    casefold,
+                );
+                segment_kwargs.raw_class_class_types = Some(raw_class_class_types.clone());
                 if let Some(grammar_tc) = grammar_trim_chars {
                     segment_kwargs.trim_chars = Some(grammar_tc);
                 }
@@ -817,6 +971,48 @@ impl<'a> Parser<'a> {
                 }
             };
 
+        // RegexParser stores either:
+        //   old schema: [regex_id, anti_regex_id, token_type_id, raw_class_id]
+        //   new schema: [regex_id, anti_regex_id, token_type_id, raw_class_id,
+        //                inst_count, inst_type_ids..., class_types_count, class_type_ids...]
+        let tables = self.grammar_ctx.tables();
+        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
+        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
+            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
+        } else {
+            tables.aux_data.len()
+        };
+        let (configured_instance_types, raw_class_class_types) = if aux_end >= aux_start + 5 {
+            let inst_count = tables.aux_data[aux_start + 4] as usize;
+            let inst_start = aux_start + 5;
+            let inst_end = inst_start.saturating_add(inst_count);
+            let inst_types = if inst_end <= aux_end {
+                tables.aux_data[inst_start..inst_end]
+                    .iter()
+                    .filter_map(|id| {
+                        if *id == 0xFFFFFFFF {
+                            None
+                        } else {
+                            Some(tables.get_string(*id).to_string())
+                        }
+                    })
+                    .collect::<Vec<_>>()
+            } else {
+                token_type_opt
+                    .as_ref()
+                    .map(|t| vec![t.clone()])
+                    .unwrap_or_default()
+            };
+            let ct = read_class_types_from_aux(tables, inst_end, aux_end);
+            (inst_types, ct)
+        } else {
+            (token_type_opt
+                .as_ref()
+                .map(|t| vec![t.clone()])
+                .unwrap_or_default(),
+            vec![])
+        };
+
         // Compile regex patterns (with caching). Normalize patterns by
         // stripping a single pair of leading '^' and trailing '$' if present
         // because emitted aux_data sometimes contains explicitly anchored
@@ -889,8 +1085,13 @@ impl<'a> Parser<'a> {
                     let token_type = token_type_opt.unwrap_or_default();
                     let casefold = self.grammar_ctx.casefold(grammar_id);
                     let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
-                    let mut segment_kwargs =
-                        match_result::segment_kwargs_from_token(tok, &token_type, None, casefold);
+                    let mut segment_kwargs = match_result::segment_kwargs_from_token(
+                        tok,
+                        &token_type,
+                        Some(configured_instance_types.clone()),
+                        casefold,
+                    );
+                    segment_kwargs.raw_class_class_types = Some(raw_class_class_types.clone());
                     if let Some(grammar_tc) = grammar_trim_chars {
                         segment_kwargs.trim_chars = Some(grammar_tc);
                     }

@@ -841,7 +841,11 @@ class TableBuilder:
     ) -> GrammarInstData:
         """Convert StringParser to GrammarInst."""
         template_id = self._add_string(grammar.template)
-        token_type_id = self._add_string(grammar._instance_types[0])
+        instance_type_ids = [
+            self._add_string(t)
+            for t in (grammar._instance_types or (grammar.raw_class.type,))
+        ]
+        token_type_id = instance_type_ids[0]
         raw_class_id = self._add_string(grammar.raw_class.__name__)
 
         flags = self._build_flags(grammar)
@@ -869,6 +873,11 @@ class TableBuilder:
         self.aux_data.append(template_id)
         self.aux_data.append(token_type_id)
         self.aux_data.append(raw_class_id)
+        self.aux_data.append(len(instance_type_ids))
+        self.aux_data.extend(instance_type_ids)
+        raw_class_types = sorted(grammar.raw_class._class_types)
+        self.aux_data.append(len(raw_class_types))
+        self.aux_data.extend(self._add_string(t) for t in raw_class_types)
 
         # Generate hint for StringParser (matches exact string)
         hint_id = self._add_simple_hint(grammar, parse_context)
@@ -894,7 +903,11 @@ class TableBuilder:
     ) -> GrammarInstData:
         """Convert TypedParser to GrammarInst."""
         template_id = self._add_string(grammar.template)
-        token_type_id = self._add_string(grammar._instance_types[0])
+        instance_type_ids = [
+            self._add_string(t)
+            for t in (grammar._instance_types or (grammar.raw_class.type,))
+        ]
+        token_type_id = instance_type_ids[0]
         raw_class_id = self._add_string(grammar.raw_class.__name__)
 
         flags = self._build_flags(grammar)
@@ -924,6 +937,12 @@ class TableBuilder:
         self.aux_data.append(template_id)
         self.aux_data.append(token_type_id)
         self.aux_data.append(raw_class_id)
+        self.aux_data.append(len(instance_type_ids))
+        self.aux_data.extend(instance_type_ids)
+        # Append raw_class._class_types so Rust can compute full class_types
+        raw_class_types = sorted(grammar.raw_class._class_types)
+        self.aux_data.append(len(raw_class_types))
+        self.aux_data.extend(self._add_string(t) for t in raw_class_types)
 
         comment = f'TypedParser("{grammar.template}")'
 
@@ -955,7 +974,11 @@ class TableBuilder:
             self.aux_data.append(template_id)
         templates_count = len(grammar.templates)
 
-        token_type_id = self._add_string(grammar._instance_types[0])
+        instance_type_ids = [
+            self._add_string(t)
+            for t in (grammar._instance_types or (grammar.raw_class.type,))
+        ]
+        token_type_id = instance_type_ids[0]
         raw_class_id = self._add_string(grammar.raw_class.__name__)
 
         flags = self._build_flags(grammar)
@@ -984,6 +1007,12 @@ class TableBuilder:
         self.aux_data.append(templates_count)
         self.aux_data.append(token_type_id)
         self.aux_data.append(raw_class_id)
+        self.aux_data.append(len(instance_type_ids))
+        self.aux_data.extend(instance_type_ids)
+        # Append raw_class._class_types so Rust can compute full class_types
+        raw_class_types = sorted(grammar.raw_class._class_types)
+        self.aux_data.append(len(raw_class_types))
+        self.aux_data.extend(self._add_string(t) for t in raw_class_types)
 
         comment = f"MultiStringParser({templates_count} templates)"
 
@@ -1014,7 +1043,11 @@ class TableBuilder:
             if grammar.anti_template
             else 0xFFFFFFFF
         )
-        token_type_id = self._add_string(grammar._instance_types[0])
+        instance_type_ids = [
+            self._add_string(t)
+            for t in (grammar._instance_types or (grammar.raw_class.type,))
+        ]
+        token_type_id = instance_type_ids[0]
         raw_class_id = self._add_string(grammar.raw_class.__name__)
 
         flags = self._build_flags(grammar)
@@ -1043,6 +1076,12 @@ class TableBuilder:
         self.aux_data.append(anti_regex_id)
         self.aux_data.append(token_type_id)
         self.aux_data.append(raw_class_id)
+        self.aux_data.append(len(instance_type_ids))
+        self.aux_data.extend(instance_type_ids)
+        # Append raw_class._class_types so Rust can compute full class_types
+        raw_class_types = sorted(grammar.raw_class._class_types)
+        self.aux_data.append(len(raw_class_types))
+        self.aux_data.extend(self._add_string(t) for t in raw_class_types)
 
         comment = "RegexParser"
 

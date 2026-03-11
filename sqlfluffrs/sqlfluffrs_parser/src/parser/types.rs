@@ -45,6 +45,11 @@ pub enum Node {
         raw: String,           // Actual text
         pos_marker: Option<PositionMarker>,
         instance_types: Vec<String>, // ["keyword"], ["numeric_literal", "literal"]
+        /// Full class type hierarchy (mirrors Python's ``class_types`` property).
+        /// Includes ``instance_types`` ∪ ``raw_class._class_types`` so that
+        /// ``is_type("symbol")`` works for ``binary_operator`` segments that
+        /// descend from ``SymbolSegment``.
+        class_types: Vec<String>,
         segment_kwargs: RawSegmentKwargs,
     },
 
@@ -75,6 +80,82 @@ pub enum Node {
 }
 
 impl Node {
+    /// Construct a ``Node::Raw`` with ``class_types`` automatically computed
+    /// as ``instance_types ∪ {segment_type}``.
+    ///
+    /// Use this for nodes whose raw-class hierarchy isn't known (tests,
+    /// synthetic helper nodes).  When the codegen-provided ``raw_class_
+    /// class_types`` are available, call ``new_raw_with_class_types``
+    /// instead.
+    pub fn new_raw(
+        segment_class: String,
+        segment_type: String,
+        raw: String,
+        pos_marker: Option<PositionMarker>,
+        instance_types: Vec<String>,
+        segment_kwargs: RawSegmentKwargs,
+    ) -> Self {
+        let class_types = Self::build_class_types(&segment_type, &instance_types, &[]);
+        Node::Raw {
+            segment_class,
+            segment_type,
+            raw,
+            pos_marker,
+            instance_types,
+            class_types,
+            segment_kwargs,
+        }
+    }
+
+    /// Construct a ``Node::Raw`` with explicit ``raw_class_class_types``
+    /// (from codegen aux_data or Token.class_types).
+    ///
+    /// ``class_types`` is computed as
+    /// ``instance_types ∪ {segment_type} ∪ raw_class_class_types``.
+    pub fn new_raw_with_class_types(
+        segment_class: String,
+        segment_type: String,
+        raw: String,
+        pos_marker: Option<PositionMarker>,
+        instance_types: Vec<String>,
+        raw_class_class_types: &[String],
+        segment_kwargs: RawSegmentKwargs,
+    ) -> Self {
+        let class_types =
+            Self::build_class_types(&segment_type, &instance_types, raw_class_class_types);
+        Node::Raw {
+            segment_class,
+            segment_type,
+            raw,
+            pos_marker,
+            instance_types,
+            class_types,
+            segment_kwargs,
+        }
+    }
+
+    /// Merge ``instance_types``, ``segment_type``, and ``raw_class_class_types``
+    /// into a deduplicated ``class_types`` vector.
+    fn build_class_types(
+        segment_type: &str,
+        instance_types: &[String],
+        raw_class_class_types: &[String],
+    ) -> Vec<String> {
+        let mut ct: Vec<String> = Vec::with_capacity(
+            instance_types.len() + raw_class_class_types.len() + 1,
+        );
+        ct.extend_from_slice(instance_types);
+        if !ct.iter().any(|t| t == segment_type) {
+            ct.push(segment_type.to_string());
+        }
+        for t in raw_class_class_types {
+            if !ct.iter().any(|x| x == t) {
+                ct.push(t.clone());
+            }
+        }
+        ct
+    }
+
     /// Get the raw text (no tokens parameter needed!)
     pub fn raw(&self) -> String {
         match self {
@@ -153,14 +234,23 @@ impl Node {
                     })
                     .collect();
 
-                // Special case: if the segment has exactly one child that is a Raw
-                // node, treat this segment as a leaf.  This mirrors Python's
-                // RawSegment behaviour where single-token parsed segments have no
-                // children of their own and return `(type, raw_string)` from
-                // `to_tuple`.
+                // Special case: if the segment has exactly one child that is a Raw node
+                // with the SAME segment_type as this Segment, treat this segment as a leaf.
+                // This handles cases where a Segment wrapper still exists around a single
+                // token of matching type (e.g. WordSegment wrapping word Raw node).
+                //
+                // We do NOT apply this when types differ (e.g. select_clause_element
+                // wrapping numeric_literal) — that must remain nested to match Python output.
                 if show_raw && relevant_children.len() == 1 {
-                    if let Node::Raw { raw, .. } = relevant_children[0] {
-                        return NodeTupleValue::Raw(self.get_type(), raw.clone());
+                    if let Node::Raw {
+                        raw,
+                        segment_type: child_type,
+                        ..
+                    } = relevant_children[0]
+                    {
+                        if self.get_type() == *child_type {
+                            return NodeTupleValue::Raw(self.get_type(), raw.clone());
+                        }
                     }
                 }
 
@@ -278,6 +368,7 @@ impl Node {
             Node::Raw {
                 segment_type,
                 instance_types,
+                class_types,
                 ..
             } => {
                 // A node is non-code if any of its instance types or its
@@ -295,7 +386,12 @@ impl Node {
                 });
                 let non_code_by_type = segment_type.contains("comment")
                     || matches!(segment_type.as_str(), "whitespace" | "newline");
-                !(non_code_by_instance || non_code_by_type)
+                // Also check class_types for "comment" — this covers non-standard
+                // comment types like obevo_annotation, prompt_command, notebook_start
+                // whose segment_type doesn't literally contain "comment" but whose
+                // class_types hierarchy includes "comment" (from CommentSegment parent).
+                let non_code_by_class = class_types.iter().any(|t| t == "comment");
+                !(non_code_by_instance || non_code_by_type || non_code_by_class)
             }
             Node::Segment { children, .. } => children.iter().any(|c| c.is_code()),
             Node::Unparsable { .. } => true,
@@ -340,14 +436,14 @@ impl Node {
         }
     }
 
-    /// Check if this node is of a specific type (including instance_types for Raw nodes)
+    /// Check if this node is of a specific type (including class_types for Raw nodes)
     pub fn is_type(&self, target: &str) -> bool {
         match self {
             Node::Raw {
                 segment_type,
-                instance_types,
+                class_types,
                 ..
-            } => segment_type == target || instance_types.iter().any(|t| t == target),
+            } => segment_type == target || class_types.iter().any(|t| t == target),
             _ => self.get_type() == target,
         }
     }
@@ -438,22 +534,22 @@ mod tests {
             segment_type: Some("statement".to_string()),
             pos_marker: None,
             children: vec![
-                Node::Raw {
-                    segment_class: "KeywordSegment".to_string(),
-                    segment_type: "keyword".to_string(),
-                    raw: "SELECT".to_string(),
-                    pos_marker: None,
-                    instance_types: vec!["keyword".to_string()],
-                    segment_kwargs: RawSegmentKwargs::default(),
-                },
-                Node::Raw {
-                    segment_class: "IdentifierSegment".to_string(),
-                    segment_type: "naked_identifier".to_string(),
-                    raw: "foo".to_string(),
-                    pos_marker: None,
-                    instance_types: vec!["identifier".to_string()],
-                    segment_kwargs: RawSegmentKwargs::default(),
-                },
+                Node::new_raw(
+                    "KeywordSegment".to_string(),
+                    "keyword".to_string(),
+                    "SELECT".to_string(),
+                    None,
+                    vec!["keyword".to_string()],
+                    RawSegmentKwargs::default(),
+                ),
+                Node::new_raw(
+                    "IdentifierSegment".to_string(),
+                    "naked_identifier".to_string(),
+                    "foo".to_string(),
+                    None,
+                    vec!["identifier".to_string()],
+                    RawSegmentKwargs::default(),
+                ),
             ],
         };
         let record = node.as_record(false, true, false).unwrap();
@@ -498,22 +594,22 @@ mod tests {
             expected: "expected foo".to_string(),
             pos_marker: None,
             children: vec![
-                Node::Raw {
-                    segment_class: "KeywordSegment".to_string(),
-                    segment_type: "keyword".to_string(),
-                    raw: "SELECT".to_string(),
-                    pos_marker: None,
-                    instance_types: vec!["keyword".to_string()],
-                    segment_kwargs: RawSegmentKwargs::default(),
-                },
-                Node::Raw {
-                    segment_class: "IdentifierSegment".to_string(),
-                    segment_type: "naked_identifier".to_string(),
-                    raw: "foo".to_string(),
-                    pos_marker: None,
-                    instance_types: vec!["identifier".to_string()],
-                    segment_kwargs: RawSegmentKwargs::default(),
-                },
+                Node::new_raw(
+                    "KeywordSegment".to_string(),
+                    "keyword".to_string(),
+                    "SELECT".to_string(),
+                    None,
+                    vec!["keyword".to_string()],
+                    RawSegmentKwargs::default(),
+                ),
+                Node::new_raw(
+                    "IdentifierSegment".to_string(),
+                    "naked_identifier".to_string(),
+                    "foo".to_string(),
+                    None,
+                    vec!["identifier".to_string()],
+                    RawSegmentKwargs::default(),
+                ),
             ],
         };
         let record = node.as_record(false, true, false).unwrap();
@@ -539,14 +635,14 @@ mod tests {
 
     #[test]
     fn test_raw_node_to_tuple_show_raw() {
-        let node = Node::Raw {
-            segment_class: "KeywordSegment".to_string(),
-            segment_type: "keyword".to_string(),
-            raw: "SELECT".to_string(),
-            pos_marker: None,
-            instance_types: vec!["keyword".to_string()],
-            segment_kwargs: RawSegmentKwargs::default(),
-        };
+        let node = Node::new_raw(
+            "KeywordSegment".to_string(),
+            "keyword".to_string(),
+            "SELECT".to_string(),
+            None,
+            vec!["keyword".to_string()],
+            RawSegmentKwargs::default(),
+        );
         let val = node.to_tuple(false, true, false);
         assert_eq!(
             val,
@@ -556,36 +652,36 @@ mod tests {
 
     #[test]
     fn test_raw_node_to_tuple_no_raw() {
-        let node = Node::Raw {
-            segment_class: "KeywordSegment".to_string(),
-            segment_type: "keyword".to_string(),
-            raw: "SELECT".to_string(),
-            pos_marker: None,
-            instance_types: vec!["keyword".to_string()],
-            segment_kwargs: RawSegmentKwargs::default(),
-        };
+        let node = Node::new_raw(
+            "KeywordSegment".to_string(),
+            "keyword".to_string(),
+            "SELECT".to_string(),
+            None,
+            vec!["keyword".to_string()],
+            RawSegmentKwargs::default(),
+        );
         let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("keyword".to_string(), vec![]));
     }
 
     #[test]
     fn test_segment_node_to_tuple() {
-        let child1 = Node::Raw {
-            segment_class: "KeywordSegment".to_string(),
-            segment_type: "keyword".to_string(),
-            raw: "SELECT".to_string(),
-            pos_marker: None,
-            instance_types: vec!["keyword".to_string()],
-            segment_kwargs: RawSegmentKwargs::default(),
-        };
-        let child2 = Node::Raw {
-            segment_class: "KeywordSegment".to_string(),
-            segment_type: "keyword".to_string(),
-            raw: "FROM".to_string(),
-            pos_marker: None,
-            instance_types: vec!["keyword".to_string()],
-            segment_kwargs: RawSegmentKwargs::default(),
-        };
+        let child1 = Node::new_raw(
+            "KeywordSegment".to_string(),
+            "keyword".to_string(),
+            "SELECT".to_string(),
+            None,
+            vec!["keyword".to_string()],
+            RawSegmentKwargs::default(),
+        );
+        let child2 = Node::new_raw(
+            "KeywordSegment".to_string(),
+            "keyword".to_string(),
+            "FROM".to_string(),
+            None,
+            vec!["keyword".to_string()],
+            RawSegmentKwargs::default(),
+        );
         let node = Node::Segment {
             segment_class: "StatementSegment".to_string(),
             segment_type: Some("statement".to_string()),
