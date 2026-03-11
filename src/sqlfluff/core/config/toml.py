@@ -9,12 +9,12 @@ if sys.version_info >= (3, 11):
 else:  # pragma: no cover
     import tomli as tomllib
 
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     NestedDictRecord,
     iter_records_from_nested_dict,
     records_to_nested_dict,
 )
-from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.types import ConfigMappingType
 
 T = TypeVar("T")

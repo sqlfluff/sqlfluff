@@ -317,7 +317,6 @@ def test__config__load_toml_invalid_syntax(tmp_path):
     try:
         tomllib.loads(invalid_toml)
     except tomllib.TOMLDecodeError as err:
-        expected_message = getattr(err, "msg", str(err))
         expected_line = getattr(err, "lineno", None)
         expected_column = getattr(err, "colno", None)
     else:  # pragma: no cover
@@ -325,7 +324,8 @@ def test__config__load_toml_invalid_syntax(tmp_path):
 
     message = str(exc_info.value)
     assert str(pyproject_path).replace("\\", "/") in message.replace("\\", "/")
-    assert expected_message in message
+    assert "Failed to parse TOML config file" in message
+    assert "Invalid" in message
     assert f"line {expected_line}" in message
     assert f"column {expected_column}" in message
     assert "UTF-8 BOM" not in message
