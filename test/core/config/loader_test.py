@@ -1,6 +1,7 @@
 """Tests for the configuration routines."""
 
 import os
+import re
 import sys
 from contextlib import contextmanager
 from unittest.mock import call, patch
@@ -313,14 +314,26 @@ def test__config__load_toml_invalid_syntax(tmp_path):
             load_config_file(str(tmp_path), "pyproject.toml")
     finally:
         clear_config_caches()
+        pyproject_path.unlink(missing_ok=True)
 
     try:
         tomllib.loads(invalid_toml)
     except tomllib.TOMLDecodeError as err:
         expected_line = getattr(err, "lineno", None)
         expected_column = getattr(err, "colno", None)
+        if expected_line is None or expected_column is None:
+            location_match = re.search(
+                r"at line (?P<line>\d+), column (?P<column>\d+)",
+                str(err),
+            )
+            if location_match:
+                expected_line = int(location_match.group("line"))
+                expected_column = int(location_match.group("column"))
     else:  # pragma: no cover
         raise AssertionError("Expected invalid TOML to fail parsing.")
+
+    assert expected_line is not None
+    assert expected_column is not None
 
     message = str(exc_info.value)
     assert str(pyproject_path).replace("\\", "/") in message.replace("\\", "/")
@@ -344,6 +357,7 @@ def test__config__load_toml_utf8_bom_hint(tmp_path):
             load_config_file(str(tmp_path), "pyproject.toml")
     finally:
         clear_config_caches()
+        pyproject_path.unlink(missing_ok=True)
 
     message = str(exc_info.value)
     assert str(pyproject_path).replace("\\", "/") in message.replace("\\", "/")
