@@ -250,6 +250,21 @@ trino_dialect.replace(
                 optional=True,
             ),
         ),
+        # For JSON_ARRAY / JSON_OBJECT functions: { NULL | ABSENT } ON NULL
+        # https://trino.io/docs/current/functions/json.html#json-array
+        # https://trino.io/docs/current/functions/json.html#json-object
+        Sequence(
+            OneOf("NULL", "ABSENT"),
+            "ON",
+            "NULL",
+        ),
+        # For JSON functions: RETURNING type [FORMAT JSON [ENCODING ...]]
+        # https://trino.io/docs/current/functions/json.html#json-array
+        Sequence(
+            "RETURNING",
+            Ref("DatatypeSegment"),
+            Ref("FormatJsonEncodingGrammar", optional=True),
+        ),
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
         Ref("EmptyStructLiteralSegment"),

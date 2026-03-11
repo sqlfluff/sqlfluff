@@ -154,7 +154,10 @@ fn test_yaml_comparison_ansi_arithmetic_a() {
 
     let mut parser =
         sqlfluffrs_parser::parser::Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-    let ast = parser.call_rule_as_root().expect("Parse error");
+    let ast = parser
+        .call_rule_as_root()
+        .expect("Parse error")
+        .apply_as_root(&tokens);
 
     println!("\n=== AST ===");
     println!("{:#?}", ast);
@@ -190,7 +193,10 @@ fn test_yaml_comparison_tsql_sqlcmd_command() {
 
     let mut parser =
         sqlfluffrs_parser::parser::Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-    let ast = parser.call_rule_as_root().expect("Parse error");
+    let ast = parser
+        .call_rule_as_root()
+        .expect("Parse error")
+        .apply_as_root(&tokens);
 
     // Generate YAML
     let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML conversion error");

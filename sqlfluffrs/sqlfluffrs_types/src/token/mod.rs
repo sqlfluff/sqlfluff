@@ -21,7 +21,7 @@ use crate::{
     regex::{RegexMode, RegexModeGroup},
 };
 
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum CaseFold {
     #[default]
     None,
@@ -38,6 +38,7 @@ pub enum TupleSerialisedSegment {
 #[derive(Debug, Clone)]
 pub struct Token {
     pub token_type: String,
+    pub class_name: String,
     pub instance_types: Vec<String>,
     pub class_types: HashSet<String>,
     pub comment_separate: bool,

@@ -13,8 +13,6 @@ import tempfile
 import textwrap
 from unittest.mock import MagicMock, patch
 
-import chardet
-
 # Testing libraries
 import pytest
 import yaml
@@ -33,6 +31,7 @@ from sqlfluff.cli.commands import (
     rules,
     version,
 )
+from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
 # tomllib is only in the stdlib from 3.11+
@@ -1030,9 +1029,9 @@ def generic_roundtrip_test(
     )
     # Check the output file has the correct encoding after fix
     if output_file_encoding:
-        with open(filepath, mode="rb") as f:
-            data = f.read()
-        assert chardet.detect(data)["encoding"] == output_file_encoding
+        assert (
+            get_encoding(filepath, config_encoding="autodetect") == output_file_encoding
+        )
     # Also check the file mode was preserved.
     status = os.stat(filepath)
     assert stat.S_ISREG(status.st_mode)
@@ -2055,9 +2054,9 @@ def test___main___help():
 @pytest.mark.parametrize(
     "encoding_in,encoding_out",
     [
-        ("utf-8", "ascii"),  # chardet will detect ascii as a subset of utf-8
-        ("utf-8-sig", "UTF-8-SIG"),
-        ("utf-32", "UTF-32"),
+        ("utf-8", "ascii"),
+        ("utf-8-sig", "utf-8-sig"),
+        ("utf-32", "utf-32"),
     ],
 )
 def test_encoding(encoding_in, encoding_out):
