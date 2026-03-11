@@ -2424,11 +2424,10 @@ def test__cli__fix_multiple_errors_quiet_check():
             # Test with the confirmation step.
             "y",
         ],
-        assert_stdout_contains=(
-            """2 fixable linting violations found
+        assert_stdout_contains="""2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
 == [test/fixtures/linter/multiple_sql_errors.sql] FIXED
-All Finished"""),
+All Finished""",
     )
 
 
