@@ -47,9 +47,9 @@ def fluff_log_catcher(level: int, logger_name: str) -> Iterator[FluffLogHandler]
         level (int): The lowest logging level to capture.
         logger_name (str): The name of the logger to capture.
     """
-    assert logger_name.startswith(
-        "sqlfluff"
-    ), "This should only be used with a SQLFluff logger."
+    assert logger_name.startswith("sqlfluff"), (
+        "This should only be used with a SQLFluff logger."
+    )
     logger = logging.getLogger(logger_name)
     handler = FluffLogHandler()
     orig_level = logger.level

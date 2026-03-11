@@ -493,7 +493,7 @@ def print_comparison(
         diff = (
             rust_metrics.match_success_rate - python_metrics.match_success_rate
         ) * 100
-        print(f" {pct(rust_metrics.match_success_rate * 100):>12} " f"{diff:>+12.1f}pp")
+        print(f" {pct(rust_metrics.match_success_rate * 100):>12} {diff:>+12.1f}pp")
     else:
         print(" N/A")
 
@@ -507,8 +507,7 @@ def print_comparison(
         print(" N/A")
 
     print(
-        f"{'Terminator Hits (early exit)':<35} "
-        f"{fmt(python_metrics.terminator_hits)}",
+        f"{'Terminator Hits (early exit)':<35} {fmt(python_metrics.terminator_hits)}",
         end="",
     )
     if rust_metrics:
@@ -526,9 +525,7 @@ def print_comparison(
         diff = (
             rust_metrics.terminator_hit_rate - python_metrics.terminator_hit_rate
         ) * 100
-        print(
-            f" {pct(rust_metrics.terminator_hit_rate * 100):>12} " f"{diff:>+12.1f}pp"
-        )
+        print(f" {pct(rust_metrics.terminator_hit_rate * 100):>12} {diff:>+12.1f}pp")
     else:
         print(" N/A")
 
@@ -620,8 +617,7 @@ def print_comparison(
                         f"attempts than Python"
                     )
                     print(
-                        "      → Better pruning or different grammar "
-                        "matching strategy"
+                        "      → Better pruning or different grammar matching strategy"
                     )
 
         # Terminator effectiveness
@@ -632,18 +628,14 @@ def print_comparison(
             if abs(py_term_rate - rs_term_rate) > 0.1:
                 if rs_term_rate < py_term_rate:
                     rate_diff = (py_term_rate - rs_term_rate) * 100
-                    print(
-                        f"  ⚠️  Rust terminator hit rate is " f"{rate_diff:.1f}pp lower"
-                    )
+                    print(f"  ⚠️  Rust terminator hit rate is {rate_diff:.1f}pp lower")
                     print(
                         "      → Possible issue: terminators not being "
                         "checked or configured correctly"
                     )
                 else:
                     rate_diff = (rs_term_rate - py_term_rate) * 100
-                    print(
-                        f"  ✅ Rust terminator hit rate is " f"{rate_diff:.1f}pp higher"
-                    )
+                    print(f"  ✅ Rust terminator hit rate is {rate_diff:.1f}pp higher")
 
         # Cache effectiveness comparison
         if python_metrics.cache_hits > 0 and rust_metrics.cache_hits > 0:
@@ -683,8 +675,7 @@ def print_comparison(
                     )
                 else:
                     print(
-                        f"  ✅ Rust parse depth is {abs(depth_diff)} "
-                        f"levels shallower"
+                        f"  ✅ Rust parse depth is {abs(depth_diff)} levels shallower"
                     )
 
 
