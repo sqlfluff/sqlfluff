@@ -20,6 +20,7 @@ from sqlfluff.core.config.loader import (
     _get_user_config_dir_path,
     _load_user_appdir_config,
 )
+from sqlfluff.core.config.toml import _format_toml_parse_error
 from sqlfluff.core.errors import SQLFluffUserError
 
 # tomllib is only in the stdlib from 3.11+
@@ -365,3 +366,41 @@ def test__config__load_toml_utf8_bom_hint(tmp_path):
     assert "UTF-8 without BOM" in message
     assert "line 1" in message
     assert "column 1" in message
+
+
+def test__config__format_toml_parse_error_regex_location() -> None:
+    """Regex fallback should extract location from the raw decode message."""
+
+    class _DummyTomlError(Exception):
+        def __str__(self) -> str:
+            return "Invalid value (at line 3, column 12)"
+
+    message = _format_toml_parse_error(
+        "pyproject.toml",
+        "[tool.sqlfluff.core]\nrules=[1,,2]\n",
+        _DummyTomlError(),  # type: ignore[arg-type]
+    )
+    assert "Invalid value" in message
+    assert "line 3" in message
+    assert "column 12" in message
+
+
+def test__config__format_toml_parse_error_line_only_location() -> None:
+    """Line-only location should still be included in parse error output."""
+
+    class _DummyTomlError(Exception):
+        msg = "Invalid value"
+        lineno = 7
+        colno = None
+
+        def __str__(self) -> str:
+            return self.msg
+
+    message = _format_toml_parse_error(
+        "pyproject.toml",
+        "[tool.sqlfluff.core]\n",
+        _DummyTomlError(),  # type: ignore[arg-type]
+    )
+    assert "Invalid value" in message
+    assert "line 7" in message
+    assert "column" not in message
