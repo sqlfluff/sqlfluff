@@ -646,14 +646,14 @@ impl MatchResult {
             insert_segments: vec![],
             child_matches: vec![Arc::new(self)],
         };
-        let root_node = file_mr.apply(tokens);
-        if root_node.len() > 1 {
+        let root_nodes = file_mr.apply(tokens);
+        if root_nodes.len() > 1 {
             panic!(
                 "Root apply did not produce a single node, got {} nodes",
-                root_node.len()
+                root_nodes.len()
             );
         }
-        let mut root = root_node.first().cloned().unwrap_or_default();
+        let mut root = root_nodes.into_iter().next().unwrap_or_default();
 
         // Prepend leading and append trailing token-derived children.
         if let Node::Segment { children, .. } = &mut root {

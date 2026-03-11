@@ -216,14 +216,18 @@ try:
                 # Extract leading non-code tokens (segments before _start_idx:
                 # whitespace/newlines at the start of the file) so the Rust node's
                 # flat raw list matches Python's raw_segments ordering exactly.
-                leading_tokens = self._extract_tokens_from_segments(
-                    segments[:_start_idx]
+                leading_tokens = (
+                    self._extract_tokens_from_segments(segments[:_start_idx])
+                    if _start_idx
+                    else []
                 )
                 # Extract trailing non-code tokens (segments after _end_idx: newline,
                 # end_of_file, etc.) and include them in the Rust node so that the
                 # reflow/respace rules can correctly detect EOF and trailing newlines.
-                trailing_tokens = self._extract_tokens_from_segments(
-                    segments[_end_idx:]
+                trailing_tokens = (
+                    self._extract_tokens_from_segments(segments[_end_idx:])
+                    if _end_idx < len(segments)
+                    else []
                 )
                 result._rs_node = rs_match.apply_as_node(
                     tokens,

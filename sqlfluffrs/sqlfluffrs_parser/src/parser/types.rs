@@ -1,5 +1,6 @@
 //! Core types for the parser: Grammar, Node, ParseMode
 
+use hashbrown::HashSet;
 use serde_yaml_ng::{Mapping, Value};
 use sqlfluffrs_types::{GrammarId, PositionMarker};
 
@@ -141,15 +142,20 @@ impl Node {
         instance_types: &[String],
         raw_class_class_types: &[String],
     ) -> Vec<String> {
-        let mut ct: Vec<String> = Vec::with_capacity(
-            instance_types.len() + raw_class_class_types.len() + 1,
-        );
-        ct.extend_from_slice(instance_types);
-        if !ct.iter().any(|t| t == segment_type) {
+        let capacity = instance_types.len() + raw_class_class_types.len() + 1;
+        let mut ct: Vec<String> = Vec::with_capacity(capacity);
+        let mut seen: HashSet<String> = HashSet::with_capacity(capacity);
+
+        for t in instance_types {
+            if seen.insert(t.clone()) {
+                ct.push(t.clone());
+            }
+        }
+        if seen.insert(segment_type.to_string()) {
             ct.push(segment_type.to_string());
         }
         for t in raw_class_class_types {
-            if !ct.iter().any(|x| x == t) {
+            if seen.insert(t.clone()) {
                 ct.push(t.clone());
             }
         }
