@@ -262,6 +262,7 @@ clickhouse_dialect.replace(
     ).copy(
         insert=[
             Ref.keyword("PREWHERE"),
+            Ref.keyword("SETTINGS"),
             Ref.keyword("INTO"),
             Ref.keyword("FORMAT"),
         ],
@@ -662,8 +663,8 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
     match_grammar = ansi.SetExpressionSegment.match_grammar.copy(
         insert=[
             Ref("FormatClauseSegment", optional=True),
-            Ref("IntoOutfileClauseSegment", optional=True),
             Ref("SettingsClauseSegment", optional=True),
+            Ref("IntoOutfileClauseSegment", optional=True),
         ],
     )
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e4bcca508d99f9a9a668c4d6fba30aa1accfa2261282a00d23ebef6147aa355
+_hash: 07d672c7dc8db1642be43749fe784f1c3257843cf79edafdacc52792e1d38dca
 file:
 - statement:
     set_expression:
@@ -107,3 +107,106 @@ file:
           raw_comparison_operator: '='
       - numeric_literal: '1'
 - statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test1
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+    - format_clause:
+      - keyword: FORMAT
+      - keyword: CSV
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test1
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+    - into_outfile_clause:
+      - keyword: INTO
+      - keyword: OUTFILE
+      - quoted_literal: "'output.csv'"
+      - format_clause:
+        - keyword: FORMAT
+        - keyword: CSV
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '2'
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: max_threads
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+    - into_outfile_clause:
+      - keyword: INTO
+      - keyword: OUTFILE
+      - quoted_literal: "'output.csv'"
