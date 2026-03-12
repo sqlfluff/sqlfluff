@@ -59,6 +59,12 @@ pub enum Node {
         segment_class: String,        // "SelectStatementSegment"
         segment_type: Option<String>, // "select_statement"
         pos_marker: Option<PositionMarker>,
+        /// Python parity: mirrors ``BaseSegment._class_types`` (static, computed
+        /// from the class inheritance chain).  Populated from codegen aux_data
+        /// so that ``is_type("statement")`` returns ``true`` for a
+        /// ``SelectStatementSegment`` node even though its ``segment_type`` is
+        /// ``"select_statement"``.  Empty vec means "unknown hierarchy".
+        class_types: Vec<String>,
         children: Vec<Node>,
     },
 
@@ -442,7 +448,16 @@ impl Node {
         }
     }
 
-    /// Check if this node is of a specific type (including class_types for Raw nodes)
+    /// Check if this node is of a specific type (including class_types for Raw and Segment nodes).
+    ///
+    /// For Raw nodes this mirrors ``RawSegment.is_type()`` (checks ``instance_types``
+    /// then ``class_is_type()``).  For Segment nodes this mirrors
+    /// ``BaseSegment.is_type()`` which delegates to ``class_is_type()`` — the
+    /// inherited type set from the Python class hierarchy.  A
+    /// ``SelectStatementSegment`` therefore returns ``true`` for
+    /// ``is_type("statement")`` even though its ``segment_type`` is
+    /// ``"select_statement"``, because ``"statement"`` is in its
+    /// ``_class_types``.
     pub fn is_type(&self, target: &str) -> bool {
         match self {
             Node::Raw {
@@ -450,6 +465,11 @@ impl Node {
                 class_types,
                 ..
             } => segment_type == target || class_types.iter().any(|t| t == target),
+            Node::Segment {
+                segment_type,
+                class_types,
+                ..
+            } => segment_type.as_deref() == Some(target) || class_types.iter().any(|t| t == target),
             _ => self.get_type() == target,
         }
     }
@@ -522,6 +542,7 @@ mod tests {
             segment_class: "StatementSegment".to_string(),
             segment_type: Some("statement".to_string()),
             pos_marker: None,
+            class_types: vec![],
             children: vec![],
         };
         let record = node.as_record(false, true, false).unwrap();
@@ -539,6 +560,7 @@ mod tests {
             segment_class: "StatementSegment".to_string(),
             segment_type: Some("statement".to_string()),
             pos_marker: None,
+            class_types: vec![],
             children: vec![
                 Node::new_raw(
                     "KeywordSegment".to_string(),
@@ -692,6 +714,7 @@ mod tests {
             segment_class: "StatementSegment".to_string(),
             segment_type: Some("statement".to_string()),
             pos_marker: None,
+            class_types: vec![],
             children: vec![child1, child2],
         };
         let val = node.to_tuple(false, true, false);

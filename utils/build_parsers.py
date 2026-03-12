@@ -102,6 +102,14 @@ class TableBuilder:
         self.trim_chars_sparse: List[Tuple[int, int, int]] = []
         # Flat array of string indices for trim_chars values
         self.trim_chars_data: List[int] = []
+        # Sparse segment _class_types entries: list of (grammar_id, offset, count)
+        # tuples.  Only populated for grammars that map to a Python segment class
+        # (direct Segment class entries and Refs that resolve to segment classes).
+        # Mirrors Python's ``BaseSegment._class_types`` frozenset at the grammar
+        # table level so Rust can replicate inheritance-aware type checks.
+        self.segment_class_types_sparse: List[Tuple[int, int, int]] = []
+        # Flat array of string indices for segment_class_types values
+        self.segment_class_types_data: List[int] = []
 
         # Deduplication maps
         self.string_to_id: Dict[str, int] = {}
@@ -122,6 +130,24 @@ class TableBuilder:
         self.strings.append(s)
         self.string_to_id[s] = string_id
         return string_id
+
+    def _register_segment_class_types(
+        self, grammar_id: int, class_types: List[str]
+    ) -> None:
+        """Record _class_types for a grammar entry's Python segment class.
+
+        Populates ``segment_class_types_sparse`` and ``segment_class_types_data``
+        so that the Rust parser can replicate Python's inheritance-aware
+        ``is_type()`` check for non-Raw (Segment) nodes.
+        """
+        if not class_types:
+            return
+        offset = len(self.segment_class_types_data)
+        count = len(class_types)
+        self.segment_class_types_sparse.append((grammar_id, offset, count))
+        for ct in class_types:
+            ct_id = self._add_string(ct)
+            self.segment_class_types_data.append(ct_id)
 
     def _add_regex(self, pattern: str) -> int:
         """Add regex pattern to table (deduplicated). Returns regex_id."""
@@ -269,6 +295,9 @@ class TableBuilder:
                 class_name = grammar.__name__
                 class_id = self._add_string(class_name)
                 self.segment_class_offsets[grammar_id] = class_id
+                # Store _class_types hierarchy for Rust is_type() parity
+                class_types = sorted(getattr(grammar, "_class_types", frozenset()))
+                self._register_segment_class_types(grammar_id, class_types)
             # If this grammar is a Ref to a named segment, attempt to resolve
             # the referenced name to a Segment class in the dialect library
             # and use that class's `type` and `__name__` attributes. This covers
@@ -292,6 +321,11 @@ class TableBuilder:
                             class_name = target.__name__
                             class_id = self._add_string(class_name)
                             self.segment_class_offsets[grammar_id] = class_id
+                            # Store _class_types hierarchy for Rust is_type() parity
+                            class_types = sorted(
+                                getattr(target, "_class_types", frozenset())
+                            )
+                            self._register_segment_class_types(grammar_id, class_types)
                 except Exception:
                     # Be conservative: if lookup fails, leave as NONE
                     pass
@@ -1416,6 +1450,24 @@ class TableBuilder:
         lines.append("];")
         lines.append("")
 
+        # Segment class types sparse entries (grammar_id, data_offset, count)
+        # Sorted by grammar_id for binary search lookup
+        lines.append("pub static SEGMENT_CLASS_TYPES_SPARSE: &[(u32, u32, u8)] = &[")
+        sorted_sct_sparse = sorted(self.segment_class_types_sparse, key=lambda x: x[0])
+        for grammar_id, offset, count in sorted_sct_sparse:
+            lines.append(f"    ({grammar_id}, {offset}, {count}),")
+        lines.append("];")
+        lines.append("")
+
+        # Segment class types data (flat array of string indices)
+        lines.append("pub static SEGMENT_CLASS_TYPES_DATA: &[u32] = &[")
+        for i in range(0, len(self.segment_class_types_data), 16):
+            chunk = self.segment_class_types_data[i : i + 16]
+            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            lines.append(line)
+        lines.append("];")
+        lines.append("")
+
         # Regex patterns
         lines.append("pub static REGEX_PATTERNS: &[&str] = &[")
         for i, pattern in enumerate(self.regex_patterns):
@@ -1668,6 +1720,8 @@ def generate_parser_table_driven(dialect: str):
     casefold_sparse: CASEFOLD_SPARSE,
     trim_chars_sparse: TRIM_CHARS_SPARSE,
     trim_chars_data: TRIM_CHARS_DATA,
+    segment_class_types_sparse: SEGMENT_CLASS_TYPES_SPARSE,
+    segment_class_types_data: SEGMENT_CLASS_TYPES_DATA,
 }};
 """)
 

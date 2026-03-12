@@ -28,9 +28,11 @@ pub enum MetaSegment {
 #[derive(Debug, Clone)]
 pub struct SegmentKwargs {
     pub instance_types: Option<Vec<String>>,
-    /// Class types inherited from the raw_class hierarchy (e.g. ``SymbolSegment``
-    /// → ``["symbol", "raw", "base"]``).  Populated from codegen aux_data.
-    pub raw_class_class_types: Option<Vec<String>>,
+    /// Python class hierarchy for this node (equivalent to ``_class_types`` in Python).
+    /// For Raw nodes: inherited from ``raw_class`` (e.g. ``SymbolSegment._class_types``).
+    /// For Segment nodes: from codegen ``segment_class_types_sparse`` table.
+    /// ``None`` means hierarchy unknown; ``is_type()`` falls back to exact match only.
+    pub class_types: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub casefold: CaseFold,
     pub quoted_value: Option<(String, RegexModeGroup)>,
@@ -42,7 +44,7 @@ impl Default for SegmentKwargs {
     fn default() -> Self {
         SegmentKwargs {
             instance_types: None,
-            raw_class_class_types: None,
+            class_types: None,
             trim_chars: None,
             casefold: CaseFold::None,
             quoted_value: None,
@@ -64,7 +66,10 @@ impl MatchedClass {
         MatchedClass {
             class_name: "Root".to_string(),
             segment_type: Some("file".to_string()),
-            segment_kwargs: SegmentKwargs::default(),
+            segment_kwargs: SegmentKwargs {
+                class_types: Some(vec!["base".to_string(), "file".to_string()]),
+                ..Default::default()
+            },
         }
     }
 
@@ -74,6 +79,7 @@ impl MatchedClass {
             segment_type: Some("unparsable".to_string()),
             segment_kwargs: SegmentKwargs {
                 parse_error: Some((message.to_string(), error_pos)),
+                class_types: Some(vec!["base".to_string(), "unparsable".to_string()]),
                 ..Default::default()
             },
         }
@@ -233,7 +239,10 @@ impl MatchResult {
             Some(MatchedClass {
                 class_name: "BracketedSegment".to_string(),
                 segment_type: Some("bracketed".to_string()),
-                segment_kwargs: SegmentKwargs::default(),
+                segment_kwargs: SegmentKwargs {
+                    class_types: Some(vec!["base".to_string(), "bracketed".to_string()]),
+                    ..Default::default()
+                },
             })
         } else {
             None
@@ -568,10 +577,7 @@ impl MatchResult {
                         .or_else(|| instance_types.first().cloned())
                         .unwrap_or_else(|| "raw".to_string());
 
-                    let raw_class_ct = match_class
-                        .segment_kwargs
-                        .raw_class_class_types
-                        .unwrap_or_default();
+                    let raw_class_ct = match_class.segment_kwargs.class_types.unwrap_or_default();
 
                     let quoted_value =
                         match_class
@@ -619,6 +625,7 @@ impl MatchResult {
                 segment_class: match_class.class_name,
                 segment_type: match_class.segment_type,
                 pos_marker,
+                class_types: match_class.segment_kwargs.class_types.unwrap_or_default(),
                 children: result_nodes,
             }]
         } else {

@@ -377,7 +377,7 @@ impl<'a> Parser<'a> {
                     Some(configured_instance_types),
                     casefold,
                 );
-                segment_kwargs.raw_class_class_types = Some(raw_class_class_types);
+                segment_kwargs.class_types = Some(raw_class_class_types);
                 if let Some(grammar_tc) = grammar_trim_chars {
                     segment_kwargs.trim_chars = Some(grammar_tc);
                 }
@@ -631,7 +631,7 @@ impl<'a> Parser<'a> {
                     .iter()
                     .map(|id| tables.get_string(*id).to_string())
                     .collect::<Vec<_>>();
-                segment_kwargs.raw_class_class_types = Some(raw_class_class_types);
+                segment_kwargs.class_types = Some(raw_class_class_types);
                 if let Some(grammar_tc) = grammar_trim_chars {
                     segment_kwargs.trim_chars = Some(grammar_tc);
                 }
@@ -799,7 +799,7 @@ impl<'a> Parser<'a> {
                     Some(configured_instance_types),
                     casefold,
                 );
-                segment_kwargs.raw_class_class_types = Some(raw_class_class_types);
+                segment_kwargs.class_types = Some(raw_class_class_types);
                 if let Some(grammar_tc) = grammar_trim_chars {
                     segment_kwargs.trim_chars = Some(grammar_tc);
                 }
@@ -1108,7 +1108,7 @@ impl<'a> Parser<'a> {
                         Some(configured_instance_types),
                         casefold,
                     );
-                    segment_kwargs.raw_class_class_types = Some(raw_class_class_types);
+                    segment_kwargs.class_types = Some(raw_class_class_types);
                     if let Some(grammar_tc) = grammar_trim_chars {
                         segment_kwargs.trim_chars = Some(grammar_tc);
                     }
