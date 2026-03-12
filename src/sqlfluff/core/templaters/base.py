@@ -177,9 +177,9 @@ class TemplatedFile:
                     "literal", slice(0, len(source_str)), slice(0, len(source_str))
                 )
             ]
-            assert (
-                raw_sliced is None
-            ), "Templated file was not sliced, but not has raw slices."
+            assert raw_sliced is None, (
+                "Templated file was not sliced, but not has raw slices."
+            )
             self.raw_sliced: list[RawFileSlice] = [
                 RawFileSlice(source_str, "literal", 0)
             ]
