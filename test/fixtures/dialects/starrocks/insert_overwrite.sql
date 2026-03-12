@@ -1,0 +1,4 @@
+INSERT OVERWRITE target_table
+PARTITION (p20240101)
+SELECT col1
+FROM source_table;
