@@ -3241,6 +3241,12 @@ class DatatypeSegment(BaseSegment):
             "DOUBLE",
             "PRECISION",
         ),
+        # SIGNED [INTEGER] and UNSIGNED [INTEGER] are valid MySQL CAST types.
+        # https://dev.mysql.com/doc/refman/8.4/en/cast-functions.html
+        Sequence(
+            OneOf("SIGNED", "UNSIGNED"),
+            Ref.keyword("INTEGER", optional=True),
+        ),
         Sequence(
             OneOf(
                 Sequence(
