@@ -421,6 +421,7 @@ class ResumeRoutineLoadStatementSegment(BaseSegment):
 
 class InsertOverwriteStatementSegment(BaseSegment):
     """A `INSERT OVERWRITE` statement with optional PARTITION clause."""
+
     type = "insert_overwrite_statement"
     match_grammar = Sequence(
         "INSERT",
@@ -457,9 +458,8 @@ class StatementSegment(mysql.StatementSegment):
         insert=[
             Ref("InsertOverwriteStatementSegment"),
         ],
-        at = 1,
+        at=1,
     )
-
 
 
 class UnorderedSelectStatementSegment(mysql.UnorderedSelectStatementSegment):
