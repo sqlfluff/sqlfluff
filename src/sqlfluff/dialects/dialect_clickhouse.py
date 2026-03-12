@@ -648,6 +648,23 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("PreWhereClauseSegment", optional=True)],
         before=Ref("WhereClauseSegment", optional=True),
+        terminators=[
+            Ref("FormatClauseSegment"),
+            Ref("IntoOutfileClauseSegment"),
+            Ref("SettingsClauseSegment"),
+        ],
+    )
+
+
+class SetExpressionSegment(ansi.SetExpressionSegment):
+    """Enhance set expression to include ClickHouse-specific clauses."""
+
+    match_grammar = ansi.SetExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("FormatClauseSegment", optional=True),
+            Ref("IntoOutfileClauseSegment", optional=True),
+            Ref("SettingsClauseSegment", optional=True),
+        ],
     )
 
 
