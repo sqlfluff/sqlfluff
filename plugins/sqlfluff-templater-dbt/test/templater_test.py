@@ -288,7 +288,7 @@ def test__templater_dbt_templating_test_lex(
     # Count the newlines.
     n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
     print(
-        f"Loaded {path!r} (n_newlines: {n_trailing_newlines}): " f"{source_dbt_sql!r}",
+        f"Loaded {path!r} (n_newlines: {n_trailing_newlines}): {source_dbt_sql!r}",
     )
 
     templated_file, _ = dbt_templater.process(
@@ -578,9 +578,9 @@ def test__templater_dbt_handle_exceptions(
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
     shutil.move(src_fpath, target_fpath)
-    dbt_fluff_config["templater"]["dbt"][
-        "dbt_skip_compilation_error"
-    ] = dbt_skip_compilation_error
+    dbt_fluff_config["templater"]["dbt"]["dbt_skip_compilation_error"] = (
+        dbt_skip_compilation_error
+    )
     try:
         with pytest.raises(exception_class) as excinfo:
             dbt_templater.process(
@@ -659,9 +659,9 @@ def test__templater_dbt_handle_database_connection_failure(
         )
     )
     dbt_fluff_config_fail = deepcopy(dbt_fluff_config)
-    dbt_fluff_config_fail["templater"]["dbt"][
-        "profiles_dir"
-    ] = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
+    dbt_fluff_config_fail["templater"]["dbt"]["profiles_dir"] = (
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
+    )
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
     shutil.move(src_fpath, target_fpath)
@@ -704,7 +704,7 @@ def test__project_dir_does_not_exist_error(dbt_templater):
     with fluff_log_catcher(logging.ERROR, "sqlfluff.templater") as caplog:
         dbt_project_dir = dbt_templater._get_project_dir()
     assert (
-        f"dbt_project_dir: {dbt_project_dir} could not be accessed. " "Check it exists."
+        f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists."
     ) in caplog.text
 
 
