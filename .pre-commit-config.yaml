@@ -77,7 +77,7 @@ repos:
     # Ruff version.
     rev: "v0.15.5"
     hooks:
-      - id: ruff
+      - id: ruff-check
       - id: ruff-format
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
