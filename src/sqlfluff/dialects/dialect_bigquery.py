@@ -387,6 +387,7 @@ bigquery_dialect.replace(
     MergeIntoLiteralGrammar=Sequence("MERGE", Ref.keyword("INTO", optional=True)),
     AccessorGrammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
+        Ref("ChainedFunctionCallSegment"),
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
     ),
@@ -3798,5 +3799,19 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
         Bracketed(
             OneOf(Ref("SelectableGrammar"), Ref("PipeStatementSegment")),
             parse_mode=ParseMode.GREEDY,
+        ),
+    )
+
+
+class ChainedFunctionCallSegment(BaseSegment):
+    """Postfix chained function call accessor: .FUNC(args...) in BigQuery."""
+
+    type = "chained_function_call"
+
+    match_grammar = Sequence(
+        Ref("DotSegment"),
+        Ref("FunctionNameIdentifierSegment"),
+        Bracketed(
+            Ref("FunctionContentsGrammar", optional=True),
         ),
     )

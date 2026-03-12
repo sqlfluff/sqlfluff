@@ -5,11 +5,13 @@ name = "sqlfluffrs"
 # See: https://www.maturin.rs/metadata.html
 version = "4.0.4"
 edition = "2021"
+autobenches = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "sqlfluffrs"
 crate-type = ["cdylib", "rlib"]
+bench = false
 
 [workspace]
 members = [

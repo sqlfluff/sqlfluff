@@ -206,6 +206,7 @@ duckdb_dialect.replace(
             ),
             Ref("FunctionSegment"),
             Ref("ArrayLiteralSegment"),
+            Ref("MapLiteralSegment"),
             Ref("QuotedLiteralSegment"),
             Ref("ColumnReferenceSegment"),
         ),
@@ -249,6 +250,7 @@ duckdb_dialect.replace(
         ),
     ),
     BaseExpressionElementGrammar=OneOf(
+        Ref("MapLiteralSegment"),
         postgres_dialect.get_grammar("BaseExpressionElementGrammar"),
         Ref("ColumnIndexSegment"),
     ),
@@ -406,6 +408,41 @@ class MapTypeSchemaSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             Ref("DatatypeSegment"),
+        ),
+    )
+
+
+class MapLiteralElementSegment(BaseSegment):
+    """A map literal element segment.
+
+    e.g. 'key1': 50
+    Keys in DuckDB map literals can be any expression.
+    """
+
+    type = "map_literal_element"
+    match_grammar: Matchable = Sequence(
+        Ref("BaseExpressionElementGrammar"),
+        Ref("ColonSegment"),
+        Ref("BaseExpressionElementGrammar"),
+    )
+
+
+class MapLiteralSegment(BaseSegment):
+    """A map literal segment.
+
+    https://duckdb.org/docs/stable/sql/data_types/map
+    e.g. MAP {'key1': 50, 'key2': 75}
+    """
+
+    type = "map_literal"
+    match_grammar: Matchable = Sequence(
+        "MAP",
+        Bracketed(
+            Delimited(
+                Ref("MapLiteralElementSegment"),
+                optional=True,
+            ),
+            bracket_type="curly",
         ),
     )
 

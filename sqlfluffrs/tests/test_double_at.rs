@@ -1,5 +1,4 @@
 use sqlfluffrs_dialects::dialect::bigquery::matcher::BIGQUERY_LEXERS;
-use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
 
 #[test]
