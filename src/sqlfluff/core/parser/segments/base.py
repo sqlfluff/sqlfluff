@@ -497,7 +497,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         # the end-point would produce an over-wide position for
                         # the unpositioned segment (e.g. a replacement whitespace
                         # gaining a source-slice that extends into the Jinja code).
-                        # See: https://github.com/sqlfluff/sqlfluff/issues/6461
+                        # See: https://github.com/sqlfluff/sqlfluff/issues/6261
                         if (
                             fwd_seg.is_type("placeholder")
                             and fwd_seg.raw == ""
