@@ -225,9 +225,7 @@ def _get_unpivot_table_aliases(
     # Handle object_unpivoting (UNPIVOT x.json AS value AT key) and
     # array_unnesting (x.array AS value AT key) - Redshift SUPER type specific.
     # Both segment types introduce output aliases via AS and AT keywords.
-    for unpivot_seg in segment.recursive_crawl(
-        "object_unpivoting", "array_unnesting"
-    ):
+    for unpivot_seg in segment.recursive_crawl("object_unpivoting", "array_unnesting"):
         seen_keyword = False
         for seg in unpivot_seg.segments:
             if seg.is_type("keyword") and seg.raw_upper in ("AS", "AT"):
