@@ -234,11 +234,12 @@ try:
                     leading=leading_tokens,
                     trailing=trailing_tokens,
                 )
-            except Exception:
+            except Exception:  # pragma: no cover
                 # Non-critical: if node building fails, rules fall back to Python
                 parser_logger.warning(
-                    f"Unable to apply match result in parse tree for {fname},"
-                    " falling back to Python"
+                    f"Unable to apply match result in parse tree for {fname}, falling"
+                    " back to Python. Please report this as a bug with the SQL that"
+                    " caused it."
                 )
                 result._rs_node = None
 
