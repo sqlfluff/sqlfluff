@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e33d22bcef7f0a9a64fa9fa9161218dac793fbb880a0719a6b4d18d83fd6edc9
+_hash: b199dc1bf3e30088599cff6a22b183253136d6e6c4a27837f83f5e189f0a89b2
 file:
 - batch:
     statement:
@@ -1171,6 +1171,79 @@ file:
           - comma: ','
           - column_reference:
               naked_identifier: EndDate
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: InsurancePolicy
+      - keyword: ADD
+      - column_definition:
+        - naked_identifier: ValidFrom
+        - data_type:
+            keyword: DATETIME2
+        - column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: ROW
+          - keyword: START
+          - keyword: HIDDEN
+        - column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: DF_InsurancePolicy_ValidFrom
+          - keyword: DEFAULT
+          - function:
+              function_name:
+                function_name_identifier: SYSUTCDATETIME
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ValidTo
+        - data_type:
+            keyword: DATETIME2
+        - column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: ROW
+          - keyword: END
+          - keyword: HIDDEN
+        - column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: DF_InsurancePolicy_ValidTo
+          - keyword: DEFAULT
+          - function:
+              function_name:
+                keyword: CONVERT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    keyword: DATETIME2
+                  comma: ','
+                  expression:
+                    quoted_literal: "'9999-12-31 23:59:59.9999999'"
+                  end_bracket: )
+      - comma: ','
+      - period_segment:
+        - keyword: PERIOD
+        - keyword: FOR
+        - keyword: SYSTEM_TIME
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: ValidFrom
+          - comma: ','
+          - column_reference:
+              naked_identifier: ValidTo
           - end_bracket: )
   - statement_terminator: ;
   - statement:
