@@ -880,7 +880,12 @@ def test__get_filtered_parse_violations_caches_rulepack_per_config():
 
 
 def test__get_filtered_parse_violations_respects_warning_config_for_malformed_noqa():
-    """Check malformed noqa parse errors respect warnings config like lint does."""
+    """Check malformed noqa parse errors are omitted when configured as warnings.
+
+    Unlike the lint path (which still displays warnings), the parse path has no
+    separate warnings display mechanism, so warning-class violations are silently
+    dropped from the returned list.
+    """
     linter = Linter(
         config=FluffConfig(overrides={"dialect": "ansi", "warnings": "PRS"})
     )
