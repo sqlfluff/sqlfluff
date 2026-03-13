@@ -116,9 +116,7 @@ class Rule_ST06(BaseRule):
         # element to the corresponding index.
         self.seen_band_elements: list[list[BaseSegment]] = [
             [] for _ in select_element_order_preference
-        ] + [
-            []
-        ]  # type: ignore
+        ] + [[]]  # type: ignore
 
         assert context.segment.is_type("select_clause")
 

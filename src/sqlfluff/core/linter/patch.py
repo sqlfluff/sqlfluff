@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Optional
 
+from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.templaters import TemplatedFile
@@ -135,6 +136,34 @@ def _iter_templated_patches(
                         insert_buff,
                         templated_idx,
                     )
+                continue
+
+            # Special case: a template placeholder (e.g. {{ variable }}) whose
+            # Jinja expression rendered to an empty string. These segments occupy
+            # zero space in the templated file but have a non-zero source range.
+            # Due to the way the lexer processes them, they may appear in the
+            # segment list *before* an adjacent literal segment that starts at an
+            # earlier templated position.  If we naively apply the start_diff
+            # logic below, we would generate a spurious deletion patch for the
+            # source characters between `templated_idx` and the placeholder's
+            # templated position (e.g. the opening quote of a quoted literal).
+            # See: https://github.com/sqlfluff/sqlfluff/issues/6261
+            if (
+                seg.is_type("placeholder")
+                and seg.raw == ""
+                and is_zero_slice(seg.pos_marker.templated_slice)
+                and not is_zero_slice(seg.pos_marker.source_slice)
+                and getattr(seg, "block_type", "") == "templated"
+            ):
+                # Yield any embedded source fixes (rare, but possible).
+                yield from _iter_source_fix_patches(seg, templated_file=templated_file)
+                # Do NOT update templated_idx here.  The placeholder occupies no
+                # space in the templated output, so advancing templated_idx would
+                # make the next sibling appear to have a negative start_diff and
+                # its source content would be silently skipped.
+                # We do not update source_idx either; the source content covered by
+                # this placeholder is implicitly part of the surrounding literal
+                # segment's source range and will be left untouched.
                 continue
 
             # If we get here, then we know it's an original. Check for deletions at

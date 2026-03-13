@@ -68,7 +68,7 @@ def test_lt01_alias_alignment_with_jinja_uses_source_positions() -> None:
 
 def test_lt01_alias_alignment_with_jinja_coordinate_space_config_key() -> None:
     """Coordinate space can be set via alignment_coordinate_space config key."""
-    sql = "select\n" "    {{ 'templ' }} as a,\n" "    b as bb\n"
+    sql = "select\n    {{ 'templ' }} as a,\n    b as bb\n"
 
     cfg = FluffConfig.from_kwargs(dialect="ansi")
     cfg._configs["core"]["templater"] = "jinja"
@@ -102,7 +102,7 @@ def test_lt01_alias_alignment_with_jinja_coordinate_space_config_key() -> None:
 
 def test_lt01_alias_alignment_non_rendered_longer_than_template() -> None:
     """Non-rendered column longer than template should align correctly."""
-    sql = "select\n" '    {{ "xxx" }} as a,\n' "    fooooooooo as b\n" "from t\n"
+    sql = 'select\n    {{ "xxx" }} as a,\n    fooooooooo as b\nfrom t\n'
 
     cfg = FluffConfig.from_kwargs(dialect="ansi")
     cfg._configs["core"]["templater"] = "jinja"
@@ -142,7 +142,7 @@ def test_lt01_alias_alignment_non_rendered_longer_than_template() -> None:
 
 def test_lt01_alias_alignment_source_coordinate_space_explicit() -> None:
     """Test explicit source coordinate space setting with templated content."""
-    sql = "select\n" "    {{ var1 }} as col1,\n" "    b as col2\n" "from table1\n"
+    sql = "select\n    {{ var1 }} as col1,\n    b as col2\nfrom table1\n"
 
     cfg = FluffConfig.from_kwargs(dialect="ansi")
     cfg._configs["core"]["templater"] = "jinja"
@@ -170,7 +170,7 @@ def test_lt01_alias_alignment_source_coordinate_space_explicit() -> None:
 def test_lt01_alias_alignment_edge_case_no_segments_on_line() -> None:
     """Edge case: no segments found on current line should be handled gracefully."""
     # This creates a scenario that might trigger the edge case
-    sql = "select\n" "\n" "    col1 as a,\n" "    col2 as b\n" "from t\n"
+    sql = "select\n\n    col1 as a,\n    col2 as b\nfrom t\n"
 
     cfg = FluffConfig.from_kwargs(dialect="ansi")
     cfg._configs.setdefault("layout", {}).setdefault("type", {}).setdefault(
@@ -223,7 +223,7 @@ def test_lt01_alias_alignment_target_segment_not_found() -> None:
 
 def test_lt01_alias_alignment_templated_next_segment() -> None:
     """Templated next segment should be detected and aligned by source positions."""
-    sql = "select\n" "    col1 as a,\n" "    {{ col2 }} as b\n"
+    sql = "select\n    col1 as a,\n    {{ col2 }} as b\n"
 
     cfg = FluffConfig.from_kwargs(dialect="ansi")
     cfg._configs["core"]["templater"] = "jinja"
@@ -248,7 +248,7 @@ def test_lt01_alias_alignment_templated_next_segment() -> None:
 
 def test_lt01_alias_alignment_templated_siblings() -> None:
     """Templated siblings should be detected and aligned by source positions."""
-    sql = "select\n" "    {{ col1 }} as a,\n" "    col2 as b,\n" "    {{ col3 }} as c\n"
+    sql = "select\n    {{ col1 }} as a,\n    col2 as b,\n    {{ col3 }} as c\n"
 
     cfg = FluffConfig.from_kwargs(dialect="ansi")
     cfg._configs["core"]["templater"] = "jinja"

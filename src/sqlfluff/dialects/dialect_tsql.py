@@ -910,6 +910,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SqlcmdCommandSegment"),
             Ref("CreateExternalFileFormat"),
             Ref("CreateExternalTableStatementSegment"),
+            Ref("CreateExternalTableAsSelectStatementSegment"),
             Ref("DropExternalTableStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("CreateFullTextIndexStatementSegment"),
@@ -7605,7 +7606,11 @@ class CreateTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("ObjectReferenceSegment"),
         OneOf(
-            Sequence("FROM", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "FROM",
+                Ref("DatatypeSegment"),
+                OneOf("NULL", Sequence("NOT", "NULL"), optional=True),
+            ),
             Sequence(
                 "AS",
                 "TABLE",
@@ -8251,6 +8256,61 @@ class CreateExternalTableStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class CreateExternalTableAsSelectStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL TABLE AS SELECT` (CETAS) statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-table-as-select-transact-sql
+    """
+
+    type = "create_external_table_as_select_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "TABLE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        "WITH",
+        Bracketed(
+            Delimited(
+                Ref("TableLocationClause"),
+                Sequence(
+                    "DATA_SOURCE",
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                ),
+                Sequence(
+                    "FILE_FORMAT",
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                ),
+                Sequence(
+                    "REJECT_TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf("value", "percentage"),
+                ),
+                Sequence(
+                    "REJECT_VALUE",
+                    Ref("EqualsSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                Sequence(
+                    "REJECT_SAMPLE_VALUE",
+                    Ref("EqualsSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+            ),
+        ),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
     )
 
 
