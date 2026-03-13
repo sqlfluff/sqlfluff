@@ -234,6 +234,12 @@ ignore_missing_imports = true
 module = "tblib.*"
 ignore_missing_imports = true
 
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.format]
+quote-style = "double"
+
 [tool.ruff.lint]
 extend-select = ["I", "D"]
 
@@ -241,13 +247,6 @@ extend-select = ["I", "D"]
 # D107: Missing docstring in __init__
 # D418: Function/ Method decorated with @overload shouldn’t contain a docstring
 ignore = ["D107", "D105", "D418"]
-
-[tool.ruff]
-line-length = 88
-
-[tool.ruff.format]
-quote-style = "double"
-
 
 [tool.ruff.lint.isort]
 # Mark sqlfluff, test and it's plugins as known first party

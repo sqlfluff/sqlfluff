@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9cf3e0246a7e2e05177e23574d12d98afc6804de789b57724cce8345f6d387ea
+_hash: b58a1849a93e06c03d00a9a4547cc9f8a5b4f20a34c18462f5debf1e0c8575a9
 file:
 - statement:
     insert_statement:
@@ -202,28 +202,30 @@ file:
             naked_identifier: a
           comparison_operator:
             raw_comparison_operator: '='
-          values_clause:
-            keyword: VALUES
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: a
-              end_bracket: )
+          expression:
+            values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                end_bracket: )
       - comma: ','
       - set_clause:
           column_reference:
             naked_identifier: b
           comparison_operator:
             raw_comparison_operator: '='
-          values_clause:
-            keyword: VALUES
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: b
-              end_bracket: )
+          expression:
+            values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: b
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -574,4 +576,63 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: X
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          comma: ','
+          quoted_literal: "'A'"
+          end_bracket: )
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+          column_reference:
+            naked_identifier: b
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: IF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'A'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'B'"
+              - comma: ','
+              - expression:
+                  values_clause:
+                    keyword: VALUES
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: b
+                      end_bracket: )
+              - end_bracket: )
 - statement_terminator: ;
