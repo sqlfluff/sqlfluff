@@ -879,6 +879,20 @@ def test__get_filtered_parse_violations_caches_rulepack_per_config():
     assert get_rulepack.call_count == 1
 
 
+def test__get_filtered_parse_violations_respects_warning_config_for_malformed_noqa():
+    """Check malformed noqa parse errors respect warnings config like lint does."""
+    linter = Linter(
+        config=FluffConfig(overrides={"dialect": "ansi", "warnings": "PRS"})
+    )
+    parsed_string = linter.parse_string("select 1 --noqa missing semicolon")
+
+    violations = sqlfluff.cli.commands._get_filtered_parse_violations(
+        parsed_string, linter, {}
+    )
+
+    assert violations == []
+
+
 @pytest.mark.parametrize(
     "command",
     [

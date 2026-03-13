@@ -146,6 +146,10 @@ def _get_filtered_parse_violations(
             allowed_rules_ref_map,
         )
 
+    for violation in ignore_violations:
+        violation.ignore_if_in(parsed_string.config.get("ignore"))
+        violation.warning_if_in(parsed_string.config.get("warnings"))
+
     filtered_violations = [*violations, *ignore_violations]
     filtered_violations = [v for v in filtered_violations if not v.ignore]
     filtered_violations = ignore_mask.ignore_masked_violations(filtered_violations)
