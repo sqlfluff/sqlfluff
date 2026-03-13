@@ -783,9 +783,9 @@ def test__templater_jinja_block_matching(caplog):
     ]
 
     # Group them together by block UUID
-    assert all(
-        seg.block_uuid for seg in template_segments
-    ), "All templated segments should have a block uuid!"
+    assert all(seg.block_uuid for seg in template_segments), (
+        "All templated segments should have a block uuid!"
+    )
     grouped = defaultdict(list)
     for seg in template_segments:
         grouped[seg.block_uuid].append(seg.pos_marker.working_loc)
@@ -1930,8 +1930,7 @@ def test__templater_jinja_dotted_context_config():
     t = JinjaTemplater()
     outstr, _ = t.process(
         in_str=(
-            "SELECT * FROM `{{ namespace.projectname }}."
-            "{{ namespace.env }}_test.table`"
+            "SELECT * FROM `{{ namespace.projectname }}.{{ namespace.env }}_test.table`"
         ),
         fname="test.sql",
         config=config,

@@ -285,13 +285,17 @@ class RegexParser(BaseParser):
         anti_template: Optional[str] = None,
         trim_chars: Optional[tuple[str, ...]] = None,
         casefold: Optional[Callable[[str], str]] = None,
+        ignore_case: bool = True,
     ):
         # Store the optional anti-template
         self.template = template
         self.anti_template = anti_template
+        self.ignore_case = ignore_case
         # Compile regexes upfront to avoid repeated overhead
-        self._anti_template = regex.compile(anti_template or r"", regex.IGNORECASE)
-        self._template = regex.compile(template, regex.IGNORECASE)
+        self._anti_template = regex.compile(
+            anti_template or r"", regex.IGNORECASE if ignore_case else 0
+        )
+        self._template = regex.compile(template, regex.IGNORECASE if ignore_case else 0)
         super().__init__(
             raw_class=raw_class,
             type=type,
@@ -320,10 +324,9 @@ class RegexParser(BaseParser):
     ) -> MatchResult:
         """Match against this matcher.
 
-        NOTE: This method uses .raw_upper and so case sensitivity is
-        not supported.
+        NOTE: This method's case sensitivity is based on objects ignore_case property
         """
-        _raw = segments[idx].raw_upper
+        _raw = segments[idx].raw_upper if self.ignore_case else segments[idx].raw
         result = self._template.match(_raw)
         if result:
             result_string = result.group(0)

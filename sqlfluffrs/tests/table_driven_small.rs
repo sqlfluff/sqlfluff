@@ -1,8 +1,6 @@
-use env_logger;
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::Lexer;
 use sqlfluffrs_parser::parser::{Node, Parser};
-use sqlfluffrs_types::RootGrammar;
 
 /// Parse `sql` using a specific segment grammar (table-driven) and return
 /// true if a `Ref` node with `segment_type == expected` is present.
@@ -28,29 +26,43 @@ fn parse_and_find(sql: &str, grammar_name: &str, expected: &str) -> bool {
 
     // Parse starting from the requested segment grammar.
     let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-    let node = parser
-        .parse_table_iterative(segment_grammar.grammar_id, &[])
+    let mr = parser
+        .parse_table_iterative_match_result(segment_grammar.grammar_id, &[])
         .expect("parse_table_driven_iterative should not error");
+
+    println!("PARSE_MR for '{}': {}", sql, mr);
+
+    let node = mr.apply_as_root(&tokens);
 
     println!("PARSE_RESULT for '{}': {:?}", sql, node);
 
     // Recursive search for a Ref with matching segment_type
     fn find(node: &Node, expected: &str) -> bool {
         match node {
-            Node::Ref { name, child, .. } => {
-                if name == expected {
+            Node::Raw {
+                segment_class,
+                segment_type,
+                instance_types,
+                ..
+            } => {
+                if segment_type == expected || segment_class == expected {
                     return true;
                 }
-                find(child, expected)
+                instance_types.iter().any(|t| t == expected)
             }
-            Node::Sequence { children } | Node::DelimitedList { children } => {
+            Node::Segment {
+                segment_class,
+                segment_type,
+                children,
+                ..
+            } => {
+                if segment_type.as_deref() == Some(expected) || segment_class == expected {
+                    return true;
+                }
                 children.iter().any(|c| find(c, expected))
             }
-            Node::Bracketed { children, .. } => children.iter().any(|c| find(c, expected)),
-            Node::Token { token_type, .. } => token_type == expected,
-            Node::Empty | Node::Meta { .. } => false,
-            // Fallback for any other node kinds
-            _ => false,
+            Node::Unparsable { children, .. } => children.iter().any(|c| find(c, expected)),
+            Node::Meta { .. } | Node::Empty => false,
         }
     }
 
@@ -100,24 +112,24 @@ fn oneof_second_parses() {
 #[test]
 fn seq_no_allow_gaps_parses() {
     assert!(
-        parse_and_find("||", "ConcatSegment", "PipeSegment"),
-        "Expected PipeSegment in parse tree for '||'"
+        parse_and_find("||", "ConcatSegment", "pipe"),
+        "Expected pipe in parse tree for '||'"
     );
 }
 
 #[test]
 fn oneof_first_seq_parses() {
     assert!(
-        parse_and_find("!=", "NotEqualToSegment", "RawNotSegment"),
-        "Expected RawNotSegment in parse tree for '!='"
+        parse_and_find("!=", "NotEqualToSegment", "raw_comparison_operator"),
+        "Expected raw_comparison_operator in parse tree for '!='"
     );
 }
 
 #[test]
 fn oneof_second_seq_parses() {
     assert!(
-        parse_and_find("<>", "NotEqualToSegment", "RawLessThanSegment"),
-        "Expected RawLessThanSegment in parse tree for '<>'"
+        parse_and_find("<>", "NotEqualToSegment", "raw_comparison_operator"),
+        "Expected raw_comparison_operator in parse tree for '<>'"
     );
 }
 
@@ -144,8 +156,8 @@ fn empty_bracketed_parses() {
 #[test]
 fn anynumberof_parses() {
     assert!(
-        parse_and_find("[1][2]", "AccessorGrammar", "NumericLiteralSegment"),
-        "Expected NumericLiteralSegment in parse tree for AccessorGrammar"
+        parse_and_find("[1][2]", "AccessorGrammar", "numeric_literal"),
+        "Expected numeric_literal in parse tree for AccessorGrammar"
     );
 }
 
@@ -253,12 +265,8 @@ fn create_sequence_statement_parses() {
 fn datatype_time_with_tz_parses() {
     // The table-driven parse produces a `TimeWithTZGrammar` ref for this branch.
     assert!(
-        parse_and_find(
-            "TIMESTAMP WITH TIME ZONE",
-            "DatatypeSegment",
-            "TimeWithTZGrammar"
-        ),
-        "Expected TimeWithTZGrammar in parse tree for TIMESTAMP WITH TIME ZONE"
+        parse_and_find("TIMESTAMP WITH TIME ZONE", "DatatypeSegment", "keyword"),
+        "Expected keyword in parse tree for TIMESTAMP WITH TIME ZONE"
     );
 }
 
@@ -266,12 +274,8 @@ fn datatype_time_with_tz_parses() {
 fn datatype_double_precision_parses() {
     // The parse results in `DoubleKeywordSegment` + `PrecisionKeywordSegment`.
     assert!(
-        parse_and_find(
-            "DOUBLE PRECISION",
-            "DatatypeSegment",
-            "DoubleKeywordSegment"
-        ),
-        "Expected DoubleKeywordSegment in parse tree for DOUBLE PRECISION"
+        parse_and_find("DOUBLE PRECISION", "DatatypeSegment", "keyword"),
+        "Expected keyword in parse tree for DOUBLE PRECISION"
     );
 }
 
@@ -303,5 +307,61 @@ fn datatype_array_type_parses() {
     assert!(
         parse_and_find("ARRAY", "DatatypeSegment", "data_type_identifier"),
         "Expected data_type_identifier in parse tree for ARRAY"
+    );
+}
+
+#[test]
+fn basic_select_parses() {
+    assert!(
+        parse_and_find("select col1 from t", "FileSegment", "keyword"),
+        "Expected keyword in parse tree for SELECT"
+    );
+}
+
+#[test]
+fn basic_select_via_select_statement_parses() {
+    assert!(
+        parse_and_find("select col1 from t", "SelectStatementSegment", "keyword"),
+        "Expected keyword in parse tree for SELECT"
+    );
+}
+
+#[test]
+fn basic_object_parses() {
+    assert!(
+        parse_and_find("col1", "ObjectReferenceSegment", "naked_identifier"),
+        "Expected naked_identifier in parse tree for ObjectReferenceSegment"
+    );
+}
+
+#[test]
+fn from_clause_parses() {
+    assert!(
+        parse_and_find("from t", "FromClauseSegment", "keyword"),
+        "Expected keyword in parse tree for FROM clause"
+    );
+}
+
+#[test]
+fn from_expression_parses() {
+    assert!(
+        parse_and_find("t", "FromExpressionSegment", "naked_identifier"),
+        "Expected naked_identifier in parse tree for FromExpressionSegment"
+    );
+}
+
+#[test]
+fn from_expression_element_parses() {
+    assert!(
+        parse_and_find("t", "FromExpressionElementSegment", "naked_identifier"),
+        "Expected naked_identifier in parse tree for FromExpressionElementSegment"
+    );
+}
+
+#[test]
+fn from_keyword_parses() {
+    assert!(
+        parse_and_find("from", "FromKeywordSegment", "keyword"),
+        "Expected keyword in parse tree for FROM keyword"
     );
 }

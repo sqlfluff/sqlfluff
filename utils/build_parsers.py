@@ -846,6 +846,24 @@ class TableBuilder:
 
         flags = self._build_flags(grammar)
 
+        # Extract casefold and store in sparse casefold array
+        grammar_id = len(self.instructions) - 1  # Current grammar being built
+        casefold_attr = getattr(grammar, "casefold", None)
+        if casefold_attr is str.upper:
+            self.casefold_sparse.append((grammar_id, 1))  # Upper
+        elif casefold_attr is str.lower:
+            self.casefold_sparse.append((grammar_id, 2))  # Lower
+
+        # Extract trim_chars and store in sparse trim_chars array
+        trim_chars_attr = getattr(grammar, "_trim_chars", None)
+        if trim_chars_attr:
+            offset = len(self.trim_chars_data)
+            count = len(trim_chars_attr)
+            self.trim_chars_sparse.append((grammar_id, offset, count))
+            for tc in trim_chars_attr:
+                tc_id = self._add_string(tc)
+                self.trim_chars_data.append(tc_id)
+
         # Store ids in aux_data
         aux_offset = len(self.aux_data)
         self.aux_data.append(template_id)
@@ -942,6 +960,24 @@ class TableBuilder:
 
         flags = self._build_flags(grammar)
 
+        # Extract casefold and store in sparse casefold array
+        grammar_id = len(self.instructions) - 1  # Current grammar being built
+        casefold_attr = getattr(grammar, "casefold", None)
+        if casefold_attr is str.upper:
+            self.casefold_sparse.append((grammar_id, 1))  # Upper
+        elif casefold_attr is str.lower:
+            self.casefold_sparse.append((grammar_id, 2))  # Lower
+
+        # Extract trim_chars and store in sparse trim_chars array
+        trim_chars_attr = getattr(grammar, "_trim_chars", None)
+        if trim_chars_attr:
+            offset = len(self.trim_chars_data)
+            count = len(trim_chars_attr)
+            self.trim_chars_sparse.append((grammar_id, offset, count))
+            for tc in trim_chars_attr:
+                tc_id = self._add_string(tc)
+                self.trim_chars_data.append(tc_id)
+
         # Store metadata in aux_data
         aux_offset = len(self.aux_data)
         self.aux_data.append(templates_start)
@@ -990,6 +1026,16 @@ class TableBuilder:
             self.casefold_sparse.append((grammar_id, 1))  # Upper
         elif casefold_attr is str.lower:
             self.casefold_sparse.append((grammar_id, 2))  # Lower
+
+        # Extract trim_chars and store in sparse trim_chars array
+        trim_chars_attr = getattr(grammar, "_trim_chars", None)
+        if trim_chars_attr:
+            offset = len(self.trim_chars_data)
+            count = len(trim_chars_attr)
+            self.trim_chars_sparse.append((grammar_id, offset, count))
+            for tc in trim_chars_attr:
+                tc_id = self._add_string(tc)
+                self.trim_chars_data.append(tc_id)
 
         # Store ids in aux_data
         aux_offset = len(self.aux_data)

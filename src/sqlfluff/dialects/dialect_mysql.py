@@ -213,6 +213,9 @@ mysql_dialect.replace(
     ).copy(
         insert=[
             Ref("SessionVariableNameSegment"),
+            # Allow VALUES() function in expressions, e.g. in ON DUPLICATE KEY UPDATE.
+            # https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_values
+            Ref("ValuesClauseSegment"),
         ],
         at=0,
     ),
@@ -3240,6 +3243,12 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             "DOUBLE",
             "PRECISION",
+        ),
+        # SIGNED [INTEGER] and UNSIGNED [INTEGER] are valid MySQL CAST types.
+        # https://dev.mysql.com/doc/refman/8.4/en/cast-functions.html
+        Sequence(
+            OneOf("SIGNED", "UNSIGNED"),
+            Ref.keyword("INTEGER", optional=True),
         ),
         Sequence(
             OneOf(

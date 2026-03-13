@@ -3,17 +3,17 @@
 //! This module contains the Parser struct definition and its core methods
 //! including the main entry point for parsing with grammar.
 
+use crate::parser::match_result::{self, MatchedClass, SegmentKwargs};
 use crate::vdebug;
 use std::sync::Arc;
 
 use crate::parser::table_driven::frame::{TableFrameResult, TableParseFrame};
 use crate::parser::FrameState;
-use crate::parser::{MatchResult, MetaSegmentType};
+use crate::parser::{MatchResult, MetaSegment};
 
 use super::{cache::TableParseCache, Node, ParseError};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::regex::RegexMode;
-use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::{SimpleHint, Token};
 // NEW: Table-driven grammar support
 use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant, RootGrammar};
@@ -70,6 +70,12 @@ pub struct Parser<'a> {
     pub root: Option<RootGrammar>,
     // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
     regex_cache: std::cell::RefCell<hashbrown::HashMap<String, RegexMode>>,
+    /// Maximum number of main-loop iterations before aborting.
+    /// Configurable via `rust_parser_max_iterations` in `.sqlfluff`.
+    pub max_parser_iterations: usize,
+    /// Iteration count at which a warning is emitted (the former hard limit).
+    /// Configurable via `rust_parser_warn_threshold` in `.sqlfluff`.
+    pub parser_warn_threshold: usize,
 }
 
 impl<'a> Parser<'a> {
@@ -106,7 +112,16 @@ impl<'a> Parser<'a> {
             indent_config,
             root: None,
             regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
+            max_parser_iterations: 3_000_000,
+            parser_warn_threshold: 2_000_000,
         }
+    }
+
+    /// Override the iteration limits for this parser (builder pattern).
+    pub fn with_parser_limits(mut self, max_parser_iterations: usize, parser_warn_threshold: usize) -> Self {
+        self.max_parser_iterations = max_parser_iterations;
+        self.parser_warn_threshold = parser_warn_threshold;
+        self
     }
 
     /// Enable or disable the parse cache (for debugging)
@@ -114,82 +129,10 @@ impl<'a> Parser<'a> {
         self.cache_enabled = enabled;
     }
 
-    pub fn call_rule_as_root(&mut self) -> Result<Node, ParseError> {
-        // Obtain the root grammar for this dialect and dispatch based on its
-        // variant (table-driven vs Arc-based). Clone to avoid holding borrows.
-        let root_grammar = self.dialect.get_root_grammar().clone();
-
-        // Find the last code token position (for trailing non-code tokens)
-        let mut last_code_pos = self.tokens.len();
-        for (i, token) in self.tokens.iter().enumerate().rev() {
-            if token.is_code() {
-                last_code_pos = i + 1;
-                break;
-            }
-        }
-
-        let token_slice_orig = self.tokens;
-        let token_slice = &self.tokens[..last_code_pos];
-        let end_nodes = self.end_children_nodes(last_code_pos);
-
-        if token_slice.is_empty() {
-            // Wrap in a Ref node for type clarity
-            let result = Node::new_ref(
-                "Root".to_string(),
-                Some("file".to_string()),
-                Node::Sequence {
-                    children: end_nodes,
-                },
-            );
-            return Ok(result.deduplicate());
-        }
-
-        self.tokens = token_slice;
-
-        // Collect any leading transparent tokens (whitespace, newlines, COMMENTS)
-        // before parsing starts. This ensures leading comments are included in the AST.
-        let leading_transparent = self.collect_transparent_nodes(true);
-
-        // Parse using the root grammar.
-        let grammar_id = root_grammar.grammar_id;
-        let tables = root_grammar.tables;
-        // Update grammar context if needed
-        self.grammar_ctx = GrammarContext::new(tables);
-        let nodes = self.parse_table_iterative(grammar_id, &[]);
-        self.tokens = token_slice_orig;
-        match nodes {
-            Ok(mut n) => {
-                // Prepend leading transparent tokens and append trailing tokens
-                if !leading_transparent.is_empty() || !end_nodes.is_empty() {
-                    let mut all_children = leading_transparent;
-                    all_children.push(n);
-                    all_children.extend(end_nodes);
-                    let len = all_children.len();
-                    n = Node::Sequence {
-                        children: all_children,
-                    };
-                    self.pos += len - 1; // -1 because n is included
-                } else if !end_nodes.is_empty() {
-                    let mut children = vec![n];
-                    let end_len = end_nodes.len();
-                    children.extend(end_nodes);
-                    n = Node::Sequence { children };
-                    self.pos += end_len;
-                }
-                let result = Node::new_ref("Root".to_string(), Some("file".to_string()), n);
-                Ok(result.deduplicate())
-            }
-            Err(e) => Err(e),
-        }
-    }
-
-    /// Parse and return MatchResult instead of Node
+    /// Parse and return MatchResult
     ///
-    /// This allows Python to apply the match result using its own apply() logic,
-    /// avoiding double-counting issues in Rust's apply() implementation.
-    pub fn call_rule_as_root_match_result(&mut self) -> Result<MatchResult, ParseError> {
-        use crate::parser::match_result::MatchResult;
-
+    /// We can pass either Rust's or Python's implementation of `apply` to convert the MatchResult into a Node.
+    pub fn call_rule_as_root(&mut self) -> Result<MatchResult, ParseError> {
         // Obtain the root grammar for this dialect
         let root_grammar = self.dialect.get_root_grammar().clone();
 
@@ -222,158 +165,110 @@ impl<'a> Parser<'a> {
         result
     }
 
-    fn end_children_nodes(&mut self, start_idx: usize) -> Vec<Node> {
-        // Only non-code tokens present; return them as nodes with type mapping
-        let mut children = Vec::new();
-        for (i, token) in self.tokens[start_idx..].iter().enumerate() {
+    pub fn root_parse(&mut self) -> Result<Node, ParseError> {
+        // Obtain the root grammar for this dialect
+        let root_grammar = self.dialect.get_root_grammar().clone();
+
+        // Find first code position (trim leading non-code), mirroring Python's _start_idx loop
+        let mut first_code_pos = self.tokens.len();
+        for (i, token) in self.tokens.iter().enumerate() {
             if token.is_code() {
+                first_code_pos = i;
                 break;
             }
-            let node = match token.get_type().as_str() {
-                "meta" => Node::Meta {
-                    token_type: "meta".to_string(),
-                    token_idx: Some(start_idx + i),
-                },
-                "dedent" => Node::Meta {
-                    token_type: "dedent".to_string(),
-                    token_idx: Some(start_idx + i),
-                },
-                "whitespace" => Node::Whitespace {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                "newline" => Node::Newline {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                "end_of_file" => Node::EndOfFile {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                "comment" => Node::Comment {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                other => Node::new_token(other.to_string(), token.raw().to_string(), start_idx + i),
+        }
+
+        // Find last code position (trim trailing non-code), mirroring Python's _end_idx loop
+        let mut last_code_pos = self.tokens.len();
+        for (i, token) in self.tokens.iter().enumerate().rev() {
+            if token.is_code() {
+                last_code_pos = i + 1;
+                break;
+            }
+        }
+
+        // No code tokens at all — return a file segment containing only non-code, mirroring
+        // Python's `if _start_idx == _end_idx: return cls(segments, fname=fname)`.
+        if first_code_pos >= last_code_pos {
+            let file_mr = MatchResult {
+                matched_slice: 0..self.tokens.len(),
+                matched_class: Some(MatchedClass::root()),
+                insert_segments: vec![],
+                child_matches: vec![],
             };
-            children.push(node);
+            let nodes = file_mr.apply(self.tokens);
+            return Ok(nodes.into_iter().next().unwrap_or_default());
         }
-        children
-    }
 
-    /// Push a checkpoint onto the collection stack when starting to process a grammar.
-    /// This records the current state so we can backtrack if needed.
-    pub fn push_collection_checkpoint(&mut self, frame_id: usize) {
-        self.collection_stack.push(CollectionCheckpoint {
-            frame_id,
-            positions: Vec::new(),
-        });
-        vdebug!(
-            "Pushed collection checkpoint for frame_id={}, stack depth={}",
-            frame_id,
-            self.collection_stack.len()
-        );
-    }
+        let token_slice_orig = self.tokens;
+        // Mirror Python: pass segments[:_end_idx] and start matching at _start_idx
+        self.tokens = &token_slice_orig[..last_code_pos];
+        self.pos = first_code_pos;
 
-    /// Mark a token position as collected and record it in the current checkpoint.
-    /// Returns true if the position was newly inserted, false if it was already collected.
-    pub fn mark_position_collected(&mut self, pos: usize) -> bool {
-        let was_new = !self.collected_transparent_positions.contains(&pos);
-        if was_new {
-            self.collected_transparent_positions.push(pos);
-        }
-        if was_new {
-            // Record this collection in the current checkpoint
-            if let Some(checkpoint) = self.collection_stack.last_mut() {
-                checkpoint.positions.push(pos);
-                vdebug!(
-                    "Marked position {} as collected in checkpoint for frame_id={}",
-                    pos,
-                    checkpoint.frame_id
-                );
-            }
-        }
-        was_new
-    }
+        // Parse using the root grammar
+        let grammar_id = root_grammar.grammar_id;
+        let tables = root_grammar.tables;
+        self.grammar_ctx = GrammarContext::new(tables);
+        let grammar_name = self.grammar_ctx.grammar_id_name(grammar_id).to_string();
+        let match_result = self.parse_table_iterative_match_result(grammar_id, &[])?;
+        let match_end = match_result.end();
 
-    /// Pop a checkpoint and commit its collections (keep them marked).
-    /// This is called when a grammar successfully produces a result that will be used.
-    /// If the frame_id doesn't match the checkpoint on top of the stack, it means
-    /// this grammar type (e.g., OneOf, Delimited) doesn't use checkpoints - this is OK.
-    pub fn commit_collection_checkpoint(&mut self, frame_id: usize) {
-        if let Some(checkpoint) = self.collection_stack.last() {
-            if checkpoint.frame_id == frame_id {
-                // This frame owns the checkpoint - pop and commit it
-                #[cfg(feature = "verbose-debug")]
-                let checkpoint = self.collection_stack.pop().unwrap();
-                #[cfg(not(feature = "verbose-debug"))]
-                let _ = self.collection_stack.pop();
-                vdebug!(
-                    "Committed {} collected positions for frame_id={}, stack depth now={}",
-                    checkpoint.positions.len(),
-                    frame_id,
-                    self.collection_stack.len()
-                );
-                // Positions remain in collected_transparent_positions - they're committed
-            } else {
-                // This frame doesn't own a checkpoint (e.g., OneOf, Delimited, Ref)
-                // This is normal - only Sequence creates checkpoints
-                log::trace!(
-                    "No checkpoint to commit for frame_id={} (top checkpoint is {})",
-                    frame_id,
-                    checkpoint.frame_id
-                );
-            }
+        // Restore parser state
+        self.tokens = token_slice_orig;
+        self.pos = 0;
+
+        // Build the content child, mirroring Python's three-way branch:
+        //   if not match      → UnparsableSegment(segments[_start_idx:_end_idx])
+        //   elif _unmatched   → matched + non-code gap + UnparsableSegment(first_code..)
+        //   else              → matched (+ any trailing non-code via gap-fill)
+        let content_child: Arc<MatchResult> = if match_result.is_empty() {
+            // No match at all – wrap the entire code region as unparsable
+            Arc::new(MatchResult::with_error(
+                first_code_pos,
+                last_code_pos,
+                grammar_name,
+                first_code_pos,
+            ))
+        } else if match_end < last_code_pos {
+            // Partial match – find the first code token in the unmatched tail
+            let first_code_in_unmatched = token_slice_orig[match_end..last_code_pos]
+                .iter()
+                .position(|t| t.is_code())
+                .map(|i| match_end + i)
+                .unwrap_or(last_code_pos);
+
+            // Wrap the code tail as UnparsableSegment("Nothing else in FileSegment.")
+            let unparsable = Arc::new(MatchResult::with_error(
+                first_code_in_unmatched,
+                last_code_pos,
+                "Nothing else in FileSegment.".to_string(),
+                first_code_in_unmatched,
+            ));
+
+            // A wrapper (no segment class) that holds both the matched result and
+            // the unparsable tail; gap-fill handles non-code between them.
+            Arc::new(MatchResult {
+                matched_slice: first_code_pos..last_code_pos,
+                matched_class: None,
+                insert_segments: vec![],
+                child_matches: vec![Arc::new(match_result), unparsable],
+            })
         } else {
-            // No checkpoints exist - this is fine for non-Sequence grammars
-            log::trace!(
-                "No checkpoint to commit for frame_id={} (stack empty)",
-                frame_id
-            );
-        }
-    }
+            // Full match — trailing non-code is captured by gap-fill in apply()
+            Arc::new(match_result)
+        };
 
-    /// Pop a checkpoint and rollback its collections (unmark them).
-    /// This is called when a grammar fails or is abandoned during backtracking.
-    /// If the frame_id doesn't match the checkpoint on top of the stack, it means
-    /// this grammar type (e.g., OneOf, Delimited) doesn't use checkpoints - this is OK.
-    pub fn rollback_collection_checkpoint(&mut self, frame_id: usize) {
-        if let Some(checkpoint) = self.collection_stack.last() {
-            if checkpoint.frame_id == frame_id {
-                // This frame owns the checkpoint - pop and rollback it
-                let checkpoint = self.collection_stack.pop().unwrap();
-                vdebug!(
-                    "Rolling back {} collected positions for frame_id={}, stack depth now={}",
-                    checkpoint.positions.len(),
-                    frame_id,
-                    self.collection_stack.len()
-                );
-                // Remove all positions that were marked during this checkpoint
-                for pos in checkpoint.positions {
-                    if let Some(index) = self
-                        .collected_transparent_positions
-                        .iter()
-                        .position(|&p| p == pos)
-                    {
-                        self.collected_transparent_positions.swap_remove(index);
-                    }
-                }
-            } else {
-                // This frame doesn't own a checkpoint (e.g., OneOf, Delimited, Ref)
-                // This is normal - only Sequence creates checkpoints
-                log::trace!(
-                    "No checkpoint to rollback for frame_id={} (top checkpoint is {})",
-                    frame_id,
-                    checkpoint.frame_id
-                );
-            }
-        } else {
-            // No checkpoints exist - this is fine for non-Sequence grammars
-            log::trace!(
-                "No checkpoint to rollback for frame_id={} (stack empty)",
-                frame_id
-            );
-        }
+        // Wrap content in a root (file) node spanning ALL tokens so that leading and
+        // trailing non-code are gap-filled, mirroring Python's
+        // `cls(segments[:_start_idx] + content + segments[_end_idx:], fname=fname)`.
+        let file_mr = MatchResult {
+            matched_slice: 0..token_slice_orig.len(),
+            matched_class: Some(MatchedClass::root()),
+            insert_segments: vec![],
+            child_matches: vec![content_child],
+        };
+        let root_nodes = file_mr.apply(token_slice_orig);
+        Ok(root_nodes.into_iter().next().unwrap_or_default())
     }
 
     // ============================================================================
@@ -398,6 +293,8 @@ impl<'a> Parser<'a> {
         let template = tables.get_string(template_id).to_string();
         let token_type = tables.get_string(token_type_id).to_string();
         let raw_class = tables.get_string(raw_class_id).to_string();
+        let casefold = self.grammar_ctx.casefold(grammar_id);
+        let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
 
         vdebug!(
             "StringParser[table]: pos={}, template='{}', token_type='{}', raw_class='{}'",
@@ -410,32 +307,41 @@ impl<'a> Parser<'a> {
         match self.peek() {
             Some(tok) if tok.raw().eq_ignore_ascii_case(&template) && tok.is_code() => {
                 let token_pos = self.pos;
-                #[cfg(feature = "verbose-debug")]
-                let raw = tok.raw().to_string();
-                self.bump();
+                let mut segment_kwargs =
+                    match_result::segment_kwargs_from_token(tok, &token_type, None, casefold);
+                if let Some(grammar_tc) = grammar_trim_chars {
+                    segment_kwargs.trim_chars = Some(grammar_tc);
+                }
+                let result = MatchResult {
+                    matched_slice: token_pos..token_pos + 1,
+                    matched_class: Some(MatchedClass {
+                        class_name: raw_class.clone(),
+                        segment_type: Some(token_type.clone()),
+                        segment_kwargs,
+                    }),
+                    ..Default::default()
+                };
 
-                vdebug!(
-                    "StringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
-                    raw,
-                    raw_class,
-                    token_type,
-                    token_pos
-                );
+                #[cfg(feature = "verbose-debug")]
+                {
+                    let raw = tok.raw().to_string();
+
+                    vdebug!(
+                        "StringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
+                        raw,
+                        raw_class,
+                        token_type,
+                        token_pos
+                    );
+                }
+                self.bump();
 
                 // PYTHON PARITY: matched_class is the raw_class (segment class name)
                 // and instance_types contains the token_type from the parser
                 // This matches Python's _match_at() which sets:
                 // - matched_class=self.raw_class
                 // - segment_kwargs with instance_types from segment_kwargs()
-                Ok(MatchResult {
-                    matched_slice: token_pos..token_pos + 1,
-                    matched_class: Some(raw_class),
-                    instance_types: Some(vec![token_type]),
-                    // TODO: Add trim_chars and casefold from grammar when available
-                    trim_chars: None,
-                    casefold: CaseFold::None,
-                    ..Default::default()
-                })
+                Ok(result)
             }
             _ => {
                 vdebug!(
@@ -474,6 +380,8 @@ impl<'a> Parser<'a> {
         let template = tables.get_string(template_id).to_string();
         let token_type = tables.get_string(token_type_id).to_string();
         let raw_class = tables.get_string(raw_class_id).to_string();
+        let casefold = self.grammar_ctx.casefold(grammar_id);
+        let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
 
         self.pos = frame.pos;
 
@@ -489,71 +397,109 @@ impl<'a> Parser<'a> {
                 // Capture all token-derived data before mutating self
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
-                let raw = tok.raw().to_string();
-                #[cfg(feature = "verbose-debug")]
-                let token_type_val = tok.token_type.clone();
-                #[cfg(feature = "verbose-debug")]
-                let inst_types = tok.instance_types.clone();
-                #[cfg(feature = "verbose-debug")]
-                let class_types = tok.class_types();
+                {
+                    let raw = tok.raw().to_string();
+                    let token_type_val = tok.token_type.clone();
+                    let inst_types = tok.instance_types.clone();
+                    let class_types = tok.class_types();
 
-                // Advance position after capturing token data
-                self.bump();
+                    vdebug!(
+                        "TypedParser[table] MATCHED: type='{}', raw='{}' at pos={}",
+                        token_type_val,
+                        raw,
+                        token_pos
+                    );
 
-                vdebug!(
-                    "TypedParser[table] MATCHED: type='{}', raw='{}' at pos={}",
-                    token_type_val,
-                    raw,
-                    token_pos
-                );
+                    // Extra debug: show token instance/class types
+                    vdebug!(
+                        "TypedParser[table] MATCH DETAILS: frame_id={}, grammar_id={:?}, token_idx={}, instance_types={:?}, class_types={:?}",
+                        frame.frame_id,
+                        grammar_id,
+                        token_pos,
+                        inst_types,
+                        class_types
+                    );
+                }
 
-                // Extra debug: show token instance/class types
-                vdebug!(
-                    "TypedParser[table] MATCH DETAILS: frame_id={}, grammar_id={:?}, token_idx={}, instance_types={:?}, class_types={:?}",
-                    frame.frame_id,
-                    grammar_id,
-                    token_pos,
-                    inst_types,
-                    class_types
-                );
-
-                // Build instance_types following Python TypedParser logic:
-                // 1. Override type (token_type) - e.g., "quoted_literal"
-                // 2. Segment class type - e.g., "literal" from "LiteralSegment"
-                // 3. Template type - e.g., "single_quote" (if not in class hierarchy)
-                let mut instance_types_vec = vec![token_type.clone()];
-
-                // Add the segment class type if different from override
-                // Use the dialect's pre-built segment type lookup (robust, authoritative)
+                // Build instance_types following Python TypedParser logic.
+                //
+                // Python parity note: `Ref("CodeSegment")` in Python resolves to
+                // `CodeSegment.match()` which uses `isinstance(seg, CodeSegment)`.
+                // When a token matches via isinstance (e.g. WordSegment is-a CodeSegment),
+                // Python returns the segment UNCHANGED - preserving its original type.
+                //
+                // TypedParser only overrides the type when an explicit `type=` argument
+                // was given. This is detectable: if `_instance_types[0] == raw_class.type`
+                // there was no explicit override. If they differ, there was.
+                //
+                // In Rust, "no explicit override" means `token_type == cls_type` (the
+                // TypedParser's configured type equals the class's base type). In that
+                // case we preserve the token's own type (isinstance semantics). Otherwise
+                // we keep the TypedParser's configured override type.
                 let class_type = self.dialect.get_segment_type(&raw_class);
-                if let Some(cls_type) = class_type {
-                    if cls_type != token_type {
-                        instance_types_vec.push(cls_type.to_string());
-                    }
 
-                    // Add template type if not already added
-                    // The segment class (e.g., LiteralSegment) has a fixed hierarchy that
-                    // doesn't include token-specific types like "single_quote", so we add it
-                    // Python checks: if not raw_class.class_is_type(template)
-                    // For simplicity, we add template if it's different from what we already have
-                    if template != token_type && template != cls_type {
-                        instance_types_vec.push(template.clone());
+                let (effective_segment_type, instance_types_vec) = if let Some(cls_type) =
+                    class_type
+                {
+                    if token_type == cls_type {
+                        // No explicit type override: TypedParser was invoked like Python's
+                        // isinstance path. Preserve the token's own type and instance_types
+                        // so that e.g. a WordSegment token matching Ref("CodeSegment") outputs
+                        // `word: value` instead of `raw: value`, or a double_quote token outputs
+                        // `double_quote: "value"` instead of `raw: "value"`.
+                        //
+                        // This mirrors Python's RawSegment.get_type():
+                        //   if instance_types: return instance_types[0]
+                        //   return super().get_type()  (= class type attribute)
+                        let tok_effective_type = tok
+                            .instance_types
+                            .first()
+                            .cloned()
+                            .unwrap_or_else(|| tok.token_type.clone());
+                        let tok_inst = tok.instance_types.clone();
+                        vdebug!(
+                            "TypedParser[table] isinstance-path: token_type='{}' == cls_type='{}', preserving effective_type='{}', instance_types={:?}",
+                            token_type,
+                            cls_type,
+                            tok_effective_type,
+                            tok_inst
+                        );
+                        (tok_effective_type, tok_inst)
+                    } else {
+                        // Explicit type override: build instance_types from TypedParser config
+                        // (e.g. TypedParser("single_quote", LiteralSegment, type="quoted_literal"))
+                        let mut vec = vec![token_type.clone()];
+                        if cls_type != token_type {
+                            vec.push(cls_type.to_string());
+                        }
+                        if template != token_type && template != cls_type {
+                            vec.push(template.clone());
+                        }
+                        vdebug!(
+                            "TypedParser[table] explicit-override-path: token_type='{}' != cls_type='{}', instance_types={:?}",
+                            token_type,
+                            cls_type,
+                            vec
+                        );
+                        (token_type.clone(), vec)
                     }
                 } else {
-                    // Fallback: if lookup fails, just add template if different from token_type
+                    // Fallback: no class type info available, use TypedParser config as-is
                     log::warn!(
                         "Could not find segment type for class '{}', using fallback",
                         raw_class
                     );
+                    let mut vec = vec![token_type.clone()];
                     if template != token_type {
-                        instance_types_vec.push(template.clone());
+                        vec.push(template.clone());
                     }
-                }
+                    (token_type.clone(), vec)
+                };
 
                 vdebug!(
-                    "TypedParser[table] Built instance_types: {:?} (token_type={}, raw_class={}, class_type={:?}, template={})",
+                    "TypedParser[table] final: effective_segment_type='{}', instance_types={:?} (raw_class={}, class_type={:?}, template={})",
+                    effective_segment_type,
                     instance_types_vec,
-                    token_type,
                     raw_class,
                     class_type,
                     template
@@ -561,19 +507,27 @@ impl<'a> Parser<'a> {
 
                 // Return MatchResult with raw_class as matched_class (segment class)
                 // and computed instance_types (semantic type hierarchy)
-                let casefold = self
-                    .grammar_ctx
-                    .casefold(grammar_id)
-                    .unwrap_or(CaseFold::None);
-                let trim_chars = self.grammar_ctx.trim_chars(grammar_id);
+                let mut segment_kwargs = match_result::segment_kwargs_from_token(
+                    tok,
+                    &effective_segment_type,
+                    Some(instance_types_vec),
+                    casefold,
+                );
+                if let Some(grammar_tc) = grammar_trim_chars {
+                    segment_kwargs.trim_chars = Some(grammar_tc);
+                }
                 let match_result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
-                    matched_class: Some(raw_class),
-                    instance_types: Some(instance_types_vec),
-                    trim_chars,
-                    casefold,
+                    matched_class: Some(MatchedClass {
+                        class_name: raw_class.clone(),
+                        segment_type: Some(effective_segment_type.clone()),
+                        segment_kwargs,
+                    }),
                     ..Default::default()
                 };
+
+                // Advance position after capturing token data
+                self.bump();
 
                 frame.state = FrameState::Complete(Arc::new(match_result));
                 frame.end_pos = Some(self.pos);
@@ -652,6 +606,9 @@ impl<'a> Parser<'a> {
             tables.get_string(raw_class_id).to_string()
         };
 
+        let casefold = self.grammar_ctx.casefold(grammar_id);
+        let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
+
         vdebug!(
             "MultiStringParser[table]: pos={}, templates={:?}, token_type='{}', raw_class='{}'",
             self.pos,
@@ -666,28 +623,36 @@ impl<'a> Parser<'a> {
             {
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
-                let raw = tok.raw().to_string();
-                self.bump();
+                {
+                    let raw = tok.raw().to_string();
 
-                vdebug!(
-                    "MultiStringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
-                    raw,
-                    raw_class,
-                    token_type,
-                    token_pos
-                );
+                    vdebug!(
+                        "MultiStringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
+                        raw,
+                        raw_class,
+                        token_type,
+                        token_pos
+                    );
+                }
 
                 // PYTHON PARITY: matched_class is the raw_class (segment class name)
                 // and instance_types contains the token_type from the parser
-                Ok(MatchResult {
+                let mut segment_kwargs =
+                    match_result::segment_kwargs_from_token(tok, &token_type, None, casefold);
+                if let Some(grammar_tc) = grammar_trim_chars {
+                    segment_kwargs.trim_chars = Some(grammar_tc);
+                }
+                let result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
-                    matched_class: Some(raw_class),
-                    instance_types: Some(vec![token_type]),
-                    // TODO: Add trim_chars and casefold from grammar when available
-                    trim_chars: None,
-                    casefold: CaseFold::None,
+                    matched_class: Some(MatchedClass {
+                        class_name: raw_class.clone(),
+                        segment_type: Some(token_type.clone()),
+                        segment_kwargs,
+                    }),
                     ..Default::default()
-                })
+                };
+                self.bump();
+                Ok(result)
             }
             _ => {
                 vdebug!(
@@ -913,7 +878,6 @@ impl<'a> Parser<'a> {
                 // Check main pattern
                 if pattern.is_match(&raw) {
                     let token_pos = self.pos;
-                    self.bump();
 
                     vdebug!(
                         "RegexParser[table] MATCHED: token='{}' at pos={}",
@@ -923,18 +887,24 @@ impl<'a> Parser<'a> {
 
                     // Return MatchResult with raw_class as matched_class
                     let token_type = token_type_opt.unwrap_or_default();
-                    let casefold = self
-                        .grammar_ctx
-                        .casefold(grammar_id)
-                        .unwrap_or(CaseFold::None);
-                    Ok(MatchResult {
+                    let casefold = self.grammar_ctx.casefold(grammar_id);
+                    let grammar_trim_chars = self.grammar_ctx.trim_chars(grammar_id);
+                    let mut segment_kwargs =
+                        match_result::segment_kwargs_from_token(tok, &token_type, None, casefold);
+                    if let Some(grammar_tc) = grammar_trim_chars {
+                        segment_kwargs.trim_chars = Some(grammar_tc);
+                    }
+                    let result = MatchResult {
                         matched_slice: token_pos..token_pos + 1,
-                        matched_class: Some(raw_class),
-                        instance_types: Some(vec![token_type]),
-                        trim_chars: None, // TODO: Add trim_chars support from grammar
-                        casefold,
+                        matched_class: Some(MatchedClass {
+                            class_name: raw_class.clone(),
+                            segment_type: Some(token_type.clone()),
+                            segment_kwargs,
+                        }),
                         ..Default::default()
-                    })
+                    };
+                    self.bump();
+                    Ok(result)
                 } else {
                     vdebug!(
                         "RegexParser[table] NOMATCH: pattern '{}' didn't match token='{}'",
@@ -1058,10 +1028,10 @@ impl<'a> Parser<'a> {
         vdebug!("Meta[table]: pos={}, token_type='{}'", self.pos, token_type);
 
         // Meta creates zero-length inserts. Determine type and is_implicit flag.
-        let (meta_type, is_implicit) = match token_type.as_str() {
-            "indent" => (MetaSegmentType::Indent, false),
-            "implicit_indent" => (MetaSegmentType::Indent, true),
-            "dedent" => (MetaSegmentType::Dedent, false),
+        let meta_type = match token_type.as_str() {
+            "indent" => MetaSegment::Indent { is_implicit: false },
+            "implicit_indent" => MetaSegment::Indent { is_implicit: true },
+            "dedent" => MetaSegment::Dedent { is_implicit: false },
             _ => {
                 log::warn!("Unknown meta token_type: {}", token_type);
                 return Ok(MatchResult::empty_at(self.pos));
@@ -1071,7 +1041,7 @@ impl<'a> Parser<'a> {
         // Return MatchResult with insert_segments
         Ok(MatchResult {
             matched_slice: self.pos..self.pos,
-            insert_segments: vec![(self.pos, meta_type, is_implicit)],
+            insert_segments: vec![(self.pos, meta_type)],
             ..Default::default()
         })
     }
@@ -1267,8 +1237,14 @@ impl<'a> Parser<'a> {
         // Record opening bracket position with SymbolSegment class
         let open_bracket_match = MatchResult {
             matched_slice: self.pos..self.pos + 1,
-            matched_class: Some("SymbolSegment".to_string()),
-            instance_types: Some(vec!["start_bracket".to_string()]),
+            matched_class: Some(MatchedClass {
+                class_name: "SymbolSegment".to_string(),
+                segment_type: Some("start_bracket".to_string()),
+                segment_kwargs: SegmentKwargs {
+                    instance_types: Some(vec!["start_bracket".to_string()]),
+                    ..Default::default()
+                },
+            }),
             ..Default::default()
         };
         self.bump();
@@ -1309,39 +1285,18 @@ impl<'a> Parser<'a> {
 
         let close_bracket_match = MatchResult {
             matched_slice: bracket_end - 1..bracket_end,
-            matched_class: Some("SymbolSegment".to_string()),
-            instance_types: Some(vec!["end_bracket".to_string()]),
+            matched_class: Some(MatchedClass {
+                class_name: "SymbolSegment".to_string(),
+                segment_type: Some("end_bracket".to_string()),
+                segment_kwargs: SegmentKwargs {
+                    instance_types: Some(vec!["end_bracket".to_string()]),
+                    ..Default::default()
+                },
+            }),
             ..Default::default()
         };
         inner_child_matches.push(Arc::new(close_bracket_match));
 
-        if persists {
-            // Create a BracketedSegment match
-            // Note: bracket_persists is NOT stored in segment_kwargs.
-            // In Python, it's only used as a decision flag for whether to wrap in BracketedSegment.
-            // When wrapping, Python stores start_bracket/end_bracket (extracted from children), not bracket_persists.
-            MatchResult {
-                matched_slice: bracket_start..bracket_end,
-                matched_class: Some("BracketedSegment".to_string()),
-                child_matches: inner_child_matches,
-                insert_segments: vec![
-                    (bracket_start + 1, MetaSegmentType::Indent, false),
-                    (bracket_end - 1, MetaSegmentType::Dedent, false),
-                ],
-                ..Default::default()
-            }
-        } else {
-            // For non-persisting brackets, return a simple match with indent/dedent
-            // but no BracketedSegment wrapper
-            MatchResult {
-                matched_slice: bracket_start..bracket_end,
-                child_matches: inner_child_matches,
-                insert_segments: vec![
-                    (bracket_start + 1, MetaSegmentType::Indent, false),
-                    (bracket_end - 1, MetaSegmentType::Dedent, false),
-                ],
-                ..Default::default()
-            }
-        }
+        MatchResult::bracketed(bracket_start, bracket_end, inner_child_matches, persists)
     }
 }
