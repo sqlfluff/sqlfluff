@@ -847,6 +847,18 @@ def test__cli__command_parse_respects_inline_noqa_for_prs():
     assert "==== parsing violations ====" not in result.stdout
 
 
+def test__cli__command_parse_disable_noqa_shows_prs():
+    """Check parse command ignores inline noqa when disable_noqa is enabled."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[parse, ["-", "--dialect=mariadb", "--disable-noqa"]],
+        cli_input="SeLeCt  1 frm tBl ;    -- noqa",
+    )
+
+    assert "==== parsing violations ====" in result.stdout
+    assert "PRS" in result.stdout
+
+
 @pytest.mark.parametrize(
     "command",
     [
