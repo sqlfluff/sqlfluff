@@ -59,7 +59,7 @@ def _format_toml_parse_error(
     line = getattr(err, "lineno", None)
     column = getattr(err, "colno", None)
 
-    if message == raw_message:
+    if not hasattr(err, "msg"):
         location_match = re.search(
             r" \(at line (?P<line>\d+), column (?P<column>\d+)\)$", raw_message
         )
