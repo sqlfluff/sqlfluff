@@ -31,6 +31,7 @@ from sqlfluff.cli.commands import (
     rules,
     version,
 )
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
@@ -857,6 +858,25 @@ def test__cli__command_parse_disable_noqa_shows_prs():
 
     assert "==== parsing violations ====" in result.stdout
     assert "PRS" in result.stdout
+
+
+def test__get_filtered_parse_violations_caches_rulepack_per_config():
+    """Check parse violation filtering reuses rulepack lookups for one config."""
+    linter = Linter(config=FluffConfig(overrides={"dialect": "ansi"}))
+    parsed_string = linter.parse_string("SELEC * FROM foo -- noqa: PRS")
+    cache = {}
+
+    with patch.object(
+        linter, "get_rulepack", wraps=linter.get_rulepack
+    ) as get_rulepack:
+        sqlfluff.cli.commands._get_filtered_parse_violations(
+            parsed_string, linter, cache
+        )
+        sqlfluff.cli.commands._get_filtered_parse_violations(
+            parsed_string, linter, cache
+        )
+
+    assert get_rulepack.call_count == 1
 
 
 @pytest.mark.parametrize(

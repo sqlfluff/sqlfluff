@@ -105,7 +105,9 @@ class StreamHandlerTqdm(logging.StreamHandler):
 
 
 def _get_filtered_parse_violations(
-    parsed_string: ParsedString, linter: Linter
+    parsed_string: ParsedString,
+    linter: Linter,
+    allowed_rules_ref_map_cache: Optional[dict[int, dict[str, set[str]]]] = None,
 ) -> list[SQLBaseError]:
     """Return parse and templating violations after applying ignore settings."""
     violations = list(parsed_string.violations)
@@ -117,10 +119,20 @@ def _get_filtered_parse_violations(
     if parsed_string.config.get("disable_noqa") and not disable_noqa_except:
         return [v for v in violations if not v.ignore and not v.warning]
 
-    allowed_rules_ref_map = Linter.allowed_rule_ref_map(
-        linter.get_rulepack(config=parsed_string.config).reference_map,
-        disable_noqa_except,
-    )
+    cache_key = id(parsed_string.config)
+    if (
+        allowed_rules_ref_map_cache is not None
+        and cache_key in allowed_rules_ref_map_cache
+    ):
+        allowed_rules_ref_map = allowed_rules_ref_map_cache[cache_key]
+    else:
+        allowed_rules_ref_map = Linter.allowed_rule_ref_map(
+            linter.get_rulepack(config=parsed_string.config).reference_map,
+            disable_noqa_except,
+        )
+        if allowed_rules_ref_map_cache is not None:
+            allowed_rules_ref_map_cache[cache_key] = allowed_rules_ref_map
+
     root_variant = parsed_string.root_variant()
     if root_variant:
         assert root_variant.tree
@@ -128,13 +140,9 @@ def _get_filtered_parse_violations(
             root_variant.tree, allowed_rules_ref_map
         )
     else:
-        ignore_mask, ignore_violations = IgnoreMask.from_source(
+        ignore_mask, ignore_violations = IgnoreMask.from_source_with_dialect(
             parsed_string.source_str,
-            [
-                matcher
-                for matcher in parsed_string.config.get("dialect_obj").lexer_matchers
-                if matcher.name == "inline_comment"
-            ][0],
+            parsed_string.config.get("dialect_obj"),
             allowed_rules_ref_map,
         )
 
@@ -1681,6 +1689,7 @@ def parse(
 
     total_time = time.monotonic() - t0
     violations_count = 0
+    allowed_rules_ref_map_cache: dict[int, dict[str, set[str]]] = {}
 
     # iterative print for human readout
     if format == FormatType.human.value:
@@ -1691,7 +1700,9 @@ def parse(
             total_time,
             verbose,
             parsed_strings,
-            lambda parsed_string: _get_filtered_parse_violations(parsed_string, lnt),
+            lambda parsed_string: _get_filtered_parse_violations(
+                parsed_string, lnt, allowed_rules_ref_map_cache
+            ),
         )
     else:
         parsed_strings_dict = []
@@ -1700,7 +1711,11 @@ def parse(
             # output of the parse command.
             root_variant = parsed_string.root_variant()
             # Updating violation count ensures the correct return code below.
-            violations_count += len(_get_filtered_parse_violations(parsed_string, lnt))
+            violations_count += len(
+                _get_filtered_parse_violations(
+                    parsed_string, lnt, allowed_rules_ref_map_cache
+                )
+            )
             if root_variant:
                 assert root_variant.tree
                 segments = root_variant.tree.as_record(

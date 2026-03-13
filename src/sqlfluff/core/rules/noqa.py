@@ -3,7 +3,7 @@
 import fnmatch
 import logging
 from dataclasses import dataclass
-from typing import Optional, Union, cast
+from typing import Any, Optional, Union, cast
 
 from sqlfluff.core.errors import SQLBaseError, SQLParseError, SQLUnusedNoQaWarning
 from sqlfluff.core.parser import BaseSegment, RawSegment, RegexLexer
@@ -213,6 +213,31 @@ class IgnoreMask:
         if ignore_buff:
             linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
         return cls(ignore_buff), violations
+
+    @classmethod
+    def from_source_with_dialect(
+        cls,
+        source: str,
+        dialect: Any,
+        reference_map: dict[str, set[str]],
+    ) -> tuple["IgnoreMask", list[SQLBaseError]]:
+        """Parse noqa directives from raw source using a dialect's comment matcher.
+
+        If a dialect does not define an ``inline_comment`` lexer matcher, return an
+        empty ignore mask and no new violations so callers can continue without
+        raising an unhelpful ``IndexError``.
+        """
+        inline_comment_regex = next(
+            (
+                cast(RegexLexer, matcher)
+                for matcher in dialect.lexer_matchers
+                if matcher.name == "inline_comment"
+            ),
+            None,
+        )
+        if inline_comment_regex is None:
+            return cls([]), []
+        return cls.from_source(source, inline_comment_regex, reference_map)
 
     # ### Application methods.
 
