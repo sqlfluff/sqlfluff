@@ -31,6 +31,7 @@ from sqlfluff.cli.commands import (
     rules,
     version,
 )
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
@@ -834,6 +835,67 @@ def test__cli__command_lint_skip_ignore_files():
     )
     assert result.exit_code == 1
     assert "LT12" in result.stdout.strip()
+
+
+def test__cli__command_parse_respects_inline_noqa_for_prs():
+    """Check parse command respects inline noqa suppression for PRS errors."""
+    result = invoke_assert_code(
+        args=[parse, ["-", "--dialect=mariadb"]],
+        cli_input="SeLeCt  1 frm tBl ;    -- noqa",
+    )
+
+    assert result.exit_code == 0
+    assert "==== parsing violations ====" not in result.stdout
+
+
+def test__cli__command_parse_disable_noqa_shows_prs():
+    """Check parse command ignores inline noqa when disable_noqa is enabled."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[parse, ["-", "--dialect=mariadb", "--disable-noqa"]],
+        cli_input="SeLeCt  1 frm tBl ;    -- noqa",
+    )
+
+    assert "==== parsing violations ====" in result.stdout
+    assert "PRS" in result.stdout
+
+
+def test__get_filtered_parse_violations_caches_rulepack_per_config():
+    """Check parse violation filtering reuses rulepack lookups for one config."""
+    linter = Linter(config=FluffConfig(overrides={"dialect": "ansi"}))
+    parsed_string = linter.parse_string("SELEC * FROM foo -- noqa: PRS")
+    cache = {}
+
+    with patch.object(
+        linter, "get_rulepack", wraps=linter.get_rulepack
+    ) as get_rulepack:
+        sqlfluff.cli.commands._get_filtered_parse_violations(
+            parsed_string, linter, cache
+        )
+        sqlfluff.cli.commands._get_filtered_parse_violations(
+            parsed_string, linter, cache
+        )
+
+    assert get_rulepack.call_count == 1
+
+
+def test__get_filtered_parse_violations_respects_warning_config_for_malformed_noqa():
+    """Check malformed noqa parse errors are omitted when configured as warnings.
+
+    Unlike the lint path (which still displays warnings), the parse path has no
+    separate warnings display mechanism, so warning-class violations are silently
+    dropped from the returned list.
+    """
+    linter = Linter(
+        config=FluffConfig(overrides={"dialect": "ansi", "warnings": "PRS"})
+    )
+    parsed_string = linter.parse_string("select 1 --noqa missing semicolon")
+
+    violations = sqlfluff.cli.commands._get_filtered_parse_violations(
+        parsed_string, linter, {}
+    )
+
+    assert violations == []
 
 
 @pytest.mark.parametrize(
