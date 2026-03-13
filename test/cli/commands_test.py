@@ -31,7 +31,6 @@ from sqlfluff.cli.commands import (
     rules,
     version,
 )
-
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.config import clear_config_caches
 from sqlfluff.core.helpers.file import get_encoding
