@@ -17,7 +17,22 @@ impl<'py> FromPyObject<'py> for PyFluffConfig {
             .flatten()
             .and_then(|x| x.extract::<String>().ok());
 
-        Ok(Self(RsFluffConfig::new(dialect, true)))
+        let max_parser_iterations = core_dict
+            .get_item("rust_parser_max_iterations")
+            .ok()
+            .flatten()
+            .and_then(|x| x.extract::<usize>().ok());
+
+        let parser_warn_threshold = core_dict
+            .get_item("rust_parser_warn_threshold")
+            .ok()
+            .flatten()
+            .and_then(|x| x.extract::<usize>().ok());
+
+        Ok(Self(RsFluffConfig::new(dialect, true).with_parser_limits(
+            max_parser_iterations,
+            parser_warn_threshold,
+        )))
     }
 }
 

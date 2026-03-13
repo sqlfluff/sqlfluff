@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4ed8d97e694f8f8539717927501b43b08e982a9e07ad69a48586e5c24d29c699
+_hash: 81f1a1f5d14621376dbed561a1ce0cafe8ac849a3a662992cf09bc8df5bb2c18
 file:
 - batch:
   - statement:
@@ -524,3 +524,99 @@ file:
   - statement_terminator: ;
   - go_statement:
       keyword: GO
+- batch:
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: OBJECT
+          casting_operator: '::'
+          object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+      deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: public_data
+      - keyword: FROM
+      - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+      - comma: ','
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+      - keyword: CASCADE
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - keyword: GRANT
+      - keyword: OPTION
+      - keyword: FOR
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          object_reference:
+            naked_identifier: public_data
+      - keyword: FROM
+      - keyword: PUBLIC
+  - statement_terminator: ;

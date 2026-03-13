@@ -310,9 +310,9 @@ def test__parser__lexer_slicing_calls(case: _LexerSlicingCase):
         in_str=case.in_str, fname="test.sql", config=config, formatter=None
     )
 
-    assert (
-        not templater_violations
-    ), f"Found templater violations: {templater_violations}"
+    assert not templater_violations, (
+        f"Found templater violations: {templater_violations}"
+    )
 
     lexer = Lexer(config=config)
     lexing_segments, lexing_violations = lexer.lex(templated_file)
@@ -616,9 +616,9 @@ def test__parser__pyrs_lexer_unicode_templated_file():
         in_str=source_str, fname="test.sql", config=config, formatter=None
     )
 
-    assert (
-        not templater_violations
-    ), f"Unexpected templater violations: {templater_violations}"
+    assert not templater_violations, (
+        f"Unexpected templater violations: {templater_violations}"
+    )
 
     # Verify the templated file has the expected structure
     # The :c should be replaced with 'replaced_value'

@@ -582,6 +582,7 @@ UNRESERVED_KEYWORDS = [
     "CONTINUE_AFTER_ERROR",
     "CONNECTION_OPTIONS",
     "CONTAINED",
+    "CONTENT",
     "COUNT_ROWS",
     "CONTAINMENT",
     "CONTEXT_INFO",
@@ -623,6 +624,7 @@ UNRESERVED_KEYWORDS = [
     "DISABLED",
     "DISTRIBUTION",
     "DISABLE_BROKER",
+    "DOCUMENT",
     "DROP_EXISTING",
     "DROPCLEANBUFFERS",
     "DURABILITY",
@@ -1050,4 +1052,86 @@ UNRESERVED_KEYWORDS = [
     "HIERARCHYID",
     "VECTOR",
     "VERIFY_CLONEDB",
+]
+
+# DataType Methods
+# Unlike normal keywords datatype methods are case sensitive
+# grouped by datatype and geometry/spatial data classification
+DATATYPE_METHODS = [
+    # xml methods
+    # https://learn.microsoft.com/en-us/sql/t-sql/xml/xml-data-type-methods
+    "exist",
+    "modify",
+    "nodes",
+    "query",
+    "value",
+    # hierarchyid methods
+    # https://learn.microsoft.com/en-us/sql/t-sql/data-types/hierarchyid-data-type-method-reference
+    "GetAncestor",
+    "GetLevel",
+    "GetReparentedValue",
+    "GetRoot",
+    "IsDescendantOf",
+    "Parse",
+    "ToString",
+    # geometry (spatial data) methods
+    # https://learn.microsoft.com/en-us/sql/t-sql/spatial-geometry/ogc-methods-on-geometry-instances
+    # Shape properties
+    "STArea",
+    "STLength",
+    "STBoundary",
+    "STCentroid",
+    "STEnvelope",
+    "STConvexHull",
+    # Geometry representation
+    "STAsBinary",
+    "STAsText",
+    # Geometry type information
+    "STGeometryType",
+    "STDimension",
+    "STSrid",
+    # Point and curve access
+    "STStartPoint",
+    "STEndPoint",
+    "STPointN",
+    "STPointOnSurface",
+    "STCurveN",
+    "STCurveToLine",
+    "STX",
+    "STY",
+    # Polygon ring access
+    "STExteriorRing",
+    "STInteriorRingN",
+    "STNumInteriorRing",
+    # Collection access
+    "STGeometryN",
+    "STNumGeometries",
+    "STNumPoints",
+    "STNumCurves",
+    # Spatial relationship tests
+    "STContains",
+    "STCrosses",
+    "STDisjoint",
+    "STEquals",
+    "STIntersects",
+    "STOverlaps",
+    "STRelate",
+    "STTouches",
+    "STWithin",
+    "STDistance",
+    # Spatial operations
+    "STBuffer",
+    "STDifference",
+    "STIntersection",
+    "STSymDifference",
+    "STUnion",
+    # Validity tests
+    "STIsClosed",
+    "STIsEmpty",
+    "STIsRing",
+    "STIsSimple",
+    "STIsValid",
+    # geography methods share the same ST-prefixed names as geometry methods
+    # and are already covered by the geometry section above.
+    # https://learn.microsoft.com/en-us/sql/t-sql/spatial-geography/ogc-methods-on-geography-instances
 ]
