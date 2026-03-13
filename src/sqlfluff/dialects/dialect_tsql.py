@@ -7590,7 +7590,11 @@ class CreateTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("ObjectReferenceSegment"),
         OneOf(
-            Sequence("FROM", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "FROM",
+                Ref("DatatypeSegment"),
+                OneOf("NULL", Sequence("NOT", "NULL"), optional=True),
+            ),
             Sequence(
                 "AS",
                 "TABLE",
