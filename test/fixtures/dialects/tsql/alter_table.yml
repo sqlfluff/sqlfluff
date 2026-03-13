@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b199dc1bf3e30088599cff6a22b183253136d6e6c4a27837f83f5e189f0a89b2
+_hash: 7a3d40a41633096e4d27d3fc3d2919d0abdba0f0c52cfe62cc95c4b5eea465b8
 file:
 - batch:
     statement:
@@ -1181,57 +1181,14 @@ file:
           naked_identifier: InsurancePolicy
       - keyword: ADD
       - column_definition:
-        - naked_identifier: ValidFrom
-        - data_type:
+          naked_identifier: ValidFrom
+          data_type:
             keyword: DATETIME2
-        - column_constraint_segment:
-          - keyword: GENERATED
-          - keyword: ALWAYS
-          - keyword: AS
-          - keyword: ROW
-          - keyword: START
-          - keyword: HIDDEN
-        - column_constraint_segment:
-          - keyword: CONSTRAINT
-          - object_reference:
-              naked_identifier: DF_InsurancePolicy_ValidFrom
-          - keyword: DEFAULT
-          - function:
-              function_name:
-                function_name_identifier: SYSUTCDATETIME
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
       - comma: ','
       - column_definition:
-        - naked_identifier: ValidTo
-        - data_type:
+          naked_identifier: ValidTo
+          data_type:
             keyword: DATETIME2
-        - column_constraint_segment:
-          - keyword: GENERATED
-          - keyword: ALWAYS
-          - keyword: AS
-          - keyword: ROW
-          - keyword: END
-          - keyword: HIDDEN
-        - column_constraint_segment:
-          - keyword: CONSTRAINT
-          - object_reference:
-              naked_identifier: DF_InsurancePolicy_ValidTo
-          - keyword: DEFAULT
-          - function:
-              function_name:
-                keyword: CONVERT
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  data_type:
-                    keyword: DATETIME2
-                  comma: ','
-                  expression:
-                    quoted_literal: "'9999-12-31 23:59:59.9999999'"
-                  end_bracket: )
       - comma: ','
       - period_segment:
         - keyword: PERIOD
