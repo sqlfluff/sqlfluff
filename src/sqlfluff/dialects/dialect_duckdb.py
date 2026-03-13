@@ -441,6 +441,7 @@ class MapLiteralSegment(BaseSegment):
             Delimited(
                 Ref("MapLiteralElementSegment"),
                 optional=True,
+                allow_trailing=True,
             ),
             bracket_type="curly",
         ),
