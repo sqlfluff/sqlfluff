@@ -213,6 +213,9 @@ mysql_dialect.replace(
     ).copy(
         insert=[
             Ref("SessionVariableNameSegment"),
+            # Allow VALUES() function in expressions, e.g. in ON DUPLICATE KEY UPDATE.
+            # https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_values
+            Ref("ValuesClauseSegment"),
         ],
         at=0,
     ),
