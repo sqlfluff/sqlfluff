@@ -836,6 +836,17 @@ def test__cli__command_lint_skip_ignore_files():
     assert "LT12" in result.stdout.strip()
 
 
+def test__cli__command_parse_respects_inline_noqa_for_prs():
+    """Check parse command respects inline noqa suppression for PRS errors."""
+    result = invoke_assert_code(
+        args=[parse, ["-", "--dialect=mariadb"]],
+        cli_input="SeLeCt  1 frm tBl ;    -- noqa",
+    )
+
+    assert result.exit_code == 0
+    assert "==== parsing violations ====" not in result.stdout
+
+
 @pytest.mark.parametrize(
     "command",
     [

@@ -36,9 +36,10 @@ from sqlfluff.core import (
     dialect_selector,
 )
 from sqlfluff.core.config import progress_bar_configuration
-from sqlfluff.core.linter import LintingResult
+from sqlfluff.core.linter import LintingResult, ParsedString
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
 from sqlfluff.core.plugin.host import get_plugin_manager
+from sqlfluff.core.rules.noqa import IgnoreMask
 from sqlfluff.core.types import Color, FormatType
 
 
@@ -101,6 +102,46 @@ class StreamHandlerTqdm(logging.StreamHandler):
             self.flush()
         except Exception:  # pragma: no cover
             self.handleError(record)
+
+
+def _get_filtered_parse_violations(
+    parsed_string: ParsedString, linter: Linter
+) -> list[SQLBaseError]:
+    """Return parse and templating violations after applying ignore settings."""
+    violations = list(parsed_string.violations)
+    for violation in violations:
+        violation.ignore_if_in(parsed_string.config.get("ignore"))
+        violation.warning_if_in(parsed_string.config.get("warnings"))
+
+    disable_noqa_except: Optional[str] = parsed_string.config.get("disable_noqa_except")
+    if parsed_string.config.get("disable_noqa") and not disable_noqa_except:
+        return [v for v in violations if not v.ignore and not v.warning]
+
+    allowed_rules_ref_map = Linter.allowed_rule_ref_map(
+        linter.get_rulepack(config=parsed_string.config).reference_map,
+        disable_noqa_except,
+    )
+    root_variant = parsed_string.root_variant()
+    if root_variant:
+        assert root_variant.tree
+        ignore_mask, ignore_violations = IgnoreMask.from_tree(
+            root_variant.tree, allowed_rules_ref_map
+        )
+    else:
+        ignore_mask, ignore_violations = IgnoreMask.from_source(
+            parsed_string.source_str,
+            [
+                matcher
+                for matcher in parsed_string.config.get("dialect_obj").lexer_matchers
+                if matcher.name == "inline_comment"
+            ][0],
+            allowed_rules_ref_map,
+        )
+
+    filtered_violations = [*violations, *ignore_violations]
+    filtered_violations = [v for v in filtered_violations if not v.ignore]
+    filtered_violations = ignore_mask.ignore_masked_violations(filtered_violations)
+    return [v for v in filtered_violations if not v.warning]
 
 
 def set_logging_level(
@@ -1644,7 +1685,13 @@ def parse(
     # iterative print for human readout
     if format == FormatType.human.value:
         violations_count = formatter.print_out_violations_and_timing(
-            output_stream, bench, code_only, total_time, verbose, parsed_strings
+            output_stream,
+            bench,
+            code_only,
+            total_time,
+            verbose,
+            parsed_strings,
+            lambda parsed_string: _get_filtered_parse_violations(parsed_string, lnt),
         )
     else:
         parsed_strings_dict = []
@@ -1653,7 +1700,7 @@ def parse(
             # output of the parse command.
             root_variant = parsed_string.root_variant()
             # Updating violation count ensures the correct return code below.
-            violations_count += len(parsed_string.violations)
+            violations_count += len(_get_filtered_parse_violations(parsed_string, lnt))
             if root_variant:
                 assert root_variant.tree
                 segments = root_variant.tree.as_record(
