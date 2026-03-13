@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7a3d40a41633096e4d27d3fc3d2919d0abdba0f0c52cfe62cc95c4b5eea465b8
+_hash: cc302a2ea83d7b01dfa8a2e28948b1f4277d2094a5913b1fc5a36ab1c0b9e1cb
 file:
 - batch:
     statement:
@@ -1178,15 +1178,15 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          naked_identifier: InsurancePolicy
+          quoted_identifier: '[TestTable]'
       - keyword: ADD
       - column_definition:
-          naked_identifier: ValidFrom
+          naked_identifier: StartDate
           data_type:
             keyword: DATETIME2
       - comma: ','
       - column_definition:
-          naked_identifier: ValidTo
+          naked_identifier: EndDate
           data_type:
             keyword: DATETIME2
       - comma: ','
@@ -1197,10 +1197,10 @@ file:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              naked_identifier: ValidFrom
+              naked_identifier: StartDate
           - comma: ','
           - column_reference:
-              naked_identifier: ValidTo
+              naked_identifier: EndDate
           - end_bracket: )
   - statement_terminator: ;
   - statement:
