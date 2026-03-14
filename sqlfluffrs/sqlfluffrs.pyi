@@ -184,6 +184,7 @@ class RsParser:
         indent_config: Optional[dict[str, bool]] = None,
         max_parser_iterations: Optional[int] = None,
         parser_warn_threshold: Optional[int] = None,
+        max_parse_depth: Optional[int] = None,
     ): ...
     def parse_match_result_from_tokens(
         self, tokens: List[RsToken]

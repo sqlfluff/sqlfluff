@@ -27,7 +27,6 @@ pub struct CollectionCheckpoint {
     /// Token positions that were marked as collected at this checkpoint
     pub positions: Vec<usize>,
 }
-
 /// The main parser struct that holds parsing state and provides parsing methods.
 pub struct Parser<'a> {
     pub simple_hint_cache: hashbrown::HashMap<u64, Option<SimpleHint>>,
@@ -91,7 +90,12 @@ impl<'a> Parser<'a> {
         dialect: Dialect,
         indent_config: hashbrown::HashMap<&'static str, bool>,
     ) -> Parser<'a> {
-        Self::new_with_max_parse_depth(tokens, dialect, indent_config, Some(Self::DEFAULT_MAX_PARSE_DEPTH))
+        Self::new_with_max_parse_depth(
+            tokens,
+            dialect,
+            indent_config,
+            Some(Self::DEFAULT_MAX_PARSE_DEPTH),
+        )
     }
 
     /// Create a new Parser with an optional max parse depth (DoS mitigation).
@@ -135,7 +139,11 @@ impl<'a> Parser<'a> {
     }
 
     /// Override the iteration limits for this parser (builder pattern).
-    pub fn with_parser_limits(mut self, max_parser_iterations: usize, parser_warn_threshold: usize) -> Self {
+    pub fn with_parser_limits(
+        mut self,
+        max_parser_iterations: usize,
+        parser_warn_threshold: usize,
+    ) -> Self {
         self.max_parser_iterations = max_parser_iterations;
         self.parser_warn_threshold = parser_warn_threshold;
         self
@@ -1317,4 +1325,3 @@ impl<'a> Parser<'a> {
         MatchResult::bracketed(bracket_start, bracket_end, inner_child_matches, persists)
     }
 }
-

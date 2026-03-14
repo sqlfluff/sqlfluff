@@ -38,6 +38,26 @@ class ParseExample(NamedTuple):
     sqlfile: str
 
 
+DEEP_PARSE_DEPTH_OVERRIDES: dict[tuple[str, str], int] = {
+    ("ansi", "expression_recursion.sql"): 2000,
+}
+
+
+def config_overrides_for_fixture(
+    dialect: str,
+    sqlfile: str,
+    config_overrides: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    """Build config overrides for a fixture, including deep recursion cases."""
+    overrides: dict[str, Any] = {"dialect": dialect}
+    if config_overrides:
+        overrides.update(config_overrides)
+    max_parse_depth = DEEP_PARSE_DEPTH_OVERRIDES.get((dialect, sqlfile))
+    if max_parse_depth is not None:
+        overrides["max_parse_depth"] = max_parse_depth
+    return overrides
+
+
 def get_parse_fixtures(
     fail_on_missing_yml=False,
 ) -> tuple[list[ParseExample], list[tuple[str, str, bool, str]]]:
@@ -117,9 +137,7 @@ def parse_example_file(
     dialect: str, sqlfile: str, config_overrides: Optional[dict[str, Any]] = None
 ):
     """Parse example SQL file, return parse tree."""
-    overrides = {"dialect": dialect}
-    if config_overrides:
-        overrides.update(config_overrides)
+    overrides = config_overrides_for_fixture(dialect, sqlfile, config_overrides)
     config = FluffConfig(overrides=overrides)
     # Load the SQL
     raw = load_file(dialect, sqlfile)

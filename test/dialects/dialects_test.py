@@ -15,6 +15,7 @@ from sqlfluff.core.templaters import TemplatedFile
 
 from ..conftest import (
     compute_parse_tree_hash,
+    config_overrides_for_fixture,
     get_parse_fixtures,
     load_file,
     make_dialect_path,
@@ -24,19 +25,6 @@ from ..conftest import (
 parse_success_examples, parse_structure_examples = get_parse_fixtures(
     fail_on_missing_yml=True
 )
-
-DEEP_PARSE_DEPTH_OVERRIDES = {
-    ("ansi", "expression_recursion.sql"): 2000,
-}
-
-
-def _config_overrides_for_fixture(dialect: str, sqlfile: str) -> dict[str, Any]:
-    """Return config overrides for fixtures that intentionally stress recursion."""
-    overrides = {"dialect": dialect}
-    max_parse_depth = DEEP_PARSE_DEPTH_OVERRIDES.get((dialect, sqlfile))
-    if max_parse_depth is not None:
-        overrides["max_parse_depth"] = max_parse_depth
-    return overrides
 
 
 def lex_and_parse(config_overrides: dict[str, Any], raw: str) -> Optional[ParsedString]:
@@ -75,7 +63,7 @@ def lex_and_parse(config_overrides: dict[str, Any], raw: str) -> Optional[Parsed
 def test__dialect__base_file_parse(dialect, file):
     """For given test examples, check successful parsing."""
     raw = load_file(dialect, file)
-    config_overrides = _config_overrides_for_fixture(dialect, file)
+    config_overrides = config_overrides_for_fixture(dialect, file)
     # Use the helper function to avoid parsing twice
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
@@ -117,7 +105,7 @@ def test__dialect__base_broad_fix(
     noisy.
     """
     raw = load_file(dialect, file)
-    config_overrides = _config_overrides_for_fixture(dialect, file)
+    config_overrides = config_overrides_for_fixture(dialect, file)
 
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
@@ -150,7 +138,7 @@ def test__dialect__base_parse_struct(
     parsed: Optional[BaseSegment] = parse_example_file(
         dialect,
         sqlfile,
-        config_overrides=_config_overrides_for_fixture(dialect, sqlfile),
+        config_overrides=config_overrides_for_fixture(dialect, sqlfile),
     )
     actual_hash = compute_parse_tree_hash(parsed)
     # Load the YAML

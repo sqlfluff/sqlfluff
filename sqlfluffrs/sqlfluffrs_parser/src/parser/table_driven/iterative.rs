@@ -1066,7 +1066,6 @@ impl Parser<'_> {
         path_parts.join(" -> ")
     }
 }
-
 #[cfg(feature = "verbose-debug")]
 fn get_waiting_for_frame_id(frame: &TableParseFrame) -> String {
     match &frame.context {
@@ -1097,4 +1096,3 @@ fn get_waiting_for_frame_id(frame: &TableParseFrame) -> String {
         _ => "None".to_string(),
     }
 }
-

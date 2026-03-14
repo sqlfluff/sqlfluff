@@ -676,5 +676,3 @@ fn compute_bracket_pairs(tokens: &mut [Token]) {
     }
     // Any remaining opening brackets on the stack are unmatched - leave as None
 }
-
-

@@ -88,6 +88,7 @@ try:
 
             # Max parse depth (DoS mitigation); None = no limit
             raw = self.config.get("max_parse_depth", section="core", default=255)
+            max_parse_depth: Optional[int]
             try:
                 max_parse_depth = int(raw)
             except (TypeError, ValueError):
