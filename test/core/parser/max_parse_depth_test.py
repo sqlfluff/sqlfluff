@@ -6,7 +6,6 @@ from sqlfluff.core import FluffConfig
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.linter.linter import Linter
 
-
 # Limit low enough that very deep nesting triggers it, but above normal parse depth.
 # Normal "SELECT 1" uses many grammar levels; we use 100 so simple SQL still parses.
 MAX_DEPTH_LIMIT = 100
