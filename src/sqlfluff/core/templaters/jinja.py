@@ -108,7 +108,7 @@ class JinjaTemplater(PythonTemplater):
     @staticmethod
     def _extract_macros_from_template(
         template: str, env: Environment, ctx: dict[str, Any]
-    ) -> dict[str, "Macro"]:
+    ) -> dict[str, DbtMacroWrapper]:
         """Take a template string and extract any macros from it.
 
         Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
@@ -121,7 +121,7 @@ class JinjaTemplater(PythonTemplater):
         from jinja2.runtime import Macro  # noqa
 
         # Iterate through keys exported from the loaded template string
-        context: dict[str, Macro] = {}
+        context: dict[str, DbtMacroWrapper] = {}
         # NOTE: `env.from_string()` will raise TemplateSyntaxError if `template`
         # is invalid.
         macro_template = env.from_string(template, globals=ctx)
@@ -148,7 +148,7 @@ class JinjaTemplater(PythonTemplater):
         env: Environment,
         ctx: dict[str, Any],
         exclude_paths: Optional[list[str]] = None,
-    ) -> dict[str, "Macro"]:
+    ) -> dict[str, DbtMacroWrapper]:
         """Take a path and extract macros from it.
 
         Args:
@@ -164,7 +164,7 @@ class JinjaTemplater(PythonTemplater):
             ValueError: If a path does not exist.
             SQLTemplaterError: If there is an error in the Jinja macro file.
         """
-        macro_ctx: dict[str, "Macro"] = {}
+        macro_ctx: dict[str, DbtMacroWrapper] = {}
         for path_entry in path:
             # Does it exist? It should as this check was done on config load.
             if not os.path.exists(path_entry):
@@ -208,7 +208,7 @@ class JinjaTemplater(PythonTemplater):
 
     def _extract_macros_from_config(
         self, config: FluffConfig, env: Environment, ctx: dict[str, Any]
-    ) -> dict[str, "Macro"]:
+    ) -> dict[str, DbtMacroWrapper]:
         """Take a config and load any macros from it.
 
         Args:
@@ -227,7 +227,7 @@ class JinjaTemplater(PythonTemplater):
             loaded_context = {}
 
         # Iterate to load macros
-        macro_ctx: dict[str, "Macro"] = {}
+        macro_ctx: dict[str, DbtMacroWrapper] = {}
         for value in loaded_context.values():
             try:
                 macro_ctx.update(
