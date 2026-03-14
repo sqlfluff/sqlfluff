@@ -333,9 +333,7 @@ def test__config__load_toml_invalid_syntax(tmp_path):
                 expected_column = int(location_match.group("column"))
         # Strip the trailing " (at line …, column …)" to get the bare message,
         # matching what _format_toml_parse_error produces.
-        expected_message = re.sub(
-            r" \(at line \d+, column \d+\)$", "", raw_err
-        )
+        expected_message = re.sub(r" \(at line \d+, column \d+\)$", "", raw_err)
     else:  # pragma: no cover
         raise AssertionError("Expected invalid TOML to fail parsing.")
 
