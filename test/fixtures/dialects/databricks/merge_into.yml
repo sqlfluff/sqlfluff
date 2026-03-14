@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6ed1a731281de0e41ba9415d049ac3381083385fa1b9eb9f315888727dd5d738
+_hash: cd1d2ac61d2e5112a678d93d35976e01448dd14e63b3f0774e89a8285bbfb4b7
 file:
-  statement:
+- statement:
     merge_statement:
     - keyword: merge
     - keyword: into
@@ -386,3 +386,167 @@ file:
         - keyword: then
         - merge_delete_clause:
             keyword: delete
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: merge
+    - keyword: into
+    - table_reference:
+      - naked_identifier: mydb_stg
+      - dot: .
+      - naked_identifier: dummy_table
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: dest
+    - keyword: using
+    - table_reference:
+        naked_identifier: _tempDeDupRaw
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: src
+    - join_on_condition:
+        keyword: 'on'
+        expression:
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: when
+        - keyword: matched
+        - keyword: and
+        - expression:
+            column_reference:
+            - naked_identifier: src
+            - dot: .
+            - naked_identifier: is_update
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+        - keyword: then
+        - merge_update_clause:
+          - keyword: update
+          - keyword: set
+          - wildcard_identifier:
+              star: '*'
+        merge_when_not_matched_clause:
+        - keyword: when
+        - keyword: not
+        - keyword: matched
+        - keyword: then
+        - merge_insert_clause:
+            keyword: insert
+            wildcard_identifier:
+              star: '*'
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: merge
+    - keyword: into
+    - table_reference:
+      - naked_identifier: mydb_stg
+      - dot: .
+      - naked_identifier: dummy_table
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: dest
+    - keyword: using
+    - table_reference:
+        naked_identifier: _tempDeDupRaw
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: src
+    - join_on_condition:
+        keyword: 'on'
+        expression:
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: when
+        - keyword: not
+        - keyword: matched
+        - keyword: by
+        - keyword: target
+        - keyword: and
+        - expression:
+            column_reference:
+            - naked_identifier: src
+            - dot: .
+            - naked_identifier: is_valid
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+        - keyword: then
+        - merge_insert_clause:
+          - keyword: insert
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: id
+            - comma: ','
+            - column_reference:
+                naked_identifier: file_path
+            - end_bracket: )
+          - keyword: values
+          - bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: id
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: file_path
+            - end_bracket: )
+        merge_when_not_matched_by_source_clause:
+        - keyword: when
+        - keyword: not
+        - keyword: matched
+        - keyword: by
+        - keyword: source
+        - keyword: and
+        - expression:
+            column_reference:
+            - naked_identifier: dest
+            - dot: .
+            - naked_identifier: is_active
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+        - keyword: then
+        - merge_update_clause:
+            keyword: update
+            set_clause_list:
+              keyword: set
+              set_clause:
+                column_reference:
+                - naked_identifier: dest
+                - dot: .
+                - naked_identifier: is_active
+                comparison_operator:
+                  raw_comparison_operator: '='
+                boolean_literal: 'false'

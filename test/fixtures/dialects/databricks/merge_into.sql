@@ -60,3 +60,21 @@ src.file_path
 when not matched by source
 then
 delete
+;
+
+merge into mydb_stg.dummy_table as dest
+using _tempDeDupRaw as src
+on dest.id = src.id
+when matched and src.is_update = true then
+update set *
+when not matched then
+insert *
+;
+
+merge into mydb_stg.dummy_table as dest
+using _tempDeDupRaw as src
+on dest.id = src.id
+when not matched by target and src.is_valid = true then
+insert (id, file_path) values (src.id, src.file_path)
+when not matched by source and dest.is_active = true then
+update set dest.is_active = false
