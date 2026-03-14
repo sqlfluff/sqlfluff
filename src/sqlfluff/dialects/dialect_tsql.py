@@ -5056,6 +5056,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Delimited(
                     Ref("ComputedColumnDefinitionSegment"),
                     Ref("ColumnDefinitionSegment"),
+                    Ref("PeriodSegment"),
                 ),
             ),
             Sequence(
