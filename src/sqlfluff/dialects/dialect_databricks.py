@@ -51,6 +51,7 @@ databricks_dialect.sets("unreserved_keywords").update(
 databricks_dialect.sets("unreserved_keywords").difference_update(RESERVED_KEYWORDS)
 databricks_dialect.sets("reserved_keywords").clear()
 databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+databricks_dialect.sets("unreserved_keywords").update(["SOURCE", "TARGET"])
 
 databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
 
@@ -1421,6 +1422,80 @@ class LimitClauseSegment(sparksql.LimitClauseSegment):
             Ref("ParameterizedSegment"),  # Add support for parameters
         ),
         Dedent,
+    )
+
+
+class MergeMatchSegment(ansi.MergeMatchSegment):
+    """Contains Databricks-specific merge operations."""
+
+    match_grammar: Matchable = AnyNumberOf(
+        Ref("MergeMatchedClauseSegment"),
+        Ref("MergeNotMatchedClauseSegment"),
+        Ref("MergeNotMatchedBySourceClauseSegment"),
+        min_times=1,
+    )
+
+
+class MergeNotMatchedClauseSegment(ansi.MergeNotMatchedClauseSegment):
+    """The `WHEN NOT MATCHED [BY TARGET]` clause within a `MERGE` statement."""
+
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        Sequence("BY", "TARGET", optional=True),
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        Ref("MergeInsertClauseSegment"),
+        Dedent,
+    )
+
+
+class MergeNotMatchedBySourceClauseSegment(BaseSegment):
+    """The `WHEN NOT MATCHED BY SOURCE` clause within a `MERGE` statement."""
+
+    type = "merge_when_not_matched_by_source_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        "BY",
+        "SOURCE",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+        ),
+        Dedent,
+    )
+
+
+class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement.
+
+    Databricks MERGE should not treat trailing `WHEN` as an alias for the
+    inserted values clause, so we match the values list explicitly.
+    """
+
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        OneOf(
+            Ref("WildcardIdentifierSegment"),
+            Sequence(
+                Indent,
+                Ref("BracketedColumnReferenceListGrammar"),
+                Dedent,
+                "VALUES",
+                Bracketed(
+                    Delimited(
+                        Ref("ExpressionSegment"),
+                    )
+                ),
+            ),
+        ),
     )
 
 
