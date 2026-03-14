@@ -10,7 +10,6 @@ import sys
 from collections.abc import Iterable, Iterator
 from functools import reduce
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Optional,
@@ -44,9 +43,6 @@ from sqlfluff.core.templaters.base import (
 from sqlfluff.core.templaters.builtins.dbt import DBT_BUILTINS, DbtMacroWrapper
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
-
-if TYPE_CHECKING:  # pragma: no cover
-    from jinja2.runtime import Macro
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")

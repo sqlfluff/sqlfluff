@@ -44,7 +44,7 @@ class MacroReturn(Exception):
         self.value = value
 
 
-def builtin_return(value: Any) -> None:
+def _builtin_return(value: Any) -> None:
     raise MacroReturn(value)
 
 
@@ -60,6 +60,7 @@ class DbtMacroWrapper:
         self.macro = macro
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        """Wraps jinja macro calls to handle dbt's `return` jinja function."""
         try:
             return self.macro(*args, **kwargs)
         except MacroReturn as e:
@@ -93,5 +94,5 @@ DBT_BUILTINS = {
             zip(*args) if all(hasattr(arg, "__iter__") for arg in args) else default
         ),
     ),
-    "return": FunctionWrapper("return", builtin_return),
+    "return": FunctionWrapper("return", _builtin_return),
 }
