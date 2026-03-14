@@ -1,0 +1,552 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cd1d2ac61d2e5112a678d93d35976e01448dd14e63b3f0774e89a8285bbfb4b7
+file:
+- statement:
+    merge_statement:
+    - keyword: merge
+    - keyword: into
+    - table_reference:
+      - naked_identifier: mydb_stg
+      - dot: .
+      - naked_identifier: dummy_table
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: dest
+    - keyword: using
+    - table_reference:
+        naked_identifier: _tempDeDupRaw
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: src
+    - join_on_condition:
+        keyword: 'on'
+        expression:
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: col_a
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: col_a
+        - binary_operator: and
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: col_b
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: col_b
+        - binary_operator: and
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: col_c
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: col_c
+        - binary_operator: and
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: col_d
+        - comparison_operator: <=>
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: col_d
+        - binary_operator: and
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: col_e
+        - comparison_operator: <=>
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: col_e
+        - binary_operator: and
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: col_f
+        - comparison_operator: <=>
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: col_f
+        - binary_operator: and
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: col_g
+        - comparison_operator: <=>
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: col_g
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: when
+        - keyword: matched
+        - keyword: and
+        - expression:
+          - column_reference:
+            - naked_identifier: dest
+            - dot: .
+            - naked_identifier: ts_extracted
+          - comparison_operator:
+              raw_comparison_operator: <
+          - column_reference:
+            - naked_identifier: src
+            - dot: .
+            - naked_identifier: ts_extracted
+          - binary_operator: and
+          - keyword: not
+          - bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                - naked_identifier: dest
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: id
+              end_bracket: )
+        - keyword: then
+        - merge_update_clause:
+            keyword: update
+            set_clause_list:
+            - keyword: set
+            - set_clause:
+              - column_reference:
+                - naked_identifier: dest
+                - dot: .
+                - naked_identifier: file_path
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: file_path
+            - comma: ','
+            - set_clause:
+                column_reference:
+                - naked_identifier: dest
+                - dot: .
+                - naked_identifier: ts_updated
+                comparison_operator:
+                  raw_comparison_operator: '='
+                function:
+                  function_name:
+                    function_name_identifier: current_timestamp
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                - naked_identifier: dest
+                - dot: .
+                - naked_identifier: ts_inserted_raw
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: ts_inserted_raw
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                - naked_identifier: dest
+                - dot: .
+                - naked_identifier: ts_loaded_raw
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: ts_loaded_raw
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                - naked_identifier: dest
+                - dot: .
+                - naked_identifier: ts_loaded_drp
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: ts_loaded_drp
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                - naked_identifier: dest
+                - dot: .
+                - naked_identifier: ts_extracted
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: ts_extracted
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                - naked_identifier: dest
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: id
+        merge_when_not_matched_clause:
+        - keyword: when
+        - keyword: not
+        - keyword: matched
+        - keyword: by
+        - keyword: target
+        - keyword: then
+        - merge_insert_clause:
+          - keyword: insert
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: file_path
+            - comma: ','
+            - column_reference:
+                naked_identifier: ts_inserted_stg
+            - comma: ','
+            - column_reference:
+                naked_identifier: ts_updated
+            - comma: ','
+            - column_reference:
+                naked_identifier: ts_inserted_raw
+            - comma: ','
+            - column_reference:
+                naked_identifier: ts_loaded_raw
+            - comma: ','
+            - column_reference:
+                naked_identifier: ts_loaded_drp
+            - comma: ','
+            - column_reference:
+                naked_identifier: ts_extracted
+            - comma: ','
+            - column_reference:
+                naked_identifier: col_a
+            - comma: ','
+            - column_reference:
+                naked_identifier: col_b
+            - comma: ','
+            - column_reference:
+                naked_identifier: col_c
+            - comma: ','
+            - column_reference:
+                naked_identifier: col_d
+            - comma: ','
+            - column_reference:
+                naked_identifier: col_e
+            - comma: ','
+            - column_reference:
+                naked_identifier: col_f
+            - comma: ','
+            - column_reference:
+                naked_identifier: col_g
+            - comma: ','
+            - column_reference:
+                naked_identifier: id
+            - end_bracket: )
+          - keyword: values
+          - bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: file_path
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: current_timestamp
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: current_timestamp
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: ts_inserted_raw
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: ts_loaded_raw
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: ts_loaded_drp
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: ts_extracted
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: col_a
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: col_b
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: col_c
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: col_d
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: col_e
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: col_f
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: col_g
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: id
+            - end_bracket: )
+        merge_when_not_matched_by_source_clause:
+        - keyword: when
+        - keyword: not
+        - keyword: matched
+        - keyword: by
+        - keyword: source
+        - keyword: then
+        - merge_delete_clause:
+            keyword: delete
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: merge
+    - keyword: into
+    - table_reference:
+      - naked_identifier: mydb_stg
+      - dot: .
+      - naked_identifier: dummy_table
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: dest
+    - keyword: using
+    - table_reference:
+        naked_identifier: _tempDeDupRaw
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: src
+    - join_on_condition:
+        keyword: 'on'
+        expression:
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: when
+        - keyword: matched
+        - keyword: and
+        - expression:
+            column_reference:
+            - naked_identifier: src
+            - dot: .
+            - naked_identifier: is_update
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+        - keyword: then
+        - merge_update_clause:
+          - keyword: update
+          - keyword: set
+          - wildcard_identifier:
+              star: '*'
+        merge_when_not_matched_clause:
+        - keyword: when
+        - keyword: not
+        - keyword: matched
+        - keyword: then
+        - merge_insert_clause:
+            keyword: insert
+            wildcard_identifier:
+              star: '*'
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: merge
+    - keyword: into
+    - table_reference:
+      - naked_identifier: mydb_stg
+      - dot: .
+      - naked_identifier: dummy_table
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: dest
+    - keyword: using
+    - table_reference:
+        naked_identifier: _tempDeDupRaw
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: src
+    - join_on_condition:
+        keyword: 'on'
+        expression:
+        - column_reference:
+          - naked_identifier: dest
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: src
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: when
+        - keyword: not
+        - keyword: matched
+        - keyword: by
+        - keyword: target
+        - keyword: and
+        - expression:
+            column_reference:
+            - naked_identifier: src
+            - dot: .
+            - naked_identifier: is_valid
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+        - keyword: then
+        - merge_insert_clause:
+          - keyword: insert
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: id
+            - comma: ','
+            - column_reference:
+                naked_identifier: file_path
+            - end_bracket: )
+          - keyword: values
+          - bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: id
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: file_path
+            - end_bracket: )
+        merge_when_not_matched_by_source_clause:
+        - keyword: when
+        - keyword: not
+        - keyword: matched
+        - keyword: by
+        - keyword: source
+        - keyword: and
+        - expression:
+            column_reference:
+            - naked_identifier: dest
+            - dot: .
+            - naked_identifier: is_active
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+        - keyword: then
+        - merge_update_clause:
+            keyword: update
+            set_clause_list:
+              keyword: set
+              set_clause:
+                column_reference:
+                - naked_identifier: dest
+                - dot: .
+                - naked_identifier: is_active
+                comparison_operator:
+                  raw_comparison_operator: '='
+                boolean_literal: 'false'
