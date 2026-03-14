@@ -76,10 +76,7 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
         ("ExpressionSegment", "bits[OFFSET(0)] + 7"),
         (
             "SelectClauseElementSegment",
-            (
-                "(count_18_24 * bits[OFFSET(0)])"
-                " / audience_size AS relative_abundance"
-            ),
+            ("(count_18_24 * bits[OFFSET(0)]) / audience_size AS relative_abundance"),
         ),
         ("ExpressionSegment", "count_18_24 * bits[OFFSET(0)] + count_25_34"),
         (

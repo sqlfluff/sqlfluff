@@ -1,0 +1,92 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 52baac711672f29f928203600f430fe3f42a1a2045572bb350e4a26a36769328
+file:
+  batch:
+  - statement:
+      create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+          naked_identifier: myStoplist
+  - statement_terminator: ;
+  - statement:
+      create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+          naked_identifier: myStoplist
+      - keyword: FROM
+      - keyword: SYSTEM
+      - keyword: STOPLIST
+  - statement_terminator: ;
+  - statement:
+      create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+          naked_identifier: myStoplist
+      - keyword: FROM
+      - object_reference:
+          naked_identifier: otherStoplist
+  - statement_terminator: ;
+  - statement:
+      create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+          naked_identifier: myStoplist
+      - keyword: FROM
+      - object_reference:
+        - naked_identifier: otherDb
+        - dot: .
+        - naked_identifier: otherStoplist
+  - statement_terminator: ;
+  - statement:
+      create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+          naked_identifier: myStoplist
+      - keyword: AUTHORIZATION
+      - role_reference:
+          quoted_identifier: '[dbo]'
+  - statement_terminator: ;
+  - statement:
+      create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+          naked_identifier: myStoplist
+      - keyword: FROM
+      - keyword: SYSTEM
+      - keyword: STOPLIST
+      - keyword: AUTHORIZATION
+      - role_reference:
+          quoted_identifier: '[dbo]'
+  - statement_terminator: ;
+  - statement:
+      create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+          naked_identifier: myStoplist
+      - keyword: FROM
+      - object_reference:
+        - naked_identifier: otherDb
+        - dot: .
+        - naked_identifier: otherStoplist
+      - keyword: AUTHORIZATION
+      - role_reference:
+          quoted_identifier: '[dbo]'
+  - statement_terminator: ;

@@ -756,13 +756,9 @@ class Linter:
                 allowed_rules_ref_map = cls.allowed_rule_ref_map(
                     rule_pack.reference_map, disable_noqa_except
                 )
-                ignore_mask, ignore_violations = IgnoreMask.from_source(
+                ignore_mask, ignore_violations = IgnoreMask.from_source_with_dialect(
                     parsed.source_str,
-                    [
-                        lm
-                        for lm in parsed.config.get("dialect_obj").lexer_matchers
-                        if lm.name == "inline_comment"
-                    ][0],
+                    parsed.config.get("dialect_obj"),
                     allowed_rules_ref_map,
                 )
                 violations += ignore_violations
