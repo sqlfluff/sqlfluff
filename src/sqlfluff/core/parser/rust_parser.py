@@ -418,4 +418,3 @@ try:
 except ImportError:
     RustParser = None  # type: ignore[assignment, misc]
     _HAS_RUST_PARSER = False
-

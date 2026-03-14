@@ -175,4 +175,3 @@ def test__dialect__base_parse_struct(
         "'python test/generate_parse_fixture_yml.py' to create YAML files "
         "in test/fixtures/dialects."
     )
-

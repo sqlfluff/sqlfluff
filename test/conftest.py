@@ -307,4 +307,3 @@ def test_verbosity_level(request):
     Has a verbosity level of 0
     """
     return request.config.getoption("verbose")
-
