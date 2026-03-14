@@ -1450,6 +1450,22 @@ class AlterDatabaseStatementSegment(BaseSegment):
             ),
             _recovery_options,
         ),
+        # Optional WITH termination clause
+        # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-transact-sql-set-options
+        Sequence(
+            "WITH",
+            OneOf(
+                Sequence(
+                    "ROLLBACK",
+                    "AFTER",
+                    Ref("NumericLiteralSegment"),
+                    OneOf("SECONDS", optional=True),
+                ),
+                Sequence("ROLLBACK", "IMMEDIATE"),
+                "NO_WAIT",
+            ),
+            optional=True,
+        ),
     )
 
     _add_secondary_option = OneOf(
