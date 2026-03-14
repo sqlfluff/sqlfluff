@@ -23,6 +23,8 @@ venv
 .venv
 .python-version
 uv.lock
+.tmp
+.virtualenv_app_data
 
 # Ignore coverage reports
 .coverage
