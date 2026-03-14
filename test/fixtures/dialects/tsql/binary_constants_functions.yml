@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f12221a8e7cfa2d7e24322b9d1eefb122cd5e4ec0fef843a0c1f313430a51751
+_hash: ff28a3728fb1ea265b5bda4896ca4b73e348dfaa5f74706a0f95b9c6f223d58e
 file:
   batch:
   - statement:
@@ -21,9 +21,9 @@ file:
                     binary_literal: '0x0'
                   keyword: as
                   data_type:
-                    data_type_identifier: uniqueidentifier
+                    keyword: uniqueidentifier
                   end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -39,7 +39,7 @@ file:
                     binary_literal: '0xAE'
                   keyword: as
                   data_type:
-                    data_type_identifier: binary
+                    keyword: binary
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
@@ -47,7 +47,7 @@ file:
                           integer_literal: '2'
                         end_bracket: )
                   end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -63,7 +63,7 @@ file:
                     binary_literal: '0x12Ef'
                   keyword: as
                   data_type:
-                    data_type_identifier: varbinary
+                    keyword: varbinary
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
@@ -71,7 +71,7 @@ file:
                           integer_literal: '16'
                         end_bracket: )
                   end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -87,9 +87,9 @@ file:
                     binary_literal: 0X0
                   keyword: as
                   data_type:
-                    data_type_identifier: uniqueidentifier
+                    keyword: uniqueidentifier
                   end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -102,7 +102,7 @@ file:
                 bracketed:
                   start_bracket: (
                   data_type:
-                    data_type_identifier: binary
+                    keyword: binary
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
@@ -113,7 +113,7 @@ file:
                   expression:
                     binary_literal: '0x69048AEF'
                   end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -129,7 +129,7 @@ file:
                     binary_literal: 0x
                   keyword: as
                   data_type:
-                    data_type_identifier: binary
+                    keyword: binary
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
@@ -137,4 +137,4 @@ file:
                           integer_literal: '1'
                         end_bracket: )
                   end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;

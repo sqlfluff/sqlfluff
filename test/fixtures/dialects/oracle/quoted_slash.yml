@@ -3,13 +3,61 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fc6be259bf3c4a5351db0bcea71a973b9a94c1ae2f1a70e9194f09b18356debe
+_hash: 040369595e25fd46b054ecf0698e50b30e5983164eba7534a048164dd9a9a9ab
 file:
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            expression:
+            - column_reference:
+              - naked_identifier: a
+              - dot: .
+              - naked_identifier: column_a
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - quoted_literal: "'\\'"
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - column_reference:
+              - naked_identifier: a
+              - dot: .
+              - naked_identifier: column_b
+            alias_expression:
+              naked_identifier: test
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+              alias_expression:
+                naked_identifier: a
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+              alias_expression:
+                naked_identifier: a
+        where_clause:
+          keyword: where
           expression:
           - column_reference:
             - naked_identifier: a
@@ -26,82 +74,35 @@ file:
             - naked_identifier: a
             - dot: .
             - naked_identifier: column_b
-          alias_expression:
-            naked_identifier: test
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: test_table
-            alias_expression:
-              naked_identifier: a
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: test_table
-            alias_expression:
-              naked_identifier: a
-      where_clause:
-        keyword: where
-        expression:
-        - column_reference:
-          - naked_identifier: a
-          - dot: .
-          - naked_identifier: column_a
-        - binary_operator:
-          - pipe: '|'
-          - pipe: '|'
-        - quoted_literal: "'\\'"
-        - binary_operator:
-          - pipe: '|'
-          - pipe: '|'
-        - column_reference:
-          - naked_identifier: a
-          - dot: .
-          - naked_identifier: column_b
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - quoted_literal: "'10\\10'"
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          quoted_literal: "'Test\\ '"
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          quoted_literal: "'\\Test\\'"
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-- statement_terminator: ;
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'10\\10'"
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            quoted_literal: "'Test\\ '"
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            quoted_literal: "'\\Test\\'"
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;

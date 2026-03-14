@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e64b9c172b854bed107cf62fa618aaec906090bbb1a71056a452d69683251cec
+_hash: 31aed97b2d5afab047766f562a2a91036705c240f8a277701dc7ca455ea97793
 file:
 - batch:
     statement:
@@ -44,7 +44,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -58,7 +58,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: DATE
+              keyword: DATE
             column_constraint_segment:
               keyword: DEFAULT
               function:
@@ -72,7 +72,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnUser]'
             data_type:
-              data_type_identifier: char
+              keyword: char
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -86,7 +86,7 @@ file:
         - column_definition:
           - quoted_identifier: '[col1]'
           - data_type:
-              data_type_identifier: int
+              keyword: int
           - column_constraint_segment:
               keyword: default
               bracketed:
@@ -105,7 +105,7 @@ file:
         - column_definition:
           - quoted_identifier: '[col1]'
           - data_type:
-              data_type_identifier: int
+              keyword: int
           - column_constraint_segment:
               keyword: default
               bracketed:
@@ -121,7 +121,7 @@ file:
         - column_definition:
           - quoted_identifier: '[col1]'
           - data_type:
-              data_type_identifier: int
+              keyword: int
           - column_constraint_segment:
               keyword: default
               numeric_literal:
@@ -134,7 +134,7 @@ file:
         - column_definition:
           - quoted_identifier: '[col1]'
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - column_constraint_segment:
               keyword: DEFAULT
               bracketed:
@@ -160,7 +160,7 @@ file:
           column_definition:
             quoted_identifier: '[col1]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
           comma: ','
           table_constraint:
           - keyword: PRIMARY
@@ -190,7 +190,7 @@ file:
           column_definition:
             quoted_identifier: '[col1]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
           comma: ','
           table_constraint:
           - keyword: CONSTRAINT
@@ -246,7 +246,7 @@ file:
         - column_definition:
           - quoted_identifier: '[ColumnC]'
           - data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -263,7 +263,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -284,7 +284,7 @@ file:
         - column_definition:
             quoted_identifier: '[columnE]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -316,7 +316,7 @@ file:
         - column_definition:
             quoted_identifier: '[column1]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -331,7 +331,7 @@ file:
     go_statement:
       keyword: GO
 - batch:
-    statement:
+  - statement:
       create_table_statement:
       - keyword: CREATE
       - keyword: TABLE
@@ -342,7 +342,7 @@ file:
           column_definition:
           - naked_identifier: id
           - data_type:
-              data_type_identifier: UNIQUEIDENTIFIER
+              keyword: UNIQUEIDENTIFIER
           - column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -359,4 +359,36 @@ file:
               - keyword: 'NO'
               - keyword: ACTION
           end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeTable
+      - bracketed:
+          start_bracket: (
+          column_definition:
+          - naked_identifier: ID
+          - data_type:
+              keyword: int
+          - column_constraint_segment:
+            - keyword: not
+            - keyword: 'null'
+          - column_constraint_segment:
+              identity_grammar:
+                keyword: IDENTITY
+                bracketed:
+                - start_bracket: (
+                - sign_indicator: '-'
+                - numeric_literal: '2147483648'
+                - comma: ','
+                - numeric_literal: '1'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+          end_bracket: )
+  - statement_terminator: ;

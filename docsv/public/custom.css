@@ -1,0 +1,11 @@
+/* Overrides for spacing within autodoc */
+
+dl.py {
+    /* Spacing is normally far too tight, this makes a bit more space between elements */
+    padding-bottom: 30px;
+}
+
+/* Override unnecessary underline in alabaster's default styling - see #2266 */
+.highlight .w {
+  text-decoration: none;
+}

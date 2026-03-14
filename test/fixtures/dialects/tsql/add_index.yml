@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9d119f3b0afd3a4cdc5b1bccd4279cc7b93842900463fec104277cd95dfbb7f6
+_hash: 066dae08a8e237bc479afca778fe111c8e83c218cba16af4abe16a8b4496bb81
 file:
 - batch:
     statement:
@@ -58,7 +58,7 @@ file:
                 index_column_definition:
                   naked_identifier: DATE_LAST_INSERTED
                 end_bracket: )
-          - statement_terminator: ;
+        statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -114,7 +114,7 @@ file:
                 index_column_definition:
                   naked_identifier: DATE_LAST_INSERTED
                 end_bracket: )
-          - statement_terminator: ;
+        statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -169,7 +169,7 @@ file:
                 index_column_definition:
                   naked_identifier: DATE_LAST_INSERTED
                 end_bracket: )
-          - statement_terminator: ;
+        statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -208,7 +208,7 @@ file:
               keyword: IS
               null_literal: 'NULL'
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -236,7 +236,7 @@ file:
             keyword: 'ON'
             filegroup_name:
               quoted_identifier: '[PRIMARY]'
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -267,7 +267,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - integer_literal: '80'
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -303,7 +303,7 @@ file:
               raw_comparison_operator: '='
           - keyword: 'ON'
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_index_statement:
       - keyword: CREATE
@@ -331,7 +331,7 @@ file:
               raw_comparison_operator: '='
           - keyword: 'ON'
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -380,7 +380,7 @@ file:
               - end_bracket: )
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -459,7 +459,7 @@ file:
         - dot: .
         - naked_identifier: Population
       - naked_identifier: Stats_Population
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -477,7 +477,7 @@ file:
         - comma: ','
         - naked_identifier: Stats_Population
         - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -545,6 +545,6 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: VIMR_INFECTIOUS_PEOPLE
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO

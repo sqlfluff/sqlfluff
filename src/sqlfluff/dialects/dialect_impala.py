@@ -45,6 +45,8 @@ class StatementSegment(hive.StatementSegment):
             Ref("CreateTableAsSelectStatementSegment"),
             Ref("ComputeStatsStatementSegment"),
             Ref("InsertStatementSegment"),
+            Ref("InvalidateMetadataStatementSegment"),
+            Ref("RefreshStatementSegment"),
         ]
     )
 
@@ -259,4 +261,36 @@ class InsertStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class InvalidateMetadataStatementSegment(BaseSegment):
+    """An `INVALIDATE METADATA` statement.
+
+    Full Apache Impala `INVALIDATE METADATA` reference here:
+    https://impala.apache.org/docs/build/html/topics/impala_invalidate_metadata.html
+    """
+
+    type = "invalidate_metadata_statement"
+
+    match_grammar = Sequence(
+        "INVALIDATE",
+        "METADATA",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class RefreshStatementSegment(BaseSegment):
+    """A `REFRESH` statement.
+
+    Full Apache Impala `REFRESH` reference here:
+    https://impala.apache.org/docs/build/html/topics/impala_refresh.html
+    """
+
+    type = "refresh_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref("TableReferenceSegment"),
+        Ref("PartitionSpecGrammar", optional=True),
     )

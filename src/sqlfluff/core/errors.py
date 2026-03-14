@@ -17,6 +17,12 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment, PositionMarker
     from sqlfluff.core.rules import BaseRule, LintFix
 
+    try:
+        from sqlfluffrs import RsParseError, RsSQLLexerError
+    except ImportError:
+        ...
+
+
 CheckTuple = tuple[str, int, int]
 SerializedObject = dict[str, Union[str, int, bool, list["SerializedObject"]]]
 
@@ -181,6 +187,18 @@ class SQLLexError(SQLBaseError):
     _code = "LXR"
     _identifier = "lexing"
 
+    @classmethod
+    def from_rs_error(cls, rs_error: "RsSQLLexerError") -> "SQLLexError":
+        """Create a SQLLexError from a RsSQLLexerError."""
+        return cls(
+            description=rs_error.desc,
+            line_no=rs_error.line_no,
+            line_pos=rs_error.line_pos,
+            ignore=rs_error.ignore,
+            fatal=rs_error.fatal,
+            warning=rs_error.warning,
+        )
+
 
 class SQLParseError(SQLBaseError):
     """An error which occurred during parsing.
@@ -216,6 +234,30 @@ class SQLParseError(SQLBaseError):
             ignore=ignore,
             fatal=fatal,
             warning=warning,
+        )
+
+    @classmethod
+    def from_rs_parse_error(
+        cls,
+        rs_error: "RsParseError",
+        segments: tuple["BaseSegment", ...],
+    ) -> "SQLParseError":
+        """Convert a Rust RsParseError to SQLParseError.
+
+        Args:
+            rs_error: The RsParseError exception from Rust parser
+            segments: The segment array being parsed
+
+        Returns:
+            SQLParseError with position information extracted from rs_error
+        """
+        error_msg = str(rs_error)
+        error_segment: Optional["BaseSegment"] = None
+        error_segment = segments[(rs_error.pos or 0)]
+
+        return cls(
+            description=error_msg,
+            segment=error_segment,
         )
 
     def __reduce__(

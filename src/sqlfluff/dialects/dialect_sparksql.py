@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     AnySetOf,
     Anything,
     BaseSegment,
+    BinaryOperatorSegment,
     Bracketed,
     BracketedSegment,
     CodeSegment,
@@ -1112,7 +1113,7 @@ class SQLConfPropertiesSegment(BaseSegment):
     )
 
 
-class DivBinaryOperatorSegment(BaseSegment):
+class DivBinaryOperatorSegment(BinaryOperatorSegment):
     """DIV type binary_operator."""
 
     type = "binary_operator"
@@ -1172,8 +1173,14 @@ class PrimitiveTypeSegment(BaseSegment):
         "TIMESTAMP_LTZ",
         "TIMESTAMP_NTZ",
         "STRING",
+        # CHAR, CHARACTER, and VARCHAR require mandatory length
         Sequence(
-            OneOf("CHAR", "CHARACTER", "VARCHAR", "DECIMAL", "DEC", "NUMERIC"),
+            OneOf("CHAR", "CHARACTER", "VARCHAR"),
+            Ref("BracketedArguments"),
+        ),
+        # DECIMAL, DEC, and NUMERIC have optional precision/scale
+        Sequence(
+            OneOf("DECIMAL", "DEC", "NUMERIC"),
             Ref("BracketedArguments", optional=True),
         ),
         "BINARY",
@@ -2882,7 +2889,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RestoreTableStatementSegment"),
             # Databricks - Delta Live Tables
             Ref("ConstraintStatementSegment"),
-            Ref("ApplyChangesIntoStatementSegment"),
             # Databricks - widgets
             Ref("CreateWidgetStatementSegment"),
             Ref("RemoveWidgetStatementSegment"),
@@ -3390,92 +3396,6 @@ class ConstraintStatementSegment(BaseSegment):
         OneOf(
             Sequence("FAIL", "UPDATE"),
             Sequence("DROP", "ROW"),
-            optional=True,
-        ),
-    )
-
-
-class ApplyChangesIntoStatementSegment(BaseSegment):
-    """A statement ingest CDC data a target table.
-
-    https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
-    """
-
-    type = "apply_changes_into_statement"
-
-    match_grammar = Sequence(
-        Sequence(
-            "APPLY",
-            "CHANGES",
-            "INTO",
-        ),
-        Indent,
-        Ref("TableExpressionSegment"),
-        Dedent,
-        Ref("FromClauseSegment"),
-        Sequence(
-            "KEYS",
-            Indent,
-            Ref("BracketedColumnReferenceListGrammar"),
-            Dedent,
-        ),
-        Sequence("IGNORE", "NULL", "UPDATES", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        AnyNumberOf(
-            Sequence(
-                "APPLY",
-                "AS",
-                OneOf("DELETE", "TRUNCATE"),
-                "WHEN",
-                Ref("ColumnReferenceSegment"),
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
-            # NB: Setting max_times to allow for one instance
-            #     of DELETE and TRUNCATE at most
-            max_times=2,
-        ),
-        Sequence(
-            "SEQUENCE",
-            "BY",
-            Ref("ColumnReferenceSegment"),
-        ),
-        Sequence(
-            "COLUMNS",
-            OneOf(
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                ),
-                Sequence(
-                    Ref("StarSegment"),
-                    "EXCEPT",
-                    Ref("BracketedColumnReferenceListGrammar"),
-                ),
-            ),
-            optional=True,
-        ),
-        Sequence(
-            "STORED",
-            "AS",
-            "SCD",
-            "TYPE",
-            Ref("NumericLiteralSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "TRACK",
-            "HISTORY",
-            "ON",
-            OneOf(
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                ),
-                Sequence(
-                    Ref("StarSegment"),
-                    "EXCEPT",
-                    Ref("BracketedColumnReferenceListGrammar"),
-                ),
-            ),
             optional=True,
         ),
     )

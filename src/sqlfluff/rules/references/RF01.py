@@ -235,7 +235,11 @@ class Rule_RF01(BaseRule):
 
         if self._dialect_supports_dot_access(query.dialect):
             # BigQuery supports having multiple aliases in the FROM statement
-            if len(distinct_targets) == 1 or query.dialect.name == "bigquery":
+            # SparkSQL supports directly accessing values in nested array columns
+            if len(distinct_targets) == 1 or query.dialect.name in [
+                "bigquery",
+                "sparksql",
+            ]:
                 self.force_enable: bool
                 if self.force_enable:
                     # Backwards compatibility.

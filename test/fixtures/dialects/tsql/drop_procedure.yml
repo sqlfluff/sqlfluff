@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59e007e67128ce2a44db60701bcfb4572bcd6224e924c6eca1c0c5910e1c3092
+_hash: 3976e2a7c2fcbb0befaba60d8c16272ab0705fb6529625c3c71aabe413636cf0
 file:
   batch:
   - statement:
@@ -12,14 +12,14 @@ file:
       - keyword: PROCEDURE
       - object_reference:
           naked_identifier: procedure_name
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       drop_procedure_statement:
       - keyword: DROP
       - keyword: PROC
       - object_reference:
           naked_identifier: procedure_name
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       drop_procedure_statement:
       - keyword: DROP
@@ -28,7 +28,7 @@ file:
       - keyword: EXISTS
       - object_reference:
           naked_identifier: procedure_name
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       drop_procedure_statement:
       - keyword: DROP
@@ -38,4 +38,4 @@ file:
       - comma: ','
       - object_reference:
           naked_identifier: procedure_name2
-      - statement_terminator: ;
+  - statement_terminator: ;

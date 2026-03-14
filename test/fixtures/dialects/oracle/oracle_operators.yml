@@ -3,493 +3,494 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 237b8bdde08c4e05a5f4d88f7ef991f25ada78ab77bdb123126f85d976e5d89b
+_hash: 95ccc21f007f781f7a4883bb35d66f29a936bcb904d236ae2b8d6c170c71b39a
 file:
-  statement:
-    begin_end_block:
-    - keyword: BEGIN
-    - statement:
-        if_then_statement:
-        - if_clause:
+  batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          if_then_statement:
+          - if_clause:
+            - keyword: IF
+            - expression:
+              - column_reference:
+                  naked_identifier: i
+              - binary_operator: '**'
+              - numeric_literal: '2'
+              - comparison_operator:
+                  raw_comparison_operator: '>'
+              - numeric_literal: '50'
+            - keyword: THEN
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'i squared is greater than 50'"
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
           - keyword: IF
-          - expression:
-            - column_reference:
-                naked_identifier: i
-            - binary_operator: '**'
-            - numeric_literal: '2'
-            - comparison_operator:
-                raw_comparison_operator: '>'
-            - numeric_literal: '50'
-          - keyword: THEN
-        - statement:
-            function:
-              function_name:
-                naked_identifier: DBMS_OUTPUT
-                dot: .
-                function_name_identifier: PUT_LINE
-              function_contents:
-                bracketed:
+      - statement_terminator: ;
+      - statement:
+          if_then_statement:
+          - if_clause:
+            - keyword: IF
+            - expression:
+              - column_reference:
+                  naked_identifier: i
+              - binary_operator: MOD
+              - numeric_literal: '2'
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '0'
+            - keyword: THEN
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'i is even number'"
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: ELSE
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'i is odd number'"
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - statement:
+          if_then_statement:
+          - if_clause:
+            - keyword: IF
+            - expression:
+              - bracketed:
                   start_bracket: (
                   expression:
-                    quoted_literal: "'i squared is greater than 50'"
+                  - column_reference:
+                      naked_identifier: x
+                  - binary_operator: +
+                  - column_reference:
+                      naked_identifier: y
                   end_bracket: )
-        - statement_terminator: ;
-        - keyword: END
-        - keyword: IF
-    - statement_terminator: ;
-    - statement:
-        if_then_statement:
-        - if_clause:
+              - binary_operator: '**'
+              - numeric_literal: '3'
+              - binary_operator: MOD
+              - numeric_literal: '10'
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '0'
+            - keyword: THEN
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'complex expression test'"
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
           - keyword: IF
-          - expression:
-            - column_reference:
-                naked_identifier: i
-            - binary_operator: MOD
-            - numeric_literal: '2'
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - numeric_literal: '0'
-          - keyword: THEN
-        - statement:
-            function:
-              function_name:
-                naked_identifier: DBMS_OUTPUT
-                dot: .
-                function_name_identifier: PUT_LINE
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'i is even number'"
-                  end_bracket: )
-        - statement_terminator: ;
-        - keyword: ELSE
-        - statement:
-            function:
-              function_name:
-                naked_identifier: DBMS_OUTPUT
-                dot: .
-                function_name_identifier: PUT_LINE
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'i is odd number'"
-                  end_bracket: )
-        - statement_terminator: ;
-        - keyword: END
-        - keyword: IF
-    - statement_terminator: ;
-    - statement:
-        if_then_statement:
-        - if_clause:
-          - keyword: IF
-          - expression:
-            - bracketed:
-                start_bracket: (
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
                 expression:
-                - column_reference:
-                    naked_identifier: x
-                - binary_operator: +
-                - column_reference:
-                    naked_identifier: y
-                end_bracket: )
-            - binary_operator: '**'
-            - numeric_literal: '3'
-            - binary_operator: MOD
-            - numeric_literal: '10'
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - numeric_literal: '0'
-          - keyword: THEN
-        - statement:
-            function:
-              function_name:
-                naked_identifier: DBMS_OUTPUT
-                dot: .
-                function_name_identifier: PUT_LINE
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'complex expression test'"
-                  end_bracket: )
-        - statement_terminator: ;
-        - keyword: END
-        - keyword: IF
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-              column_reference:
-                naked_identifier: id
-          - comma: ','
-          - select_clause_element:
+                  column_reference:
+                    naked_identifier: value
+                  binary_operator: '**'
+                  numeric_literal: '2'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: value_squared
+            - comma: ','
+            - select_clause_element:
+                expression:
+                  column_reference:
+                    naked_identifier: amount
+                  binary_operator: '**'
+                  numeric_literal: '0.5'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: square_root
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: test_table
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                expression:
+                  column_reference:
+                    naked_identifier: amount
+                  binary_operator: MOD
+                  numeric_literal: '100'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: last_two_digits
+            - comma: ','
+            - select_clause_element:
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                      - column_reference:
+                          naked_identifier: id
+                      - binary_operator: MOD
+                      - numeric_literal: '2'
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - numeric_literal: '0'
+                    - keyword: THEN
+                    - expression:
+                        quoted_literal: "'Even'"
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        quoted_literal: "'Odd'"
+                  - keyword: END
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: parity
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: test_table
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: test_table
+            where_clause:
+              keyword: WHERE
               expression:
+              - column_reference:
+                  naked_identifier: value
+              - binary_operator: '**'
+              - numeric_literal: '2'
+              - keyword: BETWEEN
+              - numeric_literal: '100'
+              - keyword: AND
+              - numeric_literal: '400'
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: test_table
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                  naked_identifier: id
+              - binary_operator: MOD
+              - numeric_literal: '5'
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '0'
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: value
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: test_table
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - expression:
                 column_reference:
                   naked_identifier: value
                 binary_operator: '**'
                 numeric_literal: '2'
-              alias_expression:
-                alias_operator:
-                  keyword: AS
-                naked_identifier: value_squared
-          - comma: ','
-          - select_clause_element:
-              expression:
+            - keyword: DESC
+            - comma: ','
+            - expression:
                 column_reference:
-                  naked_identifier: amount
-                binary_operator: '**'
-                numeric_literal: '0.5'
-              alias_expression:
-                alias_operator:
-                  keyword: AS
-                naked_identifier: square_root
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: test_table
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-              column_reference:
-                naked_identifier: id
-          - comma: ','
-          - select_clause_element:
-              expression:
-                column_reference:
-                  naked_identifier: amount
+                  naked_identifier: id
                 binary_operator: MOD
-                numeric_literal: '100'
-              alias_expression:
-                alias_operator:
-                  keyword: AS
-                naked_identifier: last_two_digits
-          - comma: ','
-          - select_clause_element:
-              expression:
-                case_expression:
-                - keyword: CASE
-                - when_clause:
-                  - keyword: WHEN
-                  - expression:
-                    - column_reference:
-                        naked_identifier: id
-                    - binary_operator: MOD
-                    - numeric_literal: '2'
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - numeric_literal: '0'
-                  - keyword: THEN
-                  - expression:
-                      quoted_literal: "'Even'"
-                - else_clause:
-                    keyword: ELSE
+                numeric_literal: '10'
+      - statement_terminator: ;
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'Result: '"
+                  binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                  function:
+                    function_name:
+                      function_name_identifier: TO_CHAR
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                        - column_reference:
+                            naked_identifier: base
+                        - binary_operator: '**'
+                        - column_reference:
+                            naked_identifier: exponent
+                        end_bracket: )
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'Remainder: '"
+                  binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                  function:
+                    function_name:
+                      function_name_identifier: TO_CHAR
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                        - column_reference:
+                            naked_identifier: dividend
+                        - binary_operator: MOD
+                        - column_reference:
+                            naked_identifier: divisor
+                        end_bracket: )
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                expression:
+                  bracketed:
+                    start_bracket: (
                     expression:
-                      quoted_literal: "'Odd'"
-                - keyword: END
-              alias_expression:
-                alias_operator:
-                  keyword: AS
-                naked_identifier: parity
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: test_table
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: test_table
-          where_clause:
-            keyword: WHERE
-            expression:
-            - column_reference:
-                naked_identifier: value
-            - binary_operator: '**'
-            - numeric_literal: '2'
-            - keyword: BETWEEN
-            - numeric_literal: '100'
-            - keyword: AND
-            - numeric_literal: '400'
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: test_table
-          where_clause:
-            keyword: WHERE
-            expression:
-            - column_reference:
-                naked_identifier: id
-            - binary_operator: MOD
-            - numeric_literal: '5'
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - numeric_literal: '0'
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-              column_reference:
-                naked_identifier: id
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                naked_identifier: value
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: test_table
-          orderby_clause:
-          - keyword: ORDER
-          - keyword: BY
-          - expression:
-              column_reference:
-                naked_identifier: value
-              binary_operator: '**'
-              numeric_literal: '2'
-          - keyword: DESC
-          - comma: ','
-          - expression:
-              column_reference:
-                naked_identifier: id
-              binary_operator: MOD
-              numeric_literal: '10'
-    - statement_terminator: ;
-    - statement:
-        function:
-          function_name:
-            naked_identifier: DBMS_OUTPUT
-            dot: .
-            function_name_identifier: PUT_LINE
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'Result: '"
-                binary_operator:
-                - pipe: '|'
-                - pipe: '|'
-                function:
-                  function_name:
-                    function_name_identifier: TO_CHAR
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                      - column_reference:
-                          naked_identifier: base
-                      - binary_operator: '**'
-                      - column_reference:
-                          naked_identifier: exponent
-                      end_bracket: )
-              end_bracket: )
-    - statement_terminator: ;
-    - statement:
-        function:
-          function_name:
-            naked_identifier: DBMS_OUTPUT
-            dot: .
-            function_name_identifier: PUT_LINE
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'Remainder: '"
-                binary_operator:
-                - pipe: '|'
-                - pipe: '|'
-                function:
-                  function_name:
-                    function_name_identifier: TO_CHAR
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                      - column_reference:
-                          naked_identifier: dividend
-                      - binary_operator: MOD
-                      - column_reference:
-                          naked_identifier: divisor
-                      end_bracket: )
-              end_bracket: )
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                      - column_reference:
-                          naked_identifier: a
-                      - binary_operator: +
-                      - column_reference:
-                          naked_identifier: b
-                      end_bracket: )
-                    binary_operator: '**'
-                    numeric_literal: '2'
-                  end_bracket: )
-                binary_operator: MOD
-                numeric_literal: '1000'
-              alias_expression:
-                alias_operator:
-                  keyword: AS
-                naked_identifier: complex_calc
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: dual
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-              expression:
-                numeric_literal: '2'
-                binary_operator: '**'
-                bracketed:
-                  start_bracket: (
-                  expression:
-                  - numeric_literal: '3'
-                  - binary_operator: +
-                  - numeric_literal: '1'
-                  end_bracket: )
-              alias_expression:
-                alias_operator:
-                  keyword: AS
-                naked_identifier: power_with_parens
-          - comma: ','
-          - select_clause_element:
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                  - numeric_literal: '2'
-                  - binary_operator: '**'
-                  - numeric_literal: '3'
-                  end_bracket: )
-                binary_operator: +
-                numeric_literal: '1'
-              alias_expression:
-                alias_operator:
-                  keyword: AS
-                naked_identifier: parens_around_power
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: dual
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              expression:
-              - column_reference:
-                  naked_identifier: x
-              - binary_operator: MOD
-              - column_reference:
-                  naked_identifier: y
-              - binary_operator: MOD
-              - column_reference:
-                  naked_identifier: z
-              alias_expression:
-                alias_operator:
-                  keyword: AS
-                naked_identifier: chained_mod
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: dual
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              expression:
-              - column_reference:
-                  naked_identifier: a
-              - binary_operator: +
-              - column_reference:
-                  naked_identifier: b
-              - binary_operator: '**'
-              - numeric_literal: '2'
-              - binary_operator: '-'
-              - column_reference:
-                  naked_identifier: c
-              - binary_operator: MOD
-              - column_reference:
-                  naked_identifier: d
-              - binary_operator: '*'
-              - column_reference:
-                  naked_identifier: e
-              alias_expression:
-                alias_operator:
-                  keyword: AS
-                naked_identifier: mixed_arithmetic
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: dual
-    - statement_terminator: ;
-    - keyword: END
-  statement_terminator: ;
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                        - column_reference:
+                            naked_identifier: a
+                        - binary_operator: +
+                        - column_reference:
+                            naked_identifier: b
+                        end_bracket: )
+                      binary_operator: '**'
+                      numeric_literal: '2'
+                    end_bracket: )
+                  binary_operator: MOD
+                  numeric_literal: '1000'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: complex_calc
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: dual
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                expression:
+                  numeric_literal: '2'
+                  binary_operator: '**'
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - numeric_literal: '3'
+                    - binary_operator: +
+                    - numeric_literal: '1'
+                    end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: power_with_parens
+            - comma: ','
+            - select_clause_element:
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - numeric_literal: '2'
+                    - binary_operator: '**'
+                    - numeric_literal: '3'
+                    end_bracket: )
+                  binary_operator: +
+                  numeric_literal: '1'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: parens_around_power
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: dual
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                expression:
+                - column_reference:
+                    naked_identifier: x
+                - binary_operator: MOD
+                - column_reference:
+                    naked_identifier: y
+                - binary_operator: MOD
+                - column_reference:
+                    naked_identifier: z
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: chained_mod
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: dual
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                expression:
+                - column_reference:
+                    naked_identifier: a
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: b
+                - binary_operator: '**'
+                - numeric_literal: '2'
+                - binary_operator: '-'
+                - column_reference:
+                    naked_identifier: c
+                - binary_operator: MOD
+                - column_reference:
+                    naked_identifier: d
+                - binary_operator: '*'
+                - column_reference:
+                    naked_identifier: e
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: mixed_arithmetic
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: dual
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;

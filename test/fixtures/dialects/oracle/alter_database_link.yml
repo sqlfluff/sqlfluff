@@ -1,0 +1,79 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5cd07da28bd351dd1159e00ff893cdfb9d2f51f5128fefc8af15d9e54e345716
+file:
+  batch:
+  - statement:
+      alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: private_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: hr
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: hr_new_password
+  - statement_terminator: ;
+  - statement:
+      alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: PUBLIC
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: public_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: scott
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: scott_new_password
+  - statement_terminator: ;
+  - statement:
+      alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: SHARED
+      - keyword: PUBLIC
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: shared_pub_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: scott
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: scott_new_password
+      - keyword: AUTHENTICATED
+      - keyword: BY
+      - role_reference:
+          naked_identifier: hr
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: hr_new_password
+  - statement_terminator: ;
+  - statement:
+      alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: SHARED
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: shared_pub_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: scott
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: scott_new_password
+  - statement_terminator: ;

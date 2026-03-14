@@ -131,6 +131,24 @@ def test_parse_noqa_no_dups():
     assert len(result.rules) == len(set(result.rules))
 
 
+def test_from_source_with_dialect_no_inline_comment_matcher():
+    """Fallback cleanly if a dialect has no inline_comment lexer matcher."""
+
+    class _DialectWithoutInlineComment:
+        lexer_matchers = []
+
+    ignore_mask, violations = IgnoreMask.from_source_with_dialect(
+        "SELECT 1 -- noqa: PRS",
+        _DialectWithoutInlineComment(),
+        dummy_rule_map,
+    )
+
+    assert violations == []
+    assert ignore_mask.ignore_masked_violations([DummyLintError(1)]) == [
+        DummyLintError(1)
+    ]
+
+
 @pytest.mark.parametrize(
     "noqa,violations,expected,used_noqas",
     [

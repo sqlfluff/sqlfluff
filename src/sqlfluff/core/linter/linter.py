@@ -5,7 +5,7 @@ import logging
 import os
 import time
 from collections.abc import Iterator, Sequence
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 import regex
 from tqdm import tqdm
@@ -133,20 +133,16 @@ class Linter:
             try:
                 limit = int(limit)
             except ValueError:
-                raise ValueError(
-                    f"""
+                raise ValueError(f"""
                 large_file_skip_byte_limit parameter from config
                 cannot be converted to integer,
                 current value {limit}, type {type(limit)}
-                """
-                )
+                """)
             except TypeError:
-                raise TypeError(
-                    f"""
+                raise TypeError(f"""
                 failed to get large_file_skip_byte_limit parameter from config,
                 or it is of invalid type {type(limit)}
-                """
-                )
+                """)
             # Get the file size
             file_size = os.path.getsize(fname)
             if file_size > limit:
@@ -234,7 +230,41 @@ class Linter:
         fname: Optional[str] = None,
         parse_statistics: bool = False,
     ) -> tuple[Optional[BaseSegment], list[SQLParseError]]:
-        parser = Parser(config=config)
+        # Use Rust parser if configured (experimental)
+        use_rust = config.get_section(["core", "use_rust_parser"])
+
+        # Determine whether to use Rust parser
+        # - "auto": Use if available, fall back silently if not
+        # - True/"True"/"true"/1: Force usage, warn if unavailable
+        # - False/"False"/"false"/0: Never use
+        use_rust_parser = False
+        warn_if_unavailable = False
+
+        if use_rust in ("auto", "Auto", "AUTO"):
+            # Auto mode: try to use Rust, but don't warn if unavailable
+            use_rust_parser = True
+            warn_if_unavailable = False
+        elif use_rust in (True, "True", "true", 1):
+            # Explicit True: use Rust and warn if unavailable
+            use_rust_parser = True
+            warn_if_unavailable = True
+
+        if use_rust_parser:
+            from sqlfluff.core.parser.rust_parser import RustParser
+
+            if RustParser is not None:
+                parser: Union[Parser, "RustParser"] = RustParser(config=config)
+                linter_logger.info("Using Rust parser (experimental)")
+            else:
+                if warn_if_unavailable:
+                    linter_logger.warning(
+                        "use_rust_parser=True but sqlfluffrs not available. "
+                        "Falling back to Python parser. Build with: "
+                        "cd sqlfluffrs && maturin develop --features python"
+                    )
+                parser = Parser(config=config)
+        else:
+            parser = Parser(config=config)
         violations = []
         # Parse the file and log any problems
         try:
@@ -725,13 +755,9 @@ class Linter:
                 allowed_rules_ref_map = cls.allowed_rule_ref_map(
                     rule_pack.reference_map, disable_noqa_except
                 )
-                ignore_mask, ignore_violations = IgnoreMask.from_source(
+                ignore_mask, ignore_violations = IgnoreMask.from_source_with_dialect(
                     parsed.source_str,
-                    [
-                        lm
-                        for lm in parsed.config.get("dialect_obj").lexer_matchers
-                        if lm.name == "inline_comment"
-                    ][0],
+                    parsed.config.get("dialect_obj"),
                     allowed_rules_ref_map,
                 )
                 violations += ignore_violations
@@ -1108,33 +1134,41 @@ class Linter:
             disable=files_count <= 1 or progress_bar_configuration.disable_progress_bar,
         )
 
-        for i, linted_file in enumerate(runner.run(expanded_paths, fix), start=1):
-            linted_dir = expanded_path_to_linted_dir[linted_file.path]
-            linted_dir.add(linted_file)
-            # If any fatal errors, then stop iteration.
-            if any(v.fatal for v in linted_file.violations):  # pragma: no cover
-                linter_logger.error("Fatal linting error. Halting further linting.")
-                break
+        runner_iterator = runner.run(expanded_paths, fix)
+        try:
+            for i, linted_file in enumerate(runner_iterator, start=1):
+                linted_dir = expanded_path_to_linted_dir[linted_file.path]
+                linted_dir.add(linted_file)
+                # If any fatal errors, then stop iteration.
+                if any(v.fatal for v in linted_file.violations):  # pragma: no cover
+                    linter_logger.error("Fatal linting error. Halting further linting.")
+                    break
 
-            # If we're applying fixes, then do that here.
-            if apply_fixes:
-                num_tmp_prs_errors = linted_file.num_violations(
-                    types=TMP_PRS_ERROR_TYPES,
-                    filter_ignore=False,
-                    filter_warning=False,
-                )
-                if fix_even_unparsable or num_tmp_prs_errors == 0:
-                    linted_file.persist_tree(
-                        suffix=fixed_file_suffix, formatter=self.formatter
+                # If we're applying fixes, then do that here.
+                if apply_fixes:
+                    num_tmp_prs_errors = linted_file.num_violations(
+                        types=TMP_PRS_ERROR_TYPES,
+                        filter_ignore=False,
+                        filter_warning=False,
                     )
+                    if fix_even_unparsable or num_tmp_prs_errors == 0:
+                        linted_file.persist_tree(
+                            suffix=fixed_file_suffix, formatter=self.formatter
+                        )
 
-            # Progress bar for files is rendered only when there is more than one file.
-            # Additionally, as it's updated after each loop, we need to get file name
-            # from the next loop. This is why `enumerate` starts with `1` and there
-            # is `i < len` to not exceed files list length.
-            progress_bar_files.update(n=1)
-            if i < len(expanded_paths):
-                progress_bar_files.set_description(f"file {expanded_paths[i]}")
+                # Progress bar for files is rendered only when there is more
+                # than one file. Additionally, as it's updated after each loop,
+                # we need to get file name from the next loop. This is why
+                # `enumerate` starts with `1` and there is `i < len` to not
+                # exceed files list length.
+                progress_bar_files.update(n=1)
+                if i < len(expanded_paths):
+                    progress_bar_files.set_description(f"file {expanded_paths[i]}")
+        finally:
+            progress_bar_files.close()
+            runner_close = getattr(runner_iterator, "close", None)
+            if runner_close:
+                runner_close()
 
         result.stop_timer()
         return result

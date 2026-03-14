@@ -55,8 +55,8 @@ SELECT
 FROM Produce
 WHERE Produce.category = 'vegetable'
 QUALIFY rank <= 3
-ORDER BY item
 WINDOW item_window AS (
   PARTITION BY category
   ORDER BY purchases
-  ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING);
+  ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING)
+ORDER BY item;

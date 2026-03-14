@@ -527,3 +527,14 @@ test_pass_snowflake_lambda_expression:
   configs:
     core:
       dialect: snowflake
+
+test_pass_tsql_collate_clause:
+  # Collation references should not be treated as column references
+  # and should not trigger RF03
+  pass_str: |
+    SELECT T.FIELD1
+    FROM TABLE1 AS T
+    WHERE T.name COLLATE LATIN1_GENERAL_CI_AI LIKE '%';
+  configs:
+    core:
+      dialect: tsql

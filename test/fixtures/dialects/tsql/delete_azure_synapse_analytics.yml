@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e295294d0f6b4236e99c57836df2c796088a0c72a4fe412dfd94e0a12b110b31
+_hash: 9350261594642ae2cc7c6567b143664c656ed8d6ae52099a89ad083072be0396
 file:
   batch:
   - statement:
@@ -61,7 +61,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '1'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -77,8 +77,9 @@ file:
             end_bracket: )
       - output_clause:
         - keyword: OUTPUT
-        - column_reference:
-            naked_identifier: age
+        - expression:
+            column_reference:
+              naked_identifier: age
         - keyword: INTO
         - table_reference:
             naked_identifier: ages
@@ -88,7 +89,7 @@ file:
       - keyword: FROM
       - table_reference:
           naked_identifier: Table1
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -103,7 +104,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '>'
             numeric_literal: '1000.00'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -120,7 +121,7 @@ file:
                 raw_comparison_operator: '='
               quoted_literal: "N'label1'"
             end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -204,7 +205,7 @@ file:
             - keyword: HASH
             - keyword: JOIN
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
         keyword: DELETE
@@ -303,4 +304,4 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '1'
-        statement_terminator: ;
+  - statement_terminator: ;

@@ -158,6 +158,36 @@ test_fail_oneline_cte_leading_comma:
         comma:
           line_position: leading
 
+test_fail_oneline_cte_leading_comma_simple:
+  # Simpler test for oneline cte with leading comma style
+  fail_str: |
+    with a as (select 1), b as (select 2) select * from a
+
+  fix_str: |
+    with a as (select 1)
+
+    , b as (select 2)
+
+    select * from a
+
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+test_fail_oneline_cte_trailing_comma_with_space:
+  # Test for oneline cte with trailing comma style and space after comma
+  fail_str: |
+    with a as (select 1),  b as (select 2) select * from a
+
+  fix_str: |
+    with a as (select 1),
+
+    b as (select 2)
+
+    select * from a
+
 test_fail_cte_floating_comma:
   # Fixes cte with a floating comma
   fail_str: |
@@ -267,3 +297,56 @@ test_pass_recursive_with_argument_list_postgres:
   configs:
     core:
       dialect: postgres
+
+test_pass_postgres_cycle_clause:
+  # PostgreSQL CYCLE clause should not require blank line before it
+  # as it's part of the CTE definition itself
+  pass_str: |
+    WITH RECURSIVE t (n) AS (
+        VALUES (1)
+        UNION ALL
+        SELECT n + 1 FROM t
+        WHERE n < 10
+    )
+    CYCLE n SET is_cycle USING path
+    SELECT * FROM t;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_search_clause:
+  # PostgreSQL SEARCH clause should not require blank line before it
+  pass_str: |
+    WITH RECURSIVE t (id, link) AS (
+        SELECT id, link FROM tree
+        UNION ALL
+        SELECT t.id, t.link FROM tree t, t st WHERE t.id = st.link
+    )
+    SEARCH DEPTH FIRST BY id SET ordercol
+    SELECT * FROM t;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_no_blank_line_leading_comma:
+  # Test case for leading comma without blank line
+  fail_str: |
+    with my_cte as (
+        select 1
+    )
+    , other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte
+
+  fix_str: |
+    with my_cte as (
+        select 1
+    )
+
+    , other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte

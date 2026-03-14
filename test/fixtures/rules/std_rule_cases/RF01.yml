@@ -340,6 +340,21 @@ test_pass_trino_lambda_expression:
     core:
       dialect: trino
 
+test_pass_vertica_lambda_expression:
+  pass_str: |
+    select
+        hit_code,
+        array_find(
+            hit_categories_array,
+            e -> e not in (
+                'Apple', 'Banana', 'Cherry', 'Durian', 'Elderberry', 'Fig'
+            )
+        ) > -1 as is_unknown_category_flg
+    from hits
+  configs:
+    core:
+      dialect: vertica
+
 test_athena_ignore_rule_if_single_table:
   pass_str: |
     select
@@ -595,3 +610,27 @@ test_pass_unnest_aliased_bigquery:
   configs:
     core:
       dialect: bigquery
+
+test_pass_explode_nested_field_sparksql:
+  pass_str: |
+    SELECT
+      tbl.a AS a_new,
+      EXPLODE(tbl.b.c) AS a_b_new
+    FROM test AS tbl
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_explode_nested_field_sparksql:
+  # same rule as above but now it should fail on purpose
+  fail_str: |
+    SELECT
+      tbl.a AS a_new,
+      EXPLODE(tbl.b.c) AS a_b_new
+    FROM test AS tbl
+  configs:
+    core:
+      dialect: sparksql
+    rules:
+      references.from:
+        force_enable: true

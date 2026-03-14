@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d89d35f50cd45feea41a21318f695538ba2a14ad8d901b0308ea84ea370cab5
+_hash: 9017ead1a4f7ebee165e1b982b7cf61cfc08324d963c57d330363073df1ad310
 file:
 - batch:
   - statement_terminator: ;
@@ -22,7 +22,7 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: tbl1
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -37,8 +37,8 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: tbl2
-          statement_terminator: ;
-        statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -53,8 +53,8 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: tbl3
-          statement_terminator: ;
-        statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
   - statement_terminator: ;
   - statement_terminator: ;
   - statement:
@@ -71,8 +71,8 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: tbl4
-          statement_terminator: ;
-        statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
   - statement_terminator: ;
   - statement_terminator: ;
   - statement:
@@ -89,26 +89,6 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: tbl5
-          statement_terminator: ;
-        statement_terminator: ;
-  - statement_terminator: ;
-  - statement:
-      select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            column_reference:
-              naked_identifier: col6
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: tbl6
-          statement_terminator: ;
-        statement_terminator: ;
-  - statement_terminator: ;
   - statement_terminator: ;
   - statement_terminator: ;
   - statement_terminator: ;
@@ -126,12 +106,33 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: tbl6
-          statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: col6
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl6
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
-  - statement_terminator: ;
 - batch:
-  - go_statement:
+    statement_terminator: ;
+    go_statement:
       keyword: GO
+- batch:
   - statement_terminator: ;
   - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 133f6821f8c566a867edc5e4af101f1ed2bd0d8f1a9ec2d7e2d69a945df52100
+_hash: fc4d8ba55413681e936969ce01220f4cf2e419b16464d278829e1cd3a2b788d5
 file:
 - batch:
   - statement:
@@ -28,7 +28,7 @@ file:
               - quoted_literal: "'2021-01-01 00:00:00.0000000'"
               - keyword: AND
               - quoted_literal: "'2022-01-01 00:00:00.0000000'"
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -48,7 +48,7 @@ file:
               - keyword: FOR
               - keyword: SYSTEM_TIME
               - keyword: ALL
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -71,7 +71,7 @@ file:
               - quoted_literal: "'2021-01-01 00:00:00.0000000'"
               - keyword: TO
               - quoted_literal: "'2022-01-01 00:00:00.0000000'"
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -93,7 +93,7 @@ file:
               - keyword: AS
               - keyword: OF
               - quoted_literal: "'2021-01-01 00:00:00.0000000'"
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -120,29 +120,29 @@ file:
                 - comma: ','
                 - quoted_literal: "'2022-01-01 00:00:00.0000000'"
                 - end_bracket: )
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@StartTime'
         data_type:
-          data_type_identifier: DATETIME2
+          keyword: DATETIME2
         comparison_operator:
           raw_comparison_operator: '='
         expression:
           quoted_literal: "'2021-01-01 00:00:00'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@EndTime'
         data_type:
-          data_type_identifier: DATETIME2
+          keyword: DATETIME2
         comparison_operator:
           raw_comparison_operator: '='
         expression:
           quoted_literal: "'2022-01-01 00:00:00'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -165,18 +165,18 @@ file:
               - parameter: '@StartTime'
               - keyword: TO
               - parameter: '@EndTime'
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@PointInTime'
         data_type:
-          data_type_identifier: DATETIME2
+          keyword: DATETIME2
         comparison_operator:
           raw_comparison_operator: '='
         expression:
           quoted_literal: "'2021-01-01 00:00:00'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -198,7 +198,7 @@ file:
               - keyword: AS
               - keyword: OF
               - parameter: '@PointInTime'
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -223,7 +223,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -234,7 +234,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -269,7 +269,7 @@ file:
               raw_comparison_operator: '='
           - keyword: SCHEMA_ONLY
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement_terminator: ;
   - go_statement:
       keyword: GO
@@ -285,7 +285,7 @@ file:
         - column_definition:
           - naked_identifier: DeptID
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -297,7 +297,7 @@ file:
         - column_definition:
             naked_identifier: DeptName
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -311,21 +311,21 @@ file:
         - column_definition:
             naked_identifier: ManagerID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             naked_identifier: ParentDeptID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
           - naked_identifier: ValidFrom
           - data_type:
-              data_type_identifier: DATETIME2
+              keyword: DATETIME2
           - column_constraint_segment:
             - keyword: GENERATED
             - keyword: ALWAYS
@@ -339,7 +339,7 @@ file:
         - column_definition:
           - naked_identifier: ValidTo
           - data_type:
-              data_type_identifier: DATETIME2
+              keyword: DATETIME2
           - column_constraint_segment:
             - keyword: GENERATED
             - keyword: ALWAYS
@@ -382,11 +382,11 @@ file:
               - naked_identifier: DepartmentHistory
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
-    statement:
+  - statement:
       create_table_statement:
       - keyword: CREATE
       - keyword: TABLE
@@ -410,7 +410,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -421,7 +421,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -442,12 +442,12 @@ file:
             object_reference:
               naked_identifier: COLUMNC
             end_bracket: )
-      - statement_terminator: ;
-    statement_terminator: ;
-    go_statement:
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - go_statement:
       keyword: GO
 - batch:
-    statement:
+  - statement:
       create_table_statement:
       - keyword: CREATE
       - keyword: TABLE
@@ -471,7 +471,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -482,7 +482,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -515,9 +515,9 @@ file:
             - date_part: INFINITE
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
-    statement_terminator: ;
-    go_statement:
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - go_statement:
       keyword: GO
 - batch:
     statement:
@@ -544,7 +544,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -555,7 +555,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -595,7 +595,7 @@ file:
               - naked_identifier: DepartmentHistory
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -623,7 +623,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -634,7 +634,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -690,7 +690,7 @@ file:
               - end_bracket: )
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -718,7 +718,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -729,7 +729,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -748,18 +748,20 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: ROW
+          - comma: ','
           - keyword: XML_COMPRESSION
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: 'ON'
-          - keyword: 'ON'
-          - keyword: PARTITIONS
-          - bracketed:
-              start_bracket: (
-              numeric_literal: '2'
-              end_bracket: )
+          - on_partitions_clause:
+            - keyword: 'ON'
+            - keyword: PARTITIONS
+            - bracketed:
+                start_bracket: (
+                numeric_literal: '2'
+                end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -787,7 +789,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -798,7 +800,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -817,20 +819,22 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: PAGE
-          - keyword: 'ON'
-          - keyword: PARTITIONS
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '3'
-            - comma: ','
-            - numeric_literal: '5'
-            - end_bracket: )
+          - on_partitions_clause:
+            - keyword: 'ON'
+            - keyword: PARTITIONS
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '3'
+              - comma: ','
+              - numeric_literal: '5'
+              - end_bracket: )
+          - comma: ','
           - keyword: XML_COMPRESSION
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: 'OFF'
           - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -858,7 +862,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -869,7 +873,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -888,14 +892,15 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: 'ON'
-          - keyword: 'ON'
-          - keyword: PARTITIONS
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '3'
-            - keyword: TO
-            - numeric_literal: '5'
-            - end_bracket: )
+          - on_partitions_clause:
+            - keyword: 'ON'
+            - keyword: PARTITIONS
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '3'
+              - keyword: TO
+              - numeric_literal: '5'
+              - end_bracket: )
           - comma: ','
           - keyword: FILETABLE_DIRECTORY
           - comparison_operator:
@@ -926,7 +931,7 @@ file:
           - object_reference:
               naked_identifier: constraint4
           - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -954,7 +959,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -965,7 +970,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -1017,6 +1022,6 @@ file:
             - keyword: 'ON'
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO

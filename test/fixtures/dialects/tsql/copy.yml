@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e8e2bfb3a926d3f3d928cea74eec4915018efae08706b81043eecd3ea8f148bd
+_hash: 333e3bd6a2cadc903bd085b29ba78d4ff1cf4d1b4ad8a472980cbf3458f076f0
 file:
   batch:
   - statement:
@@ -21,7 +21,7 @@ file:
               table_expression:
                 storage_location:
                   external_location: "'https://unsecureaccount.blob.core.windows.net/customerdatasets/folder1/lineitem.csv'"
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       copy_into_table_statement:
       - keyword: COPY

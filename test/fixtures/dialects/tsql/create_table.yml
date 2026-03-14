@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d19ff97c6f85b263467e76df08d9f755ccfe379bce5d231363467de24e1e74d6
+_hash: c8398012a2e524a4f60a74d645cf04e87101f0246578192526229df5c8345044
 file:
   batch:
   - statement:
@@ -30,7 +30,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -41,7 +41,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -63,7 +63,7 @@ file:
         - column_definition:
             naked_identifier: pk
             data_type:
-              data_type_identifier: int
+              keyword: int
             column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
@@ -101,7 +101,7 @@ file:
               dot: .
               quoted_identifier: '[custom udt]'
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -115,7 +115,7 @@ file:
         - column_definition:
           - naked_identifier: ProductID
           - data_type:
-              data_type_identifier: int
+              keyword: int
           - column_constraint_segment:
               identity_grammar:
                 keyword: IDENTITY
@@ -132,7 +132,7 @@ file:
         - column_definition:
             naked_identifier: InventoryTs
             data_type:
-              data_type_identifier: datetime2
+              keyword: datetime2
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -143,17 +143,17 @@ file:
         - column_definition:
             naked_identifier: QtyAvailable
             data_type:
-              data_type_identifier: smallint
+              keyword: smallint
         - comma: ','
         - column_definition:
             naked_identifier: QtySold
             data_type:
-              data_type_identifier: smallint
+              keyword: smallint
         - comma: ','
         - column_definition:
             naked_identifier: UnitPrice
             data_type:
-              data_type_identifier: money
+              keyword: money
         - comma: ','
         - computed_column_definition:
           - naked_identifier: InventoryValue1
@@ -229,10 +229,10 @@ file:
                       naked_identifier: InventoryTs
                   keyword: AS
                   data_type:
-                    data_type_identifier: date
+                    keyword: date
                   end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -297,4 +297,88 @@ file:
           - column_constraint_segment:
               keyword: UNIQUE
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Test
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ID
+          - data_type:
+              keyword: int
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: primary
+            - keyword: key
+        - comma: ','
+        - column_definition:
+            naked_identifier: name
+            data_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '128'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: 'NULL'
+            table_index_segment:
+              keyword: index
+              object_reference:
+                naked_identifier: _name
+              bracketed_index_column_list_grammar:
+                bracketed:
+                  start_bracket: (
+                  index_column_definition:
+                    naked_identifier: name
+                  end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Test
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ID
+          - data_type:
+              keyword: int
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: primary
+            - keyword: key
+        - comma: ','
+        - column_definition:
+          - naked_identifier: name
+          - data_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '128'
+                  end_bracket: )
+          - column_constraint_segment:
+              keyword: 'NULL'
+          - column_constraint_segment:
+              keyword: index
+              object_reference:
+                naked_identifier: _name
+        - end_bracket: )
+  - statement_terminator: ;

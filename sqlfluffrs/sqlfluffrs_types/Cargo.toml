@@ -1,0 +1,17 @@
+[package]
+name = "sqlfluffrs_types"
+version.workspace = true
+edition = "2021"
+
+[dependencies]
+hashbrown = "0.15.5"
+regex = { version = "1.12.2", features = ["perf"] }
+log = "0.4.28"
+serde = { version = "1.0.225", features = ["derive"] }
+uuid = { version = "1.18.1", features = ["v4"] }
+fancy-regex = "0.16.2"
+bincode = "1.3.3"
+once_cell = "1.21.3"
+
+[features]
+unicode = []

@@ -110,6 +110,7 @@ class Rule_AM08(BaseRule):
             False
             or "CROSS" in context.dialect.sets("reserved_keywords")
             or "CROSS" in context.dialect.sets("unreserved_keywords")
+            or "CROSS" in context.dialect.sets("future_reserved_keywords")
         )
 
     @staticmethod

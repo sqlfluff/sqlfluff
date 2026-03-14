@@ -119,3 +119,33 @@ test_pass_subquery_with_alias:
         (SELECT MAX(t.col) AS m FROM t) AS a,
         (SELECT MAX(t.col2) AS m FROM t) AS b
     FROM tbl;
+
+test_pass_tsql_variable_assignment:
+  # T-SQL SELECT @variable = expression doesn't need alias
+  pass_str: |
+    SELECT @userid = id
+    FROM users
+    WHERE name = 'test';
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_multiple_variable_assignments:
+  # Multiple variable assignments in one SELECT
+  pass_str: |
+    SELECT TOP 1
+        @potential_match = id,
+        @full_name = CONCAT(first_name, ' ', surname)
+    FROM authors;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_compound_assignment_operators:
+  # T-SQL compound assignment operators
+  pass_str: |
+    SELECT @counter += 1, @sum += amount
+    FROM transactions;
+  configs:
+    core:
+      dialect: tsql

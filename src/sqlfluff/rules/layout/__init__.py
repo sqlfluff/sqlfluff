@@ -36,6 +36,13 @@ def get_configs_info() -> dict[str, ConfigInfo]:
                 "The maximum number of empty lines allowed inside statements."
             ),
         },
+        "maximum_empty_lines_between_batches": {
+            "validation": range(1000),
+            "definition": (
+                "The maximum number of empty lines allowed between batches "
+                "in T-SQL. Batches are separated by GO statements."
+            ),
+        },
         "wildcard_policy": {
             "validation": ["single", "multiple"],
             "definition": "Treatment of wildcards. Defaults to ``single``.",

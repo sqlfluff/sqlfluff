@@ -199,3 +199,7 @@ ALTER TABLE many_options ADD EXCLUDE
         USING INDEX TABLESPACE tblspc
         WHERE (field != 'def')
         DEFERRABLE NOT VALID INITIALLY DEFERRED;
+
+-- Compression settings
+ALTER TABLE mytable ALTER COLUMN mycolumn SET COMPRESSION LZ4;
+ALTER TABLE mytable ALTER mycolumn SET COMPRESSION LZ4;

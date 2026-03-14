@@ -518,3 +518,13 @@ test_pass_dbt_union_relations_output:
     )
 
     select * from unified_partitions
+
+test_pass_duckdb_from_first_syntax:
+  desc: DuckDB allows omitting SELECT (treated as implicit SELECT *)
+  pass_str: |
+    select 1 as x
+    union
+    from t
+  configs:
+    core:
+      dialect: duckdb

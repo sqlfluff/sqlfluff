@@ -1,0 +1,1246 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2243de46c4d9a8040a866130a6e407449b4fda7d751b0a460086b72d844dd44d
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: ISJSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'{\"name\":\"John\"}'"
+                  end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: ISJSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: json_column
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: ISJSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    parameter: '@json_data'
+                  end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: ISJSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'{\"name\":\"John\"}'"
+                  comma: ','
+                  keyword: VALUE
+                  end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: ISJSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'[1,2,3]'"
+                  comma: ','
+                  keyword: ARRAY
+                  end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: ISJSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'{\"key\":\"value\"}'"
+                  comma: ','
+                  keyword: OBJECT
+                  end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: ISJSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'\"scalar\"'"
+                  comma: ','
+                  keyword: SCALAR
+                  end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+        where_clause:
+          keyword: WHERE
+          expression:
+            function:
+              function_name:
+                keyword: ISJSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: json_column
+                  end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              case_expression:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    function:
+                      function_name:
+                        keyword: ISJSON
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: data
+                          end_bracket: )
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    integer_literal: '1'
+                - keyword: THEN
+                - expression:
+                    quoted_literal: "'Valid'"
+              - else_clause:
+                  keyword: ELSE
+                  expression:
+                    quoted_literal: "'Invalid'"
+              - keyword: END
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"name\":\"John\"}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.name'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: json_column
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.address.city'"
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    parameter: '@json_data'
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.id'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    function:
+                      function_name:
+                        keyword: CONVERT
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          data_type:
+                            keyword: JSON
+                          comma: ','
+                          expression:
+                            quoted_literal: "'{\"age\":30}'"
+                          end_bracket: )
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.age'"
+                - keyword: RETURNING
+                - data_type:
+                    keyword: int
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    function:
+                      function_name:
+                        keyword: CONVERT
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          data_type:
+                            keyword: JSON
+                          comma: ','
+                          expression:
+                            quoted_literal: "'{\"price\":99.99}'"
+                          end_bracket: )
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.price'"
+                - keyword: RETURNING
+                - data_type:
+                    keyword: decimal
+                    bracketed_arguments:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          integer_literal: '10'
+                      - comma: ','
+                      - expression:
+                          integer_literal: '2'
+                      - end_bracket: )
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    function:
+                      function_name:
+                        keyword: CONVERT
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          data_type:
+                            keyword: JSON
+                          comma: ','
+                          expression:
+                            quoted_literal: "'{\"created\":\"2024-01-01\"}'"
+                          end_bracket: )
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.created'"
+                - keyword: RETURNING
+                - data_type:
+                    keyword: datetime2
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"users\":[{\"name\":\"John\"},{\"name\":\"\
+                      Jane\"}]}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.users[0].name'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: data
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.name'"
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: data
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.email'"
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: email
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: users
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_QUERY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"items\":[1,2,3]}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.items'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_QUERY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: json_column
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.address'"
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_QUERY
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'{\"name\":\"John\"}'"
+                  end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_QUERY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    parameter: '@json_data'
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.orders'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_QUERY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"name\":\"John\"}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.name'"
+                - keyword: WITH
+                - keyword: ARRAY
+                - keyword: WRAPPER
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_QUERY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"data\":{\"items\":[1,2,3]}}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.data.items'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_MODIFY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"name\":\"John\"}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.name'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'Jane'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: customers
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: json_data
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              function:
+                function_name:
+                  keyword: JSON_MODIFY
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: json_data
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'$.email'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'new@email.com'"
+                  - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_MODIFY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    parameter: '@json_data'
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.status'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'active'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_MODIFY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"name\":\"John\"}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.age'"
+                - comma: ','
+                - expression:
+                    integer_literal: '30'
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_MODIFY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"name\":\"John\",\"age\":30}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.age'"
+                - comma: ','
+                - expression:
+                    null_literal: 'NULL'
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_MODIFY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"items\":[1,2]}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'append $.items'"
+                - comma: ','
+                - expression:
+                    integer_literal: '3'
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_MODIFY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"user\":{\"name\":\"John\"}}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.user.email'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'john@example.com'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_MODIFY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"items\":[1,2,3]}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.items[1]'"
+                - comma: ','
+                - expression:
+                    integer_literal: '99'
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_PATH_EXISTS
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"name\":\"John\"}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.name'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_PATH_EXISTS
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: json_column
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.address.city'"
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_PATH_EXISTS
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    parameter: '@json_data'
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.user.id'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+        where_clause:
+          keyword: WHERE
+          expression:
+            function:
+              function_name:
+                keyword: JSON_PATH_EXISTS
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: data
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.email'"
+                - end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_PATH_EXISTS
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"users\":[{\"id\":1},{\"id\":2}]}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.users[0].id'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_PATH_EXISTS
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'{\"items\":[1,2,3]}'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.items[5]'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: ISJSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: data
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: is_valid
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: data
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.name'"
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_QUERY
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: data
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.address'"
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: address
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_PATH_EXISTS
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: data
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.email'"
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: has_email
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    function:
+                      function_name:
+                        keyword: JSON_MODIFY
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'{\"name\":\"John\"}'"
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'$.age'"
+                        - comma: ','
+                        - expression:
+                            integer_literal: '30'
+                        - end_bracket: )
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.age'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                    - naked_identifier: t1
+                    - dot: .
+                    - naked_identifier: data
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.name'"
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                    - naked_identifier: t2
+                    - dot: .
+                    - naked_identifier: details
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.status'"
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: status
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+              alias_expression:
+                naked_identifier: t1
+            join_clause:
+              keyword: JOIN
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+                alias_expression:
+                  naked_identifier: t2
+              join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: parent_id
+        where_clause:
+          keyword: WHERE
+          expression:
+            function:
+              function_name:
+                keyword: ISJSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: t1
+                    - dot: .
+                    - naked_identifier: data
+                  end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        select_statement:
+                          select_clause:
+                            keyword: SELECT
+                            select_clause_element:
+                              column_reference:
+                                naked_identifier: data
+                          from_clause:
+                            keyword: FROM
+                            from_expression:
+                              from_expression_element:
+                                table_expression:
+                                  table_reference:
+                                    naked_identifier: users
+                          where_clause:
+                            keyword: WHERE
+                            expression:
+                              column_reference:
+                                naked_identifier: id
+                              comparison_operator:
+                                raw_comparison_operator: '='
+                              integer_literal: '1'
+                      end_bracket: )
+                - comma: ','
+                - expression:
+                    quoted_literal: "'$.email'"
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@json_string'
+        data_type:
+          keyword: nvarchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: max
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "N'{\"name\":\"John\",\"age\":30}'"
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@path'
+        data_type:
+          keyword: nvarchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '100'
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "N'$.name'"
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_VALUE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    parameter: '@json_string'
+                - comma: ','
+                - expression:
+                    parameter: '@path'
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: json_data
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  quoted_literal: "'{\"items\":[{\"id\":1,\"name\":\"A\"},{\"id\"\
+                    :2,\"name\":\"B\"}]}'"
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: data
+            end_bracket: )
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              function:
+                function_name:
+                  keyword: JSON_VALUE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: data
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'$.items[0].name'"
+                  - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: first_item
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  keyword: JSON_VALUE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: data
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'$.items[1].name'"
+                  - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: second_item
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: json_data
+  - statement_terminator: ;

@@ -693,6 +693,8 @@ class ReflowPoint(ReflowElement):
         lint_results: list[LintResult],
         strip_newlines: bool = False,
         anchor_on: str = "before",
+        indent_unit: str = "space",
+        tab_space_size: int = 4,
     ) -> tuple[list[LintResult], "ReflowPoint"]:
         """Respace a point based on given constraints.
 
@@ -807,6 +809,8 @@ class ReflowPoint(ReflowElement):
                 root_segment,
                 segment_buffer,
                 last_whitespace,
+                indent_unit,
+                tab_space_size,
             )
             new_results.extend(results)
         else:

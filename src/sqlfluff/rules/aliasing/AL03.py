@@ -56,6 +56,10 @@ class Rule_AL03(BaseRule):
         if children.any(sp.is_type("alias_expression")):
             return None
 
+        # Ignore if it's a variable assignment (SELECT @var = expr in T-SQL)
+        if children.any(sp.is_type("select_variable_assignment")):
+            return None
+
         # Ignore if it's a function with EMITS clause as EMITS is equivalent to AS
         if (
             children.select(sp.is_type("function"))
@@ -71,9 +75,7 @@ class Rule_AL03(BaseRule):
             sp.is_type("cast_expression")
         ) and not children.children().select(
             sp.is_type("cast_expression")
-        ).children().any(
-            sp.is_type("function")
-        ):
+        ).children().any(sp.is_type("function")):
             return None
 
         parent_stack = functional_context.parent_stack

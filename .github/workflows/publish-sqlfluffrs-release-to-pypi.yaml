@@ -1,0 +1,147 @@
+name: Publish SQLFluff-rs PyPI Version
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate-rust-dialects:
+    name: Generate Rust dialects
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Generate Rust dialects
+        run: |
+          python -m pip install -e .
+          python utils/rustify.py build
+
+      - name: Upload generated Rust dialects
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-rust-dialects
+          path: sqlfluffrs/sqlfluffrs_dialects/src/
+          retention-days: 1
+
+  build-wheels:
+    needs: [generate-rust-dialects]
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          # Linux (manylinux)
+          - {runner: ubuntu-22.04, target: x86_64, manylinux: auto, artifact: linux-x86_64}
+          - {runner: ubuntu-22.04, target: x86, manylinux: auto, artifact: linux-x86}
+          - {runner: ubuntu-22.04, target: aarch64, manylinux: auto, artifact: linux-aarch64}
+          - {runner: ubuntu-22.04, target: armv7, manylinux: auto, artifact: linux-armv7}
+          - {runner: ubuntu-22.04, target: s390x, manylinux: auto, artifact: linux-s390x}
+          - {runner: ubuntu-22.04, target: ppc64le, manylinux: auto, artifact: linux-ppc64le}
+          # Linux (musllinux)
+          - {runner: ubuntu-22.04, target: x86_64, manylinux: musllinux_1_2, artifact: musllinux-x86_64}
+          - {runner: ubuntu-22.04, target: x86, manylinux: musllinux_1_2, artifact: musllinux-x86}
+          - {runner: ubuntu-22.04, target: aarch64, manylinux: musllinux_1_2, artifact: musllinux-aarch64}
+          - {runner: ubuntu-22.04, target: armv7, manylinux: musllinux_1_2, artifact: musllinux-armv7}
+          # Windows
+          - {runner: windows-latest, target: x64, manylinux: "", artifact: windows-x64, arch: x64}
+          - {runner: windows-latest, target: x86, manylinux: "", artifact: windows-x86, arch: x86}
+          # macOS
+          - {runner: macos-15-intel, target: x86_64, manylinux: "", artifact: macos-x86_64}
+          - {runner: macos-15, target: aarch64, manylinux: "", artifact: macos-aarch64}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Download generated Rust dialects
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-rust-dialects
+          path: sqlfluffrs/sqlfluffrs_dialects/src/
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          architecture: ${{ matrix.platform.arch || null }}
+
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          manylinux: ${{ matrix.platform.manylinux || '' }}
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.platform.artifact }}
+          path: dist
+
+  sdist:
+    needs: [generate-rust-dialects]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Download generated Rust dialects
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-rust-dialects
+          path: sqlfluffrs/sqlfluffrs_dialects/src/
+
+      - name: Build sdist
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist --manifest-path sqlfluffrs/Cargo.toml
+
+      - name: Upload sdist
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-sdist
+          path: dist
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [build-wheels, sdist]
+    permissions:
+      # Use to sign the release artifacts
+      id-token: write
+      # Used to upload release artifacts
+      contents: write
+      # Used to generate artifact attestation
+      attestations: write
+    steps:
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'wheels-*/*'
+
+      - name: Publish to PyPI
+        uses: PyO3/maturin-action@v1
+        env:
+          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_SQLFLUFFRS_TOKEN }}
+        with:
+          command: upload
+          args: --non-interactive --skip-existing wheels-*/*

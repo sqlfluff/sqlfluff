@@ -258,22 +258,9 @@ class DbtTemplater(JinjaTemplater):
         # https://github.com/sqlfluff/sqlfluff/issues/5054
         self.try_silence_dbt_logs()
 
-        if self.dbt_version_tuple >= (1, 5):
-            user_config = None
-            # 1.5.x+ this is a dict.
-            cli_vars = self._get_cli_vars()
-        else:
-            # Here, we read flags.PROFILE_DIR directly, prior to calling
-            # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
-            # to a lowercase version of the value, and the profile wouldn't be
-            # found if the directory name contained uppercase letters. This fix
-            # was suggested and described here:
-            # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
-            from dbt.config import read_user_config
-
-            user_config = read_user_config(flags.PROFILES_DIR)
-            # Pre 1.5.x this is a string.
-            cli_vars = str(self._get_cli_vars())
+        user_config = None
+        # 1.5.x+ this is a dict.
+        cli_vars = self._get_cli_vars()
 
         flags.set_from_args(
             DbtConfigArgs(
@@ -348,41 +335,9 @@ class DbtTemplater(JinjaTemplater):
         selector_methods_manager = DbtSelectorMethodManager(
             self.dbt_manifest, previous_state=None
         )
-        if self.dbt_version_tuple >= (1, 5):
-            _dbt_selector_method = selector_methods_manager.get_method(
-                DbtMethodName.Path, method_arguments=[]
-            )
-        else:
-            # This replicates the newer PathSelectorMethod of dbt 1.5+
-            # TODO: Remove once dbt 1.4 support is dropped
-            from dbt.graph.selector_methods import SelectorMethod
-
-            class ProjectPathSelectorMethod(SelectorMethod):
-                """A path selector with `project_root` to work in dbt 1.4."""
-
-                def search(selector_self, included_nodes: set, selector: str):
-                    """Yields nodes from included that match the given path."""
-                    root = Path(self.project_dir) if self.project_dir else Path.cwd()
-                    paths = set(p.relative_to(root) for p in root.glob(selector))
-                    for unique_id, node in selector_self.all_nodes(included_nodes):
-                        ofp = Path(node.original_file_path)
-                        if ofp in paths:
-                            yield unique_id
-                        if (
-                            hasattr(node, "patch_path") and node.patch_path
-                        ):  # pragma: no cover
-                            pfp = node.patch_path.split("://")[1]
-                            ymlfp = Path(pfp)
-                            if ymlfp in paths:
-                                yield unique_id
-                        if any(
-                            parent in paths for parent in ofp.parents
-                        ):  # pragma: no cover
-                            yield unique_id
-
-            _dbt_selector_method = ProjectPathSelectorMethod(
-                selector_methods_manager.manifest, None, []
-            )
+        _dbt_selector_method = selector_methods_manager.get_method(
+            DbtMethodName.Path, method_arguments=[]
+        )
 
         if self.formatter:  # pragma: no cover TODO?
             self.formatter.dispatch_compilation_header(
@@ -619,6 +574,17 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
+            # Fallback: try symlink resolution for dbt local packages.
+            # dbt deps creates symlinks (e.g., dbt_packages/my_pkg -> packages/my_pkg)
+            # and records the symlink path in the manifest. When the input file is
+            # specified via the real path, the selector above finds nothing. Resolve
+            # both sides to handle the mismatch.
+            for uid, node in self.dbt_manifest.nodes.items():
+                if (Path(dbt_dir) / node.original_file_path).resolve() == abs_path:
+                    results = [node]
+                    break
+
+        if not results:
             skip_reason = self._find_skip_reason(abs_path)
             if skip_reason:
                 raise SQLFluffSkipFile(
@@ -662,12 +628,8 @@ class DbtTemplater(JinjaTemplater):
         # overwritten.
         render_func: Optional[Callable[[str], str]] = None
 
-        if self.dbt_version_tuple >= (1, 3):
-            compiled_sql_attribute = "compiled_code"
-            raw_sql_attribute = "raw_code"
-        else:  # pragma: no cover
-            compiled_sql_attribute = "compiled_sql"
-            raw_sql_attribute = "raw_sql"
+        compiled_sql_attribute = "compiled_code"
+        raw_sql_attribute = "raw_code"
 
         def from_string(*args, **kwargs):
             """Replaces (via monkeypatch) the jinja2.Environment function."""
@@ -701,7 +663,7 @@ class DbtTemplater(JinjaTemplater):
             from dbt_common.events.contextvars import set_task_contextvars
 
             set_task_contextvars(project_root=self.project_dir)
-        except ImportError:
+        except ImportError:  # pragma: no cover
             try:
                 from dbt.events.contextvars import set_task_contextvars
 
@@ -725,6 +687,10 @@ class DbtTemplater(JinjaTemplater):
         # NOTE: _find_node will raise a compilation exception if the project
         # fails to compile, and we catch that in the outer `.process()` method.
         node = self._find_node(fname, config, dbt_dir)
+        # Use the node's original_file_path for the from_string comparison below.
+        # This handles symlinked paths (e.g., dbt local packages) where fname
+        # may differ from what the manifest records.
+        original_file_path = node.original_file_path
 
         templater_logger.debug(
             "_find_node for path %r returned object of type %s.", fname, type(node)

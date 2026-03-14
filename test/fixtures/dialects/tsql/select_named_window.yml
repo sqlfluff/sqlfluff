@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 14f8011ab0491aa10933c6f6afe83b3543d8144f3327425e1367768a5eb3db6d
+_hash: 5a860ee8ecc29d9b7b8f2891154d248d232c4c5a8110dee1ddff4e8e26096cce
 file:
   batch:
   - statement:
@@ -148,7 +148,7 @@ file:
         - keyword: BY
         - column_reference:
             naked_identifier: PostalCode
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -294,7 +294,7 @@ file:
                 - column_reference:
                     naked_identifier: SalesOrderID
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -439,7 +439,7 @@ file:
                 - column_reference:
                     naked_identifier: ProductID
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -567,7 +567,7 @@ file:
                 - column_reference:
                     naked_identifier: SalesOrderID
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -610,4 +610,4 @@ file:
                 - column_reference:
                     naked_identifier: table_name
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;

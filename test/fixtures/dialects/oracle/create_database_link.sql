@@ -1,0 +1,10 @@
+CREATE PUBLIC DATABASE LINK remote
+   USING 'remote';
+
+CREATE DATABASE LINK local
+   CONNECT TO hr IDENTIFIED BY password
+   USING 'local';
+
+CREATE DATABASE LINK remote.us.example.com
+   CONNECT TO CURRENT_USER
+   USING 'remote';

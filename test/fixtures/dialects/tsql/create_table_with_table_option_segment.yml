@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a78aab88572e4946b8b3c63814c0754aa063e66d94dc1dffc3ea9dcdf7659559
+_hash: 9c3e497417c895b6c6bc59115a299de4e206768b3475a12aaa27a46a51bb529b
 file:
   batch:
   - statement:
@@ -19,7 +19,7 @@ file:
           column_definition:
             quoted_identifier: '[id]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -53,7 +53,7 @@ file:
             - keyword: INFINITE
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -67,7 +67,7 @@ file:
           column_definition:
             quoted_identifier: '[id]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -107,7 +107,7 @@ file:
             - keyword: 'ON'
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -121,7 +121,7 @@ file:
           column_definition:
             quoted_identifier: '[id]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -156,7 +156,7 @@ file:
             - keyword: WEEKS
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -170,7 +170,7 @@ file:
           column_definition:
             quoted_identifier: '[id]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -205,7 +205,7 @@ file:
             - keyword: MONTHS
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -219,7 +219,7 @@ file:
           column_definition:
             quoted_identifier: '[id]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -254,7 +254,7 @@ file:
             - keyword: YEARS
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -268,7 +268,7 @@ file:
           column_definition:
             quoted_identifier: '[id]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -297,4 +297,4 @@ file:
               - quoted_identifier: '[TEST_HISTORY]'
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;

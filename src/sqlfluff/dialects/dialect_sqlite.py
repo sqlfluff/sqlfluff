@@ -113,6 +113,18 @@ sqlite_dialect.patch_lexer_matchers(
 sqlite_dialect.insert_lexer_matchers(
     [
         RegexLexer(
+            "blob_literal",
+            r"[xX]'([\da-fA-F][\da-fA-F])*'",
+            LiteralSegment,
+            segment_kwargs={"type": "blob_literal"},
+        ),
+        RegexLexer(
+            "hexadecimal_literal",
+            r"0x[\da-fA-F]+",
+            LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
+        RegexLexer(
             "at_sign_literal",
             r"@[a-zA-Z0-9_]+",
             LiteralSegment,
@@ -183,6 +195,11 @@ sqlite_dialect.add(
         LiteralSegment,
         type="dollar_literal",
     ),
+    BlobLiteralSegment=TypedParser(
+        "blob_literal",
+        LiteralSegment,
+        type="blob_literal",
+    ),
 )
 
 sqlite_dialect.replace(
@@ -198,7 +215,7 @@ sqlite_dialect.replace(
         Ref("ParameterizedSegment"),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
-        insert=[Ref("ParameterizedSegment")]
+        insert=[Ref("ParameterizedSegment"), Ref("BlobLiteralSegment")]
     ),
     TemporaryTransientGrammar=Ref("TemporaryGrammar"),
     DateTimeLiteralGrammar=Sequence(
@@ -353,8 +370,10 @@ sqlite_dialect.replace(
             ),
         ),
     ),
-    # NOTE: This block was copy/pasted from dialect_ansi.py with these changes made:
+    # NOTE: This block was copy/pasted from dialect_ansi.py with these changes:
     #  - "PRIOR" keyword removed from Expression_A_Unary_Operator_Grammar
+    #  - QuantifiedComparisonOperatorGrammar removed (SQLite doesn't support
+    #    ANY/ALL/SOME)
     Expression_A_Unary_Operator_Grammar=OneOf(
         Ref(
             "SignedSegmentGrammar",
@@ -362,6 +381,39 @@ sqlite_dialect.replace(
         ),
         Ref("TildeSegment"),
         Ref("NotOperatorGrammar"),
+    ),
+    Expression_A_Grammar=Sequence(
+        Ref("Tail_Recurse_Expression_A_Grammar"),
+        AnyNumberOf(
+            OneOf(
+                Ref("LikeExpressionGrammar"),
+                Sequence(
+                    Ref("BinaryOperatorGrammar"),
+                    Ref("Tail_Recurse_Expression_A_Grammar"),
+                ),
+                Ref("InOperatorGrammar"),
+                # QuantifiedComparisonOperatorGrammar removed - not supported in SQLite
+                Sequence(
+                    "IS",
+                    Ref.keyword("NOT", optional=True),
+                    Ref("IsClauseGrammar"),
+                ),
+                Ref("IsNullGrammar"),
+                Ref("NotNullGrammar"),
+                Ref("CollateGrammar"),
+                Sequence(
+                    Ref.keyword("NOT", optional=True),
+                    "BETWEEN",
+                    Ref("Expression_B_Grammar"),
+                    "AND",
+                    Ref("Tail_Recurse_Expression_A_Grammar"),
+                ),
+                Sequence(
+                    Ref("PatternMatchingGrammar"),
+                    Ref("Expression_A_Grammar"),
+                ),
+            )
+        ),
     ),
     IsDistinctFromGrammar=Sequence(
         "IS",

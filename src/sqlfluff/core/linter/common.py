@@ -51,7 +51,7 @@ class ParsedVariant(NamedTuple):
         lexing_violations (:obj:`list` of :obj:`SQLLexError`): Any violations
             raised during the lexing phase.
         parsing_violations (:obj:`list` of :obj:`SQLParseError`): Any violations
-            raised during the lexing phase.
+            raised during the parsing phase.
     """
 
     templated_file: TemplatedFile

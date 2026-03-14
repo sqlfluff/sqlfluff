@@ -1,0 +1,92 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 996cc66cb89609078d320152e41a281472f77721bbab2355cbdf058d3ac78932
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: tuple
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: arr
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: arr
+            numeric_literal: '.1'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: dsa
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bracketed:
+                  - start_bracket: (
+                  - quoted_literal: "'a'"
+                  - comma: ','
+                  - quoted_literal: "'aa'"
+                  - end_bracket: )
+                comma: ','
+                quoted_literal: "'b'"
+                end_bracket: )
+            comma: ','
+            quoted_literal: "'c'"
+            end_bracket: )
+        keyword: AS
+        naked_identifier: test
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: test
+            - numeric_literal: '.1'
+            - numeric_literal: '.1'
+            - numeric_literal: '.2'
+        - comma: ','
+        - select_clause_element:
+            expression:
+              tuple_element_access:
+                bracketed:
+                  start_bracket: (
+                  column_reference:
+                    naked_identifier: test
+                    numeric_literal: '.1'
+                  end_bracket: )
+                numeric_literal: '.2'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: test
+              numeric_literal: '.2'
+- statement_terminator: ;

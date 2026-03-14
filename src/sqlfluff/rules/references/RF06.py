@@ -170,9 +170,13 @@ class Rule_RF06(BaseRule):
         if identifier_is_quoted:
             identifier_contents = identifier_contents[1:-1]
 
-        identifier_is_keyword = identifier_contents.upper() in context.dialect.sets(
-            "reserved_keywords"
-        ) or identifier_contents.upper() in context.dialect.sets("unreserved_keywords")
+        identifier_is_keyword = (
+            identifier_contents.upper() in context.dialect.sets("reserved_keywords")
+            or identifier_contents.upper()
+            in context.dialect.sets("unreserved_keywords")
+            or identifier_contents.upper()
+            in context.dialect.sets("future_reserved_keywords")
+        )
 
         if self.prefer_quoted_identifiers:
             context_policy = "naked_identifier"

@@ -3,21 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b3e6afb2ee17a7d0c7b9a419102e42e652d0d4c57d13d0172c7bcc342b4416b
+_hash: 55424d3d2f60dbbe766b56d061ead664d5f01426d23f7f428fa79c15b45ec8e5
 file:
 - statement:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-        naked_identifier: foo
+    - data_type:
+        data_type_identifier: foo
 - statement_terminator: ;
 - statement:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-        naked_identifier: bar
+    - data_type:
+        data_type_identifier: bar
     - keyword: AS
     - keyword: ENUM
     - bracketed:
@@ -28,8 +28,8 @@ file:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-        naked_identifier: bar
+    - data_type:
+        data_type_identifier: bar
     - keyword: AS
     - keyword: ENUM
     - bracketed:
@@ -43,8 +43,8 @@ file:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-        naked_identifier: foobar
+    - data_type:
+        data_type_identifier: foobar
     - keyword: AS
     - keyword: RANGE
     - bracketed:
@@ -58,8 +58,8 @@ file:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-        naked_identifier: barbar
+    - data_type:
+        data_type_identifier: barbar
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -76,8 +76,8 @@ file:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-        naked_identifier: foofoo
+    - data_type:
+        data_type_identifier: foofoo
     - keyword: AS
     - bracketed:
       - start_bracket: (

@@ -3,71 +3,72 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70bbe6d19831c69c75359a6098c6a2cff155fcbddf2ebfbb444909ff2e756898
+_hash: 021d760ae57d0fdbb9a7719d609e18e6a1bbfc5d7bf8ae5bb9e1b64f8bb0981c
 file:
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '1'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-      where_clause:
-        keyword: where
-        expression:
-        - numeric_literal: '3'
-        - comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '='
-        - numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '1'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-      where_clause:
-        keyword: where
-        expression:
-        - numeric_literal: '4'
-        - comparison_operator:
-          - raw_comparison_operator: '>'
-          - raw_comparison_operator: '='
-        - numeric_literal: '2'
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '1'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-      where_clause:
-        keyword: where
-        expression:
-        - numeric_literal: '1'
-        - comparison_operator:
-          - raw_comparison_operator: '!'
-          - raw_comparison_operator: '='
-        - numeric_literal: '3'
-- statement_terminator: ;
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+        where_clause:
+          keyword: where
+          expression:
+          - numeric_literal: '3'
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+          - numeric_literal: '5'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+        where_clause:
+          keyword: where
+          expression:
+          - numeric_literal: '4'
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: '='
+          - numeric_literal: '2'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+        where_clause:
+          keyword: where
+          expression:
+          - numeric_literal: '1'
+          - comparison_operator:
+            - raw_comparison_operator: '!'
+            - raw_comparison_operator: '='
+          - numeric_literal: '3'
+  - statement_terminator: ;

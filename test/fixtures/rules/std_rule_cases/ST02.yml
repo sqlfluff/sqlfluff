@@ -287,3 +287,17 @@ test_fail_no_copy_code_out_of_template:
       jinja:
         context:
           result: "'123'"
+
+test_pass_simple_case_ignored:
+  # This ensures the rule ignores "Simple CASE" statements
+  # instead of trying to force it into a COALESCE.
+  pass_str: |
+    SELECT
+        CASE status_code
+            WHEN 100 THEN true
+            ELSE false
+        END AS is_success
+    FROM a
+  configs:
+    core:
+      dialect: redshift

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 28448a1b8614cf12045b62dcc3677302ea04cc3e8264e7fffd2eafce3c96c703
+_hash: d674046a53ed47d09f5b4a274078b474773a4b684f1f1dc9ed53a2451f918be4
 file:
 - statement:
     select_statement:
@@ -492,4 +492,91 @@ file:
       - keyword: by
       - column_reference:
           naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: empid
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: employee_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: q1_2023_sales
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: q2_2023_sales
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: q3_2023_sales
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: q4_2023_sales
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: quarterly_sales
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: amount
+                    end_bracket: )
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: "'2023_Q1'"
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: q1_2023_sales
+              - comma: ','
+              - quoted_literal: "'2023_Q2'"
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: q2_2023_sales
+              - comma: ','
+              - quoted_literal: "'2023_Q3'"
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: q3_2023_sales
+              - comma: ','
+              - quoted_literal: "'2023_Q4'"
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: q4_2023_sales
+              - end_bracket: )
+            - end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: q1_2023_sales
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
 - statement_terminator: ;

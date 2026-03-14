@@ -66,3 +66,21 @@ ORDER BY empid;
 select *
 from to_pivot pivot(sum(val) for col in (any order by col))
 order by id;
+
+-- https://github.com/sqlfluff/sqlfluff/issues/7244
+SELECT
+    empid AS employee_id,
+    q1_2023_sales,
+    q2_2023_sales,
+    q3_2023_sales,
+    q4_2023_sales
+FROM quarterly_sales
+PIVOT (
+    SUM(amount) FOR quarter IN (
+        '2023_Q1' AS q1_2023_sales,
+        '2023_Q2' AS q2_2023_sales,
+        '2023_Q3' AS q3_2023_sales,
+        '2023_Q4' AS q4_2023_sales
+    )
+)
+WHERE q1_2023_sales IS NOT NULL;

@@ -29,14 +29,54 @@ reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 # ---------------------------
 
 
+def _construct_alignment_whitespace(width: int, indent_unit: str) -> str:
+    """Construct alignment whitespace using tabs or spaces.
+
+    Args:
+        width: Number of whitespace characters needed.
+        indent_unit: Either 'tab' or 'space'.
+
+    Returns:
+        A string of whitespace (tabs or spaces) of the specified width.
+    """
+    if indent_unit == "tab":
+        return "\t" * width
+    else:
+        # For 'space' or any space string value
+        return " " * width
+
+
 def _pos_line(pm: PositionMarker, use_source: bool) -> int:
     """Return the line number in the chosen coordinate space."""
     return pm.line_no if use_source else pm.working_line_no
 
 
-def _pos_col(pm: PositionMarker, use_source: bool) -> int:
-    """Return the column (position) in the chosen coordinate space."""
-    return pm.line_pos if use_source else pm.working_line_pos
+def _pos_col(
+    pm: PositionMarker,
+    use_source: bool,
+    tab_space_size: int = 4,
+    indent_unit: str = "space",
+) -> int:
+    """Return the column (position) in the chosen coordinate space.
+
+    Args:
+        pm: Position marker to get column from.
+        use_source: If True, use source position; if False, use working position.
+        tab_space_size: Number of spaces per tab stop
+            (used for visual column calculation).
+        indent_unit: The indent unit ('tab' or 'space') to determine if
+            visual columns needed.
+
+    Returns:
+        Column position in the chosen coordinate space.
+    """
+    if use_source:
+        return pm.line_pos
+    # For working positions with tabs, use visual columns;
+    # otherwise use character positions
+    if indent_unit == "tab":
+        return pm.working_visual_column(tab_space_size)
+    return pm.working_line_pos
 
 
 def _has_templated_content(
@@ -62,7 +102,10 @@ def _has_templated_content(
 
 
 def _group_siblings_by_line(
-    siblings: list[BaseSegment], use_source: bool
+    siblings: list[BaseSegment],
+    use_source: bool,
+    tab_space_size: int = 4,
+    indent_unit: str = "space",
 ) -> dict[int, list[BaseSegment]]:
     """Group sibling segments by line and sort by column within each line."""
     grouped: dict[int, list[BaseSegment]] = defaultdict(list)
@@ -73,7 +116,12 @@ def _group_siblings_by_line(
     # Sort each line's segments by column position in the chosen coordinate space
     for line_siblings in grouped.values():
         line_siblings.sort(
-            key=lambda s: _pos_col(cast(PositionMarker, s.pos_marker), use_source)
+            key=lambda s: _pos_col(
+                cast(PositionMarker, s.pos_marker),
+                use_source,
+                tab_space_size,
+                indent_unit,
+            )
         )
     return grouped
 
@@ -253,6 +301,8 @@ def _determine_aligned_inline_spacing(
     align_within: Optional[str],
     align_scope: Optional[str],
     align_space: Optional[str],
+    indent_unit: str = "space",
+    tab_space_size: int = 4,
 ) -> str:
     """Work out spacing for instance of an `align` constraint.
 
@@ -265,9 +315,11 @@ def _determine_aligned_inline_spacing(
         align_within: Parent segment type to limit alignment scope.
         align_scope: Further scope limitation (e.g., 'bracketed').
         align_space: Coordinate space override ('source', 'templated', or None).
+        indent_unit: The indent unit to use ('tab', 'space', or a space string).
+        tab_space_size: The number of spaces per tab (used when indent_unit='tab').
 
     Returns:
-        A string of spaces to achieve proper alignment.
+        A string of whitespace (tabs or spaces) to achieve proper alignment.
 
     Note:
         When align_space is None, automatically chooses 'source' coordinates if
@@ -323,7 +375,9 @@ def _determine_aligned_inline_spacing(
     )
 
     # Group siblings by line using the chosen coordinate space
-    siblings_by_line = _group_siblings_by_line(siblings, use_source_positions)
+    siblings_by_line = _group_siblings_by_line(
+        siblings, use_source_positions, tab_space_size, indent_unit
+    )
 
     # Identify the alignment column index for the current line
     current_line_key = _pos_line(next_pos, use_source_positions)
@@ -343,8 +397,13 @@ def _determine_aligned_inline_spacing(
             idx
             for idx, segment in enumerate(current_line_segments)
             if (
-                _pos_col(cast(PositionMarker, segment.pos_marker), use_source_positions)
-                == _pos_col(next_pos, use_source_positions)
+                _pos_col(
+                    cast(PositionMarker, segment.pos_marker),
+                    use_source_positions,
+                    tab_space_size,
+                    indent_unit,
+                )
+                == _pos_col(next_pos, use_source_positions, tab_space_size, indent_unit)
             )
         ),
         None,  # Default value if no match found
@@ -394,7 +453,10 @@ def _determine_aligned_inline_spacing(
             ):
                 if use_source_positions:
                     end_pm = last_code.pos_marker.end_point_marker()
-                    loc = (_pos_line(end_pm, True), _pos_col(end_pm, True))
+                    loc = (
+                        _pos_line(end_pm, True),
+                        _pos_col(end_pm, True, tab_space_size, indent_unit),
+                    )
                 else:
                     loc = last_code.pos_marker.working_loc_after(last_code.raw)
                 reflow_logger.debug(
@@ -403,17 +465,97 @@ def _determine_aligned_inline_spacing(
                     loc,
                     last_code,
                 )
-                if loc[1] > max_desired_line_pos:
-                    max_desired_line_pos = loc[1]
+                # When using tabs, convert to visual column position
+                if indent_unit == "tab" and last_code.pos_marker:
+                    # Get visual position after the last code segment
+                    # Use end_point_marker to get position after the segment
+                    end_pm = last_code.pos_marker.end_point_marker()
+                    visual_pos = end_pm.working_visual_column(tab_space_size)
+                    if visual_pos > max_desired_line_pos:
+                        max_desired_line_pos = visual_pos
+                else:
+                    if loc[1] > max_desired_line_pos:
+                        max_desired_line_pos = loc[1]
         if seg.is_code:
             last_code = seg
 
     # Compute desired whitespace size in the chosen coordinate space.
     # Ensure we always return at least a single space to avoid deleting
     # whitespace when the current position already exceeds the target.
-    current_ws_pos = _pos_col(whitespace_seg.pos_marker, use_source_positions)
+
+    # Find the code segment immediately before whitespace_seg on the same line
+    # This is more reliable than using last_code from the loop above, which may
+    # refer to code segments from other lines or after the whitespace.
+    code_before_ws: Optional[RawSegment] = None
+    if whitespace_seg.pos_marker:
+        ws_line = (
+            whitespace_seg.pos_marker.line_no
+            if use_source_positions
+            else whitespace_seg.pos_marker.working_line_no
+        )
+        ws_loc = (
+            (whitespace_seg.pos_marker.line_no, whitespace_seg.pos_marker.line_pos)
+            if use_source_positions
+            else whitespace_seg.pos_marker.working_loc
+        )
+
+        for seg in parent_segment.raw_segments:
+            if not seg.pos_marker:  # pragma: no cover
+                continue
+            seg_loc = (
+                (seg.pos_marker.line_no, seg.pos_marker.line_pos)
+                if use_source_positions
+                else seg.pos_marker.working_loc
+            )
+            if seg_loc >= ws_loc:
+                break
+            seg_line = (
+                seg.pos_marker.line_no
+                if use_source_positions
+                else seg.pos_marker.working_line_no
+            )
+            if seg.is_code and seg_line == ws_line:
+                code_before_ws = seg
+
+    # Calculate current position after the code segment before whitespace
+    if code_before_ws and code_before_ws.pos_marker:
+        if use_source_positions or indent_unit == "tab":
+            # For source positions or tabs, use _pos_col which handles visual columns
+            end_pm = code_before_ws.pos_marker.end_point_marker()
+            current_ws_pos = _pos_col(
+                end_pm, use_source_positions, tab_space_size, indent_unit
+            )
+        else:
+            # For working positions without tabs, use working_loc_after for accuracy
+            loc = code_before_ws.pos_marker.working_loc_after(code_before_ws.raw)
+            current_ws_pos = loc[1]
+    else:  # pragma: no cover
+        # Fallback: use whitespace position if no code_before_ws found
+        current_ws_pos = _pos_col(
+            whitespace_seg.pos_marker, use_source_positions, tab_space_size, indent_unit
+        )
+
     pad_width = max(1, 1 + max_desired_line_pos - current_ws_pos)
-    desired_space = " " * pad_width
+
+    # When using tabs, calculate tabs needed to reach the target tab stop
+    if indent_unit == "tab":
+        # Find the target column: first tab stop >= (max_desired_line_pos + 1)
+        # The +1 ensures at least one space before the aligned element
+        target_column = ((max_desired_line_pos // tab_space_size) + 1) * tab_space_size
+
+        # Calculate how many tabs needed to reach target_column from current position
+        # Tabs move to tab stops (multiples of tab_space_size), not by fixed increments
+        tab_count = 0
+        pos = current_ws_pos
+        while pos < target_column:
+            # Move to next tab stop
+            pos = ((pos // tab_space_size) + 1) * tab_space_size
+            tab_count += 1
+
+        desired_space = _construct_alignment_whitespace(tab_count, "tab")
+    else:
+        desired_space = _construct_alignment_whitespace(pad_width, "space")
+
     reflow_logger.debug(
         "    desired_space: %r (based on max line pos of %s)",
         desired_space,
@@ -470,6 +612,8 @@ def handle_respace__inline_with_space(
     root_segment: BaseSegment,
     segment_buffer: list[RawSegment],
     last_whitespace: RawSegment,
+    indent_unit: str = "space",
+    tab_space_size: int = 4,
 ) -> tuple[list[RawSegment], list[LintResult]]:
     """Check inline spacing is the right size.
 
@@ -552,6 +696,8 @@ def handle_respace__inline_with_space(
                     align_within,
                     align_scope,
                     align_space,
+                    indent_unit,
+                    tab_space_size,
                 )
 
                 desc = (

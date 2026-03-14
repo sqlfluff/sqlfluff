@@ -4,6 +4,8 @@ import logging
 
 import pytest
 
+from sqlfluff.core import Linter
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter.fix import compute_anchor_edit_info
 from sqlfluff.core.linter.patch import FixPatch, generate_source_patches
 from sqlfluff.core.parser.markers import PositionMarker
@@ -200,3 +202,55 @@ def test__fix__generate_source_patches(tree, templated_file, expected_result, ca
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.linter"):
         result = generate_source_patches(tree, templated_file)
     assert result == expected_result
+
+
+def test__fix__jinja_empty_rendering_placeholder_adjacent_to_quotes(caplog):
+    """Regression test for empty Jinja placeholders inside quoted literals.
+
+    This covers the case where ``{{ foo.bar }}`` renders to an empty string and
+    appears adjacent to quote characters, while a fix (LT02 indentation) is
+    being applied elsewhere in the statement.
+    """
+    sql = "SELECT\n  '{{ foo.bar }}'\nFROM baz\n"
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "rules": "LT02",
+            "templater": "jinja",
+            # Ensure the expression renders to an empty string.
+            "templater.jinja.context.foo": {"bar": ""},
+            "templater.jinja.context.bar": "",
+        }
+    )
+    linter = Linter(config=config)
+
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
+        linted_file = linter.lint_string(sql, fix=True)
+        fixed_sql, changed = linted_file.fix_string()
+
+    assert changed
+    assert fixed_sql == "SELECT\n    '{{ foo.bar }}'\nFROM baz\n"
+    assert "Skipping edit patch on uncertain templated section" not in caplog.text
+
+
+def test__fix__jinja_non_empty_context_adjacent_to_quotes(caplog):
+    """Regression test for quoted templated literals with non-empty context."""
+    sql = "SELECT\n  '{{ foo.bar }}'\nFROM baz\n"
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "rules": "LT02",
+            "templater": "jinja",
+            "templater.jinja.context.foo": {"bar": "bar"},
+            "templater.jinja.context.bar": "bar",
+        }
+    )
+    linter = Linter(config=config)
+
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
+        linted_file = linter.lint_string(sql, fix=True)
+        fixed_sql, changed = linted_file.fix_string()
+
+    assert changed
+    assert fixed_sql == "SELECT\n    '{{ foo.bar }}'\nFROM baz\n"
+    assert "Skipping edit patch on uncertain templated section" not in caplog.text

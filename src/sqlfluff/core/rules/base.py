@@ -218,9 +218,9 @@ class RuleMetaclass(type):
         docstring so that it can be displayed in the sphinx docs.
         """
         # Ensure that there _is_ a docstring.
-        assert (
-            "__doc__" in class_dict
-        ), f"Tried to define rule {name!r} without docstring."
+        assert "__doc__" in class_dict, (
+            f"Tried to define rule {name!r} without docstring."
+        )
 
         # Build up a buffer of entries to add to the docstring.
         fix_docs = (
@@ -795,7 +795,17 @@ class BaseRule(metaclass=RuleMetaclass):
             if root_segment
             else None
         )
-        assert path, f"No path found from {root_segment} to {segment}!"
+        # If no path found (e.g., segment is in unparsable section), return
+        # the original segment. This will be filtered out later in
+        # _process_lint_result if it's in an unparsable section.
+        if not path:
+            linter_logger.debug(
+                "No path found from %s to %s. Segment may be in unparsable section. "
+                "Returning original segment as anchor.",
+                root_segment,
+                segment,
+            )
+            return segment
         for seg in path[::-1]:
             # If the segment allows non code ends, then no problem.
             # We're done. This is usually the outer file segment.

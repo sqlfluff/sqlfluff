@@ -4,7 +4,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import example, given, note, settings
 
-from sqlfluff.core import FluffConfig
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import Lexer, Parser
 
 
@@ -33,7 +33,7 @@ def test_bigquery_relational_operator_parsing(data):
         if i:
             filter.append(f" {conjunction} ")
         filter.append(f"a {relation} b")
-    raw = f'SELECT * FROM t WHERE {"".join(filter)}'
+    raw = f"SELECT * FROM t WHERE {''.join(filter)}"
     note(f"query: {raw}")
     # Load the right dialect
     config = FluffConfig(overrides=dict(dialect="bigquery"))
@@ -90,3 +90,11 @@ def test_bigquery_table_reference_segment_iter_raw_references(
             orp.part for orp in table_reference.iter_raw_references()
         ]
         assert reference_parts == actual_reference_parts
+
+
+def test_cast_as_float_fails():
+    """CAST(... AS FLOAT) should fail for BigQuery (only FLOAT64 allowed)."""
+    sql = "SELECT CAST('4.0' AS FLOAT)"
+    parsed = Linter(dialect="bigquery").parse_string(sql)
+    # Parsing produces a parse error for the unsupported `FLOAT` type.
+    assert parsed.violations

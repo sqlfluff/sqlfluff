@@ -29,6 +29,7 @@ from typing import (
 )
 from uuid import uuid4
 
+from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
@@ -43,9 +44,20 @@ if TYPE_CHECKING:  # pragma: no cover
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
 
-TupleSerialisedSegment = tuple[str, Union[str, tuple["TupleSerialisedSegment", ...]]]
+# Can be either 2-element (backward compatible) or 3-element (with position)
+TupleSerialisedSegment = Union[
+    tuple[str, Union[str, tuple["TupleSerialisedSegment", ...]]],
+    tuple[str, Union[str, tuple["TupleSerialisedSegment", ...]], dict[str, int]],
+]
 RecordSerialisedSegment = dict[
-    str, Union[None, str, "RecordSerialisedSegment", list["RecordSerialisedSegment"]]
+    str,
+    Union[
+        None,
+        str,
+        int,
+        "RecordSerialisedSegment",
+        list["RecordSerialisedSegment"],
+    ],
 ]
 
 
@@ -195,7 +207,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # If no pos given, work it out from the children.
             if all(seg.pos_marker for seg in segments):
                 pos_marker = PositionMarker.from_child_markers(
-                    *(seg.pos_marker for seg in segments)
+                    [seg.pos_marker for seg in segments]
                 )
 
         assert not hasattr(self, "parse_grammar"), "parse_grammar is deprecated."
@@ -268,6 +280,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
         s = self.__dict__.copy()
         # Kill the parent ref. It won't pickle well.
         s["_parent"] = None
+        # Remove _rstoken if present - RsToken objects can't be pickled.
+        # This is set by RawSegment.from_rstoken() for efficient round-trip
+        # to the Rust parser, but isn't needed after pickling.
+        s.pop("_rstoken", None)
         return s
 
     def __setstate__(self, state: dict[str, Any]) -> None:
@@ -473,6 +489,23 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 end_point = None
                 for fwd_seg in segments[idx + 1 :]:
                     if fwd_seg.pos_marker:
+                        # Skip zero-length template placeholders (e.g. a Jinja
+                        # variable {{ expr }} that rendered to an empty string).
+                        # These may appear before a sibling segment with an
+                        # earlier templated position due to the way the lexer
+                        # processes spanning elements.  Using their position as
+                        # the end-point would produce an over-wide position for
+                        # the unpositioned segment (e.g. a replacement whitespace
+                        # gaining a source-slice that extends into the Jinja code).
+                        # See: https://github.com/sqlfluff/sqlfluff/issues/6261
+                        if (
+                            fwd_seg.is_type("placeholder")
+                            and fwd_seg.raw == ""
+                            and is_zero_slice(fwd_seg.pos_marker.templated_slice)
+                            and not is_zero_slice(fwd_seg.pos_marker.source_slice)
+                            and getattr(fwd_seg, "block_type", "") == "templated"
+                        ):
+                            continue
                         # NOTE: Use raw segments because it's more reliable.
                         end_point = fwd_seg.raw_segments[
                             0
@@ -585,15 +618,31 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         This is used in the .as_record() method.
         """
-        assert len(elem) == 2
-        key, value = elem
+        # Handle both 2-element (backward compatible) and 3-element
+        # (with position) tuples
+        assert len(elem) in (2, 3)
+        if len(elem) == 3:
+            key, value, position = elem
+        else:
+            key, value = elem
+            position = None
         assert isinstance(key, str)
+
+        # Start building the result dict
+        result: RecordSerialisedSegment = {}
+
+        # Add position information if present
+        if position is not None:
+            result.update(position)
+
         if isinstance(value, str):
-            return {key: value}
+            result[key] = value
+            return result
         assert isinstance(value, tuple)
         # If it's an empty tuple return a dict with None.
         if not value:
-            return {key: None}
+            result[key] = None
+            return result
         # Otherwise value is a tuple with length.
         # Simplify all the child elements
         contents = [cls.structural_simplify(e) for e in value]
@@ -605,14 +654,16 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if len(set(subkeys)) != len(subkeys):
             # Yes: use a list of single dicts.
             # Recurse directly.
-            return {key: contents}
+            result[key] = contents
+            return result
 
         # Otherwise there aren't duplicates, un-nest the list into a dict:
         content_dict = {}
         for record in contents:
             for k, v in record.items():
                 content_dict[k] = v
-        return {key: content_dict}
+        result[key] = content_dict
+        return result
 
     @classmethod
     def match(
@@ -824,38 +875,54 @@ class BaseSegment(metaclass=SegmentMetaclass):
         code_only: bool = False,
         show_raw: bool = False,
         include_meta: bool = False,
+        include_position: bool = False,
     ) -> TupleSerialisedSegment:
         """Return a tuple structure from this segment."""
         # works for both base and raw
 
+        # Build the base tuple (2 elements)
+        base_tuple: Union[
+            tuple[str, str],
+            tuple[str, tuple[TupleSerialisedSegment, ...]],
+        ]
         if show_raw and not self.segments:
-            return (self.get_type(), self.raw)
+            base_tuple = (self.get_type(), self.raw)
         elif code_only:
-            return (
+            base_tuple = (
                 self.get_type(),
                 tuple(
                     seg.to_tuple(
                         code_only=code_only,
                         show_raw=show_raw,
                         include_meta=include_meta,
+                        include_position=include_position,
                     )
                     for seg in self.segments
                     if seg.is_code and not seg.is_meta
                 ),
             )
         else:
-            return (
+            base_tuple = (
                 self.get_type(),
                 tuple(
                     seg.to_tuple(
                         code_only=code_only,
                         show_raw=show_raw,
                         include_meta=include_meta,
+                        include_position=include_position,
                     )
                     for seg in self.segments
                     if include_meta or not seg.is_meta
                 ),
             )
+
+        # Add position as third element only if requested
+        if include_position and self.pos_marker:
+            return cast(
+                TupleSerialisedSegment, base_tuple + (self.pos_marker.to_source_dict(),)
+            )
+        else:
+            return base_tuple
 
     def copy(
         self,
@@ -892,9 +959,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # of not. Typically will _have_ a `segments` attribute, but it's an
         # empty tuple.
         if not self.__dict__.get("segments", None):
-            assert (
-                not segments
-            ), f"Cannot provide `segments` argument to {cls.__name__} `.copy()`\n"
+            assert not segments, (
+                f"Cannot provide `segments` argument to {cls.__name__} `.copy()`\n"
+            )
         # If segments were provided, use them.
         elif segments:
             new_segment.segments = segments

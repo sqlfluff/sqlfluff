@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d0d10ccb882786095bf5c20d3e192d9ea0ededc4490a9b2baf5f1f076ab947b1
+_hash: 12f8fa91633aa8c6ff0fc5b6f1bd3908753b0b77045a326a7d679cbdbdf93e2e
 file:
   batch:
   - statement:
@@ -253,7 +253,7 @@ file:
                       naked_identifier: f
                       dot: .
                       quoted_identifier: '[ID]'
-            statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       drop_table_statement:
       - keyword: DROP
@@ -262,7 +262,7 @@ file:
         - quoted_identifier: '[dbo]'
         - dot: .
         - quoted_identifier: '[PL_stage]'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_as_select_statement:
       - keyword: CREATE

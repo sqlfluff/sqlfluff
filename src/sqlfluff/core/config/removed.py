@@ -34,9 +34,9 @@ class _RemovedConfig:
     @property
     def formatted_new_key(self) -> str:
         """Format the new key (assuming it exists) in a way similar to a config file."""
-        assert (
-            self.new_path
-        ), "`formatted_new_key` can only be called if a `new_path` is set."
+        assert self.new_path, (
+            "`formatted_new_key` can only be called if a `new_path` is set."
+        )
         return ":".join(self.new_path)
 
 
@@ -158,6 +158,15 @@ REMOVED_CONFIGS = [
         ("rules", "references.quoting", "force_enable"),
         "No longer used. The dialects which used to block this rule, no longer do.",
     ),
+    _RemovedConfig(
+        ("indentation", "allow_implicit_indents"),
+        (
+            "The allow_implicit_indents config has been replaced by implicit_indents. "
+            "Use 'forbid' (was false), 'allow' (was true), or 'require' instead."
+        ),
+        ("indentation", "implicit_indents"),
+        lambda x: "allow" if x else "forbid",
+    ),
 ]
 
 # Actually make a dict which matches the structure.
@@ -195,9 +204,9 @@ def validate_config_dict_for_removed(
         # If it's a section, recurse
         if isinstance(removed_value, dict):
             config_section = config[key]
-            assert isinstance(
-                config_section, dict
-            ), f"Expected `{key}` to be a section not a value."
+            assert isinstance(config_section, dict), (
+                f"Expected `{key}` to be a section not a value."
+            )
             validate_config_dict_for_removed(
                 config_section,
                 logging_reference=logging_reference,
@@ -248,9 +257,9 @@ def validate_config_dict_for_removed(
 
         # If we haven't already set the new path then mutate and warn.
         old_value = config[key]
-        assert not isinstance(
-            old_value, dict
-        ), f"Expected `{key}` to be a value not a section."
+        assert not isinstance(old_value, dict), (
+            f"Expected `{key}` to be a value not a section."
+        )
         new_value = removed_value.translation_func(old_value)
         # NOTE: At the stage of emitting this warning, we may not yet
         # have set up red logging because we haven't yet loaded the config

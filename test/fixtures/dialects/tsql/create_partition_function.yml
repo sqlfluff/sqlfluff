@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 11877a598cead9942eb3f3431838f17b69899ea620caf38e95cab93076f1966d
+_hash: b55b0ffab5110c32ef7d27589938f8834a0949d0aff56e0120fdad76322d6d84
 file:
   batch:
   - statement:
@@ -16,7 +16,7 @@ file:
       - bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: INT
+            keyword: INT
           end_bracket: )
       - keyword: AS
       - keyword: RANGE
@@ -42,7 +42,7 @@ file:
       - bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: CHAR
+            keyword: CHAR
             bracketed_arguments:
               bracketed:
                 start_bracket: (
@@ -74,7 +74,7 @@ file:
       - bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: date
+            keyword: date
           end_bracket: )
       - keyword: AS
       - keyword: RANGE
@@ -139,4 +139,34 @@ file:
           start_bracket: (
           quoted_literal: "'D'"
           end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_partition_function_statement:
+      - keyword: CREATE
+      - keyword: PARTITION
+      - keyword: FUNCTION
+      - object_reference:
+          quoted_identifier: '[partition_function_3]'
+      - bracketed:
+          start_bracket: (
+          data_type:
+            keyword: varbinary
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  integer_literal: '128'
+                end_bracket: )
+          end_bracket: )
+      - keyword: AS
+      - keyword: RANGE
+      - keyword: LEFT
+      - keyword: FOR
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - binary_literal: '0x0039003900390039002D00310039003700320032003300350032'
+        - comma: ','
+        - binary_literal: '0x006A0070003800370039003000390034'
+        - end_bracket: )
   - statement_terminator: ;

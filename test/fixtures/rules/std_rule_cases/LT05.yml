@@ -530,7 +530,7 @@ test_fix_implicit_indent:
     core:
       max_line_length: 45
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
 
 test_fix_no_implicit_indent:
   # Test explicitly preventing implicit indents.
@@ -570,7 +570,7 @@ test_fix_no_implicit_indent:
     core:
       max_line_length: 45
     indentation:
-      allow_implicit_indents: false
+      implicit_indents: forbid
 
 test_fix_window_function:
   # https://github.com/sqlfluff/sqlfluff/issues/4292

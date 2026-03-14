@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e54ee2107f49b062d4e9da45478ccd9f1acd2fed5669cca8328f2e30bb2d7968
+_hash: ce758daa106109323d822d670f41b46292876e22991f3ce128ae080f0b0a9144
 file:
   batch:
   - statement:
@@ -21,7 +21,7 @@ file:
                 - keyword: 'ON'
                 - keyword: 'NULL'
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -45,7 +45,7 @@ file:
                 - expression:
                     integer_literal: '2'
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -69,7 +69,7 @@ file:
                 - keyword: 'ON'
                 - keyword: 'NULL'
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -82,14 +82,14 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'name'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: "'value'"
                 - comma: ','
                 - quoted_literal: "'new'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - integer_literal: '1'
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -102,11 +102,11 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'name'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: "'value'"
                 - comma: ','
                 - quoted_literal: "'type'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - null_literal: 'NULL'
                 - keyword: ABSENT
                 - keyword: 'ON'
@@ -124,11 +124,11 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'name'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: "'value'"
                 - comma: ','
                 - quoted_literal: "'type'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                     function_name:
                       function_name_identifier: JSON_ARRAY
@@ -154,11 +154,11 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'name'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: "'value'"
                 - comma: ','
                 - quoted_literal: "'type'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                     function_name:
                       keyword: JSON_OBJECT
@@ -166,11 +166,11 @@ file:
                       bracketed:
                       - start_bracket: (
                       - quoted_literal: "'type_id'"
-                      - colon: ':'
+                      - colon_delimiter: ':'
                       - integer_literal: '1'
                       - comma: ','
                       - quoted_literal: "'name'"
-                      - colon: ':'
+                      - colon_delimiter: ':'
                       - quoted_literal: "'a'"
                       - end_bracket: )
                 - end_bracket: )
@@ -179,7 +179,7 @@ file:
       - keyword: DECLARE
       - parameter: '@id_key'
       - data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -193,7 +193,7 @@ file:
       - comma: ','
       - parameter: '@id_value'
       - data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -210,7 +210,7 @@ file:
               bracketed:
                 start_bracket: (
                 end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -223,7 +223,7 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'user_name'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                     function_name:
                       function_name_identifier: USER_NAME
@@ -233,11 +233,11 @@ file:
                         end_bracket: )
                 - comma: ','
                 - parameter: '@id_key'
-                - colon: ':'
+                - colon_delimiter: ':'
                 - parameter: '@id_value'
                 - comma: ','
                 - quoted_literal: "'sid'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - bracketed:
                     start_bracket: (
                     select_statement:
@@ -247,7 +247,7 @@ file:
                           system_variable: '@@SPID'
                     end_bracket: )
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -266,21 +266,21 @@ file:
                 bracketed:
                 - start_bracket: (
                 - quoted_literal: "'security_id'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - column_reference:
                   - naked_identifier: s
                   - dot: .
                   - naked_identifier: security_id
                 - comma: ','
                 - quoted_literal: "'login'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - column_reference:
                   - naked_identifier: s
                   - dot: .
                   - naked_identifier: login_name
                 - comma: ','
                 - quoted_literal: "'status'"
-                - colon: ':'
+                - colon_delimiter: ':'
                 - column_reference:
                   - naked_identifier: s
                   - dot: .
@@ -313,7 +313,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '1'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -336,15 +336,15 @@ file:
                         bracketed:
                         - start_bracket: (
                         - quoted_literal: "'name'"
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - quoted_literal: "'value'"
                         - comma: ','
                         - quoted_literal: "'type'"
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - integer_literal: '1'
                         - end_bracket: )
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -367,11 +367,11 @@ file:
                         bracketed:
                         - start_bracket: (
                         - quoted_literal: "'name'"
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - quoted_literal: "'value'"
                         - comma: ','
                         - quoted_literal: "'type'"
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - integer_literal: '1'
                         - end_bracket: )
                 - comma: ','
@@ -392,13 +392,13 @@ file:
                         - keyword: 'NULL'
                         - end_bracket: )
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@id_value'
         data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -415,7 +415,7 @@ file:
               bracketed:
                 start_bracket: (
                 end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -444,7 +444,7 @@ file:
                               system_variable: '@@SPID'
                       end_bracket: )
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -503,4 +503,4 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '1'
-        statement_terminator: ;
+  - statement_terminator: ;

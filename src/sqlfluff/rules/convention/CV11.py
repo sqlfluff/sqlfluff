@@ -73,8 +73,13 @@ class Rule_CV11(BaseRule):
                         "newline",
                         "casting_operator",
                         "comma",
-                        "keyword",
                     )
+                ),
+                # Exclude keywords, except when the keyword is a literal
+                # (e.g. null_literal, boolean_literal).
+                sp.or_(
+                    sp.not_(sp.is_type("keyword")),
+                    sp.is_type("literal"),
                 ),
             )
         )

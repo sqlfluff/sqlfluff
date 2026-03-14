@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd3ec6684af84a81c35279fd471dd61e0f8e6b4947388c123b76bd6d21cb80ea
+_hash: 518a64fc87e501bbc57862d5ff65fda9d4794ca5293efef8c689320c20319622
 file:
   statement:
     create_function_statement:
@@ -21,13 +21,13 @@ file:
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        struct_type:
+        data_type:
           keyword: STRUCT
           struct_type_schema:
             start_angle_bracket: <
             parameter: _product_id
             data_type:
-              array_type:
+              data_type:
                 keyword: ARRAY
                 start_angle_bracket: <
                 data_type:

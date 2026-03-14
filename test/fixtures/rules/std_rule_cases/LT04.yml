@@ -372,3 +372,17 @@ trailing_comma_no_space_comment:
     SELECT a,--comment
         b
     FROM t
+
+trailing_comma_strict_tsql_exec:
+  # Regression test for NotImplementedError with trailing:strict
+  # on T-SQL EXEC statements with parameters
+  pass_str: |
+    EXEC admin.usp_update_default_dimension_member
+        @schema = 'dbo', @table = 'dim_territory';
+  configs:
+    core:
+      dialect: tsql
+    layout:
+      type:
+        comma:
+          line_position: trailing:strict

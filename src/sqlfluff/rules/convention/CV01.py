@@ -38,6 +38,10 @@ class Rule_CV01(BaseRule):
         """Enforce consistent "not equal to" style."""
         self.preferred_not_equal_style: str
 
+        # Rule disabled for teradata as != is not supported.
+        if context.dialect.name == "teradata":
+            return None
+
         # Get the comparison operator children
         raw_comparison_operators = (
             FunctionalContext(context)

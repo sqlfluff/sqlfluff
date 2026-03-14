@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c263819fa6cb975216a75d976000aded350cc54e866945623c2bc99a36d3957e
+_hash: a825139fc4e8f3824ebea9b144da62037a798bd251ec4cdb6c534ef3a9a76216
 file:
   batch:
   - statement:
@@ -20,7 +20,7 @@ file:
         - column_definition:
             naked_identifier: column_name_1
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -31,7 +31,7 @@ file:
         - column_definition:
             naked_identifier: column_name_2
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -44,7 +44,7 @@ file:
         - column_definition:
             naked_identifier: column_name_3
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -105,7 +105,7 @@ file:
         - column_definition:
             naked_identifier: column_name_1
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -116,7 +116,7 @@ file:
         - column_definition:
             naked_identifier: column_name_2
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -129,7 +129,7 @@ file:
         - column_definition:
             naked_identifier: column_name_3
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -193,7 +193,7 @@ file:
         - column_definition:
             naked_identifier: o_orderkey
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -207,7 +207,7 @@ file:
         - column_definition:
             naked_identifier: o_custkey
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -221,7 +221,7 @@ file:
         - column_definition:
           - naked_identifier: o_orderstatus
           - data_type:
-              data_type_identifier: CHAR
+              keyword: CHAR
           - column_constraint_segment:
               keyword: COLLATE
               collation_reference:
@@ -233,7 +233,7 @@ file:
         - column_definition:
             naked_identifier: o_totalprice
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -250,7 +250,7 @@ file:
         - column_definition:
             naked_identifier: o_orderdate
             data_type:
-              data_type_identifier: DATETIME2
+              keyword: DATETIME2
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -264,7 +264,7 @@ file:
         - column_definition:
           - naked_identifier: o_orderpriority
           - data_type:
-              data_type_identifier: CHAR
+              keyword: CHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -282,7 +282,7 @@ file:
         - column_definition:
           - naked_identifier: o_clerk
           - data_type:
-              data_type_identifier: CHAR
+              keyword: CHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -300,7 +300,7 @@ file:
         - column_definition:
             naked_identifier: o_shippriority
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -314,7 +314,7 @@ file:
         - column_definition:
           - naked_identifier: o_comment
           - data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (

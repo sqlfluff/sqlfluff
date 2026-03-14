@@ -46,7 +46,7 @@ INSERT INTO HumanResources.NewEmployee
 GO
 
 INSERT INTO HumanResources.NewEmployee WITH(TABLOCK)
-OUTPUT * INTO Results
+OUTPUT INSERTED.* INTO Results
   EXEC FindEmployeesFunc @lastName = 'Picard'
 GO
 
@@ -55,3 +55,5 @@ INSERT HumanResources.NewEmployee
   values
   ('Kirk', 'James')
 GO
+
+INSERT TOP (10) PERCENT INTO SomeTable SELECT * FROM SomeOtherTable;

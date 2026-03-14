@@ -3,223 +3,224 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cca773e16b14f61a50a4dc183e640ff15a57294c008d06ca26b7982071b3e361
+_hash: 710ea200f3565a33a1e74be1b38b5bb854e4f3b9b21077fdc13652feb46f1561
 file:
-- statement:
-    select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: e
-          - dot: .
-          - naked_identifier: employee_id
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: e
-          - dot: .
-          - naked_identifier: salary
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: e
-          - dot: .
-          - naked_identifier: commission_pct
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: employees
-            alias_expression:
-              naked_identifier: e
-      - comma: ','
-      - from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: departments
-            alias_expression:
-              naked_identifier: d
-    - where_clause:
-        keyword: WHERE
-        expression:
-        - column_reference:
-            naked_identifier: job_id
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - quoted_literal: "'SA_REP'"
-        - binary_operator: AND
-        - column_reference:
-          - naked_identifier: e
-          - dot: .
-          - naked_identifier: department_id
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - column_reference:
-          - naked_identifier: d
-          - dot: .
-          - naked_identifier: department_id
-        - binary_operator: AND
-        - column_reference:
-            naked_identifier: location_id
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - numeric_literal: '2500'
-    - orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-        - naked_identifier: e
-        - dot: .
-        - naked_identifier: employee_id
-    - keyword: FOR
-    - keyword: UPDATE
-- statement_terminator: ;
-- statement:
-    select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: e
-          - dot: .
-          - naked_identifier: employee_id
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: e
-          - dot: .
-          - naked_identifier: salary
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: e
-          - dot: .
-          - naked_identifier: commission_pct
-    - from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: employees
-            alias_expression:
-              naked_identifier: e
-          join_clause:
-          - keyword: JOIN
-          - from_expression_element:
+  batch:
+  - statement:
+      select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: employee_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: salary
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: commission_pct
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+              alias_expression:
+                naked_identifier: e
+        - comma: ','
+        - from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
                   naked_identifier: departments
               alias_expression:
                 naked_identifier: d
-          - keyword: USING
-          - bracketed:
-              start_bracket: (
-              naked_identifier: department_id
-              end_bracket: )
-    - where_clause:
-        keyword: WHERE
-        expression:
+      - where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: job_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'SA_REP'"
+          - binary_operator: AND
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: department_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: d
+            - dot: .
+            - naked_identifier: department_id
+          - binary_operator: AND
+          - column_reference:
+              naked_identifier: location_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '2500'
+      - orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
         - column_reference:
-            naked_identifier: job_id
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - quoted_literal: "'SA_REP'"
-        - binary_operator: AND
+          - naked_identifier: e
+          - dot: .
+          - naked_identifier: employee_id
+      - keyword: FOR
+      - keyword: UPDATE
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: employee_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: salary
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: commission_pct
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+              alias_expression:
+                naked_identifier: e
+            join_clause:
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: departments
+                alias_expression:
+                  naked_identifier: d
+            - keyword: USING
+            - bracketed:
+                start_bracket: (
+                naked_identifier: department_id
+                end_bracket: )
+      - where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: job_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'SA_REP'"
+          - binary_operator: AND
+          - column_reference:
+              naked_identifier: location_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '2500'
+      - orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
         - column_reference:
-            naked_identifier: location_id
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - numeric_literal: '2500'
-    - orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
+          - naked_identifier: e
+          - dot: .
+          - naked_identifier: employee_id
+      - keyword: FOR
+      - keyword: UPDATE
+      - keyword: OF
+      - table_reference:
         - naked_identifier: e
         - dot: .
-        - naked_identifier: employee_id
-    - keyword: FOR
-    - keyword: UPDATE
-    - keyword: OF
-    - table_reference:
-      - naked_identifier: e
-      - dot: .
-      - naked_identifier: salary
-- statement_terminator: ;
-- statement:
-    select_statement:
-    - select_clause:
-        keyword: SELECT
-        select_clause_element:
-          column_reference:
-            naked_identifier: employee_id
-    - from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            naked_identifier: employees
-                end_bracket: )
-    - keyword: FOR
-    - keyword: UPDATE
-    - keyword: OF
-    - table_reference:
-        naked_identifier: employee_id
-- statement_terminator: ;
-- statement:
-    select_statement:
-    - select_clause:
-        keyword: SELECT
-        select_clause_element:
-          column_reference:
-            naked_identifier: employee_id
-    - from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      expression:
-                        column_reference:
+        - naked_identifier: salary
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+      - select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: employee_id
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: employees
+                  end_bracket: )
+      - keyword: FOR
+      - keyword: UPDATE
+      - keyword: OF
+      - table_reference:
+          naked_identifier: employee_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+      - select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: employee_id
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        expression:
+                          column_reference:
+                            naked_identifier: employee_id
+                          binary_operator: +
+                          numeric_literal: '1'
+                        alias_expression:
+                          alias_operator:
+                            keyword: AS
                           naked_identifier: employee_id
-                        binary_operator: +
-                        numeric_literal: '1'
-                      alias_expression:
-                        alias_operator:
-                          keyword: AS
-                        naked_identifier: employee_id
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            naked_identifier: employees
-                end_bracket: )
-    - keyword: FOR
-    - keyword: UPDATE
-- statement_terminator: ;
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: employees
+                  end_bracket: )
+      - keyword: FOR
+      - keyword: UPDATE
+  - statement_terminator: ;

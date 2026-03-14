@@ -455,8 +455,12 @@ some established style guides.
 They are however not recommended by many of the major style guides
 at time of writing (including the `dbt Labs SQL style guide`_
 and the `Mozilla SQL style guide`_), and so are disabled by default.
-To enable them, set the :code:`allow_implicit_indents` flag in
-:code:`sqluff.indentation` to :code:`True`.
+To enable them, set the :code:`implicit_indents` flag in
+:code:`sqluff.indentation` to :code:`allow`, or the more strict
+:code:`require`. When using :code:`require`, the
+:code:`skip_implicit_indents_in` option (defaulting to
+:code:`case_expression`) excludes specific element types from
+collapsing.
 
 .. _templatedindents:
 
@@ -645,7 +649,7 @@ break after :code:`ON` is unexpected, and this is a good example of an
 
    [sqlfluff:indentation]
    indented_using_on = False
-   allow_implicit_indents = True
+   implicit_indents = allow
 
 Then the expected indentation will be:
 
@@ -676,7 +680,7 @@ subsections of an :code:`ON` block with each other. If set to :code:`False`
 
 These can also be combined, so if :code:`indented_using_on` config is set to
 :code:`False`, :code:`indented_on_contents` is also set to :code:`False`, and
-:code:`allow_implicit_indents` is set to :code:`True` then the SQL would
+:code:`implicit_indents` is set to :code:`allow` then the SQL would
 become:
 
 .. code-block:: sql
@@ -785,6 +789,25 @@ available:
          [sqlfluff:layout:type:comma]
          line_position = leading
 
+   *  :code:`leading` can be qualified with the :code:`:align-following` modifier
+      - which allows the line position to be aligned with the following element,
+      instead of the configured element itself. For example, when the modifier is
+      added to comma line position:
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:comma]
+         line_position = leading:align-following
+
+      then the following query would be allowed:
+
+      .. code-block:: sql
+
+         SELECT
+            col_a AS a
+          , col_b AS b
+         FROM foo;
+
    *  :code:`alone`, which means if there is a line break on either side,
       then there must be a line break on *both sides* (i.e. that it should
       be the only thing on that line.
@@ -817,6 +840,69 @@ available:
 * **Keyword Line Position**: set using the :code:`keyword_line_position` option.
    By default for most clauses this is unset, which implies no particular keyword
    line position requirements. The available options are:
+
+   *  **How this differs from** :code:`line_position`: The
+      :code:`line_position` setting applies to the configured *segment type as a
+      whole* (for example, where a :code:`where_clause` should break relative to
+      surrounding SQL). The :code:`keyword_line_position` setting applies to the
+      clause's *leading keyword token(s)* (for example :code:`WHERE` or
+      :code:`ORDER BY`) inside that segment.
+
+      In practice, for clause-like types, these settings are often used together.
+      For example:
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:where_clause]
+         line_position = alone
+         keyword_line_position = leading
+
+      This combination means:
+
+      * the :code:`WHERE` clause is treated as its own line-oriented block
+        (:code:`line_position = alone`), and
+      * the :code:`WHERE` keyword itself should start a line
+        (:code:`keyword_line_position = leading`).
+
+         A concrete :code:`where_clause` example:
+
+         .. code-block:: sql
+
+             SELECT
+                  a
+             FROM t
+             WHERE b = 1
+                  AND c = 2
+
+         In this shape:
+
+         * :code:`line_position` controls where the whole :code:`where_clause` sits
+            relative to surrounding clauses (e.g. forcing a break before/around the
+            clause).
+         * :code:`keyword_line_position` controls where the :code:`WHERE` keyword
+            sits relative to its expression (e.g. :code:`WHERE b = 1` vs
+            :code:`WHERE` on its own line).
+
+         For example, setting :code:`keyword_line_position = alone` would produce:
+
+         .. code-block:: sql
+
+             SELECT
+                  a
+             FROM t
+             WHERE
+                  b = 1
+                  AND c = 2
+
+      Another example:
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:join_on_condition]
+         keyword_line_position = trailing
+
+      This places the :code:`ON` keyword at the end of the line, with the
+      condition expression on the following line.
 
    *  :code:`leading` and :code:`alone`, which are most common in the
       placement of keywords. Both of these settings *also* allow the option
