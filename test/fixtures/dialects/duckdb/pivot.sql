@@ -68,3 +68,16 @@ PIVOT (
         Year IN (2000, 2010)
         Country in ('NL', 'US')
 );
+
+-- Trailing commas in simplified PIVOT
+PIVOT Cities ON Year IN (2000, 2010,) USING sum(Population) GROUP BY Country;
+
+-- Trailing commas in standard PIVOT
+FROM Cities
+PIVOT (
+    sum(Population) AS total,
+    count(Population) AS count,
+    FOR
+        Year IN (2000, 2010,)
+        Country in ('NL', 'US',)
+);

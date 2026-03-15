@@ -37,6 +37,7 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
+from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -230,6 +231,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "EDITIONING",
         "EDITIONS",
         "ELSIF",
+        "EMPTY",
         "ERROR",
         "ERRORS",
         "EXEMPT",
@@ -964,7 +966,10 @@ oracle_dialect.replace(
     SelectClauseTerminatorGrammar=OneOf(
         "BULK",
         "INTO",
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
@@ -1814,6 +1819,117 @@ class SqlplusSubstitutionVariableSegment(BaseSegment):
         Ref("AmpersandSegment"),
         Ref("AmpersandSegment", optional=True),
         Ref("SingleIdentifierGrammar"),
+    )
+
+
+class JsonTableColumnDefinitionSegment(BaseSegment):
+    """A column definition in a JSON_TABLE COLUMNS clause.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/JSON_TABLE.html
+    """
+
+    type = "json_table_column_definition"
+    match_grammar: Matchable = OneOf(
+        # FOR ORDINALITY: col_name FOR ORDINALITY
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            "FOR",
+            "ORDINALITY",
+        ),
+        # NESTED [PATH] path_expr COLUMNS(...)
+        Sequence(
+            "NESTED",
+            Ref.keyword("PATH", optional=True),
+            Ref("QuotedLiteralSegment"),
+            Ref("JsonTableColumnsClauseSegment"),
+        ),
+        # Regular column: col_name type [FORMAT JSON] [PATH path_expr] [error_handling]
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment"),
+            Sequence("FORMAT", "JSON", optional=True),
+            Sequence(
+                "PATH",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            AnyNumberOf(
+                Sequence(
+                    OneOf(
+                        "NULL",
+                        "ERROR",
+                        Sequence("DEFAULT", Ref("ExpressionSegment")),
+                    ),
+                    "ON",
+                    OneOf("EMPTY", "ERROR"),
+                ),
+            ),
+        ),
+    )
+
+
+class JsonTableColumnsClauseSegment(BaseSegment):
+    """The COLUMNS clause in a JSON_TABLE function.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/JSON_TABLE.html
+    """
+
+    type = "json_table_columns_clause"
+    match_grammar: Matchable = Sequence(
+        "COLUMNS",
+        Bracketed(
+            Delimited(
+                Ref("JsonTableColumnDefinitionSegment"),
+            ),
+        ),
+    )
+
+
+class JsonTableFunctionContentsSegment(BaseSegment):
+    """JSON_TABLE function contents.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/JSON_TABLE.html
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("QuotedLiteralSegment"),
+        AnyNumberOf(
+            Sequence(
+                OneOf("NULL", "ERROR"),
+                "ON",
+                "ERROR",
+            ),
+        ),
+        Ref("JsonTableColumnsClauseSegment"),
+    )
+
+
+class JsonTableFunctionNameSegment(BaseSegment):
+    """JSON_TABLE function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "JSON_TABLE", WordSegment, type="function_name_identifier"
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function with Oracle-specific JSON_TABLE support."""
+
+    match_grammar = ansi.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("JsonTableFunctionNameSegment"),
+                Ref("JsonTableFunctionContentsSegment"),
+            ),
+        ],
+        at=0,
     )
 
 

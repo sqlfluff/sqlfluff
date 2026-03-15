@@ -32,7 +32,7 @@ fn parse_and_find(sql: &str, grammar_name: &str, expected: &str) -> bool {
 
     println!("PARSE_MR for '{}': {}", sql, mr);
 
-    let node = mr.apply_as_root(&tokens);
+    let node = mr.apply_as_root(&tokens, &[], &[]);
 
     println!("PARSE_RESULT for '{}': {:?}", sql, node);
 

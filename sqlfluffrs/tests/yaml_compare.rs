@@ -157,7 +157,7 @@ fn test_yaml_comparison_ansi_arithmetic_a() {
     let ast = parser
         .call_rule_as_root()
         .expect("Parse error")
-        .apply_as_root(&tokens);
+        .apply_as_root(&tokens, &[], &[]);
 
     println!("\n=== AST ===");
     println!("{:#?}", ast);
@@ -196,7 +196,7 @@ fn test_yaml_comparison_tsql_sqlcmd_command() {
     let ast = parser
         .call_rule_as_root()
         .expect("Parse error")
-        .apply_as_root(&tokens);
+        .apply_as_root(&tokens, &[], &[]);
 
     // Generate YAML
     let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML conversion error");

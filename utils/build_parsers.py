@@ -17,6 +17,7 @@ from sqlfluff.core.parser.grammar.anyof import (
 from sqlfluff.core.parser.grammar.base import Anything, Nothing, Ref
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.grammar.delimited import Delimited, OptionallyDelimited
+from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.parsers import (
     MultiStringParser,
@@ -102,6 +103,14 @@ class TableBuilder:
         self.trim_chars_sparse: List[Tuple[int, int, int]] = []
         # Flat array of string indices for trim_chars values
         self.trim_chars_data: List[int] = []
+        # Sparse segment _class_types entries: list of (grammar_id, offset, count)
+        # tuples.  Only populated for grammars that map to a Python segment class
+        # (direct Segment class entries and Refs that resolve to segment classes).
+        # Mirrors Python's ``BaseSegment._class_types`` frozenset at the grammar
+        # table level so Rust can replicate inheritance-aware type checks.
+        self.segment_class_types_sparse: List[Tuple[int, int, int]] = []
+        # Flat array of string indices for segment_class_types values
+        self.segment_class_types_data: List[int] = []
 
         # Deduplication maps
         self.string_to_id: Dict[str, int] = {}
@@ -122,6 +131,24 @@ class TableBuilder:
         self.strings.append(s)
         self.string_to_id[s] = string_id
         return string_id
+
+    def _register_segment_class_types(
+        self, grammar_id: int, class_types: List[str]
+    ) -> None:
+        """Record _class_types for a grammar entry's Python segment class.
+
+        Populates ``segment_class_types_sparse`` and ``segment_class_types_data``
+        so that the Rust parser can replicate Python's inheritance-aware
+        ``is_type()`` check for non-Raw (Segment) nodes.
+        """
+        if not class_types:
+            return
+        offset = len(self.segment_class_types_data)
+        count = len(class_types)
+        self.segment_class_types_sparse.append((grammar_id, offset, count))
+        for ct in class_types:
+            ct_id = self._add_string(ct)
+            self.segment_class_types_data.append(ct_id)
 
     def _add_regex(self, pattern: str) -> int:
         """Add regex pattern to table (deduplicated). Returns regex_id."""
@@ -269,6 +296,9 @@ class TableBuilder:
                 class_name = grammar.__name__
                 class_id = self._add_string(class_name)
                 self.segment_class_offsets[grammar_id] = class_id
+                # Store _class_types hierarchy for Rust is_type() parity
+                class_types = sorted(getattr(grammar, "_class_types", frozenset()))
+                self._register_segment_class_types(grammar_id, class_types)
             # If this grammar is a Ref to a named segment, attempt to resolve
             # the referenced name to a Segment class in the dialect library
             # and use that class's `type` and `__name__` attributes. This covers
@@ -292,6 +322,11 @@ class TableBuilder:
                             class_name = target.__name__
                             class_id = self._add_string(class_name)
                             self.segment_class_offsets[grammar_id] = class_id
+                            # Store _class_types hierarchy for Rust is_type() parity
+                            class_types = sorted(
+                                getattr(target, "_class_types", frozenset())
+                            )
+                            self._register_segment_class_types(grammar_id, class_types)
                 except Exception:
                     # Be conservative: if lookup fails, leave as NONE
                     pass
@@ -387,8 +422,12 @@ class TableBuilder:
         elif grammar.__class__ is Conditional:
             return self._handle_conditional(grammar, parse_context)
 
+        # PrecededByMatcher
+        elif isinstance(grammar, PrecededByMatcher):
+            return self._handle_preceded_by(grammar, parse_context)
+
         # MetaSegment
-        elif issubclass(grammar, MetaSegment):
+        elif isinstance(grammar, type) and issubclass(grammar, MetaSegment):
             return self._handle_meta(grammar, parse_context)
 
         # SegmentMetaclass with match_grammar
@@ -418,7 +457,11 @@ class TableBuilder:
             )
 
         # BaseSegment without match_grammar (Token)
-        elif issubclass(grammar, BaseSegment) and not hasattr(grammar, "match_grammar"):
+        elif (
+            isinstance(grammar, type)
+            and issubclass(grammar, BaseSegment)
+            and not hasattr(grammar, "match_grammar")
+        ):
             return self._handle_token(grammar, parse_context)
 
         # Fallback: Missing
@@ -841,7 +884,11 @@ class TableBuilder:
     ) -> GrammarInstData:
         """Convert StringParser to GrammarInst."""
         template_id = self._add_string(grammar.template)
-        token_type_id = self._add_string(grammar._instance_types[0])
+        instance_type_ids = [
+            self._add_string(t)
+            for t in (grammar._instance_types or (grammar.raw_class.type,))
+        ]
+        token_type_id = instance_type_ids[0]
         raw_class_id = self._add_string(grammar.raw_class.__name__)
 
         flags = self._build_flags(grammar)
@@ -869,6 +916,11 @@ class TableBuilder:
         self.aux_data.append(template_id)
         self.aux_data.append(token_type_id)
         self.aux_data.append(raw_class_id)
+        self.aux_data.append(len(instance_type_ids))
+        self.aux_data.extend(instance_type_ids)
+        raw_class_types = sorted(grammar.raw_class._class_types)
+        self.aux_data.append(len(raw_class_types))
+        self.aux_data.extend(self._add_string(t) for t in raw_class_types)
 
         # Generate hint for StringParser (matches exact string)
         hint_id = self._add_simple_hint(grammar, parse_context)
@@ -894,7 +946,11 @@ class TableBuilder:
     ) -> GrammarInstData:
         """Convert TypedParser to GrammarInst."""
         template_id = self._add_string(grammar.template)
-        token_type_id = self._add_string(grammar._instance_types[0])
+        instance_type_ids = [
+            self._add_string(t)
+            for t in (grammar._instance_types or (grammar.raw_class.type,))
+        ]
+        token_type_id = instance_type_ids[0]
         raw_class_id = self._add_string(grammar.raw_class.__name__)
 
         flags = self._build_flags(grammar)
@@ -924,6 +980,12 @@ class TableBuilder:
         self.aux_data.append(template_id)
         self.aux_data.append(token_type_id)
         self.aux_data.append(raw_class_id)
+        self.aux_data.append(len(instance_type_ids))
+        self.aux_data.extend(instance_type_ids)
+        # Append raw_class._class_types so Rust can compute full class_types
+        raw_class_types = sorted(grammar.raw_class._class_types)
+        self.aux_data.append(len(raw_class_types))
+        self.aux_data.extend(self._add_string(t) for t in raw_class_types)
 
         comment = f'TypedParser("{grammar.template}")'
 
@@ -955,7 +1017,11 @@ class TableBuilder:
             self.aux_data.append(template_id)
         templates_count = len(grammar.templates)
 
-        token_type_id = self._add_string(grammar._instance_types[0])
+        instance_type_ids = [
+            self._add_string(t)
+            for t in (grammar._instance_types or (grammar.raw_class.type,))
+        ]
+        token_type_id = instance_type_ids[0]
         raw_class_id = self._add_string(grammar.raw_class.__name__)
 
         flags = self._build_flags(grammar)
@@ -984,6 +1050,12 @@ class TableBuilder:
         self.aux_data.append(templates_count)
         self.aux_data.append(token_type_id)
         self.aux_data.append(raw_class_id)
+        self.aux_data.append(len(instance_type_ids))
+        self.aux_data.extend(instance_type_ids)
+        # Append raw_class._class_types so Rust can compute full class_types
+        raw_class_types = sorted(grammar.raw_class._class_types)
+        self.aux_data.append(len(raw_class_types))
+        self.aux_data.extend(self._add_string(t) for t in raw_class_types)
 
         comment = f"MultiStringParser({templates_count} templates)"
 
@@ -1014,7 +1086,11 @@ class TableBuilder:
             if grammar.anti_template
             else 0xFFFFFFFF
         )
-        token_type_id = self._add_string(grammar._instance_types[0])
+        instance_type_ids = [
+            self._add_string(t)
+            for t in (grammar._instance_types or (grammar.raw_class.type,))
+        ]
+        token_type_id = instance_type_ids[0]
         raw_class_id = self._add_string(grammar.raw_class.__name__)
 
         flags = self._build_flags(grammar)
@@ -1043,6 +1119,12 @@ class TableBuilder:
         self.aux_data.append(anti_regex_id)
         self.aux_data.append(token_type_id)
         self.aux_data.append(raw_class_id)
+        self.aux_data.append(len(instance_type_ids))
+        self.aux_data.extend(instance_type_ids)
+        # Append raw_class._class_types so Rust can compute full class_types
+        raw_class_types = sorted(grammar.raw_class._class_types)
+        self.aux_data.append(len(raw_class_types))
+        self.aux_data.extend(self._add_string(t) for t in raw_class_types)
 
         comment = "RegexParser"
 
@@ -1176,6 +1258,37 @@ class TableBuilder:
             aux_data_offset=type_id,
             simple_hint_idx=0,
             comment=f'Meta("{type_name}")',
+        )
+
+    def _handle_preceded_by(self, grammar, parse_context) -> GrammarInstData:
+        """Convert PrecededByMatcher to PrecededBy instruction."""
+        sequence_ids = [
+            [self._add_string(keyword) for keyword in sequence]
+            for sequence in grammar.preceding_sequences
+        ]
+
+        aux_offset = len(self.aux_data)
+        self.aux_data.append(len(sequence_ids))
+        self.aux_data.extend([0, 0] * len(sequence_ids))
+
+        for sequence_idx, preceding_ids in enumerate(sequence_ids):
+            sequence_start = len(self.aux_data)
+            self.aux_data.extend(preceding_ids)
+            self.aux_data[aux_offset + 1 + (sequence_idx * 2)] = sequence_start
+            self.aux_data[aux_offset + 2 + (sequence_idx * 2)] = len(preceding_ids)
+
+        return GrammarInstData(
+            variant="PrecededBy",
+            flags=0,
+            parse_mode="Strict",
+            first_child_idx=len(self.child_ids),
+            child_count=0,
+            min_times=0,
+            first_terminator_idx=len(self.terminators),
+            terminator_count=0,
+            aux_data_offset=aux_offset,
+            simple_hint_idx=0,
+            comment=(f"PrecededBy(preceding_sequences={grammar.preceding_sequences})"),
         )
 
     def _handle_token(self, grammar, parse_context) -> GrammarInstData:
@@ -1372,6 +1485,24 @@ class TableBuilder:
         lines.append("pub static TRIM_CHARS_DATA: &[u32] = &[")
         for i in range(0, len(self.trim_chars_data), 16):
             chunk = self.trim_chars_data[i : i + 16]
+            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            lines.append(line)
+        lines.append("];")
+        lines.append("")
+
+        # Segment class types sparse entries (grammar_id, data_offset, count)
+        # Sorted by grammar_id for binary search lookup
+        lines.append("pub static SEGMENT_CLASS_TYPES_SPARSE: &[(u32, u32, u8)] = &[")
+        sorted_sct_sparse = sorted(self.segment_class_types_sparse, key=lambda x: x[0])
+        for grammar_id, offset, count in sorted_sct_sparse:
+            lines.append(f"    ({grammar_id}, {offset}, {count}),")
+        lines.append("];")
+        lines.append("")
+
+        # Segment class types data (flat array of string indices)
+        lines.append("pub static SEGMENT_CLASS_TYPES_DATA: &[u32] = &[")
+        for i in range(0, len(self.segment_class_types_data), 16):
+            chunk = self.segment_class_types_data[i : i + 16]
             line = "    " + ", ".join(str(x) for x in chunk) + ","
             lines.append(line)
         lines.append("];")
@@ -1629,6 +1760,8 @@ def generate_parser_table_driven(dialect: str):
     casefold_sparse: CASEFOLD_SPARSE,
     trim_chars_sparse: TRIM_CHARS_SPARSE,
     trim_chars_data: TRIM_CHARS_DATA,
+    segment_class_types_sparse: SEGMENT_CLASS_TYPES_SPARSE,
+    segment_class_types_data: SEGMENT_CLASS_TYPES_DATA,
 }};
 """)
 
