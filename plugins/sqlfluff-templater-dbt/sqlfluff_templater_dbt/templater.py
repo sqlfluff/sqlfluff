@@ -174,6 +174,9 @@ class DbtTemplater(JinjaTemplater):
     name = "dbt"
     sequential_fail_limit = 3
     adapters = {}
+    # dbt builds a cross-file manifest in the main process, so templating
+    # cannot be deferred to worker processes.
+    templates_in_worker = False
 
     def __init__(self, override_context: Optional[dict[str, Any]] = None):
         self.sqlfluff_config = None

@@ -24,6 +24,7 @@ from typing import Callable, Optional, Union
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.linter import LintedFile, RenderedFile
+from sqlfluff.core.linter.common import DeferredRenderTask
 from sqlfluff.core.plugin.host import is_main_process
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -58,7 +59,7 @@ class BaseRunner(ABC):
         self,
         fnames: list[str],
         fix: bool = False,
-    ) -> Iterator[tuple[str, PartialLintCallable]]:
+    ) -> Iterator[tuple[str, PartialLintCallable | DeferredRenderTask]]:
         """Iterate through partials for linted files.
 
         Generates filenames and objects which return LintedFiles.
@@ -113,7 +114,19 @@ class SequentialRunner(BaseRunner):
         """Sequential implementation."""
         for fname, partial in self.iter_partials(fnames, fix=fix):
             try:
-                yield partial()
+                if isinstance(partial, DeferredRenderTask):  # pragma: no cover
+                    # If we get a DeferredRenderTask, it means the active templater
+                    # doesn't support worker-side rendering and so we need to do the
+                    # render + lint in one step here in the main process.
+                    rendered = self.linter.render_file(
+                        partial.fname, partial.root_config
+                    )
+                    rule_pack = self.linter.get_rulepack(config=rendered.config)
+                    yield self.linter.lint_rendered(
+                        rendered, rule_pack, partial.fix, self.linter.formatter
+                    )
+                else:
+                    yield partial()
             except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
                 raise
             except Exception as e:
@@ -131,6 +144,30 @@ class ParallelRunner(BaseRunner):
     def __init__(self, linter: Linter, config: FluffConfig, processes: int) -> None:
         super().__init__(linter, config)
         self.processes = processes
+
+    def iter_partials(
+        self,
+        fnames: list[str],
+        fix: bool = False,
+    ) -> Iterator[tuple[str, PartialLintCallable | DeferredRenderTask]]:
+        """Iterate through partials or deferred tasks for parallel linting.
+
+        When the active templater supports worker-side rendering
+        (``templates_in_worker = True``), we emit a lightweight
+        ``DeferredRenderTask`` containing only the filename and root config.
+        The worker process calls ``render_file`` itself, keeping the full
+        ``RenderedFile`` off the IPC boundary.
+
+        For templaters that require main-process state (e.g. dbt), we fall
+        back to the base-class behaviour and template in the main process.
+        """
+        if self.linter.templater.templates_in_worker:
+            for fname in self.linter.templater.sequence_files(
+                fnames, config=self.config, formatter=None
+            ):
+                yield fname, DeferredRenderTask(fname, self.config, fix)
+        else:
+            yield from super().iter_partials(fnames, fix=fix)
 
     def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
@@ -151,10 +188,16 @@ class ParallelRunner(BaseRunner):
                     self.iter_partials(fnames, fix=fix),
                 ):
                     if isinstance(lint_result, DelayedException):
-                        try:
-                            lint_result.reraise()
-                        except Exception as e:
-                            self._handle_lint_path_exception(lint_result.fname, e)
+                        if isinstance(lint_result.ee, SQLFluffSkipFile):
+                            # A file was skipped (e.g. exceeded
+                            # large_file_skip_byte_limit). Log a plain warning,
+                            # not the "please report as bug" message.
+                            linter_logger.warning(str(lint_result.ee))
+                        else:
+                            try:
+                                lint_result.reraise()
+                            except Exception as e:
+                                self._handle_lint_path_exception(lint_result.fname, e)
                     else:
                         # It's a LintedDir.
                         if self.linter.formatter:
@@ -176,13 +219,25 @@ class ParallelRunner(BaseRunner):
 
     @staticmethod
     def _apply(
-        partial_tuple: tuple[str, PartialLintCallable],
+        partial_tuple: tuple[str, PartialLintCallable | DeferredRenderTask],
     ) -> Union["DelayedException", LintedFile]:
         """Shim function used in parallel mode."""
-        # Unpack the tuple and ditch the filename in this case.
-        fname, partial = partial_tuple
+        fname, task = partial_tuple
         try:
-            return partial()
+            if isinstance(task, DeferredRenderTask):
+                # Worker-side rendering: reconstruct a Linter from the root
+                # config and do render + lint in one step, keeping the full
+                # RenderedFile off the IPC boundary.
+                linter = Linter(config=task.root_config)
+                # FluffConfig.__getstate__ strips templater_obj to None before
+                # pickling (it's designed for main-process use only). Since we
+                # are deliberately rendering here in the worker, re-instantiate
+                # the templater from the config's templater name.
+                linter.templater = task.root_config.get_templater()
+                rendered = linter.render_file(task.fname, task.root_config)
+                rule_pack = linter.get_rulepack(config=rendered.config)
+                return Linter.lint_rendered(rendered, rule_pack, task.fix, None)
+            return task()
         # Capture any exceptions and return as delayed exception to handle
         # in the main thread.
         except Exception as e:
@@ -206,9 +261,10 @@ class ParallelRunner(BaseRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
+            [tuple[str, PartialLintCallable | DeferredRenderTask]],
+            Union["DelayedException", LintedFile],
         ],
-        iterable: Iterable[tuple[str, PartialLintCallable]],
+        iterable: Iterable[tuple[str, PartialLintCallable | DeferredRenderTask]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:  # pragma: no cover
         """Class-specific map method.
 
@@ -245,9 +301,10 @@ class MultiProcessRunner(ParallelRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
+            [tuple[str, PartialLintCallable | DeferredRenderTask]],
+            Union["DelayedException", LintedFile],
         ],
-        iterable: Iterable[tuple[str, PartialLintCallable]],
+        iterable: Iterable[tuple[str, PartialLintCallable | DeferredRenderTask]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:
         """Map using imap unordered.
 
@@ -270,9 +327,10 @@ class MultiThreadRunner(ParallelRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
+            [tuple[str, PartialLintCallable | DeferredRenderTask]],
+            Union["DelayedException", LintedFile],
         ],
-        iterable: Iterable[tuple[str, PartialLintCallable]],
+        iterable: Iterable[tuple[str, PartialLintCallable | DeferredRenderTask]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:
         """Map using imap.
 
