@@ -115,9 +115,9 @@ class SequentialRunner(BaseRunner):
         for fname, partial in self.iter_partials(fnames, fix=fix):
             try:
                 if isinstance(partial, DeferredRenderTask):  # pragma: no cover
-                    # If we get a DeferredRenderTask, it means the active templater
-                    # doesn't support worker-side rendering and so we need to do the
-                    # render + lint in one step here in the main process.
+                    # DeferredRenderTask is normally only emitted by
+                    # ParallelRunner.iter_partials.  Handle it here as a
+                    # safety net: render + lint in one step in the main process.
                     rendered = self.linter.render_file(
                         partial.fname, partial.root_config
                     )

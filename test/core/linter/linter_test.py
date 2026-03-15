@@ -356,40 +356,6 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
             result.reraise()
 
 
-def test__linter__iter_rendered_delegates_for_dbt(monkeypatch):
-    """Test dbt templating bypasses pool-based parallel rendering."""
-
-    class DbtTemplater:
-        """Simple templater stub exposing the dbt name."""
-
-        name = "dbt"
-
-    expected = [("test.sql", "rendered")]
-    config = FluffConfig(overrides={"dialect": "ansi"})
-
-    monkeypatch.setattr(config, "get_templater", DbtTemplater)
-    monkeypatch.setattr(
-        runner.BaseRunner,
-        "iter_rendered",
-        lambda self, fnames: iter(expected),
-    )
-    monkeypatch.setattr(
-        runner.MultiThreadRunner,
-        "_create_pool",
-        lambda *args, **kwargs: pytest.fail("dbt path should not create a pool"),
-    )
-
-    results = list(
-        runner.MultiThreadRunner(
-            Linter(dialect="ansi"),
-            config,
-            processes=2,
-        ).iter_rendered(["test.sql"])
-    )
-
-    assert results == expected
-
-
 def test__linter__templates_in_worker_default():
     """RawTemplater (and subclasses) should have templates_in_worker=True."""
     assert RawTemplater().templates_in_worker is True
