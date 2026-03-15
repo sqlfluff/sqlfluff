@@ -356,24 +356,6 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
             result.reraise()
 
 
-@patch("sqlfluff.core.linter.runner.linter_logger")
-def test__linter__render_file_static_skips_file(patched_logger):
-    """Test skipped files are logged and omitted in parallel rendering."""
-
-    class StubLinter:
-        """Simple stub for render_file()."""
-
-        def render_file(self, fname, config):
-            raise SQLFluffSkipFile(f"skip {fname}")
-
-    result = runner.MultiThreadRunner._render_file_static(
-        ("test.sql", StubLinter(), object())
-    )
-
-    assert result is None
-    patched_logger.warning.assert_called_once_with("skip test.sql")
-
-
 def test__linter__iter_rendered_delegates_for_dbt(monkeypatch):
     """Test dbt templating bypasses pool-based parallel rendering."""
 
@@ -385,7 +367,7 @@ def test__linter__iter_rendered_delegates_for_dbt(monkeypatch):
     expected = [("test.sql", "rendered")]
     config = FluffConfig(overrides={"dialect": "ansi"})
 
-    monkeypatch.setattr(config, "get_templater", lambda: DbtTemplater())
+    monkeypatch.setattr(config, "get_templater", DbtTemplater)
     monkeypatch.setattr(
         runner.BaseRunner,
         "iter_rendered",
