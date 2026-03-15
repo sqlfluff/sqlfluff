@@ -59,7 +59,7 @@ class BaseRunner(ABC):
         self,
         fnames: list[str],
         fix: bool = False,
-    ) -> Iterator[tuple[str, PartialLintCallable | DeferredRenderTask]]:
+    ) -> Iterator[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]]:
         """Iterate through partials for linted files.
 
         Generates filenames and objects which return LintedFiles.
@@ -149,7 +149,7 @@ class ParallelRunner(BaseRunner):
         self,
         fnames: list[str],
         fix: bool = False,
-    ) -> Iterator[tuple[str, PartialLintCallable | DeferredRenderTask]]:
+    ) -> Iterator[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]]:
         """Iterate through partials or deferred tasks for parallel linting.
 
         When the active templater supports worker-side rendering
@@ -219,7 +219,7 @@ class ParallelRunner(BaseRunner):
 
     @staticmethod
     def _apply(
-        partial_tuple: tuple[str, PartialLintCallable | DeferredRenderTask],
+        partial_tuple: tuple[str, Union[PartialLintCallable, DeferredRenderTask]],
     ) -> Union["DelayedException", LintedFile]:
         """Shim function used in parallel mode."""
         fname, task = partial_tuple
@@ -261,10 +261,10 @@ class ParallelRunner(BaseRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [tuple[str, PartialLintCallable | DeferredRenderTask]],
+            [tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
             Union["DelayedException", LintedFile],
         ],
-        iterable: Iterable[tuple[str, PartialLintCallable | DeferredRenderTask]],
+        iterable: Iterable[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:  # pragma: no cover
         """Class-specific map method.
 
@@ -301,10 +301,10 @@ class MultiProcessRunner(ParallelRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [tuple[str, PartialLintCallable | DeferredRenderTask]],
+            [tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
             Union["DelayedException", LintedFile],
         ],
-        iterable: Iterable[tuple[str, PartialLintCallable | DeferredRenderTask]],
+        iterable: Iterable[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:
         """Map using imap unordered.
 
@@ -327,10 +327,10 @@ class MultiThreadRunner(ParallelRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [tuple[str, PartialLintCallable | DeferredRenderTask]],
+            [tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
             Union["DelayedException", LintedFile],
         ],
-        iterable: Iterable[tuple[str, PartialLintCallable | DeferredRenderTask]],
+        iterable: Iterable[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:
         """Map using imap.
 
