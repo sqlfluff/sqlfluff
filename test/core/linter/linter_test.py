@@ -415,6 +415,34 @@ def test__parallel_runner__apply_deferred_task():
     assert isinstance(result, LintedFile)
 
 
+def test__parallel_runner__apply_callable_task(monkeypatch):
+    """_apply with a PartialLintCallable covers the dbt-like non-deferred path.
+
+    When templates_in_worker=False (as with DbtTemplater), ParallelRunner
+    iter_partials falls back to the base class and yields callables rather than
+    DeferredRenderTask objects.  _apply() should call the callable directly and
+    return a LintedFile.
+    """
+    from sqlfluff.core.linter import LintedFile
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(dialect="ansi")
+    # Simulate a main-process-only templater (e.g. dbt) that disables
+    # worker-side rendering.
+    monkeypatch.setattr(lntr.templater, "templates_in_worker", False)
+    thd_runner = runner.MultiThreadRunner(lntr, config, processes=1)
+    partials = list(
+        thd_runner.iter_partials(
+            ["test/fixtures/linter/passing.sql"],
+            fix=False,
+        )
+    )
+    fname, task = partials[0]
+    assert callable(task) and not isinstance(task, DeferredRenderTask)
+    result = runner.ParallelRunner._apply((fname, task))
+    assert isinstance(result, LintedFile)
+
+
 def test__parallel_runner__apply_skip_file():
     """_apply wraps a SQLFluffSkipFile raised during render into DelayedException.
 
