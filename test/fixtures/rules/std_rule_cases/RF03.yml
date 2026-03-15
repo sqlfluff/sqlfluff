@@ -538,3 +538,17 @@ test_pass_tsql_collate_clause:
   configs:
     core:
       dialect: tsql
+
+test_pass_placeholder_colon_double_colon_cast:
+  # Placeholder parameters followed by :: cast operator should not be treated
+  # as unqualified column references. See: https://github.com/sqlfluff/sqlfluff/issues/7364
+  pass_str: |
+    select mt.colname from mytable as mt
+    where mt.colname = :param::text
+  configs:
+    core:
+      templater: placeholder
+      dialect: postgres
+    templater:
+      placeholder:
+        param_style: colon
