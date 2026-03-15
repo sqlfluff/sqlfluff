@@ -1,0 +1,257 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: db38bf16796533feae177aca62dd00239ed71ebc99c45aceeb18cc6cf9562f26
+file:
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+            keyword: SELECT
+        - comma: ','
+        - access_permission:
+            keyword: DELETE
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: salesshare
+      - keyword: TO
+      - access_target:
+          keyword: GROUP
+          object_reference:
+            naked_identifier: developer
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+            keyword: SELECT
+        - comma: ','
+        - access_permission:
+            keyword: DELETE
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: salesshare
+      - keyword: TO
+      - access_target:
+          keyword: GROUP
+          object_reference:
+            naked_identifier: developer
+      - comma: ','
+      - access_target:
+          keyword: GROUP
+          object_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+            keyword: SELECT
+        - comma: ','
+        - access_permission:
+            keyword: INSERT
+        - comma: ','
+        - access_permission:
+            keyword: UPDATE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+            naked_identifier: employees
+      - keyword: TO
+      - access_target:
+          keyword: GROUP
+          object_reference:
+            naked_identifier: managers
+      - comma: ','
+      - access_target:
+          keyword: GROUP
+          object_reference:
+            naked_identifier: analysts
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+            naked_identifier: public_data
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+            naked_identifier: secret_data
+      - keyword: TO
+      - access_target:
+          keyword: USER
+          user_reference:
+            naked_identifier: admin_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+            naked_identifier: data
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+            naked_identifier: data
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst_role
+      - comma: ','
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: second_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: ALL
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+          - naked_identifier: qa_tickit
+          - dot: .
+          - naked_identifier: sales
+      - keyword: TO
+      - access_target:
+          keyword: GROUP
+          object_reference:
+            naked_identifier: qa_users
+      - comma: ','
+      - access_target:
+          keyword: GROUP
+          object_reference:
+            naked_identifier: ro_users
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: ALL
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+            naked_identifier: qa_tickit
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: schema_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: cust_name
+            - comma: ','
+            - column_reference:
+                naked_identifier: cust_phone
+            - end_bracket: )
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: cust_profile
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - keyword: ROLE
+      - role_reference:
+          naked_identifier: sample_role1
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user1
+      - keyword: WITH
+      - keyword: ADMIN
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - keyword: ROLE
+      - role_reference:
+          naked_identifier: sample_role1
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: user2
+- statement_terminator: ;

@@ -292,6 +292,42 @@ impl<'a> GrammarContext<'a> {
         }
     }
 
+    /// Get the ``_class_types`` hierarchy for a grammar instruction, if recorded.
+    ///
+    /// Returns ``None`` when the instruction has no recorded class hierarchy (e.g.
+    /// pure grammar combinators like Sequence/OneOf, or the dialect was generated
+    /// without this table).  Returns a ``Vec`` of type strings ordered as stored by
+    /// the Python codegen (sorted alphabetically from ``sorted(_class_types)``).
+    #[inline]
+    pub fn segment_class_types(&self, id: GrammarId) -> Option<Vec<String>> {
+        if self.tables.segment_class_types_sparse.is_empty() {
+            return None;
+        }
+
+        let target = id.get();
+        let result = self
+            .tables
+            .segment_class_types_sparse
+            .binary_search_by_key(&target, |&(gid, _, _)| gid);
+
+        match result {
+            Ok(idx) => {
+                let (_, offset, count) = self.tables.segment_class_types_sparse[idx];
+                if count == 0 {
+                    return None;
+                }
+                let start = offset as usize;
+                let mut out = Vec::with_capacity(count as usize);
+                for i in 0..count as usize {
+                    let str_idx = self.tables.segment_class_types_data[start + i];
+                    out.push(self.tables.get_string(str_idx).to_string());
+                }
+                Some(out)
+            }
+            Err(_) => None,
+        }
+    }
+
     /// Get string template (for StringParser/TypedParser/Token variants)
     #[inline]
     pub fn template(&self, id: GrammarId) -> &'static str {
@@ -671,6 +707,8 @@ mod tests {
             CASEFOLD_SPARSE,
             TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
+            &[], // segment_class_types_sparse
+            &[], // segment_class_types_data
         );
 
         let ctx = GrammarContext::new(&tables);
@@ -724,6 +762,8 @@ mod tests {
             CASEFOLD_SPARSE,
             TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
+            &[], // segment_class_types_sparse
+            &[], // segment_class_types_data
         );
 
         let ctx = GrammarContext::new(&tables);

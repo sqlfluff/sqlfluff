@@ -129,6 +129,20 @@ pub struct GrammarTables {
 
     /// Flat array of string indices for trim_chars values
     pub trim_chars_data: &'static [u32],
+
+    /// Sparse segment class type entries: (grammar_id, offset_into_data, count)
+    ///
+    /// Sorted by grammar_id for binary search.  Maps grammar IDs for segment
+    /// classes (and Refs that resolve to segment classes) to their Python
+    /// ``_class_types`` inheritance set.  This mirrors Python's static
+    /// ``BaseSegment._class_types`` frozenset — e.g.
+    /// ``SelectStatementSegment._class_types = {"select_statement", "statement", "base"}``.
+    ///
+    /// Empty slice when the dialect was generated without this table.
+    pub segment_class_types_sparse: &'static [(u32, u32, u8)],
+
+    /// Flat array of string indices for segment_class_types values.
+    pub segment_class_types_data: &'static [u32],
 }
 
 impl GrammarTables {
@@ -149,6 +163,8 @@ impl GrammarTables {
         casefold_sparse: &'static [(u32, u8)],
         trim_chars_sparse: &'static [(u32, u32, u8)],
         trim_chars_data: &'static [u32],
+        segment_class_types_sparse: &'static [(u32, u32, u8)],
+        segment_class_types_data: &'static [u32],
     ) -> Self {
         Self {
             instructions,
@@ -166,6 +182,8 @@ impl GrammarTables {
             casefold_sparse,
             trim_chars_sparse,
             trim_chars_data,
+            segment_class_types_sparse,
+            segment_class_types_data,
         }
     }
 
