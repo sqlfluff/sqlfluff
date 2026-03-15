@@ -17,6 +17,7 @@ from sqlfluff.core.parser.grammar.anyof import (
 from sqlfluff.core.parser.grammar.base import Anything, Nothing, Ref
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.grammar.delimited import Delimited, OptionallyDelimited
+from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.parsers import (
     MultiStringParser,
@@ -387,8 +388,12 @@ class TableBuilder:
         elif grammar.__class__ is Conditional:
             return self._handle_conditional(grammar, parse_context)
 
+        # PrecededByMatcher
+        elif isinstance(grammar, PrecededByMatcher):
+            return self._handle_preceded_by(grammar, parse_context)
+
         # MetaSegment
-        elif issubclass(grammar, MetaSegment):
+        elif isinstance(grammar, type) and issubclass(grammar, MetaSegment):
             return self._handle_meta(grammar, parse_context)
 
         # SegmentMetaclass with match_grammar
@@ -418,7 +423,11 @@ class TableBuilder:
             )
 
         # BaseSegment without match_grammar (Token)
-        elif issubclass(grammar, BaseSegment) and not hasattr(grammar, "match_grammar"):
+        elif (
+            isinstance(grammar, type)
+            and issubclass(grammar, BaseSegment)
+            and not hasattr(grammar, "match_grammar")
+        ):
             return self._handle_token(grammar, parse_context)
 
         # Fallback: Missing
@@ -1176,6 +1185,37 @@ class TableBuilder:
             aux_data_offset=type_id,
             simple_hint_idx=0,
             comment=f'Meta("{type_name}")',
+        )
+
+    def _handle_preceded_by(self, grammar, parse_context) -> GrammarInstData:
+        """Convert PrecededByMatcher to PrecededBy instruction."""
+        sequence_ids = [
+            [self._add_string(keyword) for keyword in sequence]
+            for sequence in grammar.preceding_sequences
+        ]
+
+        aux_offset = len(self.aux_data)
+        self.aux_data.append(len(sequence_ids))
+        self.aux_data.extend([0, 0] * len(sequence_ids))
+
+        for sequence_idx, preceding_ids in enumerate(sequence_ids):
+            sequence_start = len(self.aux_data)
+            self.aux_data.extend(preceding_ids)
+            self.aux_data[aux_offset + 1 + (sequence_idx * 2)] = sequence_start
+            self.aux_data[aux_offset + 2 + (sequence_idx * 2)] = len(preceding_ids)
+
+        return GrammarInstData(
+            variant="PrecededBy",
+            flags=0,
+            parse_mode="Strict",
+            first_child_idx=len(self.child_ids),
+            child_count=0,
+            min_times=0,
+            first_terminator_idx=len(self.terminators),
+            terminator_count=0,
+            aux_data_offset=aux_offset,
+            simple_hint_idx=0,
+            comment=(f"PrecededBy(preceding_sequences={grammar.preceding_sequences})"),
         )
 
     def _handle_token(self, grammar, parse_context) -> GrammarInstData:
