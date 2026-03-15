@@ -1189,22 +1189,20 @@ class TableBuilder:
 
     def _handle_preceded_by(self, grammar, parse_context) -> GrammarInstData:
         """Convert PrecededByMatcher to PrecededBy instruction."""
-        preceding_ids = [self._add_string(keyword) for keyword in grammar.preceding]
-        optional_ids = [
-            self._add_string(keyword) for keyword in grammar.optional_preceding
+        sequence_ids = [
+            [self._add_string(keyword) for keyword in sequence]
+            for sequence in grammar.preceding_sequences
         ]
 
         aux_offset = len(self.aux_data)
-        self.aux_data.extend([0, len(preceding_ids), 0, len(optional_ids)])
+        self.aux_data.append(len(sequence_ids))
+        self.aux_data.extend([0, 0] * len(sequence_ids))
 
-        preceding_start = len(self.aux_data)
-        self.aux_data.extend(preceding_ids)
-
-        optional_start = len(self.aux_data)
-        self.aux_data.extend(optional_ids)
-
-        self.aux_data[aux_offset] = preceding_start
-        self.aux_data[aux_offset + 2] = optional_start
+        for sequence_idx, preceding_ids in enumerate(sequence_ids):
+            sequence_start = len(self.aux_data)
+            self.aux_data.extend(preceding_ids)
+            self.aux_data[aux_offset + 1 + (sequence_idx * 2)] = sequence_start
+            self.aux_data[aux_offset + 2 + (sequence_idx * 2)] = len(preceding_ids)
 
         return GrammarInstData(
             variant="PrecededBy",
@@ -1217,12 +1215,7 @@ class TableBuilder:
             terminator_count=0,
             aux_data_offset=aux_offset,
             simple_hint_idx=0,
-            comment=(
-                "PrecededBy("
-                f"preceding={grammar.preceding}, "
-                f"optional={grammar.optional_preceding}"
-                ")"
-            ),
+            comment=(f"PrecededBy(preceding_sequences={grammar.preceding_sequences})"),
         )
 
     def _handle_token(self, grammar, parse_context) -> GrammarInstData:

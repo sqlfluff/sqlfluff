@@ -947,10 +947,10 @@ impl<'a> Parser<'a> {
         ))
     }
 
-    fn skip_whitespace_and_meta_backward(&self, mut idx: isize) -> isize {
+    fn skip_non_code_and_meta_backward(&self, mut idx: isize) -> isize {
         while idx >= 0 {
             let tok = &self.tokens[idx as usize];
-            if tok.is_whitespace() || tok.is_meta {
+            if !tok.is_code() || tok.is_meta {
                 idx -= 1;
             } else {
                 break;
@@ -965,55 +965,51 @@ impl<'a> Parser<'a> {
     ) -> Result<MatchResult, ParseError> {
         let tables = self.grammar_ctx.tables();
         let aux_offset = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
+        let sequence_count = tables.aux_data[aux_offset] as usize;
 
-        let preceding_start = tables.aux_data[aux_offset] as usize;
-        let preceding_count = tables.aux_data[aux_offset + 1] as usize;
-        let optional_start = tables.aux_data[aux_offset + 2] as usize;
-        let optional_count = tables.aux_data[aux_offset + 3] as usize;
+        for sequence_idx in 0..sequence_count {
+            let sequence_meta_offset = aux_offset + 1 + (sequence_idx * 2);
+            let preceding_start = tables.aux_data[sequence_meta_offset] as usize;
+            let preceding_count = tables.aux_data[sequence_meta_offset + 1] as usize;
 
+            if self.match_preceding_sequence_table_driven(preceding_start, preceding_count) {
+                if self.pos < self.tokens.len() {
+                    return Ok(MatchResult {
+                        matched_slice: self.pos..self.pos + 1,
+                        ..Default::default()
+                    });
+                }
+
+                return Ok(MatchResult::empty_at(self.pos));
+            }
+        }
+
+        Ok(MatchResult::empty_at(self.pos))
+    }
+
+    fn match_preceding_sequence_table_driven(
+        &self,
+        preceding_start: usize,
+        preceding_count: usize,
+    ) -> bool {
+        let tables = self.grammar_ctx.tables();
         let mut prev = self.pos as isize - 1;
 
         for i in 0..preceding_count {
-            prev = self.skip_whitespace_and_meta_backward(prev);
+            prev = self.skip_non_code_and_meta_backward(prev);
             if prev < 0 {
-                return Ok(MatchResult::empty_at(self.pos));
+                return false;
             }
 
             let keyword_idx = tables.aux_data[preceding_start + (preceding_count - 1 - i)];
             let expected = tables.get_string(keyword_idx);
             if self.tokens[prev as usize].raw_upper() != expected {
-                return Ok(MatchResult::empty_at(self.pos));
+                return false;
             }
             prev -= 1;
-
-            if i < preceding_count - 1 && optional_count > 0 {
-                let optional_pos = self.skip_whitespace_and_meta_backward(prev);
-                if optional_pos >= 0 {
-                    let optional_raw = self.tokens[optional_pos as usize].raw_upper();
-                    let mut optional_matched = false;
-                    for j in 0..optional_count {
-                        let optional_idx = tables.aux_data[optional_start + j];
-                        let optional_keyword = tables.get_string(optional_idx);
-                        if optional_raw == optional_keyword {
-                            optional_matched = true;
-                            break;
-                        }
-                    }
-                    if optional_matched {
-                        prev = optional_pos - 1;
-                    }
-                }
-            }
         }
 
-        if self.pos < self.tokens.len() {
-            Ok(MatchResult {
-                matched_slice: self.pos..self.pos + 1,
-                ..Default::default()
-            })
-        } else {
-            Ok(MatchResult::empty_at(self.pos))
-        }
+        true
     }
 
     /// Handle Token using table-driven approach

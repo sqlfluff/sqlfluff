@@ -12,6 +12,11 @@ SELECT DISTINCT a IS DISTINCT FROM b FROM t;
 -- IS DISTINCT FROM with multiple select elements
 SELECT a, b IS DISTINCT FROM c, d FROM t;
 
+-- IS [NOT] DISTINCT FROM with inline and block comments
+SELECT a IS -- inline comment
+DISTINCT FROM b FROM t;
+SELECT a IS /* block comment */ NOT DISTINCT FROM b FROM t;
+
 -- IS DISTINCT FROM in WHERE clause (always worked)
 SELECT a FROM t WHERE a IS DISTINCT FROM b;
 SELECT a FROM t WHERE a IS NOT DISTINCT FROM b;

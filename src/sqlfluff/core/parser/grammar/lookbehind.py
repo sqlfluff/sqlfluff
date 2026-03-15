@@ -26,25 +26,18 @@ class PrecededByMatcher(Matchable):
     on the ``FROM`` keyword in ``SelectClauseTerminatorGrammar``.
 
     Args:
-        preceding: An ordered tuple of uppercase keyword strings that
-            must appear (in order, right-to-left) immediately before the
-            current position. Whitespace and meta segments between
-            keywords are skipped.
-        optional_preceding: An optional set of uppercase keyword strings.
-            Between each pair of required keywords, if the keyword at the
-            current lookbehind position matches any of these, it is consumed
-            (skipping whitespace/meta) before continuing to check the next
-            required keyword. This handles optional keywords like ``NOT``
-            in ``IS [NOT] DISTINCT FROM``.
+        preceding_sequences: Ordered tuples of uppercase keyword strings
+            that may appear immediately before the current position, where
+            matching is performed from right to left within each sequence
+            (i.e. the last item is checked first). Non-code and meta
+            segments between keywords are skipped.
     """
 
     def __init__(
         self,
-        preceding: tuple[str, ...],
-        optional_preceding: tuple[str, ...] = (),
+        preceding_sequences: tuple[tuple[str, ...], ...],
     ) -> None:
-        self.preceding = preceding
-        self.optional_preceding = optional_preceding
+        self.preceding_sequences = preceding_sequences
 
     def is_optional(self) -> bool:  # pragma: no cover
         """Return whether this element is optional.
@@ -61,18 +54,17 @@ class PrecededByMatcher(Matchable):
 
     def cache_key(self) -> str:  # pragma: no cover
         """Get the cache key for the matcher."""
-        return (
-            f"preceded-by-{'-'.join(self.preceding)}"
-            f"-opt-{'-'.join(self.optional_preceding)}"
+        return "preceded-by-" + "|".join(
+            "-".join(sequence) for sequence in self.preceding_sequences
         )
 
     @staticmethod
-    def _skip_whitespace_and_meta_backward(
+    def _skip_non_code_and_meta_backward(
         segments: Sequence["BaseSegment"],
         idx: int,
     ) -> int:
-        """Move ``idx`` backward past any whitespace or meta segments."""
-        while idx >= 0 and (segments[idx].is_whitespace or segments[idx].is_meta):
+        """Move ``idx`` backward past any non-code or meta segments."""
+        while idx >= 0 and (not segments[idx].is_code or segments[idx].is_meta):
             idx -= 1
         return idx
 
@@ -84,31 +76,42 @@ class PrecededByMatcher(Matchable):
     ) -> MatchResult:
         """Match when the position is preceded by the configured keywords.
 
-        Scans backward from ``idx`` through whitespace and meta segments,
-        checking for the keyword sequence defined in ``preceding`` (checked
-        right-to-left, i.e. the last element of ``preceding`` must appear
-        closest to the current position).
-
-        Between each pair of required keywords, any single keyword from
-        ``optional_preceding`` is consumed if present.
+        Scans backward from ``idx`` through non-code and meta segments,
+        checking each candidate keyword sequence defined in
+        ``preceding_sequences``. Each sequence is checked right-to-left,
+        i.e. the last element of a sequence must appear closest to the
+        current position.
 
         Returns a non-empty :class:`MatchResult` if the lookbehind matches
         (meaning the caller's ``exclude`` should suppress the outer match),
         or an empty result if it does not match.
         """
+        for preceding in self.preceding_sequences:
+            if self._match_preceding_sequence(segments, idx, preceding):
+                return MatchResult(slice(idx, idx + 1))
+
+        return MatchResult.empty_at(idx)
+
+    def _match_preceding_sequence(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        preceding: tuple[str, ...],
+    ) -> bool:
+        """Return whether a specific preceding sequence matches."""
         prev = idx - 1
 
-        for i, keyword in enumerate(reversed(self.preceding)):
-            prev = self._skip_whitespace_and_meta_backward(segments, prev)
+        for keyword in reversed(preceding):
+            prev = self._skip_non_code_and_meta_backward(segments, prev)
             if prev < 0 or segments[prev].raw_upper != keyword:
-                return MatchResult.empty_at(idx)
+                return False
             prev -= 1
 
-            # Between required keywords, try to consume one optional keyword.
-            if i < len(self.preceding) - 1 and self.optional_preceding:
-                _prev = self._skip_whitespace_and_meta_backward(segments, prev)
-                if _prev >= 0 and segments[_prev].raw_upper in self.optional_preceding:
-                    prev = _prev - 1
+        return True
 
-        # All preceding keywords matched — the lookbehind is satisfied.
-        return MatchResult(slice(idx, idx + 1))
+
+# Shared exclude pattern for the FROM keyword in select clause terminators.
+# Prevents FROM in "IS [NOT] DISTINCT FROM" being treated as a FROM clause.
+is_distinct_from_lookbehind = PrecededByMatcher(
+    preceding_sequences=(("IS", "DISTINCT"), ("IS", "NOT", "DISTINCT")),
+)
