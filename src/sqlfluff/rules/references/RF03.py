@@ -188,6 +188,11 @@ def _check_references(
     seen_ref_types: set[str] = set()
     for ref in references:
         this_ref_type: str = ref.qualification()
+        # Skip unqualified templated references (e.g., placeholder parameters like
+        # :colname that get rendered as bare identifiers by the templater). These
+        # are not real column references and should not be qualified or flagged.
+        if this_ref_type == "unqualified" and ref.is_templated:
+            continue
         if this_ref_type == "qualified" and is_struct_dialect:
             # If this col appears "qualified" check if it is more logically a struct.
             if next(ref.iter_raw_references()).part != table_ref_str:
