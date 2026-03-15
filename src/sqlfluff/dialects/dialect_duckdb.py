@@ -1021,7 +1021,9 @@ class FromUnpivotExpressionSegment(BaseSegment):
         Bracketed(
             OneOf(
                 Ref("SingleIdentifierGrammar"),
-                Bracketed(Delimited(Ref("SingleIdentifierGrammar"), allow_trailing=True)),
+                Bracketed(
+                    Delimited(Ref("SingleIdentifierGrammar"), allow_trailing=True)
+                ),
             ),
             "FOR",
             AnyNumberOf(
@@ -1032,7 +1034,10 @@ class FromUnpivotExpressionSegment(BaseSegment):
                         Delimited(
                             Sequence(
                                 OptionallyBracketed(
-                                    Delimited(Ref("SingleIdentifierGrammar"), allow_trailing=True)
+                                    Delimited(
+                                        Ref("SingleIdentifierGrammar"),
+                                        allow_trailing=True,
+                                    )
                                 ),
                                 Ref("AliasExpressionSegment", optional=True),
                             ),
