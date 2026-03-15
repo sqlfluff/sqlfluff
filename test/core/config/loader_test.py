@@ -1,6 +1,7 @@
 """Tests for the configuration routines."""
 
 import os
+import re
 import sys
 from contextlib import contextmanager
 from unittest.mock import call, patch
@@ -9,6 +10,7 @@ import pytest
 
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.config import (
+    clear_config_caches,
     load_config_at_path,
     load_config_file,
     load_config_string,
@@ -18,7 +20,14 @@ from sqlfluff.core.config.loader import (
     _get_user_config_dir_path,
     _load_user_appdir_config,
 )
+from sqlfluff.core.config.toml import _format_toml_parse_error
 from sqlfluff.core.errors import SQLFluffUserError
+
+# tomllib is only in the stdlib from 3.11+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:  # pragma: no cover
+    import tomli as tomllib
 
 config_a = {
     "core": {"testing_val": "foobar", "testing_int": 4, "dialect": "mysql"},
@@ -293,3 +302,109 @@ def test__config__toml_list_config():
     # Verify we can later retrieve the config values.
     assert cfg.get("dialect") == "ansi"
     assert cfg.get("rules") == ["LT03", "LT09"]
+
+
+def test__config__load_toml_invalid_syntax(tmp_path):
+    """Invalid TOML should raise a SQLFluff user error with location info."""
+    pyproject_path = tmp_path / "pyproject.toml"
+    invalid_toml = '[tool.sqlfluff.core]\ndialect = "ansi"\nrules = [1,,2]\n'
+    pyproject_path.write_text(invalid_toml, encoding="utf-8")
+
+    try:
+        with pytest.raises(SQLFluffUserError) as exc_info:
+            load_config_file(str(tmp_path), "pyproject.toml")
+    finally:
+        clear_config_caches()
+        pyproject_path.unlink(missing_ok=True)
+
+    try:
+        tomllib.loads(invalid_toml)
+    except tomllib.TOMLDecodeError as err:
+        raw_err = str(err)
+        expected_line = getattr(err, "lineno", None)
+        expected_column = getattr(err, "colno", None)
+        if expected_line is None or expected_column is None:
+            location_match = re.search(
+                r"at line (?P<line>\d+), column (?P<column>\d+)",
+                raw_err,
+            )
+            if location_match:
+                expected_line = int(location_match.group("line"))
+                expected_column = int(location_match.group("column"))
+        # Strip the trailing " (at line …, column …)" to get the bare message,
+        # matching what _format_toml_parse_error produces.
+        expected_message = re.sub(r" \(at line \d+, column \d+\)$", "", raw_err)
+    else:  # pragma: no cover
+        raise AssertionError("Expected invalid TOML to fail parsing.")
+
+    assert expected_line is not None
+    assert expected_column is not None
+
+    message = str(exc_info.value)
+    assert str(pyproject_path).replace("\\", "/") in message.replace("\\", "/")
+    assert "Failed to parse TOML config file" in message
+    assert expected_message in message
+    assert f"line {expected_line}" in message
+    assert f"column {expected_column}" in message
+    assert "UTF-8 BOM" not in message
+
+
+def test__config__load_toml_utf8_bom_hint(tmp_path):
+    """A UTF-8 BOM should surface a targeted configuration hint."""
+    pyproject_path = tmp_path / "pyproject.toml"
+    pyproject_path.write_text(
+        '\ufeff[tool.sqlfluff.core]\ndialect = "ansi"\n',
+        encoding="utf-8",
+    )
+
+    try:
+        with pytest.raises(SQLFluffUserError) as exc_info:
+            load_config_file(str(tmp_path), "pyproject.toml")
+    finally:
+        clear_config_caches()
+        pyproject_path.unlink(missing_ok=True)
+
+    message = str(exc_info.value)
+    assert str(pyproject_path).replace("\\", "/") in message.replace("\\", "/")
+    assert "UTF-8 BOM" in message
+    assert "UTF-8 without BOM" in message
+    assert "line 1" in message
+    assert "column 1" in message
+
+
+def test__config__format_toml_parse_error_regex_location() -> None:
+    """Regex fallback should extract location from the raw decode message."""
+
+    class _DummyTomlError(Exception):
+        def __str__(self) -> str:
+            return "Invalid value (at line 3, column 12)"
+
+    message = _format_toml_parse_error(
+        "pyproject.toml",
+        "[tool.sqlfluff.core]\nrules=[1,,2]\n",
+        _DummyTomlError(),  # type: ignore[arg-type]
+    )
+    assert "Invalid value" in message
+    assert "line 3" in message
+    assert "column 12" in message
+
+
+def test__config__format_toml_parse_error_line_only_location() -> None:
+    """Line-only location should still be included in parse error output."""
+
+    class _DummyTomlError(Exception):
+        msg = "Invalid value"
+        lineno = 7
+        colno = None
+
+        def __str__(self) -> str:
+            return self.msg
+
+    message = _format_toml_parse_error(
+        "pyproject.toml",
+        "[tool.sqlfluff.core]\n",
+        _DummyTomlError(),  # type: ignore[arg-type]
+    )
+    assert "Invalid value" in message
+    assert "line 7" in message
+    assert "column" not in message

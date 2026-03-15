@@ -32,6 +32,7 @@ from sqlfluff.cli.commands import (
     version,
 )
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.config import clear_config_caches
 from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
@@ -1725,6 +1726,62 @@ def test__cli__command_fail_nice_not_found(command):
             "exist(s): this_file_does_not_exist.sql"
         ),
     )
+
+
+def test__cli__command_invalid_pyproject_toml_user_error(monkeypatch):
+    """Invalid pyproject.toml should surface a concise user error."""
+    import sqlfluff.core.config.loader as config_loader
+
+    original_load_config_at_path = config_loader.load_config_at_path
+    home_path = os.path.expanduser("~")
+    project_root = pathlib.Path.cwd().resolve()
+
+    def safe_load_config_at_path(path):
+        if os.path.abspath(path) == os.path.abspath(home_path):
+            return {}
+        return original_load_config_at_path(path)
+
+    monkeypatch.setattr(config_loader, "load_config_at_path", safe_load_config_at_path)
+
+    project_path = None
+    sql_file = None
+    for candidate in (pathlib.Path(tempfile.gettempdir()), project_root.parent):
+        candidate = candidate.resolve()
+        if candidate == project_root or project_root in candidate.parents:
+            continue
+        try:
+            project_path = pathlib.Path(tempfile.mkdtemp(dir=str(candidate)))
+            (project_path / "pyproject.toml").write_text(
+                '\ufeff[tool.sqlfluff.core]\ndialect = "ansi"\n',
+                encoding="utf-8",
+            )
+            sql_file = project_path / "query.sql"
+            sql_file.write_text("select 1", encoding="utf-8")
+            break
+        except PermissionError:
+            if project_path is not None:
+                shutil.rmtree(project_path, ignore_errors=True)
+            project_path = None
+            sql_file = None
+            continue
+
+    if project_path is None or sql_file is None:
+        pytest.skip("No writable temp directory available outside the project root.")
+
+    try:
+        result = invoke_assert_code(
+            ret_code=2,
+            args=[lint, ["--dialect", "ansi", str(sql_file)]],
+            assert_stderr_contains="User Error: Failed to parse TOML config file",
+        )
+    finally:
+        clear_config_caches()
+        shutil.rmtree(project_path, ignore_errors=True)
+
+    stderr = result.stderr.replace("\\", "/")
+    assert str(project_path / "pyproject.toml").replace("\\", "/") in stderr
+    assert "UTF-8 BOM" in stderr
+    assert "Traceback" not in result.output
 
 
 @patch("click.utils.should_strip_ansi")

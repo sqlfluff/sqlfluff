@@ -441,6 +441,7 @@ class MapLiteralSegment(BaseSegment):
             Delimited(
                 Ref("MapLiteralElementSegment"),
                 optional=True,
+                allow_trailing=True,
             ),
             bracket_type="curly",
         ),
@@ -948,14 +949,15 @@ class FromPivotExpressionSegment(BaseSegment):
                 Sequence(
                     Ref("FunctionSegment"),
                     Ref("AliasExpressionSegment", optional=True),
-                )
+                ),
+                allow_trailing=True,
             ),
             "FOR",
             AnyNumberOf(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
                     "IN",
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
+                    Bracketed(Delimited(Ref("LiteralGrammar"), allow_trailing=True)),
                 ),
             ),
             Ref("GroupByClauseSegment", optional=True),
@@ -985,9 +987,10 @@ class SimplifiedPivotExpressionSegment(BaseSegment):
                 ),
                 Sequence(
                     "IN",
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
+                    Bracketed(Delimited(Ref("LiteralGrammar"), allow_trailing=True)),
                     optional=True,
                 ),
+                allow_trailing=True,
             ),
             optional=True,
         ),
@@ -998,6 +1001,7 @@ class SimplifiedPivotExpressionSegment(BaseSegment):
                     Ref("FunctionSegment"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
+                allow_trailing=True,
             ),
             optional=True,
         ),
@@ -1017,7 +1021,9 @@ class FromUnpivotExpressionSegment(BaseSegment):
         Bracketed(
             OneOf(
                 Ref("SingleIdentifierGrammar"),
-                Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+                Bracketed(
+                    Delimited(Ref("SingleIdentifierGrammar"), allow_trailing=True)
+                ),
             ),
             "FOR",
             AnyNumberOf(
@@ -1028,11 +1034,15 @@ class FromUnpivotExpressionSegment(BaseSegment):
                         Delimited(
                             Sequence(
                                 OptionallyBracketed(
-                                    Delimited(Ref("SingleIdentifierGrammar"))
+                                    Delimited(
+                                        Ref("SingleIdentifierGrammar"),
+                                        allow_trailing=True,
+                                    )
                                 ),
                                 Ref("AliasExpressionSegment", optional=True),
                             ),
                             Ref("ColumnsExpressionGrammar"),
+                            allow_trailing=True,
                         ),
                     ),
                 ),
@@ -1057,10 +1067,11 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
             Sequence(
                 OneOf(
                     Ref("ExpressionSegment"),
-                    Bracketed(Delimited(Ref("ExpressionSegment"))),
+                    Bracketed(Delimited(Ref("ExpressionSegment"), allow_trailing=True)),
                 ),
                 Ref("AliasExpressionSegment", optional=True),
             ),
+            allow_trailing=True,
         ),
         Sequence(
             "INTO",
@@ -1069,6 +1080,7 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
             "VALUE",
             Delimited(
                 Ref("SingleIdentifierGrammar"),
+                allow_trailing=True,
             ),
             optional=True,
         ),

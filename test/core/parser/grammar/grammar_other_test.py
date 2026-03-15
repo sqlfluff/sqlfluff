@@ -10,6 +10,7 @@ import pytest
 from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Anything, Delimited, Nothing
+from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.types import ParseMode
 
@@ -238,3 +239,27 @@ def test__parser__grammar_noncode_match(test_segments, fresh_ansi_dialect):
     match = NonCodeMatcher().match(test_segments, 1, parse_context=ctx)
     assert match
     assert match.matched_slice == slice(1, 2)
+
+
+@pytest.mark.parametrize(
+    "token_list,expected",
+    [
+        (["IS", " ", "DISTINCT", " ", "FROM"], True),
+        (["IS", " ", "NOT", " ", "DISTINCT", " ", "FROM"], True),
+        (["IS", " ", "REALLY", " ", "DISTINCT", " ", "FROM"], False),
+        (["NOT", " ", "DISTINCT", " ", "FROM"], False),
+    ],
+)
+def test__parser__grammar_preceded_by_matcher(
+    token_list, expected, generate_test_segments, fresh_ansi_dialect
+):
+    """Test the lookbehind matcher with explicit keyword sequences."""
+    matcher = PrecededByMatcher(
+        preceding_sequences=(("IS", "DISTINCT"), ("IS", "NOT", "DISTINCT")),
+    )
+    test_segments = generate_test_segments(token_list)
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+
+    match = matcher.match(test_segments, len(test_segments) - 1, ctx)
+
+    assert bool(match) is expected
