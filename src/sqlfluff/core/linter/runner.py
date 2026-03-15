@@ -144,7 +144,7 @@ class ParallelRunner(BaseRunner):
             linter_logger.warning(str(s))
             return None
 
-    # Overriden from BaseRunner
+    # Overridden from BaseRunner
     def iter_rendered(self, fnames: list[str]) -> Iterator[tuple[str, RenderedFile]]:
         """Iterate through rendered files ready for linting."""
         # DBT itself already does some amount of parallelism, so we delegate to
