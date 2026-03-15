@@ -470,6 +470,28 @@ databricks_dialect.replace(
     ),
 )
 
+databricks_dialect.replace(
+    PostFunctionGrammar=sparksql_dialect.get_grammar("PostFunctionGrammar").copy(
+        insert=[
+            Ref("WithinGroupClauseSegment"),
+        ],
+    ),
+)
+
+
+class WithinGroupClauseSegment(BaseSegment):
+    """An WITHIN GROUP clause for ordered-set aggregate functions.
+
+    https://docs.databricks.com/en/sql/language-manual/functions/percentile_cont.html
+    """
+
+    type = "withingroup_clause"
+    match_grammar = Sequence(
+        "WITHIN",
+        "GROUP",
+        Bracketed(Ref("OrderByClauseSegment")),
+    )
+
 
 class IdentifierClauseSegment(BaseSegment):
     """An `IDENTIFIER` clause segment.
