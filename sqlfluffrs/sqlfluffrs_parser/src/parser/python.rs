@@ -105,10 +105,17 @@ impl PyNode {
         }
     }
 
-    /// Get class_types (for Raw nodes) — mirrors Python's class_types property.
+    /// Get class_types — mirrors Python's class_types property.
     fn class_types(&self) -> Option<Vec<String>> {
         match &self.0 {
             Node::Raw { class_types, .. } => Some(class_types.clone()),
+            Node::Segment { class_types, .. } => {
+                if class_types.is_empty() {
+                    None
+                } else {
+                    Some(class_types.clone())
+                }
+            }
             _ => None,
         }
     }
@@ -438,14 +445,12 @@ impl PyMatchResult {
         )
     }
 
-    /// Build a Rust Node tree from this MatchResult and tokens.
+    /// Build the full AST as an `RsNode` from this MatchResult and tokens.
     ///
-    /// This applies the match result against the provided tokens to build
-    /// the full AST as an RsNode, which can then be used for Rust-side
-    /// linting rules (e.g., respace/LT01) without round-tripping through
-    /// Python's segment tree.
-    /// Build the full AST as an RsNode from the match result and tokens,
-    /// optionally prepending `leading` and appending `trailing` non-code
+    /// Applies the match result against the provided tokens to construct the
+    /// complete Rust-side AST which can be used by Rust linting rules
+    /// (e.g., respace/LT01) without round-tripping through Python's segment
+    /// tree. Optionally prepend `leading` and append `trailing` non-code
     /// tokens to the root.
     ///
     /// This is the single PyO3 entry-point for node construction.
