@@ -43,7 +43,7 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
         let ast = parser
             .call_rule_as_root()
             .expect("Parse error")
-            .apply_as_root(&tokens);
+            .apply_as_root(&tokens, &[], &[]);
 
         // Generate YAML
         let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML conversion error");
@@ -408,7 +408,7 @@ fn test_yaml_output_matches_python() {
     let ast = parser
         .call_rule_as_root()
         .expect("Parse error")
-        .apply_as_root(&tokens);
+        .apply_as_root(&tokens, &[], &[]);
 
     // Generate YAML
     let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML generation failed");
@@ -509,7 +509,7 @@ impl FixtureTest {
         let ast = parser
             .call_rule_as_root()
             .expect("Parse error")
-            .apply_as_root(&tokens);
+            .apply_as_root(&tokens, &[], &[]);
         Ok(ast)
     }
 }
