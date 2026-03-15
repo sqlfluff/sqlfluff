@@ -4,7 +4,7 @@ version.workspace = true
 edition = "2021"
 
 [dependencies]
-hashbrown = "0.15.5"
+hashbrown = "0.16.1"
 regex = { version = "1.12.2", features = ["perf"] }
 log = "0.4.28"
 serde = { version = "1.0.225", features = ["derive"] }
