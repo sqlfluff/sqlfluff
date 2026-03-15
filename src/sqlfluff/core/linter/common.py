@@ -39,6 +39,19 @@ class RenderedFile(NamedTuple):
     source_str: str
 
 
+class DeferredRenderTask(NamedTuple):
+    """A minimal task packet sent to workers when templating is deferred.
+
+    Instead of templating in the main process and shipping the full
+    RenderedFile (~200 KB) across the IPC boundary, we ship only the
+    filename and root config and let the worker call render_file itself.
+    """
+
+    fname: str
+    root_config: FluffConfig
+    fix: bool
+
+
 class ParsedVariant(NamedTuple):
     """An object to store the result of parsing a single TemplatedFile.
 

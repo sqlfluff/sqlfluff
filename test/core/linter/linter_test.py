@@ -18,8 +18,10 @@ from sqlfluff.core.errors import (
     SQLTemplaterError,
 )
 from sqlfluff.core.linter import runner
+from sqlfluff.core.linter.common import DeferredRenderTask
 from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
+from sqlfluff.core.templaters import RawTemplater
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 try:
@@ -354,56 +356,132 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
             result.reraise()
 
 
-@patch("sqlfluff.core.linter.runner.linter_logger")
-def test__linter__render_file_static_skips_file(patched_logger):
-    """Test skipped files are logged and omitted in parallel rendering."""
-
-    class StubLinter:
-        """Simple stub for render_file()."""
-
-        def render_file(self, fname, config):
-            raise SQLFluffSkipFile(f"skip {fname}")
-
-    result = runner.MultiThreadRunner._render_file_static(
-        ("test.sql", StubLinter(), object())
-    )
-
-    assert result is None
-    patched_logger.warning.assert_called_once_with("skip test.sql")
+def test__linter__templates_in_worker_default():
+    """RawTemplater (and subclasses) should have templates_in_worker=True."""
+    assert RawTemplater().templates_in_worker is True
 
 
-def test__linter__iter_rendered_delegates_for_dbt(monkeypatch):
-    """Test dbt templating bypasses pool-based parallel rendering."""
-
-    class DbtTemplater:
-        """Simple templater stub exposing the dbt name."""
-
-        name = "dbt"
-
-    expected = [("test.sql", "rendered")]
+def test__parallel_runner__iter_partials_deferred():
+    """iter_partials emits DeferredRenderTask items when templates_in_worker=True."""
     config = FluffConfig(overrides={"dialect": "ansi"})
-
-    monkeypatch.setattr(config, "get_templater", lambda: DbtTemplater())
-    monkeypatch.setattr(
-        runner.BaseRunner,
-        "iter_rendered",
-        lambda self, fnames: iter(expected),
+    lntr = Linter(dialect="ansi")
+    thd_runner = runner.MultiThreadRunner(lntr, config, processes=1)
+    partials = list(
+        thd_runner.iter_partials(
+            ["test/fixtures/linter/passing.sql"],
+            fix=False,
+        )
     )
-    monkeypatch.setattr(
-        runner.MultiThreadRunner,
-        "_create_pool",
-        lambda *args, **kwargs: pytest.fail("dbt path should not create a pool"),
-    )
+    assert len(partials) == 1
+    fname, task = partials[0]
+    assert isinstance(task, DeferredRenderTask)
+    assert task.fname == "test/fixtures/linter/passing.sql"
+    assert task.fix is False
 
-    results = list(
-        runner.MultiThreadRunner(
-            Linter(dialect="ansi"),
-            config,
-            processes=2,
-        ).iter_rendered(["test.sql"])
-    )
 
-    assert results == expected
+def test__parallel_runner__iter_partials_non_worker_path(monkeypatch):
+    """iter_partials falls back to callables when templates_in_worker=False.
+
+    Simulates the behaviour of a main-process-only templater such as dbt.
+    """
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(dialect="ansi")
+    # Force the flag off (mirrors what DbtTemplater sets)
+    monkeypatch.setattr(lntr.templater, "templates_in_worker", False)
+    thd_runner = runner.MultiThreadRunner(lntr, config, processes=1)
+    partials = list(
+        thd_runner.iter_partials(
+            ["test/fixtures/linter/passing.sql"],
+            fix=False,
+        )
+    )
+    assert len(partials) == 1
+    _fname, task = partials[0]
+    assert callable(task)
+    assert not isinstance(task, DeferredRenderTask)
+
+
+def test__parallel_runner__apply_deferred_task():
+    """_apply with a DeferredRenderTask should render and return a LintedFile."""
+    from sqlfluff.core.linter import LintedFile
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    task = DeferredRenderTask(
+        fname="test/fixtures/linter/passing.sql",
+        root_config=config,
+        fix=False,
+    )
+    result = runner.ParallelRunner._apply(("test/fixtures/linter/passing.sql", task))
+    assert isinstance(result, LintedFile)
+
+
+def test__parallel_runner__apply_callable_task(monkeypatch):
+    """_apply with a PartialLintCallable covers the dbt-like non-deferred path.
+
+    When templates_in_worker=False (as with DbtTemplater), ParallelRunner
+    iter_partials falls back to the base class and yields callables rather than
+    DeferredRenderTask objects.  _apply() should call the callable directly and
+    return a LintedFile.
+    """
+    from sqlfluff.core.linter import LintedFile
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(dialect="ansi")
+    # Simulate a main-process-only templater (e.g. dbt) that disables
+    # worker-side rendering.
+    monkeypatch.setattr(lntr.templater, "templates_in_worker", False)
+    thd_runner = runner.MultiThreadRunner(lntr, config, processes=1)
+    partials = list(
+        thd_runner.iter_partials(
+            ["test/fixtures/linter/passing.sql"],
+            fix=False,
+        )
+    )
+    fname, task = partials[0]
+    assert callable(task) and not isinstance(task, DeferredRenderTask)
+    result = runner.ParallelRunner._apply((fname, task))
+    assert isinstance(result, LintedFile)
+
+
+def test__parallel_runner__apply_skip_file():
+    """_apply wraps a SQLFluffSkipFile raised during render into DelayedException.
+
+    Uses a byte limit of 5, which is below the size of passing.sql (16 bytes),
+    so render_file raises SQLFluffSkipFile.
+    """
+    config = FluffConfig(overrides={"large_file_skip_byte_limit": 5, "dialect": "ansi"})
+    task = DeferredRenderTask(
+        fname="test/fixtures/linter/passing.sql",
+        root_config=config,
+        fix=False,
+    )
+    result = runner.ParallelRunner._apply(("test/fixtures/linter/passing.sql", task))
+    assert isinstance(result, runner.DelayedException)
+    assert isinstance(result.ee, SQLFluffSkipFile)
+
+
+def test__parallel_runner__skip_file_handled_in_run():
+    """SQLFluffSkipFile in a deferred worker logs a plain skip warning.
+
+    Uses a byte limit of 5, which is below the size of passing.sql (16 bytes),
+    so render_file raises SQLFluffSkipFile.
+    The runner should not emit the "Unable to lint … Please report" error
+    message — that is reserved for genuine unexpected failures.
+    """
+    config = FluffConfig(overrides={"large_file_skip_byte_limit": 5, "dialect": "ansi"})
+    lntr = Linter(config=config)
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        # Consume the iterator — errors surface only when results are consumed.
+        list(
+            runner.MultiThreadRunner(lntr, config, processes=1).run(
+                ["test/fixtures/linter/passing.sql"],
+                fix=False,
+            )
+        )
+    # The skip message must appear in the warning output.
+    assert "over the limit of 5" in caplog.text
+    # The "please report" message must NOT appear — a skip is not a bug.
+    assert "Please report" not in caplog.text
 
 
 @pytest.mark.parametrize(

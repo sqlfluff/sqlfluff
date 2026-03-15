@@ -20,6 +20,7 @@ import fnmatch
 import logging
 import pathlib
 import re
+import threading
 from collections import defaultdict, namedtuple
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
@@ -249,12 +250,21 @@ class RuleMetaclass(type):
         # NOTE: We should only validate and add config keywords
         # into the docstring if the plugin loading methods have
         # fully completed (i.e. plugins_loaded.get() is True).
-        if name == "BaseRule" or not is_main_process.get():
+        if (
+            name == "BaseRule"
+            or not is_main_process.get()
+            or threading.current_thread() is not threading.main_thread()
+        ):
             # Except if it's the base rule, or we're not in the main process/thread
             # in which case we shouldn't try and alter the docstrings anyway.
             # NOTE: The order of imports within child threads/processes is less
             # controllable, and so we should just avoid checking whether plugins
             # are already loaded.
+            # NOTE: We also suppress this warning in non-main threads (e.g. the
+            # multiprocessing pool's _handle_results thread in the main process)
+            # because Python 3.11 threads start with ContextVar defaults rather
+            # than a copy of the spawning thread's context, so plugins_loaded is
+            # False even though plugins are fully loaded in the main thread.
             pass
         elif not plugins_loaded.get():
             # Show a warning if a plugin has their imports set up in a suboptimal
