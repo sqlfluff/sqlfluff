@@ -113,6 +113,20 @@ impl Parser<'_> {
                 );
             }
 
+            // Max parse depth (DoS mitigation): frame we're processing was at depth stack.len()+1
+            if let Some(max) = self.max_parse_depth {
+                if stack.len() + 1 > max {
+                    return Err(ParseError::with_context(
+                        format!(
+                            "Maximum parse depth exceeded (limit {}). This may indicate deeply nested SQL or a malicious input.",
+                            max
+                        ),
+                        Some(frame_from_stack.pos),
+                        Some(frame_from_stack.grammar_id),
+                    ));
+                }
+            }
+
             // Re-check the cache ONLY for Initial frames
             // WaitingForChild frames have already started processing and have a child computing the result
             let mut frame = if matches!(frame_from_stack.state, FrameState::Initial) {
@@ -1052,7 +1066,6 @@ impl Parser<'_> {
         path_parts.join(" -> ")
     }
 }
-
 #[cfg(feature = "verbose-debug")]
 fn get_waiting_for_frame_id(frame: &TableParseFrame) -> String {
     match &frame.context {

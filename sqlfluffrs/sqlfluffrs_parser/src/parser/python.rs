@@ -438,17 +438,19 @@ pub struct PyParser {
     indent_config: hashbrown::HashMap<&'static str, bool>,
     max_parser_iterations: usize,
     parser_warn_threshold: usize,
+    max_parse_depth: Option<usize>,
 }
 
 #[pymethods]
 impl PyParser {
     #[new]
-    #[pyo3(signature = (dialect=None, indent_config=None, max_parser_iterations=None, parser_warn_threshold=None))]
+    #[pyo3(signature = (dialect=None, indent_config=None, max_parser_iterations=None, parser_warn_threshold=None, max_parse_depth=None))]
     pub fn new(
         dialect: Option<&str>,
         indent_config: Option<std::collections::HashMap<String, bool>>,
         max_parser_iterations: Option<usize>,
         parser_warn_threshold: Option<usize>,
+        max_parse_depth: Option<u32>,
     ) -> PyResult<Self> {
         let dialect = dialect
             .and_then(|d| Dialect::from_str(d).ok())
@@ -473,6 +475,7 @@ impl PyParser {
             indent_config,
             max_parser_iterations: max_parser_iterations.unwrap_or(3_000_000),
             parser_warn_threshold: parser_warn_threshold.unwrap_or(2_000_000),
+            max_parse_depth: max_parse_depth.map(|v| v as usize),
         })
     }
 
@@ -497,8 +500,13 @@ impl PyParser {
         compute_bracket_pairs(&mut rust_tokens);
 
         // Create parser
-        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone())
-            .with_parser_limits(self.max_parser_iterations, self.parser_warn_threshold);
+        let mut parser = Parser::new_with_max_parse_depth(
+            &rust_tokens,
+            self.dialect,
+            self.indent_config.clone(),
+            self.max_parse_depth,
+        )
+        .with_parser_limits(self.max_parser_iterations, self.parser_warn_threshold);
 
         // Parse and get the MatchResult directly
         let match_result = parser.call_rule_as_root().map_err(parse_error_to_pyerr)?;
@@ -532,8 +540,13 @@ impl PyParser {
         compute_bracket_pairs(&mut rust_tokens);
 
         // Create parser
-        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone())
-            .with_parser_limits(self.max_parser_iterations, self.parser_warn_threshold);
+        let mut parser = Parser::new_with_max_parse_depth(
+            &rust_tokens,
+            self.dialect,
+            self.indent_config.clone(),
+            self.max_parse_depth,
+        )
+        .with_parser_limits(self.max_parser_iterations, self.parser_warn_threshold);
 
         // Parse and get the MatchResult directly
         let match_result = parser
@@ -586,8 +599,13 @@ impl PyParser {
         compute_bracket_pairs(&mut rust_tokens);
 
         // Create parser with grammar counting enabled
-        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone())
-            .with_parser_limits(self.max_parser_iterations, self.parser_warn_threshold);
+        let mut parser = Parser::new_with_max_parse_depth(
+            &rust_tokens,
+            self.dialect,
+            self.indent_config.clone(),
+            self.max_parse_depth,
+        )
+        .with_parser_limits(self.max_parser_iterations, self.parser_warn_threshold);
 
         // Track grammar calls using cache misses as a proxy
         // Each unique (grammar_id, pos) pair in the cache represents one grammar call

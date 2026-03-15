@@ -278,6 +278,8 @@ def test__rust_parser__parse_error_from_exception():
     assert "Couldn't find closing bracket" in str(error)
     # The error should have a segment associated with it
     assert error.segment is not None
+    assert error.line_no > 0
+    assert error.line_pos > 0
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
