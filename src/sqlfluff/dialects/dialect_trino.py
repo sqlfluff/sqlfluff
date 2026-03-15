@@ -28,6 +28,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
+from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_trino_keywords import (
     trino_reserved_keywords,
@@ -143,7 +144,10 @@ trino_dialect.replace(
         "FETCH",
     ),
     SelectClauseTerminatorGrammar=OneOf(
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",

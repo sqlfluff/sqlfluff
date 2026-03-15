@@ -195,6 +195,17 @@ fn collect_python_sources(repo_root: &Path) -> Vec<PathBuf> {
         }
     }
 
+    let lookbehind = repo_root
+        .join("src")
+        .join("sqlfluff")
+        .join("core")
+        .join("parser")
+        .join("grammar")
+        .join("lookbehind.py");
+    if lookbehind.exists() {
+        sources.push(lookbehind);
+    }
+
     sources
 }
 
