@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 env_logger = "0.11.8"
 regex = { version = "1.11.2", features = ["perf"] }
-fancy-regex = "0.16.2"
+fancy-regex = "0.17.0"
 hashbrown = "0.16.1"
 log = "0.4.28"
 itertools = "0.14.0"
