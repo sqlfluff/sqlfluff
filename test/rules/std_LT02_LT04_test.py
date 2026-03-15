@@ -52,16 +52,14 @@ def test_rules_std_LT02_LT04_interaction_indentation_leading(in_sql, out_sql) ->
     Test sql with two newlines with trailing commas expecting leading.
     """
     # Lint expected rules.
-    cfg = FluffConfig.from_string(
-        """[sqlfluff]
+    cfg = FluffConfig.from_string("""[sqlfluff]
 dialect = snowflake
 rules = LT02, LT04
 
 [sqlfluff:layout:type:comma]
 spacing_before = touch
 line_position = leading
-"""
-    )
+""")
     linter = Linter(config=cfg)
 
     # Return linted/fixed file.

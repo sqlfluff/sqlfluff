@@ -16,4 +16,8 @@ join
 UPDATE stuff SET
   deleted = 1
 OUTPUT DELETED.* INTO trash
-WHERE useless = 1
+WHERE useless = 1;
+
+UPDATE dbo.SomeTable SET SomeColumn='Update' WHERE CURRENT OF db_cursor;
+
+UPDATE TOP (10) PERCENT SomeTable SET SomeColumn='Updated';

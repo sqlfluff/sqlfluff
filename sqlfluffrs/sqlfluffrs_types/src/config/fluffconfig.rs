@@ -2,6 +2,10 @@
 pub struct FluffConfig {
     pub dialect: Option<String>,
     pub template_blocks_indent: bool,
+    /// Maximum number of parser iterations before aborting (default: 3_000_000).
+    pub max_parser_iterations: Option<usize>,
+    /// Iteration count at which a warning is emitted (default: 2_000_000).
+    pub parser_warn_threshold: Option<usize>,
 }
 
 impl FluffConfig {
@@ -9,36 +13,18 @@ impl FluffConfig {
         Self {
             dialect,
             template_blocks_indent,
+            max_parser_iterations: None,
+            parser_warn_threshold: None,
         }
     }
-}
 
-#[cfg(feature = "python")]
-pub mod python {
-    use pyo3::{
-        prelude::*,
-        types::{PyDict, PyDictMethods},
-    };
-
-    use super::FluffConfig;
-
-    #[derive(Clone)]
-    pub struct PyFluffConfig(pub FluffConfig);
-
-    impl<'py> FromPyObject<'py> for PyFluffConfig {
-        fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
-            let configs = ob.getattr("_configs")?;
-            let configs_dict = configs.downcast::<PyDict>()?;
-            let core = configs_dict.get_item("core").ok().flatten().unwrap();
-            let core_dict = core.downcast::<PyDict>()?;
-            let dialect = core_dict
-                .get_item("dialect")
-                .ok()
-                .flatten()
-                .and_then(|x| x.extract::<String>().ok());
-
-            // println!("{:?}", dialect);
-            Ok(Self(FluffConfig::new(dialect, true)))
-        }
+    pub fn with_parser_limits(
+        mut self,
+        max_parser_iterations: Option<usize>,
+        parser_warn_threshold: Option<usize>,
+    ) -> Self {
+        self.max_parser_iterations = max_parser_iterations;
+        self.parser_warn_threshold = parser_warn_threshold;
+        self
     }
 }

@@ -3,168 +3,169 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e0823860f2d0f1ec5f74c5a9a1411ddc619b669824b86a6602ced70423211ac7
+_hash: 4c2a20bca8012028d742a9fed3a1d2bbd38e8647e4434e6862426bc9599b2e05
 file:
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: REBUILD
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: REBUILD
-    - keyword: REVERSE
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: REBUILD
-    - keyword: NOREVERSE
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: PARAMETERS
-    - bracketed:
-        start_bracket: (
-        quoted_literal: "'ODCI_OPTIMIZE=ALL'"
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: COMPILE
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: LOGGING
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: NOLOGGING
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: ENABLE
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: DISABLE
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: UNUSABLE
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: INVISIBLE
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: VISIBLE
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: RENAME
-    - keyword: TO
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: new_idx_name
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: MONITORING
-    - keyword: USAGE
-- statement_terminator: ;
-- statement:
-    alter_index_statement:
-    - keyword: ALTER
-    - keyword: INDEX
-    - index_reference:
-      - naked_identifier: some
-      - dot: .
-      - naked_identifier: idx_name
-    - keyword: NOMONITORING
-    - keyword: USAGE
-- statement_terminator: ;
+  batch:
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: REBUILD
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: REBUILD
+      - keyword: REVERSE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: REBUILD
+      - keyword: NOREVERSE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: PARAMETERS
+      - bracketed:
+          start_bracket: (
+          quoted_literal: "'ODCI_OPTIMIZE=ALL'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: COMPILE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: LOGGING
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: NOLOGGING
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: ENABLE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: DISABLE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: UNUSABLE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: INVISIBLE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: VISIBLE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: RENAME
+      - keyword: TO
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: new_idx_name
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: MONITORING
+      - keyword: USAGE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: some
+        - dot: .
+        - naked_identifier: idx_name
+      - keyword: NOMONITORING
+      - keyword: USAGE
+  - statement_terminator: ;

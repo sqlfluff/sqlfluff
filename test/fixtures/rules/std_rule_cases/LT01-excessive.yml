@@ -402,6 +402,22 @@ test_hive_set_statement:
     core:
       dialect: hive
 
+test_tsql_json_object_colon:
+  # ColonDelimiter in JSON_OBJECT key:value pairs shouldn't have spacing.
+  pass_str: |
+    SELECT JSON_OBJECT('name':'value', 'type':1);
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_json_objectagg_colon:
+  # ColonDelimiter in JSON_OBJECTAGG key:value pairs shouldn't have spacing.
+  pass_str: |
+    SELECT JSON_OBJECTAGG(name:value) FROM t;
+  configs:
+    core:
+      dialect: tsql
+
 test_spark_set_statement:
   pass_str: |
     SET -v;

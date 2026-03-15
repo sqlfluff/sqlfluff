@@ -206,7 +206,9 @@ redshift_dialect.replace(
             r"#?([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
             casefold=str.lower,
         )
     ),
@@ -3030,4 +3032,87 @@ class DeallocateStatementSegment(postgres.DeallocateStatementSegment):
         "DEALLOCATE",
         Ref.keyword("PREPARE", optional=True),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+class RedshiftGrantTargetSegment(BaseSegment):
+    """A non-group grant target for Redshift.
+
+    Redshift requires repeated `TO ...` clauses for non-group grant targets,
+    while group targets can be comma-delimited after a single `TO GROUP`.
+    https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
+    """
+
+    type = "access_target"
+
+    match_grammar = OneOf(
+        Sequence("USER", Ref("UserReferenceSegment")),
+        Sequence("ROLE", Ref("RoleReferenceSegment")),
+        Ref("RoleReferenceSegment"),
+        "PUBLIC",
+    )
+
+
+class RedshiftGroupGrantTargetSegment(BaseSegment):
+    """A group grant target for Redshift."""
+
+    type = "access_target"
+
+    match_grammar = Sequence("GROUP", Ref("ObjectReferenceSegment"))
+
+
+class GrantStatementSegment(ansi.GrantStatementSegment):
+    """A `GRANT` statement.
+
+    Redshift allows multiple GROUP targets after a single `TO GROUP`, but
+    requires repeated `TO` clauses for other grant target types.
+    https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
+    """
+
+    _group_targets = Delimited(Ref("RedshiftGroupGrantTargetSegment"))
+
+    _non_group_targets = Sequence(
+        "TO",
+        Ref("RedshiftGrantTargetSegment"),
+        AnyNumberOf(
+            Sequence(
+                Ref("CommaSegment"),
+                "TO",
+                Ref("RedshiftGrantTargetSegment"),
+            ),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        OneOf(
+            Sequence(
+                Ref("AccessPermissionsSegment"),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
+            Ref("ObjectReferenceSegment"),
+        ),
+        OneOf(
+            Sequence("TO", _group_targets),
+            _non_group_targets,
+        ),
+        OneOf(
+            Sequence("WITH", "GRANT", "OPTION"),
+            Sequence("WITH", "ADMIN", "OPTION"),
+            Sequence("COPY", "CURRENT", "GRANTS"),
+            optional=True,
+        ),
+        Sequence(
+            "GRANTED",
+            "BY",
+            OneOf(
+                "CURRENT_USER",
+                "SESSION_USER",
+                Ref("UserReferenceSegment"),
+            ),
+            optional=True,
+        ),
     )

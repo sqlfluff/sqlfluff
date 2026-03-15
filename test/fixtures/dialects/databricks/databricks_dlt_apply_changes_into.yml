@@ -1,0 +1,549 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e81ff925e0ee1099beef1735e06b19b1d625097e95e5171785c4513bdf217d28
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target
+- statement_terminator: ;
+- statement:
+    apply_changes_into_statement:
+    - keyword: APPLY
+    - keyword: CHANGES
+    - keyword: INTO
+    - table_expression:
+        table_reference:
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: user_id
+          end_bracket: )
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: DELETE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"DELETE"'
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: TRUNCATE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"TRUNCATE"'
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequence_num
+      - keyword: COLUMNS
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: operation
+        - comma: ','
+        - column_reference:
+            naked_identifier: sequence_num
+        - end_bracket: )
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target
+- statement_terminator: ;
+- statement:
+    apply_changes_into_statement:
+    - keyword: APPLY
+    - keyword: CHANGES
+    - keyword: INTO
+    - table_expression:
+        table_reference:
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: userid
+          end_bracket: )
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: DELETE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"DELETE"'
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequencenum
+      - keyword: COLUMNS
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: operation
+        - comma: ','
+        - column_reference:
+            naked_identifier: sequencenum
+        - end_bracket: )
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target
+- statement_terminator: ;
+- statement:
+    apply_changes_into_statement:
+    - keyword: APPLY
+    - keyword: CHANGES
+    - keyword: INTO
+    - table_expression:
+        table_reference:
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: userid
+          end_bracket: )
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequencenum
+      - keyword: COLUMNS
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: operation
+        - comma: ','
+        - column_reference:
+            naked_identifier: sequencenum
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target
+- statement_terminator: ;
+- statement:
+    apply_changes_into_statement:
+    - keyword: APPLY
+    - keyword: CHANGES
+    - keyword: INTO
+    - table_expression:
+        table_reference:
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: user_id
+          end_bracket: )
+      - keyword: IGNORE
+      - keyword: 'NULL'
+      - keyword: UPDATES
+      - where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: state
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: '"NY"'
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: DELETE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"DELETE"'
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: TRUNCATE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"TRUNCATE"'
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequence_num
+      - keyword: COLUMNS
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: operation
+        - comma: ','
+        - column_reference:
+            naked_identifier: sequence_num
+        - end_bracket: )
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target
+- statement_terminator: ;
+- statement:
+    apply_changes_into_statement:
+    - keyword: APPLY
+    - keyword: CHANGES
+    - keyword: INTO
+    - table_expression:
+        table_reference:
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: user_id
+          end_bracket: )
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequence_num
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target
+- statement_terminator: ;
+- statement:
+    apply_changes_into_statement:
+    - keyword: APPLY
+    - keyword: CHANGES
+    - keyword: INTO
+    - table_expression:
+        table_reference:
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: user_id
+          end_bracket: )
+      - keyword: IGNORE
+      - keyword: 'NULL'
+      - keyword: UPDATES
+      - where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: state
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: '"NY"'
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: DELETE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"DELETE"'
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: TRUNCATE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"TRUNCATE"'
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequence_num
+      - keyword: COLUMNS
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: operation
+        - comma: ','
+        - column_reference:
+            naked_identifier: sequence_num
+        - end_bracket: )
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '1'
+      - keyword: TRACK
+      - keyword: HISTORY
+      - keyword: 'ON'
+      - column_reference:
+          naked_identifier: user_id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target
+- statement_terminator: ;
+- statement:
+    apply_changes_into_statement:
+    - keyword: APPLY
+    - keyword: CHANGES
+    - keyword: INTO
+    - table_expression:
+        table_reference:
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: user_id
+          end_bracket: )
+      - keyword: IGNORE
+      - keyword: 'NULL'
+      - keyword: UPDATES
+      - where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: state
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: '"NY"'
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: DELETE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"DELETE"'
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: TRUNCATE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"TRUNCATE"'
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequence_num
+      - keyword: COLUMNS
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: operation
+        - comma: ','
+        - column_reference:
+            naked_identifier: sequence_num
+        - end_bracket: )
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '1'
+      - keyword: TRACK
+      - keyword: HISTORY
+      - keyword: 'ON'
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: state
+          end_bracket: )
+- statement_terminator: ;

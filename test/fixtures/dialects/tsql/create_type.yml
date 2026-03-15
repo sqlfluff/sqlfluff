@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16fb9b454c993ef86be1e155b76e936f5d82db30acc39f0be79c06734465515d
+_hash: d0d2ce58db0b2f9aa4b7469d93d52a0404f6517025b7e0d0239acfd888c01ab2
 file:
   batch:
   - statement:
@@ -45,6 +45,65 @@ file:
       - object_reference:
           naked_identifier: weird_int
       - keyword: FROM
+      - data_type:
+          keyword: int
+  - statement_terminator: ;
+  - statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
       - object_reference:
-          naked_identifier: int
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[ExampleType]'
+      - keyword: FROM
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '50'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[DecimalType]'
+      - keyword: FROM
+      - data_type:
+          keyword: DECIMAL
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                integer_literal: '38'
+            - comma: ','
+            - expression:
+                integer_literal: '10'
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[NonNullType]'
+      - keyword: FROM
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '100'
+              end_bracket: )
+      - keyword: NOT
+      - keyword: 'NULL'
   - statement_terminator: ;

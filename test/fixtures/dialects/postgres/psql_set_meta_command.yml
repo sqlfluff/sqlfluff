@@ -1,0 +1,26 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b1ba39f237e30d6683b9d51312ea356586ffd519806c157a8cb99204a8c041fc
+file:
+- psql_set_meta_command_statement:
+    psql_set_command: \set
+- psql_set_meta_command_statement:
+    psql_set_command: \set ON_ERROR_STOP on
+- psql_set_meta_command_statement:
+    psql_set_command: \set myvar 42
+- psql_set_meta_command_statement:
+    psql_set_command: "\\set myvar 'hello world'"
+- psql_set_meta_command_statement:
+    psql_set_command: \set myvar :other_var
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          psql_variable:
+            colon: ':'
+            parameter: myvar
+- statement_terminator: ;

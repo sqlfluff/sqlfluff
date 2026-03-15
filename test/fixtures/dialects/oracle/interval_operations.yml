@@ -3,122 +3,123 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9cd1d5fc1f9dde36e2cffb518e1baf9011a19d7b21ca9280d6075009b7d11c54
+_hash: 2e4e11de195f3cecf71ff6d251fd3c4a00da31add6ec4640a82a952cb0fe21cf
 file:
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '1'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-      where_clause:
-        keyword: where
-        expression:
-        - bare_function: sysdate
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - bare_function: sysdate
-        - binary_operator: '-'
-        - keyword: interval
-        - date_constructor_literal: "'2'"
-        - keyword: hour
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+        where_clause:
+          keyword: where
           expression:
+          - bare_function: sysdate
+          - comparison_operator:
+              raw_comparison_operator: '>'
           - bare_function: sysdate
           - binary_operator: '-'
           - keyword: interval
-          - date_constructor_literal: "'3'"
-          - keyword: year
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-        - keyword: interval
-        - date_constructor_literal: "'2 3:04:11.333'"
-        - keyword: day
-        - keyword: to
-        - keyword: second
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '1'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-      where_clause:
-        keyword: where
-        expression:
-        - bare_function: sysdate
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - function:
-            function_name:
-              function_name_identifier: to_date
-            function_contents:
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  quoted_literal: "'01/01/1970'"
-              - comma: ','
-              - expression:
-                  quoted_literal: "'dd/mm/yyyy'"
-              - end_bracket: )
-        - binary_operator: +
-        - keyword: interval
-        - date_constructor_literal: "'600'"
-        - keyword: month
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
+          - date_constructor_literal: "'2'"
+          - keyword: hour
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            expression:
+            - bare_function: sysdate
+            - binary_operator: '-'
+            - keyword: interval
+            - date_constructor_literal: "'3'"
+            - keyword: year
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+          - keyword: interval
+          - date_constructor_literal: "'2 3:04:11.333'"
+          - keyword: day
+          - keyword: to
+          - keyword: second
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+        where_clause:
+          keyword: where
           expression:
           - bare_function: sysdate
+          - comparison_operator:
+              raw_comparison_operator: '>'
+          - function:
+              function_name:
+                function_name_identifier: to_date
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'01/01/1970'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'dd/mm/yyyy'"
+                - end_bracket: )
           - binary_operator: +
           - keyword: interval
-          - date_constructor_literal: "'10'"
-          - keyword: minute
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dual
-- statement_terminator: ;
+          - date_constructor_literal: "'600'"
+          - keyword: month
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            expression:
+            - bare_function: sysdate
+            - binary_operator: +
+            - keyword: interval
+            - date_constructor_literal: "'10'"
+            - keyword: minute
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;

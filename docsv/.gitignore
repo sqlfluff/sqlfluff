@@ -1,0 +1,8 @@
+node_modules/
+.vitepress/cache/
+.vitepress/dist/
+reference/dialects/*.md
+reference/rules/*.md
+reference/cli/*.md
+reference/api/*.md
+.vitepress/sidebar-*.json

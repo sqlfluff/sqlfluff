@@ -1,0 +1,317 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 23dcf314d6fd3ec26d4822382680b8ae2a3ca6c93105311b8054c589b0877f49
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: table1
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: INDEX
+                      bracketed:
+                        start_bracket: (
+                        index_reference:
+                          naked_identifier: ix_table_id
+                        end_bracket: )
+                    end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: table1
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: INDEX
+                      bracketed:
+                      - start_bracket: (
+                      - index_reference:
+                          naked_identifier: ix_table_id
+                      - comma: ','
+                      - index_reference:
+                          naked_identifier: ix_table_name
+                      - end_bracket: )
+                    end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: table2
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: INDEX
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      bracketed:
+                        start_bracket: (
+                        index_reference:
+                          naked_identifier: ix_table_id
+                        end_bracket: )
+                    end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: table3
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: INDEX
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      index_reference:
+                        naked_identifier: ix_table_id
+                    end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: table4
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                  - start_bracket: (
+                  - query_hint_segment:
+                      keyword: INDEX
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      index_reference:
+                        naked_identifier: ix_table_id
+                  - comma: ','
+                  - query_hint_segment:
+                      keyword: FORCESEEK
+                  - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: table5
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: FORCESEEK
+                    end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: table6
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: FORCESEEK
+                      bracketed:
+                        start_bracket: (
+                        index_reference:
+                          naked_identifier: ix_table_id
+                        bracketed:
+                        - start_bracket: (
+                        - naked_identifier: column1
+                        - comma: ','
+                        - naked_identifier: column2
+                        - end_bracket: )
+                        end_bracket: )
+                    end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: table7
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                  - start_bracket: (
+                  - query_hint_segment:
+                      keyword: INDEX
+                      bracketed:
+                        start_bracket: (
+                        index_reference:
+                          naked_identifier: ix_table_id
+                        end_bracket: )
+                  - comma: ','
+                  - query_hint_segment:
+                      keyword: NOLOCK
+                  - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: table8
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: INDEX
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      numeric_literal: '1'
+                    end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: table9
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: INDEX
+                      bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_bracket: )
+                    end_bracket: )
+  - statement_terminator: ;

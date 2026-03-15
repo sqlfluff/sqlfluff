@@ -76,10 +76,11 @@ class ReflowConfig:
     # use `.from_fluff_config`, but the defaults are here to aid in
     # testing.
     tab_space_size: int = 4
-    indent_unit: str = "    "
+    indent_unit: str = "space"
     max_line_length: int = 80
     hanging_indents: bool = False
     skip_indentation_in: frozenset[str] = frozenset()
+    skip_implicit_indents_in: frozenset[str] = frozenset()
     implicit_indents: str = "forbid"
     trailing_comments: str = "before"
     ignore_comment_lines: bool = False
@@ -117,7 +118,14 @@ class ReflowConfig:
             hanging_indents=config.get("hanging_indents", ["indentation"]),
             max_line_length=config.get("max_line_length"),
             skip_indentation_in=frozenset(
-                config.get("skip_indentation_in", ["indentation"]).split(",")
+                split_comma_separated_string(
+                    config.get("skip_indentation_in", ["indentation"])
+                )
+            ),
+            skip_implicit_indents_in=frozenset(
+                split_comma_separated_string(
+                    config.get("skip_implicit_indents_in", ["indentation"])
+                )
             ),
             implicit_indents=config.get("implicit_indents", ["indentation"]),
             trailing_comments=config.get("trailing_comments", ["indentation"]),

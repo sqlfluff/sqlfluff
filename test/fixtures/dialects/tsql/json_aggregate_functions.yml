@@ -1,0 +1,1224 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cc31705eb94536e4c6dbeef78c923caca322998653865aa58bc616bdc1cf3cae
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: name
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: employee_id
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: departments
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: department_name
+                - keyword: 'NULL'
+                - keyword: 'ON'
+                - keyword: 'NULL'
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: departments
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: manager_name
+                - keyword: ABSENT
+                - keyword: 'ON'
+                - keyword: 'NULL'
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: departments
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: product_id
+                - keyword: RETURNING
+                - keyword: json
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: products
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - column_reference:
+                      naked_identifier: first_name
+                  - binary_operator: +
+                  - quoted_literal: "' '"
+                  - binary_operator: +
+                  - column_reference:
+                      naked_identifier: last_name
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: name
+                  end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: hire_date
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: salary
+                - keyword: 'NULL'
+                - keyword: 'ON'
+                - keyword: 'NULL'
+                - end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: salary
+                  - keyword: DESC
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: department_id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: employee_name
+                  end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: employee_id
+                  end_bracket: )
+              - keyword: OVER
+              - bracketed:
+                  start_bracket: (
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: department_id
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: department_id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: employee_name
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: employee_names
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: department_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: name
+                  end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: last_name
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: first_name
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: name
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: value
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: settings
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: key_column
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: value_column
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: config
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: setting_name
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: setting_value
+                - keyword: 'NULL'
+                - keyword: 'ON'
+                - keyword: 'NULL'
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: settings
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: config_key
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: config_value
+                - keyword: ABSENT
+                - keyword: 'ON'
+                - keyword: 'NULL'
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: configuration
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: prop_name
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: prop_value
+                - keyword: RETURNING
+                - keyword: json
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: properties
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: name
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: score
+                - end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: score
+                  - keyword: DESC
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: leaderboard
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: attr_name
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: attr_value
+                - keyword: ABSENT
+                - keyword: 'ON'
+                - keyword: 'NULL'
+                - end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: attr_name
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: attributes
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: category
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: item_name
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: item_price
+                - end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: item_name
+                  end_bracket: )
+              - keyword: OVER
+              - bracketed:
+                  start_bracket: (
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: category
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: products
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: user_id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: setting_name
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: setting_value
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: user_settings
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: user_preferences
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: user_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'key'"
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: value_column
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                      naked_identifier: prefix
+                  - binary_operator: +
+                  - quoted_literal: "'_'"
+                  - binary_operator: +
+                  - column_reference:
+                      naked_identifier: suffix
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: data_value
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: data_table
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: department_id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: employee_id
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: employee_name
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: employees
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: department_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: department_id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: employee_name
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: names
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: employee_id
+                - colon_delimiter: ':'
+                - expression:
+                    column_reference:
+                      naked_identifier: employee_email
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: contacts
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: department_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                          column_reference:
+                            naked_identifier: salary
+                          comparison_operator:
+                            raw_comparison_operator: '>'
+                          integer_literal: '50000'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'High'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'Low'"
+                    - keyword: END
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: product_name
+                - colon_delimiter: ':'
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                      - column_reference:
+                          naked_identifier: quantity
+                      - binary_operator: '*'
+                      - column_reference:
+                          naked_identifier: price
+                      end_bracket: )
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: order_items
+  - statement_terminator: ;
+  - statement:
+      with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: employee_data
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: department_id
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: employee_name
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: salary
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: employees
+            end_bracket: )
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: department_id
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  keyword: JSON_ARRAYAGG
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: employee_name
+                    end_bracket: )
+                within_group_clause:
+                - keyword: WITHIN
+                - keyword: GROUP
+                - bracketed:
+                    start_bracket: (
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: salary
+                    - keyword: DESC
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: employees_by_salary
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: employee_data
+          groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              naked_identifier: department_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: d
+            - dot: .
+            - naked_identifier: department_name
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_ARRAYAGG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - naked_identifier: employee_name
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: employees
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: departments
+              alias_expression:
+                naked_identifier: d
+            join_clause:
+            - keyword: LEFT
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: employees
+                alias_expression:
+                  naked_identifier: e
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: d
+                  - dot: .
+                  - naked_identifier: department_id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - naked_identifier: department_id
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: d
+          - dot: .
+          - naked_identifier: department_name
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: category
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECT
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - quoted_literal: "'items'"
+                - colon_delimiter: ':'
+                - function:
+                    function_name:
+                      keyword: JSON_ARRAYAGG
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: product_name
+                        end_bracket: )
+                - comma: ','
+                - quoted_literal: "'count'"
+                - colon_delimiter: ':'
+                - function:
+                    function_name:
+                      function_name_identifier: COUNT
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        star: '*'
+                        end_bracket: )
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: products
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: category
+  - statement_terminator: ;
+  - statement:
+      set_expression:
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              quoted_literal: "'with_nulls'"
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: type
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  keyword: JSON_ARRAYAGG
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: nullable_column
+                  - keyword: 'NULL'
+                  - keyword: 'ON'
+                  - keyword: 'NULL'
+                  - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: result
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: test_data
+      - set_operator:
+        - keyword: UNION
+        - keyword: ALL
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              quoted_literal: "'without_nulls'"
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: type
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  keyword: JSON_ARRAYAGG
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: nullable_column
+                  - keyword: ABSENT
+                  - keyword: 'ON'
+                  - keyword: 'NULL'
+                  - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: result
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: test_data
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: JSON_OBJECTAGG
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: user_id
+                - colon_delimiter: ':'
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        select_statement:
+                          select_clause:
+                            keyword: SELECT
+                            select_clause_element:
+                              function:
+                                function_name:
+                                  function_name_identifier: COUNT
+                                function_contents:
+                                  bracketed:
+                                    start_bracket: (
+                                    star: '*'
+                                    end_bracket: )
+                          from_clause:
+                            keyword: FROM
+                            from_expression:
+                              from_expression_element:
+                                table_expression:
+                                  table_reference:
+                                    naked_identifier: orders
+                          where_clause:
+                            keyword: WHERE
+                            expression:
+                            - column_reference:
+                              - naked_identifier: orders
+                              - dot: .
+                              - naked_identifier: user_id
+                            - comparison_operator:
+                                raw_comparison_operator: '='
+                            - column_reference:
+                              - naked_identifier: users
+                              - dot: .
+                              - naked_identifier: id
+                      end_bracket: )
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: users
+  - statement_terminator: ;

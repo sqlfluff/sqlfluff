@@ -69,6 +69,10 @@ class Rule_CV06(BaseRule):
         for seg in reversed(file_segment.segments):
             if seg.is_type("statement"):
                 return seg
+            if seg.is_type("batch"):
+                for subseg in reversed(seg.segments):
+                    if subseg.is_type("statement"):
+                        return subseg
         # If no direct statement found, look recursively (e.g., T-SQL batch structure)
         statements = list(file_segment.recursive_crawl("statement"))
         return statements[-1] if statements else None
@@ -252,7 +256,7 @@ class Rule_CV06(BaseRule):
         # Adjust before_segment and anchor_segment for preceding inline
         # comments. Inline comments can contain noqa logic so we need to add the
         # newline after the inline comment.
-        (before_segment, anchor_segment) = self._handle_preceding_inline_comments(
+        before_segment, anchor_segment = self._handle_preceding_inline_comments(
             info.before_segment, info.anchor_segment
         )
 
@@ -366,7 +370,11 @@ class Rule_CV06(BaseRule):
             return None
 
         # Check if there's a semicolon terminator after the last statement
-        semi_colon_exist_flag = False
+        # or if the last statement itself ends with a semicolon.
+        semi_colon_exist_flag = bool(
+            last_statement.raw_segments
+        ) and self._is_segment_semicolon(last_statement.raw_segments[-1])
+
         found_last_statement = False
         for seg in statement_container.segments:
             if seg is last_statement:

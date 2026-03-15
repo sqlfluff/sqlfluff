@@ -17,9 +17,24 @@ def check_generated_output(
     with open(output_path, "rb") as f:
         output_bytes = f.read()
     output_hash = hashlib.sha256(output_bytes).hexdigest()
-    result = subprocess.run(
-        [sys.executable, build_path, *build_arg], capture_output=True, check=True
-    )
+    try:
+        result = subprocess.run(
+            [sys.executable, str(build_path), *build_arg],
+            capture_output=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        # Decode outputs for easier debugging on Windows CI
+        out = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
+        err = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
+        print(f"ERROR: generation script failed: {build_path} args={build_arg}")
+        if out:
+            print("--- STDOUT ---")
+            print(out)
+        if err:
+            print("--- STDERR ---")
+            print(err)
+        raise
     process_hash = hashlib.sha256(result.stdout).hexdigest()
     output_answer = "✅" if output_hash == process_hash else "❌"
     print(f"Matching output of {build_path} to {output_path}: {output_answer}")
@@ -28,9 +43,21 @@ def check_generated_output(
 
 def build_generated_output(build_path: Path, output_path: Path, build_arg: list[str]):
     """Builds rust output from python."""
-    result = subprocess.run(
-        [sys.executable, build_path, *build_arg], capture_output=True, check=True
-    )
+    try:
+        result = subprocess.run(
+            [sys.executable, build_path, *build_arg], capture_output=True, check=True
+        )
+    except subprocess.CalledProcessError as exc:  # pragma: no cover - repro on CI
+        out = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
+        err = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
+        print(f"ERROR: generation script failed: {build_path} args={build_arg}")
+        if out:
+            print("--- STDOUT ---")
+            print(out)
+        if err:
+            print("--- STDERR ---")
+            print(err)
+        raise
     if not output_path.parent.exists():
         output_path.parent.mkdir(0o755, parents=True, exist_ok=True)
     with output_path.open("wb") as f:
@@ -38,6 +65,7 @@ def build_generated_output(build_path: Path, output_path: Path, build_arg: list[
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(newline="\n", encoding="utf-8")
     # path goes up two levels once to utils once to the repo root
     # resolve to an absolute path
     os.chdir(Path(__file__).parent.parent.resolve())
@@ -52,18 +80,24 @@ if __name__ == "__main__":
         for builder, file, args in [
             ("build_dialect", "mod", []),
             ("build_lexers", "matcher", [dialect.label.lower()]),
-            # ("build_parsers", "parser", [dialect.label.lower()]),
+            (
+                "build_parsers",
+                "parser",
+                ([dialect.label.lower(), "--table-driven"]),
+            ),
         ]
     ]
-
-    file_pair_list = [
+    # Also generate the top-level dialect index file which declares all
+    # per-dialect modules. This is produced by utils/build_dialects.py and
+    # must be written to sqlfluffrs/sqlfluffrs_dialects/src/dialect/mod.rs
+    dialects_list.append(
         (
             "utils/build_dialects.py",
             "sqlfluffrs/sqlfluffrs_dialects/src/dialect/mod.rs",
             [],
-        ),
-        *dialects_list,
-    ]
+        )
+    )
+
     parser = argparse.ArgumentParser(
         description="Check or build generated Rust output."
     )
@@ -76,7 +110,7 @@ if __name__ == "__main__":
 
     file_pair_list = [
         (Path(build), Path(output), build_args)
-        for build, output, build_args in file_pair_list
+        for build, output, build_args in dialects_list
     ]
 
     if args.action == "build":

@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b70dcfbd7428cddf7edd66501fd1afd5395cca55d7d07e022be2a274e77da0f
+_hash: e493927fad91f27f152b833f060319562b182c1ab26100982aa1691dd2655f89
 file:
-  batch:
+- batch:
   - statement:
       select_statement:
         select_clause:
@@ -70,15 +70,14 @@ file:
                   keyword: OPENJSON
                   bracketed:
                     start_bracket: (
-                    column_reference:
+                    expression:
                       parameter: '@json'
                     end_bracket: )
                   openjson_with_clause:
                     keyword: WITH
                     bracketed:
                     - start_bracket: (
-                    - column_reference:
-                        naked_identifier: month
+                    - naked_identifier: month
                     - data_type:
                         keyword: VARCHAR
                         bracketed_arguments:
@@ -88,13 +87,11 @@ file:
                               integer_literal: '3'
                             end_bracket: )
                     - comma: ','
-                    - column_reference:
-                        naked_identifier: temp
+                    - naked_identifier: temp
                     - data_type:
                         keyword: int
                     - comma: ','
-                    - column_reference:
-                        naked_identifier: month_id
+                    - naked_identifier: month_id
                     - data_type:
                         keyword: tinyint
                     - quoted_literal: "'$.sql:identity()'"
@@ -121,15 +118,14 @@ file:
                   keyword: OPENJSON
                   bracketed:
                     start_bracket: (
-                    column_reference:
+                    expression:
                       parameter: '@json'
                     end_bracket: )
                   openjson_with_clause:
                     keyword: WITH
                     bracketed:
                     - start_bracket: (
-                    - column_reference:
-                        naked_identifier: Number
+                    - naked_identifier: Number
                     - data_type:
                         keyword: VARCHAR
                         bracketed_arguments:
@@ -140,14 +136,12 @@ file:
                             end_bracket: )
                     - quoted_literal: "'$.Order.Number'"
                     - comma: ','
-                    - column_reference:
-                        naked_identifier: Date
+                    - naked_identifier: Date
                     - data_type:
                         keyword: DATETIME
                     - quoted_literal: "'$.Order.Date'"
                     - comma: ','
-                    - column_reference:
-                        naked_identifier: Customer
+                    - naked_identifier: Customer
                     - data_type:
                         keyword: VARCHAR
                         bracketed_arguments:
@@ -158,14 +152,12 @@ file:
                             end_bracket: )
                     - quoted_literal: "'$.AccountNumber'"
                     - comma: ','
-                    - column_reference:
-                        naked_identifier: Quantity
+                    - naked_identifier: Quantity
                     - data_type:
                         keyword: INT
                     - quoted_literal: "'$.Item.Quantity'"
                     - comma: ','
-                    - column_reference:
-                        quoted_identifier: '[Order]'
+                    - quoted_identifier: '[Order]'
                     - data_type:
                         keyword: NVARCHAR
                         bracketed_arguments:
@@ -214,15 +206,15 @@ file:
                     keyword: OPENJSON
                     bracketed:
                       start_bracket: (
-                      column_reference:
-                        naked_identifier: SalesReasons
+                      expression:
+                        column_reference:
+                          naked_identifier: SalesReasons
                       end_bracket: )
                     openjson_with_clause:
                       keyword: WITH
                       bracketed:
                         start_bracket: (
-                        column_reference:
-                          naked_identifier: value
+                        naked_identifier: value
                         data_type:
                           keyword: NVARCHAR
                           bracketed_arguments:
@@ -276,20 +268,21 @@ file:
                   openjson_segment:
                     keyword: OPENJSON
                     bracketed:
-                      start_bracket: (
-                      column_reference:
-                      - naked_identifier: store
-                      - dot: .
-                      - naked_identifier: jsonCol
-                      comma: ','
-                      quoted_literal: "'lax $.location'"
-                      end_bracket: )
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                        - naked_identifier: store
+                        - dot: .
+                        - naked_identifier: jsonCol
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'lax $.location'"
+                    - end_bracket: )
                     openjson_with_clause:
                       keyword: WITH
                       bracketed:
                       - start_bracket: (
-                      - column_reference:
-                          naked_identifier: street
+                      - naked_identifier: street
                       - data_type:
                           keyword: VARCHAR
                           bracketed_arguments:
@@ -299,8 +292,7 @@ file:
                                 integer_literal: '500'
                               end_bracket: )
                       - comma: ','
-                      - column_reference:
-                          naked_identifier: postcode
+                      - naked_identifier: postcode
                       - data_type:
                           keyword: VARCHAR
                           bracketed_arguments:
@@ -311,14 +303,12 @@ file:
                               end_bracket: )
                       - quoted_literal: "'$.postcode'"
                       - comma: ','
-                      - column_reference:
-                          naked_identifier: lon
+                      - naked_identifier: lon
                       - data_type:
                           keyword: int
                       - quoted_literal: "'$.geo.longitude'"
                       - comma: ','
-                      - column_reference:
-                          naked_identifier: lat
+                      - naked_identifier: lat
                       - data_type:
                           keyword: int
                       - quoted_literal: "'$.geo.latitude'"
@@ -350,20 +340,18 @@ file:
                     keyword: OPENJSON
                     bracketed:
                       start_bracket: (
-                      column_reference:
+                      expression:
                         parameter: '@json'
                       end_bracket: )
                     openjson_with_clause:
                       keyword: WITH
                       bracketed:
                       - start_bracket: (
-                      - column_reference:
-                          naked_identifier: id
+                      - naked_identifier: id
                       - data_type:
                           keyword: INT
                       - comma: ','
-                      - column_reference:
-                          naked_identifier: firstName
+                      - naked_identifier: firstName
                       - data_type:
                           keyword: NVARCHAR
                           bracketed_arguments:
@@ -373,8 +361,7 @@ file:
                                 integer_literal: '50'
                               end_bracket: )
                       - comma: ','
-                      - column_reference:
-                          naked_identifier: lastName
+                      - naked_identifier: lastName
                       - data_type:
                           keyword: NVARCHAR
                           bracketed_arguments:
@@ -384,23 +371,19 @@ file:
                                 integer_literal: '50'
                               end_bracket: )
                       - comma: ','
-                      - column_reference:
-                          naked_identifier: isAlive
+                      - naked_identifier: isAlive
                       - data_type:
                           keyword: BIT
                       - comma: ','
-                      - column_reference:
-                          naked_identifier: age
+                      - naked_identifier: age
                       - data_type:
                           keyword: INT
                       - comma: ','
-                      - column_reference:
-                          naked_identifier: dateOfBirth
+                      - naked_identifier: dateOfBirth
                       - data_type:
                           keyword: DATETIME
                       - comma: ','
-                      - column_reference:
-                          naked_identifier: spouse
+                      - naked_identifier: spouse
                       - data_type:
                           keyword: NVARCHAR
                           bracketed_arguments:
@@ -476,3 +459,102 @@ file:
                     keyword: AS
                   naked_identifier: TheValues
   - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@JSON'
+      - data_type:
+          keyword: nvarchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: max
+              end_bracket: )
+      - comma: ','
+      - parameter: '@Path'
+      - data_type:
+          keyword: nvarchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: max
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: d
+            - dot: .
+            - naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: d
+            - dot: .
+            - naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openjson_segment:
+                  keyword: OPENJSON
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: isnull
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              parameter: '@json'
+                          - comma: ','
+                          - expression:
+                              quoted_literal: "'{}'"
+                          - end_bracket: )
+                  - comma: ','
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: isnull
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              parameter: '@path'
+                          - comma: ','
+                          - expression:
+                              quoted_literal: "'$.attribute'"
+                          - end_bracket: )
+                  - end_bracket: )
+                  openjson_with_clause:
+                    keyword: WITH
+                    bracketed:
+                    - start_bracket: (
+                    - naked_identifier: id
+                    - data_type:
+                        keyword: int
+                    - comma: ','
+                    - naked_identifier: name
+                    - data_type:
+                        keyword: nvarchar
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              integer_literal: '128'
+                            end_bracket: )
+                    - end_bracket: )
+              alias_expression:
+                naked_identifier: d
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO

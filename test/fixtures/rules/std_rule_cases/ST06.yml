@@ -299,3 +299,83 @@ test_fail_cte_used_in_select:
       FROM T
     )
     SELECT * FROM T1 INNER JOIN T2 ON T1.A = T2.A;
+
+test_pass_create_view_with_explicit_columns:
+  pass_str: |
+    CREATE OR REPLACE VIEW FRANCONNECT_REPORTING.GYM_ATTRIBUTES(
+      FRANCHISEENAME,
+      FRANCHISEID,
+      STORESTATUS,
+      GRANDSTOREOPENINGDATE,
+      SAME_GYM,
+      STATE
+    ) AS
+    SELECT
+      f.franchiseename,
+      TRY_TO_DOUBLE(f.franchiseename) AS franchiseid,
+      f.storestatus,
+      f.grandstoreopeningdate,
+      CASE WHEN f.grandstoreopeningdate < dateadd(month, -18, current_date) THEN 'Same Gym' ELSE NULL END as same_gym,
+      f.state
+    FROM FRANCONNECT_REPORTING.franchisee f
+
+test_fail_create_view_without_explicit_columns:
+  fail_str: |
+    CREATE OR REPLACE VIEW FRANCONNECT_REPORTING.GYM_ATTRIBUTES AS
+    SELECT
+      f.franchiseename,
+      TRY_TO_DOUBLE(f.franchiseename) AS franchiseid,
+      f.storestatus,
+      f.grandstoreopeningdate,
+      CASE WHEN f.grandstoreopeningdate < dateadd(month, -18, current_date) THEN 'Same Gym' ELSE NULL END as same_gym,
+      f.state
+    FROM FRANCONNECT_REPORTING.franchisee f
+  line_numbers: [2]
+
+  fix_str: |
+    CREATE OR REPLACE VIEW FRANCONNECT_REPORTING.GYM_ATTRIBUTES AS
+    SELECT
+      f.franchiseename,
+      f.storestatus,
+      f.grandstoreopeningdate,
+      f.state,
+      TRY_TO_DOUBLE(f.franchiseename) AS franchiseid,
+      CASE WHEN f.grandstoreopeningdate < dateadd(month, -18, current_date) THEN 'Same Gym' ELSE NULL END as same_gym
+    FROM FRANCONNECT_REPORTING.franchisee f
+
+test_pass_create_view_with_explicit_columns_tsql:
+  configs:
+    core:
+      dialect: tsql
+  pass_str: |
+    CREATE VIEW dbo.MyView (
+      EmployeeName,
+      EmployeeID,
+      Department
+    ) AS
+    SELECT
+      e.name,
+      TRY_CAST(e.id AS INT) AS employee_id,
+      e.department
+    FROM employees e
+
+test_fail_create_view_without_explicit_columns_tsql:
+  configs:
+    core:
+      dialect: tsql
+  fail_str: |
+    CREATE VIEW dbo.MyView AS
+    SELECT
+      e.name,
+      TRY_CAST(e.id AS INT) AS employee_id,
+      e.department
+    FROM employees e
+  line_numbers: [2]
+
+  fix_str: |
+    CREATE VIEW dbo.MyView AS
+    SELECT
+      e.name,
+      e.department,
+      TRY_CAST(e.id AS INT) AS employee_id
+    FROM employees e

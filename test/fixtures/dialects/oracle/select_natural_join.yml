@@ -3,199 +3,200 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83e3312a773ee3e3dee22bd7341b922507c1aaee51ef41c02c3ea414ef6b8c82
+_hash: 5782484e8a211745fbcb0e6edb83a3b78f9915ef32f34d0d6e5e26d770e6d1e3
 file:
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table1
-          join_clause:
-          - keyword: NATURAL
-          - keyword: JOIN
-          - from_expression_element:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: table2
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table1
-          join_clause:
-          - keyword: NATURAL
-          - keyword: INNER
-          - keyword: JOIN
-          - from_expression_element:
+                  naked_identifier: table1
+            join_clause:
+            - keyword: NATURAL
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: table2
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table1
-          join_clause:
-          - keyword: NATURAL
-          - keyword: LEFT
-          - keyword: JOIN
-          - from_expression_element:
+                  naked_identifier: table1
+            join_clause:
+            - keyword: NATURAL
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: table2
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table1
-          join_clause:
-          - keyword: NATURAL
-          - keyword: LEFT
-          - keyword: OUTER
-          - keyword: JOIN
-          - from_expression_element:
+                  naked_identifier: table1
+            join_clause:
+            - keyword: NATURAL
+            - keyword: LEFT
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: table2
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table1
-          join_clause:
-          - keyword: NATURAL
-          - keyword: RIGHT
-          - keyword: JOIN
-          - from_expression_element:
+                  naked_identifier: table1
+            join_clause:
+            - keyword: NATURAL
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: table2
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table1
-          join_clause:
-          - keyword: NATURAL
-          - keyword: RIGHT
-          - keyword: OUTER
-          - keyword: JOIN
-          - from_expression_element:
+                  naked_identifier: table1
+            join_clause:
+            - keyword: NATURAL
+            - keyword: RIGHT
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: table2
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table1
-          join_clause:
-          - keyword: NATURAL
-          - keyword: FULL
-          - keyword: JOIN
-          - from_expression_element:
+                  naked_identifier: table1
+            join_clause:
+            - keyword: NATURAL
+            - keyword: RIGHT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: table2
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table1
-          join_clause:
-          - keyword: NATURAL
-          - keyword: FULL
-          - keyword: OUTER
-          - keyword: JOIN
-          - from_expression_element:
+                  naked_identifier: table1
+            join_clause:
+            - keyword: NATURAL
+            - keyword: FULL
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: table2
-- statement_terminator: ;
+                  naked_identifier: table1
+            join_clause:
+            - keyword: NATURAL
+            - keyword: FULL
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+  - statement_terminator: ;

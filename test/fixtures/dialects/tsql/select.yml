@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7eb5998c6a2fb9549787c8cf721db057156484ccc89969d8588b8d33f345c507
+_hash: 73b8c4024866739f6a72c1864dc15d29ba96a9e173ad3fb5e0e3b3ffbfcca328
 file:
   batch:
   - statement:
@@ -986,4 +986,125 @@ file:
               alias_operator:
                 keyword: AS
               naked_identifier: 日期差多少天
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: ID
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  set_expression:
+                  - select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_modifier:
+                          keyword: TOP
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              integer_literal: '1'
+                            end_bracket: )
+                        select_clause_element:
+                          column_reference:
+                            naked_identifier: ID
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                              - naked_identifier: dbo
+                              - dot: .
+                              - naked_identifier: SomeTable
+                      orderby_clause:
+                      - keyword: ORDER
+                      - keyword: BY
+                      - column_reference:
+                          naked_identifier: ID
+                  - set_operator:
+                    - keyword: UNION
+                    - keyword: ALL
+                  - select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_modifier:
+                          keyword: TOP
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              integer_literal: '1'
+                            end_bracket: )
+                        select_clause_element:
+                          column_reference:
+                            naked_identifier: ID
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                              - naked_identifier: dbo
+                              - dot: .
+                              - naked_identifier: SomeTable
+                      orderby_clause:
+                      - keyword: ORDER
+                      - keyword: BY
+                      - column_reference:
+                          naked_identifier: ID
+                      - keyword: DESC
+                  end_bracket: )
+              alias_expression:
+                naked_identifier: x
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            numeric_literal: $0
+            alias_expression:
+              naked_identifier: DollarAmt
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: $-1
+            alias_expression:
+              naked_identifier: NegAmt
+        - comma: ','
+        - select_clause_element:
+            numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: $.01
+            alias_expression:
+              naked_identifier: NegPenny
+        - comma: ','
+        - select_clause_element:
+            expression:
+              sign_indicator: '-'
+              numeric_literal:
+                sign_indicator: +
+                numeric_literal: $-+$+++2
+            alias_expression:
+              naked_identifier: CrazyButValid
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            numeric_literal: ￡100
+            alias_expression:
+              naked_identifier: FWPoundAmt
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: ￠100
+            alias_expression:
+              naked_identifier: FWCent
   - statement_terminator: ;

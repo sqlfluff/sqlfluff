@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b2ed34ff8f71346b47ad9d51a0b7565972c6dd558dea3ad13b7c3b40873af07
+_hash: add67e6a3f3ffc708a6bc37d5c07d67c72a6d551b590a6401c0a3bb84bf31e4d
 file:
 - statement:
     insert_statement:
@@ -377,4 +377,84 @@ file:
           - naked_identifier: j
     - keyword: RETURNING
     - star: '*'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: Cities
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: CityName
+      - comma: ','
+      - column_reference:
+          naked_identifier: CityId
+      - end_bracket: )
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: CityData
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  bracketed:
+                    start_bracket: (
+                    from_expression_element:
+                      table_expression:
+                        values_clause:
+                        - keyword: VALUES
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                              quoted_literal: "'New York'"
+                          - comma: ','
+                          - expression:
+                              numeric_literal: '1'
+                          - end_bracket: )
+                        - comma: ','
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                              quoted_literal: "'Los Angeles'"
+                          - comma: ','
+                          - expression:
+                              numeric_literal: '2'
+                          - end_bracket: )
+                        - comma: ','
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                              quoted_literal: "'Chicago'"
+                          - comma: ','
+                          - expression:
+                              numeric_literal: '3'
+                          - end_bracket: )
+                    end_bracket: )
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: CityData
 - statement_terminator: ;

@@ -3,409 +3,546 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aebe7c883fd1accaed1dc7de8d30eb1df5fa6972af9ec015f498c09b50c9a0b9
+_hash: 6b40091e0dae6d763571aaf281a7c26627d5826b4b2eaf238645bec20c013209
 file:
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: 'ON'
-    - keyword: SCHEMA
-    - object_reference:
-        naked_identifier: api
-    - keyword: TO
-    - role_reference:
-        naked_identifier: web_anon
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+            naked_identifier: api
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: web_anon
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: FUNCTION
-    - object_reference:
-      - naked_identifier: api
-      - dot: .
-      - naked_identifier: test
-    - keyword: TO
-    - role_reference:
-        naked_identifier: web_anon
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: FUNCTION
+          object_reference:
+          - naked_identifier: api
+          - dot: .
+          - naked_identifier: test
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: web_anon
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - object_reference:
-        naked_identifier: web_anon
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: web_anon
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: CONNECT
-    - comma: ','
-    - keyword: CREATE
-    - comma: ','
-    - keyword: TEMP
-    - comma: ','
-    - keyword: TEMPORARY
-    - keyword: 'ON'
-    - keyword: DATABASE
-    - object_reference:
-        naked_identifier: my_db
-    - keyword: TO
-    - role_reference:
-        naked_identifier: app
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+            keyword: CONNECT
+        - comma: ','
+        - access_permission:
+            keyword: CREATE
+        - comma: ','
+        - access_permission:
+            keyword: TEMP
+        - comma: ','
+        - access_permission:
+            keyword: TEMPORARY
+      - keyword: 'ON'
+      - access_object:
+          keyword: DATABASE
+          object_reference:
+            naked_identifier: my_db
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: app
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: TRIGGER
-    - keyword: 'ON'
-    - keyword: ALL
-    - keyword: TABLES
-    - keyword: IN
-    - keyword: SCHEMA
-    - object_reference:
-        naked_identifier: my_schema
-    - keyword: TO
-    - role_reference:
-        naked_identifier: app
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: 'ON'
-    - keyword: DOMAIN
-    - object_reference:
-        naked_identifier: my_domain
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: 'ON'
-    - keyword: FOREIGN
-    - keyword: DATA
-    - keyword: WRAPPER
-    - object_reference:
-        naked_identifier: my_fdw
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: 'ON'
-    - keyword: FOREIGN
-    - keyword: SERVER
-    - object_reference:
-        naked_identifier: fs
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: PROCEDURE
-    - object_reference:
-        naked_identifier: fn
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: ROUTINE
-    - object_reference:
-        naked_identifier: fn
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: ALL
-    - keyword: FUNCTIONS
-    - keyword: IN
-    - keyword: SCHEMA
-    - object_reference:
-        naked_identifier: my_schema
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: ALL
-    - keyword: PROCEDURES
-    - keyword: IN
-    - keyword: SCHEMA
-    - object_reference:
-        naked_identifier: my_schema
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: ALL
-    - keyword: ROUTINES
-    - keyword: IN
-    - keyword: SCHEMA
-    - object_reference:
-        naked_identifier: my_schema
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: 'ON'
-    - keyword: LANGUAGE
-    - object_reference:
-        naked_identifier: my_lang
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: SELECT
-    - keyword: 'ON'
-    - keyword: LARGE
-    - keyword: OBJECT
-    - numeric_literal: '564182'
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: ALL
-    - keyword: 'ON'
-    - keyword: TABLESPACE
-    - object_reference:
-        naked_identifier: my_tblspc
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: 'ON'
-    - keyword: TYPE
-    - object_reference:
-        naked_identifier: my_type
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - object_reference:
-        naked_identifier: my_user
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_group
-    - keyword: WITH
-    - keyword: ADMIN
-    - keyword: OPTION
-    - keyword: GRANTED
-    - keyword: BY
-    - keyword: CURRENT_USER
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - object_reference:
-        naked_identifier: my_user
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_group
-    - keyword: GRANTED
-    - keyword: BY
-    - keyword: SESSION_USER
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - object_reference:
-        naked_identifier: my_user
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_group
-    - keyword: WITH
-    - keyword: ADMIN
-    - keyword: OPTION
-    - keyword: GRANTED
-    - keyword: BY
-    - object_reference:
-        naked_identifier: my_new_role
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: CONNECT
-    - comma: ','
-    - keyword: CREATE
-    - comma: ','
-    - keyword: TEMP
-    - comma: ','
-    - keyword: TEMPORARY
-    - keyword: 'ON'
-    - keyword: DATABASE
-    - object_reference:
-        naked_identifier: my_db
-    - keyword: TO
-    - role_reference:
-        naked_identifier: xyz
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: CONNECT
-    - comma: ','
-    - keyword: CREATE
-    - comma: ','
-    - keyword: TEMP
-    - comma: ','
-    - keyword: TEMPORARY
-    - keyword: 'ON'
-    - keyword: DATABASE
-    - object_reference:
-        naked_identifier: my_db
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-    - comma: ','
-    - role_reference:
-        naked_identifier: my_other_user
-    - keyword: WITH
-    - keyword: GRANT
-    - keyword: OPTION
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: SELECT
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: abc
-    - keyword: TO
-    - role_reference:
-        naked_identifier: xyz
-    - comma: ','
-    - role_reference:
-        naked_identifier: mno
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: ALL
-    - keyword: ROUTINES
-    - keyword: IN
-    - keyword: SCHEMA
-    - object_reference:
-        naked_identifier: my_schema
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
-    - comma: ','
-    - role_reference:
-        naked_identifier: my_other_user
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: test
-    - function_parameter_list:
-        bracketed:
-        - start_bracket: (
-        - parameter: a
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: TRIGGER
+      - keyword: 'ON'
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+            keyword: TABLES
         - keyword: IN
-        - data_type:
-            keyword: TEXT
-        - comma: ','
-        - parameter: b
-        - keyword: OUT
-        - data_type:
-            keyword: TEXT
-        - comma: ','
-        - keyword: INOUT
-        - parameter: c
-        - data_type:
-            keyword: TEXT
-        - comma: ','
-        - keyword: VARIADIC
-        - parameter: d
-        - data_type:
-            keyword: TEXT
-        - end_bracket: )
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
+        - keyword: SCHEMA
+        - object_reference:
+            naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: app
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: test
-    - function_parameter_list:
-        bracketed:
-        - start_bracket: (
-        - parameter: a
-        - data_type:
-            keyword: TEXT
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          keyword: DOMAIN
+          object_reference:
+            naked_identifier: my_domain
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+        - keyword: FOREIGN
+        - keyword: DATA
+        - keyword: WRAPPER
+        - object_reference:
+            naked_identifier: my_fdw
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+        - keyword: FOREIGN
+        - keyword: SERVER
+        - object_reference:
+            naked_identifier: fs
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: PROCEDURE
+          object_reference:
+            naked_identifier: fn
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: ROUTINE
+          object_reference:
+            naked_identifier: fn
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+            keyword: FUNCTIONS
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+            naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+            keyword: PROCEDURES
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+            naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+            keyword: ROUTINES
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+            naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          keyword: LANGUAGE
+          object_reference:
+            naked_identifier: my_lang
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+        - keyword: LARGE
+        - keyword: OBJECT
+        - numeric_literal: '564182'
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: ALL
+      - keyword: 'ON'
+      - access_object:
+          keyword: TABLESPACE
+          object_reference:
+            naked_identifier: my_tblspc
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          keyword: TYPE
+          object_reference:
+            naked_identifier: my_type
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: ADMIN
+      - keyword: OPTION
+      - keyword: GRANTED
+      - keyword: BY
+      - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: GRANTED
+      - keyword: BY
+      - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: ADMIN
+      - keyword: OPTION
+      - keyword: GRANTED
+      - keyword: BY
+      - user_reference:
+          naked_identifier: my_new_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+            keyword: CONNECT
         - comma: ','
-        - parameter: b
-        - column_type_reference:
-            column_reference:
-            - naked_identifier: my_table
-            - dot: .
-            - naked_identifier: my_column
-            binary_operator: '%'
-            keyword: type
-        - end_bracket: )
-    - keyword: TO
-    - role_reference:
-        naked_identifier: my_user
+        - access_permission:
+            keyword: CREATE
+        - comma: ','
+        - access_permission:
+            keyword: TEMP
+        - comma: ','
+        - access_permission:
+            keyword: TEMPORARY
+      - keyword: 'ON'
+      - access_object:
+          keyword: DATABASE
+          object_reference:
+            naked_identifier: my_db
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: xyz
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+            keyword: CONNECT
+        - comma: ','
+        - access_permission:
+            keyword: CREATE
+        - comma: ','
+        - access_permission:
+            keyword: TEMP
+        - comma: ','
+        - access_permission:
+            keyword: TEMPORARY
+      - keyword: 'ON'
+      - access_object:
+          keyword: DATABASE
+          object_reference:
+            naked_identifier: my_db
+      - keyword: TO
+      - access_target:
+        - role_reference:
+            naked_identifier: my_user
+        - comma: ','
+        - role_reference:
+            naked_identifier: my_other_user
+      - keyword: WITH
+      - keyword: GRANT
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: abc
+      - keyword: TO
+      - access_target:
+        - role_reference:
+            naked_identifier: xyz
+        - comma: ','
+        - role_reference:
+            naked_identifier: mno
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+            keyword: ROUTINES
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+            naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+        - role_reference:
+            naked_identifier: my_user
+        - comma: ','
+        - role_reference:
+            naked_identifier: my_other_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: FUNCTION
+          function_name:
+            function_name_identifier: test
+          function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: a
+            - keyword: IN
+            - data_type:
+                keyword: TEXT
+            - comma: ','
+            - parameter: b
+            - keyword: OUT
+            - data_type:
+                keyword: TEXT
+            - comma: ','
+            - keyword: INOUT
+            - parameter: c
+            - data_type:
+                keyword: TEXT
+            - comma: ','
+            - keyword: VARIADIC
+            - parameter: d
+            - data_type:
+                keyword: TEXT
+            - end_bracket: )
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: FUNCTION
+          function_name:
+            function_name_identifier: test
+          function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: a
+            - data_type:
+                keyword: TEXT
+            - comma: ','
+            - parameter: b
+            - column_type_reference:
+                column_reference:
+                - naked_identifier: my_table
+                - dot: .
+                - naked_identifier: my_column
+                binary_operator: '%'
+                keyword: type
+            - end_bracket: )
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
 - statement_terminator: ;

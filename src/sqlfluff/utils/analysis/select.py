@@ -33,6 +33,9 @@ def _get_object_references(segment: BaseSegment) -> list[ObjectReferenceSegment]
             "object_reference",
             no_recursive_seg_type=["select_statement", "merge_statement"],
         )
+        # Exclude collation references - they inherit from ObjectReferenceSegment
+        # but should not be treated as column/table references for linting purposes
+        if not _seg.is_type("collation_reference")
     )
 
 

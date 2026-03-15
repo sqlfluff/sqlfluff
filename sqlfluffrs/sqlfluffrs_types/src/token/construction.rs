@@ -27,6 +27,7 @@ impl Token {
         let raw_value = Token::normalize(&raw, quoted_value.clone(), escape_replacement.clone());
         Self {
             token_type: token_types,
+            class_name: "BaseSegment".to_string(),
             instance_types,
             class_types,
             comment_separate: false,
@@ -60,11 +61,7 @@ impl Token {
         }
     }
 
-    pub fn raw_token(
-        raw: String,
-        pos_marker: PositionMarker,
-        config: TokenConfig,
-    ) -> Self {
+    pub fn raw_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         let (token_type, class_types) = iter_base_types("raw", config.class_types.clone());
         let suffix = format!("'{}'", raw.escape_debug().to_string().trim_matches('"'));
 
@@ -77,24 +74,17 @@ impl Token {
             },
             vec![],
         );
+        token.class_name = "RawSegment".to_string();
         token.suffix = suffix;
         token.token_type = token_type;
         token
     }
 
-    pub fn code_token(
-        raw: String,
-        pos_marker: PositionMarker,
-        config: TokenConfig,
-    ) -> Self {
+    pub fn code_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         Self::raw_token(raw, pos_marker, config)
     }
 
-    pub fn symbol_token(
-        raw: String,
-        pos_marker: PositionMarker,
-        config: TokenConfig,
-    ) -> Self {
+    pub fn symbol_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         let (token_type, class_types) = iter_base_types("symbol", config.class_types.clone());
         let mut token = Self::code_token(
             raw,
@@ -105,14 +95,11 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "SymbolSegment".to_string();
         token
     }
 
-    pub fn identifier_token(
-        raw: String,
-        pos_marker: PositionMarker,
-        config: TokenConfig,
-    ) -> Self {
+    pub fn identifier_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         let (token_type, class_types) = iter_base_types("identifier", config.class_types.clone());
         let mut token = Self::code_token(
             raw,
@@ -123,14 +110,11 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "IdentifierSegment".to_string();
         token
     }
 
-    pub fn literal_token(
-        raw: String,
-        pos_marker: PositionMarker,
-        config: TokenConfig,
-    ) -> Self {
+    pub fn literal_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         let (token_type, class_types) = iter_base_types("literal", config.class_types.clone());
         let mut token = Self::code_token(
             raw,
@@ -141,6 +125,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "LiteralSegment".to_string();
         token
     }
 
@@ -149,7 +134,8 @@ impl Token {
         pos_marker: PositionMarker,
         config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("binary_operator", config.class_types.clone());
+        let (token_type, class_types) =
+            iter_base_types("binary_operator", config.class_types.clone());
         let mut token = Self::code_token(
             raw,
             pos_marker,
@@ -159,6 +145,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "BinaryOperatorSegment".to_string();
         token
     }
 
@@ -167,7 +154,8 @@ impl Token {
         pos_marker: PositionMarker,
         config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("comparison_operator", config.class_types.clone());
+        let (token_type, class_types) =
+            iter_base_types("comparison_operator", config.class_types.clone());
         let mut token = Self::code_token(
             raw,
             pos_marker,
@@ -177,14 +165,11 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "ComparisonOperatorSegment".to_string();
         token
     }
 
-    pub fn word_token(
-        raw: String,
-        pos_marker: PositionMarker,
-        config: TokenConfig,
-    ) -> Self {
+    pub fn word_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         let (token_type, class_types) = iter_base_types("word", config.class_types.clone());
         let mut token = Self::code_token(
             raw,
@@ -195,14 +180,11 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "WordSegment".to_string();
         token
     }
 
-    pub fn unlexable_token(
-        raw: String,
-        pos_marker: PositionMarker,
-        config: TokenConfig,
-    ) -> Self {
+    pub fn unlexable_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         let (token_type, class_types) = iter_base_types("unlexable", config.class_types.clone());
         let mut token = Self::code_token(
             raw,
@@ -213,14 +195,11 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "UnlexableSegment".to_string();
         token
     }
 
-    pub fn whitespace_token(
-        raw: String,
-        pos_marker: PositionMarker,
-        config: TokenConfig,
-    ) -> Self {
+    pub fn whitespace_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         let (token_type, class_types) = iter_base_types("whitespace", config.class_types.clone());
         let mut token = Self::raw_token(
             raw,
@@ -231,6 +210,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "WhitespaceSegment".to_string();
         token.is_whitespace = true;
         token.is_code = false;
         token.is_comment = false;
@@ -238,11 +218,7 @@ impl Token {
         token
     }
 
-    pub fn newline_token(
-        raw: String,
-        pos_marker: PositionMarker,
-        config: TokenConfig,
-    ) -> Self {
+    pub fn newline_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         let (token_type, class_types) = iter_base_types("newline", config.class_types.clone());
         let mut token = Self::raw_token(
             raw,
@@ -253,6 +229,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "NewlineSegment".to_string();
         token.is_whitespace = true;
         token.is_code = false;
         token.is_comment = false;
@@ -260,11 +237,7 @@ impl Token {
         token
     }
 
-    pub fn comment_token(
-        raw: String,
-        pos_marker: PositionMarker,
-        config: TokenConfig,
-    ) -> Self {
+    pub fn comment_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         let (token_type, class_types) = iter_base_types("comment", config.class_types.clone());
         let mut token = Self::raw_token(
             raw,
@@ -275,6 +248,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "CommentSegment".to_string();
         token.is_code = false;
         token.is_comment = true;
         token
@@ -297,6 +271,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
+        token.class_name = "MetaSegment".to_string();
         token.is_code = false;
         token.is_meta = true;
         token.is_templated = is_templated;
@@ -313,15 +288,10 @@ impl Token {
         class_types: HashSet<String>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("end_of_file", class_types);
-        Self {
-            token_type,
-            ..Self::meta_token(
-                pos_marker,
-                is_templated,
-                block_uuid,
-                class_types,
-            )
-        }
+        let mut token = Self::meta_token(pos_marker, is_templated, block_uuid, class_types);
+        token.token_type = token_type;
+        token.class_name = "EndOfFile".to_string();
+        token
     }
 
     pub fn indent_token(
@@ -331,19 +301,14 @@ impl Token {
         class_types: HashSet<String>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("indent", class_types);
-        Self {
-            token_type,
-            indent_value: 1,
-            suffix: block_uuid
-                .map(|u| u.as_hyphenated().to_string())
-                .unwrap_or_default(),
-            ..Self::meta_token(
-                pos_marker,
-                is_templated,
-                block_uuid,
-                class_types,
-            )
-        }
+        let mut token = Self::meta_token(pos_marker, is_templated, block_uuid, class_types);
+        token.token_type = token_type;
+        token.class_name = "Indent".to_string();
+        token.indent_value = 1;
+        token.suffix = block_uuid
+            .map(|u| u.as_hyphenated().to_string())
+            .unwrap_or_default();
+        token
     }
 
     pub fn dedent_token(
@@ -353,16 +318,11 @@ impl Token {
         class_types: HashSet<String>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("dedent", class_types);
-        Self {
-            token_type,
-            indent_value: -1,
-            ..Self::indent_token(
-                pos_marker,
-                is_templated,
-                block_uuid,
-                class_types,
-            )
-        }
+        let mut token = Self::indent_token(pos_marker, is_templated, block_uuid, class_types);
+        token.token_type = token_type;
+        token.class_name = "Dedent".to_string();
+        token.indent_value = -1;
+        token
     }
 
     pub fn template_loop_token(
@@ -371,15 +331,10 @@ impl Token {
         class_types: HashSet<String>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("template_loop", class_types);
-        Self {
-            token_type,
-            ..Self::meta_token(
-                pos_marker,
-                false,
-                block_uuid,
-                class_types,
-            )
-        }
+        let mut token = Self::meta_token(pos_marker, false, block_uuid, class_types);
+        token.token_type = token_type;
+        token.class_name = "TemplateLoop".to_string();
+        token
     }
 
     pub fn template_placeholder_token(
@@ -390,17 +345,12 @@ impl Token {
         class_types: HashSet<String>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("placeholder", class_types);
-        Self {
-            token_type,
-            block_type: Some(block_type),
-            source_str: Some(source_string),
-            ..Self::meta_token(
-                pos_marker,
-                false,
-                block_uuid,
-                class_types,
-            )
-        }
+        let mut token = Self::meta_token(pos_marker, false, block_uuid, class_types);
+        token.token_type = token_type;
+        token.class_name = "TemplateSegment".to_string();
+        token.block_type = Some(block_type);
+        token.source_str = Some(source_string);
+        token
     }
 
     pub fn template_placeholder_token_from_slice(
@@ -411,13 +361,8 @@ impl Token {
         block_uuid: Option<Uuid>,
         class_types: HashSet<String>,
     ) -> Self {
-        let pos_marker = PositionMarker::new(
-            source_slice,
-            templated_slice,
-            templated_file,
-            None,
-            None,
-        );
+        let pos_marker =
+            PositionMarker::new(source_slice, templated_slice, templated_file, None, None);
         Self {
             ..Self::template_placeholder_token(
                 pos_marker,

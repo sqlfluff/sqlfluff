@@ -402,6 +402,64 @@ def test__linter__linting_unexpected_error_handled_gracefully(
     )
 
 
+def test__linter__lint_paths_closes_runner_iterator_on_early_break(monkeypatch):
+    """Ensure lint_paths closes runner iterator when loop exits early."""
+    test_path = os.path.normpath("test/fixtures/linter/passing.sql")
+
+    class ClosableIterator:
+        """Simple iterator tracking whether close() gets called."""
+
+        def __init__(self, item):
+            self.item = item
+            self.closed = False
+            self._yielded = False
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            if self._yielded:
+                raise StopIteration
+            self._yielded = True
+            return self.item
+
+        def close(self):
+            self.closed = True
+
+    class StubRunner:
+        """Runner that returns a pre-created iterator."""
+
+        def __init__(self, iterator):
+            self.iterator = iterator
+
+        def run(self, fnames, fix):
+            return self.iterator
+
+    fatal_error = DummyLintError(line_no=1)
+    fatal_error.fatal = True
+    linted_file = runner.LintedFile(
+        path=test_path,
+        violations=[fatal_error],
+        timings=None,
+        tree=None,
+        ignore_mask=None,
+        templated_file=None,
+        encoding="utf8",
+    )
+    closable_iterator = ClosableIterator(linted_file)
+
+    monkeypatch.setattr(
+        runner,
+        "get_runner",
+        lambda *args, **kwargs: (StubRunner(closable_iterator), 2),
+    )
+
+    lntr = Linter(dialect="ansi")
+    lntr.lint_paths((test_path,), processes=2)
+
+    assert closable_iterator.closed
+
+
 def test__linter__empty_file():
     """Test linter behaves nicely with an empty string.
 
@@ -495,6 +553,28 @@ def test__linter__templating_fail():
                 ("CP01", 2, 10),
                 ("CP01", 2, 34),
                 ("CP01", 2, 52),
+            ],
+        ),
+        (
+            "test/fixtures/linter/jinja_variants/branching_cp01.sql",
+            "CP01",
+            False,
+            [
+                # Nested IF/ELIF blocks should surface keyword violations
+                # from every variant we render.
+                ("CP01", 3, 1),
+                ("CP01", 5, 11),
+                ("CP01", 7, 11),
+                ("CP01", 9, 1),
+                ("CP01", 11, 1),
+                ("CP01", 11, 15),
+                ("CP01", 11, 25),
+                ("CP01", 13, 1),
+                ("CP01", 13, 15),
+                ("CP01", 13, 25),
+                ("CP01", 15, 1),
+                ("CP01", 15, 15),
+                ("CP01", 15, 25),
             ],
         ),
     ],

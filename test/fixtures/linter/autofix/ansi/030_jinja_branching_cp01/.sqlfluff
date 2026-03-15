@@ -1,0 +1,9 @@
+[sqlfluff]
+dialect = ansi
+templater = jinja
+rules = CP01
+render_variant_limit = 6
+ignore_templated_areas = False
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper

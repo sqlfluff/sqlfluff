@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6deccb43d3cf83c9062b235c0f01b5a4310ea49149b78c99c459b1aac74c1c02
+_hash: 5caddd90eca0e21c36d769d4572d6f13172b3a71b9786e611b6e6c35baf14a0a
 file:
 - statement:
     select_statement:
@@ -16,20 +16,75 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: Nullable
-                bracketed:
-                  start_bracket: (
-                  data_type:
-                    data_type_identifier: Decimal
-                    bracketed_arguments:
-                      bracketed:
-                      - start_bracket: (
-                      - data_type:
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    data_type:
+                      data_type_identifier: Decimal
+                      bracketed_arguments:
+                        bracketed:
+                        - start_bracket: (
+                        - data_type:
+                            numeric_literal: '12'
+                        - comma: ','
+                        - data_type:
+                            numeric_literal: '0'
+                        - end_bracket: )
+                    end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: num_value
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'12'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: Nullable
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    data_type:
+                      data_type_identifier: Decimal32
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
+                          numeric_literal: '1'
+                          end_bracket: )
+                    end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: num_value
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'12'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: Nullable
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    data_type:
+                      data_type_identifier: Decimal64
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
                           numeric_literal: '12'
-                      - comma: ','
-                      - data_type:
-                          numeric_literal: '0'
-                      - end_bracket: )
-                  end_bracket: )
+                          end_bracket: )
+                    end_bracket: )
           alias_expression:
             alias_operator:
               keyword: as
@@ -46,15 +101,17 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: Nullable
-                bracketed:
-                  start_bracket: (
-                  data_type:
-                    data_type_identifier: Decimal32
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '1'
-                      end_bracket: )
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    data_type:
+                      data_type_identifier: Decimal128
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
+                          numeric_literal: '12'
+                          end_bracket: )
+                    end_bracket: )
           alias_expression:
             alias_operator:
               keyword: as
@@ -71,65 +128,17 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: Nullable
-                bracketed:
-                  start_bracket: (
-                  data_type:
-                    data_type_identifier: Decimal64
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '12'
-                      end_bracket: )
-                  end_bracket: )
-          alias_expression:
-            alias_operator:
-              keyword: as
-            naked_identifier: num_value
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          expression:
-            cast_expression:
-              quoted_literal: "'12'"
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: Nullable
-                bracketed:
-                  start_bracket: (
-                  data_type:
-                    data_type_identifier: Decimal128
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '12'
-                      end_bracket: )
-                  end_bracket: )
-          alias_expression:
-            alias_operator:
-              keyword: as
-            naked_identifier: num_value
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          expression:
-            cast_expression:
-              quoted_literal: "'12'"
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: Nullable
-                bracketed:
-                  start_bracket: (
-                  data_type:
-                    data_type_identifier: Decimal256
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '12'
-                      end_bracket: )
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    data_type:
+                      data_type_identifier: Decimal256
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
+                          numeric_literal: '12'
+                          end_bracket: )
+                    end_bracket: )
           alias_expression:
             alias_operator:
               keyword: as
@@ -171,20 +180,21 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: Nullable
-                bracketed:
-                  start_bracket: (
-                  data_type:
-                    data_type_identifier: Numeric
-                    bracketed_arguments:
-                      bracketed:
-                      - start_bracket: (
-                      - data_type:
-                          numeric_literal: '12'
-                      - comma: ','
-                      - data_type:
-                          numeric_literal: '0'
-                      - end_bracket: )
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    data_type:
+                      data_type_identifier: Numeric
+                      bracketed_arguments:
+                        bracketed:
+                        - start_bracket: (
+                        - data_type:
+                            numeric_literal: '12'
+                        - comma: ','
+                        - data_type:
+                            numeric_literal: '0'
+                        - end_bracket: )
+                    end_bracket: )
           alias_expression:
             alias_operator:
               keyword: as

@@ -79,8 +79,16 @@ def load_ini_string(cfg_content: str) -> ConfigMappingType:
             # otherwise just make it a string.
             v = coerce_value(val)
 
-            # Add the name to the end of the key
-            config_buffer.append((key + (name,), v))
+            # Split the name on dots to support nested structures.
+            # For example, 'namespace.projectname' becomes ('namespace', 'projectname')
+            # This allows config like:
+            #   [sqlfluff:templater:jinja:context]
+            #   namespace.projectname=test
+            # to create the nested structure: {'namespace': {'projectname': 'test'}}
+            name_parts = tuple(name.split("."))
+
+            # Add the name parts to the end of the key
+            config_buffer.append((key + name_parts, v))
 
     # Compress that buffer into a dictionary.
     return records_to_nested_dict(config_buffer)

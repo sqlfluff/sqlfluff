@@ -48,3 +48,14 @@ INSERT INTO t2
     WHERE i IN (1, 3)
     ON CONFLICT DO UPDATE SET j = EXCLUDED.j
     RETURNING *;
+
+INSERT INTO Cities (CityName, CityId)
+WITH
+CityData AS (
+    SELECT *
+    FROM (VALUES
+        ('New York', 1), ('Los Angeles', 2), ('Chicago', 3)
+    )
+)
+SELECT *
+FROM CityData;

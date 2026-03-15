@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 27b63180e1dfe30a4061544b4b3a48bd52e78c6e37117f1bbb32d8e308fec2e8
+_hash: 52a7a08a72ad411173d5547e1d0f83859d89af746bc0edb9875e6aca8e6729db
 file:
 - batch:
     statement:
@@ -227,17 +227,37 @@ file:
                   bracketed:
                   - start_bracket: (
                   - keyword: BULK
-                  - quoted_literal: "N'D:\\XChange\\test-csv.csv'"
+                  - bracketed:
+                    - start_bracket: (
+                    - quoted_literal: "N'D:\\XChange\\test-csv.csv'"
+                    - comma: ','
+                    - quoted_literal: "N'D:\\XChange\\test-csv2.csv'"
+                    - end_bracket: )
                   - comma: ','
                   - keyword: FORMATFILE
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - quoted_literal: "N'D:\\XChange\\test-csv.fmt'"
                   - comma: ','
+                  - keyword: FORMATFILE_DATA_SOURCE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'root'"
+                  - comma: ','
+                  - keyword: ROWTERMINATOR
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'\\n,'"
+                  - comma: ','
+                  - keyword: FIELDTERMINATOR
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'\\t'"
+                  - comma: ','
                   - keyword: FIRSTROW
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - numeric_literal: '2'
+                  - integer_literal: '2'
                   - comma: ','
                   - keyword: FORMAT
                   - comparison_operator:
@@ -248,6 +268,185 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: cars
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - bracketed:
+                      start_bracket: (
+                      quoted_literal: "'https://sqlondemandstorage.blob.core.windows.net/data.csv'"
+                      end_bracket: )
+                  - comma: ','
+                  - keyword: FORMAT
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'CSV'"
+                  - comma: ','
+                  - keyword: PARSER_VERSION
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'2.0'"
+                  - comma: ','
+                  - keyword: ESCAPE_CHAR
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'\"'"
+                  - comma: ','
+                  - keyword: HEADER_ROW
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - boolean_literal: 'TRUE'
+                  - comma: ','
+                  - keyword: DATAFILETYPE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'char'"
+                  - comma: ','
+                  - keyword: ROWSET_OPTIONS
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'{\"READ_OPTIONS\":[\"ALLOW_INCONSISTENT_READS\"\
+                      ]}'"
+                  - comma: ','
+                  - keyword: MAXERRORS
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - integer_literal: '2'
+                  - comma: ','
+                  - keyword: ERRORFILE_DATA_SOURCE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'error_source'"
+                  - comma: ','
+                  - keyword: ERRORFILE_LOCATION
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'path\\to\\errorfile.csv'"
+                  - end_bracket: )
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - bracketed:
+                    - start_bracket: (
+                    - quoted_literal: "N'https://azureopendatastorage.blob.core.windows.net/censusdatacontainer/'"
+                    - comma: ','
+                    - quoted_literal: "'file_does_not_exist.parquet'"
+                    - end_bracket: )
+                  - comma: ','
+                  - keyword: FORMAT
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'PARQUET'"
+                  - comma: ','
+                  - keyword: ROWS_PER_BATCH
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - integer_literal: '1000'
+                  - comma: ','
+                  - keyword: LASTROW
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - integer_literal: '10000'
+                  - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: named
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - quoted_literal: "'C:\\Text1.txt'"
+                  - comma: ','
+                  - keyword: FORMAT
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'PARQUET'"
+                  - comma: ','
+                  - keyword: CODEPAGE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'RAW'"
+                  - comma: ','
+                  - keyword: ORDER
+                  - bracketed:
+                    - start_bracket: (
+                    - column_reference:
+                        naked_identifier: column1
+                    - keyword: ASC
+                    - comma: ','
+                    - column_reference:
+                        naked_identifier: column2
+                    - keyword: DESC
+                    - end_bracket: )
+                  - keyword: UNIQUE
+                  - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: Document
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                  - naked_identifier: column1
+                  - comma: ','
+                  - naked_identifier: column2
+                  end_bracket: )
     statement_terminator: ;
     go_statement:
       keyword: GO
@@ -290,6 +489,7 @@ file:
                 alias_operator:
                   keyword: as
                 naked_identifier: rows
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -365,6 +565,7 @@ file:
                 alias_operator:
                   keyword: as
                 naked_identifier: rows
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -452,5 +653,6 @@ file:
                 alias_operator:
                   keyword: AS
                 quoted_identifier: '[r]'
+    statement_terminator: ;
     go_statement:
       keyword: GO

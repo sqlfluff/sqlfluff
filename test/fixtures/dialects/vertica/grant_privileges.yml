@@ -3,32 +3,43 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6f5550a83e6157b9c9b4ecd251f4505c40fa52cd55e87f914fae578c4a30b4b7
+_hash: 41c554c82554ae32766ae3ffc2a6fecb403cef77dfd2417f2547a2642b91235b
 file:
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: 'ON'
-    - keyword: SCHEMA
-    - object_reference:
-        naked_identifier: online_sales
-    - keyword: TO
-    - role_reference:
-        naked_identifier: Joe
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+            naked_identifier: online_sales
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: Joe
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: ALL
-    - keyword: PRIVILEGES
-    - keyword: 'ON'
-    - keyword: TABLE
-    - object_reference:
-        naked_identifier: customer_dimension
-    - keyword: TO
-    - role_reference:
-        naked_identifier: Joe
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: ALL
+          - keyword: PRIVILEGES
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+            naked_identifier: customer_dimension
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: Joe
 - statement_terminator: ;
 - statement:
     alter_default_privileges_grant:
@@ -47,13 +58,18 @@ file:
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: ALL
-    - keyword: PRIVILEGES
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: ship
-    - keyword: TO
-    - role_reference:
-        naked_identifier: Joe
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: ALL
+          - keyword: PRIVILEGES
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+            naked_identifier: ship
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: Joe
 - statement_terminator: ;

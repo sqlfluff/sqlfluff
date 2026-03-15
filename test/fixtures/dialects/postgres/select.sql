@@ -106,3 +106,9 @@ ORDER BY
 FETCH FIRST 10 ROW ONLY;
 
 SELECT foo FROM bar LIMIT 1 FOR UPDATE;
+
+-- Verify that single underscores are parsed as numeric literals
+SELECT 1_000;
+SELECT 1_000_000;
+SELECT 1.0_000;
+SELECT 1_000_000.0_000_000;
