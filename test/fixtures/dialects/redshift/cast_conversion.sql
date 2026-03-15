@@ -36,3 +36,6 @@ from tbl1;
 
 select cast(pg_namespace.nspname as information_schema.sql_identifier)
 from pg_namespace;
+
+select null::"varchar" as col1, null::varchar as col2
+from table1;

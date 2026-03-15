@@ -651,6 +651,8 @@ class DatatypeSegment(BaseSegment):
             Ref("DatatypeIdentifierSegment"),
             allow_gaps=False,
         ),
+        # Allow double-quoted type names (e.g., ::"varchar")
+        Ref("QuotedIdentifierSegment"),
     )
 
 
