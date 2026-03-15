@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e33d22bcef7f0a9a64fa9fa9161218dac793fbb880a0719a6b4d18d83fd6edc9
+_hash: cc302a2ea83d7b01dfa8a2e28948b1f4277d2094a5913b1fc5a36ab1c0b9e1cb
 file:
 - batch:
     statement:
@@ -1160,6 +1160,36 @@ file:
       - table_reference:
           quoted_identifier: '[TestTable]'
       - keyword: ADD
+      - period_segment:
+        - keyword: PERIOD
+        - keyword: FOR
+        - keyword: SYSTEM_TIME
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: StartDate
+          - comma: ','
+          - column_reference:
+              naked_identifier: EndDate
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: ADD
+      - column_definition:
+          naked_identifier: StartDate
+          data_type:
+            keyword: DATETIME2
+      - comma: ','
+      - column_definition:
+          naked_identifier: EndDate
+          data_type:
+            keyword: DATETIME2
+      - comma: ','
       - period_segment:
         - keyword: PERIOD
         - keyword: FOR

@@ -133,7 +133,7 @@ def _parse_and_crawl_outer(sql):
                 "ctes": {"PREP": {"selectables": ["select 1"]}},
                 "query_type": "WithCompound",
                 "selectables": [
-                    "select a.x from a join (select z from b) as b on (a.x = " "b.x)"
+                    "select a.x from a join (select z from b) as b on (a.x = b.x)"
                 ],
                 "subqueries": [{"selectables": ["select z from b"]}],
             },
