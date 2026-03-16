@@ -1250,6 +1250,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("AlterSynonymStatementSegment"),
+            Ref("ProcedureCallStatementSegment"),
         ],
     )
 
@@ -2273,6 +2274,28 @@ class ExecuteImmediateSegment(BaseSegment):
             optional=True,
         ),
         Dedent,
+    )
+
+
+class ProcedureCallStatementSegment(BaseSegment):
+    """A procedure call statement without arguments.
+
+    In Oracle PL/SQL, procedures with no parameters can be invoked
+    without parentheses.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/procedure-call.html
+    """
+
+    type = "procedure_call"
+    match_grammar = Ref(
+        "ObjectReferenceSegment",
+        # Exclude PL/SQL block keywords that cannot be procedure names
+        exclude=OneOf(
+            Ref.keyword("BEGIN"),
+            Ref.keyword("END"),
+            Ref.keyword("EXCEPTION"),
+            Ref.keyword("ELSIF"),
+        ),
     )
 
 

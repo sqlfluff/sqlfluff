@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a71dfc33c4448d07e9153eab909f88acea3eceefee21e017f90d7eccb59bbf3d
+_hash: 356bc1993206aa8fcfae29c027a0cae2504674ce7ac49558e15563651a4e10b7
 file:
   batch:
   - statement:
@@ -40,9 +40,18 @@ file:
                   quoted_literal: "'No data'"
                 end_bracket: )
       - statement_terminator: ;
-      - keyword: WHEN
-      - keyword: OTHERS
-      - keyword: THEN
+      - statement:
+          procedure_call:
+            function_name:
+              function_name_identifier: WHEN
+      - statement:
+          procedure_call:
+            function_name:
+              function_name_identifier: OTHERS
+      - statement:
+          procedure_call:
+            function_name:
+              function_name_identifier: THEN
       - statement:
           function:
             function_name:
@@ -140,9 +149,18 @@ file:
                   quoted_literal: "'Division by zero'"
                 end_bracket: )
       - statement_terminator: ;
-      - keyword: WHEN
-      - naked_identifier: invalid_number
-      - keyword: THEN
+      - statement:
+          procedure_call:
+            function_name:
+              function_name_identifier: WHEN
+      - statement:
+          procedure_call:
+            function_name:
+              function_name_identifier: invalid_number
+      - statement:
+          procedure_call:
+            function_name:
+              function_name_identifier: THEN
       - statement:
           function:
             function_name:
@@ -156,9 +174,18 @@ file:
                   quoted_literal: "'Invalid number'"
                 end_bracket: )
       - statement_terminator: ;
-      - keyword: WHEN
-      - keyword: OTHERS
-      - keyword: THEN
+      - statement:
+          procedure_call:
+            function_name:
+              function_name_identifier: WHEN
+      - statement:
+          procedure_call:
+            function_name:
+              function_name_identifier: OTHERS
+      - statement:
+          procedure_call:
+            function_name:
+              function_name_identifier: THEN
       - statement:
           function:
             function_name:

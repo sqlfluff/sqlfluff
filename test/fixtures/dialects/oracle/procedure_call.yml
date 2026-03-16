@@ -1,0 +1,65 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dd5aca36f34f565fc0c4b6151d36116190c9f4e7c93d07859e2834906fa18c93
+file:
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: begin
+      - statement:
+          procedure_call:
+            function_name:
+              function_name_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: end
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: begin
+      - statement:
+          procedure_call:
+            function_name:
+            - naked_identifier: schema
+            - dot: .
+            - naked_identifier: pkg
+            - dot: .
+            - function_name_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: end
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: begin
+      - statement:
+          procedure_call:
+            function_name:
+              naked_identifier: pkg
+              dot: .
+              function_name_identifier: my_procedure
+      - statement_terminator: ;
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'test'"
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: end
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
