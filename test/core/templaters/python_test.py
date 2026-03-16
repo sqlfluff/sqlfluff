@@ -569,12 +569,13 @@ def test__templater_python_dot_notation_fail(context, error_string):
 
 
 @pytest.mark.parametrize(
-    "in_str,ignore,expected_templated_str,expected_violation",
+    "in_str,ignore,context,expected_templated_str,expected_violation",
     [
         # Without ignore=templating, a missing variable raises an error.
         (
             "SELECT * FROM {start_date}",
             "",
+            None,
             None,
             SQLTemplaterError("Failure in Python templating: 'start_date'."),
         ),
@@ -583,6 +584,7 @@ def test__templater_python_dot_notation_fail(context, error_string):
         (
             "SELECT * FROM {start_date}",
             "templating",
+            None,
             "SELECT * FROM start_date",
             None,
         ),
@@ -591,13 +593,23 @@ def test__templater_python_dot_notation_fail(context, error_string):
         (
             "SELECT * FROM {foo.bar}",
             "templating",
+            None,
+            "SELECT * FROM foo_bar",
+            None,
+        ),
+        # With ignore=templating and a partial sqlfluff context, a missing nested
+        # dot-notation key should still fall back rather than raising KeyError.
+        (
+            "SELECT * FROM {foo.bar}",
+            "templating",
+            {"sqlfluff": {"existing.key": "val"}},
             "SELECT * FROM foo_bar",
             None,
         ),
     ],
 )
 def test__templater_python_ignore_templating(
-    in_str, ignore, expected_templated_str, expected_violation
+    in_str, ignore, context, expected_templated_str, expected_violation
 ):
     """Test that ignore=templating allows linting to proceed with missing variables.
 
@@ -605,7 +617,7 @@ def test__templater_python_ignore_templating(
     Python templater should use the variable name as a fallback (rather than
     raising a fatal error), so that linting rules can still run on the output.
     """
-    t = PythonTemplater()
+    t = PythonTemplater(override_context=context)
     config = FluffConfig(overrides={"dialect": "ansi", "ignore": ignore})
 
     if expected_violation:

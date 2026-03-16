@@ -2,7 +2,7 @@
 
 import ast
 import re
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Mapping
 from string import Formatter
 from typing import Any, Callable, NamedTuple, Optional
 
@@ -285,12 +285,36 @@ class PythonTemplater(RawTemplater):
                         return key.replace(".", "_")
 
                 class _FallbackDict(dict[str, Any]):
+                    @classmethod
+                    def from_mapping(
+                        cls, mapping: Mapping[str, Any]
+                    ) -> "_FallbackDict":
+                        """Recursively wrap mappings so nested lookups also fallback."""
+                        return cls(
+                            {
+                                key: cls.from_mapping(value)
+                                if isinstance(value, Mapping)
+                                else value
+                                for key, value in mapping.items()
+                            }
+                        )
+
                     def __missing__(self, key: str) -> "_FallbackValue":
                         return _FallbackValue(key)
 
-                return raw_str_with_dot_notation_hack.format_map(
-                    _FallbackDict(live_context)
-                )
+                class _DotNotationFallbackDict(_FallbackDict):
+                    def __missing__(self, key: str) -> "_FallbackValue":
+                        return _FallbackValue(key.replace(".", "_"))
+
+                fallback_context = _FallbackDict.from_mapping(live_context)
+                if isinstance(fallback_context.get("sqlfluff"), Mapping):
+                    fallback_context["sqlfluff"] = (
+                        _DotNotationFallbackDict.from_mapping(
+                            fallback_context["sqlfluff"]
+                        )
+                    )
+
+                return raw_str_with_dot_notation_hack.format_map(fallback_context)
 
             try:
                 rendered_str = raw_str_with_dot_notation_hack.format(**live_context)
