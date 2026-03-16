@@ -284,7 +284,7 @@ class PythonTemplater(RawTemplater):
                         # Handles the dot-notation hack: {sqlfluff[foo.bar]}
                         return key.replace(".", "_")
 
-                class _FallbackDict(dict):  # type: ignore[type-arg]
+                class _FallbackDict(dict):
                     def __missing__(self, key: str) -> "_FallbackValue":
                         return _FallbackValue(key)
 
