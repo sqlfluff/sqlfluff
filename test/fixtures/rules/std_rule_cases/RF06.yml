@@ -621,6 +621,85 @@ test_fail_prefer_quoted_keywords_athena:
     core:
       dialect: athena
 
+test_pass_prefer_quoted_keywords_sqlite_double_quotes:
+  pass_str: SELECT 1 AS "date"
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+    core:
+      dialect: sqlite
+
+test_pass_prefer_quoted_keywords_sqlite_backticks:
+  pass_str: SELECT 1 AS `date`
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+        prefer_quoted_keyword_style: backticks
+    core:
+      dialect: sqlite
+
+test_fail_prefer_quoted_keywords_sqlite_double_quotes:
+  fail_str: SELECT 1 AS date
+  fix_str: SELECT 1 AS "date"
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+    core:
+      dialect: sqlite
+
+test_fail_prefer_quoted_keywords_sqlite_backticks:
+  fail_str: SELECT 1 AS date
+  fix_str: SELECT 1 AS `date`
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+        prefer_quoted_keyword_style: backticks
+    core:
+      dialect: sqlite
+
+test_fail_prefer_quoted_keywords_sqlite_backticks_to_double_quotes:
+  fail_str: SELECT 1 AS `date`
+  fix_str: SELECT 1 AS "date"
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+    core:
+      dialect: sqlite
+
+test_fail_prefer_quoted_keywords_sqlite_double_quotes_to_backticks:
+  fail_str: SELECT 1 AS "date"
+  fix_str: SELECT 1 AS `date`
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+        prefer_quoted_keyword_style: backticks
+    core:
+      dialect: sqlite
+
+test_fail_prefer_quoted_identifiers_sqlite_no_fix:
+  fail_str: SELECT 1 AS foo
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+    core:
+      dialect: sqlite
+
+test_pass_prefer_quoted_identifiers_sqlite_existing_quotes:
+  pass_str: SELECT 1 AS "foo"
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+    core:
+      dialect: sqlite
+
 test_pass_tsql_execute_as:
   # 'login_test' should remain quoted.
   pass_str: |
