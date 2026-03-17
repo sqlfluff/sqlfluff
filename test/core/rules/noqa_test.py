@@ -512,6 +512,29 @@ def test_linter_noqa_prs(sql, disable_noqa, caplog):
         assert not violations
 
 
+def test_linter_noqa_prs_recovers_following_statements():
+    """Ignored PRS lines should not suppress diagnostics for later statements."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "dialect": "sparksql",
+            }
+        )
+    )
+    sql = """select 1 from tbl;
+echo "this breaks sqlfluff" -- noqa
+sElect 1 from tbl; -- should fail ON LINTING
+select from tbl; -- should fail PRS
+"""
+
+    violations = lntr.lint_string(sql).get_violations(filter_warning=False)
+
+    assert [(v.rule_code(), v.line_no) for v in violations] == [
+        ("CP01", 3),
+        ("PRS", 4),
+    ]
+
+
 def test_linter_noqa_tmp():
     """Test "noqa" feature to ignore TMP at the higher "Linter" level."""
     lntr = Linter(

@@ -41,6 +41,7 @@ from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
 from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.core.rules.noqa import IgnoreMask
+from sqlfluff.core.templaters import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects import Dialect
@@ -404,6 +405,163 @@ class Linter:
             config=rendered.config,
             fname=rendered.fname,
             source_str=rendered.source_str,
+        )
+
+    @staticmethod
+    def _mask_ignored_parse_error_lines(
+        source_str: str, dialect: "Dialect", line_nos: set[int]
+    ) -> str:
+        """Blank ignored parse-error lines while preserving positions.
+
+        This is only used as a recovery step for non-templated files. It turns the
+        ignored line into whitespace plus any trailing inline comment so later
+        statements can still be parsed and linted.
+        """
+        if not line_nos:
+            return source_str
+
+        inline_comment_matcher = next(
+            (
+                matcher
+                for matcher in (dialect.lexer_matchers or [])
+                if matcher.name == "inline_comment"
+            ),
+            None,
+        )
+        lines = source_str.splitlines(keepends=True)
+
+        for line_no in sorted(line_nos):
+            line_idx = line_no - 1
+            if line_idx < 0 or line_idx >= len(lines):
+                continue
+
+            line = lines[line_idx]
+            newline = "\n" if line.endswith("\n") else ""
+            line_body = line[: -len(newline)] if newline else line
+            comment_start: Optional[int] = None
+            if inline_comment_matcher and line_body:
+                match = inline_comment_matcher.search(line_body)
+                if match:
+                    comment_start = match[0]
+
+            if comment_start is None:
+                line_body = " " * len(line_body)
+            else:
+                line_body = (" " * comment_start) + line_body[comment_start:]
+
+            lines[line_idx] = line_body + newline
+
+        return "".join(lines)
+
+    @staticmethod
+    def _has_recoverable_code_after_lines(
+        source_str: str, dialect: "Dialect", line_nos: set[int]
+    ) -> bool:
+        """Return whether later lines contain code worth reparsing."""
+        if not line_nos:
+            return False
+
+        inline_comment_matcher = next(
+            (
+                matcher
+                for matcher in (dialect.lexer_matchers or [])
+                if matcher.name == "inline_comment"
+            ),
+            None,
+        )
+        lines = source_str.splitlines()
+        for line in lines[max(line_nos) :]:
+            line_body = line
+            if inline_comment_matcher and line_body:
+                match = inline_comment_matcher.search(line_body)
+                if match:
+                    line_body = line_body[: match[0]]
+            if line_body.strip():
+                return True
+        return False
+
+    @classmethod
+    def _recover_ignored_parse_errors(
+        cls, parsed: ParsedString, rule_pack: RulePack
+    ) -> ParsedString:
+        """Reparse non-templated files after masking ignored PRS lines.
+
+        If an inline ``noqa`` suppresses a parse error on one line, the original
+        parse tree may still absorb following statements into the same unparsable
+        section. Reparse after blanking those ignored lines so later statements can
+        still produce their own parse and lint violations.
+        """
+        root_variant = parsed.root_variant()
+        if (
+            not root_variant
+            or not root_variant.tree
+            or not root_variant.parsing_violations
+        ):
+            return parsed
+
+        templated_file = root_variant.templated_file
+        if templated_file.source_str != templated_file.templated_str:
+            return parsed
+
+        disable_noqa_except: Optional[str] = parsed.config.get("disable_noqa_except")
+        if parsed.config.get("disable_noqa") and not disable_noqa_except:
+            return parsed
+
+        allowed_rules_ref_map = cls.allowed_rule_ref_map(
+            rule_pack.reference_map, disable_noqa_except
+        )
+        ignore_mask, _ = IgnoreMask.from_tree(root_variant.tree, allowed_rules_ref_map)
+        parsing_errors: list[SQLBaseError] = list(root_variant.parsing_violations)
+        remaining_parse_errors = ignore_mask.ignore_masked_violations(parsing_errors)
+        ignored_parse_lines = {
+            err.line_no
+            for err in root_variant.parsing_violations
+            if err not in remaining_parse_errors
+        }
+        if not ignored_parse_lines:
+            return parsed
+
+        dialect = cast("Dialect", parsed.config.get("dialect_obj"))
+        if not cls._has_recoverable_code_after_lines(
+            templated_file.source_str, dialect, ignored_parse_lines
+        ):
+            return parsed
+
+        masked_source = cls._mask_ignored_parse_error_lines(
+            templated_file.source_str,
+            dialect,
+            ignored_parse_lines,
+        )
+        if masked_source == templated_file.source_str:
+            return parsed
+
+        recovered_templated_file = TemplatedFile(masked_source, parsed.fname)
+        tokens, lex_errors = cls._lex_templated_file(
+            recovered_templated_file, parsed.config
+        )
+        if not tokens:
+            return parsed
+
+        recovered_tree, parse_errors = cls._parse_tokens(
+            tokens, parsed.config, fname=parsed.fname
+        )
+        if not recovered_tree:
+            return parsed
+
+        parsed_variants = list(parsed.parsed_variants)
+        parsed_variants[0] = ParsedVariant(
+            recovered_templated_file,
+            recovered_tree,
+            lex_errors,
+            parse_errors,
+        )
+        return ParsedString(
+            parsed_variants=parsed_variants,
+            templating_violations=parsed.templating_violations,
+            time_dict=parsed.time_dict,
+            config=parsed.config,
+            fname=parsed.fname,
+            source_str=parsed.source_str,
         )
 
     @classmethod
@@ -833,6 +991,8 @@ class Linter:
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
         parsed = cls.parse_rendered(rendered)
+        if not fix:
+            parsed = cls._recover_ignored_parse_errors(parsed, rule_pack)
         return cls.lint_parsed(
             parsed,
             rule_pack=rule_pack,
@@ -1020,6 +1180,8 @@ class Linter:
         )
         # Get rules as appropriate
         rule_pack = self.get_rulepack(config=config)
+        if not fix:
+            parsed = self._recover_ignored_parse_errors(parsed, rule_pack)
         # Lint the file and return the LintedFile
         return self.lint_parsed(
             parsed,
