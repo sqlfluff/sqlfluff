@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::slice::PySlice;
 use sqlfluffrs_types::templater::fileslice::{RawFileSlice, TemplatedFileSlice};
 
-#[pyclass(name = "RsRawFileSlice", module = "sqlfluffrs")]
+#[pyclass(name = "RsRawFileSlice", module = "sqlfluffrs", from_py_object)]
 #[repr(transparent)]
 #[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct PyRawFileSlice(pub(crate) RawFileSlice);
@@ -83,7 +83,7 @@ impl From<RawFileSlice> for PyRawFileSlice {
     }
 }
 
-#[pyclass(name = "RsTemplatedFileSlice", module = "sqlfluffrs")]
+#[pyclass(name = "RsTemplatedFileSlice", module = "sqlfluffrs", from_py_object)]
 #[repr(transparent)]
 #[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct PyTemplatedFileSlice(pub(crate) TemplatedFileSlice);
@@ -162,8 +162,10 @@ pub mod sqlfluff {
     #[derive(Clone, IntoPyObject)]
     pub struct PySqlFluffTemplatedFileSlice(pub PyTemplatedFileSlice);
 
-    impl<'py> FromPyObject<'py> for PySqlFluffTemplatedFileSlice {
-        fn extract_bound(obj: &pyo3::Bound<'py, pyo3::PyAny>) -> PyResult<Self> {
+    impl<'a, 'py> FromPyObject<'a, 'py> for PySqlFluffTemplatedFileSlice {
+        type Error = PyErr;
+
+        fn extract(obj: pyo3::Borrowed<'a, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
             let slice_type = obj.getattr("slice_type")?.extract::<String>()?;
             let source_slice = obj
                 .getattr("source_slice")?
@@ -195,8 +197,10 @@ pub mod sqlfluff {
     #[derive(Clone)]
     pub struct PySqlFluffRawFileSlice(pub PyRawFileSlice);
 
-    impl<'py> FromPyObject<'py> for PySqlFluffRawFileSlice {
-        fn extract_bound(obj: &pyo3::Bound<'py, pyo3::PyAny>) -> PyResult<Self> {
+    impl<'a, 'py> FromPyObject<'a, 'py> for PySqlFluffRawFileSlice {
+        type Error = PyErr;
+
+        fn extract(obj: pyo3::Borrowed<'a, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
             let raw = obj.getattr("raw")?.extract::<String>()?;
             let slice_type = obj.getattr("slice_type")?.extract::<String>()?;
             let source_idx = obj.getattr("source_idx")?.extract::<usize>().ok();
