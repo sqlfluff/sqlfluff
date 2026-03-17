@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 hashbrown = "0.16.1"
-once_cell = "1.21.3"
-regex = { version = "1.11.2", features = ["perf"] }
+once_cell = "1.21.4"
+regex = { version = "1.12.3", features = ["perf"] }
 fancy-regex = "0.17.0"
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }
