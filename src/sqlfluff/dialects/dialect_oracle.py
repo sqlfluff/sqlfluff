@@ -3325,10 +3325,10 @@ class CreateUserStatementSegment(BaseSegment):
                     Sequence(
                         "QUOTA", OneOf(Ref("SizeClauseGrammar"), "UNLIMITED"), "ON"
                     ),
-                    "PROFILE",
                 ),
                 Ref("ObjectReferenceSegment"),
             ),
+            Sequence("PROFILE", OneOf("DEFAULT", Ref("ObjectReferenceSegment"))),
             Sequence("PASSWORD", "EXPIRE"),
             Sequence("ACCOUNT", OneOf("LOCK", "UNLOCK")),
             Sequence("ENABLE", "EDITIONS"),
