@@ -1,0 +1,1018 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2af9e2424b621edc982d42fe216554a75c6b8700ed4fa4dab468a2c9433a1788
+file:
+  batch:
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_named_idx
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_named_idx
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - index_reference:
+                naked_identifier: pk_t_pk_named_idx_idx
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_uq_named_idx
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: code
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: uq_t_uq_named_idx
+          - keyword: UNIQUE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: code
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - index_reference:
+              - naked_identifier: myschema
+              - dot: .
+              - naked_identifier: uq_t_uq_named_idx_idx
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_pctfree
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_pctfree
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+                keyword: PCTFREE
+                numeric_literal: '10'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_tablespace
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_tablespace
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+                keyword: TABLESPACE
+                object_reference:
+                  naked_identifier: idx_ts
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_uq_nologging
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: code
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: uq_t_uq_nologging
+          - keyword: UNIQUE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: code
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+                keyword: NOLOGGING
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_multi_attrs
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_multi_attrs
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+              - keyword: PCTFREE
+              - numeric_literal: '10'
+              - keyword: INITRANS
+              - numeric_literal: '2'
+              - keyword: TABLESPACE
+              - object_reference:
+                  naked_identifier: idx_ts
+              - keyword: NOLOGGING
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_storage
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_storage
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+              - keyword: PCTFREE
+              - numeric_literal: '10'
+              - keyword: TABLESPACE
+              - object_reference:
+                  naked_identifier: idx_ts
+              - storage_clause:
+                  keyword: STORAGE
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: INITIAL
+                  - numeric_literal: '140'
+                  - size_prefix: K
+                  - keyword: NEXT
+                  - numeric_literal: '360'
+                  - size_prefix: K
+                  - keyword: BUFFER_POOL
+                  - keyword: KEEP
+                  - end_bracket: )
+              - keyword: NOLOGGING
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_uq_parallel
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: code
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: uq_t_uq_parallel
+          - keyword: UNIQUE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: code
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+                keyword: PARALLEL
+                numeric_literal: '4'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_compress
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+        - comma: ','
+        - column_definition:
+            naked_identifier: col2
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '20'
+                  end_bracket: )
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_compress
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: id
+            - comma: ','
+            - column_reference:
+                naked_identifier: col2
+            - end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+                keyword: COMPRESS
+                numeric_literal: '1'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_invisible
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_invisible
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+                keyword: INVISIBLE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_reverse
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_reverse
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+                keyword: REVERSE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_inline_idx
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_inline_idx
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: pk_t_pk_inline_idx_i
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_pk_inline_idx
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: id
+                    end_bracket: )
+                end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_inline_unique_idx
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_inline_unique_idx
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: UNIQUE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: pk_t_pk_inline_unique_idx_i
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_pk_inline_unique_idx
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: id
+                    end_bracket: )
+                end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_uq_inline_idx
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: code
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: uq_t_uq_inline_idx
+          - keyword: UNIQUE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: code
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: uq_t_uq_inline_idx_i
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_uq_inline_idx
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: code
+                    end_bracket: )
+                end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_uq_inline_bitmap_idx
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: status
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: uq_t_uq_inline_bitmap_idx
+          - keyword: UNIQUE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: status
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: BITMAP
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: uq_t_uq_inline_bitmap_idx_i
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_uq_inline_bitmap_idx
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: status
+                    end_bracket: )
+                end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_inline_ts
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_inline_ts
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: pk_t_pk_inline_ts_i
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_pk_inline_ts
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: id
+                    end_bracket: )
+                - oracle_index_physical_attributes:
+                    keyword: TABLESPACE
+                    object_reference:
+                      naked_identifier: idx_ts
+                end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_inline_attrs
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_inline_attrs
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: pk_t_pk_inline_attrs_i
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_pk_inline_attrs
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: id
+                    end_bracket: )
+                - oracle_index_physical_attributes:
+                  - keyword: TABLESPACE
+                  - object_reference:
+                      naked_identifier: idx_ts
+                  - keyword: PCTFREE
+                  - numeric_literal: '10'
+                  - keyword: INITRANS
+                  - numeric_literal: '2'
+                  - keyword: NOLOGGING
+                end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_pk_inline_storage
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_pk_inline_storage
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: pk_t_pk_inline_storage_i
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_pk_inline_storage
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: id
+                    end_bracket: )
+                - oracle_index_physical_attributes:
+                  - keyword: TABLESPACE
+                  - object_reference:
+                      naked_identifier: idx_ts
+                  - storage_clause:
+                      keyword: STORAGE
+                      bracketed:
+                      - start_bracket: (
+                      - keyword: INITIAL
+                      - numeric_literal: '256'
+                      - size_prefix: K
+                      - keyword: NEXT
+                      - numeric_literal: '256'
+                      - size_prefix: K
+                      - keyword: MINEXTENTS
+                      - numeric_literal: '1'
+                      - keyword: MAXEXTENTS
+                      - keyword: UNLIMITED
+                      - keyword: BUFFER_POOL
+                      - keyword: DEFAULT
+                      - end_bracket: )
+                  - keyword: NOLOGGING
+                end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_uq_inline_full
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: code
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '20'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: name
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '100'
+                  end_bracket: )
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: uq_t_uq_inline_full
+          - keyword: UNIQUE
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: code
+            - comma: ','
+            - column_reference:
+                naked_identifier: name
+            - end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: UNIQUE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: uq_t_uq_inline_full_i
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_uq_inline_full
+                - bracketed:
+                  - start_bracket: (
+                  - index_column_definition:
+                      naked_identifier: code
+                  - comma: ','
+                  - index_column_definition:
+                      naked_identifier: name
+                  - end_bracket: )
+                - oracle_index_physical_attributes:
+                  - keyword: TABLESPACE
+                  - object_reference:
+                      naked_identifier: idx_ts
+                  - keyword: PCTFREE
+                  - numeric_literal: '5'
+                  - keyword: INITRANS
+                  - numeric_literal: '4'
+                  - keyword: NOLOGGING
+                  - keyword: PARALLEL
+                  - numeric_literal: '2'
+                  - keyword: COMPRESS
+                  - numeric_literal: '1'
+                  - keyword: VISIBLE
+                end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_multi_constraints
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+        - comma: ','
+        - column_definition:
+            naked_identifier: code
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: status
+            data_type:
+              data_type_identifier: NUMBER
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_multi_constraints
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - index_reference:
+                naked_identifier: pk_t_multi_constraints_idx
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: uq_t_multi_constraints_code
+          - keyword: UNIQUE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: code
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+              - keyword: TABLESPACE
+              - object_reference:
+                  naked_identifier: idx_ts
+              - keyword: NOLOGGING
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: uq_t_multi_constraints_status
+          - keyword: UNIQUE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: status
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: uq_t_multi_constraints_status_i
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_multi_constraints
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: status
+                    end_bracket: )
+                - oracle_index_physical_attributes:
+                    keyword: TABLESPACE
+                    object_reference:
+                      naked_identifier: idx_ts
+                end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_anon_pk_inline
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: anon_pk_inline_i
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_anon_pk_inline
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: id
+                    end_bracket: )
+                end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_anon_uq_attrs
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: code
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+          comma: ','
+          table_constraint:
+            keyword: UNIQUE
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: code
+              end_bracket: )
+            using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+              - keyword: PCTFREE
+              - numeric_literal: '10'
+              - keyword: TABLESPACE
+              - object_reference:
+                  naked_identifier: idx_ts
+          end_bracket: )
+  - statement_terminator: ;

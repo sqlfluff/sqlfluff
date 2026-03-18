@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8318d0fce364403a7d4ae0d7194e1ad18c2670346c9cfcee0864a7bf24902706
+_hash: cdb149d1acfa027f1430853d99105d87edb5d6688c80e7018d96f299ba04eed2
 file:
   batch:
   - statement:
@@ -186,6 +186,89 @@ file:
       - keyword: COMMIT
       - keyword: PRESERVE
       - keyword: DEFINITION
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: GLOBAL
+      - keyword: TEMPORARY
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: my_temp_phys
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+        - comma: ','
+        - column_definition:
+            naked_identifier: description
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '20'
+                  end_bracket: )
+        - end_bracket: )
+      - keyword: 'ON'
+      - keyword: COMMIT
+      - keyword: DELETE
+      - keyword: ROWS
+      - oracle_physical_attributes:
+          keyword: TABLESPACE
+          object_reference:
+            naked_identifier: temp_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: GLOBAL
+      - keyword: TEMPORARY
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: my_temp_phys2
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+        - comma: ','
+        - column_definition:
+            naked_identifier: description
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '20'
+                  end_bracket: )
+        - end_bracket: )
+      - keyword: 'ON'
+      - keyword: COMMIT
+      - keyword: PRESERVE
+      - keyword: ROWS
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: temp_ts
+        - keyword: PCTFREE
+        - numeric_literal: '10'
+        - keyword: INITRANS
+        - numeric_literal: '2'
+        - storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '64'
+            - size_prefix: K
+            - keyword: NEXT
+            - numeric_literal: '64'
+            - size_prefix: K
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
       create_table_statement:
