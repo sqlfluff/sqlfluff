@@ -78,6 +78,10 @@ DBT_BUILTINS = {
         "source",
         lambda source_name, table: RelationEmulator(f"{source_name}_{table}"),
     ),
+    "function": FunctionWrapper(
+        "function",
+        lambda function_name: RelationEmulator(function_name),
+    ),
     "config": FunctionWrapper("config", lambda **kwargs: ""),
     "var": FunctionWrapper("var", lambda variable, default="": "item"),
     # `is_incremental()` renders as True, always in this case.
