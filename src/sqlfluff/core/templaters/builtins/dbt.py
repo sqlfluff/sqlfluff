@@ -80,7 +80,9 @@ DBT_BUILTINS = {
     ),
     "function": FunctionWrapper(
         "function",
-        lambda function_name: RelationEmulator(function_name),
+        # Mirror `ref` handling: tolerate optional qualifier args and use the
+        # last positional argument as the function identifier.
+        lambda *args, **kwargs: RelationEmulator(args[-1]),
     ),
     "config": FunctionWrapper("config", lambda **kwargs: ""),
     "var": FunctionWrapper("var", lambda variable, default="": "item"),
