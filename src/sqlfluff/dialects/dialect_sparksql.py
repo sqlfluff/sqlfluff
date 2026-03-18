@@ -1892,6 +1892,68 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
+class FromInsertSourceClauseSegment(BaseSegment):
+    """A `FROM` source clause within a `FROM ... INSERT ...` statement."""
+
+    type = "from_insert_source_clause"
+    match_grammar = Sequence(
+        "FROM",
+        Ref("TableReferenceSegment"),
+    )
+
+
+class FromInsertClauseSegment(BaseSegment):
+    """An `INSERT` target within a `FROM ... INSERT ...` statement."""
+
+    type = "from_insert_clause"
+    match_grammar = Sequence(
+        "INSERT",
+        OneOf("INTO", "OVERWRITE"),
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                Ref("PartitionSpecGrammar", optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref(
+                    "InsertSourceGrammar",
+                    terminators=[Ref.keyword("INSERT")],
+                ),
+            ),
+            Sequence(
+                "REPLACE",
+                Ref("WhereClauseSegment"),
+                Ref(
+                    "InsertSourceGrammar",
+                    terminators=[Ref.keyword("INSERT")],
+                ),
+            ),
+            Sequence(
+                "REPLACE",
+                "USING",
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref(
+                    "InsertSourceGrammar",
+                    terminators=[Ref.keyword("INSERT")],
+                ),
+            ),
+        ),
+    )
+
+
+class FromInsertStatementSegment(BaseSegment):
+    """A `FROM ... INSERT ...` statement."""
+
+    type = "from_insert_statement"
+    match_grammar = Sequence(
+        Ref("FromInsertSourceClauseSegment"),
+        AnyNumberOf(
+            Ref("FromInsertClauseSegment"),
+            min_times=1,
+        ),
+    )
+
+
 class InsertOverwriteDirectorySegment(BaseSegment):
     """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement.
 
@@ -2853,6 +2915,7 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         # Segments defined in Spark3 dialect
         insert=[
+            Ref("FromInsertStatementSegment"),
             # Data Definition Statements
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterTableStatementSegment"),
