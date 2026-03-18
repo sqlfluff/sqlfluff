@@ -465,8 +465,8 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("OffsetClauseSegment", optional=True),
-            Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
         ],
         replace_terminators=True,
         terminators=[
