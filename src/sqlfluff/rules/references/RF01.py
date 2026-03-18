@@ -192,6 +192,7 @@ class Rule_RF01(BaseRule):
         if not last_part.segments:
             return False
 
+        # Quoted identifiers should still be treated as ordinary references.
         return (
             last_part.segments[0].is_type("naked_identifier")
             and last_part.part.upper() in {"NEXTVAL", "CURRVAL"}

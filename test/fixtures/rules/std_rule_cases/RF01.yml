@@ -210,6 +210,14 @@ test_pass_oracle_sequence_nextval:
     core:
       dialect: oracle
 
+test_pass_oracle_sequence_currval:
+  # Two-part CURRVAL access should be exempt for the same reason as NEXTVAL.
+  pass_str: |
+    SELECT emloye_seq.CURRVAL FROM dual;
+  configs:
+    core:
+      dialect: oracle
+
 test_pass_oracle_schema_sequence_currval:
   # Oracle also supports [schema.]sequence.CURRVAL access.
   pass_str: |
