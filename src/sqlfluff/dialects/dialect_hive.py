@@ -772,6 +772,7 @@ class InsertStatementSegment(BaseSegment):
                 Ref.keyword("TABLE", optional=True),
                 Ref("TableReferenceSegment"),
                 Ref("PartitionSpecGrammar", optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
                 OneOf(
                     Ref("SelectableGrammar"),
                     Ref("ValuesClauseSegment"),
@@ -829,6 +830,7 @@ class FromInsertClauseSegment(BaseSegment):
                 Ref.keyword("TABLE", optional=True),
                 Ref("TableReferenceSegment"),
                 Ref("PartitionSpecGrammar", optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
                 OneOf(
                     Ref(
                         "SelectableGrammar",

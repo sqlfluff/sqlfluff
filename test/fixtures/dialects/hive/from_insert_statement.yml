@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 46a1f722663b58115a469f7d16fddc0ae278aefa0686c1601201fea0b1185c24
+_hash: decacb9bf8d1e99b942e7553a6e596bd00ef8792c443c121efe7cad5e96e48d8
 file:
 - statement:
     from_insert_statement:
@@ -94,6 +94,85 @@ file:
       - keyword: TABLE
       - table_reference:
           naked_identifier: tab3
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: tab1
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    from_insert_statement:
+    - from_insert_source_clause:
+        keyword: FROM
+        table_reference:
+          naked_identifier: tab1
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab2
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: tab1
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '2'
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab3
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
       - select_statement:
           select_clause:
             keyword: SELECT

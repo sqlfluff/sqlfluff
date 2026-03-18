@@ -7,3 +7,8 @@ INSERT INTO TABLE tab3 SELECT * WHERE flag = 3;
 FROM tab1
 INSERT INTO TABLE tab2 SELECT * FROM tab1 WHERE flag = 2
 INSERT INTO TABLE tab3 SELECT * FROM tab1 WHERE flag = 3;
+
+-- INSERT targets may include target column lists
+FROM tab1
+INSERT INTO TABLE tab2 (col1, col2) SELECT * FROM tab1 WHERE flag = 2
+INSERT INTO TABLE tab3 (col1, col2) SELECT * FROM tab1 WHERE flag = 3;
