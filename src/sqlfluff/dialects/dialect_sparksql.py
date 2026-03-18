@@ -1898,7 +1898,9 @@ class FromInsertSourceClauseSegment(BaseSegment):
     type = "from_insert_source_clause"
     match_grammar = Sequence(
         "FROM",
-        Ref("TableReferenceSegment"),
+        Delimited(
+            Ref("FromExpressionSegment"),
+        ),
     )
 
 
