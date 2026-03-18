@@ -448,7 +448,7 @@ class OffsetClauseSegment(ansi.OffsetClauseSegment):
         Indent,
         OneOf(
             Ref("NumericLiteralSegment"),
-            Ref("ExpressionSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
         ),
         OneOf("ROW", "ROWS", optional=True),
         Dedent,
@@ -465,6 +465,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("OffsetClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
         ],
         replace_terminators=True,
