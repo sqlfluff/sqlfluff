@@ -1899,8 +1899,67 @@ class FromInsertSourceClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "FROM",
         Delimited(
-            Ref("FromExpressionSegment"),
+            Ref("FromInsertFromExpressionSegment"),
         ),
+    )
+
+
+class FromInsertFromExpressionElementSegment(ansi.FromExpressionElementSegment):
+    """A table expression within a `FROM ... INSERT ...` source clause.
+
+    SparkSQL keeps `INSERT` unreserved, so in this context we must prevent it
+    from being consumed as an implicit alias for the shared source.
+    """
+
+    match_grammar = Sequence(
+        Ref("PreTableFunctionKeywordsGrammar", optional=True),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref("SamplingExpressionSegment", optional=True),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf(
+                Ref.keyword("INSERT"),
+                Ref("FromClauseTerminatorGrammar"),
+                Ref("JoinLikeClauseGrammar"),
+            ),
+            optional=True,
+        ),
+        Ref("PostTableExpressionGrammar", optional=True),
+    )
+
+
+class FromInsertFromExpressionSegment(BaseSegment):
+    """A FROM expression within a `FROM ... INSERT ...` source clause."""
+
+    type = "from_expression"
+    match_grammar = OptionallyBracketed(
+        Sequence(
+            Indent,
+            OneOf(
+                Ref("MLTableExpressionSegment"),
+                Ref("FromInsertFromExpressionElementSegment"),
+                Bracketed(Ref("FromInsertFromExpressionSegment")),
+                terminators=[
+                    Sequence("ORDER", "BY"),
+                    Sequence("GROUP", "BY"),
+                    Ref.keyword("INSERT"),
+                ],
+            ),
+            Dedent,
+            Conditional(Indent, indented_joins=True),
+            AnyNumberOf(
+                Sequence(
+                    OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
+                ),
+                optional=True,
+                terminators=[
+                    Sequence("ORDER", "BY"),
+                    Sequence("GROUP", "BY"),
+                    Ref.keyword("INSERT"),
+                ],
+            ),
+            Conditional(Dedent, indented_joins=True),
+        )
     )
 
 
@@ -1925,15 +1984,6 @@ class FromInsertClauseSegment(BaseSegment):
             Sequence(
                 "REPLACE",
                 Ref("WhereClauseSegment"),
-                Ref(
-                    "InsertSourceGrammar",
-                    terminators=[Ref.keyword("INSERT")],
-                ),
-            ),
-            Sequence(
-                "REPLACE",
-                "USING",
-                Ref("BracketedColumnReferenceListGrammar"),
                 Ref(
                     "InsertSourceGrammar",
                     terminators=[Ref.keyword("INSERT")],
