@@ -257,7 +257,7 @@ def _validate_one_reference(
         for part in ref.extract_possible_references(
             level=ref.ObjectReferenceLevel.TABLE
         ):
-            if part.segments[0].raw in standalone_alias_raws:
+            if part.part in standalone_alias_raws:
                 return None
         # Also check the leading (first) part of the reference. For multi-part
         # references like `item.taskId.oid` (e.g. in Databricks higher-order
