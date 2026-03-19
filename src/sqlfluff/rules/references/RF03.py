@@ -293,14 +293,16 @@ def _validate_one_reference(
         # If this is qualified we must have a "table", "."" at least
         return LintResult(
             anchor=ref,
-            fixes=[LintFix.delete(el) for el in ref.segments[:2]],
+            fixes=[LintFix.delete(el) for el in ref.segments[:2]]
+            if not ref.is_templated
+            else None,
             description="{} reference {!r} found in single table select.".format(
                 this_ref_type.capitalize(), ref.raw
             ),
         )
 
     fixes = None
-    if fixable:
+    if fixable and not ref.is_templated:
         fixes = [
             LintFix.create_before(
                 ref.segments[0] if len(ref.segments) else ref,

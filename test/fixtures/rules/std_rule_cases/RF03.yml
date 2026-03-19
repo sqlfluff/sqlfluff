@@ -538,3 +538,35 @@ test_pass_tsql_collate_clause:
   configs:
     core:
       dialect: tsql
+
+test_pass_postgres_placeholder_colon_param:
+  # Test that placeholder params are not incorrectly qualified
+  # https://github.com/sqlfluff/sqlfluff/issues/7570
+  pass_str: |
+    select * from mytable as mt
+    where mt.colname = CAST(:colname AS TEXT)
+  configs:
+    core:
+      dialect: postgres
+    templater:
+      placeholder:
+        param_style: colon
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fix_postgres_placeholder_not_qualified:
+  # Placeholder params should not be qualified with table alias
+  # https://github.com/sqlfluff/sqlfluff/issues/7570
+  fix_str: |
+    select mt.colname from mytable as mt
+    where mt.colname = CAST(:colname AS TEXT)
+  configs:
+    core:
+      dialect: postgres
+    templater:
+      placeholder:
+        param_style: colon
+    rules:
+      references.consistent:
+        single_table_references: qualified
