@@ -2364,9 +2364,7 @@ def _fix_long_line_with_integer_targets(
     return line_results
 
 
-def _is_templated_safe_break(
-    elements: ReflowSequenceType, e_idx: int
-) -> bool:
+def _is_templated_safe_break(elements: ReflowSequenceType, e_idx: int) -> bool:
     """Check if inserting a line break at e_idx is safe for templated files.
 
     A break point is unsafe if BOTH adjacent content segments are non-literal
