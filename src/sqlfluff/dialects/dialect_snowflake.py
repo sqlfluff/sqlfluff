@@ -8098,7 +8098,7 @@ class AlterCortexSearchServiceStatementSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/alter-cortex-search
     """
 
-    type = "alter_streamlit_statement"
+    type = "alter_cortex_search_service_statement"
 
     match_grammar = Sequence(
         "ALTER",
@@ -8132,6 +8132,10 @@ class AlterCortexSearchServiceStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence("ADD", "SCORING", "PROFILE",
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("QuotedLiteralSegment"))
         ),
     )
 
