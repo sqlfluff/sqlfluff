@@ -566,3 +566,67 @@ def test__templater_python_dot_notation_fail(context, error_string):
     with pytest.raises(SQLTemplaterError) as excinfo:
         outstr, _ = t.process(in_str="SELECT * FROM {foo.bar}", fname="test")
     assert error_string in excinfo.value.desc()
+
+
+@pytest.mark.parametrize(
+    "in_str,ignore,context,expected_templated_str,expected_violation",
+    [
+        # Without ignore=templating, a missing variable raises an error.
+        (
+            "SELECT * FROM {start_date}",
+            "",
+            None,
+            None,
+            SQLTemplaterError("Failure in Python templating: 'start_date'."),
+        ),
+        # With ignore=templating, the variable name is used as a placeholder and
+        # linting can proceed on the rendered SQL.
+        (
+            "SELECT * FROM {start_date}",
+            "templating",
+            None,
+            "SELECT * FROM start_date",
+            None,
+        ),
+        # With ignore=templating and a dot-notation variable, the key name
+        # (with dots replaced by underscores) is used as a placeholder.
+        (
+            "SELECT * FROM {foo.bar}",
+            "templating",
+            None,
+            "SELECT * FROM foo_bar",
+            None,
+        ),
+        # With ignore=templating and a partial sqlfluff context, a missing nested
+        # dot-notation key should still fall back rather than raising KeyError.
+        (
+            "SELECT * FROM {foo.bar}",
+            "templating",
+            {"sqlfluff": {"existing.key": "val"}},
+            "SELECT * FROM foo_bar",
+            None,
+        ),
+    ],
+)
+def test__templater_python_ignore_templating(
+    in_str, ignore, context, expected_templated_str, expected_violation
+):
+    """Test that ignore=templating allows linting to proceed with missing variables.
+
+    When ignore=templating is set and a template variable is missing, the
+    Python templater should use the variable name as a fallback (rather than
+    raising a fatal error), so that linting rules can still run on the output.
+    """
+    t = PythonTemplater(override_context=context)
+    config = FluffConfig(overrides={"dialect": "ansi", "ignore": ignore})
+
+    if expected_violation:
+        with pytest.raises(SQLTemplaterError):
+            t.process(in_str=in_str, fname="test", config=config)
+    else:
+        templated_file, violations = t.process(
+            in_str=in_str, fname="test", config=config
+        )
+        assert templated_file is not None
+        assert str(templated_file) == expected_templated_str
+        assert len(violations) == 0
