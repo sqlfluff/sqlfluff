@@ -253,11 +253,19 @@ def _validate_one_reference(
     # If the reference is qualified, see that the table is not in the standalone_aliases
     # namely for lambda expressions.
     if ref.is_qualified():
+        standalone_alias_raws = [a.raw for a in standalone_aliases]
         for part in ref.extract_possible_references(
             level=ref.ObjectReferenceLevel.TABLE
         ):
-            if part.segments[0].raw in [a.raw for a in standalone_aliases]:
+            if part.segments[0].raw in standalone_alias_raws:
                 return None
+        # Also check the leading (first) part of the reference. For multi-part
+        # references like `item.taskId.oid` (e.g. in Databricks higher-order
+        # functions), the lambda parameter `item` is at the SCHEMA level, not
+        # TABLE level. We need to check it against standalone aliases too.
+        first_raw_ref = next(ref.iter_raw_references(), None)
+        if first_raw_ref and first_raw_ref.part in standalone_alias_raws:
+            return None
 
     # Oddball case: tsql table variables can't be used to qualify references.
     # This appears here as an empty string for table_ref_str.
