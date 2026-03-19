@@ -216,7 +216,10 @@ def _check_references(
 
         if fix_inconsistent_to and single_table_references == "consistent":
             # If we found a "consistent" error but we have a fix directive,
-            # recurse with a different single_table_references value
+            # recurse with a different single_table_references value.
+            # This re-check iterates the same references list, so the templated
+            # unqualified-reference skip above still applies and intentionally
+            # keeps those placeholders out of every consistency pass.
             yield from _check_references(
                 table_aliases,
                 standalone_aliases,

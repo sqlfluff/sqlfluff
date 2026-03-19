@@ -132,7 +132,7 @@ def test__templater_raw():
             # Test that colon params before PostgreSQL :: cast operator are
             # correctly recognized. The :colname in :colname::text should match
             # the full parameter name 'colname', not a truncated version.
-            # See: https://github.com/sqlfluff/sqlfluff/issues/7364
+            # See: https://github.com/sqlfluff/sqlfluff/issues/7570
             """
             SELECT user_mail, city_id
             FROM users_data
@@ -142,10 +142,11 @@ def test__templater_raw():
             """
             SELECT user_mail, city_id
             FROM users_data
-            WHERE userid = 42 AND city = city_name::text
+            WHERE userid = 42 AND city = 'London'::text
             """,
             dict(
                 user_id="42",
+                city_name="'London'",
             ),
         ),
         (
