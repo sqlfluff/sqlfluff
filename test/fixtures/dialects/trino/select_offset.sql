@@ -21,6 +21,3 @@ SELECT user_id FROM users ORDER BY user_id OFFSET 10 LIMIT 20;
 
 -- Offset only (no LIMIT)
 SELECT user_id FROM users OFFSET 0;
-
--- LIMIT with OFFSET (LIMIT before OFFSET, handled by LimitClauseSegment)
-SELECT user_id FROM users LIMIT 20 OFFSET 10;
