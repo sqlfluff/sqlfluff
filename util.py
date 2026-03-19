@@ -145,12 +145,12 @@ def release(new_version_num):
     for i, p in enumerate(draft_body_parts):
         draft_body_parts[i] = re.sub(
             r"\(#([0-9]*)\) @([^ ]*)$",
-            r"[#\1](https://github.com/sqlfluff/sqlfluff/pull/\1) [@\2](https://github.com/\2)",  # noqa E501
+            r"[#\1](https://github.com/sqlfluff/sqlfluff/pull/\1) [@\2](https://github.com/\2)",
             p,
         )
         new_contrib_string = re.sub(
             r".*\(#([0-9]*)\) @([^ ]*)$",
-            r"* [@\2](https://github.com/\2) made their first contribution in [#\1](https://github.com/sqlfluff/sqlfluff/pull/\1)",  # noqa E501
+            r"* [@\2](https://github.com/\2) made their first contribution in [#\1](https://github.com/sqlfluff/sqlfluff/pull/\1)",
             p,
         )
         if new_contrib_string.startswith("* "):
