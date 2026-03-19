@@ -135,13 +135,14 @@ class Rule_ST05(BaseRule):
         # Check for expression CTEs (e.g. ClickHouse `expr AS name`) that aren't
         # tracked in query.ctes because they contain no selectable.  If any exist,
         # rewriting the WITH clause would silently drop them (#7504).
-        has_untracked_ctes = False
-        if is_with:
-            all_cte_defs = list(
-                context.segment.recursive_crawl("common_table_expression")
+        has_untracked_ctes = is_with and len(
+            list(
+                context.segment.recursive_crawl(
+                    "common_table_expression",
+                    no_recursive_seg_type="with_compound_statement",
+                )
             )
-            if len(all_cte_defs) > len(query.ctes):
-                has_untracked_ctes = True
+        ) > len(query.ctes)
         case_preference = _get_case_preference(segment)
         output_select = segment
         if is_with:
