@@ -784,9 +784,9 @@ def test__templater_jinja_block_matching(caplog):
     ]
 
     # Group them together by block UUID
-    assert all(seg.block_uuid for seg in template_segments), (
-        "All templated segments should have a block uuid!"
-    )
+    assert all(
+        seg.block_uuid for seg in template_segments
+    ), "All templated segments should have a block uuid!"
     grouped = defaultdict(list)
     for seg in template_segments:
         grouped[seg.block_uuid].append(seg.pos_marker.working_loc)
@@ -1797,6 +1797,39 @@ def test_undefined_magic_methods():
     assert ud > ud
 
     assert ud + ud is ud
+
+
+def test_dummy_undefined_iter_empty():
+    """Test DummyUndefined.__iter__ returns empty to avoid tuple-unpacking errors.
+
+    When a template has {% for key, value in undefined_var.items() %}, Jinja
+    unpacks each element by calling __iter__() on it. If that yields only 1
+    item, Python raises ValueError: not enough values to unpack. Returning
+    empty prevents this crash.
+    """
+    ud = DummyUndefined("name")
+    assert list(ud) == []
+
+
+def test_jinja_undefined_multivar_for_loop_no_crash():
+    """Test that templates with multi-variable for loops over undefined vars don't crash.
+
+    Reproduces: ValueError: not enough values to unpack (expected 2, got 1)
+    when a Jinja template has {% for key, value in undefined.items() %}.
+    """
+    t = JinjaTemplater()
+    _, violations = t.process(
+        in_str=(
+            "SELECT 1\n"
+            "{% for field, conditions in undefined_dict.items() %}\n"
+            "AND {{ field }} = '{{ conditions }}'\n"
+            "{% endfor %}\n"
+        ),
+        fname="test.sql",
+        config=FluffConfig(overrides={"templater": "jinja", "dialect": "ansi"}),
+    )
+    # Should produce an undefined variable violation, not a crash
+    assert any(isinstance(v, SQLTemplaterError) for v in violations)
 
 
 @pytest.mark.parametrize(

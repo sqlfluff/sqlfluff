@@ -85,7 +85,7 @@ class UndefinedRecorder:
     def __iter__(self) -> Iterator["UndefinedRecorder"]:
         """Don't fail when iterated, remember instead."""
         self.undefined_set.add(self.name)
-        yield UndefinedRecorder(f"iter({self.name})", self.undefined_set)
+        return iter([])
 
 
 class JinjaTemplater(PythonTemplater):
@@ -276,9 +276,9 @@ class JinjaTemplater(PythonTemplater):
             # the guidance of the python docs:
             # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
             spec = module_finder.find_spec(module_name, None)
-            assert spec, (
-                f"Module {module_name} failed to be found despite being listed."
-            )
+            assert (
+                spec
+            ), f"Module {module_name} failed to be found despite being listed."
             module = importlib.util.module_from_spec(spec)
             sys.modules[module_name] = module
             assert spec.loader, f"Module {module_name} missing expected loader."
@@ -1176,12 +1176,12 @@ class DummyUndefined(jinja2.Undefined):
         return 0
 
     def __iter__(self) -> Iterator["DummyUndefined"]:
-        """Return an iterator that contains only the instance of the class itself.
+        """Return an empty iterator to avoid tuple-unpacking errors.
 
         Returns:
-            iterator: An iterator.
+            iterator: An empty iterator.
         """
-        return [self].__iter__()
+        return iter([])
 
 
 class DBTTestExtension(Extension):
