@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc83e1fe6b200b9a278d01129e8c517abaaca80c59062c190cce4c2fa86ba2c3
+_hash: 19fc0ec600a320bb50986206b6aed485b9039b6a8c15654aed1148eaf312e15f
 file:
   batch:
   - statement:
@@ -119,6 +119,151 @@ file:
       - keyword: PROFILE
       - object_reference:
           naked_identifier: app_user
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user2
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user3
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: DEFAULT
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: users
+      - keyword: PROFILE
+      - keyword: DEFAULT
+      - keyword: ACCOUNT
+      - keyword: UNLOCK
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user4
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - keyword: DEFAULT
+      - keyword: PASSWORD
+      - keyword: EXPIRE
+      - keyword: ACCOUNT
+      - keyword: LOCK
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user5
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - object_reference:
+          naked_identifier: my_profile
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user6
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - object_reference:
+        - naked_identifier: dba
+        - dot: .
+        - naked_identifier: app_profile
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user7
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: DEFAULT
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: users
+      - keyword: PASSWORD
+      - keyword: EXPIRE
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user8
+      - keyword: IDENTIFIED
+      - keyword: EXTERNALLY
+      - keyword: PROFILE
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user9
+      - keyword: IDENTIFIED
+      - keyword: GLOBALLY
+      - keyword: PROFILE
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user10
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - keyword: DEFAULT
+      - keyword: ACCOUNT
+      - keyword: UNLOCK
+      - keyword: CONTAINER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CURRENT
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user11
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - object_reference:
+          naked_identifier: app_user
+      - keyword: ACCOUNT
+      - keyword: UNLOCK
   - statement_terminator: ;
   - statement:
       create_user_statement:

@@ -3028,7 +3028,6 @@ class SetOperatorSegment(BaseSegment):
             Ref.keyword("ALL", optional=True),
         ),
         "MINUS",
-        exclude=Sequence("EXCEPT", Bracketed(Anything())),
     )
 
 

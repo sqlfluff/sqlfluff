@@ -798,3 +798,19 @@ test_fail_no_fix_long_templated:
   fail_str: |
     select
         '{{ "', '".join(["foo", "bar", "whatever", "whatever", "whatever", "whatever"]) }}'
+
+test_fail_no_fix_jinja_macro_with_brackets:
+  # Test that LT05 doesn't attempt to fix within template-expanded content
+  # that contains brackets (creating indent/dedent pairs). Without the guard,
+  # the fixer inserts line breaks within the rendered template content, which
+  # can't be mapped back to source and leads to content duplication.
+  # https://github.com/sqlfluff/sqlfluff/issues/7639
+  fail_str: |
+    {% macro cast_tz(expr) %}({{ expr }})::TIMESTAMP AT TIME ZONE 'UTC'{% endmacro %}
+    SELECT
+        datediff(
+            'minute',
+            {{ cast_tz("cast(source.order_entered_date || ' ' || source.order_entered_time as timestamp)") }},
+            {{ cast_tz("cast(source.order_arrived_date || ' ' || source.order_arrived_time as timestamp)") }}
+        )
+    FROM source
