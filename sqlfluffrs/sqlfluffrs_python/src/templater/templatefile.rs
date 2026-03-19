@@ -16,7 +16,12 @@ use sqlfluffrs_types::templater::templatefile::TemplatedFile;
 static PY_TEMPLATED_FILE_CACHE: Lazy<Mutex<HashMap<String, Arc<TemplatedFile>>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
 
-#[pyclass(name = "RsTemplatedFile", frozen, module = "sqlfluffrs")]
+#[pyclass(
+    name = "RsTemplatedFile",
+    frozen,
+    module = "sqlfluffrs",
+    from_py_object
+)]
 #[repr(transparent)]
 #[derive(Clone, PartialEq, Hash)]
 pub struct PyTemplatedFile(pub Arc<TemplatedFile>);
@@ -237,8 +242,10 @@ impl From<PyTemplatedFile> for Arc<TemplatedFile> {
 #[derive(Clone, IntoPyObject)]
 pub struct PySqlFluffTemplatedFile(pub PyTemplatedFile);
 
-impl<'py> FromPyObject<'py> for PySqlFluffTemplatedFile {
-    fn extract_bound(obj: &pyo3::Bound<'py, pyo3::PyAny>) -> PyResult<Self> {
+impl<'a, 'py> FromPyObject<'a, 'py> for PySqlFluffTemplatedFile {
+    type Error = PyErr;
+
+    fn extract(obj: pyo3::Borrowed<'a, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
         let source_str = obj.getattr("source_str")?.extract::<String>()?;
         let fname = obj.getattr("fname")?.extract::<String>()?;
         let templated_str = obj.getattr("templated_str")?.extract::<String>()?;

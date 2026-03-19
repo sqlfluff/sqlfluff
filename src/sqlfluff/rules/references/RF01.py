@@ -160,6 +160,8 @@ class Rule_RF01(BaseRule):
     def _should_ignore_reference(
         self, reference: ObjectReferenceSegment, selectable: Selectable
     ) -> bool:
+        if self._is_oracle_sequence_pseudocolumn(reference, selectable):
+            return True
         ref_path = selectable.selectable.path_to(reference)
         # Ignore references occurring in an "INTO" clause:
         # - They are table references, not column references.
@@ -170,6 +172,29 @@ class Rule_RF01(BaseRule):
             return any(ps.segment.is_type("into_table_clause") for ps in ref_path)
         else:
             return False  # pragma: no cover
+
+    def _is_oracle_sequence_pseudocolumn(
+        self, reference: ObjectReferenceSegment, selectable: Selectable
+    ) -> bool:
+        """Whether reference is an Oracle sequence pseudocolumn access.
+
+        Oracle treats ``sequence.NEXTVAL`` and ``sequence.CURRVAL`` as sequence
+        pseudocolumn access rather than table/column access.
+        """
+        if selectable.dialect.name != "oracle":
+            return False
+
+        reference_parts = list(reference.iter_raw_references())
+        if len(reference_parts) < 2:
+            return False
+
+        last_part = reference_parts[-1]
+
+        # Quoted identifiers should still be treated as ordinary references.
+        return bool(last_part.segments) and (
+            last_part.segments[0].is_type("naked_identifier")
+            and last_part.part.upper() in {"NEXTVAL", "CURRVAL"}
+        )
 
     def _get_table_refs(
         self, ref: ObjectReferenceSegment, dialect: Dialect
