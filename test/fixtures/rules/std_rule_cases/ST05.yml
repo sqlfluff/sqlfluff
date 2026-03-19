@@ -1214,3 +1214,26 @@ test_fail_tsql_existing_cte_with_insert:
   configs:
     core:
       dialect: tsql
+
+clickhouse_expression_cte_preserved:
+  # Expression CTEs should not be dropped when ST05 rewrites subqueries.
+  # ST05 should still flag the violation but not apply a fix.
+  # https://github.com/sqlfluff/sqlfluff/issues/7504
+  fail_str: |
+    insert into demo_table
+    with
+    array('A', 'B') as keep_list
+    select
+        orders.id,
+        default_tags.tag
+    from (
+        select 1 as id, 'A' as tag
+    ) as orders
+    left join (
+        select 1 as id, 'x' as tag
+    ) as default_tags
+        on orders.id = default_tags.id
+    where orders.tag in keep_list
+  configs:
+    core:
+      dialect: clickhouse

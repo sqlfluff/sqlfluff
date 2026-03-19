@@ -132,6 +132,16 @@ class Rule_ST05(BaseRule):
         is_with = segment.all(is_type("with_compound_statement"))
         # TODO: consider if we can fix recursive CTEs
         is_recursive = is_with and len(segment.children(is_keyword("recursive"))) > 0
+        # Check for expression CTEs (e.g. ClickHouse `expr AS name`) that aren't
+        # tracked in query.ctes because they contain no selectable.  If any exist,
+        # rewriting the WITH clause would silently drop them (#7504).
+        has_untracked_ctes = False
+        if is_with:
+            all_cte_defs = list(
+                context.segment.recursive_crawl("common_table_expression")
+            )
+            if len(all_cte_defs) > len(query.ctes):
+                has_untracked_ctes = True
         case_preference = _get_case_preference(segment)
         output_select = segment
         if is_with:
@@ -200,7 +210,7 @@ class Rule_ST05(BaseRule):
             subquery_parent,
             is_fixable,
         ) in results_list:
-            if bracketed_ctas or is_recursive or not is_fixable:
+            if bracketed_ctas or is_recursive or has_untracked_ctes or not is_fixable:
                 continue
             # Compute fix.
             output_select_clone = clone_map[output_select[0]]
