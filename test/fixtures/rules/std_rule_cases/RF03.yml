@@ -543,7 +543,7 @@ test_pass_postgres_placeholder_colon_param:
   # Test that placeholder params are not incorrectly qualified
   # https://github.com/sqlfluff/sqlfluff/issues/7570
   pass_str: |
-    select * from mytable as mt
+    select mt.colname from mytable as mt
     where mt.colname = CAST(:colname AS TEXT)
   configs:
     core:
@@ -558,6 +558,9 @@ test_pass_postgres_placeholder_colon_param:
 test_fix_postgres_placeholder_not_qualified:
   # Placeholder params should not be qualified with table alias
   # https://github.com/sqlfluff/sqlfluff/issues/7570
+  fail_str: |
+    select colname from mytable as mt
+    where mt.colname = CAST(:colname AS TEXT)
   fix_str: |
     select mt.colname from mytable as mt
     where mt.colname = CAST(:colname AS TEXT)
@@ -567,6 +570,19 @@ test_fix_postgres_placeholder_not_qualified:
     templater:
       placeholder:
         param_style: colon
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_pass_postgres_placeholder_double_colon_cast:
+  # Test that :: cast syntax is not treated as a placeholder param
+  # https://github.com/sqlfluff/sqlfluff/issues/7570
+  pass_str: |
+    select mt.colname from mytable as mt
+    where mt.colname = mt.othercolname::TEXT
+  configs:
+    core:
+      dialect: postgres
     rules:
       references.consistent:
         single_table_references: qualified
