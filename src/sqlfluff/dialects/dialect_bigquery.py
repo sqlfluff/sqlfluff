@@ -1598,7 +1598,7 @@ class TableTypeSegment(ansi.StructTypeSegment):
     type = "data_type"
     match_grammar = Sequence(
         "TABLE",
-        Ref("StructTypeSchemaSegment", optional=True),
+        Ref("StructTypeSchemaSegment"),
     )
 
 
