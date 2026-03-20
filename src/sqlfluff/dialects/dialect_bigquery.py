@@ -1575,6 +1575,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("ArrayTypeSegment"),
         Ref("StructTypeSegment"),
+        Ref("TableTypeSegment"),
     )
 
 
@@ -1584,6 +1585,19 @@ class StructTypeSegment(ansi.StructTypeSegment):
     type = "data_type"
     match_grammar = Sequence(
         "STRUCT",
+        Ref("StructTypeSchemaSegment", optional=True),
+    )
+
+
+class TableTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a TABLE datatype.
+
+    This mirrors the STRUCT type but is used for table-valued parameters in UDFs and stored procedures.
+    """
+
+    type = "data_type"
+    match_grammar = Sequence(
+        "TABLE",
         Ref("StructTypeSchemaSegment", optional=True),
     )
 
