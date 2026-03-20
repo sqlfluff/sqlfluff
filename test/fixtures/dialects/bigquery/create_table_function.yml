@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8490e6cdae0ee9895b705b456d3bcbdf97b52cbc782eedca9a41cca8f3701ebf
+_hash: f346cc00bc06f5ab645c032ec83765a40c70ceed871827c887ce574fcd93b2cf
 file:
 - statement:
     create_table_function_statement:
@@ -108,7 +108,7 @@ file:
           data_type:
             data_type:
               keyword: TABLE
-              struct_type_schema:
+              table_type_schema:
               - start_angle_bracket: <
               - parameter: sales
               - data_type:

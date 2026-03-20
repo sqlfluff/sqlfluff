@@ -1589,19 +1589,6 @@ class StructTypeSegment(ansi.StructTypeSegment):
     )
 
 
-class TableTypeSegment(ansi.StructTypeSegment):
-    """Expression to construct a TABLE datatype.
-
-    This mirrors the STRUCT type but is used for table-valued parameters in UDFs and stored procedures.
-    """
-
-    type = "data_type"
-    match_grammar = Sequence(
-        "TABLE",
-        Ref("StructTypeSchemaSegment"),
-    )
-
-
 class StructTypeSchemaSegment(BaseSegment):
     """Expression to construct the schema of a STRUCT datatype."""
 
@@ -1619,6 +1606,37 @@ class StructTypeSchemaSegment(BaseSegment):
                         Ref("DatatypeSegment"),
                     ),
                 ),
+                AnyNumberOf(Ref("ColumnConstraintSegment")),
+                Ref("OptionsSegment", optional=True),
+            ),
+        ),
+        bracket_type="angle",
+        bracket_pairs_set="angle_bracket_pairs",
+    )
+
+
+class TableTypeSegment(BaseSegment):
+    """Expression to construct a TABLE datatype.
+
+    This mirrors the STRUCT type but is used for table-valued parameters in UDFs and stored procedures.
+    """
+
+    type = "data_type"
+    match_grammar = Sequence(
+        "TABLE",
+        Ref("TableTypeSchemaSegment"),
+    )
+
+
+class TableTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a TABLE datatype."""
+
+    type = "table_type_schema"
+    match_grammar = Bracketed(
+        Delimited(  # Comma-separated list of field names/types
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Ref("DatatypeSegment"),
                 AnyNumberOf(Ref("ColumnConstraintSegment")),
                 Ref("OptionsSegment", optional=True),
             ),
