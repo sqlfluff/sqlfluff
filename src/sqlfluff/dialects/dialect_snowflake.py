@@ -8135,7 +8135,11 @@ class AlterCortexSearchServiceStatementSegment(BaseSegment):
             Sequence("ADD", "SCORING", "PROFILE",
                     Ref("IfNotExistsGrammar", optional=True),
                     Ref("SingleIdentifierGrammar"),
-                    Ref("QuotedLiteralSegment"))
+                    Ref("QuotedLiteralSegment")),
+            Sequence("DROP", "SCORING", "PROFILE",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"))
+
         ),
     )
 
