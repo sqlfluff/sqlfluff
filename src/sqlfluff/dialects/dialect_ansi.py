@@ -61,6 +61,7 @@ from sqlfluff.core.parser import (
     WhitespaceSegment,
     WordSegment,
 )
+from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
@@ -518,7 +519,10 @@ ansi_dialect.add(
         ),
     ),
     SelectClauseTerminatorGrammar=OneOf(
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         Ref("LimitClauseSegment"),
@@ -3024,7 +3028,6 @@ class SetOperatorSegment(BaseSegment):
             Ref.keyword("ALL", optional=True),
         ),
         "MINUS",
-        exclude=Sequence("EXCEPT", Bracketed(Anything())),
     )
 
 

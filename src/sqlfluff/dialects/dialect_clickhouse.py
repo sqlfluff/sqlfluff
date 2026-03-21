@@ -7,6 +7,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -666,6 +667,27 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
             Ref("SettingsClauseSegment", optional=True),
             Ref("IntoOutfileClauseSegment", optional=True),
         ],
+    )
+
+
+class SetOperatorSegment(ansi.SetOperatorSegment):
+    """A set operator such as Union, Minus, Except or Intersect.
+
+    Excludes ClickHouse `SELECT * EXCEPT (...)` wildcard exclusions from being
+    consumed as set operators.
+    """
+
+    match_grammar = OneOf(
+        Ref("UnionGrammar"),
+        Sequence(
+            OneOf(
+                "INTERSECT",
+                "EXCEPT",
+            ),
+            Ref.keyword("ALL", optional=True),
+        ),
+        "MINUS",
+        exclude=Sequence("EXCEPT", Bracketed(Anything())),
     )
 
 

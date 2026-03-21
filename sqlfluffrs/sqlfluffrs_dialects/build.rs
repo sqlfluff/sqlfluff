@@ -105,7 +105,11 @@ fn main() {
     // sub-scripts can import sqlfluff directly from the source tree without a
     // full installation (maturin's isolated PEP 517 build env has no pip).
     let src_dir = repo_root.join("src");
-    let sep = if cfg!(target_os = "windows") { ";" } else { ":" };
+    let sep = if cfg!(target_os = "windows") {
+        ";"
+    } else {
+        ":"
+    };
     let pythonpath = match std::env::var("PYTHONPATH") {
         Ok(existing) if !existing.is_empty() => {
             format!("{}{}{}", src_dir.display(), sep, existing)
@@ -193,6 +197,17 @@ fn collect_python_sources(repo_root: &Path) -> Vec<PathBuf> {
         if p.exists() {
             sources.push(p);
         }
+    }
+
+    let lookbehind = repo_root
+        .join("src")
+        .join("sqlfluff")
+        .join("core")
+        .join("parser")
+        .join("grammar")
+        .join("lookbehind.py");
+    if lookbehind.exists() {
+        sources.push(lookbehind);
     }
 
     sources

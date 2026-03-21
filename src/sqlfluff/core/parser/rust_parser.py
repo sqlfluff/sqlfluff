@@ -209,6 +209,40 @@ try:
                 segments[:_start_idx] + content + segments[_end_idx:], fname=fname
             )
 
+            # Build the Rust Node tree (RsNode) from the MatchResult.
+            # This is used by Rust-side linting rules (e.g., LT01 respace)
+            # to avoid expensive round-tripping through Python's segment tree.
+            try:
+                # Extract leading non-code tokens (segments before _start_idx:
+                # whitespace/newlines at the start of the file) so the Rust node's
+                # flat raw list matches Python's raw_segments ordering exactly.
+                leading_tokens = (
+                    self._extract_tokens_from_segments(segments[:_start_idx])
+                    if _start_idx
+                    else []
+                )
+                # Extract trailing non-code tokens (segments after _end_idx: newline,
+                # end_of_file, etc.) and include them in the Rust node so that the
+                # reflow/respace rules can correctly detect EOF and trailing newlines.
+                trailing_tokens = (
+                    self._extract_tokens_from_segments(segments[_end_idx:])
+                    if _end_idx < len(segments)
+                    else []
+                )
+                result._rs_node = rs_match.apply_as_node(
+                    tokens,
+                    leading=leading_tokens,
+                    trailing=trailing_tokens,
+                )
+            except Exception:  # pragma: no cover
+                # Non-critical: if node building fails, rules fall back to Python
+                parser_logger.warning(
+                    f"Unable to apply match result in parse tree for {fname}, falling"
+                    " back to Python. Please report this as a bug with the SQL that"
+                    " caused it."
+                )
+                result._rs_node = None
+
             if parse_statistics:  # pragma: no cover
                 print("Warning: parse_statistics not yet implemented for Rust parser")
 

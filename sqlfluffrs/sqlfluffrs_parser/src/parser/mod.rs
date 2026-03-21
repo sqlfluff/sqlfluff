@@ -28,7 +28,7 @@ pub mod python;
 pub use core::Parser;
 pub use match_result::{MatchResult, MatchedClass, MetaSegment};
 pub use sqlfluffrs_types::ParseMode;
-pub use types::{Node, ParseError, ParseErrorType};
+pub use types::{MetaType, Node, ParseError, ParseErrorType, RawSegmentKwargs};
 
 // Internal re-exports for submodules
 pub(crate) use frame::{BracketedState, DelimitedState, FrameContext, FrameState};
