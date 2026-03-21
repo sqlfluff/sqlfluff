@@ -6,4 +6,16 @@ AS
   SELECT year, name, SUM(number) AS total
   FROM `bigquery-public-data.usa_names.usa_1910_current`
   WHERE year = y
-  GROUP BY year, name
+  GROUP BY year, name;
+
+CREATE OR REPLACE TABLE FUNCTION analytics_sandbox.test_tvf(
+  input_table TABLE<sales INT64, item STRING>,
+  item_name STRING
+) AS (
+  SELECT
+    SUM(sales) AS total_sales,
+    item
+  FROM input_table
+  WHERE item = item_name
+  GROUP BY item
+);

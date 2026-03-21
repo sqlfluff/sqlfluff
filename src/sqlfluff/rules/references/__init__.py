@@ -49,6 +49,14 @@ def get_configs_info() -> dict[str, ConfigInfo]:
                 "quoted. Defaults to ``False``."
             ),
         },
+        "prefer_quoted_keyword_style": {
+            "validation": ["double_quotes", "backticks"],
+            "definition": (
+                "Preferred quoting style to use when this rule inserts quoted "
+                "keyword identifiers. This is only fix-compatible for SQLite. "
+                "Defaults to ``double_quotes``."
+            ),
+        },
     }
 
 

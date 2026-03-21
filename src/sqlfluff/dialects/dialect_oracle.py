@@ -198,15 +198,20 @@ oracle_dialect.sets("unreserved_keywords").update(
     [
         "ABSENT",
         "ACCESSIBLE",
+        "ACTIVE",
         "ADMINISTER",
+        "ADVISE",
         "ADVISOR",
         "ANALYTIC",
         "ARCHIVE",
+        "ARCHIVAL",
         "AUTHENTICATED",
         "AUTHID",
         "BECOME",
         "BODY",
         "BULK",
+        "COMMITTED",
+        "CONSTRAINTS",
         "BULK_EXCEPTIONS",
         "BULK_ROWCOUNT",
         "BYTE",
@@ -219,13 +224,17 @@ oracle_dialect.sets("unreserved_keywords").update(
         "CROSSEDITION",
         "CURSOR",
         "DBA_RECYCLEBIN",
+        "DBTIMEZONE",
+        "DDL",
         "DEBUG",
+        "DEFERRED",
         "DELEGATE",
         "DIGEST",
         "DIMENSION",
         "DIRECTIVE",
         "DIRECTORIES",
         "DIRECTORY",
+        "DML",
         "EDITION",
         "EDITIONABLE",
         "EDITIONING",
@@ -242,10 +251,12 @@ oracle_dialect.sets("unreserved_keywords").update(
         "FOLLOWS",
         "FORALL",
         "GLOBALLY",
+        "GUARD",
         "HIERARCHY",
         "HTTP",
         "INDICES",
         "INHERITANY",
+        "ISOLATION_LEVEL",
         "ISOPEN",
         "JAVA",
         "JOB",
@@ -265,11 +276,13 @@ oracle_dialect.sets("unreserved_keywords").update(
         "NOMAXVALUE",
         "NOMINVALUE",
         "NONEDITIONABLE",
+        "NOTHING",
         "NOTFOUND",
         "OID",
         "OUTLINE",
         "PACKAGE",
         "PAIRS",
+        "PARALLEL",
         "PARALLEL_ENABLE",
         "PARENT",
         "PERSISTABLE",
@@ -301,15 +314,22 @@ oracle_dialect.sets("unreserved_keywords").update(
         "REWRITE",
         "ROWTYPE",
         "SCHEDULER",
+        "SERIALIZABLE",
+        "SERVICE",
+        "SHARD",
         "SHARD_ENABLE",
+        "SYNC",
         "SHARED",
         "SHARING",
         "SIGN",
         "SPECIFICATION",
         "SQL_MACRO",
         "SYSGUID",
+        "TIME_ZONE",
+        "TIMEOUT",
         "UNLIMITED",
         "VARRAY",
+        "VISIBILITY",
     ]
 )
 
@@ -1219,6 +1239,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTypeStatementSegment"),
             Ref("CreateTypeBodyStatementSegment"),
             Ref("CreatePackageStatementSegment"),
+            Ref("AlterSessionStatementSegment"),
             Ref("DropPackageStatementSegment"),
             Ref("AlterPackageStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
@@ -1252,6 +1273,114 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterSynonymStatementSegment"),
             Ref("ProcedureCallStatementSegment"),
         ],
+    )
+
+
+class AlterSessionStatementSegment(BaseSegment):
+    """An `ALTER SESSION` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/ALTER-SESSION.html
+    """
+
+    type = "alter_session_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "SESSION",
+        OneOf(
+            Sequence("ADVISE", OneOf("COMMIT", "ROLLBACK", "NOTHING")),
+            Sequence(
+                "CLOSE",
+                "DATABASE",
+                "LINK",
+                Ref("DatabaseLinkReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("ENABLE", "DISABLE"),
+                "COMMIT",
+                "IN",
+                "PROCEDURE",
+            ),
+            Sequence(OneOf("ENABLE", "DISABLE"), "GUARD"),
+            Sequence(
+                "ENABLE",
+                "PARALLEL",
+                OneOf("DML", "DDL", "QUERY"),
+                Sequence("PARALLEL", Ref("NumericLiteralSegment"), optional=True),
+            ),
+            Sequence(
+                "DISABLE",
+                "PARALLEL",
+                OneOf("DML", "DDL", "QUERY"),
+            ),
+            Sequence(
+                "FORCE",
+                "PARALLEL",
+                OneOf("DML", "DDL", "QUERY"),
+                Sequence(
+                    "PARALLEL",
+                    Ref("NumericLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "ENABLE",
+                "RESUMABLE",
+                Sequence("TIMEOUT", Ref("NumericLiteralSegment"), optional=True),
+                Sequence("NAME", Ref("QuotedLiteralSegment"), optional=True),
+            ),
+            Sequence("DISABLE", "RESUMABLE"),
+            Sequence(OneOf("ENABLE", "DISABLE"), "SHARD", "DDL"),
+            Sequence("SYNC", "WITH", "PRIMARY"),
+            Sequence(
+                "SET",
+                AnyNumberOf(
+                    Sequence(
+                        "ISOLATION_LEVEL",
+                        Ref("EqualsSegment"),
+                        OneOf("SERIALIZABLE", Sequence("READ", "COMMITTED")),
+                    ),
+                    Sequence(
+                        OneOf("CONSTRAINT", "CONSTRAINTS"),
+                        Ref("EqualsSegment"),
+                        OneOf("IMMEDIATE", "DEFERRED", "DEFAULT"),
+                    ),
+                    Sequence(
+                        "TIME_ZONE",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "LOCAL",
+                            "DBTIMEZONE",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        "ROW",
+                        "ARCHIVAL",
+                        "VISIBILITY",
+                        Ref("EqualsSegment"),
+                        OneOf("ACTIVE", "ALL"),
+                    ),
+                    Sequence(
+                        "CONTAINER",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                        Sequence(
+                            "SERVICE",
+                            Ref("EqualsSegment"),
+                            Ref("ObjectReferenceSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        OneOf("DEFAULT", Ref("ExpressionSegment")),
+                    ),
+                    min_times=1,
+                ),
+            ),
+        ),
     )
 
 
@@ -3348,10 +3477,10 @@ class CreateUserStatementSegment(BaseSegment):
                     Sequence(
                         "QUOTA", OneOf(Ref("SizeClauseGrammar"), "UNLIMITED"), "ON"
                     ),
-                    "PROFILE",
                 ),
                 Ref("ObjectReferenceSegment"),
             ),
+            Sequence("PROFILE", OneOf("DEFAULT", Ref("ObjectReferenceSegment"))),
             Sequence("PASSWORD", "EXPIRE"),
             Sequence("ACCOUNT", OneOf("LOCK", "UNLOCK")),
             Sequence("ENABLE", "EDITIONS"),
