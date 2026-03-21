@@ -1,0 +1,839 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: acd99660286484fa4b2d42525da33494837845a7e5cf2ceabac81dd83d5ec18a
+file:
+  batch:
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: CURRENT_SCHEMA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: HR
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: CURRENT_SCHEMA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: my_schema
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: CURRENT_SCHEMA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: dba
+          - dot: .
+          - naked_identifier: some_schema
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: EDITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: ora$base
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: ISOLATION_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: SERIALIZABLE
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: ISOLATION_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: READ
+      - keyword: COMMITTED
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: CONSTRAINT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: IMMEDIATE
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: CONSTRAINTS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFERRED
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: CONSTRAINTS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: TIME_ZONE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: LOCAL
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: TIME_ZONE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DBTIMEZONE
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: TIME_ZONE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'+05:30'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: TIME_ZONE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'America/New_York'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: ROW
+      - keyword: ARCHIVAL
+      - keyword: VISIBILITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ACTIVE
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: ROW
+      - keyword: ARCHIVAL
+      - keyword: VISIBILITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: CONTAINER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: CDB_ROOT
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: CONTAINER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_pdb
+      - keyword: SERVICE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_service
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_DATE_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'YYYY-MM-DD HH24:MI:SS'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_LANGUAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: FRENCH
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_TERRITORY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: AMERICA
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_SORT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: XSpanish
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_DATE_LANGUAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: German
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_NUMERIC_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'.,'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_ISO_CURRENCY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: America
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_CURRENCY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'DM'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: QUERY_REWRITE_ENABLED
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          boolean_literal: 'TRUE'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: QUERY_REWRITE_INTEGRITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: TRUSTED
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: OPTIMIZER_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: ALL_ROWS
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: SQL_TRACE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          boolean_literal: 'TRUE'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: TRACEFILE_IDENTIFIER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'my_trace'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: STANDBY_MAX_DATA_DELAY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: NONE
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: STANDBY_MAX_DATA_DELAY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          numeric_literal: '30'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_DATE_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: OPTIMIZER_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_DATE_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: OPTIMIZER_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: RESULT_CACHE_REMOTE_EXPIRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+        - numeric_literal: '60'
+        - binary_operator: '*'
+        - numeric_literal: '5'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: DEFAULT_SDO_RESOLUTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: ROUND
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                - numeric_literal: '1.5'
+                - binary_operator: +
+                - numeric_literal: '0.5'
+                end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: COMMIT_WRITE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'BATCH,NOWAIT'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: DML_LOCKS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          numeric_literal: '0'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: PARALLEL_DEGREE_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: AUTO
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_LANGUAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: ENGLISH
+      - parameter: NLS_TERRITORY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: AMERICA
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - parameter: NLS_DATE_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'DD-MON-YYYY'"
+      - parameter: NLS_NUMERIC_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "',.'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: ISOLATION_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: SERIALIZABLE
+      - parameter: NLS_LANGUAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: ENGLISH
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: CONSTRAINTS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: IMMEDIATE
+      - parameter: NLS_DATE_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'YYYY-MM-DD'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SET
+      - keyword: TIME_ZONE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'UTC'"
+      - parameter: NLS_SORT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: BINARY
+      - keyword: ISOLATION_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: READ
+      - keyword: COMMITTED
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ADVISE
+      - keyword: COMMIT
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ADVISE
+      - keyword: ROLLBACK
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ADVISE
+      - keyword: NOTHING
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: CLOSE
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: remote_db
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: CLOSE
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+          naked_identifier: hr_link
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: COMMIT
+      - keyword: IN
+      - keyword: PROCEDURE
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: DISABLE
+      - keyword: COMMIT
+      - keyword: IN
+      - keyword: PROCEDURE
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: GUARD
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: DISABLE
+      - keyword: GUARD
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: PARALLEL
+      - keyword: DML
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: PARALLEL
+      - keyword: DDL
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: PARALLEL
+      - keyword: QUERY
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: DISABLE
+      - keyword: PARALLEL
+      - keyword: DML
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: DISABLE
+      - keyword: PARALLEL
+      - keyword: DDL
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: DISABLE
+      - keyword: PARALLEL
+      - keyword: QUERY
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: PARALLEL
+      - keyword: DML
+      - keyword: PARALLEL
+      - numeric_literal: '4'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: PARALLEL
+      - keyword: DDL
+      - keyword: PARALLEL
+      - numeric_literal: '8'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: PARALLEL
+      - keyword: QUERY
+      - keyword: PARALLEL
+      - numeric_literal: '2'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: FORCE
+      - keyword: PARALLEL
+      - keyword: DML
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: FORCE
+      - keyword: PARALLEL
+      - keyword: DDL
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: FORCE
+      - keyword: PARALLEL
+      - keyword: QUERY
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: FORCE
+      - keyword: PARALLEL
+      - keyword: DML
+      - keyword: PARALLEL
+      - numeric_literal: '4'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: FORCE
+      - keyword: PARALLEL
+      - keyword: DDL
+      - keyword: PARALLEL
+      - numeric_literal: '8'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: FORCE
+      - keyword: PARALLEL
+      - keyword: QUERY
+      - keyword: PARALLEL
+      - numeric_literal: '2'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: RESUMABLE
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: RESUMABLE
+      - keyword: TIMEOUT
+      - numeric_literal: '3600'
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: RESUMABLE
+      - keyword: NAME
+      - quoted_literal: "'my_resumable_session'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: RESUMABLE
+      - keyword: TIMEOUT
+      - numeric_literal: '7200'
+      - keyword: NAME
+      - quoted_literal: "'long_running_job'"
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: DISABLE
+      - keyword: RESUMABLE
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: ENABLE
+      - keyword: SHARD
+      - keyword: DDL
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: DISABLE
+      - keyword: SHARD
+      - keyword: DDL
+  - statement_terminator: ;
+  - statement:
+      alter_session_statement:
+      - keyword: ALTER
+      - keyword: SESSION
+      - keyword: SYNC
+      - keyword: WITH
+      - keyword: PRIMARY
+  - statement_terminator: ;

@@ -202,6 +202,30 @@ test_pass_exasol_select_into:
     core:
       dialect: exasol
 
+test_pass_oracle_sequence_nextval:
+  # Oracle sequence pseudocolumns should not be interpreted as table references.
+  pass_str: |
+    SELECT emloye_seq.NEXTVAL, name, a, b FROM Employee;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_schema_sequence_currval:
+  # Oracle also supports [schema.]sequence.CURRVAL access.
+  pass_str: |
+    SELECT hr.emloye_seq.CURRVAL FROM dual;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_sequence_currval:
+  # Oracle also supports sequence.CURRVAL access without schema qualifier.
+  pass_str: |
+    SELECT emloye_seq.CURRVAL FROM dual;
+  configs:
+    core:
+      dialect: oracle
+
 test_pass_simple_delete:
   pass_str: |
     delete from table1 where 1 = 1
