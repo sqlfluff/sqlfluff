@@ -276,9 +276,9 @@ class JinjaTemplater(PythonTemplater):
             # the guidance of the python docs:
             # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
             spec = module_finder.find_spec(module_name, None)
-            assert (
-                spec
-            ), f"Module {module_name} failed to be found despite being listed."
+            assert spec, (
+                f"Module {module_name} failed to be found despite being listed."
+            )
             module = importlib.util.module_from_spec(spec)
             sys.modules[module_name] = module
             assert spec.loader, f"Module {module_name} missing expected loader."
