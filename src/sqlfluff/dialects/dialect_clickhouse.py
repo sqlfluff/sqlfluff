@@ -998,10 +998,10 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
     """An extension of the star expression for Clickhouse."""
 
-    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
-        insert=[
-            Ref("ExceptClauseSegment", optional=True),
-        ]
+    match_grammar = Sequence(
+        Ref("WildcardIdentifierSegment"),
+        Ref("ExceptClauseSegment", optional=True),
+        AnyNumberOf(Ref("ApplyClauseSegment")),
     )
 
 
@@ -1018,6 +1018,19 @@ class ExceptClauseSegment(BaseSegment):
             Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
             Ref("SingleIdentifierGrammar"),
         ),
+    )
+
+
+class ApplyClauseSegment(BaseSegment):
+    """A Clickhouse SELECT APPLY clause.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select#apply-modifier
+    """
+
+    type = "select_apply_clause"
+    match_grammar = Sequence(
+        "APPLY",
+        Bracketed(Ref("ExpressionSegment")),
     )
 
 

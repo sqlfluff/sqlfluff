@@ -1610,6 +1610,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     Sequence(
                         "RETURN",
                         OneOf(
+                            Ref("SetExpressionSegment"),
                             Ref("ExpressionSegment"),
                             Ref("SelectStatementSegment"),
                             Ref("WithCompoundStatementSegment"),

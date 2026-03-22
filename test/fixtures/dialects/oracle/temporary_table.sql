@@ -28,5 +28,23 @@ CREATE PRIVATE TEMPORARY TABLE ora$ptt_my_temp_table (
 )
 ON COMMIT PRESERVE DEFINITION;
 
+-- ON COMMIT must come before physical attributes
+CREATE GLOBAL TEMPORARY TABLE my_temp_phys (
+  id           NUMBER,
+  description  VARCHAR2(20)
+)
+ON COMMIT DELETE ROWS
+TABLESPACE temp_ts;
+
+CREATE GLOBAL TEMPORARY TABLE my_temp_phys2 (
+  id           NUMBER,
+  description  VARCHAR2(20)
+)
+ON COMMIT PRESERVE ROWS
+TABLESPACE temp_ts
+PCTFREE 10
+INITRANS 2
+STORAGE (INITIAL 64K NEXT 64K);
+
 CREATE PRIVATE TEMPORARY TABLE ora$ptt_emp AS
 SELECT * FROM emp;
