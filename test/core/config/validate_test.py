@@ -9,6 +9,7 @@ from sqlfluff.core.config.removed import (
 from sqlfluff.core.config.validate import (
     _validate_indentation_config,
     _validate_layout_config,
+    _validate_max_parse_depth_config,
 )
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
@@ -144,3 +145,39 @@ def test__validate_indentation_valid(config_dict):
     """Test the indentation validation checks for valid values."""
     # Should not raise any exception
     _validate_indentation_config(config_dict, "<test>")
+
+
+@pytest.mark.parametrize(
+    "config_dict,expected",
+    [
+        ({"core": {"max_parse_depth": None}}, -1),
+        ({"core": {"max_parse_depth": ""}}, -1),
+        ({"core": {"max_parse_depth": -1}}, -1),
+        ({"core": {"max_parse_depth": 0}}, 0),
+        ({"core": {"max_parse_depth": 25}}, 25),
+    ],
+)
+def test__validate_max_parse_depth_valid(config_dict, expected):
+    """Test valid and normalized max_parse_depth values."""
+    _validate_max_parse_depth_config(config_dict, "<test>")
+    assert config_dict["core"]["max_parse_depth"] == expected
+
+
+@pytest.mark.parametrize(
+    "config_dict,config_warning",
+    [
+        (
+            {"core": {"max_parse_depth": "invalid"}},
+            "set an invalid value for `max_parse_depth`: 'invalid'",
+        ),
+        (
+            {"core": {"max_parse_depth": True}},
+            "set an invalid value for `max_parse_depth`: True",
+        ),
+    ],
+)
+def test__validate_max_parse_depth_invalid(config_dict, config_warning):
+    """Test invalid max_parse_depth values are rejected."""
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        _validate_max_parse_depth_config(config_dict, "<test>")
+    assert config_warning in str(excinfo.value)

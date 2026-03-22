@@ -1250,7 +1250,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def validate_segment_with_reparse(
         self,
         dialect: Dialect,
-        max_parse_depth: Optional[int] = 255,
+        max_parse_depth: int,
     ) -> bool:
         """Checks correctness of new segment by re-parsing it."""
         ctx = ParseContext(dialect=dialect, max_parse_depth=max_parse_depth)

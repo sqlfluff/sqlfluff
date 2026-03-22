@@ -11,7 +11,7 @@ def test__parser__core_keyword(raw_segments):
     FooKeyword = StringParser("foobar", KeywordSegment, type="bar")
     # Check it looks as expected
     assert FooKeyword.template.upper() == "FOOBAR"
-    ctx = ParseContext(dialect=None)
+    ctx = ParseContext(dialect=None, max_parse_depth=-1)
     # Match it against a list and check it doesn't match
     assert not FooKeyword.match(raw_segments, 1, parse_context=ctx)
     # Match it against the final element (returns tuple)

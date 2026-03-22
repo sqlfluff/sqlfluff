@@ -2,6 +2,8 @@
 
 import pytest
 
+from sqlfluff.core.errors import SQLFluffUserError
+
 try:
     from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER, RustParser
     from sqlfluffrs import RsParser
@@ -15,34 +17,44 @@ except ImportError:
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-def test__rust_parser__max_parse_depth_invalid_string_falls_back_to_255():
-    """RustParser falls back to depth=255 when max_parse_depth is not a valid integer.
-
-    Exercises the ``except (TypeError, ValueError): max_parse_depth = 255``
-    branch (rust_parser.py lines 94-95).  Passing a non-numeric string as the
-    config override causes ``int(raw)`` to raise ``ValueError``; the parser
-    should still construct successfully using the fallback value.
-    """
+def test__rust_parser__max_parse_depth_invalid_string_raises_config_error():
+    """Invalid string values for max_parse_depth are rejected by config validation."""
     from sqlfluff.core import FluffConfig
 
-    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": "invalid"})
-    # Must not raise; fallback to 255 keeps the parser healthy.
-    parser = RustParser(config=config)
-    assert parser is not None
+    with pytest.raises(SQLFluffUserError):
+        FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": "invalid"})
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__max_parse_depth_zero_disables_limit():
     """RustParser with max_parse_depth=0 sets no depth limit.
 
-    Exercises the ``if max_parse_depth <= 0: max_parse_depth = None`` branch
-    (rust_parser.py line 97).  A non-positive value means "unlimited depth";
+    A non-positive value means "unlimited depth";
     simple SQL should still parse without errors.
     """
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
 
     config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 0})
+    parser = RustParser(config=config)
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+    result = parser.parse(segments, fname="test.sql")
+    assert result is not None
+    assert result.is_type("file")
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__max_parse_depth_negative_one_disables_limit():
+    """RustParser with max_parse_depth=-1 sets no depth limit.
+
+    This verifies config-loading parity with ParseContext.from_config(), where
+    ``-1`` means no parse depth limit rather than defaulting to 255.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": -1})
     parser = RustParser(config=config)
     lexer = Lexer(config=config)
     segments, _ = lexer.lex("SELECT 1")

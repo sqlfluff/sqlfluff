@@ -86,15 +86,9 @@ try:
                     k: v for k, v in indent_config.items() if isinstance(v, bool)
                 }
 
-            # Max parse depth (DoS mitigation); None = no limit
-            raw = self.config.get("max_parse_depth", section="core", default=255)
-            max_parse_depth: Optional[int]
-            try:
-                max_parse_depth = int(raw)
-            except (TypeError, ValueError):
-                max_parse_depth = 255
-            if max_parse_depth <= 0:
-                max_parse_depth = None
+            # Max parse depth (DoS mitigation); values <= 0 disable the limit
+            max_parse_depth = self.config.get("max_parse_depth")
+            assert isinstance(max_parse_depth, int)
 
             # Create the Rust parser
             self._rs_parser = RsParser(

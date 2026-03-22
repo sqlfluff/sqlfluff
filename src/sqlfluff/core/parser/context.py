@@ -55,18 +55,17 @@ class ParseContext:
     def __init__(
         self,
         dialect: "Dialect",
+        max_parse_depth: int,
         indentation_config: Optional[dict[str, Any]] = None,
-        max_parse_depth: Optional[int] = 255,
     ) -> None:
         """Initialize a new instance of the class.
 
         Args:
             dialect (Dialect): The dialect used for parsing.
+            max_parse_depth (int): Maximum match depth; ``-1`` to disable.
             indentation_config (Optional[dict[str, Any]], optional): The indentation
                 configuration used by Indent and Dedent to control the intended
                 indentation of certain features. Defaults to None.
-            max_parse_depth (Optional[int], optional): Maximum match depth; None to disable.
-                Defaults to 255.
         """
         self.dialect = dialect
         # Indentation config is used by Indent and Dedent and used to control
@@ -129,15 +128,8 @@ class ParseContext:
                 "One of the configuration keys in the `indentation` section is not "
                 "True or False: {!r}".format(indentation_config)
             )
-        raw_max_depth = config.get("max_parse_depth", section="core", default=255)
-        max_parse_depth: Optional[int] = None
-        if raw_max_depth is not None and raw_max_depth != "":
-            try:
-                max_parse_depth = int(raw_max_depth)
-            except (TypeError, ValueError):  # pragma: no cover
-                max_parse_depth = 255
-        if max_parse_depth is not None and max_parse_depth <= 0:
-            max_parse_depth = None
+        max_parse_depth = config.get("max_parse_depth")
+        assert isinstance(max_parse_depth, int)
         return cls(
             dialect=config.get("dialect_obj"),
             indentation_config=indentation_config,
@@ -246,7 +238,7 @@ class ParseContext:
         self._match_stack.append(self.match_segment)
         self.match_segment = name
         self.match_depth += 1
-        if self.max_parse_depth is not None and self.match_depth > self.max_parse_depth:
+        if self.max_parse_depth > 0 and self.match_depth > self.max_parse_depth:
             raise SQLParseError(
                 f"Maximum parse depth exceeded (limit {self.max_parse_depth}). "
                 "This may indicate deeply nested SQL or a malicious input."

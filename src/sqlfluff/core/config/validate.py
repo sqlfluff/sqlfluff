@@ -113,6 +113,37 @@ def _validate_indentation_config(
             )
 
 
+def _validate_max_parse_depth_config(
+    config: ConfigMappingType, logging_reference: str
+) -> None:
+    """Validate and normalize the max_parse_depth config value.
+
+    The internal parser convention is that any value less than or equal to zero
+    disables the limit. We also normalize missing/None values to ``-1`` so
+    parser code can rely on an integer.
+    """
+    core_section = config.get("core", {})
+    if not core_section:
+        return None
+
+    assert isinstance(core_section, dict)
+    if "max_parse_depth" not in core_section:
+        return None
+
+    max_parse_depth = core_section.get("max_parse_depth")
+    if max_parse_depth is None or max_parse_depth == "":
+        core_section["max_parse_depth"] = -1
+        return None
+
+    if isinstance(max_parse_depth, bool) or not isinstance(max_parse_depth, int):
+        raise SQLFluffUserError(
+            f"Config file {logging_reference!r} set an invalid value for "
+            f"`max_parse_depth`: {max_parse_depth!r}. "
+            "This value must be an integer. Use -1, 0 or an empty value to "
+            "disable the limit."
+        )
+
+
 def validate_config_dict(config: ConfigMappingType, logging_reference: str) -> None:
     """Validate a config dict.
 
@@ -132,3 +163,5 @@ def validate_config_dict(config: ConfigMappingType, logging_reference: str) -> N
     _validate_layout_config(config, logging_reference)
     # Validate indentation section
     _validate_indentation_config(config, logging_reference)
+    # Validate max parse depth config
+    _validate_max_parse_depth_config(config, logging_reference)

@@ -757,7 +757,11 @@ def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, cap
     print("Results:", results)
     anchor_info = compute_anchor_edit_info(fixes_from_results(results))
     fixed_tree, _, _, valid = apply_fixes(
-        root, default_config.get("dialect_obj"), "TEST", anchor_info
+        root,
+        default_config.get("dialect_obj"),
+        "TEST",
+        anchor_info,
+        max_parse_depth=default_config.get("max_parse_depth"),
     )
     assert valid, f"Reparse check failed: {fixed_tree.raw!r}"
     assert fixed_tree.raw == raw_sql_out, "Element check passed - but fix check failed!"

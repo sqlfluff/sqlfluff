@@ -109,8 +109,8 @@ def apply_fixes(
     dialect: "Dialect",
     rule_code: str,
     fixes: dict[int, AnchorEditInfo],
+    max_parse_depth: int,
     fix_even_unparsable: bool = False,
-    max_parse_depth: Optional[int] = 255,
 ) -> tuple["BaseSegment", list["BaseSegment"], list["BaseSegment"], bool]:
     """Apply a dictionary of fixes to this segment.
 
