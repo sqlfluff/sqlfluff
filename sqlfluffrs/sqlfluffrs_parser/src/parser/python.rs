@@ -492,7 +492,7 @@ impl PyParser {
         indent_config: Option<HashMap<String, bool>>,
         max_parser_iterations: Option<usize>,
         parser_warn_threshold: Option<usize>,
-        max_parse_depth: Option<u32>,
+        max_parse_depth: Option<usize>,
     ) -> PyResult<Self> {
         let dialect = dialect
             .and_then(|d| Dialect::from_str(d).ok())
@@ -517,7 +517,7 @@ impl PyParser {
             indent_config,
             max_parser_iterations: max_parser_iterations.unwrap_or(3_000_000),
             parser_warn_threshold: parser_warn_threshold.unwrap_or(2_000_000),
-            max_parse_depth: max_parse_depth.map(|v| v as usize),
+            max_parse_depth,
         })
     }
 
