@@ -65,7 +65,7 @@ class ProgressBarConfiguration:
     _disable_progress_bar: Optional[bool] = True
 
     @property
-    def disable_progress_bar(self) -> Optional[bool]:  # noqa: D102
+    def disable_progress_bar(self) -> Optional[bool]:
         return self._disable_progress_bar
 
     @disable_progress_bar.setter

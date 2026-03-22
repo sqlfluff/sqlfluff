@@ -48,7 +48,7 @@ unquoted, and more unusually, *also when quoted*). See the
 The dialect for `DuckDB <https://duckdb.org/>`_.
 
 .. _`DuckDB Identifiers Documentation`: https://duckdb.org/docs/sql/dialect/keywords_and_identifiers
-""",  # noqa: E501
+""",
 )
 
 duckdb_dialect.sets("reserved_keywords").update(

@@ -16,7 +16,7 @@ from sqlfluff.utils.testing.cli import invoke_assert_code
 @pytest.mark.parametrize(
     "path", ["models/my_new_project/disabled_model.sql", "macros/echo.sql"]
 )
-def test__linter__skip_file(path, project_dir, dbt_fluff_config):  # noqa
+def test__linter__skip_file(path, project_dir, dbt_fluff_config):
     """Test that the linter skips disabled dbt models and macros."""
     conf = FluffConfig(configs=dbt_fluff_config)
     lntr = Linter(config=conf)
@@ -41,7 +41,7 @@ def test__linter__lint_ephemeral_3_level(project_dir, dbt_fluff_config):
     lntr.lint_path(path=model_file_path)
 
 
-def test__linter__config_pairs(dbt_fluff_config):  # noqa
+def test__linter__config_pairs(dbt_fluff_config):
     """Test that the dbt templater returns version information in it's config."""
     conf = FluffConfig(configs=dbt_fluff_config)
     lntr = Linter(config=conf)

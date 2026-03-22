@@ -114,7 +114,7 @@ def handle_dbt_errors(
 
     https://docs.python.org/3/library/exceptions.html#inheriting-from-built-in-exceptions
     https://github.com/sqlfluff/sqlfluff/issues/6037
-    """  # noqa E501
+    """
 
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         def wrapped_method(*args, **kwargs) -> T:
