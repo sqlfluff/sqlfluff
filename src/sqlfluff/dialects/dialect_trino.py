@@ -126,6 +126,7 @@ trino_dialect.replace(
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
+        "OFFSET",
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -137,6 +138,7 @@ trino_dialect.replace(
     ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
+        "OFFSET",
         "HAVING",
         # For window functions
         "WINDOW",
@@ -156,6 +158,7 @@ trino_dialect.replace(
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "LIMIT",
+        "OFFSET",
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -165,12 +168,14 @@ trino_dialect.replace(
     HavingClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
         "LIMIT",
+        "OFFSET",
         "WINDOW",
         "FETCH",
     ),
     GroupByClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
         "LIMIT",
+        "OFFSET",
         "HAVING",
         "WINDOW",
         "FETCH",
@@ -428,6 +433,47 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
         Ref("NamedWindowSegment", optional=True),
+    )
+
+
+class OffsetClauseSegment(ansi.OffsetClauseSegment):
+    """An `OFFSET` clause like in `SELECT`.
+
+    https://trino.io/docs/current/sql/select.html
+    """
+
+    type = "offset_clause"
+    match_grammar: Matchable = Sequence(
+        "OFFSET",
+        Indent,
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+        ),
+        OneOf("ROW", "ROWS", optional=True),
+        Dedent,
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """A `SELECT` statement.
+
+    https://trino.io/docs/current/sql/select.html
+    """
+
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
+        ],
+        replace_terminators=True,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+        ],
     )
 
 

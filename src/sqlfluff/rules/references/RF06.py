@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional, cast
 
 import regex
 
-from sqlfluff.core.parser import CodeSegment
+from sqlfluff.core.parser import CodeSegment, IdentifierSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, sp
@@ -107,9 +107,11 @@ class Rule_RF06(BaseRule):
     characters.
 
     .. note::
-       Note due to different quotes being used by different dialects supported by
+       Due to different quotes being used by different dialects supported by
        `SQLFluff`, and those quotes meaning different things in different contexts,
-       this mode is not ``sqlfluff fix`` compatible.
+       this mode is generally not ``sqlfluff fix`` compatible.
+       SQLite is a narrow exception for ``prefer_quoted_keywords`` and supports
+       autofix using ``prefer_quoted_keyword_style``.
 
     **Anti-pattern**
 
@@ -137,6 +139,7 @@ class Rule_RF06(BaseRule):
     config_keywords = [
         "prefer_quoted_identifiers",
         "prefer_quoted_keywords",
+        "prefer_quoted_keyword_style",
         "ignore_words",
         "ignore_words_regex",
         "case_sensitive",
@@ -154,6 +157,7 @@ class Rule_RF06(BaseRule):
         # Config type hints
         self.prefer_quoted_identifiers: bool
         self.prefer_quoted_keywords: bool
+        self.prefer_quoted_keyword_style: str
         self.ignore_words: str
         self.ignore_words_regex: str
         self.case_sensitive: bool
@@ -162,9 +166,7 @@ class Rule_RF06(BaseRule):
         if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
             return None
 
-        identifier_is_quoted = not regex.search(
-            r'^[^"\'[].+[^"\'\]]$', context.segment.raw
-        )
+        identifier_is_quoted = context.segment.is_type("quoted_identifier")
 
         identifier_contents = context.segment.raw
         if identifier_is_quoted:
@@ -197,13 +199,33 @@ class Rule_RF06(BaseRule):
             return LintResult(memory=context.memory)
 
         if self.prefer_quoted_keywords and identifier_is_keyword:
+            preferred_identifier = self._get_preferred_quoted_identifier(
+                identifier_contents
+            )
+
             if not identifier_is_quoted:
                 return LintResult(
                     context.segment,
+                    fixes=(
+                        [LintFix.replace(context.segment, [preferred_identifier])]
+                        if context.dialect.name == "sqlite"
+                        else None
+                    ),
                     description=(
                         f"Missing quoted keyword identifier {identifier_contents}."
                     ),
                 )
+
+            if (
+                context.dialect.name == "sqlite"
+                and context.segment.raw != preferred_identifier.raw
+            ):
+                return LintResult(
+                    context.segment,
+                    fixes=[LintFix.replace(context.segment, [preferred_identifier])],
+                    description=f"Wrong quoted keyword identifier style {context.segment.raw}.",
+                )
+
             return None
 
         # Ignore the segments that are not of the same type as the defined policy above.
@@ -296,3 +318,16 @@ class Rule_RF06(BaseRule):
         if ignore_words_config and ignore_words_config != "None":
             return self.split_comma_separated_string(ignore_words_config.lower())
         return []
+
+    def _get_preferred_quoted_identifier(self, raw: str) -> IdentifierSegment:
+        """Build a quoted identifier segment for an inserted keyword-quoting fix."""
+        quote_char, lexer_token = (
+            ("`", "back_quote")
+            if self.prefer_quoted_keyword_style == "backticks"
+            else ('"', "double_quote")
+        )
+
+        return IdentifierSegment(
+            raw=f"{quote_char}{raw.replace(quote_char, quote_char * 2)}{quote_char}",
+            instance_types=("quoted_identifier", "identifier", lexer_token),
+        )

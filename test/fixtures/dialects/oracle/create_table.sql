@@ -24,3 +24,534 @@ CREATE TABLE departments_demo
     , location_id      NUMBER(4)
     , dn               VARCHAR2(300)
     ) ;
+
+-- Physical attributes: TABLESPACE + full STORAGE clause + LOGGING/NOLOGGING
+CREATE TABLE s1.t_storage (
+    id NUMBER(10) NOT NULL,
+    CONSTRAINT t_storage_pk PRIMARY KEY (id)
+        USING INDEX
+            PCTFREE 10
+            INITRANS 2
+            MAXTRANS 255
+            TABLESPACE idx_ts
+            STORAGE (
+                INITIAL 256K
+                NEXT 256K
+                MINEXTENTS 1
+                MAXEXTENTS 121
+                PCTINCREASE 0
+                FREELISTS 1
+                FREELIST GROUPS 1
+                BUFFER_POOL DEFAULT
+            )
+            LOGGING
+)
+TABLESPACE data_ts
+LOGGING
+PCTFREE 10
+PCTUSED 70
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 655K
+    NEXT 655K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 1
+    FREELISTS 1
+    FREELIST GROUPS 1
+    BUFFER_POOL DEFAULT
+)
+NOPARALLEL
+NOCACHE;
+
+-- USING INDEX with existing named index reference
+CREATE TABLE s1.t_using_named_idx (
+    id NUMBER(10) NOT NULL,
+    CONSTRAINT t_named_idx_pk PRIMARY KEY (id)
+        USING INDEX idx_ts.t_named_idx_pk
+);
+
+-- Physical attributes: NOLOGGING + PARALLEL degree + BUFFER_POOL KEEP
+CREATE TABLE s1.t_parallel (
+    id NUMBER(10) NOT NULL,
+    payload VARCHAR2(4000)
+)
+TABLESPACE data_ts
+NOLOGGING
+PCTFREE 5
+INITRANS 4
+STORAGE (
+    INITIAL 1M
+    NEXT 1M
+    MAXEXTENTS UNLIMITED
+    BUFFER_POOL KEEP
+)
+PARALLEL 8
+NOCACHE;
+
+-- Compression: COMPRESS (default), COMPRESS FOR OLTP, NOCOMPRESS
+CREATE TABLE s1.t_compress_default (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+COMPRESS;
+
+CREATE TABLE s1.t_compress_oltp (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+COMPRESS FOR OLTP;
+
+CREATE TABLE s1.t_compress_query_low (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+COMPRESS FOR QUERY LOW;
+
+CREATE TABLE s1.t_compress_query_high (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+COMPRESS FOR QUERY HIGH;
+
+CREATE TABLE s1.t_compress_archive_low (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+COMPRESS FOR ARCHIVE LOW;
+
+CREATE TABLE s1.t_compress_archive_high (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+COMPRESS FOR ARCHIVE HIGH;
+
+CREATE TABLE s1.t_nocompress (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+NOCOMPRESS;
+
+-- Row movement
+CREATE TABLE s1.t_row_movement (
+    id NUMBER(10) NOT NULL,
+    partition_key DATE
+)
+TABLESPACE data_ts
+ENABLE ROW MOVEMENT;
+
+CREATE TABLE s1.t_no_row_movement (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+DISABLE ROW MOVEMENT;
+
+-- Result cache
+CREATE TABLE s1.t_result_cache_default (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+RESULT_CACHE (MODE DEFAULT);
+
+CREATE TABLE s1.t_result_cache_force (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+RESULT_CACHE (MODE FORCE);
+
+-- In-Memory column store (12c+)
+CREATE TABLE s1.t_inmemory_default (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY;
+
+CREATE TABLE s1.t_inmemory_memcompress_query_high (
+    id NUMBER(10) NOT NULL,
+    data VARCHAR2(200)
+)
+TABLESPACE data_ts
+INMEMORY MEMCOMPRESS FOR QUERY HIGH;
+
+CREATE TABLE s1.t_inmemory_memcompress_archive_low (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY MEMCOMPRESS FOR ARCHIVE LOW;
+
+CREATE TABLE s1.t_inmemory_priority_critical (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY PRIORITY CRITICAL;
+
+CREATE TABLE s1.t_inmemory_full (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY MEMCOMPRESS FOR QUERY HIGH PRIORITY HIGH;
+
+CREATE TABLE s1.t_inmemory_no_memcompress (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY NO MEMCOMPRESS;
+
+CREATE TABLE s1.t_inmemory_no_memcompress_priority (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY NO MEMCOMPRESS PRIORITY HIGH;
+
+CREATE TABLE s1.t_no_inmemory (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+NO INMEMORY;
+
+-- INMEMORY DISTRIBUTE sub-clause
+CREATE TABLE s1.t_inmemory_distribute_auto (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY DISTRIBUTE AUTO;
+
+CREATE TABLE s1.t_inmemory_distribute_by_rowid_range (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY DISTRIBUTE BY ROWID RANGE;
+
+CREATE TABLE s1.t_inmemory_distribute_by_partition (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY DISTRIBUTE BY PARTITION;
+
+CREATE TABLE s1.t_inmemory_distribute_by_subpartition (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY DISTRIBUTE BY SUBPARTITION;
+
+CREATE TABLE s1.t_inmemory_distribute_for_service (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY DISTRIBUTE AUTO FOR SERVICE my_service;
+
+CREATE TABLE s1.t_inmemory_distribute_for_service_default (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY DISTRIBUTE FOR SERVICE DEFAULT;
+
+-- INMEMORY DUPLICATE sub-clause
+CREATE TABLE s1.t_inmemory_duplicate (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY DUPLICATE;
+
+CREATE TABLE s1.t_inmemory_duplicate_all (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY DUPLICATE ALL;
+
+CREATE TABLE s1.t_inmemory_no_duplicate (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+INMEMORY NO DUPLICATE;
+
+-- INMEMORY combined: MEMCOMPRESS + PRIORITY + DISTRIBUTE + DUPLICATE
+CREATE TABLE s1.t_inmemory_all_subclauses (
+    id NUMBER(10) NOT NULL,
+    data VARCHAR2(200)
+)
+TABLESPACE data_ts
+INMEMORY MEMCOMPRESS FOR QUERY HIGH PRIORITY HIGH DISTRIBUTE AUTO DUPLICATE ALL;
+
+-- Flashback archive
+CREATE TABLE s1.t_flashback (
+    id NUMBER(10) NOT NULL,
+    info VARCHAR2(100)
+)
+TABLESPACE data_ts
+FLASHBACK ARCHIVE my_fba;
+
+CREATE TABLE s1.t_flashback_default (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+FLASHBACK ARCHIVE;
+
+CREATE TABLE s1.t_no_flashback (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+NO FLASHBACK ARCHIVE;
+
+-- Row dependencies
+CREATE TABLE s1.t_rowdeps (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+ROWDEPENDENCIES;
+
+CREATE TABLE s1.t_norowdeps (
+    id NUMBER(10) NOT NULL
+)
+TABLESPACE data_ts
+NOROWDEPENDENCIES;
+
+-- Segment Creation
+CREATE TABLE s1.t_segment_immediate (
+    id NUMBER(10) NOT NULL
+)
+SEGMENT CREATION IMMEDIATE
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_segment_deferred (
+    id NUMBER(10) NOT NULL
+)
+SEGMENT CREATION DEFERRED
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_segment_immediate_storage
+(
+    id NUMBER(19,0),
+    CONSTRAINT id_pk PRIMARY KEY (id)
+)
+SEGMENT CREATION IMMEDIATE
+PCTFREE 10
+PCTUSED 40
+INITRANS 1
+MAXTRANS 255
+NOCOMPRESS
+LOGGING
+STORAGE (
+    INITIAL 65536
+    NEXT 1048576
+    MINEXTENTS 1
+    MAXEXTENTS 2147483645
+    PCTINCREASE 0
+    FREELISTS 1
+    FREELIST GROUPS 1
+    BUFFER_POOL DEFAULT
+    FLASH_CACHE DEFAULT
+    CELL_FLASH_CACHE DEFAULT
+)
+TABLESPACE data_ts;
+
+-- Storage
+CREATE TABLE s1.t_flash_cache_keep (
+    id NUMBER(10) NOT NULL
+)
+STORAGE (
+    INITIAL 64K
+    BUFFER_POOL DEFAULT
+    FLASH_CACHE KEEP
+    CELL_FLASH_CACHE KEEP
+)
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_flash_cache_none (
+    id NUMBER(10) NOT NULL
+)
+STORAGE (
+    INITIAL 64K
+    FLASH_CACHE NONE
+    CELL_FLASH_CACHE NONE
+)
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_storage_maxsize (
+    id NUMBER(10) NOT NULL
+)
+STORAGE (
+    INITIAL 8M
+    MAXSIZE 1G
+)
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_storage_maxsize_unlimited (
+    id NUMBER(10) NOT NULL
+)
+STORAGE (
+    INITIAL 8M
+    MAXSIZE UNLIMITED
+)
+TABLESPACE data_ts;
+
+-- Row/Column store compress
+CREATE TABLE s1.t_row_store_compress_basic (
+    id NUMBER(10) NOT NULL,
+    data VARCHAR2(200)
+)
+ROW STORE COMPRESS BASIC
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_row_store_compress_advanced (
+    id NUMBER(10) NOT NULL,
+    data VARCHAR2(200)
+)
+ROW STORE COMPRESS ADVANCED
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_row_store_compress_no_level (
+    id NUMBER(10) NOT NULL
+)
+ROW STORE COMPRESS
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_column_store_compress (
+    id NUMBER(10) NOT NULL,
+    data VARCHAR2(200)
+)
+COLUMN STORE COMPRESS
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_column_store_compress_query_low (
+    id NUMBER(10) NOT NULL,
+    data VARCHAR2(200)
+)
+COLUMN STORE COMPRESS FOR QUERY LOW
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_column_store_compress_query_high (
+    id NUMBER(10) NOT NULL,
+    data VARCHAR2(200)
+)
+COLUMN STORE COMPRESS FOR QUERY HIGH
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_column_store_compress_archive_high (
+    id NUMBER(10) NOT NULL,
+    data VARCHAR2(200)
+)
+COLUMN STORE COMPRESS FOR ARCHIVE HIGH
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_column_store_compress_no_row_locking (
+    id NUMBER(10) NOT NULL,
+    data VARCHAR2(200)
+)
+COLUMN STORE COMPRESS FOR QUERY HIGH NO ROW LEVEL LOCKING
+TABLESPACE data_ts;
+
+-- Monitoring
+CREATE TABLE s1.t_monitoring (
+    id NUMBER(10) NOT NULL
+)
+MONITORING
+TABLESPACE data_ts;
+
+CREATE TABLE s1.t_nomonitoring (
+    id NUMBER(10) NOT NULL
+)
+NOMONITORING
+TABLESPACE data_ts;
+
+-- Combined: all major physical attribute groups together
+CREATE TABLE s1.t_all_physical (
+    id          NUMBER(18)      NOT NULL,
+    institution VARCHAR2(11)    NOT NULL,
+    payload     VARCHAR2(1000)  NOT NULL,
+    created_at  DATE            DEFAULT SYSDATE NOT NULL,
+    CONSTRAINT t_all_phys_pk PRIMARY KEY (id)
+        USING INDEX
+            PCTFREE 10
+            INITRANS 2
+            MAXTRANS 255
+            TABLESPACE idx_ts
+            STORAGE (
+                INITIAL 256K
+                NEXT 256K
+                MINEXTENTS 1
+                MAXEXTENTS 121
+                PCTINCREASE 0
+                FREELISTS 1
+                FREELIST GROUPS 1
+                BUFFER_POOL DEFAULT
+            )
+            LOGGING,
+    CONSTRAINT t_all_phys_uk UNIQUE (institution, payload)
+        USING INDEX
+            PCTFREE 10
+            TABLESPACE idx_ts
+            STORAGE (INITIAL 140K NEXT 360K BUFFER_POOL KEEP)
+            NOLOGGING
+)
+TABLESPACE data_ts
+LOGGING
+PCTFREE 10
+PCTUSED 70
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 655K
+    NEXT 655K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 1
+    FREELISTS 1
+    FREELIST GROUPS 1
+    BUFFER_POOL DEFAULT
+)
+COMPRESS FOR OLTP
+PARALLEL 4
+NOCACHE
+RESULT_CACHE (MODE DEFAULT)
+INMEMORY MEMCOMPRESS FOR QUERY HIGH PRIORITY HIGH
+ENABLE ROW MOVEMENT
+FLASHBACK ARCHIVE corp_fba
+ROWDEPENDENCIES;
+
+-- USING INDEX with inline CREATE INDEX (basic form)
+CREATE TABLE t_using_idx_inline (
+    id NUMBER,
+    CONSTRAINT pk_t_using_idx_inline PRIMARY KEY (id)
+        USING INDEX (CREATE INDEX pk_t_using_idx_inline_idx ON t_using_idx_inline (id))
+);
+
+-- USING INDEX with inline UNIQUE CREATE INDEX
+CREATE TABLE t_using_idx_inline_unique (
+    id NUMBER,
+    CONSTRAINT uq_t_using_idx_inline_unique UNIQUE (id)
+        USING INDEX (CREATE UNIQUE INDEX uq_t_using_idx_inline_unique_idx ON t_using_idx_inline_unique (id))
+);
+
+-- USING INDEX with inline CREATE INDEX and physical attributes
+CREATE TABLE t_using_idx_inline_attrs (
+    id NUMBER,
+    CONSTRAINT pk_t_using_idx_inline_attrs PRIMARY KEY (id)
+        USING INDEX (
+            CREATE INDEX pk_t_using_idx_inline_attrs_idx ON t_using_idx_inline_attrs (id)
+            TABLESPACE idx_ts
+            PCTFREE 10
+            NOLOGGING
+        )
+);
+
+-- CREATE TABLE ... AS with physical attributes before AS
+CREATE TABLE t_ctas_nologging
+NOLOGGING
+TABLESPACE users
+AS SELECT * FROM emp;
+
+CREATE TABLE t_ctas_storage
+TABLESPACE users
+PCTFREE 5
+INITRANS 4
+STORAGE (INITIAL 1M NEXT 1M)
+NOLOGGING
+AS SELECT * FROM emp;
+
+CREATE GLOBAL TEMPORARY TABLE t_ctas_temp
+ON COMMIT PRESERVE ROWS
+NOLOGGING
+TABLESPACE temp_ts
+AS SELECT * FROM emp;

@@ -6,6 +6,7 @@ This inherits from the ansi dialect.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseFileSegment,
     BaseSegment,
@@ -87,8 +88,8 @@ oracle_dialect.sets("reserved_keywords").update(
         "ELSE",
         "ENABLE",
         "EXCLUSIVE",
-        "EXISTS",
         "EXECUTE",
+        "EXISTS",
         "FILE",
         "FLOAT",
         "FOR",
@@ -152,8 +153,8 @@ oracle_dialect.sets("reserved_keywords").update(
         "REBUILD",
         "RENAME",
         "RESOURCE",
-        "REVOKE",
         "REVERSE",
+        "REVOKE",
         "ROW",
         "ROWID",
         "ROWNUM",
@@ -198,34 +199,54 @@ oracle_dialect.sets("unreserved_keywords").update(
     [
         "ABSENT",
         "ACCESSIBLE",
+        "ACTIVE",
         "ADMINISTER",
+        "ADVANCED",
+        "ADVISE",
         "ADVISOR",
         "ANALYTIC",
+        "ARCHIVAL",
         "ARCHIVE",
         "AUTHENTICATED",
         "AUTHID",
+        "AUTO",
+        "BASIC",
         "BECOME",
+        "BITMAP",
         "BODY",
+        "BUFFER_POOL",
         "BULK",
         "BULK_EXCEPTIONS",
         "BULK_ROWCOUNT",
         "BYTE",
+        "CAPACITY",
+        "CELL_FLASH_CACHE",
         "COLLECT",
+        "COMMITTED",
         "COMPILE",
         "COMPOUND",
         "CONSTANT",
+        "CONSTRAINTS",
         "CONTAINER",
         "CONTEXT",
+        "CREATION",
+        "CRITICAL",
         "CROSSEDITION",
         "CURSOR",
         "DBA_RECYCLEBIN",
+        "DBTIMEZONE",
+        "DDL",
         "DEBUG",
+        "DEFERRED",
         "DELEGATE",
         "DIGEST",
         "DIMENSION",
         "DIRECTIVE",
         "DIRECTORIES",
         "DIRECTORY",
+        "DISTRIBUTE",
+        "DML",
+        "DUPLICATE",
         "EDITION",
         "EDITIONABLE",
         "EDITIONING",
@@ -239,13 +260,22 @@ oracle_dialect.sets("unreserved_keywords").update(
         "EXTERNALLY",
         "FINE",
         "FLASHBACK",
+        "FLASH_CACHE",
         "FOLLOWS",
         "FORALL",
+        "FREELIST",
+        "FREELISTS",
         "GLOBALLY",
+        "GROUPS",
+        "GUARD",
         "HIERARCHY",
+        "HIGH",
         "HTTP",
         "INDICES",
         "INHERITANY",
+        "INITRANS",
+        "INMEMORY",
+        "ISOLATION_LEVEL",
         "ISOPEN",
         "JAVA",
         "JOB",
@@ -253,31 +283,50 @@ oracle_dialect.sets("unreserved_keywords").update(
         "LIBRARY",
         "LINK",
         "LOCKDOWN",
+        "LOCKING",
         "LOG",
         "LOGMINING",
         "LOOP",
+        "LOW",
+        "MAXSIZE",
+        "MAXTRANS",
         "MEASURE",
+        "MEDIUM",
+        "MEMCOMPRESS",
+        "MINEXTENTS",
         "MINING",
+        "MOVEMENT",
         "MUTABLE",
         "NESTED",
         "NEXTVAL",
         "NOCOPY",
         "NOMAXVALUE",
         "NOMINVALUE",
+        "NONE",
         "NONEDITIONABLE",
+        "NOPARALLEL",
+        "NOROWDEPENDENCIES",
+        "NOSORT",
         "NOTFOUND",
+        "NOTHING",
         "OID",
+        "OLTP",
+        "OPTIMAL",
         "OUTLINE",
         "PACKAGE",
         "PAIRS",
+        "PARALLEL",
         "PARALLEL_ENABLE",
         "PARENT",
+        "PCTINCREASE",
+        "PCTUSED",
         "PERSISTABLE",
         "PIPELINED",
         "PLUGGABLE",
         "POLYMORPHIC",
         "PRAGMA",
         "PRECEDES",
+        "PRIORITY",
         "PRIVILEGE",
         "PROFILE",
         "PROGRAM",
@@ -286,6 +335,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "QUOTA",
         "RAISE",
         "RECORD",
+        "RECYCLE",
         "REDACTION",
         "REDEFINE",
         "REFRESH",
@@ -299,17 +349,29 @@ oracle_dialect.sets("unreserved_keywords").update(
         "REUSE",
         "REVERSE",
         "REWRITE",
+        "ROWDEPENDENCIES",
         "ROWTYPE",
         "SCHEDULER",
+        "SEGMENT",
+        "SERIALIZABLE",
+        "SERVICE",
+        "SHARD",
         "SHARD_ENABLE",
         "SHARED",
         "SHARING",
         "SIGN",
         "SPECIFICATION",
         "SQL_MACRO",
+        "STORAGE",
+        "STORE",
+        "SUBPARTITION",
+        "SYNC",
         "SYSGUID",
+        "TIMEOUT",
+        "TIME_ZONE",
         "UNLIMITED",
         "VARRAY",
+        "VISIBILITY",
     ]
 )
 
@@ -1219,6 +1281,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTypeStatementSegment"),
             Ref("CreateTypeBodyStatementSegment"),
             Ref("CreatePackageStatementSegment"),
+            Ref("AlterSessionStatementSegment"),
             Ref("DropPackageStatementSegment"),
             Ref("AlterPackageStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
@@ -1251,6 +1314,114 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSynonymStatementSegment"),
             Ref("AlterSynonymStatementSegment"),
         ],
+    )
+
+
+class AlterSessionStatementSegment(BaseSegment):
+    """An `ALTER SESSION` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/ALTER-SESSION.html
+    """
+
+    type = "alter_session_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "SESSION",
+        OneOf(
+            Sequence("ADVISE", OneOf("COMMIT", "ROLLBACK", "NOTHING")),
+            Sequence(
+                "CLOSE",
+                "DATABASE",
+                "LINK",
+                Ref("DatabaseLinkReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("ENABLE", "DISABLE"),
+                "COMMIT",
+                "IN",
+                "PROCEDURE",
+            ),
+            Sequence(OneOf("ENABLE", "DISABLE"), "GUARD"),
+            Sequence(
+                "ENABLE",
+                "PARALLEL",
+                OneOf("DML", "DDL", "QUERY"),
+                Sequence("PARALLEL", Ref("NumericLiteralSegment"), optional=True),
+            ),
+            Sequence(
+                "DISABLE",
+                "PARALLEL",
+                OneOf("DML", "DDL", "QUERY"),
+            ),
+            Sequence(
+                "FORCE",
+                "PARALLEL",
+                OneOf("DML", "DDL", "QUERY"),
+                Sequence(
+                    "PARALLEL",
+                    Ref("NumericLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "ENABLE",
+                "RESUMABLE",
+                Sequence("TIMEOUT", Ref("NumericLiteralSegment"), optional=True),
+                Sequence("NAME", Ref("QuotedLiteralSegment"), optional=True),
+            ),
+            Sequence("DISABLE", "RESUMABLE"),
+            Sequence(OneOf("ENABLE", "DISABLE"), "SHARD", "DDL"),
+            Sequence("SYNC", "WITH", "PRIMARY"),
+            Sequence(
+                "SET",
+                AnyNumberOf(
+                    Sequence(
+                        "ISOLATION_LEVEL",
+                        Ref("EqualsSegment"),
+                        OneOf("SERIALIZABLE", Sequence("READ", "COMMITTED")),
+                    ),
+                    Sequence(
+                        OneOf("CONSTRAINT", "CONSTRAINTS"),
+                        Ref("EqualsSegment"),
+                        OneOf("IMMEDIATE", "DEFERRED", "DEFAULT"),
+                    ),
+                    Sequence(
+                        "TIME_ZONE",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "LOCAL",
+                            "DBTIMEZONE",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        "ROW",
+                        "ARCHIVAL",
+                        "VISIBILITY",
+                        Ref("EqualsSegment"),
+                        OneOf("ACTIVE", "ALL"),
+                    ),
+                    Sequence(
+                        "CONTAINER",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                        Sequence(
+                            "SERVICE",
+                            Ref("EqualsSegment"),
+                            Ref("ObjectReferenceSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        OneOf("DEFAULT", Ref("ExpressionSegment")),
+                    ),
+                    min_times=1,
+                ),
+            ),
+        ),
     )
 
 
@@ -1475,10 +1646,12 @@ class CreateTableStatementSegment(BaseSegment):
                 ),
                 Ref("CommentClauseSegment", optional=True),
                 Ref("OnCommitGrammar", optional=True),
+                Ref("OraclePhysicalAttributesSegment", optional=True),
             ),
             # Create AS syntax:
             Sequence(
                 Ref("OnCommitGrammar", optional=True),
+                Ref("OraclePhysicalAttributesSegment", optional=True),
                 "AS",
                 OptionallyBracketed(Ref("SelectableGrammar")),
             ),
@@ -1486,6 +1659,30 @@ class CreateTableStatementSegment(BaseSegment):
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
         Ref("TableEndClauseSegment", optional=True),
+    )
+
+
+class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
+    """A CREATE INDEX statement, Oracle-specific extension.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/CREATE-INDEX.html
+    """
+
+    type = "create_index_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        OneOf(Ref.keyword("UNIQUE"), Ref.keyword("BITMAP"), optional=True),
+        "INDEX",
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("IndexColumnDefinitionSegment"),
+            ),
+        ),
+        Ref("OracleIndexPhysicalAttributesSegment", optional=True),
     )
 
 
@@ -1943,6 +2140,299 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
     )
 
 
+class StorageClauseSegment(BaseSegment):
+    """Oracle STORAGE clause for tables and indexes.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/storage_clause.html
+    """
+
+    type = "storage_clause"
+
+    match_grammar: Matchable = Sequence(
+        "STORAGE",
+        Bracketed(
+            AnySetOf(
+                Sequence(
+                    "INITIAL",
+                    OneOf(Ref("SizeClauseGrammar"), Ref("NumericLiteralSegment")),
+                ),
+                Sequence(
+                    "NEXT",
+                    OneOf(Ref("SizeClauseGrammar"), Ref("NumericLiteralSegment")),
+                ),
+                Sequence("MINEXTENTS", Ref("NumericLiteralSegment")),
+                Sequence(
+                    "MAXEXTENTS",
+                    OneOf(Ref("NumericLiteralSegment"), "UNLIMITED"),
+                ),
+                Sequence("PCTINCREASE", Ref("NumericLiteralSegment")),
+                Sequence("FREELISTS", Ref("NumericLiteralSegment")),
+                Sequence("FREELIST", "GROUPS", Ref("NumericLiteralSegment")),
+                Sequence("BUFFER_POOL", OneOf("DEFAULT", "KEEP", "RECYCLE")),
+                Sequence("FLASH_CACHE", OneOf("DEFAULT", "KEEP", "NONE")),
+                Sequence("CELL_FLASH_CACHE", OneOf("DEFAULT", "KEEP", "NONE")),
+                # Max size (used for LOB segments)
+                Sequence(
+                    "MAXSIZE",
+                    OneOf(
+                        "UNLIMITED",
+                        Ref("SizeClauseGrammar"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+                # Optimal size (rollback segments only)
+                Sequence(
+                    "OPTIMAL",
+                    OneOf(
+                        "NULL", Ref("SizeClauseGrammar"), Ref("NumericLiteralSegment")
+                    ),
+                ),
+                min_times=1,
+            ),
+            # Use GREEDY parse mode so that once we match the opening
+            # `STORAGE (` we commit to consuming everything up to the
+            # closing `)`. This prevents the parser from backtracking and
+            # interpreting `STORAGE(...)` as a function call when the
+            # inner content is invalid (for example duplicate sub-params).
+            # Instead, invalid inner tokens become unparsable children
+            # of the `storage_clause`, which correctly surfaces the
+            # syntax error at the clause level.
+            parse_mode=ParseMode.GREEDY,
+        ),
+    )
+
+
+class OraclePhysicalAttributesSegment(BaseSegment):
+    """Oracle physical properties for tables.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/CREATE-TABLE.html
+    """
+
+    type = "oracle_physical_attributes"
+
+    match_grammar: Matchable = AnySetOf(
+        # Segment creation policy (Oracle 11g+)
+        Sequence("SEGMENT", "CREATION", OneOf("IMMEDIATE", "DEFERRED")),
+        # Tablespace placement
+        Sequence("TABLESPACE", Ref("ObjectReferenceSegment")),
+        # Block-level space management
+        Sequence("PCTFREE", Ref("NumericLiteralSegment")),
+        Sequence("PCTUSED", Ref("NumericLiteralSegment")),
+        Sequence("INITRANS", Ref("NumericLiteralSegment")),
+        Sequence("MAXTRANS", Ref("NumericLiteralSegment")),
+        # Extent/storage parameters
+        Ref("StorageClauseSegment"),
+        # Redo logging
+        OneOf("LOGGING", "NOLOGGING"),
+        # Parallelism
+        OneOf(
+            "NOPARALLEL",
+            Sequence("PARALLEL", Ref("NumericLiteralSegment", optional=True)),
+        ),
+        # Buffer cache
+        OneOf("NOCACHE", "CACHE"),
+        # Table/partition compression
+        OneOf(
+            "NOCOMPRESS",
+            Sequence(
+                "COMPRESS",
+                Sequence(
+                    "FOR",
+                    OneOf(
+                        "OLTP",
+                        Sequence(
+                            "QUERY",
+                            OneOf("LOW", "HIGH", optional=True),
+                        ),
+                        Sequence(
+                            "ARCHIVE",
+                            OneOf("LOW", "HIGH", optional=True),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            # ROW STORE COMPRESS [ BASIC | ADVANCED ] (Oracle 11g+)
+            Sequence(
+                "ROW",
+                "STORE",
+                "COMPRESS",
+                OneOf("BASIC", "ADVANCED", optional=True),
+            ),
+            # COLUMN STORE COMPRESS (HCC / Exadata)
+            Sequence(
+                "COLUMN",
+                "STORE",
+                "COMPRESS",
+                Sequence(
+                    "FOR",
+                    OneOf(
+                        Sequence("QUERY", OneOf("LOW", "HIGH", optional=True)),
+                        Sequence("ARCHIVE", OneOf("LOW", "HIGH", optional=True)),
+                    ),
+                    optional=True,
+                ),
+                Sequence("NO", "ROW", "LEVEL", "LOCKING", optional=True),
+            ),
+        ),
+        # Monitoring (deprecated but still valid)
+        OneOf("MONITORING", "NOMONITORING"),
+        # Row movement
+        Sequence(OneOf("ENABLE", "DISABLE"), "ROW", "MOVEMENT"),
+        # Result cache
+        Sequence(
+            "RESULT_CACHE",
+            Bracketed(
+                Sequence("MODE", OneOf("DEFAULT", "FORCE")),
+            ),
+        ),
+        # In-Memory column store (12c+)
+        OneOf(
+            Sequence(
+                "INMEMORY",
+                AnySetOf(
+                    OneOf(
+                        Sequence("NO", "MEMCOMPRESS"),
+                        Sequence(
+                            "MEMCOMPRESS",
+                            "FOR",
+                            OneOf(
+                                "DML",
+                                Sequence("QUERY", OneOf("LOW", "HIGH", optional=True)),
+                                Sequence(
+                                    "CAPACITY", OneOf("LOW", "HIGH", optional=True)
+                                ),
+                                Sequence(
+                                    "ARCHIVE", OneOf("LOW", "HIGH", optional=True)
+                                ),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        "PRIORITY",
+                        OneOf("NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"),
+                    ),
+                    # NOTE: Both the AUTO/BY and FOR SERVICE sub-options are
+                    # individually optional. This means bare `DISTRIBUTE`
+                    # (with neither sub-option) is accepted by the grammar.
+                    # This is intentional: Oracle allows `DISTRIBUTE` alone
+                    # to reset to the default distribution method.
+                    Sequence(
+                        "DISTRIBUTE",
+                        OneOf(
+                            "AUTO",
+                            Sequence(
+                                "BY",
+                                OneOf(
+                                    Sequence("ROWID", "RANGE"),
+                                    "PARTITION",
+                                    "SUBPARTITION",
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "FOR",
+                            "SERVICE",
+                            OneOf(
+                                "DEFAULT",
+                                "ALL",
+                                "NONE",
+                                Ref("ObjectReferenceSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    OneOf(
+                        Sequence("DUPLICATE", Ref.keyword("ALL", optional=True)),
+                        Sequence("NO", "DUPLICATE"),
+                    ),
+                ),
+            ),
+            Sequence("NO", "INMEMORY"),
+        ),
+        # Flashback archive
+        OneOf(
+            Sequence(
+                "FLASHBACK",
+                "ARCHIVE",
+                Ref("ObjectReferenceSegment", optional=True),
+            ),
+            Sequence("NO", "FLASHBACK", "ARCHIVE"),
+        ),
+        # Row dependency tracking
+        OneOf("ROWDEPENDENCIES", "NOROWDEPENDENCIES"),
+        min_times=1,
+    )
+
+
+class OracleIndexPhysicalAttributesSegment(BaseSegment):
+    """Oracle physical attributes valid specifically inside CREATE INDEX.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/CREATE-INDEX.html
+    """
+
+    type = "oracle_index_physical_attributes"
+
+    match_grammar: Matchable = AnySetOf(
+        # Tablespace placement
+        Sequence("TABLESPACE", Ref("ObjectReferenceSegment")),
+        # Block-level space management (PCTUSED excluded – index-only allows PCTFREE)
+        Sequence("PCTFREE", Ref("NumericLiteralSegment")),
+        Sequence("INITRANS", Ref("NumericLiteralSegment")),
+        # MAXTRANS is deprecated for indexes since Oracle 10g and not present
+        # in the Oracle 23c CREATE INDEX grammar. It is retained here for
+        # backward-compatibility with older Oracle versions (<=10g).
+        # TODO: consider removing this entry when support for legacy Oracle
+        # versions is dropped (track by minimum supported Oracle version).
+        Sequence("MAXTRANS", Ref("NumericLiteralSegment")),
+        # Extent/storage parameters
+        Ref("StorageClauseSegment"),
+        # Redo logging
+        OneOf("LOGGING", "NOLOGGING"),
+        # Parallelism
+        OneOf(
+            "NOPARALLEL",
+            Sequence("PARALLEL", Ref("NumericLiteralSegment", optional=True)),
+        ),
+        # Key-prefix compression: COMPRESS [integer] | NOCOMPRESS
+        OneOf(
+            "NOCOMPRESS",
+            Sequence(
+                "COMPRESS",
+                Ref("NumericLiteralSegment", optional=True),
+            ),
+        ),
+        # NOSORT and REVERSE
+        OneOf("NOSORT", "REVERSE"),
+        # Visibility
+        OneOf("VISIBLE", "INVISIBLE"),
+        # Online build
+        "ONLINE",
+        min_times=1,
+    )
+
+
+class UsingIndexClauseSegment(BaseSegment):
+    """Oracle USING INDEX clause within a constraint definition.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/constraint.html
+    """
+
+    type = "using_index_clause"
+
+    match_grammar: Matchable = Sequence(
+        "USING",
+        "INDEX",
+        OneOf(
+            Ref("IndexReferenceSegment"),
+            Bracketed(Ref("CreateIndexStatementSegment")),
+            Ref("OracleIndexPhysicalAttributesSegment"),
+            optional=True,
+        ),
+    )
+
+
 class TableConstraintSegment(ansi.TableConstraintSegment):
     """A table constraint, e.g. for CREATE TABLE.
 
@@ -1966,13 +2456,13 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
             Sequence(  # UNIQUE ( column_name [, ... ] )
                 "UNIQUE",
                 Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for index_parameters?
+                Ref("UsingIndexClauseSegment", optional=True),
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
                 Ref("PrimaryKeyGrammar"),
                 # Columns making up PRIMARY KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for index_parameters?
+                Ref("UsingIndexClauseSegment", optional=True),
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                 # REFERENCES reftable [ ( refcolumn [, ... ] ) ]

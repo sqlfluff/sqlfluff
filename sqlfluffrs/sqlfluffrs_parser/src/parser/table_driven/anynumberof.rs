@@ -369,11 +369,6 @@ impl Parser<'_> {
             return Ok(stack.transition_to_combining(frame, None));
         }
 
-        // We no longer "collect tokens", it's all lazy evaluation now.
-        if allow_gaps && *ctx.matched_idx < *ctx.working_idx {
-            *ctx.matched_idx = *ctx.working_idx;
-        }
-
         // Check max_times constraint
         if let Some(max) = max_times {
             if *ctx.count >= max {

@@ -7,6 +7,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -669,6 +670,27 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
     )
 
 
+class SetOperatorSegment(ansi.SetOperatorSegment):
+    """A set operator such as Union, Minus, Except or Intersect.
+
+    Excludes ClickHouse `SELECT * EXCEPT (...)` wildcard exclusions from being
+    consumed as set operators.
+    """
+
+    match_grammar = OneOf(
+        Ref("UnionGrammar"),
+        Sequence(
+            OneOf(
+                "INTERSECT",
+                "EXCEPT",
+            ),
+            Ref.keyword("ALL", optional=True),
+        ),
+        "MINUS",
+        exclude=Sequence("EXCEPT", Bracketed(Anything())),
+    )
+
+
 class WithFillSegment(ansi.WithFillSegment):
     """Enhances `ORDER BY` clauses to include WITH FILL.
 
@@ -976,10 +998,10 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
     """An extension of the star expression for Clickhouse."""
 
-    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
-        insert=[
-            Ref("ExceptClauseSegment", optional=True),
-        ]
+    match_grammar = Sequence(
+        Ref("WildcardIdentifierSegment"),
+        Ref("ExceptClauseSegment", optional=True),
+        AnyNumberOf(Ref("ApplyClauseSegment")),
     )
 
 
@@ -996,6 +1018,19 @@ class ExceptClauseSegment(BaseSegment):
             Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
             Ref("SingleIdentifierGrammar"),
         ),
+    )
+
+
+class ApplyClauseSegment(BaseSegment):
+    """A Clickhouse SELECT APPLY clause.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select#apply-modifier
+    """
+
+    type = "select_apply_clause"
+    match_grammar = Sequence(
+        "APPLY",
+        Bracketed(Ref("ExpressionSegment")),
     )
 
 

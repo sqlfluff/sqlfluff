@@ -246,6 +246,26 @@ def test__config__validate_configs_indirect():
         )
 
 
+def test__config__invalid_prefer_quoted_keyword_style():
+    """Invalid RF06 quote-style config should raise a user-facing error."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "sqlite"},
+            "rules": {
+                "references.quoting": {"prefer_quoted_keyword_style": "square_brackets"}
+            },
+        }
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        Linter(config=config).get_rulepack()
+
+    assert "prefer_quoted_keyword_style" in str(exc_info.value)
+    assert "square_brackets" in str(exc_info.value)
+    assert "double_quotes" in str(exc_info.value)
+    assert "backticks" in str(exc_info.value)
+
+
 @pytest.mark.parametrize(
     "raw_sql",
     [
