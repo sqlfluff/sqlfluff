@@ -1,5 +1,20 @@
 [build-system]
-requires = ["maturin>=1.8,<2.0"]
+# `sqlfluff` is listed as a build requirement so that pip installs it (and all
+# its transitive dependencies: tblib, click, Jinja2, regex, pytest, …) into
+# the isolated build environment before maturin invokes cargo.
+#
+# The Cargo build script (sqlfluffrs_dialects/build.rs) then prepends
+# <repo_root>/src to PYTHONPATH so that utils/rustify.py uses the *local*
+# dialect definitions from the cloned branch rather than the PyPI version.
+# This ensures newly-added dialects on a feature branch are included.
+#
+# Together these make the package installable directly from a git VCS URL
+# without a prior `tox -e generate-rs` step:
+#
+#   `pip install "sqlfluffrs @ git+https://github.com/sqlfluff/sqlfluff#subdirectory=sqlfluffrs"`
+#   `uvx --with "sqlfluffrs @ git+https://github.com/sqlfluff/sqlfluff#subdirectory=sqlfluffrs" sqlfluff --version`
+#   Running `pre-commit`
+requires = ["maturin>=1.8,<2.0", "sqlfluff"]
 build-backend = "maturin"
 
 [project]
@@ -42,3 +57,6 @@ Source = "https://github.com/sqlfluff/sqlfluff"
 
 [tool.maturin]
 features = ["pyo3/extension-module", "python"]
+
+[tool.uv.sources]
+sqlfluff = { workspace = true }

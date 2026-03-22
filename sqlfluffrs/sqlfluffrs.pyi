@@ -115,6 +115,8 @@ class RsToken:
         templated_file: "TemplatedFile",
     ) -> "RsToken": ...
 
+class RsNode: ...
+
 class RsSQLLexerError:
     desc: str
     line_no: int
@@ -165,6 +167,13 @@ class RsMatchResult:
     quoted_value: Optional[str]
     escape_replacement: Optional[tuple[str, str]]
     insert_segments: Optional[List[tuple[int, str, bool]]]
+
+    def apply_as_node(
+        self,
+        tokens: List[RsToken],
+        leading: List[RsToken],
+        trailing: List[RsToken],
+    ) -> RsNode: ...
 
 class RsParseError(Exception):
     """Exception raised by Rust parser when parsing fails.
