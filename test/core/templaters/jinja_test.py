@@ -23,7 +23,7 @@ from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplat
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
-from sqlfluff.core.templaters.jinja import DummyUndefined
+from sqlfluff.core.templaters.jinja import DummyUndefined, UndefinedRecorder
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTagConfiguration
 
 JINJA_STRING = (
@@ -1797,6 +1797,35 @@ def test_undefined_magic_methods():
     assert ud > ud
 
     assert ud + ud is ud
+
+
+def test_undefined_recorder_iter_records_name():
+    """Test UndefinedRecorder.__iter__ still records the variable name."""
+    undefined_set: set[str] = set()
+    ur = UndefinedRecorder("my_var", undefined_set)
+    assert len(list(ur)) == 1
+    assert "my_var" in undefined_set
+
+
+def test_jinja_undefined_multivar_for_loop_user_friendly_error():
+    """Test that multi-variable for loops over undefined vars raise a user-friendly error.
+
+    Reproduces: ValueError: not enough values to unpack (expected 2, got 1)
+    when a Jinja template has {% for key, value in undefined.items() %}.
+    The fix catches the ValueError and raises SQLTemplaterError instead of crashing.
+    """
+    t = JinjaTemplater()
+    with pytest.raises(SQLTemplaterError, match="Unrecoverable failure"):
+        t.process(
+            in_str=(
+                "SELECT 1\n"
+                "{% for field, conditions in undefined_dict.items() %}\n"
+                "AND {{ field }} = '{{ conditions }}'\n"
+                "{% endfor %}\n"
+            ),
+            fname="test.sql",
+            config=FluffConfig(overrides={"templater": "jinja", "dialect": "ansi"}),
+        )
 
 
 @pytest.mark.parametrize(
