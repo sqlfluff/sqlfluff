@@ -59,7 +59,7 @@ def test__parser__grammar_oneof(test_segments, allow_gaps):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = OneOf(fs, bs, allow_gaps=allow_gaps)
-    ctx = ParseContext(dialect=None)
+    ctx = ParseContext(dialect=None, max_parse_depth=-1)
     # Check directly
     assert g.match(test_segments, 0, parse_context=ctx) == MatchResult(
         matched_slice=slice(0, 1),
@@ -78,7 +78,7 @@ def test__parser__grammar_oneof_templated(test_segments):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = OneOf(fs, bs)
-    ctx = ParseContext(dialect=None)
+    ctx = ParseContext(dialect=None, max_parse_depth=-1)
     # This shouldn't match, but it *ALSO* shouldn't raise an exception.
     # https://github.com/sqlfluff/sqlfluff/issues/780
     assert not g.match(test_segments, 5, parse_context=ctx)
@@ -89,7 +89,7 @@ def test__parser__grammar_oneof_exclude(test_segments):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = OneOf(bs, exclude=Sequence(bs, fs))
-    ctx = ParseContext(dialect=None)
+    ctx = ParseContext(dialect=None, max_parse_depth=-1)
     # Just against the first alone
     assert g.match(test_segments[:1], 0, parse_context=ctx)
     # Now with the bit to exclude included
@@ -106,7 +106,7 @@ def test__parser__grammar_oneof_take_longest_match(test_segments):
         baar,
     )
 
-    ctx = ParseContext(dialect=None)
+    ctx = ParseContext(dialect=None, max_parse_depth=-1)
     assert fooRegex.match(test_segments, 2, parse_context=ctx).matched_slice == slice(
         2, 3
     )
@@ -121,7 +121,7 @@ def test__parser__grammar_oneof_take_first(test_segments):
     """Test that the OneOf grammar takes first match in case they are of same length."""
     foo1 = StringParser("foo", Example1Segment)
     foo2 = StringParser("foo", Example2Segment)
-    ctx = ParseContext(dialect=None)
+    ctx = ParseContext(dialect=None, max_parse_depth=-1)
 
     # Both segments would match "foo"
     # so we test that order matters
@@ -251,7 +251,7 @@ def test__parser__grammar_anysetof(generate_test_segments):
     bar = StringParser("bar", KeywordSegment)
     foo = StringParser("foo", KeywordSegment)
     g = AnySetOf(foo, bar)
-    ctx = ParseContext(dialect=None)
+    ctx = ParseContext(dialect=None, max_parse_depth=-1)
 
     # Check it doesn't match if the start is whitespace.
     assert not g.match(segments, 1, ctx)

@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, NoReturn, Optional
 from tqdm import tqdm
 
 from sqlfluff.core.config import progress_bar_configuration
+from sqlfluff.core.errors import SQLParseError
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
@@ -54,12 +55,14 @@ class ParseContext:
     def __init__(
         self,
         dialect: "Dialect",
+        max_parse_depth: int,
         indentation_config: Optional[dict[str, Any]] = None,
     ) -> None:
         """Initialize a new instance of the class.
 
         Args:
             dialect (Dialect): The dialect used for parsing.
+            max_parse_depth (int): Maximum match depth; ``-1`` to disable.
             indentation_config (Optional[dict[str, Any]], optional): The indentation
                 configuration used by Indent and Dedent to control the intended
                 indentation of certain features. Defaults to None.
@@ -69,6 +72,7 @@ class ParseContext:
         # the intended indentation of certain features. Specifically it is
         # used in the Conditional grammar.
         self.indentation_config = indentation_config or {}
+        self.max_parse_depth = max_parse_depth
         # This is the logger that child objects will latch onto.
         self.logger = parser_logger
         # A uuid for this parse context to enable cache invalidation
@@ -124,9 +128,12 @@ class ParseContext:
                 "One of the configuration keys in the `indentation` section is not "
                 "True or False: {!r}".format(indentation_config)
             )
+        max_parse_depth = config.get("max_parse_depth")
+        assert isinstance(max_parse_depth, int)
         return cls(
             dialect=config.get("dialect_obj"),
             indentation_config=indentation_config,
+            max_parse_depth=max_parse_depth,
         )
 
     def _set_terminators(
@@ -231,6 +238,11 @@ class ParseContext:
         self._match_stack.append(self.match_segment)
         self.match_segment = name
         self.match_depth += 1
+        if self.max_parse_depth > 0 and self.match_depth > self.max_parse_depth:
+            raise SQLParseError(
+                f"Maximum parse depth exceeded (limit {self.max_parse_depth}). "
+                "This may indicate deeply nested SQL or a malicious input."
+            )
         _append, _terms = self._set_terminators(clear_terminators, push_terminators)
         _track_progress = self.track_progress
         if track_progress is False:
