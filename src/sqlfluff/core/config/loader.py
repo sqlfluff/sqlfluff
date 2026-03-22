@@ -11,6 +11,7 @@ from __future__ import annotations
 import logging
 import os
 import os.path
+import threading
 import sys
 from functools import cache
 from importlib.resources import files
@@ -34,6 +35,10 @@ from sqlfluff.core.types import ConfigMappingType
 
 # Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")
+
+# Lock for thread-safe environment variable manipulation in
+# _get_user_config_dir_path. Needed for free-threaded Python (3.14+).
+_env_lock = threading.Lock()
 
 global_loader = None
 """:obj:`ConfigLoader`: A variable to hold the single module loader when loaded.
@@ -74,9 +79,19 @@ def _get_user_config_dir_path(sys_platform: str) -> str:
         # Technically we could just delegate to the generic `user_config_dir`
         # method, but for testing it's convenient to explicitly call the macos
         # methods here.
-        return platformdirs.macos.MacOS(
-            appname=appname, appauthor=appauthor
-        ).user_config_dir
+        # NOTE: On platformdirs >= 4.6.0, MacOS also respects XDG_CONFIG_HOME.
+        # Temporarily unset it so we get the native macOS path when the XDG
+        # path doesn't exist. Use a lock for thread safety (free-threaded
+        # Python 3.14+).
+        with _env_lock:
+            xdg_config_home = os.environ.pop("XDG_CONFIG_HOME", None)
+            try:
+                return platformdirs.macos.MacOS(
+                    appname=appname, appauthor=appauthor
+                ).user_config_dir
+            finally:
+                if xdg_config_home is not None:
+                    os.environ["XDG_CONFIG_HOME"] = xdg_config_home
     # NOTE: We could delegate to the generic `user_config_dir` method here,
     # but for testing it's convenient to explicitly call the linux methods.
     elif sys_platform == "linux":
