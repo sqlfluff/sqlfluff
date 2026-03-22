@@ -312,7 +312,7 @@ class Dialect:
                 " raise an issue on GitHub.\n\n"
                 "Or, even better, see this guide on how to help contribute"
                 " keyword and/or dialect updates:\n"
-                "https://docs.sqlfluff.com/en/stable/perma/contribute_dialect_keywords.html"  # noqa E501
+                "https://docs.sqlfluff.com/en/stable/perma/contribute_dialect_keywords.html"
             )
             # Keyword errors are common so avoid printing the whole, scary,
             # traceback as not that useful and confusing to people.

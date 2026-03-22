@@ -20,7 +20,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         ("LT12", "models/my_new_project/multiple_trailing_newline.sql", [(3, 1)]),
     ],
 )
-def test__rules__std_file_dbt(rule, path, violations, project_dir, dbt_fluff_config):  # noqa
+def test__rules__std_file_dbt(rule, path, violations, project_dir, dbt_fluff_config):
     """Test linter finds the given errors in (and only in) the right places (DBT)."""
     assert_rule_raises_violations_in_file(
         rule=rule,
@@ -30,7 +30,7 @@ def test__rules__std_file_dbt(rule, path, violations, project_dir, dbt_fluff_con
     )
 
 
-def test__rules__fix_utf8(project_dir, dbt_fluff_config):  # noqa
+def test__rules__fix_utf8(project_dir, dbt_fluff_config):
     """Verify that non-ASCII characters are preserved by 'fix'."""
     rule = "CP01"
     path = "models/my_new_project/utf8/test.sql"
@@ -61,7 +61,7 @@ def test__rules__fix_utf8(project_dir, dbt_fluff_config):  # noqa
     os.unlink(fixed_path)
 
 
-def test__rules__order_by(project_dir, dbt_fluff_config):  # noqa
+def test__rules__order_by(project_dir, dbt_fluff_config):
     """Verify that rule AM03 works with dbt."""
     rule = "AM03"
     path = "models/my_new_project/AM03_test.sql"
@@ -74,7 +74,7 @@ def test__rules__order_by(project_dir, dbt_fluff_config):  # noqa
     assert len(violations) == 0
 
 
-def test__rules__indent_oscillate(project_dir, dbt_fluff_config):  # noqa
+def test__rules__indent_oscillate(project_dir, dbt_fluff_config):
     """Verify that we don't get oscillations with LT02 and dbt."""
     # This *should* be the wrong format
     path_1 = "models/my_new_project/indent_loop_4.sql"
