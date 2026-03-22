@@ -33,7 +33,7 @@ def test_bigquery_relational_operator_parsing(data):
         if i:
             filter.append(f" {conjunction} ")
         filter.append(f"a {relation} b")
-    raw = f'SELECT * FROM t WHERE {"".join(filter)}'
+    raw = f"SELECT * FROM t WHERE {''.join(filter)}"
     note(f"query: {raw}")
     # Load the right dialect
     config = FluffConfig(overrides=dict(dialect="bigquery"))

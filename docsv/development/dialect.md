@@ -1016,7 +1016,7 @@ Regardless of what testing you do, GitHub will run the full regression suite
 when the PR is opened or updated. Note first time contributors will need a
 maintainer to kick off the tests until their first PR is merged.
 
-### Black code linting
+### Ruff linting and formatting
 
 These tools are run automatically by the `pre-commit hook`_, but can also be
 run manually for those not using that.
@@ -1025,9 +1025,9 @@ We use [ruff](https://docs.astral.sh/ruff/) to lint our python code (being a lin
 have high quality code!). Our CI, or the `tox` commands above will run
 this and flag any errors.
 
-In most cases running [black](https://github.com/psf/black) on the python file(s) will correct any simple
-errors (e.g. line formatting) but for some you'll need to run `ruff` to see the
-issues and manually correct them.
+In most cases running [ruff format](https://docs.astral.sh/ruff/formatter/) on the
+python file(s) will correct simple formatting issues. For lint errors, run
+`ruff check` and apply suggested fixes, or use `ruff check --fix` where possible.
 
 ## Submitting your change
 

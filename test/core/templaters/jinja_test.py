@@ -708,6 +708,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_c_dbt/dbt_builtins_test", True, False),
         ("jinja_c_dbt/dbt_builtins_zip", True, False),
         ("jinja_c_dbt/dbt_builtins_zip_strict", True, False),
+        ("jinja_c_dbt/dbt_builtins_return", True, False),
         # do directive
         ("jinja_e/jinja", True, False),
         # case sensitivity and python literals
@@ -783,9 +784,9 @@ def test__templater_jinja_block_matching(caplog):
     ]
 
     # Group them together by block UUID
-    assert all(
-        seg.block_uuid for seg in template_segments
-    ), "All templated segments should have a block uuid!"
+    assert all(seg.block_uuid for seg in template_segments), (
+        "All templated segments should have a block uuid!"
+    )
     grouped = defaultdict(list)
     for seg in template_segments:
         grouped[seg.block_uuid].append(seg.pos_marker.working_loc)
@@ -1930,8 +1931,7 @@ def test__templater_jinja_dotted_context_config():
     t = JinjaTemplater()
     outstr, _ = t.process(
         in_str=(
-            "SELECT * FROM `{{ namespace.projectname }}."
-            "{{ namespace.env }}_test.table`"
+            "SELECT * FROM `{{ namespace.projectname }}.{{ namespace.env }}_test.table`"
         ),
         fname="test.sql",
         config=config,

@@ -1,3 +1,4 @@
+use hashbrown::HashMap;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
@@ -36,7 +37,7 @@ fn parse_error_to_pyerr(e: ParseError) -> PyErr {
 }
 
 /// Python-wrapped Node for AST representation
-#[pyclass(name = "RsNode", module = "sqlfluffrs")]
+#[pyclass(name = "RsNode", module = "sqlfluffrs", from_py_object)]
 #[derive(Clone)]
 pub struct PyNode(pub Node);
 
@@ -101,6 +102,21 @@ impl PyNode {
     fn instance_types(&self) -> Option<Vec<String>> {
         match &self.0 {
             Node::Raw { instance_types, .. } => Some(instance_types.clone()),
+            _ => None,
+        }
+    }
+
+    /// Get class_types — mirrors Python's class_types property.
+    fn class_types(&self) -> Option<Vec<String>> {
+        match &self.0 {
+            Node::Raw { class_types, .. } => Some(class_types.clone()),
+            Node::Segment { class_types, .. } => {
+                if class_types.is_empty() {
+                    None
+                } else {
+                    Some(class_types.clone())
+                }
+            }
             _ => None,
         }
     }
@@ -234,7 +250,7 @@ impl From<Node> for PyNode {
 }
 
 /// Python-wrapped ParseError
-#[pyclass(name = "RsParseError", module = "sqlfluffrs", extends=PyException)]
+#[pyclass(name = "RsParseError", module = "sqlfluffrs", extends=PyException, from_py_object)]
 #[derive(Clone)]
 pub struct PyParseError {
     #[pyo3(get)]
@@ -271,7 +287,7 @@ impl From<ParseError> for PyParseError {
 /// Python's existing apply() logic, avoiding double-counting issues in Rust.
 ///
 /// frozen=true makes this immutable (matches Python's @dataclass(frozen=True))
-#[pyclass(name = "RsMatchResult", module = "sqlfluffrs", frozen)]
+#[pyclass(name = "RsMatchResult", module = "sqlfluffrs", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyMatchResult(pub MatchResult);
 
@@ -429,6 +445,32 @@ impl PyMatchResult {
             self.0.child_matches.len()
         )
     }
+
+    /// Build the full AST as an `RsNode` from this MatchResult and tokens.
+    ///
+    /// Applies the match result against the provided tokens to construct the
+    /// complete Rust-side AST which can be used by Rust linting rules
+    /// (e.g., respace/LT01) without round-tripping through Python's segment
+    /// tree. Optionally prepend `leading` and append `trailing` non-code
+    /// tokens to the root.
+    ///
+    /// This is the single PyO3 entry-point for node construction.
+    #[pyo3(signature = (tokens, leading=vec![], trailing=vec![]))]
+    fn apply_as_node(
+        &self,
+        tokens: Vec<PyToken>,
+        leading: Vec<PyToken>,
+        trailing: Vec<PyToken>,
+    ) -> PyNode {
+        let rust_leading: Vec<Token> = leading.into_iter().map(|t| t.into()).collect();
+        let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
+        let rust_trailing: Vec<Token> = trailing.into_iter().map(|t| t.into()).collect();
+        let node = self
+            .0
+            .clone()
+            .apply_as_root(&rust_tokens, &rust_leading, &rust_trailing);
+        PyNode(node)
+    }
 }
 
 /// Python-wrapped Parser
@@ -446,7 +488,7 @@ impl PyParser {
     #[pyo3(signature = (dialect=None, indent_config=None, max_parser_iterations=None, parser_warn_threshold=None))]
     pub fn new(
         dialect: Option<&str>,
-        indent_config: Option<std::collections::HashMap<String, bool>>,
+        indent_config: Option<HashMap<String, bool>>,
         max_parser_iterations: Option<usize>,
         parser_warn_threshold: Option<usize>,
     ) -> PyResult<Self> {
@@ -524,7 +566,7 @@ impl PyParser {
     pub fn parse_match_result_with_stats(
         &self,
         tokens: Vec<PyToken>,
-    ) -> PyResult<(PyMatchResult, std::collections::HashMap<String, usize>)> {
+    ) -> PyResult<(PyMatchResult, HashMap<String, usize>)> {
         // Convert PyToken to internal Token
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
@@ -544,7 +586,7 @@ impl PyParser {
         let (cache_hits, cache_misses, _) = parser.table_cache.stats();
         let cache_entries = parser.table_cache.len();
 
-        let mut stats = std::collections::HashMap::new();
+        let mut stats = HashMap::new();
         stats.insert("cache_hits".to_string(), cache_hits);
         stats.insert("cache_misses".to_string(), cache_misses);
         stats.insert("cache_entries".to_string(), cache_entries);
@@ -578,7 +620,7 @@ impl PyParser {
     pub fn parse_match_result_with_grammar_counts(
         &self,
         tokens: Vec<PyToken>,
-    ) -> PyResult<(PyMatchResult, std::collections::HashMap<String, usize>)> {
+    ) -> PyResult<(PyMatchResult, HashMap<String, usize>)> {
         // Convert PyToken to internal Token
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
@@ -596,7 +638,7 @@ impl PyParser {
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
 
         // Count calls per grammar by iterating cache entries
-        let mut grammar_counts = std::collections::HashMap::new();
+        let mut grammar_counts = HashMap::new();
 
         for (key, _result) in parser.table_cache.iter() {
             let grammar_id = sqlfluffrs_types::GrammarId(key.grammar_id);

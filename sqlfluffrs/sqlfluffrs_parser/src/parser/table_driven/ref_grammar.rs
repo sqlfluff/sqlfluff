@@ -225,6 +225,7 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
     ) -> Result<TableFrameResult, ParseError> {
         let FrameContext::RefTableDriven {
+            grammar_id,
             name,
             segment_class_name,
             segment_type,
@@ -312,12 +313,17 @@ impl Parser<'_> {
             );
             let matched_class =
                 if !effective_segment_type.is_empty() || segment_class_name.is_some() {
+                    // Look up the Python _class_types hierarchy for this grammar from codegen tables.
+                    let class_types = self.grammar_ctx.segment_class_types(*grammar_id);
                     Some(MatchedClass {
                         // take() instead of clone() + unwrap — frame context is not read
                         // again after this point (state transitions to Complete).
                         class_name: segment_class_name.take().unwrap_or_default(),
                         segment_type: Some(effective_segment_type),
-                        segment_kwargs: SegmentKwargs::default(),
+                        segment_kwargs: SegmentKwargs {
+                            class_types,
+                            ..Default::default()
+                        },
                     })
                 } else {
                     None

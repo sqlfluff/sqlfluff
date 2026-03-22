@@ -419,6 +419,31 @@ class ResumeRoutineLoadStatementSegment(BaseSegment):
     )
 
 
+class InsertOverwriteStatementSegment(BaseSegment):
+    """A `INSERT OVERWRITE` statement with optional PARTITION clause."""
+
+    type = "insert_overwrite_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        "OVERWRITE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "PARTITION",
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("ExpressionSegment"),
+                        Ref("NakedIdentifierSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    )
+                )
+            ),
+            optional=True,
+        ),
+        Ref("SelectableGrammar"),
+    )
+
+
 class StatementSegment(mysql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -429,6 +454,11 @@ class StatementSegment(mysql.StatementSegment):
             Ref("PauseRoutineLoadStatementSegment"),
             Ref("ResumeRoutineLoadStatementSegment"),
         ]
+    ).copy(
+        insert=[
+            Ref("InsertOverwriteStatementSegment"),
+        ],
+        at=1,
     )
 
 

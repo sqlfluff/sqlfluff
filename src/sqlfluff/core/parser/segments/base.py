@@ -29,6 +29,7 @@ from typing import (
 )
 from uuid import uuid4
 
+from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
@@ -283,6 +284,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # This is set by RawSegment.from_rstoken() for efficient round-trip
         # to the Rust parser, but isn't needed after pickling.
         s.pop("_rstoken", None)
+        # Remove _rs_node if present - RsNode objects can't be pickled.
+        # This is set on the root FileSegment by the Rust parser for efficient
+        # rule evaluation, but isn't needed after pickling.
+        s.pop("_rs_node", None)
         return s
 
     def __setstate__(self, state: dict[str, Any]) -> None:
@@ -488,6 +493,23 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 end_point = None
                 for fwd_seg in segments[idx + 1 :]:
                     if fwd_seg.pos_marker:
+                        # Skip zero-length template placeholders (e.g. a Jinja
+                        # variable {{ expr }} that rendered to an empty string).
+                        # These may appear before a sibling segment with an
+                        # earlier templated position due to the way the lexer
+                        # processes spanning elements.  Using their position as
+                        # the end-point would produce an over-wide position for
+                        # the unpositioned segment (e.g. a replacement whitespace
+                        # gaining a source-slice that extends into the Jinja code).
+                        # See: https://github.com/sqlfluff/sqlfluff/issues/6261
+                        if (
+                            fwd_seg.is_type("placeholder")
+                            and fwd_seg.raw == ""
+                            and is_zero_slice(fwd_seg.pos_marker.templated_slice)
+                            and not is_zero_slice(fwd_seg.pos_marker.source_slice)
+                            and getattr(fwd_seg, "block_type", "") == "templated"
+                        ):
+                            continue
                         # NOTE: Use raw segments because it's more reliable.
                         end_point = fwd_seg.raw_segments[
                             0
@@ -941,9 +963,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # of not. Typically will _have_ a `segments` attribute, but it's an
         # empty tuple.
         if not self.__dict__.get("segments", None):
-            assert (
-                not segments
-            ), f"Cannot provide `segments` argument to {cls.__name__} `.copy()`\n"
+            assert not segments, (
+                f"Cannot provide `segments` argument to {cls.__name__} `.copy()`\n"
+            )
         # If segments were provided, use them.
         elif segments:
             new_segment.segments = segments

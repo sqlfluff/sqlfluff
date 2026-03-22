@@ -40,6 +40,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
+from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
@@ -395,7 +396,10 @@ bigquery_dialect.replace(
     NotEnforcedGrammar=Sequence("NOT", "ENFORCED"),
     ReferenceMatchGrammar=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
@@ -1571,6 +1575,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("ArrayTypeSegment"),
         Ref("StructTypeSegment"),
+        Ref("TableTypeSegment"),
     )
 
 
@@ -1601,6 +1606,37 @@ class StructTypeSchemaSegment(BaseSegment):
                         Ref("DatatypeSegment"),
                     ),
                 ),
+                AnyNumberOf(Ref("ColumnConstraintSegment")),
+                Ref("OptionsSegment", optional=True),
+            ),
+        ),
+        bracket_type="angle",
+        bracket_pairs_set="angle_bracket_pairs",
+    )
+
+
+class TableTypeSegment(BaseSegment):
+    """Expression to construct a TABLE datatype.
+
+    This mirrors the STRUCT type but is used for table-valued parameters in UDFs and stored procedures.
+    """
+
+    type = "data_type"
+    match_grammar = Sequence(
+        "TABLE",
+        Ref("TableTypeSchemaSegment"),
+    )
+
+
+class TableTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a TABLE datatype."""
+
+    type = "table_type_schema"
+    match_grammar = Bracketed(
+        Delimited(  # Comma-separated list of field names/types
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Ref("DatatypeSegment"),
                 AnyNumberOf(Ref("ColumnConstraintSegment")),
                 Ref("OptionsSegment", optional=True),
             ),
