@@ -78,3 +78,16 @@ def test_max_parse_depth_rust_parser_exceeds_limit():
     assert exc_info.value.segment is not None
     assert exc_info.value.line_no > 0
     assert exc_info.value.line_pos > 0
+
+
+def test_parse_context_max_parse_depth_zero_disables_limit():
+    """ParseContext.from_config with max_parse_depth=0 sets no depth limit.
+
+    A value of 0 (or any non-positive integer) is treated as "no limit",
+    so from_config should set max_parse_depth to None on the context.
+    """
+    from sqlfluff.core.parser.context import ParseContext
+
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 0})
+    ctx = ParseContext.from_config(config)
+    assert ctx.max_parse_depth is None

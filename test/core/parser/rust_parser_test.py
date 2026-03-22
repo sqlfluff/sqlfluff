@@ -9,6 +9,48 @@ except ImportError:
     _HAS_RUST_PARSER = False
 
 
+# ============================================================================
+# max_parse_depth edge-case tests (lines 94-97 of rust_parser.py)
+# ============================================================================
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__max_parse_depth_invalid_string_falls_back_to_255():
+    """RustParser falls back to depth=255 when max_parse_depth is not a valid integer.
+
+    Exercises the ``except (TypeError, ValueError): max_parse_depth = 255``
+    branch (rust_parser.py lines 94-95).  Passing a non-numeric string as the
+    config override causes ``int(raw)`` to raise ``ValueError``; the parser
+    should still construct successfully using the fallback value.
+    """
+    from sqlfluff.core import FluffConfig
+
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": "invalid"})
+    # Must not raise; fallback to 255 keeps the parser healthy.
+    parser = RustParser(config=config)
+    assert parser is not None
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__max_parse_depth_zero_disables_limit():
+    """RustParser with max_parse_depth=0 sets no depth limit.
+
+    Exercises the ``if max_parse_depth <= 0: max_parse_depth = None`` branch
+    (rust_parser.py line 97).  A non-positive value means "unlimited depth";
+    simple SQL should still parse without errors.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 0})
+    parser = RustParser(config=config)
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+    result = parser.parse(segments, fname="test.sql")
+    assert result is not None
+    assert result.is_type("file")
+
+
 # ---------------------------------------------------------------------------
 # Iteration limit constants (should match default_config.cfg and core.rs)
 # ---------------------------------------------------------------------------
