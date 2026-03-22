@@ -512,6 +512,183 @@ def test_linter_noqa_prs(sql, disable_noqa, caplog):
         assert not violations
 
 
+def test_linter_noqa_prs_recovers_following_statements():
+    """Ignored PRS lines should not suppress diagnostics for later statements."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "dialect": "sparksql",
+            }
+        )
+    )
+    sql = """select 1 from tbl;
+echo "this breaks sqlfluff" -- noqa
+sElect 1 from tbl; -- should fail ON LINTING
+select from tbl; -- should fail PRS
+"""
+
+    violations = lntr.lint_string(sql).get_violations(filter_warning=False)
+
+    assert [(v.rule_code(), v.line_no) for v in violations] == [
+        ("CP01", 3),
+        ("PRS", 4),
+    ]
+
+
+def test_linter_noqa_prs_at_end_of_file():
+    """Ignored PRS at EOF should not trigger recovery-only lint noise."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "dialect": "sparksql",
+            }
+        )
+    )
+    sql = """select 1 from tbl;
+echo "this breaks sqlfluff" -- noqa
+"""
+
+    violations = lntr.lint_string(sql).get_violations(filter_warning=False)
+
+    assert violations == []
+
+
+def test_mask_ignored_parse_error_lines_empty_line_set():
+    """No masking should occur if no line numbers are supplied."""
+    source_str = 'echo "this breaks sqlfluff" -- noqa\n'
+    dialect = Linter(config=FluffConfig(overrides={"dialect": "sparksql"})).dialect
+
+    assert (
+        Linter._mask_ignored_parse_error_lines(source_str, dialect, set()) == source_str
+    )
+
+
+def test_mask_ignored_parse_error_lines_out_of_range_without_comment_matcher():
+    """Out-of-range lines are skipped and lines can be blanked without comments."""
+    source_str = 'echo "this breaks sqlfluff"\n'
+
+    class _DialectWithoutInlineComment:
+        lexer_matchers = []
+
+    masked = Linter._mask_ignored_parse_error_lines(
+        source_str,
+        _DialectWithoutInlineComment(),
+        {1, 99},
+    )
+
+    assert masked == (" " * (len(source_str) - 1)) + "\n"
+
+
+def test_has_recoverable_code_after_lines_empty_line_set():
+    """No recoverable code exists if no ignored lines are provided."""
+    dialect = Linter(config=FluffConfig(overrides={"dialect": "sparksql"})).dialect
+
+    assert not Linter._has_recoverable_code_after_lines(
+        "select 1 from tbl;\n", dialect, set()
+    )
+
+
+def test_recover_ignored_parse_errors_returns_original_if_mask_is_unchanged(
+    monkeypatch,
+):
+    """Recovery should stop if masking does not change the source string."""
+    lntr = Linter(config=FluffConfig(overrides={"dialect": "sparksql"}))
+    sql = """select 1 from tbl;
+echo "this breaks sqlfluff" -- noqa
+select from tbl; -- unsuppressed
+"""
+    parsed = lntr.parse_string(sql)
+    rule_pack = lntr.get_rulepack()
+
+    monkeypatch.setattr(
+        Linter,
+        "_mask_ignored_parse_error_lines",
+        staticmethod(lambda source_str, dialect, line_nos: source_str),
+    )
+
+    recovered = Linter._recover_ignored_parse_errors(parsed, rule_pack)
+
+    assert recovered is parsed
+
+
+def test_recover_ignored_parse_errors_returns_original_if_relex_fails(monkeypatch):
+    """Recovery should stop if lexing the masked source fails."""
+    lntr = Linter(config=FluffConfig(overrides={"dialect": "sparksql"}))
+    sql = """select 1 from tbl;
+echo "this breaks sqlfluff" -- noqa
+select from tbl; -- unsuppressed
+"""
+    parsed = lntr.parse_string(sql)
+    rule_pack = lntr.get_rulepack()
+
+    monkeypatch.setattr(
+        Linter,
+        "_lex_templated_file",
+        staticmethod(lambda templated_file, config: (None, [])),
+    )
+
+    recovered = Linter._recover_ignored_parse_errors(parsed, rule_pack)
+
+    assert recovered is parsed
+
+
+def test_recover_ignored_parse_errors_returns_original_if_reparse_fails(monkeypatch):
+    """Recovery should stop if parsing the masked source fails fatally."""
+    lntr = Linter(config=FluffConfig(overrides={"dialect": "sparksql"}))
+    sql = """select 1 from tbl;
+echo "this breaks sqlfluff" -- noqa
+select from tbl; -- unsuppressed
+"""
+    parsed = lntr.parse_string(sql)
+    rule_pack = lntr.get_rulepack()
+
+    monkeypatch.setattr(
+        Linter,
+        "_parse_tokens",
+        staticmethod(lambda tokens, config, fname=None: (None, [])),
+    )
+
+    recovered = Linter._recover_ignored_parse_errors(parsed, rule_pack)
+
+    assert recovered is parsed
+
+
+@pytest.mark.parametrize(
+    "sql,expected",
+    [
+        pytest.param(
+            """select from tbl; -- unsuppressed
+echo "this breaks sqlfluff" -- noqa
+select 1 from tbl;
+""",
+            [("PRS", 1)],
+            id="unsuppressed_before_suppressed",
+        ),
+        pytest.param(
+            """select 1 from tbl;
+echo "this breaks sqlfluff" -- noqa
+select from tbl; -- unsuppressed
+""",
+            [("PRS", 3)],
+            id="unsuppressed_after_suppressed",
+        ),
+    ],
+)
+def test_linter_noqa_prs_with_unsuppressed_parse_errors(sql, expected):
+    """Ignored PRS lines should not hide separate unsuppressed parse errors."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "dialect": "sparksql",
+            }
+        )
+    )
+
+    violations = lntr.lint_string(sql).get_violations(filter_warning=False)
+
+    assert [(v.rule_code(), v.line_no) for v in violations] == expected
+
+
 def test_linter_noqa_tmp():
     """Test "noqa" feature to ignore TMP at the higher "Linter" level."""
     lntr = Linter(
