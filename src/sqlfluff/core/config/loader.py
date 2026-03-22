@@ -11,8 +11,8 @@ from __future__ import annotations
 import logging
 import os
 import os.path
-import threading
 import sys
+import threading
 from functools import cache
 from importlib.resources import files
 from pathlib import Path
