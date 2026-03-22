@@ -85,7 +85,7 @@ class UndefinedRecorder:
     def __iter__(self) -> Iterator["UndefinedRecorder"]:
         """Don't fail when iterated, remember instead."""
         self.undefined_set.add(self.name)
-        return iter([])
+        yield UndefinedRecorder(f"iter({self.name})", self.undefined_set)
 
 
 class JinjaTemplater(PythonTemplater):
@@ -1176,12 +1176,12 @@ class DummyUndefined(jinja2.Undefined):
         return 0
 
     def __iter__(self) -> Iterator["DummyUndefined"]:
-        """Return an empty iterator to avoid tuple-unpacking errors.
+        """Return an iterator that contains only the instance of the class itself.
 
         Returns:
-            iterator: An empty iterator.
+            iterator: An iterator.
         """
-        return iter([])
+        return [self].__iter__()
 
 
 class DBTTestExtension(Extension):
