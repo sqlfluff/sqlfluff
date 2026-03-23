@@ -148,10 +148,11 @@ def get_aliases_from_select(
     aliases = fc.get_eventual_aliases()
 
     # We only want table aliases, so filter out aliases for value table
-    # functions, lambda parameters and pivot columns.
+    # functions, lambda parameters, pivot columns and unpivot output aliases.
     standalone_aliases: list[BaseSegment] = []
     standalone_aliases += _get_pivot_table_aliases(segment, dialect)
     standalone_aliases += _get_lambda_argument_columns(segment, dialect)
+    standalone_aliases += _get_unpivot_table_aliases(segment, dialect)
 
     table_aliases = []
     for table_expr, alias_info in aliases:
@@ -199,6 +200,67 @@ def _get_pivot_table_aliases(
                 pivot_table_aliases.append(pivot_table_alias)
 
     return pivot_table_aliases
+
+
+def _get_unpivot_table_aliases(
+    segment: BaseSegment, dialect: Optional[Dialect]
+) -> list[BaseSegment]:
+    """Get standalone aliases introduced by UNPIVOT expressions.
+
+    Handles:
+    - Redshift ``object_unpivoting``: ``UNPIVOT x.json AS value AT key``
+    - Redshift ``array_unnesting``: ``x.array AS value AT key``
+    - General ``from_unpivot_expression`` (Redshift, Snowflake, BigQuery, DuckDB):
+      ``UNPIVOT (value_col FOR key_col IN (...))``
+
+    The output aliases (value and key column names) are introduced by the
+    UNPIVOT clause and are available as standalone references in the enclosing
+    SELECT without needing table qualification.
+    """
+    if not dialect:
+        return []  # pragma: no cover
+
+    unpivot_aliases: list[BaseSegment] = []
+
+    # Handle object_unpivoting (UNPIVOT x.json AS value AT key) and
+    # array_unnesting (x.array AS value AT key) - Redshift SUPER type specific.
+    # Both segment types introduce output aliases via AS and AT keywords.
+    for unpivot_seg in segment.recursive_crawl("object_unpivoting", "array_unnesting"):
+        seen_keyword = False
+        for seg in unpivot_seg.segments:
+            if seg.is_type("keyword") and seg.raw_upper in ("AS", "AT"):
+                seen_keyword = True
+            elif seen_keyword and not seg.is_type(
+                "whitespace", "newline", "indent", "dedent"
+            ):
+                if seg.raw not in [a.raw for a in unpivot_aliases]:
+                    unpivot_aliases.append(seg)
+                seen_keyword = False
+
+    # Handle from_unpivot_expression used in multiple dialects.
+    # Pattern: UNPIVOT (value_col FOR key_col IN (...))
+    # The value_col (before FOR) and key_col (between FOR and IN) are the output
+    # column names introduced by the UNPIVOT and should be standalone aliases.
+    for unpivot_seg in segment.recursive_crawl("from_unpivot_expression"):
+        for bracketed in unpivot_seg.get_children("bracketed"):
+            for seg in bracketed.segments:
+                if seg.is_type("keyword") and seg.raw_upper == "IN":
+                    # Stop before the IN clause (which lists input columns)
+                    break
+                if not seg.is_type(
+                    "whitespace",
+                    "newline",
+                    "indent",
+                    "dedent",
+                    "start_bracket",
+                    "end_bracket",
+                    "keyword",
+                    "comma",
+                ) and seg.raw not in [a.raw for a in unpivot_aliases]:
+                    unpivot_aliases.append(seg)
+            break  # Only process the first bracketed child
+
+    return unpivot_aliases
 
 
 # Lambda arguments,
