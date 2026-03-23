@@ -232,6 +232,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "CREATION",
         "CRITICAL",
         "CROSSEDITION",
+        "CURRVAL",
         "CURSOR",
         "DBA_RECYCLEBIN",
         "DBTIMEZONE",
@@ -448,11 +449,23 @@ oracle_dialect.insert_lexer_matchers(
 )
 
 oracle_dialect.add(
-    SequenceNextValGrammar=Sequence(
-        Ref("NakedIdentifierSegment"),
-        Ref("DotSegment"),
-        "NEXTVAL",
-        allow_gaps=False,
+    SequencePseudocolumnGrammar=OneOf(
+        # 3-part: schema.sequence.{NEXTVAL|CURRVAL}
+        Sequence(
+            Ref("NakedIdentifierSegment"),
+            Ref("DotSegment"),
+            Ref("NakedIdentifierSegment"),
+            Ref("DotSegment"),
+            OneOf("NEXTVAL", "CURRVAL"),
+            allow_gaps=False,
+        ),
+        # 2-part: sequence.{NEXTVAL|CURRVAL}
+        Sequence(
+            Ref("NakedIdentifierSegment"),
+            Ref("DotSegment"),
+            OneOf("NEXTVAL", "CURRVAL"),
+            allow_gaps=False,
+        ),
     ),
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
@@ -850,7 +863,7 @@ oracle_dialect.add(
 oracle_dialect.replace(
     ColumnConstraintDefaultGrammar=OneOf(
         ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
-        Ref("SequenceNextValGrammar"),
+        Ref("SequencePseudocolumnGrammar"),
     ),
     # https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DROP-TABLE.html
     DropBehaviorGrammar=Sequence(
