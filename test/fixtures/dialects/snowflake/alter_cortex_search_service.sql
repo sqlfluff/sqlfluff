@@ -6,3 +6,14 @@ alter cortex search service mysvc resume indexing;
 alter cortex search service if exists mysvc suspend indexing;
 ALTER CORTEX SEARCH SERVICE mysvc SET WAREHOUSE = my_new_wh;
 ALTER CORTEX SEARCH SERVICE mysvc SET COMMENT = 'new_comment' target_lag = '1 hour';
+ALTER CORTEX SEARCH SERVICE mysvc 
+ADD SCORING PROFILE IF NOT EXISTS myprofile
+'{
+    "functions": {
+      "myprofile_boosts": [
+        { "column": "EXAMPLE_COLUMN", "weight": 10 }
+      ]
+    }
+  }' ;
+ALTER CORTEX SEARCH SERVICE mysvc 
+DROP SCORING PROFILE IF EXISTS myprofile;
