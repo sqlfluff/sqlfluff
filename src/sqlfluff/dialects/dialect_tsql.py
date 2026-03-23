@@ -3548,6 +3548,10 @@ class DatatypeSegment(BaseSegment):
                 "FLOAT",
                 Ref("BracketedArguments", optional=True),
             ),
+            Sequence(
+                "DOUBLE",
+                "PRECISION",
+            ),
             "REAL",
             # Date and time types
             "DATE",
