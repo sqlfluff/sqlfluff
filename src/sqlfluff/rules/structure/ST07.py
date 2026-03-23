@@ -121,13 +121,14 @@ class Rule_ST07(BaseRule):
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
 
         table_a, table_b = table_aliases[:2]
+        using_columns = _extract_cols_from_using(segment, using_anchor)
         edit_segments = [
             KeywordSegment(raw="ON"),
             WhitespaceSegment(raw=" "),
         ] + _generate_join_conditions(
             table_a.ref_str,
             table_b.ref_str,
-            _extract_cols_from_using(segment, using_anchor),
+            using_columns,
         )
 
         assert table_a.segment
@@ -140,6 +141,16 @@ class Rule_ST07(BaseRule):
             ),
             *[LintFix.delete(seg) for seg in to_delete],
         ]
+
+        # Find and fix unqualified column references in SELECT clause
+        # that match the USING columns (to prevent ambiguity)
+        select_clause = parent_select.get_child("select_clause")
+        if select_clause:
+            column_fixes = _generate_column_qualification_fixes(
+                select_clause, using_columns, table_a.ref_str
+            )
+            fixes.extend(column_fixes)
+
         return LintResult(
             anchor=anchor,
             description=description,
@@ -221,3 +232,33 @@ def _create_col_reference(table_ref: str, column_name: str) -> ColumnReferenceSe
         IdentifierSegment(raw=column_name, type="naked_identifier"),
     )
     return ColumnReferenceSegment(segments=segments, pos_marker=None)
+
+
+def _generate_column_qualification_fixes(
+    select_clause: BaseSegment, using_columns: list[str], table_ref: str
+) -> list[LintFix]:
+
+    fixes: list[LintFix] = []
+    using_columns_upper = [col.upper() for col in using_columns]
+
+    # Find all column_reference segments in the SELECT clause
+    for col_ref in select_clause.recursive_crawl(
+        "column_reference", no_recursive_seg_type="select_statement"
+    ):
+        # Check if this is an unqualified reference (no dot)
+        has_dot = any(seg.is_type("symbol", "dot") for seg in col_ref.segments)
+        if has_dot:
+            # Already qualified, skip
+            continue
+
+        # Get the column name
+        identifiers = [seg for seg in col_ref.segments if seg.is_type("identifier")]
+        col_name = identifiers[0].raw.upper()
+
+        # Check if this column is in the USING list
+        if col_name in using_columns_upper:
+            # Create a qualified column reference
+            qualified_col_ref = _create_col_reference(table_ref, identifiers[0].raw)
+            fixes.append(LintFix.replace(col_ref, [qualified_col_ref]))
+
+    return fixes
