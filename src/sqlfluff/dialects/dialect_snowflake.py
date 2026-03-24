@@ -8132,14 +8132,21 @@ class AlterCortexSearchServiceStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
-            Sequence("ADD", "SCORING", "PROFILE",
-                    Ref("IfNotExistsGrammar", optional=True),
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("QuotedLiteralSegment")),
-            Sequence("DROP", "SCORING", "PROFILE",
-                    Ref("IfExistsGrammar", optional=True),
-                    Ref("SingleIdentifierGrammar"))
-
+            Sequence(
+                "ADD",
+                "SCORING",
+                "PROFILE",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "DROP",
+                "SCORING",
+                "PROFILE",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
         ),
     )
 
