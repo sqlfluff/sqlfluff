@@ -811,3 +811,38 @@ def test__dbt_log_supression(dbt_project_folder):
         == "dbt_project/models/my_new_project/operator_errors.sql"
     )
     assert len(first_file["violations"]) == 2
+
+
+def test__templater_dbt_threads_default(dbt_templater):
+    """When threads is not configured, _get_threads() returns None.
+
+    This lets dbt use the value from profiles.yml rather than
+    overriding it.
+    """
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {
+                "dbt": {
+                    "profiles_dir": "~/.dbt",
+                }
+            },
+        },
+    )
+    assert dbt_templater._get_threads() is None
+
+
+def test__templater_dbt_threads_explicit(dbt_templater):
+    """When threads is set in the config, _get_threads() returns it as int."""
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {
+                "dbt": {
+                    "profiles_dir": "~/.dbt",
+                    "threads": "4",
+                }
+            },
+        },
+    )
+    assert dbt_templater._get_threads() == 4

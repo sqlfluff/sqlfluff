@@ -55,7 +55,7 @@ class DbtConfigArgs:
     profile: Optional[str] = None
     target: Optional[str] = None
     target_path: Optional[str] = None
-    threads: int = 1
+    threads: Optional[int] = None
     single_threaded: bool = False
     # dict in 1.5.x onwards, json string before.
     # NOTE: We always set this value when instantiating this
@@ -265,6 +265,8 @@ class DbtTemplater(JinjaTemplater):
         # 1.5.x+ this is a dict.
         cli_vars = self._get_cli_vars()
 
+        _threads = self._get_threads()
+
         flags.set_from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
@@ -272,7 +274,7 @@ class DbtTemplater(JinjaTemplater):
                 profile=self._get_profile(),
                 target_path=self._get_target_path(),
                 vars=cli_vars,
-                threads=1,
+                threads=_threads,
             ),
             user_config,
         )
@@ -284,7 +286,7 @@ class DbtTemplater(JinjaTemplater):
                 target=self._get_target(),
                 target_path=self._get_target_path(),
                 vars=cli_vars,
-                threads=1,
+                threads=_threads,
             )
         )
 
@@ -427,6 +429,17 @@ class DbtTemplater(JinjaTemplater):
         return self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "target_path")
         )
+
+    def _get_threads(self) -> Optional[int]:
+        """Get the dbt threads value from the configuration.
+
+        If not set, returns ``None`` which lets dbt use the value
+        from ``profiles.yml``.
+        """
+        value = self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "threads")
+        )
+        return int(value) if value is not None else None
 
     def _get_cli_vars(self) -> dict:
         cli_vars = self.sqlfluff_config.get_section(
