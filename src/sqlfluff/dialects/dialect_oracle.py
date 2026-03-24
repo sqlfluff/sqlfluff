@@ -313,6 +313,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "OID",
         "OLTP",
         "OPTIMAL",
+        "ORA_ROWSCN",
         "OUTLINE",
         "PACKAGE",
         "PAIRS",
@@ -356,6 +357,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "SEGMENT",
         "SERIALIZABLE",
         "SERVICE",
+        "SESSION_USER",
         "SHARD",
         "SHARD_ENABLE",
         "SHARED",
@@ -384,9 +386,13 @@ oracle_dialect.sets("bare_functions").update(
         "current_timestamp",
         "dbtimezone",
         "localtimestamp",
+        "ora_rowscn",
+        "session_user",
         "sessiontimestamp",
         "sysdate",
         "systimestamp",
+        "uid",
+        "user",
     ]
 )
 

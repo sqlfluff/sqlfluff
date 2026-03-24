@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 47bf7137f9d87816e8aac8d30b7af88b36028450fce854f13770940a480c6617
+_hash: 8cbd3d1db8c88fdf57059bfd44054ab15cab9e706da76da1c1081dc96eb50607
 file:
   batch:
   - statement:
@@ -191,4 +191,170 @@ file:
               - dot: .
               - naked_identifier: NEXTVAL
             end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            bare_function: USER
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: audit_log
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: log_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: created_by
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: audit_seq
+              - dot: .
+              - naked_identifier: NEXTVAL
+          - comma: ','
+          - expression:
+              bare_function: USER
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            bare_function: UID
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: audit_log
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: log_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: user_id_num
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: audit_seq
+              - dot: .
+              - naked_identifier: NEXTVAL
+          - comma: ','
+          - expression:
+              bare_function: UID
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            bare_function: SESSION_USER
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: audit_log
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: log_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: session_user_col
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: audit_seq
+              - dot: .
+              - naked_identifier: NEXTVAL
+          - comma: ','
+          - expression:
+              bare_function: SESSION_USER
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            bare_function: ORA_ROWSCN
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: employee_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: employee_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        where_clause:
+          keyword: WHERE
+          expression:
+            bare_function: ORA_ROWSCN
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '12345678'
   - statement_terminator: ;
