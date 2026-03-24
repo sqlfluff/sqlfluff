@@ -37,7 +37,7 @@ class ExampleSegment(RawSegment):
 def test__parser__typedparser__match(generate_test_segments):
     """Test the match method of TypedParser."""
     parser = TypedParser("single_quote", ExampleSegment)
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     # NOTE: The second element of the sequence has single quotes
     # and the test fixture will set the type accordingly.
     segments = generate_test_segments(["foo", "'bar'"])
@@ -54,14 +54,14 @@ def test__parser__typedparser__match(generate_test_segments):
 def test__parser__typedparser__simple():
     """Test the simple method of TypedParser."""
     parser = TypedParser("single_quote", ExampleSegment)
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     assert parser.simple(ctx) == (frozenset(), frozenset(["single_quote"]))
 
 
 def test__parser__stringparser__match(generate_test_segments):
     """Test the match method of StringParser."""
     parser = StringParser("foo", ExampleSegment, type="test")
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     segments = generate_test_segments(["foo", "bar", "foo"])
 
     result1 = parser.match(segments, 0, ctx)
@@ -83,14 +83,14 @@ def test__parser__stringparser__match(generate_test_segments):
 def test__parser__stringparser__simple():
     """Test the simple method of StringParser."""
     parser = StringParser("foo", ExampleSegment)
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     assert parser.simple(ctx) == (frozenset(["FOO"]), frozenset())
 
 
 def test__parser__regexparser__match(generate_test_segments):
     """Test the match method of RegexParser."""
     parser = RegexParser(r"b.r", ExampleSegment)
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     segments = generate_test_segments(["foo", "bar", "boo"])
 
     assert not parser.match(segments, 0, ctx)
@@ -105,14 +105,14 @@ def test__parser__regexparser__match(generate_test_segments):
 def test__parser__regexparser__simple():
     """Test the simple method of RegexParser."""
     parser = RegexParser(r"b.r", ExampleSegment)
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     assert parser.simple(ctx) is None
 
 
 def test__parser__multistringparser__match(generate_test_segments):
     """Test the match method of MultiStringParser."""
     parser = MultiStringParser(["foo", "bar"], ExampleSegment)
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     segments = generate_test_segments(["foo", "fo", "bar", "boo"])
 
     assert not parser.match(segments, 1, ctx)
@@ -132,7 +132,7 @@ def test__parser__multistringparser__match(generate_test_segments):
 def test__parser__multistringparser__simple():
     """Test the MultiStringParser matchable."""
     parser = MultiStringParser(["foo", "bar"], KeywordSegment)
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     assert parser.simple(ctx) == (frozenset(["FOO", "BAR"]), frozenset())
 
 
@@ -181,7 +181,7 @@ def test__parser__typedparser_rematch(new_type, generate_test_segments):
     parser = TypedParser("single_quote", ExampleSegment, **kwargs)
     # Just check that our assumptions about inheritance are right.
     assert not ExampleSegment.class_is_type("single_quote")
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
 
     match1 = parser.match(segments, 0, ctx)
     assert match1

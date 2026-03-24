@@ -86,14 +86,14 @@ def test_max_parse_depth_rust_parser_exceeds_limit():
     assert exc_info.value.line_pos > 0
 
 
-def test_parse_context_max_parse_depth_negative_one_disables_limit():
-    """ParseContext.from_config with max_parse_depth=-1 disables the depth limit.
+def test_parse_context_max_parse_depth_zero_disables_limit():
+    """ParseContext.from_config with max_parse_depth=0 disables the depth limit.
 
-    A value of -1 is treated as "no limit",
-    so from_config should set max_parse_depth to -1 on the context.
+    A value of 0 is treated as "no limit",
+    so from_config should set max_parse_depth to 0 on the context.
     """
     from sqlfluff.core.parser.context import ParseContext
 
-    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": -1})
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 0})
     ctx = ParseContext.from_config(config)
-    assert ctx.max_parse_depth == -1
+    assert ctx.max_parse_depth == 0

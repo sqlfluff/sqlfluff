@@ -118,9 +118,8 @@ def _validate_max_parse_depth_config(
 ) -> None:
     """Validate and normalize the max_parse_depth config value.
 
-    The internal parser convention is that any value less than or equal to zero
-    disables the limit. We also normalize missing/None values to ``-1`` so
-    parser code can rely on an integer.
+    The parser convention is that ``0`` disables the limit. We also normalize
+    missing/None values to ``0`` so parser code can rely on an integer.
     """
     core_section = config.get("core", {})
     if not core_section:
@@ -132,15 +131,23 @@ def _validate_max_parse_depth_config(
 
     max_parse_depth = core_section.get("max_parse_depth")
     if max_parse_depth is None or max_parse_depth == "":
-        core_section["max_parse_depth"] = -1
+        core_section["max_parse_depth"] = 0
         return None
 
     if isinstance(max_parse_depth, bool) or not isinstance(max_parse_depth, int):
         raise SQLFluffUserError(
             f"Config file {logging_reference!r} set an invalid value for "
             f"`max_parse_depth`: {max_parse_depth!r}. "
-            "This value must be an integer. Use -1, 0 or an empty value to "
+            "This value must be an integer. Use 0 or an empty value to "
             "disable the limit."
+        )
+
+    if max_parse_depth < 0:
+        raise SQLFluffUserError(
+            f"Config file {logging_reference!r} set an invalid value for "
+            f"`max_parse_depth`: {max_parse_depth!r}. "
+            "This value must be 0 or a positive integer. Use 0 to disable "
+            "the limit."
         )
 
 

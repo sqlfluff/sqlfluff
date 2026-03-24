@@ -62,7 +62,7 @@ class ParseContext:
 
         Args:
             dialect (Dialect): The dialect used for parsing.
-            max_parse_depth (int): Maximum match depth; ``-1`` to disable.
+            max_parse_depth (int): Maximum match depth; ``0`` to disable.
             indentation_config (Optional[dict[str, Any]], optional): The indentation
                 configuration used by Indent and Dedent to control the intended
                 indentation of certain features. Defaults to None.

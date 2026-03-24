@@ -33,7 +33,7 @@ def test__parser__grammar_sequence_nested_match(test_segments, caplog):
     baar = StringParser("baar", KeywordSegment)
     g = Sequence(Sequence(bar, foo), baar)
 
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     # Confirm the structure of the test segments:
     assert [s.raw for s in test_segments] == ["bar", " \t ", "foo", "baar", " \t ", ""]
 
@@ -524,7 +524,7 @@ def test__parser__grammar_sequence_indent_conditional_match(test_segments, caplo
         foo,
         Dedent,
     )
-    ctx = ParseContext(dialect=None, max_parse_depth=-1)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         m = g.match(test_segments, 0, parse_context=ctx)
 

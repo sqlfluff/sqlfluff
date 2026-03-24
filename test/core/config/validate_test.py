@@ -150,9 +150,8 @@ def test__validate_indentation_valid(config_dict):
 @pytest.mark.parametrize(
     "config_dict,expected",
     [
-        ({"core": {"max_parse_depth": None}}, -1),
-        ({"core": {"max_parse_depth": ""}}, -1),
-        ({"core": {"max_parse_depth": -1}}, -1),
+        ({"core": {"max_parse_depth": None}}, 0),
+        ({"core": {"max_parse_depth": ""}}, 0),
         ({"core": {"max_parse_depth": 0}}, 0),
         ({"core": {"max_parse_depth": 25}}, 25),
     ],
@@ -173,6 +172,10 @@ def test__validate_max_parse_depth_valid(config_dict, expected):
         (
             {"core": {"max_parse_depth": True}},
             "set an invalid value for `max_parse_depth`: True",
+        ),
+        (
+            {"core": {"max_parse_depth": -1}},
+            "set an invalid value for `max_parse_depth`: -1",
         ),
     ],
 )
