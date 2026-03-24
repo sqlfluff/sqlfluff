@@ -1,0 +1,546 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a0c03d40496175d333588e3885e1ab5049edb8cabed6162ebce122da4071846f
+file:
+- batch:
+    statement:
+      create_trigger_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: test
+        - dot: .
+        - naked_identifier: trigger_if
+      - keyword: AFTER
+      - dml_event_clause:
+        - keyword: INSERT
+        - keyword: OR
+        - keyword: UPDATE
+        - keyword: OR
+        - keyword: DELETE
+        - keyword: 'ON'
+        - table_reference:
+          - naked_identifier: test
+          - dot: .
+          - naked_identifier: table_ref
+      - referencing_clause:
+        - keyword: REFERENCING
+        - trigger_correlation_name:
+            keyword: NEW
+        - keyword: AS
+        - naked_identifier: New
+        - trigger_correlation_name:
+            keyword: OLD
+        - keyword: AS
+        - naked_identifier: Old
+      - keyword: FOR
+      - keyword: EACH
+      - keyword: ROW
+      - statement:
+          begin_end_block:
+          - declare_segment:
+            - keyword: DECLARE
+            - naked_identifier: AUDITINFO
+            - data_type:
+                data_type_identifier: VARCHAR2
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '2000'
+                    end_bracket: )
+            - statement_terminator: ;
+            - naked_identifier: EVENT
+            - data_type:
+                data_type_identifier: VARCHAR2
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '10'
+                    end_bracket: )
+            - statement_terminator: ;
+          - keyword: BEGIN
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - keyword: INSERTING
+                - keyword: THEN
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: AUDITINFO
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'Insert row into '"
+              - statement_terminator: ;
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: EVENT
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'INSERT'"
+              - statement_terminator: ;
+              - keyword: ELSIF
+              - keyword: DELETING
+              - keyword: THEN
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: AUDITINFO
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'Delete row from '"
+              - statement_terminator: ;
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: EVENT
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'DELETE'"
+              - statement_terminator: ;
+              - keyword: ELSIF
+              - keyword: UPDATING
+              - keyword: THEN
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: AUDITINFO
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'Update row from '"
+              - statement_terminator: ;
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: EVENT
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'UPDATE'"
+              - statement_terminator: ;
+              - keyword: ELSE
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: AUDITINFO
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'Unknow operation '"
+              - statement_terminator: ;
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: EVENT
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'UNKNOW'"
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_trigger_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: test
+        - dot: .
+        - naked_identifier: trigger_if_or_combined
+      - keyword: AFTER
+      - dml_event_clause:
+        - keyword: INSERT
+        - keyword: OR
+        - keyword: UPDATE
+        - keyword: OR
+        - keyword: DELETE
+        - keyword: 'ON'
+        - table_reference:
+          - naked_identifier: test
+          - dot: .
+          - naked_identifier: table_ref
+      - keyword: FOR
+      - keyword: EACH
+      - keyword: ROW
+      - statement:
+          begin_end_block:
+          - declare_segment:
+              keyword: DECLARE
+              naked_identifier: EVENT
+              data_type:
+                data_type_identifier: VARCHAR2
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '10'
+                    end_bracket: )
+              statement_terminator: ;
+          - keyword: BEGIN
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'Institution_id'"
+                    end_bracket: )
+                - keyword: OR
+                - keyword: INSERTING
+                - keyword: OR
+                - keyword: DELETING
+                - keyword: THEN
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: EVENT
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'MULTI'"
+              - statement_terminator: ;
+              - keyword: ELSIF
+              - keyword: UPDATING
+              - bracketed:
+                  start_bracket: (
+                  quoted_literal: "'col1'"
+                  end_bracket: )
+              - keyword: OR
+              - keyword: UPDATING
+              - bracketed:
+                  start_bracket: (
+                  quoted_literal: "'col2'"
+                  end_bracket: )
+              - keyword: THEN
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: EVENT
+                    assignment_operator: :=
+                    expression:
+                      quoted_literal: "'COL_UPDATE'"
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_trigger_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: test
+        - dot: .
+        - naked_identifier: trigger_if_updating_col
+      - keyword: AFTER
+      - dml_event_clause:
+        - keyword: UPDATE
+        - keyword: 'ON'
+        - table_reference:
+          - naked_identifier: test
+          - dot: .
+          - naked_identifier: table_ref
+      - keyword: FOR
+      - keyword: EACH
+      - keyword: ROW
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'salary'"
+                    end_bracket: )
+                - keyword: THEN
+              - statement:
+                  null_statement:
+                    keyword: 'NULL'
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_trigger_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: test
+        - dot: .
+        - naked_identifier: trigger_if_not_predicate
+      - keyword: AFTER
+      - dml_event_clause:
+        - keyword: INSERT
+        - keyword: OR
+        - keyword: UPDATE
+        - keyword: OR
+        - keyword: DELETE
+        - keyword: 'ON'
+        - table_reference:
+          - naked_identifier: test
+          - dot: .
+          - naked_identifier: table_ref
+      - keyword: FOR
+      - keyword: EACH
+      - keyword: ROW
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - keyword: NOT
+                - keyword: INSERTING
+                - keyword: THEN
+              - statement:
+                  null_statement:
+                    keyword: 'NULL'
+              - statement_terminator: ;
+              - keyword: ELSIF
+              - keyword: NOT
+              - keyword: DELETING
+              - keyword: THEN
+              - statement:
+                  null_statement:
+                    keyword: 'NULL'
+              - statement_terminator: ;
+              - keyword: ELSIF
+              - keyword: NOT
+              - keyword: UPDATING
+              - keyword: THEN
+              - statement:
+                  null_statement:
+                    keyword: 'NULL'
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_trigger_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: test
+        - dot: .
+        - naked_identifier: trigger_if_and_combined
+      - keyword: AFTER
+      - dml_event_clause:
+        - keyword: INSERT
+        - keyword: OR
+        - keyword: UPDATE
+        - keyword: OR
+        - keyword: DELETE
+        - keyword: 'ON'
+        - table_reference:
+          - naked_identifier: test
+          - dot: .
+          - naked_identifier: table_ref
+      - keyword: FOR
+      - keyword: EACH
+      - keyword: ROW
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'col1'"
+                    end_bracket: )
+                - keyword: AND
+                - keyword: NOT
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'col2'"
+                    end_bracket: )
+                - keyword: THEN
+              - statement:
+                  null_statement:
+                    keyword: 'NULL'
+              - statement_terminator: ;
+              - keyword: ELSIF
+              - keyword: INSERTING
+              - keyword: AND
+              - keyword: NOT
+              - keyword: DELETING
+              - keyword: THEN
+              - statement:
+                  null_statement:
+                    keyword: 'NULL'
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_trigger_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: test
+        - dot: .
+        - naked_identifier: trigger_if_or_and_not
+      - keyword: AFTER
+      - dml_event_clause:
+        - keyword: INSERT
+        - keyword: OR
+        - keyword: UPDATE
+        - keyword: OR
+        - keyword: DELETE
+        - keyword: 'ON'
+        - table_reference:
+          - naked_identifier: test
+          - dot: .
+          - naked_identifier: table_ref
+      - keyword: FOR
+      - keyword: EACH
+      - keyword: ROW
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - keyword: NOT
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'salary'"
+                    end_bracket: )
+                - keyword: OR
+                - keyword: INSERTING
+                - keyword: AND
+                - keyword: NOT
+                - keyword: DELETING
+                - keyword: THEN
+              - statement:
+                  null_statement:
+                    keyword: 'NULL'
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_trigger_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: test
+        - dot: .
+        - naked_identifier: trigger_case_predicates
+      - keyword: AFTER
+      - dml_event_clause:
+        - keyword: INSERT
+        - keyword: OR
+        - keyword: UPDATE
+        - keyword: OR
+        - keyword: DELETE
+        - keyword: 'ON'
+        - table_reference:
+          - naked_identifier: test
+          - dot: .
+          - naked_identifier: table_ref
+      - keyword: FOR
+      - keyword: EACH
+      - keyword: ROW
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              case_expression:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'col'"
+                    end_bracket: )
+                - keyword: OR
+                - keyword: INSERTING
+                - keyword: THEN
+                - statement:
+                    null_statement:
+                      keyword: 'NULL'
+                - statement_terminator: ;
+              - when_clause:
+                - keyword: WHEN
+                - keyword: NOT
+                - keyword: DELETING
+                - keyword: AND
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'other_col'"
+                    end_bracket: )
+                - keyword: THEN
+                - statement:
+                    null_statement:
+                      keyword: 'NULL'
+                - statement_terminator: ;
+              - else_clause:
+                  keyword: ELSE
+                  statement:
+                    null_statement:
+                      keyword: 'NULL'
+                  statement_terminator: ;
+              - keyword: END
+              - keyword: CASE
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /

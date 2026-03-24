@@ -4141,7 +4141,7 @@ class SetStatementSegment(BaseSegment):
                             Ref("EqualsSegment"),
                             Ref("ExpressionSegment"),
                         ),
-                        # The below for https://learn.microsoft.com/en-us/sql/t-sql/statements/set-deadlock-priority-transact-sql # noqa
+                        # The below for https://learn.microsoft.com/en-us/sql/t-sql/statements/set-deadlock-priority-transact-sql
                         "LOW",
                         "NORMAL",
                         "HIGH",

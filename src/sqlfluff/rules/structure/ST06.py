@@ -255,7 +255,7 @@ class Rule_ST06(BaseRule):
                     initial_select_target_element,
                     [replace_select_target_element],
                 )
-                for initial_select_target_element, replace_select_target_element in zip(  # noqa: E501
+                for initial_select_target_element, replace_select_target_element in zip(
                     select_target_elements, ordered_select_target_elements
                 )
                 if initial_select_target_element is not replace_select_target_element

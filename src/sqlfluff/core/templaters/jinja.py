@@ -114,7 +114,7 @@ class JinjaTemplater(PythonTemplater):
                 syntax. We assume that outer functions will catch this
                 exception and handle it appropriately.
         """
-        from jinja2.runtime import Macro  # noqa
+        from jinja2.runtime import Macro
 
         # Iterate through keys exported from the loaded template string
         context: dict[str, DbtMacroWrapper] = {}

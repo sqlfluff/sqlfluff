@@ -760,6 +760,29 @@ oracle_dialect.add(
         Sequence("UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
         "DELETING",
     ),
+    # AND binds more tightly than OR (same as SQL precedence rules).
+    # Conjunction level handles AND; disjunction level handles OR.
+    TriggerPredicatesConjunctionGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        Ref("TriggerPredicatesGrammar"),
+        AnyNumberOf(
+            Sequence(
+                "AND",
+                Ref.keyword("NOT", optional=True),
+                Ref("TriggerPredicatesGrammar"),
+            )
+        ),
+    ),
+    # OR-level wraps the conjunction level so A OR B AND C parses as A OR (B AND C).
+    TriggerPredicatesExpressionGrammar=Sequence(
+        Ref("TriggerPredicatesConjunctionGrammar"),
+        AnyNumberOf(
+            Sequence(
+                "OR",
+                Ref("TriggerPredicatesConjunctionGrammar"),
+            )
+        ),
+    ),
     JSONObjectContentSegment=Sequence(
         OneOf(Ref("StarSegment"), Delimited(Ref("JSONEntrySegment")), optional=True),
         Ref("JSONOnNullClause", optional=True),
@@ -838,6 +861,21 @@ oracle_dialect.replace(
         ),
         Ref.keyword("PURGE", optional=True),
         optional=True,
+    ),
+    IsClauseGrammar=OneOf(
+        ansi_dialect.get_grammar("IsClauseGrammar"),
+        Sequence(
+            "OF",
+            Ref.keyword("TYPE", optional=True),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref.keyword("ONLY", optional=True),
+                        Ref("ObjectReferenceSegment"),
+                    )
+                )
+            ),
+        ),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
@@ -3226,9 +3264,13 @@ class IfExpressionStatement(BaseSegment):
         AnyNumberOf(
             Sequence(
                 "ELSIF",
+                # TriggerPredicatesExpressionGrammar is preferred over
+                # ExpressionSegment so that bare keywords (INSERTING, DELETING)
+                # and mixed predicate chains always parse via the dedicated
+                # grammar rather than falling through to generic expression nodes.
                 OneOf(
+                    Ref("TriggerPredicatesExpressionGrammar"),
                     Ref("ExpressionSegment"),
-                    Ref("TriggerPredicatesGrammar"),
                 ),
                 "THEN",
                 Indent,
@@ -3258,9 +3300,13 @@ class IfClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "IF",
+        # TriggerPredicatesExpressionGrammar is preferred over ExpressionSegment
+        # so bare trigger keywords and mixed OR/AND/NOT chains are always parsed
+        # via the dedicated grammar rather than falling through to generic
+        # expression nodes.
         OneOf(
+            Ref("TriggerPredicatesExpressionGrammar"),
             Ref("ExpressionSegment"),
-            Ref("TriggerPredicatesGrammar"),
         ),
         "THEN",
     )
@@ -3312,9 +3358,18 @@ class CaseExpressionSegment(BaseSegment):
         ),
         Sequence(
             "CASE",
+            # TriggerPredicatesExpressionGrammar is placed first so trigger
+            # selector arms (IF/WHEN-style trigger predicates) are parsed
+            # by the dedicated trigger grammar. For the simple `CASE <expr>`
+            # selector this causes a speculative match attempt: the
+            # TriggerPredicatesExpressionGrammar will try to match and then
+            # fail for ordinary column references, falling back to
+            # `ExpressionSegment`. This speculative check is intentionally
+            # acceptable (negligible overhead) and consistent with how IF
+            # and WHEN arms are handled.
             OneOf(
+                Ref("TriggerPredicatesExpressionGrammar"),
                 Ref("ExpressionSegment"),
-                Ref("TriggerPredicatesGrammar"),
             ),
             ImplicitIndent,
             AnyNumberOf(
@@ -3356,9 +3411,11 @@ class WhenClauseSegment(BaseSegment):
         # https://github.com/sqlfluff/sqlfluff/issues/3988
         Sequence(
             ImplicitIndent,
+            # TriggerPredicatesExpressionGrammar preferred; see IfClauseSegment
+            # for an explanation of the ordering trade-off.
             OneOf(
+                Ref("TriggerPredicatesExpressionGrammar"),
                 Ref("ExpressionSegment"),
-                Ref("TriggerPredicatesGrammar"),
             ),
             Dedent,
         ),
