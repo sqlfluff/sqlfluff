@@ -160,7 +160,7 @@ def _intermediate_model(idx: int, stg_count: int) -> str:
     """)
 
 
-def _mart_model(idx: int, int_count: int, int_offset: int) -> str:
+def _mart_model(idx: int, int_count: int) -> str:
     num_sources = min(random.randint(2, 4), int_count)
     refs = random.sample(range(int_count), num_sources)
     cte_parts = []
@@ -224,12 +224,15 @@ def generate_dbt_project(target_dir: str, model_count: int = 200) -> Path:
 
     Args:
         target_dir: Directory to create the project in.
-        model_count: Total number of models to generate.
+        model_count: Total number of models to generate (minimum 4, one per tier).
 
     Returns:
         Path to the project root.
     """
     project = Path(target_dir)
+
+    # Enforce minimum of 4 models (one per tier)
+    model_count = max(model_count, 4)
 
     # Tier distribution
     n_staging = max(int(model_count * 0.40), 1)
@@ -254,8 +257,8 @@ def generate_dbt_project(target_dir: str, model_count: int = 200) -> Path:
     (project / "macros" / "custom_macros.sql").write_text(_CUSTOM_MACROS_SQL)
 
     # Write .sqlfluff
-    profiles_dir = str(project / "profiles_yml").replace("\\", "/")
-    project_str = str(project).replace("\\", "/")
+    profiles_dir = (project / "profiles_yml").as_posix()
+    project_str = project.as_posix()
     (project / ".sqlfluff").write_text(
         _SQLFLUFF_CFG.format(project_dir=project_str, profiles_dir=profiles_dir)
     )
@@ -284,7 +287,7 @@ def generate_dbt_project(target_dir: str, model_count: int = 200) -> Path:
     # Generate mart models
     for i in range(n_marts):
         (project / "models" / "marts" / f"mart_{i:04d}.sql").write_text(
-            _mart_model(i, n_intermediate, 0)
+            _mart_model(i, n_intermediate)
         )
 
     # Generate ephemeral models
@@ -315,9 +318,8 @@ def _find_dbt_executable() -> str:
     sys.exit(1)
 
 
-def compile_dbt_project(project_dir: Path) -> None:
+def compile_dbt_project(project_dir: Path, profiles_dir: Path) -> None:
     """Run dbt compile to pre-warm the manifest and partial parse cache."""
-    profiles_dir = project_dir / "profiles_yml"
     env = os.environ.copy()
     env["DBT_SEND_ANONYMOUS_USAGE_STATS"] = "false"
     dbt_exe = _find_dbt_executable()
@@ -504,6 +506,12 @@ def main():
         help="Directory for the dbt project (default: temp directory)",
     )
     parser.add_argument(
+        "--profiles-dir",
+        type=str,
+        default=None,
+        help="Directory containing profiles.yml (default: generated inside project)",
+    )
+    parser.add_argument(
         "--no-clean",
         action="store_true",
         help="Don't delete the project directory after benchmarking",
@@ -521,22 +529,35 @@ def main():
     args = parser.parse_args()
 
     process_counts = [int(x.strip()) for x in args.processes.split(",")]
-
-    try:
-        import dbt.adapters.duckdb  # noqa: F401
-    except Exception as e:
-        print(
-            f"Error: dbt-duckdb is required but failed to import: {e}\n"
-            "Install with: pip install dbt-duckdb",
-            file=sys.stderr,
-        )
+    if any(c < 1 for c in process_counts):
+        print("Error: --processes values must be positive integers.", file=sys.stderr)
         sys.exit(1)
+
+    # Only require dbt-duckdb when generating a synthetic project
+    if not args.skip_generate:
+        try:
+            import dbt.adapters.duckdb  # noqa: F401
+        except Exception as e:
+            print(
+                f"Error: dbt-duckdb is required but failed to import: {e}\n"
+                "Install with: pip install dbt-duckdb",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
     # Determine project directory
     tmpdir = None
     if args.project_dir:
         project_dir = Path(args.project_dir)
-        if not args.skip_generate:
+        if args.skip_generate:
+            if not project_dir.exists():
+                print(
+                    f"Error: --project-dir {project_dir} does not exist "
+                    "(required with --skip-generate).",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+        else:
             project_dir.mkdir(parents=True, exist_ok=True)
     else:
         tmpdir = tempfile.mkdtemp(prefix="sqlfluff_bench_dbt_")
@@ -547,11 +568,20 @@ def main():
         if not args.skip_generate:
             generate_dbt_project(str(project_dir), model_count=args.models)
 
-        profiles_dir = project_dir / "profiles_yml"
+        if args.profiles_dir:
+            profiles_dir = Path(args.profiles_dir)
+            if not profiles_dir.exists():
+                print(
+                    f"Error: --profiles-dir {profiles_dir} does not exist.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+        else:
+            profiles_dir = project_dir / "profiles_yml"
 
         # Compile dbt project
         if not args.skip_compile:
-            compile_dbt_project(project_dir)
+            compile_dbt_project(project_dir, profiles_dir)
 
         # Run benchmarks
         results = run_benchmark(

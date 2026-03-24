@@ -98,14 +98,14 @@ def test_intermediate_model_is_parseable_sql():
 
 def test_mart_model_source_count_bounded():
     """Mart model creates between 2 and 4 CTEs (or fewer if int_count is small)."""
-    sql = bench._mart_model(0, int_count=10, int_offset=0)
+    sql = bench._mart_model(0, int_count=10)
     source_ctes = re.findall(r"source_\d+ AS", sql)
     assert 2 <= len(source_ctes) <= 4
 
 
 def test_mart_model_refs_within_bounds():
     """Mart model refs only reference intermediate indices that exist."""
-    sql = bench._mart_model(0, int_count=8, int_offset=0)
+    sql = bench._mart_model(0, int_count=8)
     refs = re.findall(r"ref\('int_(\d+)'\)", sql)
     for ref_idx in refs:
         assert int(ref_idx) < 8, f"int_{ref_idx} out of range for int_count=8"
@@ -232,11 +232,14 @@ def test_reproducible_across_runs(tmp_path):
 
 
 def test_minimum_model_count(tmp_path):
-    """model_count=1 still creates at least one model per tier."""
+    """model_count < 4 is clamped to 4 (one model per tier minimum)."""
     project = bench.generate_dbt_project(str(tmp_path), model_count=1)
+    total = 0
     for tier in ("staging", "intermediate", "marts", "ephemeral"):
         models = list((project / "models" / tier).glob("*.sql"))
         assert len(models) >= 1, f"No models in {tier}/"
+        total += len(models)
+    assert total == 4, f"Expected exactly 4 models (minimum), got {total}"
 
 
 # -- Results formatting ------------------------------------------------------
