@@ -168,7 +168,7 @@ def handle_dbt_errors(
     return decorator
 
 
-def warm_worker_setup(config_bytes: bytes) -> dict:
+def warm_worker_setup(config_bytes: bytes) -> dict:  # pragma: no cover
     """dbt-specific worker initialization for the warm worker pool.
 
     Called by the generic ``_warm_worker_initializer`` in each worker process.
@@ -195,7 +195,8 @@ def warm_worker_setup(config_bytes: bytes) -> dict:
     try:
         dbt_mp = importlib.import_module("dbt.mp_context")
         dbt_factory.register_adapter(dbt_config, dbt_mp.get_mp_context())
-    except Exception:
+    except (ImportError, ModuleNotFoundError):
+        # dbt.mp_context not available in older dbt versions.
         dbt_factory.register_adapter(dbt_config)
 
     return {"dbt_config": dbt_config}
@@ -396,7 +397,9 @@ class DbtTemplater(JinjaTemplater):
     # The WarmWorkerRunner in runner.py calls these methods to manage
     # a persistent process pool with pre-warmed dbt workers.
 
-    def prepare_warm_worker_state(self, config: "FluffConfig", phase: str) -> None:
+    def prepare_warm_worker_state(  # pragma: no cover
+        self, config: "FluffConfig", phase: str
+    ) -> None:
         """Ensure dbt compilation state is ready for warm workers.
 
         Called by WarmWorkerRunner in two phases:
@@ -412,7 +415,7 @@ class DbtTemplater(JinjaTemplater):
         elif phase == "manifest":
             _ = self.dbt_manifest
 
-    def get_warm_worker_init_modules(self) -> list[str]:
+    def get_warm_worker_init_modules(self) -> list[str]:  # pragma: no cover
         """Return modules to pre-import in warm workers.
 
         Importing dbt.cli.main avoids a ~0.3s lazy import penalty in
@@ -434,7 +437,7 @@ class DbtTemplater(JinjaTemplater):
         """
         return ("sqlfluff_templater_dbt.templater", "warm_worker_setup")
 
-    def get_worker_config_bytes(self) -> bytes:
+    def get_worker_config_bytes(self) -> bytes:  # pragma: no cover
         """Return pickled dbt_config for the pool initializer.
 
         Called BEFORE pool creation so workers can register the adapter
@@ -444,7 +447,9 @@ class DbtTemplater(JinjaTemplater):
 
         return pickle.dumps(self.dbt_config)
 
-    def get_worker_init_data(self, root_config: "FluffConfig") -> dict:
+    def get_worker_init_data(
+        self, root_config: "FluffConfig"
+    ) -> dict:  # pragma: no cover
         """Return picklable data for initializing workers.
 
         Called in the main process after manifest compilation.
@@ -463,7 +468,9 @@ class DbtTemplater(JinjaTemplater):
             "root_config": root_config,
         }
 
-    def init_from_worker_data(self, data: dict, config: "FluffConfig") -> None:
+    def init_from_worker_data(
+        self, data: dict, config: "FluffConfig"
+    ) -> None:  # pragma: no cover
         """Configure this templater instance from worker init data.
 
         Called once per worker process after receiving the manifest.
@@ -473,16 +480,6 @@ class DbtTemplater(JinjaTemplater):
         ``data`` before calling this method, so dbt_config is available
         in ``data["dbt_config"]`` — no circular import needed.
         """
-        import sys
-        import time
-
-        pid = os.getpid()
-
-        def _wlog(msg: str) -> None:
-            print(f"[init_worker {pid}] {msg}", file=sys.stderr, flush=True)
-
-        t0 = time.perf_counter()
-
         self.sqlfluff_config = config
         self.project_dir = data["project_dir"]
         self.profiles_dir = data["profiles_dir"]
@@ -502,19 +499,11 @@ class DbtTemplater(JinjaTemplater):
         if "dbt_selector_method" in data:
             self.__dict__["dbt_selector_method"] = data["dbt_selector_method"]
 
-        t_inject = time.perf_counter()
-
         # Pre-warm the adapter connection so the first file doesn't pay
         # the ~0.4s cost of get_adapter + acquire_connection +
         # set_relations_cache.
         with self.connection():
             pass
-
-        t_end = time.perf_counter()
-        _wlog(
-            f"TOTAL init_from_worker_data: {t_end - t0:.3f}s "
-            f"(inject={t_inject - t0:.3f}s connection={t_end - t_inject:.3f}s)"
-        )
 
     def _get_profiles_dir(self):
         """Get the dbt profiles directory from the configuration.

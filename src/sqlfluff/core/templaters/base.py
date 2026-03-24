@@ -569,7 +569,7 @@ class RawTemplater:
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
-    def __del__(self) -> None:
+    def __del__(self) -> None:  # pragma: no cover
         """Shut down the persistent warm worker pool on cleanup.
 
         The pool is created and managed by WarmWorkerRunner, but stored
@@ -607,7 +607,7 @@ class RawTemplater:
         """
         return b""
 
-    def get_worker_init_data(self, root_config: "FluffConfig") -> dict:
+    def get_worker_init_data(self, root_config: "FluffConfig") -> dict[str, Any]:
         """Return picklable data for initializing workers.
 
         Default sends just the root config so workers can create a Linter.

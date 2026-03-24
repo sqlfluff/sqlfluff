@@ -16,6 +16,7 @@ from sqlfluff.core.linter.runner import (
     _warm_worker_apply,
     _warm_worker_initializer,
     _warm_worker_log,
+    _warm_worker_receive_init,
     get_runner,
 )
 from sqlfluff.core.templaters import RawTemplater
@@ -235,20 +236,24 @@ class TestWarmWorkerApply:
         runner._worker_init_data = None
         runner._worker_linter_cache = None
 
-    def test_first_task_unpickles_and_creates_linter(self):
-        """First task unpickles data_bytes, creates Linter, and caches it."""
+    def _init_worker(self, config: FluffConfig, extra: dict | None = None) -> None:
+        """Helper: broadcast init data to the worker globals."""
+        data: dict = {"root_config": config}
+        if extra:
+            data.update(extra)
+        _warm_worker_receive_init(pickle.dumps(data))
+
+    def test_first_task_creates_linter_cache(self):
+        """First task after init creates Linter and caches it."""
         from sqlfluff.core.linter import LintedFile
 
         config = FluffConfig(overrides={"dialect": "ansi"})
-        data_bytes = pickle.dumps({"root_config": config})
+        self._init_worker(config)
 
         assert runner._worker_linter_cache is None
-        result = _warm_worker_apply(
-            ("test/fixtures/linter/passing.sql", False, data_bytes)
-        )
+        result = _warm_worker_apply(("test/fixtures/linter/passing.sql", False, None))
         assert isinstance(result, LintedFile)
         assert runner._worker_linter_cache is not None
-        # Cache should be a (linter, templater, config) tuple
         linter, templater, cached_config = runner._worker_linter_cache
         assert isinstance(linter, Linter)
         assert isinstance(cached_config, FluffConfig)
@@ -258,32 +263,43 @@ class TestWarmWorkerApply:
         from sqlfluff.core.linter import LintedFile
 
         config = FluffConfig(overrides={"dialect": "ansi"})
-        data_bytes = pickle.dumps({"root_config": config})
+        self._init_worker(config)
 
-        _warm_worker_apply(("test/fixtures/linter/passing.sql", False, data_bytes))
+        _warm_worker_apply(("test/fixtures/linter/passing.sql", False, None))
         cache_after_first = runner._worker_linter_cache
 
         result = _warm_worker_apply(("test/fixtures/linter/passing.sql", False, None))
         assert isinstance(result, LintedFile)
-        # Must be the exact same tuple (identity, not equality)
         assert runner._worker_linter_cache is cache_after_first
 
-    def test_merges_task_data_with_initializer_data(self):
-        """data_bytes is merged into pre-existing _worker_init_data."""
+    def test_receive_init_merges_with_existing_data(self):
+        """_warm_worker_receive_init merges into pre-existing init data."""
         config = FluffConfig(overrides={"dialect": "ansi"})
         runner._worker_init_data = {"from_initializer": "preserved"}
-        data_bytes = pickle.dumps({"root_config": config, "from_task": "added"})
 
-        _warm_worker_apply(("test/fixtures/linter/passing.sql", False, data_bytes))
+        _warm_worker_receive_init(
+            pickle.dumps({"root_config": config, "from_broadcast": "added"})
+        )
 
         assert runner._worker_init_data["from_initializer"] == "preserved"
-        assert runner._worker_init_data["from_task"] == "added"
+        assert runner._worker_init_data["from_broadcast"] == "added"
         assert isinstance(runner._worker_init_data["root_config"], FluffConfig)
+
+    def test_receive_init_resets_linter_cache(self):
+        """_warm_worker_receive_init clears linter cache for rebuild."""
+        config = FluffConfig(overrides={"dialect": "ansi"})
+        self._init_worker(config)
+        _warm_worker_apply(("test/fixtures/linter/passing.sql", False, None))
+        assert runner._worker_linter_cache is not None
+
+        # Receiving new init data should reset the cache.
+        _warm_worker_receive_init(pickle.dumps({"root_config": config}))
+        assert runner._worker_linter_cache is None
 
     def test_exception_wrapped_as_delayed_exception(self):
         """Exceptions during render are wrapped as DelayedException."""
         config = FluffConfig(overrides={"dialect": "ansi"})
-        runner._worker_init_data = {"root_config": config}
+        self._init_worker(config)
         result = _warm_worker_apply(("no_such_file.sql", False, None))
 
         assert isinstance(result, DelayedException)
@@ -291,19 +307,11 @@ class TestWarmWorkerApply:
         with pytest.raises(Exception):
             result.reraise()
 
-    def test_skips_init_from_worker_data_when_absent(self):
-        """If templater lacks init_from_worker_data, it's skipped gracefully."""
-        from sqlfluff.core.linter import LintedFile
-
-        config = FluffConfig(overrides={"dialect": "ansi"})
-        data_bytes = pickle.dumps({"root_config": config})
-
-        # RawTemplater (default for ansi) doesn't have init_from_worker_data.
-        # Verify it still works — the hasattr guard in _warm_worker_apply skips it.
-        result = _warm_worker_apply(
-            ("test/fixtures/linter/passing.sql", False, data_bytes)
-        )
-        assert isinstance(result, LintedFile)
+    def test_error_without_init_data(self):
+        """Task without prior init raises descriptive RuntimeError."""
+        result = _warm_worker_apply(("test/fixtures/linter/passing.sql", False, None))
+        assert isinstance(result, DelayedException)
+        assert "init data" in str(result.ee)
 
 
 # --- WarmWorkerRunner static helpers ---
@@ -533,18 +541,17 @@ class TestJinjaWarmWorkers:
 
     def test_jinja_warm_worker_lints_files(self):
         """End-to-end: Jinja warm worker can lint a real file."""
+        from sqlfluff.core.linter import LintedFile
+
         config = FluffConfig(overrides={"dialect": "ansi"})
 
-        # Reset worker globals
         runner._worker_init_data = None
         runner._worker_linter_cache = None
         try:
-            data_bytes = pickle.dumps({"root_config": config})
+            _warm_worker_receive_init(pickle.dumps({"root_config": config}))
             result = _warm_worker_apply(
-                ("test/fixtures/linter/passing.sql", False, data_bytes)
+                ("test/fixtures/linter/passing.sql", False, None)
             )
-            from sqlfluff.core.linter import LintedFile
-
             assert isinstance(result, LintedFile)
         finally:
             runner._worker_init_data = None

@@ -35,7 +35,9 @@ linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 PartialLintCallable = Callable[[], LintedFile]
 
 # Module-level globals for warm worker state.
-# Set by the pool initializer when supports_warm_workers is True.
+# Required because multiprocessing spawn creates fresh processes —
+# the pool initializer and task functions share state only via
+# module-level globals within each worker process.
 _worker_init_data: Optional[dict[str, Any]] = None
 _worker_linter_cache: Optional[Any] = None
 
@@ -53,7 +55,7 @@ def _warm_worker_log(msg: str) -> None:
         print(f"[warm_worker {os.getpid()}] {msg}", file=sys.stderr, flush=True)
 
 
-def _warm_worker_initializer(
+def _warm_worker_initializer(  # pragma: no cover
     init_modules: list[str],
     config_bytes: bytes,
     setup_func_module: Optional[str] = None,
@@ -100,8 +102,25 @@ def _warm_worker_initializer(
     _warm_worker_log(f"initializer: total {time.perf_counter() - t0:.3f}s")
 
 
-# Sentinel value: when data_bytes is this, workers must reset their cache.
-_RESET_SENTINEL = b"__RESET__"
+def _warm_worker_receive_init(data_bytes: bytes) -> bool:  # pragma: no cover
+    """Receive and merge init data in a worker process.
+
+    Called via pool.map to broadcast init data to every worker before
+    dispatching real tasks. This guarantees all workers are initialized
+    regardless of imap_unordered scheduling.
+    """
+    global _worker_init_data, _worker_linter_cache
+
+    # Reset cache so the next real task rebuilds with fresh init data.
+    _worker_linter_cache = None
+
+    init_data_update = pickle.loads(data_bytes)
+    if _worker_init_data is not None:
+        _worker_init_data.update(init_data_update)
+    else:
+        _worker_init_data = init_data_update
+    _warm_worker_log(f"received init data ({len(data_bytes) / 1024:.1f} KB)")
+    return True
 
 
 def _warm_worker_apply(
@@ -109,43 +128,25 @@ def _warm_worker_apply(
 ) -> Union["DelayedException", LintedFile]:
     """Worker function for warm workers that caches the templater.
 
-    Tasks are lightweight (fname, fix, data_bytes) — no FluffConfig.
-    The config was sent once via init data; workers cache the Linter
-    after first use.
-
-    data_bytes protocol:
-    - bytes (non-sentinel): init data to unpickle and merge (first run)
-    - _RESET_SENTINEL: invalidate cache, unpickle next non-None data_bytes
-    - None: reuse cached state (persistent pool, no changes)
+    Tasks are lightweight ``(fname, fix, None)`` — no FluffConfig per file.
+    Init data is broadcast to all workers via ``_warm_worker_receive_init``
+    before tasks are dispatched, so ``data_bytes`` is always ``None`` here.
+    Workers build and cache the Linter on their first task, then reuse it.
     """
     import time
 
-    global _worker_init_data, _worker_linter_cache
+    global _worker_linter_cache
 
-    fname, fix, data_bytes = args
+    fname, fix, _data_bytes = args
     try:
-        # Handle cache invalidation: config or manifest changed.
-        if data_bytes == _RESET_SENTINEL:
-            _worker_linter_cache = None
-            _warm_worker_log("cache invalidated by reset sentinel")
-            # Return a skip marker — the runner handles these gracefully.
-            return DelayedException(SQLFluffSkipFile("__reset__"), fname=fname)
-
         if _worker_linter_cache is None:
-            # First task on this worker (or after reset): unpickle
-            # init data and create the Linter + templater.
+            # First real task on this worker: build Linter from init data
+            # that was broadcast via _warm_worker_receive_init.
             t0 = time.perf_counter()
-            if data_bytes is not None:
-                init_data_update = pickle.loads(data_bytes)
-                if _worker_init_data is not None:
-                    _worker_init_data.update(init_data_update)
-                else:
-                    _worker_init_data = init_data_update
-
             if _worker_init_data is None or "root_config" not in _worker_init_data:
                 raise RuntimeError(
                     "Warm worker received task before init data. "
-                    "This is a bug in WarmWorkerRunner task dispatch."
+                    "Ensure _warm_worker_receive_init was called first."
                 )
 
             root_config: FluffConfig = _worker_init_data["root_config"]
@@ -387,7 +388,10 @@ class ParallelRunner(BaseRunner):
 
     @classmethod
     def _create_pool(
-        cls, processes: int, initializer: Callable, initargs: tuple = ()
+        cls,
+        processes: int,
+        initializer: Callable[..., None],
+        initargs: tuple[Any, ...] = (),
     ) -> multiprocessing.pool.Pool:
         return cls.POOL_TYPE(
             processes=processes, initializer=initializer, initargs=initargs
@@ -475,7 +479,9 @@ class WarmWorkerRunner(MultiProcessRunner):
     - Lightweight IPC: ~100 bytes per task (no FluffConfig per file)
     """
 
-    def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
+    def run(
+        self, fnames: list[str], fix: bool
+    ) -> Iterator[LintedFile]:  # pragma: no cover
         """Warm worker implementation with persistent pool."""
         import time
 
@@ -529,57 +535,57 @@ class WarmWorkerRunner(MultiProcessRunner):
             templater.prepare_warm_worker_state(self.config, phase="manifest")
 
         t_manifest = time.perf_counter()
-        new_manifest_id = self._get_manifest_id(templater)
-        new_config_id = id(self.config)
+
+        # Use a version counter for change detection instead of id(),
+        # which can be recycled after GC (CPython reuses addresses).
+        new_version = getattr(templater, "_warm_pool_version", 0)
 
         # Detect if config or manifest changed since last run.
-        config_changed = (
-            not pool_is_new
-            and getattr(templater, "_warm_pool_config_id", None) != new_config_id
+        # Bump version whenever get_worker_init_data is called, so
+        # any change in config or manifest is captured.
+        state_changed = not pool_is_new and (
+            getattr(templater, "_warm_pool_config", None) is not self.config
+            or self._get_manifest_id(templater) != templater._warm_pool_manifest_id
         )
-        manifest_changed = (
-            not pool_is_new and templater._warm_pool_manifest_id != new_manifest_id
-        )
-        need_init_data = pool_is_new or config_changed or manifest_changed
+        need_init_data = pool_is_new or state_changed
 
         if need_init_data:
-            if (config_changed or manifest_changed) and not pool_is_new:
-                # Invalidate worker caches: send reset sentinel so workers
-                # discard their stale Linter/templater on next real task.
-                _warm_worker_log(
-                    "main: config/manifest changed, resetting worker caches"
-                )
-                list(
-                    pool.imap_unordered(
-                        _warm_worker_apply,
-                        [("__reset__", False, _RESET_SENTINEL)] * self.processes,
-                    )
-                )
-
             init_data = templater.get_worker_init_data(self.config)
-            data_bytes: Optional[bytes] = pickle.dumps(init_data)
-            templater._warm_pool_manifest_id = new_manifest_id
-            templater._warm_pool_config_id = new_config_id
+            data_bytes = pickle.dumps(init_data)
+            new_version += 1
+            templater._warm_pool_version = new_version
+            templater._warm_pool_manifest_id = self._get_manifest_id(templater)
+            templater._warm_pool_config = self.config
             _warm_worker_log(
-                f"main: manifest ready ({len(data_bytes or b'') / 1024:.1f} KB), "
-                f"total setup {t_manifest - t_start:.3f}s"
+                f"main: broadcasting init data ({len(data_bytes) / 1024:.1f} KB) "
+                f"to {self.processes} workers, "
+                f"setup {t_manifest - t_start:.3f}s"
+            )
+
+            # Broadcast init data to every worker via pool.map.
+            # Each worker receives exactly one copy, unpickles it,
+            # and resets its Linter cache so the next real task
+            # rebuilds it with fresh state. pool.map guarantees
+            # one call per worker (chunksize=1 with N items = N workers).
+            list(
+                pool.map(
+                    _warm_worker_receive_init,
+                    [data_bytes] * self.processes,
+                )
             )
         else:
-            data_bytes = None
             _warm_worker_log(
                 f"main: reusing pool + manifest, setup {t_manifest - t_start:.3f}s"
             )
 
-        # Step 4: Dispatch lightweight tasks and collect results.
-        # data_bytes is only sent with the first `self.processes` tasks
-        # (one per worker) to avoid redundant IPC. Workers unpickle
-        # once on their first task; subsequent tasks carry None.
+        # Step 4: Dispatch lightweight tasks — all workers are
+        # initialized, so tasks carry no init data.
         try:
-            file_iter = templater.sequence_files(
-                fnames, config=self.config, formatter=None
-            )
-            task_iter = self._build_task_iter(
-                file_iter, fix, data_bytes, self.processes
+            task_iter = (
+                (fname, fix, None)
+                for fname in templater.sequence_files(
+                    fnames, config=self.config, formatter=None
+                )
             )
             yield from self._dispatch_and_collect(pool, task_iter, fix)
         except KeyboardInterrupt:  # pragma: no cover
@@ -587,25 +593,6 @@ class WarmWorkerRunner(MultiProcessRunner):
             pool.terminate()
             pool.join()
             templater._warm_pool = None
-
-    @staticmethod
-    def _build_task_iter(
-        file_iter: Iterable[str],
-        fix: bool,
-        data_bytes: Optional[bytes],
-        n_workers: int,
-    ) -> Iterator[tuple[str, bool, Optional[bytes]]]:
-        """Build task tuples, sending data_bytes only to the first N tasks.
-
-        This avoids transmitting init data (e.g., 550KB dbt manifest)
-        redundantly for every file over IPC. Workers unpickle it once
-        on their first task; subsequent tasks carry None.
-        """
-        for i, fname in enumerate(file_iter):
-            if data_bytes is not None and i < n_workers:
-                yield (fname, fix, data_bytes)
-            else:
-                yield (fname, fix, None)
 
     def _dispatch_and_collect(
         self,
@@ -641,9 +628,10 @@ class WarmWorkerRunner(MultiProcessRunner):
     def _get_init_modules(templater: Any) -> list[str]:
         """Get the list of modules to pre-import in warm workers."""
         if hasattr(templater, "get_warm_worker_init_modules"):
-            return templater.get_warm_worker_init_modules()
+            result: list[str] = templater.get_warm_worker_init_modules()
+            return result
         # Fallback to legacy single-module methods.
-        modules = [templater.get_warm_worker_module()]
+        modules: list[str] = [templater.get_warm_worker_module()]
         if hasattr(templater, "get_warm_worker_adapter_module"):
             adapter = templater.get_warm_worker_adapter_module()
             if adapter:
@@ -656,7 +644,10 @@ class WarmWorkerRunner(MultiProcessRunner):
     ) -> tuple[Optional[str], Optional[str]]:
         """Get the (module, function_name) for worker setup."""
         if hasattr(templater, "get_warm_worker_setup_func"):
-            return templater.get_warm_worker_setup_func()
+            ref: tuple[Optional[str], Optional[str]] = (
+                templater.get_warm_worker_setup_func()
+            )
+            return ref
         return (None, None)
 
     @staticmethod
