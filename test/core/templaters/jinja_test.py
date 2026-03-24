@@ -1800,7 +1800,13 @@ def test_undefined_magic_methods():
 
 
 def test_undefined_recorder_iter_records_name():
-    """Test UndefinedRecorder.__iter__ still records the variable name."""
+    """Regression guard: UndefinedRecorder.__iter__ yields one element and records the name.
+
+    The __iter__ behaviour is intentionally unchanged. The fix for multi-variable
+    for-loop crashes (ValueError: not enough values to unpack) is handled by
+    catching ValueError in the templater exception handler, not by emptying the
+    iterator here.
+    """
     undefined_set: set[str] = set()
     ur = UndefinedRecorder("my_var", undefined_set)
     assert len(list(ur)) == 1

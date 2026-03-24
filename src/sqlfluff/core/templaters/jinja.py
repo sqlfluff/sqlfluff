@@ -729,6 +729,11 @@ class JinjaTemplater(PythonTemplater):
                 ),
             )
         except (TemplateError, TypeError, ValueError) as err:
+            # ValueError is caught to handle multi-variable for-loop unpacking
+            # failures, e.g. {% for key, val in undefined_var.items() %} raises
+            # "not enough values to unpack" because the undefined stub yields
+            # only one element. We surface this as a user-friendly error rather
+            # than an unhandled crash.
             templater_logger.info("Unrecoverable Jinja Error: %s", err, exc_info=True)
             raise SQLTemplaterError(
                 (
