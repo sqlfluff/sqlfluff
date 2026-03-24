@@ -168,6 +168,39 @@ def handle_dbt_errors(
     return decorator
 
 
+def warm_worker_setup(config_bytes: bytes) -> dict:
+    """dbt-specific worker initialization for the warm worker pool.
+
+    Called by the generic ``_warm_worker_initializer`` in each worker process.
+    Unpickles the dbt config, registers the adapter, and returns a dict
+    that is stored in ``_worker_init_data`` for later use by
+    ``init_from_worker_data``.
+    """
+    import importlib
+    import pickle
+
+    dbt_config = pickle.loads(config_bytes)
+
+    dbt_flags = importlib.import_module("dbt.flags")
+    dbt_factory = importlib.import_module("dbt.adapters.factory")
+    dbt_tracking = importlib.import_module("dbt.tracking")
+    dbt_sys = importlib.import_module("dbt_common.clients.system")
+    dbt_ctx = importlib.import_module("dbt_common.context")
+
+    dbt_tracking.do_not_track()
+    dbt_ctx.set_invocation_context(dbt_sys.get_env())
+    dbt_flags.set_from_args(dbt_config, None)
+    dbt_factory.FACTORY.load_plugin(dbt_config.credentials.type)
+
+    try:
+        dbt_mp = importlib.import_module("dbt.mp_context")
+        dbt_factory.register_adapter(dbt_config, dbt_mp.get_mp_context())
+    except Exception:
+        dbt_factory.register_adapter(dbt_config)
+
+    return {"dbt_config": dbt_config}
+
+
 class DbtTemplater(JinjaTemplater):
     """A templater using dbt."""
 
@@ -175,8 +208,12 @@ class DbtTemplater(JinjaTemplater):
     sequential_fail_limit = 3
     adapters = {}
     # dbt builds a cross-file manifest in the main process, so templating
-    # cannot be deferred to worker processes.
+    # cannot be deferred to worker processes via the standard path.
     templates_in_worker = False
+    # Enable warm worker support: workers start importing dbt modules
+    # while the main process compiles the manifest, then receive the
+    # pickled manifest to do full template + lint in the worker.
+    supports_warm_workers = True
 
     def __init__(self, override_context: Optional[dict[str, Any]] = None):
         self.sqlfluff_config = None
@@ -185,6 +222,8 @@ class DbtTemplater(JinjaTemplater):
         self.profiles_dir = None
         self.working_dir = os.getcwd()
         self.dbt_skip_compilation_error = True
+        # Pool storage attributes (_warm_pool, _warm_pool_processes,
+        # _warm_pool_manifest_id) are inherited from RawTemplater.
         super().__init__(override_context=override_context)
 
     def config_pairs(self):
@@ -350,6 +389,132 @@ class DbtTemplater(JinjaTemplater):
             )
 
         return _dbt_selector_method
+
+    # --- Warm worker protocol implementation ---
+    #
+    # See RawTemplater docstring in base.py for the full protocol.
+    # The WarmWorkerRunner in runner.py calls these methods to manage
+    # a persistent process pool with pre-warmed dbt workers.
+
+    def prepare_warm_worker_state(self, config: "FluffConfig", phase: str) -> None:
+        """Ensure dbt compilation state is ready for warm workers.
+
+        Called by WarmWorkerRunner in two phases:
+        - "config": before pool creation (compile dbt config for adapter type)
+        - "manifest": after pool creation (compile manifest, overlapped
+          with worker imports)
+        """
+        if phase == "config":
+            self.sqlfluff_config = config
+            self.project_dir = self._get_project_dir()
+            self.profiles_dir = self._get_profiles_dir()
+            _ = self.dbt_config
+        elif phase == "manifest":
+            _ = self.dbt_manifest
+
+    def get_warm_worker_init_modules(self) -> list[str]:
+        """Return modules to pre-import in warm workers.
+
+        Importing dbt.cli.main avoids a ~0.3s lazy import penalty in
+        flags.set_from_args. The adapter module avoids ~0.05s on first use.
+        """
+        modules = ["dbt.cli.main"]
+        try:
+            adapter_type = self.dbt_config.credentials.type
+            modules.append(f"dbt.adapters.{adapter_type}")
+        except Exception:
+            pass
+        return modules
+
+    def get_warm_worker_setup_func(self) -> tuple[str, str]:
+        """Return (module, function_name) for the worker setup function.
+
+        The setup function is called in each worker process during pool
+        initialization to register the dbt adapter.
+        """
+        return ("sqlfluff_templater_dbt.templater", "warm_worker_setup")
+
+    def get_worker_config_bytes(self) -> bytes:
+        """Return pickled dbt_config for the pool initializer.
+
+        Called BEFORE pool creation so workers can register the adapter
+        during import phase, overlapped with manifest compilation.
+        """
+        import pickle
+
+        return pickle.dumps(self.dbt_config)
+
+    def get_worker_init_data(self, root_config: "FluffConfig") -> dict:
+        """Return picklable data for initializing workers.
+
+        Called in the main process after manifest compilation.
+        The dbt_config is already in workers (sent via initializer).
+        We send root_config once here so tasks don't carry it (saves
+        ~193 KB per task in IPC). We also pre-compute
+        dbt_selector_method to avoid a ~0.4s first-file penalty
+        per worker.
+        """
+        _ = self.dbt_selector_method
+        return {
+            "project_dir": self.project_dir,
+            "profiles_dir": self.profiles_dir,
+            "dbt_manifest": self.dbt_manifest,
+            "dbt_selector_method": self.dbt_selector_method,
+            "root_config": root_config,
+        }
+
+    def init_from_worker_data(self, data: dict, config: "FluffConfig") -> None:
+        """Configure this templater instance from worker init data.
+
+        Called once per worker process after receiving the manifest.
+        The heavy work (flags, register_adapter) already happened in
+        the pool initializer via warm_worker_setup(), overlapped with
+        manifest compilation. The runner merges initializer state into
+        ``data`` before calling this method, so dbt_config is available
+        in ``data["dbt_config"]`` — no circular import needed.
+        """
+        import sys
+        import time
+
+        pid = os.getpid()
+
+        def _wlog(msg: str) -> None:
+            print(f"[init_worker {pid}] {msg}", file=sys.stderr, flush=True)
+
+        t0 = time.perf_counter()
+
+        self.sqlfluff_config = config
+        self.project_dir = data["project_dir"]
+        self.profiles_dir = data["profiles_dir"]
+        self.dbt_skip_compilation_error = self._get_dbt_skip_compilation_error()
+
+        # dbt_config comes from the pool initializer (warm_worker_setup),
+        # merged into data by the runner's _warm_worker_apply function.
+        _dbt_config = data["dbt_config"]
+
+        # Inject pre-compiled objects into the instance, bypassing
+        # @cached_property so they are not recomputed.
+        from dbt.compilation import Compiler as DbtCompiler
+
+        self.__dict__["dbt_config"] = _dbt_config
+        self.__dict__["dbt_compiler"] = DbtCompiler(_dbt_config)
+        self.__dict__["dbt_manifest"] = data["dbt_manifest"]
+        if "dbt_selector_method" in data:
+            self.__dict__["dbt_selector_method"] = data["dbt_selector_method"]
+
+        t_inject = time.perf_counter()
+
+        # Pre-warm the adapter connection so the first file doesn't pay
+        # the ~0.4s cost of get_adapter + acquire_connection +
+        # set_relations_cache.
+        with self.connection():
+            pass
+
+        t_end = time.perf_counter()
+        _wlog(
+            f"TOTAL init_from_worker_data: {t_end - t0:.3f}s "
+            f"(inject={t_inject - t0:.3f}s connection={t_end - t_inject:.3f}s)"
+        )
 
     def _get_profiles_dir(self):
         """Get the dbt profiles directory from the configuration.

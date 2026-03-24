@@ -359,18 +359,50 @@ def run_benchmark(
     process_counts: list[int],
     iterations: int = 3,
     warmup: int = 1,
+    reuse_linter: bool = False,
 ) -> list[dict]:
     """Run sqlfluff lint with different process counts and measure timings.
 
+    Args:
+        project_dir: Path to the dbt project directory.
+        profiles_dir: Path to the directory containing profiles.yml.
+        process_counts: List of process counts to benchmark.
+        iterations: Number of timed iterations per process count.
+        warmup: Number of warmup iterations to discard.
+        reuse_linter: When True, reuse the same Linter instance across
+            iterations for each process count. This enables persistent
+            warm worker pools (workers stay alive with dbt imported and
+            adapter registered). Measures steady-state performance.
+
     Returns:
         List of result dicts with keys: processes, iteration, wall_clock,
-        files, violations.
+        files, violations, phase.
     """
     models_dir = str(project_dir / "models")
     results = []
 
     for n_procs in process_counts:
-        print(f"\n--- Benchmarking with --processes {n_procs} ---")
+        mode_label = "persistent pool" if reuse_linter and n_procs > 1 else "standard"
+        print(f"\n--- Benchmarking with --processes {n_procs} ({mode_label}) ---")
+
+        config = FluffConfig(
+            overrides={
+                "templater": "dbt",
+                "dialect": "duckdb",
+            },
+            configs={
+                "templater": {
+                    "dbt": {
+                        "project_dir": str(project_dir),
+                        "profiles_dir": str(profiles_dir),
+                    }
+                }
+            },
+        )
+
+        # In reuse mode, create linter once and reuse across all iterations.
+        # This allows persistent warm worker pools.
+        linter = Linter(config=config) if reuse_linter else None
 
         for i in range(warmup + iterations):
             is_warmup = i < warmup
@@ -380,21 +412,22 @@ def run_benchmark(
                 else (f"iter {i - warmup + 1}/{iterations}")
             )
 
-            config = FluffConfig(
-                overrides={
-                    "templater": "dbt",
-                    "dialect": "duckdb",
-                },
-                configs={
-                    "templater": {
-                        "dbt": {
-                            "project_dir": str(project_dir),
-                            "profiles_dir": str(profiles_dir),
+            if not reuse_linter:
+                config = FluffConfig(
+                    overrides={
+                        "templater": "dbt",
+                        "dialect": "duckdb",
+                    },
+                    configs={
+                        "templater": {
+                            "dbt": {
+                                "project_dir": str(project_dir),
+                                "profiles_dir": str(profiles_dir),
+                            }
                         }
-                    }
-                },
-            )
-            linter = Linter(config=config)
+                    },
+                )
+                linter = Linter(config=config)
 
             t0 = time.perf_counter()
             result = linter.lint_paths(
@@ -407,13 +440,19 @@ def run_benchmark(
             n_files = sum(p.stats()["files"] for p in result.paths)
             n_violations = result.num_violations()
 
+            phase = "cold" if (reuse_linter and i == 0) else "warm"
+
             if is_warmup:
                 print(
-                    f"  {label}: {wall_clock:.1f}s ({n_files} files, {n_violations} violations) [discarded]"
+                    f"  {label}: {wall_clock:.1f}s "
+                    f"({n_files} files, {n_violations} violations) "
+                    f"[{phase}, discarded]"
                 )
             else:
                 print(
-                    f"  {label}: {wall_clock:.1f}s ({n_files} files, {n_violations} violations)"
+                    f"  {label}: {wall_clock:.1f}s "
+                    f"({n_files} files, {n_violations} violations) "
+                    f"[{phase}]"
                 )
                 results.append(
                     {
@@ -422,6 +461,7 @@ def run_benchmark(
                         "wall_clock": wall_clock,
                         "files": n_files,
                         "violations": n_violations,
+                        "phase": phase,
                     }
                 )
 
@@ -526,6 +566,13 @@ def main():
         action="store_true",
         help="Skip dbt compile (reuse existing target/)",
     )
+    parser.add_argument(
+        "--reuse-linter",
+        action="store_true",
+        help="Reuse the same Linter across iterations (enables persistent warm "
+        "worker pools). Measures steady-state performance with amortized "
+        "pool initialization.",
+    )
     args = parser.parse_args()
 
     process_counts = [int(x.strip()) for x in args.processes.split(",")]
@@ -590,6 +637,7 @@ def main():
             process_counts=process_counts,
             iterations=args.iterations,
             warmup=args.warmup,
+            reuse_linter=args.reuse_linter,
         )
 
         # Print results
