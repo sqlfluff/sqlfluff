@@ -128,25 +128,31 @@ def _warm_worker_apply(
 ) -> Union["DelayedException", LintedFile]:
     """Worker function for warm workers that caches the templater.
 
-    Tasks are lightweight ``(fname, fix, None)`` — no FluffConfig per file.
-    Init data is broadcast to all workers via ``_warm_worker_receive_init``
-    before tasks are dispatched, so ``data_bytes`` is always ``None`` here.
-    Workers build and cache the Linter on their first task, then reuse it.
+    Tasks carry ``(fname, fix, data_bytes)``. When ``data_bytes`` is not
+    None, the worker unpickles and merges it into ``_worker_init_data``.
+    Workers build and cache the Linter on their first task, then reuse
+    the cache for subsequent tasks (where ``data_bytes`` is ``None``).
     """
     import time
 
-    global _worker_linter_cache
+    global _worker_init_data, _worker_linter_cache
 
-    fname, fix, _data_bytes = args
+    fname, fix, data_bytes = args
     try:
         if _worker_linter_cache is None:
-            # First real task on this worker: build Linter from init data
-            # that was broadcast via _warm_worker_receive_init.
+            # First task on this worker: unpickle init data and build Linter.
             t0 = time.perf_counter()
+            if data_bytes is not None:
+                init_data_update = pickle.loads(data_bytes)
+                if _worker_init_data is not None:
+                    _worker_init_data.update(init_data_update)
+                else:
+                    _worker_init_data = init_data_update
+
             if _worker_init_data is None or "root_config" not in _worker_init_data:
                 raise RuntimeError(
-                    "Warm worker received task before init data. "
-                    "Ensure _warm_worker_receive_init was called first."
+                    "Warm worker has no init data. "
+                    "The pool initializer or task data_bytes must provide it."
                 )
 
             root_config: FluffConfig = _worker_init_data["root_config"]
@@ -161,9 +167,18 @@ def _warm_worker_apply(
             linter, templater, root_config = _worker_linter_cache
             linter.templater = templater
 
+        t_render = time.perf_counter()
         rendered = linter.render_file(fname, root_config)
+        t_lint = time.perf_counter()
         rule_pack = linter.get_rulepack(config=rendered.config)
-        return Linter.lint_rendered(rendered, rule_pack, fix, None)
+        result = Linter.lint_rendered(rendered, rule_pack, fix, None)
+        t_done = time.perf_counter()
+        _warm_worker_log(
+            f"{os.path.basename(fname)}: "
+            f"render={t_lint - t_render:.3f}s "
+            f"lint={t_done - t_lint:.3f}s"
+        )
+        return result
     except Exception as e:
         return DelayedException(e, fname=fname)
 
@@ -562,37 +577,54 @@ class WarmWorkerRunner(MultiProcessRunner):
                 f"setup {t_manifest - t_start:.3f}s"
             )
 
-            # Broadcast init data to every worker via pool.map.
-            # Each worker receives exactly one copy, unpickles it,
-            # and resets its Linter cache so the next real task
-            # rebuilds it with fresh state. pool.map guarantees
-            # one call per worker (chunksize=1 with N items = N workers).
-            list(
-                pool.map(
-                    _warm_worker_receive_init,
-                    [data_bytes] * self.processes,
+            # Also reset worker caches if state changed so they
+            # rebuild with fresh init data on their next task.
+            if state_changed and not pool_is_new:
+                _warm_worker_log("main: resetting worker caches")
+                list(
+                    pool.map(
+                        _warm_worker_receive_init,
+                        [data_bytes] * self.processes,
+                    )
                 )
-            )
         else:
+            data_bytes = None
             _warm_worker_log(
                 f"main: reusing pool + manifest, setup {t_manifest - t_start:.3f}s"
             )
 
-        # Step 4: Dispatch lightweight tasks — all workers are
-        # initialized, so tasks carry no init data.
-        try:
-            task_iter = (
-                (fname, fix, None)
-                for fname in templater.sequence_files(
-                    fnames, config=self.config, formatter=None
-                )
+        # Step 4: Materialize file list and apply LPT scheduling.
+        # Sort files by size descending so heavy files are dispatched
+        # first, reducing tail latency from work imbalance.
+        file_list = list(
+            templater.sequence_files(fnames, config=self.config, formatter=None)
+        )
+        file_list = self._lpt_sort_files(file_list)
+
+        if file_list:
+            _warm_worker_log(
+                f"main: dispatching {len(file_list)} files "
+                f"(largest={os.path.getsize(file_list[0])}B, "
+                f"smallest={os.path.getsize(file_list[-1])}B)"
             )
+
+        # Step 5: Dispatch tasks with data_bytes. Workers unpickle
+        # data_bytes once on their first task (building the Linter
+        # cache) and skip it on subsequent tasks.
+        t_dispatch = time.perf_counter()
+        try:
+            task_iter = ((fname, fix, data_bytes) for fname in file_list)
             yield from self._dispatch_and_collect(pool, task_iter, fix)
         except KeyboardInterrupt:  # pragma: no cover
             print("Received keyboard interrupt. Cleaning up and shutting down...")
             pool.terminate()
             pool.join()
             templater._warm_pool = None
+        else:
+            _warm_worker_log(
+                f"main: {len(file_list)} files completed in "
+                f"{time.perf_counter() - t_dispatch:.3f}s"
+            )
 
     def _dispatch_and_collect(
         self,
@@ -623,6 +655,17 @@ class WarmWorkerRunner(MultiProcessRunner):
                         ),
                     )
                 yield lint_result
+
+    @staticmethod
+    def _lpt_sort_files(fnames: list[str]) -> list[str]:
+        """Sort files by size descending (LPT scheduling).
+
+        Largest files are dispatched first so heavy work starts early
+        and all workers finish at similar times. Uses stable sort to
+        preserve relative ordering from sequence_files for equal-size
+        files (important for dbt ephemeral model dependencies).
+        """
+        return sorted(fnames, key=lambda f: os.path.getsize(f), reverse=True)
 
     @staticmethod
     def _get_init_modules(templater: Any) -> list[str]:

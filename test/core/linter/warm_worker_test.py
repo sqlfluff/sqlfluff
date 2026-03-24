@@ -236,22 +236,24 @@ class TestWarmWorkerApply:
         runner._worker_init_data = None
         runner._worker_linter_cache = None
 
-    def _init_worker(self, config: FluffConfig, extra: dict | None = None) -> None:
-        """Helper: broadcast init data to the worker globals."""
+    def _make_data_bytes(self, config: FluffConfig, extra: dict | None = None) -> bytes:
+        """Helper: create pickled init data bytes."""
         data: dict = {"root_config": config}
         if extra:
             data.update(extra)
-        _warm_worker_receive_init(pickle.dumps(data))
+        return pickle.dumps(data)
 
-    def test_first_task_creates_linter_cache(self):
-        """First task after init creates Linter and caches it."""
+    def test_first_task_unpickles_data_and_creates_cache(self):
+        """First task unpickles data_bytes, creates Linter, and caches it."""
         from sqlfluff.core.linter import LintedFile
 
         config = FluffConfig(overrides={"dialect": "ansi"})
-        self._init_worker(config)
+        data_bytes = self._make_data_bytes(config)
 
         assert runner._worker_linter_cache is None
-        result = _warm_worker_apply(("test/fixtures/linter/passing.sql", False, None))
+        result = _warm_worker_apply(
+            ("test/fixtures/linter/passing.sql", False, data_bytes)
+        )
         assert isinstance(result, LintedFile)
         assert runner._worker_linter_cache is not None
         linter, templater, cached_config = runner._worker_linter_cache
@@ -263,33 +265,33 @@ class TestWarmWorkerApply:
         from sqlfluff.core.linter import LintedFile
 
         config = FluffConfig(overrides={"dialect": "ansi"})
-        self._init_worker(config)
+        data_bytes = self._make_data_bytes(config)
 
-        _warm_worker_apply(("test/fixtures/linter/passing.sql", False, None))
+        _warm_worker_apply(("test/fixtures/linter/passing.sql", False, data_bytes))
         cache_after_first = runner._worker_linter_cache
 
+        # Second task: data_bytes=None, cache reused.
         result = _warm_worker_apply(("test/fixtures/linter/passing.sql", False, None))
         assert isinstance(result, LintedFile)
         assert runner._worker_linter_cache is cache_after_first
 
-    def test_receive_init_merges_with_existing_data(self):
-        """_warm_worker_receive_init merges into pre-existing init data."""
+    def test_data_bytes_merged_with_initializer_data(self):
+        """data_bytes in task merges with pre-existing _worker_init_data."""
         config = FluffConfig(overrides={"dialect": "ansi"})
         runner._worker_init_data = {"from_initializer": "preserved"}
+        data_bytes = self._make_data_bytes(config, {"from_task": "added"})
 
-        _warm_worker_receive_init(
-            pickle.dumps({"root_config": config, "from_broadcast": "added"})
-        )
+        _warm_worker_apply(("test/fixtures/linter/passing.sql", False, data_bytes))
 
         assert runner._worker_init_data["from_initializer"] == "preserved"
-        assert runner._worker_init_data["from_broadcast"] == "added"
+        assert runner._worker_init_data["from_task"] == "added"
         assert isinstance(runner._worker_init_data["root_config"], FluffConfig)
 
     def test_receive_init_resets_linter_cache(self):
         """_warm_worker_receive_init clears linter cache for rebuild."""
         config = FluffConfig(overrides={"dialect": "ansi"})
-        self._init_worker(config)
-        _warm_worker_apply(("test/fixtures/linter/passing.sql", False, None))
+        data_bytes = self._make_data_bytes(config)
+        _warm_worker_apply(("test/fixtures/linter/passing.sql", False, data_bytes))
         assert runner._worker_linter_cache is not None
 
         # Receiving new init data should reset the cache.
@@ -299,8 +301,8 @@ class TestWarmWorkerApply:
     def test_exception_wrapped_as_delayed_exception(self):
         """Exceptions during render are wrapped as DelayedException."""
         config = FluffConfig(overrides={"dialect": "ansi"})
-        self._init_worker(config)
-        result = _warm_worker_apply(("no_such_file.sql", False, None))
+        data_bytes = self._make_data_bytes(config)
+        result = _warm_worker_apply(("no_such_file.sql", False, data_bytes))
 
         assert isinstance(result, DelayedException)
         assert result.fname == "no_such_file.sql"
@@ -308,7 +310,7 @@ class TestWarmWorkerApply:
             result.reraise()
 
     def test_error_without_init_data(self):
-        """Task without prior init raises descriptive RuntimeError."""
+        """Task without data_bytes or prior init raises RuntimeError."""
         result = _warm_worker_apply(("test/fixtures/linter/passing.sql", False, None))
         assert isinstance(result, DelayedException)
         assert "init data" in str(result.ee)
@@ -388,6 +390,48 @@ class TestWarmWorkerRunnerHelpers:
         """Returns None when no dbt_manifest or _compiled_state exists."""
         t = type("T", (), {})()
         assert WarmWorkerRunner._get_manifest_id(t) is None
+
+
+# --- LPT scheduling ---
+
+
+class TestLptSortFiles:
+    """Tests for LPT (Longest Processing Time) file scheduling."""
+
+    def test_sorts_by_size_descending(self, tmp_path):
+        """Largest files should be dispatched first."""
+        small = tmp_path / "small.sql"
+        medium = tmp_path / "medium.sql"
+        large = tmp_path / "large.sql"
+        small.write_text("SELECT 1")
+        medium.write_text("SELECT " + "col, " * 50 + "1")
+        large.write_text("SELECT " + "col, " * 500 + "1")
+
+        result = WarmWorkerRunner._lpt_sort_files([str(small), str(medium), str(large)])
+        assert result == [str(large), str(medium), str(small)]
+
+    def test_stable_sort_preserves_order_for_equal_sizes(self, tmp_path):
+        """Files of equal size preserve their original relative order."""
+        files = []
+        for name in ["alpha.sql", "beta.sql", "gamma.sql"]:
+            f = tmp_path / name
+            f.write_text("SELECT 1")
+            files.append(str(f))
+
+        result = WarmWorkerRunner._lpt_sort_files(files)
+        # All same size — original order preserved (stable sort).
+        assert result == files
+
+    def test_empty_list(self):
+        """Empty file list returns empty list."""
+        assert WarmWorkerRunner._lpt_sort_files([]) == []
+
+    def test_single_file(self, tmp_path):
+        """Single file returns unchanged."""
+        f = tmp_path / "only.sql"
+        f.write_text("SELECT 1")
+        result = WarmWorkerRunner._lpt_sort_files([str(f)])
+        assert result == [str(f)]
 
 
 # --- Architecture invariants ---
@@ -548,9 +592,9 @@ class TestJinjaWarmWorkers:
         runner._worker_init_data = None
         runner._worker_linter_cache = None
         try:
-            _warm_worker_receive_init(pickle.dumps({"root_config": config}))
+            data_bytes = pickle.dumps({"root_config": config})
             result = _warm_worker_apply(
-                ("test/fixtures/linter/passing.sql", False, None)
+                ("test/fixtures/linter/passing.sql", False, data_bytes)
             )
             assert isinstance(result, LintedFile)
         finally:
