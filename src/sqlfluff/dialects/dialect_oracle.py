@@ -832,6 +832,29 @@ oracle_dialect.add(
         )
     ),
     JSONOnNullClause=Sequence(OneOf("NULL", "ABSENT"), "ON", "NULL"),
+    ExceptionWhenHandlerGrammar=Sequence(
+        "WHEN",
+        OneOf(
+            "OTHERS",
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                AnyNumberOf(Sequence("OR", Ref("SingleIdentifierGrammar"))),
+            ),
+        ),
+        "THEN",
+        Indent,
+        Ref("OneOrMoreStatementsGrammar"),
+        Dedent,
+    ),
+    ExceptionBlockGrammar=Sequence(
+        "EXCEPTION",
+        Indent,
+        # Using AnyNumberOf with min_times=1 is not greedy enough to grab multiple
+        # exceptions here. So define it once, then have AnyNumberOf after.
+        Ref("ExceptionWhenHandlerGrammar"),
+        AnyNumberOf(Ref("ExceptionWhenHandlerGrammar")),
+        Dedent,
+    ),
     JSONReturningClause=Sequence(
         "RETURNING",
         OneOf(
@@ -1337,6 +1360,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("CreateTypeBodyStatementSegment"),
+            Ref("CreatePackageBodyStatementSegment"),
             Ref("CreatePackageStatementSegment"),
             Ref("AlterSessionStatementSegment"),
             Ref("DropPackageStatementSegment"),
@@ -2831,42 +2855,13 @@ class BeginEndSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/block.html
     """
 
-    _when_clause = Sequence(
-        "WHEN",
-        OneOf(
-            "OTHERS",
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                AnyNumberOf(
-                    Sequence(
-                        "OR",
-                        Ref("SingleIdentifierGrammar"),
-                    )
-                ),
-            ),
-        ),
-        "THEN",
-        Indent,
-        Ref("OneOrMoreStatementsGrammar"),
-        Dedent,
-    )
-
     type = "begin_end_block"
     match_grammar = Sequence(
         Ref("DeclareSegment", optional=True),
         "BEGIN",
         Indent,
         Ref("OneOrMoreStatementsGrammar"),
-        Sequence(
-            "EXCEPTION",
-            Indent,
-            # Using AnyNumberOf with min_times=1 is not greedy enough to grab multiple
-            # exceptions here. So define it once, then have AnyNumberOf after.
-            _when_clause,
-            AnyNumberOf(_when_clause),
-            Dedent,
-            optional=True,
-        ),
+        Ref("ExceptionBlockGrammar", optional=True),
         Dedent,
         "END",
         Ref("ObjectReferenceSegment", optional=True),
@@ -3027,6 +3022,43 @@ class DropTypeStatementSegment(ansi.DropTypeStatementSegment):
     )
 
 
+class CreatePackageBodyStatementSegment(BaseSegment):
+    """A `CREATE PACKAGE BODY` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/CREATE-PACKAGE-BODY-statement.html
+    """
+
+    type = "create_package_body_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+        "PACKAGE",
+        "BODY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("PackageReferenceSegment"),
+        Ref("SharingClauseGrammar", optional=True),
+        AnyNumberOf(
+            Ref("DefaultCollationClauseGrammar"),
+            Ref("InvokerRightsClauseGrammar"),
+            Ref("AccessibleByClauseGrammar"),
+        ),
+        OneOf("IS", "AS"),
+        Ref("DeclareSegment", optional=True),
+        Sequence(
+            "BEGIN",
+            Indent,
+            Ref("OneOrMoreStatementsGrammar"),
+            Ref("ExceptionBlockGrammar", optional=True),
+            Dedent,
+            optional=True,
+        ),
+        "END",
+        Ref("PackageReferenceSegment", optional=True),
+    )
+
+
 class CreatePackageStatementSegment(BaseSegment):
     """A `CREATE PACKAGE` statement.
 
@@ -3040,7 +3072,6 @@ class CreatePackageStatementSegment(BaseSegment):
         Sequence("OR", "REPLACE", optional=True),
         OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
         "PACKAGE",
-        Ref.keyword("BODY", optional=True),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("PackageReferenceSegment"),
         Ref("SharingClauseGrammar", optional=True),
@@ -3048,7 +3079,6 @@ class CreatePackageStatementSegment(BaseSegment):
             Ref("DefaultCollationClauseGrammar"),
             Ref("InvokerRightsClauseGrammar"),
             Ref("AccessibleByClauseGrammar"),
-            optional=True,
         ),
         OneOf("IS", "AS"),
         Ref("DeclareSegment"),
