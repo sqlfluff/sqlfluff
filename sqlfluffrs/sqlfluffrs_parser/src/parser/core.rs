@@ -100,8 +100,8 @@ pub struct Parser<'a> {
     /// Iteration count at which a warning is emitted (the former hard limit).
     /// Configurable via `rust_parser_warn_threshold` in `.sqlfluff`.
     pub parser_warn_threshold: usize,
-    /// Maximum parse depth (frame stack). None = no limit. Used for DoS mitigation.
-    pub max_parse_depth: Option<usize>,
+    /// Maximum parse depth (frame stack). 0 = no limit. Used for DoS mitigation.
+    pub max_parse_depth: usize,
 }
 
 impl<'a> Parser<'a> {
@@ -119,16 +119,17 @@ impl<'a> Parser<'a> {
             tokens,
             dialect,
             indent_config,
-            Some(Self::DEFAULT_MAX_PARSE_DEPTH),
+            Self::DEFAULT_MAX_PARSE_DEPTH,
         )
     }
 
-    /// Create a new Parser with an optional max parse depth (DoS mitigation).
+    /// Create a new Parser with a max parse depth (DoS mitigation).
+    /// A value of 0 disables the limit.
     pub fn new_with_max_parse_depth(
         tokens: &'a [Token],
         dialect: Dialect,
         indent_config: hashbrown::HashMap<&'static str, bool>,
-        max_parse_depth: Option<usize>,
+        max_parse_depth: usize,
     ) -> Parser<'a> {
         let root = dialect.get_root_grammar();
         let grammar_ctx = GrammarContext::new(root.tables);

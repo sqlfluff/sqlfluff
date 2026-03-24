@@ -114,17 +114,15 @@ impl Parser<'_> {
             }
 
             // Max parse depth (DoS mitigation): frame we're processing was at depth stack.len()+1
-            if let Some(max) = self.max_parse_depth {
-                if stack.len() + 1 > max {
-                    return Err(ParseError::with_context(
-                        format!(
-                            "Maximum parse depth exceeded (limit {}). This may indicate deeply nested SQL or a malicious input.",
-                            max
-                        ),
-                        Some(frame_from_stack.pos),
-                        Some(frame_from_stack.grammar_id),
-                    ));
-                }
+            if self.max_parse_depth > 0 && stack.len() + 1 > self.max_parse_depth {
+                return Err(ParseError::with_context(
+                    format!(
+                        "Maximum parse depth exceeded (limit {}). This may indicate deeply nested SQL or a malicious input.",
+                        self.max_parse_depth
+                    ),
+                    Some(frame_from_stack.pos),
+                    Some(frame_from_stack.grammar_id),
+                ));
             }
 
             // Re-check the cache ONLY for Initial frames

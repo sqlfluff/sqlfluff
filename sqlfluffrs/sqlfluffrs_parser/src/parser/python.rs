@@ -480,19 +480,19 @@ pub struct PyParser {
     indent_config: hashbrown::HashMap<&'static str, bool>,
     max_parser_iterations: usize,
     parser_warn_threshold: usize,
-    max_parse_depth: Option<usize>,
+    max_parse_depth: usize,
 }
 
 #[pymethods]
 impl PyParser {
     #[new]
-    #[pyo3(signature = (dialect=None, indent_config=None, max_parser_iterations=None, parser_warn_threshold=None, max_parse_depth=None))]
+    #[pyo3(signature = (dialect=None, indent_config=None, max_parser_iterations=None, parser_warn_threshold=None, max_parse_depth=0))]
     pub fn new(
         dialect: Option<&str>,
         indent_config: Option<HashMap<String, bool>>,
         max_parser_iterations: Option<usize>,
         parser_warn_threshold: Option<usize>,
-        max_parse_depth: Option<usize>,
+        max_parse_depth: usize,
     ) -> PyResult<Self> {
         let dialect = dialect
             .and_then(|d| Dialect::from_str(d).ok())
