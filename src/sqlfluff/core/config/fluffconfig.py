@@ -688,6 +688,17 @@ class FluffConfig:
             return
         config_line = config_line[9:].strip()
         config_key, config_value = split_colon_separated_string(config_line)
+        # Guard against malformed inline config where the remainder after
+        # stripping "sqlfluff:" contains no colon (e.g. "disable=AM04" using
+        # the .sqlfluff file `=` syntax instead of the inline colon syntax).
+        if len(config_key) == 0:
+            config_logger.warning(
+                "Malformed inline config in %r: %r. Inline config uses colon "
+                "syntax (e.g. `-- sqlfluff:dialect:ansi`), not `=`.",
+                fname,
+                config_line,
+            )
+            return
         # Move to core section if appropriate
         if len(config_key) == 1:
             config_key = ("core",) + config_key

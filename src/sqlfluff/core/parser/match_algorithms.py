@@ -444,16 +444,17 @@ def resolve_bracket(
 
         # Otherwise we found a new opening bracket.
         assert matcher in start_brackets
-        # Recurse into a new bracket matcher.
-        inner_match = resolve_bracket(
-            segments,
-            opening_match=match,
-            opening_matcher=matcher,
-            start_brackets=start_brackets,
-            end_brackets=end_brackets,
-            bracket_persists=bracket_persists,
-            parse_context=parse_context,
-        )
+        # Recurse into a new bracket matcher (counts toward max_parse_depth).
+        with parse_context.deeper_match(name="Bracket"):
+            inner_match = resolve_bracket(
+                segments,
+                opening_match=match,
+                opening_matcher=matcher,
+                start_brackets=start_brackets,
+                end_brackets=end_brackets,
+                bracket_persists=bracket_persists,
+                parse_context=parse_context,
+            )
         # This will either error, or only return once we're back out of the
         # bracket which started it. The return value will be a match result for
         # the inner BracketedSegment. We ignore the inner and don't return it
