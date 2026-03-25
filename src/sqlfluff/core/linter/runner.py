@@ -172,7 +172,9 @@ def _warm_worker_apply(
             linter = Linter(config=root_config)
             templater = root_config.get_templater()
             if hasattr(templater, "init_from_worker_data"):
-                templater.init_from_worker_data(_worker_init_data, root_config)
+                templater.init_from_worker_data(  # pragma: no cover
+                    _worker_init_data, root_config
+                )
             linter.templater = templater
             # Pre-build and cache the rule pack for the root config.
             rule_pack = linter.get_rulepack(config=root_config)
@@ -506,7 +508,9 @@ class MultiProcessRunner(ParallelRunner):
         We use this so we can iterate through results as they arrive, and while other
         files are still being processed.
         """
-        return pool.imap_unordered(func=func, iterable=iterable)
+        return pool.imap_unordered(  # pragma: no cover
+            func=func, iterable=iterable
+        )
 
 
 class WarmWorkerRunner(MultiProcessRunner):
