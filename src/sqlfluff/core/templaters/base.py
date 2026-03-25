@@ -523,7 +523,14 @@ class RawTemplater:
     # When ``supports_warm_workers = True``, the ``WarmWorkerRunner``
     # creates a persistent process pool where workers pre-import heavy
     # modules and cache templater state across lint_paths() calls. This
-    # achieves 3-4.5x speedup vs the baseline pipelined approach.
+    # achieves 3-5x speedup vs the baseline pipelined approach.
+    #
+    # IPC uses shared memory (multiprocessing.shared_memory): init data
+    # is pickled once and written to a SharedMemory block. Workers
+    # attach by name and read on their first task, avoiding redundant
+    # per-task data transfer. The shared memory block persists on the
+    # templater (``_warm_shm``) for reuse across lint_paths() calls
+    # and is replaced when init data changes.
     #
     # Templaters that opt in must implement these methods:
     #
@@ -544,17 +551,21 @@ class RawTemplater:
     #       Pickled configuration sent to the pool initializer.
     #
     #   get_worker_init_data(root_config: FluffConfig) -> dict
-    #       Picklable dict sent once to workers (must include
-    #       "root_config" key). Sent on first dispatch, not per-task.
+    #       Picklable dict written to shared memory once (must include
+    #       "root_config" key). Workers read it on first task via
+    #       SharedMemory; subsequent tasks reuse cached state.
     #
     #   init_from_worker_data(data: dict, config: FluffConfig) -> None
     #       Configure the templater in a worker process from init data.
     #
-    # The runner stores the persistent pool on these instance attributes:
+    # The runner stores persistent state on these instance attributes:
     supports_warm_workers: bool = False
     _warm_pool: Any = None
     _warm_pool_processes: int = 0
     _warm_pool_manifest_id: Any = None
+    _warm_pool_config: Any = None
+    _warm_shm: Any = None
+    _warm_shm_size: int = 0
 
     def __init__(
         self,
@@ -570,13 +581,12 @@ class RawTemplater:
         self.override_context = override_context or {}
 
     def __del__(self) -> None:  # pragma: no cover
-        """Shut down the persistent warm worker pool on cleanup.
+        """Shut down the persistent warm worker pool and shared memory on cleanup.
 
-        The pool is created and managed by WarmWorkerRunner, but stored
-        on the templater because the templater outlives the runner
-        (runners are recreated per lint_paths call, while the templater
-        persists on the Linter). Cleanup lives here as the last owner
-        of the _warm_pool reference.
+        The pool and shared memory are created by WarmWorkerRunner but stored
+        on the templater because the templater outlives the runner (runners
+        are recreated per lint_paths call, while the templater persists on the
+        Linter). Cleanup lives here as the last owner of these references.
         """
         pool = getattr(self, "_warm_pool", None)
         if pool is not None:
@@ -586,6 +596,14 @@ class RawTemplater:
             except Exception:
                 pass
             self._warm_pool = None
+        shm = getattr(self, "_warm_shm", None)
+        if shm is not None:
+            try:
+                shm.close()
+                shm.unlink()
+            except Exception:
+                pass
+            self._warm_shm = None
 
     # --- Default warm worker protocol implementations ---
     # Subclasses that set supports_warm_workers = True get these for free.

@@ -21,6 +21,7 @@ import sys
 import traceback
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Iterator
+from multiprocessing.shared_memory import SharedMemory
 from types import TracebackType
 from typing import Any, Callable, Optional, Union
 
@@ -102,8 +103,8 @@ def _warm_worker_initializer(  # pragma: no cover
     _warm_worker_log(f"initializer: total {time.perf_counter() - t0:.3f}s")
 
 
-def _warm_worker_receive_init(data_bytes: bytes) -> bool:  # pragma: no cover
-    """Receive and merge init data in a worker process.
+def _warm_worker_receive_init(shm_info: tuple[str, int]) -> bool:  # pragma: no cover
+    """Receive and merge init data from shared memory in a worker process.
 
     Called via pool.map to broadcast init data to every worker before
     dispatching real tasks. This guarantees all workers are initialized
@@ -114,46 +115,58 @@ def _warm_worker_receive_init(data_bytes: bytes) -> bool:  # pragma: no cover
     # Reset cache so the next real task rebuilds with fresh init data.
     _worker_linter_cache = None
 
-    init_data_update = pickle.loads(data_bytes)
+    shm_name, shm_size = shm_info
+    shm = SharedMemory(name=shm_name, create=False)
+    try:
+        assert shm.buf is not None
+        init_data_update = pickle.loads(shm.buf[:shm_size])
+    finally:
+        shm.close()
     if _worker_init_data is not None:
         _worker_init_data.update(init_data_update)
     else:
         _worker_init_data = init_data_update
-    _warm_worker_log(f"received init data ({len(data_bytes) / 1024:.1f} KB)")
+    _warm_worker_log(f"received init data ({shm_size / 1024:.1f} KB) via shared memory")
     return True
 
 
 def _warm_worker_apply(
-    args: tuple[str, bool, Optional[bytes]],
+    args: tuple[str, bool, tuple[str, int]],
 ) -> Union["DelayedException", LintedFile]:
     """Worker function for warm workers that caches the templater.
 
-    Tasks carry ``(fname, fix, data_bytes)``. When ``data_bytes`` is not
-    None, the worker unpickles and merges it into ``_worker_init_data``.
-    Workers build and cache the Linter on their first task, then reuse
-    the cache for subsequent tasks (where ``data_bytes`` is ``None``).
+    Tasks carry ``(fname, fix, shm_ref)`` where ``shm_ref`` is a
+    ``(name, size)`` pair for fallback shared memory access. Normally
+    ``_worker_init_data`` is already populated by the broadcast call
+    to ``_warm_worker_receive_init`` before any tasks are dispatched.
+    The shared memory fallback handles replacement workers spawned by
+    the pool after a crash.
     """
     import time
 
     global _worker_init_data, _worker_linter_cache
 
-    fname, fix, data_bytes = args
+    fname, fix, shm_ref = args
     try:
         if _worker_linter_cache is None:
-            # First task on this worker: unpickle init data and build Linter.
+            # Rebuild linter cache. Normally _worker_init_data was
+            # already populated by _warm_worker_receive_init broadcast.
             t0 = time.perf_counter()
-            if data_bytes is not None:
-                init_data_update = pickle.loads(data_bytes)
+            if _worker_init_data is None or "root_config" not in _worker_init_data:
+                # Fallback: read from shared memory (replacement worker
+                # that missed the broadcast).
+                shm_name, shm_size = shm_ref
+                shm = SharedMemory(name=shm_name, create=False)
+                try:
+                    assert shm.buf is not None
+                    init_data_update = pickle.loads(shm.buf[:shm_size])
+                finally:
+                    shm.close()
                 if _worker_init_data is not None:
                     _worker_init_data.update(init_data_update)
                 else:
                     _worker_init_data = init_data_update
-
-            if _worker_init_data is None or "root_config" not in _worker_init_data:
-                raise RuntimeError(
-                    "Warm worker has no init data. "
-                    "The pool initializer or task data_bytes must provide it."
-                )
+                _warm_worker_log("fallback: read init data from shared memory")
 
             root_config: FluffConfig = _worker_init_data["root_config"]
             linter = Linter(config=root_config)
@@ -161,16 +174,22 @@ def _warm_worker_apply(
             if hasattr(templater, "init_from_worker_data"):
                 templater.init_from_worker_data(_worker_init_data, root_config)
             linter.templater = templater
-            _worker_linter_cache = (linter, templater, root_config)
+            # Pre-build and cache the rule pack for the root config.
+            rule_pack = linter.get_rulepack(config=root_config)
+            _worker_linter_cache = (linter, templater, root_config, rule_pack)
             _warm_worker_log(f"worker initialized in {time.perf_counter() - t0:.3f}s")
         else:
-            linter, templater, root_config = _worker_linter_cache
+            linter, templater, root_config, rule_pack = _worker_linter_cache
             linter.templater = templater
 
         t_render = time.perf_counter()
         rendered = linter.render_file(fname, root_config)
         t_lint = time.perf_counter()
-        rule_pack = linter.get_rulepack(config=rendered.config)
+        # Reuse cached rule pack when file config matches root config.
+        # Per-file overrides (inline noqa, directory .sqlfluff) get
+        # a fresh pack; the common case skips get_rulepack entirely.
+        if rendered.config is not root_config:
+            rule_pack = linter.get_rulepack(config=rendered.config)
         result = Linter.lint_rendered(rendered, rule_pack, fix, None)
         t_done = time.perf_counter()
         _warm_worker_log(
@@ -178,6 +197,13 @@ def _warm_worker_apply(
             f"render={t_lint - t_render:.3f}s "
             f"lint={t_done - t_lint:.3f}s"
         )
+        # Strip the parsed tree and templated file before pickling
+        # to reduce IPC size by ~90%. The tree is only needed when
+        # --fix mode has violations to persist (fix_string() asserts
+        # both tree and templated_file). Clean files and all lint-only
+        # results skip the tree entirely.
+        if not fix or not result.violations:
+            result = result._replace(tree=None, templated_file=None)
         return result
     except Exception as e:
         return DelayedException(e, fname=fname)
@@ -339,29 +365,9 @@ class ParallelRunner(BaseRunner):
                     self._apply,
                     self.iter_partials(fnames, fix=fix),
                 ):
-                    if isinstance(lint_result, DelayedException):
-                        if isinstance(lint_result.ee, SQLFluffSkipFile):
-                            # A file was skipped (e.g. exceeded
-                            # large_file_skip_byte_limit). Log a plain warning,
-                            # not the "please report as bug" message.
-                            linter_logger.warning(str(lint_result.ee))
-                        else:
-                            try:
-                                lint_result.reraise()
-                            except Exception as e:
-                                self._handle_lint_path_exception(lint_result.fname, e)
-                    else:
-                        # It's a LintedDir.
-                        if self.linter.formatter:
-                            self.linter.formatter.dispatch_file_violations(
-                                lint_result.path,
-                                lint_result,
-                                only_fixable=fix,
-                                warn_unused_ignores=self.linter.config.get(
-                                    "warn_unused_ignores"
-                                ),
-                            )
-                        yield lint_result
+                    handled = self._handle_result(lint_result, fix)
+                    if handled is not None:
+                        yield handled
             except KeyboardInterrupt:  # pragma: no cover
                 # On keyboard interrupt (Ctrl-C), terminate the workers.
                 # Notify the user we've received the signal and are cleaning up,
@@ -394,6 +400,33 @@ class ParallelRunner(BaseRunner):
         # in the main thread.
         except Exception as e:
             return DelayedException(e, fname=fname)
+
+    def _handle_result(
+        self,
+        lint_result: Union["DelayedException", LintedFile],
+        fix: bool,
+    ) -> Optional[LintedFile]:
+        """Process a single lint result, handling errors and formatting.
+
+        Returns the LintedFile on success, None on error/skip.
+        """
+        if isinstance(lint_result, DelayedException):
+            if isinstance(lint_result.ee, SQLFluffSkipFile):
+                linter_logger.warning(str(lint_result.ee))
+            else:
+                try:
+                    lint_result.reraise()
+                except Exception as e:
+                    self._handle_lint_path_exception(lint_result.fname, e)
+            return None
+        if self.linter.formatter:
+            self.linter.formatter.dispatch_file_violations(
+                lint_result.path,
+                lint_result,
+                only_fixable=fix,
+                warn_unused_ignores=self.linter.config.get("warn_unused_ignores"),
+            )
+        return lint_result
 
     @classmethod
     def _init_global(cls) -> None:  # pragma: no cover
@@ -551,75 +584,96 @@ class WarmWorkerRunner(MultiProcessRunner):
 
         t_manifest = time.perf_counter()
 
-        # Use a version counter for change detection instead of id(),
-        # which can be recycled after GC (CPython reuses addresses).
-        new_version = getattr(templater, "_warm_pool_version", 0)
-
-        # Detect if config or manifest changed since last run.
-        # Bump version whenever get_worker_init_data is called, so
-        # any change in config or manifest is captured.
-        state_changed = not pool_is_new and (
-            getattr(templater, "_warm_pool_config", None) is not self.config
-            or self._get_manifest_id(templater) != templater._warm_pool_manifest_id
-        )
-        need_init_data = pool_is_new or state_changed
-
-        if need_init_data:
-            init_data = templater.get_worker_init_data(self.config)
-            data_bytes = pickle.dumps(init_data)
-            new_version += 1
-            templater._warm_pool_version = new_version
-            templater._warm_pool_manifest_id = self._get_manifest_id(templater)
-            templater._warm_pool_config = self.config
-            _warm_worker_log(
-                f"main: broadcasting init data ({len(data_bytes) / 1024:.1f} KB) "
-                f"to {self.processes} workers, "
-                f"setup {t_manifest - t_start:.3f}s"
-            )
-
-            # Also reset worker caches if state changed so they
-            # rebuild with fresh init data on their next task.
-            if state_changed and not pool_is_new:
-                _warm_worker_log("main: resetting worker caches")
-                list(
-                    pool.map(
-                        _warm_worker_receive_init,
-                        [data_bytes] * self.processes,
-                    )
-                )
-        else:
-            data_bytes = None
-            _warm_worker_log(
-                f"main: reusing pool + manifest, setup {t_manifest - t_start:.3f}s"
-            )
-
-        # Step 4: Materialize file list and apply LPT scheduling.
-        # Sort files by size descending so heavy files are dispatched
-        # first, reducing tail latency from work imbalance.
-        file_list = list(
-            templater.sequence_files(fnames, config=self.config, formatter=None)
-        )
-        file_list = self._lpt_sort_files(file_list)
-
-        if file_list:
-            _warm_worker_log(
-                f"main: dispatching {len(file_list)} files "
-                f"(largest={os.path.getsize(file_list[0])}B, "
-                f"smallest={os.path.getsize(file_list[-1])}B)"
-            )
-
-        # Step 5: Dispatch tasks with data_bytes. Workers unpickle
-        # data_bytes once on their first task (building the Linter
-        # cache) and skip it on subsequent tasks.
-        t_dispatch = time.perf_counter()
+        # Steps 4-6 are wrapped in try/except so that any failure
+        # (broadcast hang, worker crash, etc.) terminates the pool
+        # and cleans up shared memory, ensuring the next call starts
+        # fresh rather than reusing a broken pool.
         try:
-            task_iter = ((fname, fix, data_bytes) for fname in file_list)
+            # Step 4: Broadcast init data if config/manifest changed.
+            state_changed = not pool_is_new and (
+                getattr(templater, "_warm_pool_config", None) is not self.config
+                or self._get_manifest_id(templater) != templater._warm_pool_manifest_id
+            )
+            need_init_data = pool_is_new or state_changed
+
+            if need_init_data:
+                init_data = templater.get_worker_init_data(self.config)
+                data_bytes = pickle.dumps(init_data)
+                shm_size = len(data_bytes)
+
+                if shm_size > 50 * 1024 * 1024:
+                    linter_logger.warning(
+                        f"Large warm worker init data "
+                        f"({shm_size / 1024 / 1024:.1f} MB). "
+                        f"Each of {self.processes} workers will cache "
+                        f"this in memory."
+                    )
+
+                # Replace any existing shared memory block.
+                old_shm = templater._warm_shm
+                if old_shm is not None:
+                    try:
+                        old_shm.close()
+                        old_shm.unlink()
+                    except Exception:
+                        pass
+
+                shm = SharedMemory(create=True, size=shm_size)
+                assert shm.buf is not None
+                shm.buf[:shm_size] = data_bytes
+                templater._warm_shm = shm
+                templater._warm_shm_size = shm_size
+
+                templater._warm_pool_manifest_id = self._get_manifest_id(templater)
+                templater._warm_pool_config = self.config
+                _warm_worker_log(
+                    f"main: init data ({shm_size / 1024:.1f} KB) "
+                    f"written to shared memory '{shm.name}', "
+                    f"setup {t_manifest - t_start:.3f}s"
+                )
+
+                # Broadcast init data to all workers with a timeout
+                # so a hung worker doesn't block the main process
+                # forever. Workers are ready after this returns.
+                _warm_worker_log("main: broadcasting init data to all workers")
+                pool.map_async(
+                    _warm_worker_receive_init,
+                    [(shm.name, shm_size)] * self.processes,
+                ).get(timeout=60)
+            else:
+                _warm_worker_log(
+                    f"main: reusing pool + manifest, setup {t_manifest - t_start:.3f}s"
+                )
+
+            # Step 5: Materialize file list and apply LPT scheduling.
+            file_list = list(
+                templater.sequence_files(fnames, config=self.config, formatter=None)
+            )
+            file_list = self._lpt_sort_files(file_list)
+
+            if file_list:
+                _warm_worker_log(
+                    f"main: dispatching {len(file_list)} files "
+                    f"(largest={os.path.getsize(file_list[0])}B, "
+                    f"smallest={os.path.getsize(file_list[-1])}B)"
+                )
+
+            # Step 6: Dispatch tasks and collect results.
+            t_dispatch = time.perf_counter()
+            shm_ref = (
+                templater._warm_shm.name,
+                templater._warm_shm_size,
+            )
+            task_iter = ((fname, fix, shm_ref) for fname in file_list)
             yield from self._dispatch_and_collect(pool, task_iter, fix)
+
         except KeyboardInterrupt:  # pragma: no cover
             print("Received keyboard interrupt. Cleaning up and shutting down...")
-            pool.terminate()
-            pool.join()
-            templater._warm_pool = None
+            self._terminate_pool(templater)
+        except Exception:
+            # Terminate pool on any error so next call starts fresh.
+            self._terminate_pool(templater)
+            raise
         else:
             _warm_worker_log(
                 f"main: {len(file_list)} files completed in "
@@ -629,32 +683,40 @@ class WarmWorkerRunner(MultiProcessRunner):
     def _dispatch_and_collect(
         self,
         pool: multiprocessing.pool.Pool,
-        task_iter: Iterable[tuple[str, bool, Optional[bytes]]],
+        task_iter: Iterable[tuple[str, bool, tuple[str, int]]],
         fix: bool,
     ) -> Iterator[LintedFile]:
         """Send tasks to pool and yield results, handling errors."""
         for lint_result in pool.imap_unordered(
             func=_warm_worker_apply, iterable=task_iter
         ):
-            if isinstance(lint_result, DelayedException):
-                if isinstance(lint_result.ee, SQLFluffSkipFile):
-                    linter_logger.warning(str(lint_result.ee))
-                else:
-                    try:
-                        lint_result.reraise()
-                    except Exception as e:
-                        self._handle_lint_path_exception(lint_result.fname, e)
-            else:
-                if self.linter.formatter:
-                    self.linter.formatter.dispatch_file_violations(
-                        lint_result.path,
-                        lint_result,
-                        only_fixable=fix,
-                        warn_unused_ignores=self.linter.config.get(
-                            "warn_unused_ignores"
-                        ),
-                    )
-                yield lint_result
+            handled = self._handle_result(lint_result, fix)
+            if handled is not None:
+                yield handled
+
+    @staticmethod
+    def _terminate_pool(templater: Any) -> None:
+        """Terminate pool and shared memory, resetting templater state.
+
+        Called on any error to ensure the next lint_paths() call
+        starts with a fresh pool rather than reusing a broken one.
+        """
+        pool = getattr(templater, "_warm_pool", None)
+        if pool is not None:
+            try:
+                pool.terminate()
+                pool.join()
+            except Exception:
+                pass
+            templater._warm_pool = None
+        shm = getattr(templater, "_warm_shm", None)
+        if shm is not None:
+            try:
+                shm.close()
+                shm.unlink()
+            except Exception:
+                pass
+            templater._warm_shm = None
 
     @staticmethod
     def _lpt_sort_files(fnames: list[str]) -> list[str]:
