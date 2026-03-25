@@ -1,3 +1,4 @@
+#[cfg(feature = "verbose-debug")]
 use crate::vdebug;
 use sqlfluffrs_types::{GrammarId, GrammarVariant};
 use std::sync::Arc;
