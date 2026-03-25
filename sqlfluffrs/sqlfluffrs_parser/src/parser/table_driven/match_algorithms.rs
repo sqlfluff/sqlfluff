@@ -2,6 +2,7 @@ use sqlfluffrs_types::{GrammarId, GrammarVariant, Token};
 
 use crate::parser::{ParseError, Parser};
 
+#[cfg(feature = "verbose-debug")]
 use crate::vdebug;
 /// Module-level implementations of the table-driven match algorithms.
 ///
