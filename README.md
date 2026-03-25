@@ -176,7 +176,8 @@ find [more here](https://docs.sqlfluff.com/en/latest/perma/architecture.html).
 
 If you would like to contribute, check out the
 [open issues on GitHub](https://github.com/sqlfluff/sqlfluff/issues). You can also see
-the guide to [contributing](CONTRIBUTING.md).
+the guide to [contributing](CONTRIBUTING.md), including the pull request
+acceptance principles and AI-assisted contribution expectations.
 
 # Sponsors
 

@@ -8,7 +8,7 @@ is now packaged in the BaseRule class via the RuleMetaclass.
 
 from typing import TYPE_CHECKING, Any
 
-from sqlfluff.core.rules.base import rules_logger  # noqa
+from sqlfluff.core.rules.base import rules_logger
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.rules.base import BaseRule

@@ -53,7 +53,7 @@ FlinkSQL supports advanced features like:
 - Computed columns and metadata columns
 - Temporal table functions
 
-.. _`Flink SQL`: https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/  # noqa: E501
+.. _`Flink SQL`: https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/
 """,
 )
 
