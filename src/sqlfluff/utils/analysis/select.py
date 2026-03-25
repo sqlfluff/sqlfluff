@@ -210,8 +210,11 @@ def _get_unpivot_table_aliases(
     Handles:
     - Redshift ``object_unpivoting``: ``UNPIVOT x.json AS value AT key``
     - Redshift ``array_unnesting``: ``x.array AS value AT key``
-    - General ``from_unpivot_expression`` (Redshift, Snowflake, BigQuery, DuckDB):
-      ``UNPIVOT (value_col FOR key_col IN (...))``
+        - Redshift ``from_unpivot_expression``:
+            ``UNPIVOT (value_col FOR key_col IN (...))``
+        - Snowflake/BigQuery (single-column)/DuckDB (single-key)
+            ``from_unpivot_expression`` with the same
+            ``UNPIVOT (value_col FOR key_col IN (...))`` pattern
 
     The output aliases (value and key column names) are introduced by the
     UNPIVOT clause and are available as standalone references in the enclosing
@@ -237,7 +240,8 @@ def _get_unpivot_table_aliases(
                     unpivot_aliases.append(seg)
                 seen_keyword = False
 
-    # Handle from_unpivot_expression used in multiple dialects.
+    # Handle from_unpivot_expression used in Redshift, Snowflake,
+    # BigQuery single-column UNPIVOT, and DuckDB single-key UNPIVOT.
     # Pattern: UNPIVOT (value_col FOR key_col IN (...))
     # The value_col (before FOR) and key_col (between FOR and IN) are the output
     # column names introduced by the UNPIVOT and should be standalone aliases.
@@ -254,6 +258,7 @@ def _get_unpivot_table_aliases(
                     "dedent",
                     "start_bracket",
                     "end_bracket",
+                    "bracketed",
                     "keyword",
                     "comma",
                 ) and seg.raw not in [a.raw for a in unpivot_aliases]:
