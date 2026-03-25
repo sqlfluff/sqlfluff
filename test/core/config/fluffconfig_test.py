@@ -368,12 +368,12 @@ def test__process_inline_config():
     assert cfg.get("my_dict", section="jinja") == '[{"k":"v"}]'
 
 
-def test__process_inline_config__malformed_equals_syntax(caplog):
+def test__process_inline_config__malformed_equals_syntax():
     """Malformed inline config using `=` syntax should warn, not crash."""
     import logging
 
     cfg = FluffConfig(overrides={"dialect": "ansi"})
-    with caplog.at_level(logging.WARNING, logger="sqlfluff.config"):
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.config") as caplog:
         # Should not raise IndexError
         cfg.process_inline_config("-- sqlfluff:disable=AM04", "test.sql")
     assert "Malformed inline config" in caplog.text
