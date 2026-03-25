@@ -129,6 +129,27 @@ def test__templater_raw():
             ),
         ),
         (
+            # Test that colon params before PostgreSQL :: cast operator are
+            # correctly recognized. The :colname in :colname::text should match
+            # the full parameter name 'colname', not a truncated version.
+            # See: https://github.com/sqlfluff/sqlfluff/issues/7570
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE userid = :user_id AND city = :city_name::text
+            """,
+            "colon",
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE userid = 42 AND city = 'London'::text
+            """,
+            dict(
+                user_id="42",
+                city_name="'London'",
+            ),
+        ),
+        (
             """
             SELECT user_mail, city_id
             FROM users_data
@@ -357,6 +378,7 @@ def test__templater_raw():
         "colon_quoted",
         "colon_nospaces",
         "colon_nospaces_double_colon_ignored",
+        "colon_double_colon_cast",
         "question_mark",
         "numeric_colon",
         "pyformat",

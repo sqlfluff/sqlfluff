@@ -4,6 +4,7 @@
 //! including the main entry point for parsing with grammar.
 
 use crate::parser::match_result::{self, MatchedClass, SegmentKwargs};
+#[cfg(feature = "verbose-debug")]
 use crate::vdebug;
 use std::sync::Arc;
 

@@ -528,6 +528,42 @@ test_pass_snowflake_lambda_expression:
     core:
       dialect: snowflake
 
+test_pass_databricks_lambda_transform:
+  # Lambda parameters in higher-order functions should not be treated as
+  # table references in Databricks (multi-part struct access via lambda param).
+  # https://github.com/sqlfluff/sqlfluff/issues/7379
+  pass_str: |
+    WITH source_data AS (
+      SELECT
+        'test' AS id,
+        '[{"taskId": {"oid": "abc"}}]' AS json_array
+    )
+    SELECT
+      id,
+      transform(
+        from_json(json_array, 'array<struct<taskId:struct<oid:string>>>'),
+        item -> struct(item.taskId.oid AS task_id)
+      ) AS transformed
+    FROM source_data
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_databricks_lambda_filter:
+  # Another higher-order function pattern with lambda parameters.
+  # https://github.com/sqlfluff/sqlfluff/issues/7379
+  pass_str: |
+    SELECT
+      id,
+      filter(
+        array_col,
+        x -> x.nested_field.value > 0
+      ) AS filtered
+    FROM my_table
+  configs:
+    core:
+      dialect: databricks
+
 test_pass_tsql_collate_clause:
   # Collation references should not be treated as column references
   # and should not trigger RF03
@@ -538,3 +574,17 @@ test_pass_tsql_collate_clause:
   configs:
     core:
       dialect: tsql
+
+test_pass_placeholder_colon_double_colon_cast:
+  # Placeholder parameters followed by :: cast operator should not be treated
+  # as unqualified column references. See: https://github.com/sqlfluff/sqlfluff/issues/7570
+  pass_str: |
+    select mt.colname from mytable as mt
+    where mt.colname = :param::text
+  configs:
+    core:
+      templater: placeholder
+      dialect: postgres
+    templater:
+      placeholder:
+        param_style: colon

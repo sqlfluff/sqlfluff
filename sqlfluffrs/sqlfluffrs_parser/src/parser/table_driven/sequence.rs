@@ -1,7 +1,6 @@
-use crate::{
-    parser::{match_result::MatchedClass, MetaSegment},
-    vdebug,
-};
+use crate::parser::{match_result::MatchedClass, MetaSegment};
+#[cfg(feature = "verbose-debug")]
+use crate::vdebug;
 use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
