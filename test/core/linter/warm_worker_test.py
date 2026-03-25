@@ -5,6 +5,7 @@ import pickle
 import sys
 import types
 from multiprocessing.shared_memory import SharedMemory
+from typing import Optional
 
 import pytest
 
@@ -241,7 +242,7 @@ class TestWarmWorkerApply:
         runner._worker_linter_cache = None
 
     def _make_shm(
-        self, config: FluffConfig, extra: dict | None = None
+        self, config: FluffConfig, extra: Optional[dict] = None
     ) -> tuple[SharedMemory, tuple[str, int]]:
         """Create shared memory with pickled init data. Caller must close/unlink."""
         data: dict = {"root_config": config}
@@ -721,7 +722,7 @@ class TestEdgeCases:
         runner._worker_linter_cache = None
 
     def _make_shm(
-        self, config: FluffConfig, extra: dict | None = None
+        self, config: FluffConfig, extra: Optional[dict] = None
     ) -> tuple[SharedMemory, tuple[str, int]]:
         """Create shared memory with pickled init data. Caller must close/unlink."""
         data: dict = {"root_config": config}
