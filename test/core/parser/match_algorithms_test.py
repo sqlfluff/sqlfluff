@@ -91,7 +91,7 @@ def test__parser__algorithms__next_match(
     if winning_matcher:
         winning_matcher = matchers[matcher_keywords.index(winning_matcher)]
 
-    ctx = ParseContext(dialect=None)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     match, matcher = next_match(
         test_segments,
         0,
@@ -130,7 +130,7 @@ def test__parser__algorithms__resolve_bracket(
     end_bracket = StringParser(")", SymbolSegment, type="end_bracket")
     start_sq_bracket = StringParser("[", SymbolSegment, type="start_square_bracket")
     end_sq_bracket = StringParser("]", SymbolSegment, type="end_square_bracket")
-    ctx = ParseContext(dialect=None)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
 
     # For this test case we assert that the first segment is the initial match.
     first_match = start_bracket.match(test_segments, 0, ctx)
@@ -174,7 +174,7 @@ def test__parser__algorithms__next_ex_bracket_match(
     """Test the `next_ex_bracket_match()` method."""
     test_segments = generate_test_segments(raw_segments)
     target = StringParser(target_word, KeywordSegment)
-    ctx = ParseContext(dialect=test_dialect)
+    ctx = ParseContext(dialect=test_dialect, max_parse_depth=0)
 
     result, _, _ = next_ex_bracket_match(
         test_segments,
@@ -208,7 +208,7 @@ def test__parser__algorithms__greedy_match(
     """Test the `greedy_match()` method."""
     test_segments = generate_test_segments(raw_segments)
     matchers = [StringParser(word, KeywordSegment) for word in target_words]
-    ctx = ParseContext(dialect=test_dialect)
+    ctx = ParseContext(dialect=test_dialect, max_parse_depth=0)
 
     match = greedy_match(
         segments=test_segments,
@@ -245,7 +245,7 @@ def test__parser__algorithms__trim_to_terminator(
     """Test the `trim_to_terminator()` method."""
     test_segments = generate_test_segments(raw_segments)
     matchers = [StringParser(word, KeywordSegment) for word in target_words]
-    ctx = ParseContext(dialect=test_dialect)
+    ctx = ParseContext(dialect=test_dialect, max_parse_depth=0)
 
     assert (
         trim_to_terminator(

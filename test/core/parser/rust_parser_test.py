@@ -2,11 +2,59 @@
 
 import pytest
 
+from sqlfluff.core.errors import SQLFluffUserError
+
 try:
     from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER, RustParser
     from sqlfluffrs import RsParser
 except ImportError:
     _HAS_RUST_PARSER = False
+
+
+# ============================================================================
+# max_parse_depth edge-case tests (lines 94-97 of rust_parser.py)
+# ============================================================================
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__max_parse_depth_invalid_string_raises_config_error():
+    """Invalid string values for max_parse_depth are rejected by config validation."""
+    from sqlfluff.core import FluffConfig
+
+    with pytest.raises(SQLFluffUserError):
+        FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": "invalid"})
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__max_parse_depth_zero_disables_limit():
+    """RustParser with max_parse_depth=0 sets no depth limit.
+
+    A value of 0 means "unlimited depth";
+    simple SQL should still parse without errors.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 0})
+    parser = RustParser(config=config)
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+    result = parser.parse(segments, fname="test.sql")
+    assert result is not None
+    assert result.is_type("file")
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__max_parse_depth_negative_one_raises_config_error():
+    """RustParser config rejects negative max_parse_depth values.
+
+    Public configuration uses ``0`` as the only disable value so that Python
+    and Rust expose the same contract.
+    """
+    from sqlfluff.core import FluffConfig
+
+    with pytest.raises(SQLFluffUserError):
+        FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": -1})
 
 
 # ---------------------------------------------------------------------------
@@ -278,6 +326,8 @@ def test__rust_parser__parse_error_from_exception():
     assert "Couldn't find closing bracket" in str(error)
     # The error should have a segment associated with it
     assert error.segment is not None
+    assert error.line_no > 0
+    assert error.line_pos > 0
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
