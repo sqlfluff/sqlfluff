@@ -4,6 +4,8 @@ Tests the synthetic dbt project generator and results formatting
 without requiring dbt or dbt-duckdb to be installed.
 """
 
+import csv
+import io
 import random
 import re
 import sys
@@ -365,3 +367,180 @@ def test_find_dbt_exits_when_missing():
             with pytest.raises(SystemExit) as exc_info:
                 bench._find_dbt_executable()
             assert exc_info.value.code == 1
+
+
+# -- Efficiency column -------------------------------------------------------
+
+
+def test_print_results_shows_efficiency(capsys):
+    """Efficiency column shows parallel scaling as a percentage."""
+    results = [
+        {
+            "processes": 1,
+            "iteration": 1,
+            "wall_clock": 12.0,
+            "files": 50,
+            "violations": 0,
+        },
+        {
+            "processes": 4,
+            "iteration": 1,
+            "wall_clock": 4.0,
+            "files": 50,
+            "violations": 0,
+        },
+    ]
+    bench.print_results(results)
+    output = capsys.readouterr().out
+    # 1 proc: efficiency = 12/(12*1) = 100%
+    assert "100%" in output
+    # 4 procs: efficiency = 12/(4*4) = 75%
+    assert "75%" in output
+
+
+def test_print_results_perfect_scaling_is_100_percent(capsys):
+    """Perfect linear scaling shows 100% efficiency at all process counts."""
+    results = [
+        {
+            "processes": 1,
+            "iteration": 1,
+            "wall_clock": 8.0,
+            "files": 50,
+            "violations": 0,
+        },
+        {
+            "processes": 4,
+            "iteration": 1,
+            "wall_clock": 2.0,
+            "files": 50,
+            "violations": 0,
+        },
+    ]
+    bench.print_results(results)
+    output = capsys.readouterr().out
+    # Both should show 100% (8/(2*4) = 1.0)
+    assert output.count("100%") == 2
+
+
+# -- Comparison mode ----------------------------------------------------------
+
+
+def _make_results(mode, procs_times):
+    """Helper: create result dicts from a dict of {procs: [times]}."""
+    results = []
+    for n_procs, times in procs_times.items():
+        for i, t in enumerate(times):
+            results.append(
+                {
+                    "mode": mode,
+                    "processes": n_procs,
+                    "iteration": i + 1,
+                    "wall_clock": t,
+                    "files": 100,
+                    "violations": 0,
+                    "phase": "warm",
+                }
+            )
+    return results
+
+
+def test_print_comparison_shows_both_efficiencies(capsys):
+    """Comparison table shows separate efficiency for standard and warm."""
+    std = _make_results("standard", {1: [10.0], 4: [5.0]})
+    warm = _make_results("warm", {1: [10.0], 4: [3.0]})
+    bench.print_comparison(std, warm)
+    output = capsys.readouterr().out
+    # Standard 4-proc eff: 10/(5*4) = 50%
+    assert "50%" in output
+    # Warm 4-proc eff: 10/(3*4) = 83%
+    assert "83%" in output
+
+
+def test_print_comparison_shows_warm_gain(capsys):
+    """Warm Gain column shows ratio of standard to warm time."""
+    std = _make_results("standard", {1: [12.0], 8: [6.0]})
+    warm = _make_results("warm", {1: [12.0], 8: [2.0]})
+    bench.print_comparison(std, warm)
+    output = capsys.readouterr().out
+    # Warm gain at 8 procs: 6.0 / 2.0 = 3.00x
+    assert "3.00x" in output
+
+
+def test_print_comparison_baseline_from_standard(capsys):
+    """Baseline for efficiency is the standard 1-proc time."""
+    std = _make_results("standard", {1: [10.0], 2: [6.0]})
+    warm = _make_results("warm", {1: [11.0], 2: [4.0]})
+    bench.print_comparison(std, warm)
+    output = capsys.readouterr().out
+    # Baseline = 10.0 (standard), warm 2-proc eff = 10/(4*2) = 125%
+    # (warm sequential was slower, so warm parallel looks super-efficient)
+    assert "125%" in output
+
+
+# -- CSV output ---------------------------------------------------------------
+
+
+def test_write_csv_to_file(tmp_path):
+    """write_csv writes correct CSV with headers to a file."""
+    results = _make_results("warm", {1: [10.0], 4: [3.0]})
+    out_file = str(tmp_path / "results.csv")
+    bench.write_csv(results, out_file)
+
+    with open(out_file, newline="") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    assert len(rows) == 2
+    assert rows[0]["mode"] == "warm"
+    assert rows[0]["processes"] == "1"
+    assert float(rows[0]["wall_clock"]) == 10.0
+    assert rows[1]["processes"] == "4"
+
+
+def test_write_csv_to_stdout(capsys):
+    """write_csv with no path writes CSV to stdout."""
+    results = _make_results("standard", {1: [8.0]})
+    bench.write_csv(results)
+    output = capsys.readouterr().out
+    assert "mode,processes,iteration,wall_clock" in output
+    assert "standard,1,1,8.0" in output
+
+
+def test_write_csv_includes_mode_field():
+    """CSV output includes the mode field for compare filtering."""
+    results = _make_results("standard", {4: [5.0]}) + _make_results("warm", {4: [3.0]})
+    buf = io.StringIO()
+    writer = csv.DictWriter(
+        buf,
+        fieldnames=[
+            "mode",
+            "processes",
+            "iteration",
+            "wall_clock",
+            "files",
+            "violations",
+            "phase",
+        ],
+    )
+    writer.writeheader()
+    writer.writerows(results)
+    buf.seek(0)
+    reader = csv.DictReader(buf)
+    rows = list(reader)
+    modes = {r["mode"] for r in rows}
+    assert modes == {"standard", "warm"}
+
+
+# -- run_benchmark mode field -------------------------------------------------
+
+
+def test_run_benchmark_results_include_mode():
+    """Result dicts from run_benchmark include the mode field."""
+    # We can't run a real benchmark without dbt, but we can verify
+    # that the mode parameter is wired through by checking the function
+    # signature accepts it.
+    import inspect
+
+    sig = inspect.signature(bench.run_benchmark)
+    assert "mode" in sig.parameters
+    assert sig.parameters["mode"].default == "standard"

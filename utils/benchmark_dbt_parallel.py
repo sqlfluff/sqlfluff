@@ -12,6 +12,15 @@ Usage:
     # Full benchmark
     python utils/benchmark_dbt_parallel.py --models 200 --processes 1,2,4,8
 
+    # Compare standard vs warm worker pool performance
+    python utils/benchmark_dbt_parallel.py --models 200 --processes 1,4,8 --compare
+
+    # Test fix mode: inject violations, fix them, verify
+    python utils/benchmark_dbt_parallel.py --processes 1,8 --violation-pct 50 --fix
+
+    # Export results as CSV for regression tracking
+    python utils/benchmark_dbt_parallel.py --processes 1,4,8 --reuse-linter --csv results.csv
+
     # Reuse a previously generated project
     python utils/benchmark_dbt_parallel.py --project-dir /tmp/bench_dbt --no-clean
 
@@ -24,7 +33,9 @@ Requirements:
 """
 
 import argparse
+import csv
 import os
+import platform
 import random
 import shutil
 import statistics
@@ -219,12 +230,16 @@ def _ephemeral_model(idx: int, stg_count: int) -> str:
     """)
 
 
-def generate_dbt_project(target_dir: str, model_count: int = 200) -> Path:
+def generate_dbt_project(
+    target_dir: str, model_count: int = 200, violation_pct: int = 0
+) -> Path:
     """Generate a synthetic dbt project for benchmarking.
 
     Args:
         target_dir: Directory to create the project in.
         model_count: Total number of models to generate (minimum 4, one per tier).
+        violation_pct: Percentage of models to inject fixable violations into
+            (0-100). Violations are CP01 (lowercase keywords).
 
     Returns:
         Path to the project root.
@@ -297,11 +312,31 @@ def generate_dbt_project(target_dir: str, model_count: int = 200) -> Path:
         )
 
     total = n_staging + n_intermediate + n_marts + n_ephemeral
-    print(
+
+    # Inject fixable violations (CP01: lowercase keywords) into a
+    # percentage of models to simulate real-world fix workloads.
+    n_violations = 0
+    if violation_pct > 0:
+        all_models = sorted((project / "models").rglob("*.sql"))
+        n_to_break = max(1, int(len(all_models) * violation_pct / 100))
+        targets = random.sample(all_models, min(n_to_break, len(all_models)))
+        for model_path in targets:
+            content = model_path.read_text()
+            # Lowercase FROM/WHERE while keeping SELECT uppercase to
+            # create CP01 (inconsistent capitalisation) violations.
+            broken = content.replace("FROM", "from").replace("WHERE", "where")
+            if broken != content:
+                model_path.write_text(broken)
+                n_violations += 1
+
+    msg = (
         f"Generated {total} models: "
         f"{n_staging} staging, {n_intermediate} intermediate, "
         f"{n_marts} marts, {n_ephemeral} ephemeral"
     )
+    if n_violations:
+        msg += f" ({n_violations} with injected violations)"
+    print(msg)
     return project
 
 
@@ -353,6 +388,50 @@ def compile_dbt_project(project_dir: Path, profiles_dir: Path) -> None:
     print(f"dbt compile completed in {elapsed:.1f}s")
 
 
+def _get_peak_memory_mb() -> float:
+    """Get peak memory usage of the current process in MB."""
+    if platform.system() == "Windows":
+        import ctypes
+        from ctypes import wintypes
+
+        class _PMC(ctypes.Structure):
+            _fields_ = [
+                ("cb", wintypes.DWORD),
+                ("PageFaultCount", wintypes.DWORD),
+                ("PeakWorkingSetSize", ctypes.c_size_t),
+                ("WorkingSetSize", ctypes.c_size_t),
+                ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
+                ("QuotaPagedPoolUsage", ctypes.c_size_t),
+                ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+                ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+                ("PagefileUsage", ctypes.c_size_t),
+                ("PeakPagefileUsage", ctypes.c_size_t),
+            ]
+
+        pmc = _PMC()
+        pmc.cb = ctypes.sizeof(_PMC)
+        get_process = ctypes.windll.kernel32.GetCurrentProcess
+        get_process.restype = wintypes.HANDLE
+        k32_mem = ctypes.windll.kernel32.K32GetProcessMemoryInfo
+        k32_mem.argtypes = [
+            wintypes.HANDLE,
+            ctypes.POINTER(_PMC),
+            wintypes.DWORD,
+        ]
+        k32_mem.restype = wintypes.BOOL
+        if k32_mem(get_process(), ctypes.byref(pmc), pmc.cb):
+            return pmc.PeakWorkingSetSize / (1024 * 1024)
+        return 0.0
+    else:
+        import resource
+
+        # ru_maxrss is in KB on Linux, bytes on macOS
+        rusage = resource.getrusage(resource.RUSAGE_SELF)
+        if platform.system() == "Darwin":
+            return rusage.ru_maxrss / (1024 * 1024)
+        return rusage.ru_maxrss / 1024
+
+
 def run_benchmark(
     project_dir: Path,
     profiles_dir: Path,
@@ -360,6 +439,7 @@ def run_benchmark(
     iterations: int = 3,
     warmup: int = 1,
     reuse_linter: bool = False,
+    mode: str = "standard",
 ) -> list[dict]:
     """Run sqlfluff lint with different process counts and measure timings.
 
@@ -373,10 +453,11 @@ def run_benchmark(
             iterations for each process count. This enables persistent
             warm worker pools (workers stay alive with dbt imported and
             adapter registered). Measures steady-state performance.
+        mode: Label for the benchmark mode (e.g. "standard", "warm").
 
     Returns:
-        List of result dicts with keys: processes, iteration, wall_clock,
-        files, violations, phase.
+        List of result dicts with keys: mode, processes, iteration,
+        wall_clock, files, violations, phase.
     """
     models_dir = str(project_dir / "models")
     results = []
@@ -433,9 +514,11 @@ def run_benchmark(
             result = linter.lint_paths(
                 (models_dir,),
                 processes=n_procs,
-                retain_files=False,
+                # retain_files=True so num_violations() works correctly.
+                retain_files=True,
             )
             wall_clock = time.perf_counter() - t0
+            peak_mem = _get_peak_memory_mb()
 
             n_files = sum(p.stats()["files"] for p in result.paths)
             n_violations = result.num_violations()
@@ -445,22 +528,24 @@ def run_benchmark(
             if is_warmup:
                 print(
                     f"  {label}: {wall_clock:.1f}s "
-                    f"({n_files} files, {n_violations} violations) "
-                    f"[{phase}, discarded]"
+                    f"({n_files} files, {n_violations} violations, "
+                    f"{peak_mem:.0f}MB) [{phase}, discarded]"
                 )
             else:
                 print(
                     f"  {label}: {wall_clock:.1f}s "
-                    f"({n_files} files, {n_violations} violations) "
-                    f"[{phase}]"
+                    f"({n_files} files, {n_violations} violations, "
+                    f"{peak_mem:.0f}MB) [{phase}]"
                 )
                 results.append(
                     {
+                        "mode": mode,
                         "processes": n_procs,
                         "iteration": i - warmup + 1,
                         "wall_clock": wall_clock,
                         "files": n_files,
                         "violations": n_violations,
+                        "peak_memory_mb": round(peak_mem, 1),
                         "phase": phase,
                     }
                 )
@@ -468,21 +553,129 @@ def run_benchmark(
     return results
 
 
+def run_fix_benchmark(
+    project_dir: Path,
+    profiles_dir: Path,
+    process_counts: list[int],
+    reuse_linter: bool = False,
+) -> None:
+    """Run sqlfluff fix, then verify by re-linting.
+
+    For each process count: fix all files, then re-lint to confirm
+    violations are resolved. Restores original files between iterations.
+    """
+    models_dir = project_dir / "models"
+
+    # Save original file contents for restoration after each fix.
+    originals: dict[Path, str] = {}
+    for sql_file in models_dir.rglob("*.sql"):
+        originals[sql_file] = sql_file.read_text()
+
+    def _restore() -> None:
+        for path, content in originals.items():
+            path.write_text(content)
+
+    for n_procs in process_counts:
+        mode_label = "persistent pool" if reuse_linter and n_procs > 1 else "standard"
+        print(f"\n--- Fix mode with --processes {n_procs} ({mode_label}) ---")
+
+        config = FluffConfig(
+            overrides={"templater": "dbt", "dialect": "duckdb"},
+            configs={
+                "templater": {
+                    "dbt": {
+                        "project_dir": str(project_dir),
+                        "profiles_dir": str(profiles_dir),
+                    }
+                }
+            },
+        )
+        linter = Linter(config=config)
+
+        # Restore originals before fixing.
+        _restore()
+
+        # Step 1: Lint to count violations before fixing.
+        pre_result = linter.lint_paths(
+            (str(models_dir),), processes=n_procs, retain_files=True
+        )
+        violations_before = pre_result.num_violations()
+        fixable = pre_result.num_violations(fixable=True)
+        print(f"  pre-fix:  {violations_before} violations ({fixable} fixable)")
+
+        # Step 2: Fix in a loop until no violations remain or no
+        # progress is made. Each pass may resolve cascading violations.
+        _restore()
+        max_passes = 10
+        total_fix_time = 0.0
+        pass_num = 0
+        remaining = violations_before
+
+        for pass_num in range(1, max_passes + 1):
+            fix_linter = Linter(config=config)
+            t0 = time.perf_counter()
+            fix_result = fix_linter.lint_paths(
+                (str(models_dir),),
+                processes=n_procs,
+                fix=True,
+                apply_fixes=True,
+                retain_files=True,
+            )
+            pass_time = time.perf_counter() - t0
+            total_fix_time += pass_time
+            fixed_count = fix_result.num_violations(fixable=True)
+
+            # Re-lint to count remaining violations.
+            verify_linter = Linter(config=config)
+            verify_result = verify_linter.lint_paths(
+                (str(models_dir),), processes=n_procs, retain_files=True
+            )
+            new_remaining = verify_result.num_violations()
+
+            print(
+                f"  pass {pass_num}:   {pass_time:.1f}s "
+                f"({fixed_count} fixed, {new_remaining} remaining)"
+            )
+
+            if new_remaining == 0:
+                remaining = 0
+                break
+            if new_remaining >= remaining:
+                # No progress — remaining violations are unfixable.
+                remaining = new_remaining
+                break
+            remaining = new_remaining
+
+        resolved = violations_before - remaining
+        print(
+            f"  total:    {total_fix_time:.1f}s over {pass_num} passes, "
+            f"{resolved}/{violations_before} resolved"
+        )
+        if remaining == 0:
+            print("  result:   PASS — all violations resolved")
+        else:
+            print(f"  result:   {remaining} unfixable violations remain")
+
+    # Restore originals at the end.
+    _restore()
+
+
 def print_results(results: list[dict]) -> None:
-    """Print a summary table of benchmark results."""
+    """Print a summary table of benchmark results with efficiency stats."""
     by_procs: dict[int, list[float]] = {}
     for r in results:
         by_procs.setdefault(r["processes"], []).append(r["wall_clock"])
 
-    print("\n" + "=" * 65)
+    print("\n" + "=" * 78)
     print("  dbt Parallel Templating Benchmark Results")
-    print("=" * 65)
+    print("=" * 78)
 
     baseline: Optional[float] = None
     print(
-        f"\n{'Processes':>10} | {'Mean (s)':>10} | {'Std (s)':>10} | {'Min (s)':>10} | {'Speedup':>8}"
+        f"\n{'Processes':>10} | {'Mean (s)':>10} | {'Std (s)':>10} | "
+        f"{'Min (s)':>10} | {'Speedup':>8} | {'Efficiency':>10}"
     )
-    print("-" * 65)
+    print("-" * 78)
 
     for n_procs in sorted(by_procs.keys()):
         times = by_procs[n_procs]
@@ -494,8 +687,10 @@ def print_results(results: list[dict]) -> None:
             baseline = mean_t
 
         speedup = baseline / mean_t if mean_t > 0 else 0
+        efficiency = (baseline / (mean_t * n_procs)) * 100 if mean_t > 0 else 0
         print(
-            f"{n_procs:>10} | {mean_t:>10.1f} | {std_t:>10.2f} | {min_t:>10.1f} | {speedup:>7.2f}x"
+            f"{n_procs:>10} | {mean_t:>10.1f} | {std_t:>10.2f} | "
+            f"{min_t:>10.1f} | {speedup:>7.2f}x | {efficiency:>9.0f}%"
         )
 
     print()
@@ -507,6 +702,97 @@ def print_results(results: list[dict]) -> None:
             f"(theoretical max: {max_procs:.1f}x)"
         )
     print()
+
+
+def print_comparison(standard_results: list[dict], warm_results: list[dict]) -> None:
+    """Print a side-by-side comparison of standard vs warm worker results."""
+    std_by_procs: dict[int, list[float]] = {}
+    for r in standard_results:
+        std_by_procs.setdefault(r["processes"], []).append(r["wall_clock"])
+
+    warm_by_procs: dict[int, list[float]] = {}
+    for r in warm_results:
+        warm_by_procs.setdefault(r["processes"], []).append(r["wall_clock"])
+
+    all_procs = sorted(set(std_by_procs) | set(warm_by_procs))
+
+    # Baseline from sequential run (either mode).
+    baseline: Optional[float] = None
+    for n in all_procs:
+        if n == 1:
+            times = std_by_procs.get(n) or warm_by_procs.get(n, [])
+            if times:
+                baseline = statistics.mean(times)
+            break
+
+    print("\n" + "=" * 85)
+    print("  Comparison: Standard vs Persistent Warm Pool")
+    print("=" * 85)
+    print(
+        f"\n{'Processes':>10} | {'Standard (s)':>12} | {'Std Eff':>8} | "
+        f"{'Warm (s)':>12} | {'Warm Eff':>9} | {'Warm Gain':>10}"
+    )
+    print("-" * 85)
+
+    for n_procs in all_procs:
+        std_mean = (
+            statistics.mean(std_by_procs[n_procs]) if n_procs in std_by_procs else None
+        )
+        warm_mean = (
+            statistics.mean(warm_by_procs[n_procs])
+            if n_procs in warm_by_procs
+            else None
+        )
+
+        std_str = f"{std_mean:>12.1f}" if std_mean else f"{'—':>12}"
+        warm_str = f"{warm_mean:>12.1f}" if warm_mean else f"{'—':>12}"
+
+        if baseline and std_mean:
+            std_eff_str = f"{(baseline / (std_mean * n_procs)) * 100:>8.0f}%"
+        else:
+            std_eff_str = f"{'—':>9}"
+
+        if baseline and warm_mean:
+            warm_eff_str = f"{(baseline / (warm_mean * n_procs)) * 100:>8.0f}%"
+        else:
+            warm_eff_str = f"{'—':>9}"
+
+        if std_mean and warm_mean:
+            gain_str = f"{std_mean / warm_mean:>9.2f}x"
+        else:
+            gain_str = f"{'—':>10}"
+
+        print(
+            f"{n_procs:>10} | {std_str} | {std_eff_str} | "
+            f"{warm_str} | {warm_eff_str} | {gain_str}"
+        )
+
+    print()
+
+
+def write_csv(results: list[dict], output_path: Optional[str] = None) -> None:
+    """Write benchmark results to CSV (file or stdout)."""
+    fieldnames = [
+        "mode",
+        "processes",
+        "iteration",
+        "wall_clock",
+        "files",
+        "violations",
+        "peak_memory_mb",
+        "phase",
+    ]
+
+    if output_path:
+        with open(output_path, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(results)
+        print(f"\nCSV results written to {output_path}")
+    else:
+        writer = csv.DictWriter(sys.stdout, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
 
 
 def main():
@@ -573,6 +859,37 @@ def main():
         "worker pools). Measures steady-state performance with amortized "
         "pool initialization.",
     )
+    parser.add_argument(
+        "--violation-pct",
+        type=int,
+        default=0,
+        metavar="PCT",
+        help="Percentage of models to inject fixable violations into "
+        "(0-100, default: 0). Useful for benchmarking --fix mode.",
+    )
+    parser.add_argument(
+        "--fix",
+        action="store_true",
+        help="Run fix mode: apply fixes then re-lint to verify. "
+        "Original files are restored after each run. "
+        "Best used with --violation-pct to inject fixable violations.",
+    )
+    parser.add_argument(
+        "--compare",
+        action="store_true",
+        help="Run both standard and warm worker modes and show a side-by-side "
+        "comparison with warm gain and efficiency metrics.",
+    )
+    parser.add_argument(
+        "--csv",
+        type=str,
+        nargs="?",
+        const="-",
+        default=None,
+        metavar="FILE",
+        help="Output results as CSV. Writes to FILE if given, stdout if "
+        "flag used without a path.",
+    )
     args = parser.parse_args()
 
     process_counts = [int(x.strip()) for x in args.processes.split(",")]
@@ -613,7 +930,11 @@ def main():
     try:
         # Generate project
         if not args.skip_generate:
-            generate_dbt_project(str(project_dir), model_count=args.models)
+            generate_dbt_project(
+                str(project_dir),
+                model_count=args.models,
+                violation_pct=args.violation_pct,
+            )
 
         if args.profiles_dir:
             profiles_dir = Path(args.profiles_dir)
@@ -631,17 +952,56 @@ def main():
             compile_dbt_project(project_dir, profiles_dir)
 
         # Run benchmarks
-        results = run_benchmark(
-            project_dir=project_dir,
-            profiles_dir=profiles_dir,
-            process_counts=process_counts,
-            iterations=args.iterations,
-            warmup=args.warmup,
-            reuse_linter=args.reuse_linter,
-        )
+        if args.fix:
+            run_fix_benchmark(
+                project_dir=project_dir,
+                profiles_dir=profiles_dir,
+                process_counts=process_counts,
+                reuse_linter=args.reuse_linter,
+            )
+            all_results = []
+        elif args.compare:
+            print("\n*** Running standard mode (no persistent pool) ***")
+            standard_results = run_benchmark(
+                project_dir=project_dir,
+                profiles_dir=profiles_dir,
+                process_counts=process_counts,
+                iterations=args.iterations,
+                warmup=args.warmup,
+                reuse_linter=False,
+                mode="standard",
+            )
 
-        # Print results
-        print_results(results)
+            print("\n*** Running warm worker mode (persistent pool) ***")
+            warm_results = run_benchmark(
+                project_dir=project_dir,
+                profiles_dir=profiles_dir,
+                process_counts=process_counts,
+                iterations=args.iterations,
+                warmup=args.warmup,
+                reuse_linter=True,
+                mode="warm",
+            )
+
+            print_comparison(standard_results, warm_results)
+            all_results = standard_results + warm_results
+        else:
+            mode = "warm" if args.reuse_linter else "standard"
+            all_results = run_benchmark(
+                project_dir=project_dir,
+                profiles_dir=profiles_dir,
+                process_counts=process_counts,
+                iterations=args.iterations,
+                warmup=args.warmup,
+                reuse_linter=args.reuse_linter,
+                mode=mode,
+            )
+            print_results(all_results)
+
+        # CSV output
+        if args.csv is not None:
+            csv_path = None if args.csv == "-" else args.csv
+            write_csv(all_results, csv_path)
 
     finally:
         if tmpdir and not args.no_clean:
