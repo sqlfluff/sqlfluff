@@ -370,8 +370,6 @@ def test__process_inline_config():
 
 def test__process_inline_config__malformed_equals_syntax():
     """Malformed inline config using `=` syntax should warn, not crash."""
-    import logging
-
     cfg = FluffConfig(overrides={"dialect": "ansi"})
     with fluff_log_catcher(logging.WARNING, "sqlfluff.config") as caplog:
         # Should not raise IndexError
