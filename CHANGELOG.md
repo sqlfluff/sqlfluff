@@ -14,9 +14,24 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+This minor release expands SQLFluff in four meaningful ways: recursion protection, more
+complete Rust-backed execution, broader dialect support, and better performance on large
+templated projects.
+
+* Security improvements which protect against resource exhaustion through malicious queries
+  by limiting recursion within the parser. Users can configure the new `max_parse_depth`
+  config setting to enable deeper parsing in their project if necessary.
+* Rust support moves forward again, with Python now able to call Rust apply logic, full lazy
+  evaluation in the Rust parser, and more parallel and streaming work in the lint/fix pipeline.
+* Oracle and T-SQL both received major grammar expansions, alongside important new support across
+  ClickHouse, DuckDB, Databricks, Trino, Hive/SparkSQL, BigQuery, Snowflake, PostgreSQL, and others.
+* The dbt templater now includes support for the dbt return builtin, improved thread handling
+  from profiles, and fixes for several Jinja edge cases.
+* Users also gain more indentation configuration flexibility, plus a wide set of rule and parser
+  correctness fixes. Specifically the ability to skip enforcement of implicit indentation in specific
+  dialect elemments.
+
+Also, welcome to the **nineteen** new contributors! Thanks for your contributions! 🏆
 
 ## What’s Changed
 
