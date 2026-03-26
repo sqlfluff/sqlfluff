@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c63d6115908fa4bd74480b6128d074b108b4f12d261c89c837fe9030a1d77ab0
+_hash: df7dc2a23bdd6d075f7e6b5e7898bf151ee7c9babbc8c3b6d37acadb03b68a60
 file:
 - batch:
     statement:
@@ -188,10 +188,11 @@ file:
         - naked_identifier: HumanResources
         - dot: .
         - naked_identifier: EmployeePayHistory
-      - keyword: WHERE
-      - keyword: CURRENT
-      - keyword: OF
-      - naked_identifier: complex_cursor
+      - where_current_of_cursor_segment:
+        - keyword: WHERE
+        - keyword: CURRENT
+        - keyword: OF
+        - naked_identifier: complex_cursor
   - statement_terminator: ;
   - statement:
       close_cursor_statement:

@@ -337,3 +337,463 @@ test_oracle_nested_indentation_scenarios:
   configs:
     core:
       dialect: oracle
+
+# Test cases for exception block indentation scenarios
+test_fail_oracle_exception_block_basic:
+  # Test basic exception block indentation
+  fail_str: |
+    DECLARE
+    v_dividend NUMBER := 10;
+    v_divisor NUMBER := 0;
+    v_result NUMBER;
+    BEGIN
+    v_result := v_dividend / v_divisor;
+    DBMS_OUTPUT.PUT_LINE('Result: ' || v_result);
+    EXCEPTION
+    WHEN ZERO_DIVIDE THEN
+    DBMS_OUTPUT.PUT_LINE('Error: Division by zero!');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Unexpected error: ' || SQLERRM);
+    END;
+  fix_str: |
+    DECLARE
+        v_dividend NUMBER := 10;
+        v_divisor NUMBER := 0;
+        v_result NUMBER;
+    BEGIN
+        v_result := v_dividend / v_divisor;
+        DBMS_OUTPUT.PUT_LINE('Result: ' || v_result);
+        EXCEPTION
+            WHEN ZERO_DIVIDE THEN
+                DBMS_OUTPUT.PUT_LINE('Error: Division by zero!');
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Unexpected error: ' || SQLERRM);
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_exception_block_simple:
+  # Test simple exception block without DECLARE
+  fail_str: |
+    BEGIN
+    SELECT 1 FROM dual;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Error');
+    END;
+  fix_str: |
+    BEGIN
+        SELECT 1 FROM dual;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                DBMS_OUTPUT.PUT_LINE('No data');
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Error');
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_exception_block_nested:
+  # Test nested exception blocks
+  fail_str: |
+    DECLARE
+    v_value NUMBER;
+    BEGIN
+    BEGIN
+    v_value := 1;
+    EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Inner exception');
+    END;
+    EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Outer exception');
+    END;
+  fix_str: |
+    DECLARE
+        v_value NUMBER;
+    BEGIN
+        BEGIN
+            v_value := 1;
+            EXCEPTION
+                WHEN OTHERS THEN
+                    DBMS_OUTPUT.PUT_LINE('Inner exception');
+        END;
+        EXCEPTION
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Outer exception');
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_exception_block_multiple_handlers:
+  # Test exception block with multiple handlers
+  fail_str: |
+    BEGIN
+    NULL;
+    EXCEPTION
+    WHEN ZERO_DIVIDE THEN
+    DBMS_OUTPUT.PUT_LINE('Division by zero');
+    WHEN INVALID_NUMBER THEN
+    DBMS_OUTPUT.PUT_LINE('Invalid number');
+    WHEN VALUE_ERROR THEN
+    DBMS_OUTPUT.PUT_LINE('Value error');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Other error');
+    END;
+  fix_str: |
+    BEGIN
+        NULL;
+        EXCEPTION
+            WHEN ZERO_DIVIDE THEN
+                DBMS_OUTPUT.PUT_LINE('Division by zero');
+            WHEN INVALID_NUMBER THEN
+                DBMS_OUTPUT.PUT_LINE('Invalid number');
+            WHEN VALUE_ERROR THEN
+                DBMS_OUTPUT.PUT_LINE('Value error');
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Other error');
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_exception_block_proper_indentation:
+  # Test properly indented exception block
+  pass_str: |
+    BEGIN
+        v_result := v_dividend / v_divisor;
+        DBMS_OUTPUT.PUT_LINE('Result: ' || v_result);
+        EXCEPTION
+            WHEN ZERO_DIVIDE THEN
+                DBMS_OUTPUT.PUT_LINE('Error: Division by zero!');
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Unexpected error: ' || SQLERRM);
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+# Test cases for TABLESPACE / STORAGE clause indentation
+test_fail_oracle_storage_clause_missing_indentation:
+  # STORAGE clause contents must be indented inside the parentheses
+  fail_str: |
+    CREATE TABLE s1.t_storage (
+        id NUMBER(10) NOT NULL
+    )
+    TABLESPACE data_ts
+    STORAGE (
+    INITIAL 655K
+    NEXT 655K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    BUFFER_POOL DEFAULT
+    )
+    LOGGING;
+  fix_str: |
+    CREATE TABLE s1.t_storage (
+        id NUMBER(10) NOT NULL
+    )
+    TABLESPACE data_ts
+    STORAGE (
+        INITIAL 655K
+        NEXT 655K
+        MINEXTENTS 1
+        MAXEXTENTS UNLIMITED
+        BUFFER_POOL DEFAULT
+    )
+    LOGGING;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_storage_clause_indentation:
+  # Correctly indented STORAGE clause passes LT02
+  pass_str: |
+    CREATE TABLE s1.t_storage (
+        id NUMBER(10) NOT NULL
+    )
+    TABLESPACE data_ts
+    STORAGE (
+        INITIAL 655K
+        NEXT 655K
+        MINEXTENTS 1
+        MAXEXTENTS UNLIMITED
+        PCTINCREASE 0
+        FREELISTS 1
+        FREELIST GROUPS 1
+        BUFFER_POOL DEFAULT
+    )
+    LOGGING
+    NOPARALLEL;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_create_index_storage_clause_indentation:
+  # STORAGE clause contents inside CREATE INDEX must be indented
+  fail_str: |
+    CREATE INDEX s1.t_full_idx ON s1.t (col1, col2)
+    TABLESPACE idx_ts
+    NOLOGGING
+    PCTFREE 10
+    INITRANS 2
+    MAXTRANS 255
+    STORAGE (
+    INITIAL 655K
+    NEXT 655K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    BUFFER_POOL DEFAULT
+    )
+    PARALLEL 8
+    NOCOMPRESS
+    VISIBLE;
+  fix_str: |
+    CREATE INDEX s1.t_full_idx ON s1.t (col1, col2)
+    TABLESPACE idx_ts
+    NOLOGGING
+    PCTFREE 10
+    INITRANS 2
+    MAXTRANS 255
+    STORAGE (
+        INITIAL 655K
+        NEXT 655K
+        MINEXTENTS 1
+        MAXEXTENTS UNLIMITED
+        BUFFER_POOL DEFAULT
+    )
+    PARALLEL 8
+    NOCOMPRESS
+    VISIBLE;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_create_index_storage_clause_indentation:
+  # Correctly indented STORAGE clause in CREATE INDEX passes LT02
+  pass_str: |
+    CREATE UNIQUE INDEX s1.filter_instkeytype_idx
+    ON s1.filter (institution_id, filterkey, filtertype_id)
+    PCTFREE 10
+    INITRANS 2
+    MAXTRANS 255
+    TABLESPACE idx_ts
+    STORAGE (
+        INITIAL 140K
+        NEXT 360K
+        MINEXTENTS 1
+        MAXEXTENTS UNLIMITED
+        PCTINCREASE 50
+        FREELISTS 1
+        FREELIST GROUPS 1
+        BUFFER_POOL DEFAULT
+    )
+    NOLOGGING
+    PARALLEL 4;
+  configs:
+    core:
+      dialect: oracle
+
+# Test cases for USING INDEX inline CREATE INDEX indentation
+test_fail_oracle_using_index_inline_wrong_indent:
+  # USING INDEX clause and its bracketed inline CREATE INDEX must be
+  # indented at the same level as the enclosing CONSTRAINT keyword.
+  fail_str: |
+    CREATE TABLE t_pk_inline (
+        id NUMBER,
+        CONSTRAINT pk_t_pk_inline PRIMARY KEY (id)
+    USING INDEX (CREATE INDEX pk_t_pk_inline_i ON t_pk_inline (id))
+    );
+  fix_str: |
+    CREATE TABLE t_pk_inline (
+        id NUMBER,
+        CONSTRAINT pk_t_pk_inline PRIMARY KEY (id)
+        USING INDEX (CREATE INDEX pk_t_pk_inline_i ON t_pk_inline (id))
+    );
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_using_index_inline_basic:
+  # Single-line inline CREATE INDEX correctly indented inside PRIMARY KEY.
+  pass_str: |
+    CREATE TABLE t_pk_inline (
+        id NUMBER,
+        CONSTRAINT pk_t_pk_inline PRIMARY KEY (id)
+        USING INDEX (CREATE INDEX pk_t_pk_inline_i ON t_pk_inline (id))
+    );
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_using_index_inline_unique:
+  # Single-line inline CREATE UNIQUE INDEX for a UNIQUE constraint.
+  pass_str: |
+    CREATE TABLE t_uq_inline (
+        code VARCHAR2(10),
+        CONSTRAINT uq UNIQUE (code)
+        USING INDEX (CREATE UNIQUE INDEX uq_i ON t_uq_inline (code))
+    );
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_using_index_inline_multiline_wrong_indent:
+  # Inline CREATE INDEX spanning multiple lines: the body inside the
+  # outer parentheses must be indented deeper.
+  fail_str: |
+    CREATE TABLE t_pk_inline_multi (
+        id NUMBER,
+        CONSTRAINT pk PRIMARY KEY (id)
+        USING INDEX (
+    CREATE INDEX pk_i ON t_pk_inline_multi (id)
+    TABLESPACE idx_ts
+    NOLOGGING
+        )
+    );
+  fix_str: |
+    CREATE TABLE t_pk_inline_multi (
+        id NUMBER,
+        CONSTRAINT pk PRIMARY KEY (id)
+        USING INDEX (
+            CREATE INDEX pk_i ON t_pk_inline_multi (id)
+            TABLESPACE idx_ts
+            NOLOGGING
+        )
+    );
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_using_index_inline_multiline:
+  # Correctly-indented multi-line inline CREATE INDEX passes LT02.
+  pass_str: |
+    CREATE TABLE t_pk_inline_multi (
+        id NUMBER,
+        CONSTRAINT pk PRIMARY KEY (id)
+        USING INDEX (
+            CREATE INDEX pk_i ON t_pk_inline_multi (id)
+            TABLESPACE idx_ts
+            PCTFREE 10
+            NOLOGGING
+        )
+    );
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_using_index_inline_storage_wrong_indent:
+  # STORAGE inside the inline CREATE INDEX must be indented inside its
+  # own parentheses.
+  fail_str: |
+    CREATE TABLE t_pk_inline_storage (
+        id NUMBER,
+        CONSTRAINT pk PRIMARY KEY (id)
+        USING INDEX (
+            CREATE INDEX pk_i ON t_pk_inline_storage (id)
+            TABLESPACE idx_ts
+            STORAGE (
+    INITIAL 256K
+    NEXT 256K
+    MAXEXTENTS UNLIMITED
+    BUFFER_POOL DEFAULT
+            )
+            NOLOGGING
+        )
+    );
+  fix_str: |
+    CREATE TABLE t_pk_inline_storage (
+        id NUMBER,
+        CONSTRAINT pk PRIMARY KEY (id)
+        USING INDEX (
+            CREATE INDEX pk_i ON t_pk_inline_storage (id)
+            TABLESPACE idx_ts
+            STORAGE (
+                INITIAL 256K
+                NEXT 256K
+                MAXEXTENTS UNLIMITED
+                BUFFER_POOL DEFAULT
+            )
+            NOLOGGING
+        )
+    );
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_using_index_inline_storage:
+  # Correctly-indented STORAGE clause inside inline CREATE INDEX passes LT02.
+  pass_str: |
+    CREATE TABLE t_pk_inline_storage (
+        id NUMBER,
+        CONSTRAINT pk PRIMARY KEY (id)
+        USING INDEX (
+            CREATE INDEX pk_i ON t_pk_inline_storage (id)
+            TABLESPACE idx_ts
+            STORAGE (
+                INITIAL 256K
+                NEXT 256K
+                MAXEXTENTS UNLIMITED
+                BUFFER_POOL DEFAULT
+            )
+            NOLOGGING
+        )
+    );
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_using_index_inline_multi_constraint_wrong_indent:
+  # Table with multiple constraints: each USING INDEX clause (whether a
+  # named index or inline CREATE INDEX) must sit at the constraint indent level.
+  fail_str: |
+    CREATE TABLE t_multi_constraints (
+        id NUMBER,
+        code VARCHAR2(10),
+    CONSTRAINT pk PRIMARY KEY (id)
+        USING INDEX (
+    CREATE INDEX pk_i ON t_multi_constraints (id)
+    TABLESPACE idx_ts
+        ),
+        CONSTRAINT uq UNIQUE (code)
+    USING INDEX uq_idx
+    );
+  fix_str: |
+    CREATE TABLE t_multi_constraints (
+        id NUMBER,
+        code VARCHAR2(10),
+        CONSTRAINT pk PRIMARY KEY (id)
+        USING INDEX (
+            CREATE INDEX pk_i ON t_multi_constraints (id)
+            TABLESPACE idx_ts
+        ),
+        CONSTRAINT uq UNIQUE (code)
+        USING INDEX uq_idx
+    );
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_using_index_inline_multi_constraint:
+  # Multiple constraints with mixed USING INDEX forms, all correctly indented.
+  pass_str: |
+    CREATE TABLE t_multi_constraints (
+        id NUMBER,
+        code VARCHAR2(10),
+        CONSTRAINT pk PRIMARY KEY (id)
+        USING INDEX (
+            CREATE INDEX pk_i ON t_multi_constraints (id)
+            TABLESPACE idx_ts
+        ),
+        CONSTRAINT uq UNIQUE (code)
+        USING INDEX uq_idx
+    );
+  configs:
+    core:
+      dialect: oracle

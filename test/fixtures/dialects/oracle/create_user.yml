@@ -3,186 +3,332 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e21710c455a5d1e432b5e7bdbd8a81f8e133fd2117cea4dd4e9878fefd8af294
+_hash: 19fc0ec600a320bb50986206b6aed485b9039b6a8c15654aed1148eaf312e15f
 file:
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        naked_identifier: jsmith
-    - keyword: IDENTIFIED
-    - keyword: EXTERNALLY
-    - keyword: AS
-    - quoted_identifier: '"CN=foo,DNQ=123,SERIAL=234"'
-- statement_terminator: ;
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        naked_identifier: tjones
-    - keyword: IDENTIFIED
-    - keyword: EXTERNALLY
-    - keyword: AS
-    - quoted_identifier: '"CN=foo,dnQualifier=123,SERIALNUMER=234"'
-- statement_terminator: ;
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        naked_identifier: peter_fitch
-    - keyword: IDENTIFIED
-    - keyword: GLOBALLY
-    - keyword: AS
-    - quoted_identifier: "'AZURE_USER=peter.fitch@example.com'"
-- statement_terminator: ;
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        naked_identifier: dba_azure
-    - keyword: IDENTIFIED
-    - keyword: GLOBALLY
-    - keyword: AS
-    - quoted_identifier: "'AZURE_ROLE=AZURE_DBA'"
-- statement_terminator: ;
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        naked_identifier: u1
-    - keyword: IDENTIFIED
-    - keyword: BY
-    - naked_identifier: p1
-    - keyword: PROFILE
-    - object_reference:
-        naked_identifier: prof1
-- statement_terminator: ;
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        naked_identifier: sidney
-    - keyword: IDENTIFIED
-    - keyword: BY
-    - naked_identifier: out_standing1
-    - keyword: DEFAULT
-    - keyword: TABLESPACE
-    - object_reference:
-        naked_identifier: example
-    - keyword: QUOTA
-    - numeric_literal: '10'
-    - size_prefix: M
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: example
-    - keyword: TEMPORARY
-    - keyword: TABLESPACE
-    - object_reference:
-        naked_identifier: temp
-    - keyword: QUOTA
-    - numeric_literal: '5'
-    - size_prefix: M
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: system
-    - keyword: PROFILE
-    - object_reference:
-        naked_identifier: app_user
-    - keyword: PASSWORD
-    - keyword: EXPIRE
-- statement_terminator: ;
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        naked_identifier: app_user1
-    - keyword: IDENTIFIED
-    - keyword: EXTERNALLY
-    - keyword: DEFAULT
-    - keyword: TABLESPACE
-    - object_reference:
-        naked_identifier: example
-    - keyword: QUOTA
-    - numeric_literal: '5'
-    - size_prefix: M
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: example
-    - keyword: PROFILE
-    - object_reference:
-        naked_identifier: app_user
-- statement_terminator: ;
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        naked_identifier: ops$external_user
-    - keyword: IDENTIFIED
-    - keyword: EXTERNALLY
-    - keyword: DEFAULT
-    - keyword: TABLESPACE
-    - object_reference:
-        naked_identifier: example
-    - keyword: QUOTA
-    - numeric_literal: '5'
-    - size_prefix: M
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: example
-    - keyword: PROFILE
-    - object_reference:
-        naked_identifier: app_user
-- statement_terminator: ;
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        naked_identifier: global_user
-    - keyword: IDENTIFIED
-    - keyword: GLOBALLY
-    - keyword: AS
-    - quoted_identifier: "'CN=analyst, OU=division1, O=oracle, C=US'"
-    - keyword: DEFAULT
-    - keyword: TABLESPACE
-    - object_reference:
-        naked_identifier: example
-    - keyword: QUOTA
-    - numeric_literal: '5'
-    - size_prefix: M
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: example
-- statement_terminator: ;
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        naked_identifier: c##comm_user
-    - keyword: IDENTIFIED
-    - keyword: BY
-    - naked_identifier: comm_pwd
-    - keyword: DEFAULT
-    - keyword: TABLESPACE
-    - object_reference:
-        naked_identifier: example
-    - keyword: QUOTA
-    - numeric_literal: '20'
-    - size_prefix: M
-    - keyword: 'ON'
-    - object_reference:
-        naked_identifier: example
-    - keyword: TEMPORARY
-    - keyword: TABLESPACE
-    - object_reference:
-        naked_identifier: temp_tbs
-- statement_terminator: ;
+  batch:
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: jsmith
+      - keyword: IDENTIFIED
+      - keyword: EXTERNALLY
+      - keyword: AS
+      - quoted_identifier: '"CN=foo,DNQ=123,SERIAL=234"'
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: tjones
+      - keyword: IDENTIFIED
+      - keyword: EXTERNALLY
+      - keyword: AS
+      - quoted_identifier: '"CN=foo,dnQualifier=123,SERIALNUMER=234"'
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: peter_fitch
+      - keyword: IDENTIFIED
+      - keyword: GLOBALLY
+      - keyword: AS
+      - quoted_identifier: "'AZURE_USER=peter.fitch@example.com'"
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: dba_azure
+      - keyword: IDENTIFIED
+      - keyword: GLOBALLY
+      - keyword: AS
+      - quoted_identifier: "'AZURE_ROLE=AZURE_DBA'"
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: u1
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: p1
+      - keyword: PROFILE
+      - object_reference:
+          naked_identifier: prof1
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: sidney
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: out_standing1
+      - keyword: DEFAULT
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: example
+      - keyword: QUOTA
+      - numeric_literal: '10'
+      - size_prefix: M
+      - keyword: 'ON'
+      - object_reference:
+          naked_identifier: example
+      - keyword: TEMPORARY
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: temp
+      - keyword: QUOTA
+      - numeric_literal: '5'
+      - size_prefix: M
+      - keyword: 'ON'
+      - object_reference:
+          naked_identifier: system
+      - keyword: PROFILE
+      - object_reference:
+          naked_identifier: app_user
+      - keyword: PASSWORD
+      - keyword: EXPIRE
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user1
+      - keyword: IDENTIFIED
+      - keyword: EXTERNALLY
+      - keyword: DEFAULT
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: example
+      - keyword: QUOTA
+      - numeric_literal: '5'
+      - size_prefix: M
+      - keyword: 'ON'
+      - object_reference:
+          naked_identifier: example
+      - keyword: PROFILE
+      - object_reference:
+          naked_identifier: app_user
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user2
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user3
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: DEFAULT
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: users
+      - keyword: PROFILE
+      - keyword: DEFAULT
+      - keyword: ACCOUNT
+      - keyword: UNLOCK
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user4
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - keyword: DEFAULT
+      - keyword: PASSWORD
+      - keyword: EXPIRE
+      - keyword: ACCOUNT
+      - keyword: LOCK
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user5
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - object_reference:
+          naked_identifier: my_profile
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user6
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - object_reference:
+        - naked_identifier: dba
+        - dot: .
+        - naked_identifier: app_profile
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user7
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: DEFAULT
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: users
+      - keyword: PASSWORD
+      - keyword: EXPIRE
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user8
+      - keyword: IDENTIFIED
+      - keyword: EXTERNALLY
+      - keyword: PROFILE
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user9
+      - keyword: IDENTIFIED
+      - keyword: GLOBALLY
+      - keyword: PROFILE
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user10
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - keyword: DEFAULT
+      - keyword: ACCOUNT
+      - keyword: UNLOCK
+      - keyword: CONTAINER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CURRENT
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: app_user11
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: secret
+      - keyword: PROFILE
+      - object_reference:
+          naked_identifier: app_user
+      - keyword: ACCOUNT
+      - keyword: UNLOCK
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: ops$external_user
+      - keyword: IDENTIFIED
+      - keyword: EXTERNALLY
+      - keyword: DEFAULT
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: example
+      - keyword: QUOTA
+      - numeric_literal: '5'
+      - size_prefix: M
+      - keyword: 'ON'
+      - object_reference:
+          naked_identifier: example
+      - keyword: PROFILE
+      - object_reference:
+          naked_identifier: app_user
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: global_user
+      - keyword: IDENTIFIED
+      - keyword: GLOBALLY
+      - keyword: AS
+      - quoted_identifier: "'CN=analyst, OU=division1, O=oracle, C=US'"
+      - keyword: DEFAULT
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: example
+      - keyword: QUOTA
+      - numeric_literal: '5'
+      - size_prefix: M
+      - keyword: 'ON'
+      - object_reference:
+          naked_identifier: example
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: c##comm_user
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: comm_pwd
+      - keyword: DEFAULT
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: example
+      - keyword: QUOTA
+      - numeric_literal: '20'
+      - size_prefix: M
+      - keyword: 'ON'
+      - object_reference:
+          naked_identifier: example
+      - keyword: TEMPORARY
+      - keyword: TABLESPACE
+      - object_reference:
+          naked_identifier: temp_tbs
+  - statement_terminator: ;

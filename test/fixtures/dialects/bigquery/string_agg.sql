@@ -21,3 +21,9 @@ FROM t;
 
 SELECT STRING_AGG(x, ", " ORDER BY y, z LIMIT 5) AS string_agg
 FROM t;
+
+SELECT STRING_AGG(x, ", " ORDER BY y) OVER (PARTITION BY z) AS string_agg
+FROM t;
+
+SELECT STRING_AGG(x) OVER (PARTITION BY z) AS string_agg
+FROM t;

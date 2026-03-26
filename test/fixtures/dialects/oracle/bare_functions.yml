@@ -3,73 +3,358 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e263a00681db97d124e7a639374ee40f65642e13597c704ac5a150b1e308206
+_hash: 8cbd3d1db8c88fdf57059bfd44054ab15cab9e706da76da1c1081dc96eb50607
 file:
-  statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: a
-          - dot: .
-          - naked_identifier: foo
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: b
-          - dot: .
-          - naked_identifier: bar
-      - comma: ','
-      - select_clause_element:
-          bare_function: current_date
-      - comma: ','
-      - select_clause_element:
-          bare_function: current_timestamp
-      - comma: ','
-      - select_clause_element:
-          bare_function: dbtimezone
-      - comma: ','
-      - select_clause_element:
-          bare_function: localtimestamp
-      - comma: ','
-      - select_clause_element:
-          bare_function: sessiontimestamp
-      - comma: ','
-      - select_clause_element:
-          bare_function: sysdate
-      - comma: ','
-      - select_clause_element:
-          bare_function: systimestamp
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: first_table
-            alias_expression:
-              naked_identifier: a
-          join_clause:
-          - keyword: INNER
-          - keyword: JOIN
-          - from_expression_element:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: a
+            - dot: .
+            - naked_identifier: foo
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: b
+            - dot: .
+            - naked_identifier: bar
+        - comma: ','
+        - select_clause_element:
+            bare_function: current_date
+        - comma: ','
+        - select_clause_element:
+            bare_function: current_timestamp
+        - comma: ','
+        - select_clause_element:
+            bare_function: dbtimezone
+        - comma: ','
+        - select_clause_element:
+            bare_function: localtimestamp
+        - comma: ','
+        - select_clause_element:
+            bare_function: sessiontimestamp
+        - comma: ','
+        - select_clause_element:
+            bare_function: sysdate
+        - comma: ','
+        - select_clause_element:
+            bare_function: systimestamp
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: second_table
+                  naked_identifier: first_table
               alias_expression:
-                naked_identifier: b
-          - join_on_condition:
-              keyword: 'ON'
-              expression:
-              - column_reference:
-                - naked_identifier: a
-                - dot: .
-                - naked_identifier: baz
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - column_reference:
-                - naked_identifier: b
-                - dot: .
-                - naked_identifier: baz
-  statement_terminator: ;
+                naked_identifier: a
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: second_table
+                alias_expression:
+                  naked_identifier: b
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: a
+                  - dot: .
+                  - naked_identifier: baz
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: b
+                  - dot: .
+                  - naked_identifier: baz
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+            - naked_identifier: some_seq
+            - dot: .
+            - naked_identifier: CURRVAL
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+            - naked_identifier: some_seq
+            - dot: .
+            - naked_identifier: NEXTVAL
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+              - naked_identifier: some_seq
+              - dot: .
+              - naked_identifier: CURRVAL
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+            - naked_identifier: myschema
+            - dot: .
+            - naked_identifier: some_seq
+            - dot: .
+            - naked_identifier: CURRVAL
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+            - naked_identifier: myschema
+            - dot: .
+            - naked_identifier: some_seq
+            - dot: .
+            - naked_identifier: NEXTVAL
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+              - naked_identifier: myschema
+              - dot: .
+              - naked_identifier: some_seq
+              - dot: .
+              - naked_identifier: NEXTVAL
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            bare_function: USER
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: audit_log
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: log_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: created_by
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: audit_seq
+              - dot: .
+              - naked_identifier: NEXTVAL
+          - comma: ','
+          - expression:
+              bare_function: USER
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            bare_function: UID
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: audit_log
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: log_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: user_id_num
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: audit_seq
+              - dot: .
+              - naked_identifier: NEXTVAL
+          - comma: ','
+          - expression:
+              bare_function: UID
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            bare_function: SESSION_USER
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: audit_log
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: log_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: session_user_col
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: audit_seq
+              - dot: .
+              - naked_identifier: NEXTVAL
+          - comma: ','
+          - expression:
+              bare_function: SESSION_USER
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            bare_function: ORA_ROWSCN
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: employee_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: employee_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        where_clause:
+          keyword: WHERE
+          expression:
+            bare_function: ORA_ROWSCN
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '12345678'
+  - statement_terminator: ;

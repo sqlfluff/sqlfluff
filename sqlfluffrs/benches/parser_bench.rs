@@ -78,7 +78,6 @@ fn bench_parse_complex_joins(c: &mut Criterion) {
 // Add more benchmarks as needed for specific grammar constructs, dialects, or edge cases.
 
 use std::fs;
-use std::path::Path;
 
 // Helper to get fixture path relative to sqlfluffrs/ directory
 fn fixture_path(filename: &str) -> std::path::PathBuf {

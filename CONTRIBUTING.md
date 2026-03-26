@@ -77,6 +77,47 @@ or the maintainer community or the project admins before merging in
 larger changes or giving the green light to major structural project
 changes.
 
+## Pull Request Acceptance Principles
+
+The following principles describe what maintainers will normally review,
+accept, and merge.
+
+- Pull requests are merged only after review and explicit approval from a
+  maintainer.
+- Maintainers will normally only review pull requests once the automated check
+  suite is passing. If your contribution requires changes to CI to be handled
+  correctly, call this out clearly in the pull request description.
+- Pull requests containing dialect updates will normally be accepted directly
+  when they include appropriate YAML test cases and the implemented syntax
+  matches (or moves SQLFluff closer to) the published syntax of that dialect.
+- Pull requests proposing new rules should be broadly applicable: they should
+  work across dialects and across all instances of the identified pattern.
+  Narrow rules for isolated organizational preferences will not normally be
+  accepted in core. For those cases, please use the plugin architecture.
+- Pull requests making architectural changes to the linter or parser should
+  include context for why the change is necessary or beneficial and what
+  trade-offs were considered. Architectural changes that do not pass the full
+  test suite (including dbt templater tests) will not generally be reviewed.
+- Contributions that become stale (for example, where the author is no longer
+  responsive) may be closed or modified by the maintainer team without further
+  notice.
+
+### AI-Assisted Contributions
+
+AI-assisted contributions are welcome when they meet the same quality,
+correctness, and maintainability bar as any other contribution.
+
+- The contributor remains responsible for the final pull request, including
+  correctness, tests, and maintainability.
+- If AI tools were used in a material way, disclose this in the pull request,
+  including what was AI-assisted and what was manually validated.
+- Submissions should be reviewable and intentional. Large, low-context, or
+  bulk-generated changes without clear rationale and tests may be declined.
+- Generated content must comply with project licensing expectations and must
+  not include copied proprietary code or sensitive information.
+- AI assistance does not bypass the normal review and testing requirements in
+  this guide.
+
 ## Nerdy Details
 
 ### Developing and Running SQLFluff Locally
@@ -86,7 +127,7 @@ changes.
 The simplest way to set up a development environment is to use [`tox`](https://tox.wiki/en/latest/installation.html).
 
 **IMPORTANT:** Python 3.9 is the minimum version we support. Feel free
-to test on anything between `python3.9` and `python3.13`.
+to test on anything between `python3.9` and `python3.14`.
 
 #### Creating a virtual environment
 
@@ -102,7 +143,7 @@ source .venv/bin/activate
 ```
 (The `dbt180` environment is a good default choice.
 However any version can be installed by replacing `dbt180` with
-`py`, `py39` through `py313`, `dbt170` through `dbt1100`, etc.
+`py`, `py39` through `py314`, `dbt170` through `dbt1100`, etc.
 `py` defaults to the python version that was used to install tox.
 To be able to run all tests including the dbt templater,
 choose one of the dbt environments.)

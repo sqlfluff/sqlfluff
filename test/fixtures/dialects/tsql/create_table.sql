@@ -37,3 +37,13 @@ CREATE TABLE [dbo].[Foo](
     CONSTRAINT [PK_Foo_ID] PRIMARY KEY CLUSTERED ([ID] ASC),
     [other_ID] [int] FOREIGN KEY REFERENCES [dbo].[Bar] (id) UNIQUE
 );
+
+CREATE TABLE dbo.Test(
+    ID int NOT NULL primary key,
+    name varchar(128) NULL index _name (name)
+);
+
+CREATE TABLE dbo.Test(
+    ID int NOT NULL primary key,
+    name varchar(128) NULL index _name
+);

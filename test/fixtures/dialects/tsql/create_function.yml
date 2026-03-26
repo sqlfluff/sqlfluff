@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c863677d1351916a63dadc7977a312e82b7aeaf4d1b6e536f9eb6318d723a4e9
+_hash: 099f085951e15734dc04c35fb599218b1d8f7c32bc3b132cf7269bc4308a99e4
 file:
 - batch:
     statement:
@@ -537,5 +537,120 @@ file:
                   expression:
                     parameter: '@my_parameter'
             - keyword: end
+    go_statement:
+      keyword: go
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: f
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+      - keyword: RETURNS
+      - parameter: '@t'
+      - keyword: TABLE
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: i
+            data_type:
+              keyword: int
+            table_index_segment:
+              keyword: index
+              object_reference:
+                naked_identifier: _i
+              bracketed_index_column_list_grammar:
+                bracketed:
+                  start_bracket: (
+                  index_column_definition:
+                    naked_identifier: i
+                  end_bracket: )
+          end_bracket: )
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                insert_statement:
+                - keyword: INSERT
+                - keyword: INTO
+                - table_reference:
+                    parameter: '@t'
+                - select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        integer_literal: '1'
+            - statement_terminator: ;
+            - statement:
+                return_segment:
+                  keyword: RETURN
+            - statement_terminator: ;
+            - keyword: END
+          statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: PenniesToDollars
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: '@Pennies'
+            data_type:
+              keyword: bigint
+            end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+          keyword: money
+      - function_option_segment:
+        - keyword: WITH
+        - keyword: NATIVE_COMPILATION
+        - comma: ','
+        - keyword: SCHEMABINDING
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            atomic_begin_end_block:
+            - keyword: BEGIN
+            - keyword: ATOMIC
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: TRANSACTION
+              - keyword: ISOLATION
+              - keyword: LEVEL
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - keyword: SNAPSHOT
+              - comma: ','
+              - keyword: LANGUAGE
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "N'us_english'"
+              - end_bracket: )
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  expression:
+                    parameter: '@Pennies'
+                    binary_operator: '*'
+                    numeric_literal: $0.01
+            - statement_terminator: ;
+            - keyword: END
+          statement_terminator: ;
     go_statement:
       keyword: go

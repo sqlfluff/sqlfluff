@@ -347,3 +347,69 @@ test_fail_camel_aliases:
     rules:
       capitalisation.identifiers:
         extended_capitalisation_policy: camel
+
+test_pass_placeholder_templater_colon_parameters:
+  # Test that placeholder parameters are not incorrectly qualified with table aliases
+  pass_str: |
+    DELETE
+    FROM STATUSVIEWDATAENTITY
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM REFERENCEDSTATUSID AS R
+        WHERE
+            R.PACHLIACCOUNTID = :accountId
+    )
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: colon
+
+
+test_fail_placeholder_templater_colon_parameters:
+  # Test that placeholder parameters are not incorrectly qualified with table aliases
+  fail_str: |
+    DELETE
+    FROM STATUSVIEWDATAENTITY
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM REFERENCEDSTATUSID AS R
+        WHERE
+            r.PACHLIACCOUNTID = :accountId
+    )
+  fix_str: |
+    DELETE
+    FROM STATUSVIEWDATAENTITY
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM REFERENCEDSTATUSID AS R
+        WHERE
+            R.PACHLIACCOUNTID = :accountId
+    )
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: colon
+
+test_pass_placeholder_templater_dollar_parameters:
+  # Test that dollar-style placeholder parameters are not incorrectly qualified
+  pass_str: SELECT * FROM users WHERE id = $userId AND name = $userName
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: dollar
+
+test_pass_placeholder_templater_percent_parameters:
+  # Test that percent-style placeholder parameters are not incorrectly qualified
+  pass_str: SELECT * FROM users WHERE id = %s AND name = %s
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: percent

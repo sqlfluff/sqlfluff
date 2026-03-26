@@ -3,33 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5c301b233899fc491f600b1719b16ff28fc4c304f2fec5c16ef2c9e4d0225741
+_hash: fc66dcd892c616fe6d48a210ed8fb2b87c96c76ba40b6aeacdd74de1ba46f314
 file:
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_column_clauses:
-      - keyword: RENAME
-      - keyword: COLUMN
-      - column_reference:
-          naked_identifier: old_column_name
-      - keyword: TO
-      - column_reference:
-          naked_identifier: new_column_name
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_column_clauses:
-        keyword: ADD
-        bracketed:
-          start_bracket: (
+  batch:
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_column_clauses:
+        - keyword: RENAME
+        - keyword: COLUMN
+        - column_reference:
+            naked_identifier: old_column_name
+        - keyword: TO
+        - column_reference:
+            naked_identifier: new_column_name
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_column_clauses:
+          keyword: ADD
+          bracketed:
+            start_bracket: (
+            column_definition:
+              naked_identifier: column_name
+              data_type:
+                data_type_identifier: NUMBER
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '18'
+                    end_bracket: )
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_column_clauses:
+          keyword: MODIFY
           column_definition:
             naked_identifier: column_name
             data_type:
@@ -39,186 +59,167 @@ file:
                   start_bracket: (
                   numeric_literal: '18'
                   end_bracket: )
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_column_clauses:
-        keyword: MODIFY
-        column_definition:
-          naked_identifier: column_name
-          data_type:
-            data_type_identifier: NUMBER
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '18'
-                end_bracket: )
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_column_clauses:
-      - keyword: DROP
-      - keyword: COLUMN
-      - column_reference:
-          naked_identifier: column_name
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_column_clauses:
-        keyword: DROP
-        bracketed:
-        - start_bracket: (
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_column_clauses:
+        - keyword: DROP
+        - keyword: COLUMN
         - column_reference:
-            naked_identifier: column_name_one
-        - comma: ','
-        - column_reference:
-            naked_identifier: column_name_two
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_constraint_clauses:
-        keyword: ADD
-        table_constraint:
+            naked_identifier: column_name
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_column_clauses:
+          keyword: DROP
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: column_name_one
+          - comma: ','
+          - column_reference:
+              naked_identifier: column_name_two
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_constraint_clauses:
+          keyword: ADD
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: constraint_name
+          - keyword: FOREIGN
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: column_name
+              end_bracket: )
+          - keyword: REFERENCES
+          - table_reference:
+              naked_identifier: other_table_name
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: other_column_name
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_constraint_clauses:
+        - keyword: RENAME
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: source_constraint_name
+        - keyword: TO
+        - object_reference:
+            naked_identifier: target_constraint_name
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_constraint_clauses:
+        - keyword: DROP
         - keyword: CONSTRAINT
         - object_reference:
             naked_identifier: constraint_name
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_column_clauses:
+          keyword: MODIFY
+          bracketed:
             start_bracket: (
-            column_reference:
+            column_definition:
               naked_identifier: column_name
+              column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+              keyword: ENABLE
             end_bracket: )
-        - keyword: REFERENCES
-        - table_reference:
-            naked_identifier: other_table_name
-        - bracketed:
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_column_clauses:
+          keyword: MODIFY
+          bracketed:
             start_bracket: (
-            column_reference:
-              naked_identifier: other_column_name
+            column_definition:
+              naked_identifier: column_name
+              column_constraint_segment:
+                keyword: DEFAULT
+                numeric_literal: '10'
             end_bracket: )
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_constraint_clauses:
-      - keyword: RENAME
-      - keyword: CONSTRAINT
-      - object_reference:
-          naked_identifier: source_constraint_name
-      - keyword: TO
-      - object_reference:
-          naked_identifier: target_constraint_name
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_constraint_clauses:
-      - keyword: DROP
-      - keyword: CONSTRAINT
-      - object_reference:
-          naked_identifier: constraint_name
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_column_clauses:
-        keyword: MODIFY
-        bracketed:
-          start_bracket: (
-          column_definition:
-            naked_identifier: column_name
-            column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-            keyword: ENABLE
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_column_clauses:
-        keyword: MODIFY
-        bracketed:
-          start_bracket: (
-          column_definition:
-            naked_identifier: column_name
-            column_constraint_segment:
-              keyword: DEFAULT
-              numeric_literal: '10'
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-    - alter_table_column_clauses:
-        keyword: MODIFY
-        bracketed:
-          start_bracket: (
-          column_definition:
-          - naked_identifier: column_name
-          - column_constraint_segment:
-              keyword: DEFAULT
-              numeric_literal: '10'
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-          - keyword: ENABLE
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: employees
-    - alter_table_constraint_clauses:
-        keyword: ADD
-        table_constraint:
-        - keyword: CONSTRAINT
-        - object_reference:
-            naked_identifier: salary_check
-        - keyword: CHECK
-        - bracketed:
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_column_clauses:
+          keyword: MODIFY
+          bracketed:
             start_bracket: (
-            expression:
-              column_reference:
-                naked_identifier: salary
-              comparison_operator:
-                raw_comparison_operator: '>'
-              numeric_literal: '0'
+            column_definition:
+            - naked_identifier: column_name
+            - column_constraint_segment:
+                keyword: DEFAULT
+                numeric_literal: '10'
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+            - keyword: ENABLE
             end_bracket: )
-- statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: employees
+      - alter_table_constraint_clauses:
+          keyword: ADD
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: salary_check
+          - keyword: CHECK
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: salary
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '0'
+              end_bracket: )
+  - statement_terminator: ;

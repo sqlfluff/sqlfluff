@@ -718,9 +718,8 @@ Another check that we perform is linting the code in the pull request. This
 runs automated checks for errors or code styling and formatting issues that
 don't match the code conventions we use.
 
-Python code is linted with `flake8` and you can run this command on any files
-to see similar linting issues. You can use `black` to auto-fix most flake8
-issues, though some need to be manually addresses.
+Python code is linted with `pre-commit` and you can run `pre-commit run --all-files`
+to see linting issues and autofix them.
 
 Code review feedback
 """"""""""""""""""""

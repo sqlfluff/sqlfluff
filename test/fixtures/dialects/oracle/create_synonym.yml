@@ -3,52 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 57e08a1f9025170f1510cab53e867730a3129cc88a5e0d88cc3b48f31a27744e
+_hash: 53d09a26157da2f5a32b04191225b5a526e3fb782639ad013276792253ebd87c
 file:
-- statement:
-    create_synonym_statement:
-    - keyword: CREATE
-    - keyword: SYNONYM
-    - object_reference:
-        naked_identifier: offices
-    - keyword: FOR
-    - object_reference:
-      - naked_identifier: hr
-      - dot: .
-      - naked_identifier: locations
-- statement_terminator: ;
-- statement:
-    create_synonym_statement:
-    - keyword: CREATE
-    - keyword: PUBLIC
-    - keyword: SYNONYM
-    - object_reference:
-        naked_identifier: emp_table
-    - keyword: FOR
-    - object_reference:
-      - naked_identifier: hr
-      - dot: .
-      - naked_identifier: employees
-    - at_sign: '@'
-    - database_link_reference:
-      - naked_identifier: remote
-      - dot: .
-      - naked_identifier: us
-      - dot: .
-      - naked_identifier: example
-      - dot: .
-      - naked_identifier: com
-- statement_terminator: ;
-- statement:
-    create_synonym_statement:
-    - keyword: CREATE
-    - keyword: PUBLIC
-    - keyword: SYNONYM
-    - object_reference:
-        naked_identifier: customers
-    - keyword: FOR
-    - object_reference:
-      - naked_identifier: oe
-      - dot: .
-      - naked_identifier: customers
-- statement_terminator: ;
+  batch:
+  - statement:
+      create_synonym_statement:
+      - keyword: CREATE
+      - keyword: SYNONYM
+      - object_reference:
+          naked_identifier: offices
+      - keyword: FOR
+      - object_reference:
+        - naked_identifier: hr
+        - dot: .
+        - naked_identifier: locations
+  - statement_terminator: ;
+  - statement:
+      create_synonym_statement:
+      - keyword: CREATE
+      - keyword: PUBLIC
+      - keyword: SYNONYM
+      - object_reference:
+          naked_identifier: emp_table
+      - keyword: FOR
+      - object_reference:
+        - naked_identifier: hr
+        - dot: .
+        - naked_identifier: employees
+      - at_sign: '@'
+      - database_link_reference:
+        - naked_identifier: remote
+        - dot: .
+        - naked_identifier: us
+        - dot: .
+        - naked_identifier: example
+        - dot: .
+        - naked_identifier: com
+  - statement_terminator: ;
+  - statement:
+      create_synonym_statement:
+      - keyword: CREATE
+      - keyword: PUBLIC
+      - keyword: SYNONYM
+      - object_reference:
+          naked_identifier: customers
+      - keyword: FOR
+      - object_reference:
+        - naked_identifier: oe
+        - dot: .
+        - naked_identifier: customers
+  - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a42ecfd08e1b93fedd3df21b303d0a69adcc70d9bacd927da070cd7e847b3e5c
+_hash: 7d8c75df636b9430386f35d6c777fc015f28411f5a3d789385dd6caef4b11646
 file:
 - statement:
     select_statement:
@@ -32,9 +32,10 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: DateTime64
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
           alias_expression:
             alias_operator:
               keyword: as
@@ -51,10 +52,11 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: DateTime64
-                bracketed:
-                  start_bracket: (
-                  numeric_literal: '3'
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '3'
+                    end_bracket: )
           alias_expression:
             alias_operator:
               keyword: as
@@ -71,12 +73,13 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: DateTime64
-                bracketed:
-                  start_bracket: (
-                  numeric_literal: '3'
-                  comma: ','
-                  quoted_literal: "'Europe/Paris'"
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '3'
+                    comma: ','
+                    quoted_literal: "'Europe/Paris'"
+                    end_bracket: )
           alias_expression:
             alias_operator:
               keyword: as
@@ -93,10 +96,11 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: DateTime64
-                bracketed:
-                  start_bracket: (
-                  numeric_literal: '6'
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '6'
+                    end_bracket: )
           alias_expression:
             alias_operator:
               keyword: as

@@ -196,7 +196,7 @@ class JinjaTracer:
             # https://github.com/sqlfluff/sqlfluff/issues/6121
             next_indices = self.raw_slice_info[current_raw_slice].next_slice_indices
             if (
-                current_raw_slice.tag == "endfor"  # noqa
+                current_raw_slice.tag == "endfor"
                 # Elements of inside_set_macro_or_call have empty next_slice_indices
                 and next_indices
                 # The next_slice_indices[0] of the 'endfor' is the first element of the

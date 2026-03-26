@@ -24,7 +24,9 @@ fn test_bracketed_implicit_sequence() {
     assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
 
     let mut parser = Parser::new(&tokens, Dialect::Ansi, hashbrown::HashMap::new());
-    let ast = parser.call_rule_as_root();
+    let ast = parser
+        .call_rule_as_root()
+        .map(|mr| mr.apply_as_root(&tokens, &[], &[]));
 
     match &ast {
         Ok(node) => {

@@ -48,7 +48,7 @@ unquoted, and more unusually, *also when quoted*). See the
 The dialect for `DuckDB <https://duckdb.org/>`_.
 
 .. _`DuckDB Identifiers Documentation`: https://duckdb.org/docs/sql/dialect/keywords_and_identifiers
-""",  # noqa: E501
+""",
 )
 
 duckdb_dialect.sets("reserved_keywords").update(
@@ -111,6 +111,16 @@ duckdb_dialect.add(
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
     EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
     UnpackingOperatorSegment=TypedParser("star", SymbolSegment, "unpacking_operator"),
+    # DuckDB math operators
+    PowerOperatorSegment=TypedParser(
+        "power_operator", SymbolSegment, type="binary_operator"
+    ),
+    AbsoluteValueOperatorSegment=TypedParser(
+        "at", SymbolSegment, type="sign_indicator"
+    ),
+    FactorialOperatorSegment=TypedParser(
+        "not", SymbolSegment, type="factorial_operator"
+    ),
 )
 
 duckdb_dialect.replace(
@@ -196,9 +206,31 @@ duckdb_dialect.replace(
             ),
             Ref("FunctionSegment"),
             Ref("ArrayLiteralSegment"),
+            Ref("MapLiteralSegment"),
             Ref("QuotedLiteralSegment"),
             Ref("ColumnReferenceSegment"),
         ),
+    ),
+    # Add DuckDB math operators
+    ArithmeticBinaryOperatorGrammar=postgres_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("PowerOperatorSegment"),
+        ]
+    ),
+    # Add @ prefix operator for absolute value
+    Expression_A_Unary_Operator_Grammar=postgres_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(
+        insert=[
+            Ref("AbsoluteValueOperatorSegment"),
+        ]
+    ),
+    # Add postfix factorial operator support
+    Expression_C_Grammar=Sequence(
+        postgres_dialect.get_grammar("Expression_C_Grammar"),
+        Ref("FactorialOperatorSegment", optional=True),
     ),
     ComparisonOperatorGrammar=ansi_dialect.get_grammar(
         "ComparisonOperatorGrammar"
@@ -217,11 +249,40 @@ duckdb_dialect.replace(
             Sequence(Ref.keyword("WHERE", optional=True), Ref("ExpressionSegment"))
         ),
     ),
+    BaseExpressionElementGrammar=OneOf(
+        Ref("MapLiteralSegment"),
+        postgres_dialect.get_grammar("BaseExpressionElementGrammar"),
+        Ref("ColumnIndexSegment"),
+    ),
+)
+
+# Patch lexers before adding segments
+duckdb_dialect.patch_lexer_matchers(
+    [
+        # Remove @ from postgis_operator regex since
+        # we use it for absolute value
+        # Maybe even the postgres version is strange,
+        # as postgis operators shouldn't use @ either?
+        RegexLexer(
+            "postgis_operator",
+            r"\&\&\&|\&<\||<<\||\|\&>|\|>>|\~=|<\->|\|=\||<\#>|<<\->>|<<\#>>",
+            SymbolSegment,
+        ),
+    ]
+)
+
+duckdb_dialect.insert_lexer_matchers(
+    [
+        StringLexer("power_operator", "**", CodeSegment),
+    ],
+    before="star",
 )
 
 duckdb_dialect.insert_lexer_matchers(
     [
         StringLexer("double_divide", "//", CodeSegment),
+        # Column indexes: #1, #2, etc.
+        RegexLexer("column_index", r"#[0-9]+", CodeSegment),
     ],
     before="divide",
 )
@@ -285,6 +346,21 @@ class IntervalExpressionSegment(BaseSegment):
     )
 
 
+class ColumnIndexSegment(BaseSegment):
+    """Column index reference using positional syntax.
+
+    DuckDB allows referencing columns by their position using #<number> syntax.
+    https://duckdb.org/docs/stable/sql/statements/select
+    """
+
+    type = "column_index"
+    match_grammar = TypedParser(
+        "column_index",
+        CodeSegment,
+        type="column_index",
+    )
+
+
 class StructTypeSegment(ansi.StructTypeSegment):
     """Expression to construct a STRUCT datatype."""
 
@@ -336,6 +412,42 @@ class MapTypeSchemaSegment(BaseSegment):
     )
 
 
+class MapLiteralElementSegment(BaseSegment):
+    """A map literal element segment.
+
+    e.g. 'key1': 50
+    Keys in DuckDB map literals can be any expression.
+    """
+
+    type = "map_literal_element"
+    match_grammar: Matchable = Sequence(
+        Ref("BaseExpressionElementGrammar"),
+        Ref("ColonSegment"),
+        Ref("BaseExpressionElementGrammar"),
+    )
+
+
+class MapLiteralSegment(BaseSegment):
+    """A map literal segment.
+
+    https://duckdb.org/docs/stable/sql/data_types/map
+    e.g. MAP {'key1': 50, 'key2': 75}
+    """
+
+    type = "map_literal"
+    match_grammar: Matchable = Sequence(
+        "MAP",
+        Bracketed(
+            Delimited(
+                Ref("MapLiteralElementSegment"),
+                optional=True,
+                allow_trailing=True,
+            ),
+            bracket_type="curly",
+        ),
+    )
+
+
 class InsertStatementSegment(ansi.InsertStatementSegment):
     """An `INSERT` Statement.
 
@@ -357,12 +469,12 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         OneOf(
             Sequence("DEFAULT", "VALUES"),
-            Ref("SelectStatementSegment"),
+            Ref("SelectableGrammar"),
             Sequence(
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
                 OneOf(
                     Ref("ValuesClauseSegment"),
-                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
                 ),
             ),
         ),
@@ -837,14 +949,15 @@ class FromPivotExpressionSegment(BaseSegment):
                 Sequence(
                     Ref("FunctionSegment"),
                     Ref("AliasExpressionSegment", optional=True),
-                )
+                ),
+                allow_trailing=True,
             ),
             "FOR",
             AnyNumberOf(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
                     "IN",
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
+                    Bracketed(Delimited(Ref("LiteralGrammar"), allow_trailing=True)),
                 ),
             ),
             Ref("GroupByClauseSegment", optional=True),
@@ -874,9 +987,10 @@ class SimplifiedPivotExpressionSegment(BaseSegment):
                 ),
                 Sequence(
                     "IN",
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
+                    Bracketed(Delimited(Ref("LiteralGrammar"), allow_trailing=True)),
                     optional=True,
                 ),
+                allow_trailing=True,
             ),
             optional=True,
         ),
@@ -887,6 +1001,7 @@ class SimplifiedPivotExpressionSegment(BaseSegment):
                     Ref("FunctionSegment"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
+                allow_trailing=True,
             ),
             optional=True,
         ),
@@ -906,7 +1021,9 @@ class FromUnpivotExpressionSegment(BaseSegment):
         Bracketed(
             OneOf(
                 Ref("SingleIdentifierGrammar"),
-                Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+                Bracketed(
+                    Delimited(Ref("SingleIdentifierGrammar"), allow_trailing=True)
+                ),
             ),
             "FOR",
             AnyNumberOf(
@@ -917,11 +1034,15 @@ class FromUnpivotExpressionSegment(BaseSegment):
                         Delimited(
                             Sequence(
                                 OptionallyBracketed(
-                                    Delimited(Ref("SingleIdentifierGrammar"))
+                                    Delimited(
+                                        Ref("SingleIdentifierGrammar"),
+                                        allow_trailing=True,
+                                    )
                                 ),
                                 Ref("AliasExpressionSegment", optional=True),
                             ),
                             Ref("ColumnsExpressionGrammar"),
+                            allow_trailing=True,
                         ),
                     ),
                 ),
@@ -946,10 +1067,11 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
             Sequence(
                 OneOf(
                     Ref("ExpressionSegment"),
-                    Bracketed(Delimited(Ref("ExpressionSegment"))),
+                    Bracketed(Delimited(Ref("ExpressionSegment"), allow_trailing=True)),
                 ),
                 Ref("AliasExpressionSegment", optional=True),
             ),
+            allow_trailing=True,
         ),
         Sequence(
             "INTO",
@@ -958,6 +1080,7 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
             "VALUE",
             Delimited(
                 Ref("SingleIdentifierGrammar"),
+                allow_trailing=True,
             ),
             optional=True,
         ),
@@ -1185,4 +1308,28 @@ class ArrayLiteralSegment(BaseSegment):
             Ref("BaseExpressionElementGrammar"), optional=True, allow_trailing=True
         ),
         bracket_type="square",
+    )
+
+
+class ValuesClauseSegment(postgres.ValuesClauseSegment):
+    """A `VALUES` clause within in `WITH` or `SELECT`."""
+
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(
+            Bracketed(
+                Delimited(
+                    Ref("ExpressionSegment"),
+                    # DEFAULT keyword used in
+                    # INSERT INTO statement.
+                    "DEFAULT",
+                    allow_trailing=True,
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            allow_trailing=True,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
     )

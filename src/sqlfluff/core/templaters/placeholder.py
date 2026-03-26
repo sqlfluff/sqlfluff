@@ -22,7 +22,7 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 
 KNOWN_STYLES = {
     # e.g. WHERE bla = :name
-    "colon": regex.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)(?!:)", regex.UNICODE),
+    "colon": regex.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)", regex.UNICODE),
     # e.g. SELECT :"column" FROM :table WHERE bla = :'name'
     "colon_optional_quotes": regex.compile(
         r"(?<!:):(?P<quotation>['\"]?)(?P<param_name>[\w_]+)\1", regex.UNICODE

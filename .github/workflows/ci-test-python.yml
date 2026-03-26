@@ -40,28 +40,35 @@ jobs:
   modular-python-test:
     runs-on: ubuntu-latest
     name: py${{ inputs.python-version }}
+
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ inputs.python-version }}
-        cache: 'pip'
-        cache-dependency-path: |
-          setup.cfg
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
           requirements_dev.txt
+          pyproject.toml
+          constraints/*.txt
 
     - name: Download built wheels
-      if: ${{ inputs.with_rust }} == '-rust'
+      if: ${{ inputs.with-rust == '-rust' }}
       uses: actions/download-artifact@v4
       with:
         path: ./dist
-        pattern: wheels-*
-        merge-multiple: true
+        name: wheels-linux-x86_64
 
     - name: Install dependencies
-      run: pip install tox
+      run: uv pip install --system tox tox-uv
 
     - name: Parse Python Version
       id: py_version
@@ -81,6 +88,7 @@ jobs:
       # it impacts performance and slows the test suite significantly.
       if: ${{ inputs.coverage }}
       run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ inputs.with-rust }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
       run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ inputs.with-rust }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0

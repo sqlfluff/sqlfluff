@@ -246,6 +246,26 @@ def test__config__validate_configs_indirect():
         )
 
 
+def test__config__invalid_prefer_quoted_keyword_style():
+    """Invalid RF06 quote-style config should raise a user-facing error."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "sqlite"},
+            "rules": {
+                "references.quoting": {"prefer_quoted_keyword_style": "square_brackets"}
+            },
+        }
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        Linter(config=config).get_rulepack()
+
+    assert "prefer_quoted_keyword_style" in str(exc_info.value)
+    assert "square_brackets" in str(exc_info.value)
+    assert "double_quotes" in str(exc_info.value)
+    assert "backticks" in str(exc_info.value)
+
+
 @pytest.mark.parametrize(
     "raw_sql",
     [
@@ -348,6 +368,15 @@ def test__process_inline_config():
     assert cfg.get("my_dict", section="jinja") == '[{"k":"v"}]'
 
 
+def test__process_inline_config__malformed_equals_syntax():
+    """Malformed inline config using `=` syntax should warn, not crash."""
+    cfg = FluffConfig(overrides={"dialect": "ansi"})
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.config") as caplog:
+        # Should not raise IndexError
+        cfg.process_inline_config("-- sqlfluff:disable=AM04", "test.sql")
+    assert "Malformed inline config" in caplog.text
+
+
 @pytest.mark.parametrize(
     "raw_sql",
     [
@@ -394,3 +423,130 @@ def test__api__immutable_config():
         "-- sqlfluff:dialect: postgres\nSELECT * FROM table1\n", config=config
     )
     assert config.get("dialect") == "ansi"
+
+
+def test_resolve_path_glob_patterns(tmp_path):
+    """Test that _resolve_path function supports glob patterns."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    # Set up test directory structure
+    macros_dir = tmp_path / "macros"
+    macros_dir.mkdir()
+    (macros_dir / "macro1.sql").touch()
+    (macros_dir / "macro2.sql").touch()
+    (macros_dir / "other.txt").touch()
+
+    subdir = macros_dir / "subdirectory"
+    subdir.mkdir()
+    (subdir / "macro3.sql").touch()
+
+    # Test glob patterns
+    config_path = str(tmp_path / ".sqlfluff")
+
+    # Test *.sql pattern
+    sql_matches = _resolve_path(config_path, "macros/*.sql")
+    assert len(sql_matches) == 2
+    assert any("macro1.sql" in path for path in sql_matches)
+    assert any("macro2.sql" in path for path in sql_matches)
+    assert not any("other.txt" in path for path in sql_matches)
+
+    # Test subdirectory pattern
+    subdir_matches = _resolve_path(config_path, "macros/subdirectory/*.sql")
+    assert len(subdir_matches) == 1
+    assert any("macro3.sql" in path for path in subdir_matches)
+
+    # Test * pattern (matches all)
+    all_matches = _resolve_path(config_path, "macros/*")
+    assert len(all_matches) == 4  # 2 sql + 1 txt + 1 subdirectory
+
+
+def test_resolve_path_exact_files(tmp_path):
+    """Test that _resolve_path works with exact file paths."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    # Set up test directory
+    macros_dir = tmp_path / "macros"
+    macros_dir.mkdir()
+    specific_file = macros_dir / "specific_macro.sql"
+    specific_file.touch()
+
+    # Test exact file path
+    config_path = str(tmp_path / ".sqlfluff")
+    matches = _resolve_path(config_path, "macros/specific_macro.sql")
+
+    assert len(matches) == 1
+    assert "specific_macro.sql" in matches[0]
+
+
+def test_resolve_path_no_matches(tmp_path):
+    """Test _resolve_path behavior when no files match."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    # Set up empty directory
+    empty_dir = tmp_path / "empty"
+    empty_dir.mkdir()
+
+    # Test no matches
+    config_path = str(tmp_path / ".sqlfluff")
+    matches = _resolve_path(config_path, "empty/*.sql")
+
+    # Should return empty list when no matches
+    assert len(matches) == 0
+
+
+def test_resolve_paths_in_config_comma_separated(tmp_path):
+    """Test that _resolve_paths_in_config handles comma-separated glob patterns."""
+    from sqlfluff.core.config.file import _resolve_paths_in_config
+
+    # Set up test structure
+    macros_dir = tmp_path / "macros"
+    macros_dir.mkdir()
+    (macros_dir / "macro1.sql").touch()
+    (macros_dir / "macro2.sql").touch()
+
+    subdir = macros_dir / "subdirectory"
+    subdir.mkdir()
+    (subdir / "macro3.sql").touch()
+
+    # Test config processing
+    test_config = {
+        "templater:jinja": {
+            "load_macros_from_path": "macros/*.sql, macros/subdirectory/*.sql",
+        }
+    }
+
+    config_path = str(tmp_path / ".sqlfluff")
+    _resolve_paths_in_config(test_config, config_path)
+
+    # Check results
+    resolved_path = test_config["templater:jinja"]["load_macros_from_path"]
+    resolved_files = [f.strip() for f in resolved_path.split(",")]
+
+    # Should have 3 files total
+    assert len(resolved_files) == 3
+    assert any("macro1.sql" in f for f in resolved_files)
+    assert any("macro2.sql" in f for f in resolved_files)
+    assert any("macro3.sql" in f for f in resolved_files)
+
+
+def test_resolve_paths_in_config_no_matches_fallback(tmp_path):
+    """Test that _resolve_paths_in_config falls back to original when no matches."""
+    from sqlfluff.core.config.file import _resolve_paths_in_config
+
+    # Set up empty directory
+    empty_dir = tmp_path / "empty"
+    empty_dir.mkdir()
+
+    # Test config with no matches
+    test_config = {
+        "templater:jinja": {
+            "load_macros_from_path": "empty/*.sql, nonexistent/*.sql",
+        }
+    }
+
+    config_path = str(tmp_path / ".sqlfluff")
+    _resolve_paths_in_config(test_config, config_path)
+
+    # Should keep original pattern when no matches
+    resolved_path = test_config["templater:jinja"]["load_macros_from_path"]
+    assert resolved_path == "empty/*.sql, nonexistent/*.sql"

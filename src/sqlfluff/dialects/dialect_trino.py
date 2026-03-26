@@ -28,6 +28,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
+from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_trino_keywords import (
     trino_reserved_keywords,
@@ -125,6 +126,7 @@ trino_dialect.replace(
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
+        "OFFSET",
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -136,6 +138,7 @@ trino_dialect.replace(
     ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
+        "OFFSET",
         "HAVING",
         # For window functions
         "WINDOW",
@@ -143,7 +146,10 @@ trino_dialect.replace(
         "FETCH",
     ),
     SelectClauseTerminatorGrammar=OneOf(
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
@@ -152,6 +158,7 @@ trino_dialect.replace(
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "LIMIT",
+        "OFFSET",
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -161,12 +168,14 @@ trino_dialect.replace(
     HavingClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
         "LIMIT",
+        "OFFSET",
         "WINDOW",
         "FETCH",
     ),
     GroupByClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
         "LIMIT",
+        "OFFSET",
         "HAVING",
         "WINDOW",
         "FETCH",
@@ -249,6 +258,21 @@ trino_dialect.replace(
                 ),
                 optional=True,
             ),
+        ),
+        # For JSON_ARRAY / JSON_OBJECT functions: { NULL | ABSENT } ON NULL
+        # https://trino.io/docs/current/functions/json.html#json-array
+        # https://trino.io/docs/current/functions/json.html#json-object
+        Sequence(
+            OneOf("NULL", "ABSENT"),
+            "ON",
+            "NULL",
+        ),
+        # For JSON functions: RETURNING type [FORMAT JSON [ENCODING ...]]
+        # https://trino.io/docs/current/functions/json.html#json-array
+        Sequence(
+            "RETURNING",
+            Ref("DatatypeSegment"),
+            Ref("FormatJsonEncodingGrammar", optional=True),
         ),
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
@@ -409,6 +433,47 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
         Ref("NamedWindowSegment", optional=True),
+    )
+
+
+class OffsetClauseSegment(ansi.OffsetClauseSegment):
+    """An `OFFSET` clause like in `SELECT`.
+
+    https://trino.io/docs/current/sql/select.html
+    """
+
+    type = "offset_clause"
+    match_grammar: Matchable = Sequence(
+        "OFFSET",
+        Indent,
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+        ),
+        OneOf("ROW", "ROWS", optional=True),
+        Dedent,
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """A `SELECT` statement.
+
+    https://trino.io/docs/current/sql/select.html
+    """
+
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
+        ],
+        replace_terminators=True,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+        ],
     )
 
 

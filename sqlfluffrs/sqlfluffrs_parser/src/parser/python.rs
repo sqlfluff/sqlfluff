@@ -1,6 +1,9 @@
+use hashbrown::HashMap;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
+
+use crate::parser::MetaSegment;
 
 use super::match_result::MatchResult;
 use super::types::NodeTupleValue;
@@ -34,7 +37,7 @@ fn parse_error_to_pyerr(e: ParseError) -> PyErr {
 }
 
 /// Python-wrapped Node for AST representation
-#[pyclass(name = "RsNode", module = "sqlfluffrs")]
+#[pyclass(name = "RsNode", module = "sqlfluffrs", from_py_object)]
 #[derive(Clone)]
 pub struct PyNode(pub Node);
 
@@ -44,19 +47,35 @@ impl PyNode {
     #[getter]
     fn node_type(&self) -> String {
         match &self.0 {
-            Node::Token { .. } => "token".to_string(),
-            Node::Ref { .. } => "ref".to_string(),
-            Node::Sequence { .. } => "sequence".to_string(),
-            Node::DelimitedList { .. } => "delimited_list".to_string(),
-            Node::Bracketed { .. } => "bracketed".to_string(),
+            Node::Raw { .. } => "raw".to_string(),
+            Node::Segment { .. } => "segment".to_string(),
             Node::Meta { .. } => "meta".to_string(),
-            Node::Empty => "empty".to_string(),
-            Node::Whitespace { .. } => "whitespace".to_string(),
-            Node::Newline { .. } => "newline".to_string(),
-            Node::Comment { .. } => "comment".to_string(),
-            Node::EndOfFile { .. } => "end_of_file".to_string(),
             Node::Unparsable { .. } => "unparsable".to_string(),
+            Node::Empty => "empty".to_string(),
         }
+    }
+
+    /// Get the segment type (semantic type like "keyword", "select_statement", etc.)
+    #[getter]
+    fn segment_type(&self) -> Option<String> {
+        self.0.segment_type().map(|s| s.to_string())
+    }
+
+    /// Get the segment class name (e.g., "KeywordSegment", "SelectStatementSegment")
+    #[getter]
+    fn segment_class(&self) -> Option<String> {
+        match &self.0 {
+            Node::Raw { segment_class, .. } | Node::Segment { segment_class, .. } => {
+                Some(segment_class.clone())
+            }
+            _ => None,
+        }
+    }
+
+    /// Get raw text of this node (recursively joins children for containers)
+    #[getter]
+    fn raw(&self) -> String {
+        self.0.raw()
     }
 
     /// Check if node is empty
@@ -64,72 +83,42 @@ impl PyNode {
         self.0.is_empty()
     }
 
-    /// Get children nodes (if applicable)
+    /// Check if node is code (not whitespace/meta)
+    fn is_code(&self) -> bool {
+        self.0.is_code()
+    }
+
+    /// Get children nodes (for Segment and Unparsable nodes)
     fn children(&self) -> Option<Vec<PyNode>> {
         match &self.0 {
-            Node::Sequence { children } | Node::DelimitedList { children } => {
-                Some(children.iter().map(|n| PyNode(n.clone())).collect())
-            }
-            Node::Bracketed {
-                children,
-                bracket_persists: _,
-            } => Some(children.iter().map(|n| PyNode(n.clone())).collect()),
-            Node::Ref { child, .. } => Some(vec![PyNode((**child).clone())]),
-            Node::Unparsable { children, .. } => {
+            Node::Segment { children, .. } | Node::Unparsable { children, .. } => {
                 Some(children.iter().map(|n| PyNode(n.clone())).collect())
             }
             _ => None,
         }
     }
 
-    /// Get token information (for Token nodes)
-    /// Returns (token_type, raw, token_idx)
-    fn token_info(&self) -> Option<(String, String, usize)> {
+    /// Get instance_types (for Raw nodes)
+    fn instance_types(&self) -> Option<Vec<String>> {
         match &self.0 {
-            Node::Token {
-                token_type,
-                raw,
-                token_idx,
-            } => Some((token_type.clone(), raw.clone(), *token_idx)),
-            Node::Whitespace { raw, token_idx } => {
-                Some(("whitespace".to_string(), raw.clone(), *token_idx))
-            }
-            Node::Newline { raw, token_idx } => {
-                Some(("newline".to_string(), raw.clone(), *token_idx))
-            }
-            Node::Comment { raw, token_idx } => {
-                Some(("comment".to_string(), raw.clone(), *token_idx))
-            }
-            Node::EndOfFile { raw, token_idx } => {
-                Some(("end_of_file".to_string(), raw.clone(), *token_idx))
-            }
+            Node::Raw { instance_types, .. } => Some(instance_types.clone()),
             _ => None,
         }
     }
 
-    /// Get ref information (for Ref nodes)
-    fn ref_info(&self) -> Option<(String, Option<String>)> {
+    /// Get class_types — mirrors Python's class_types property.
+    fn class_types(&self) -> Option<Vec<String>> {
         match &self.0 {
-            Node::Ref {
-                name, segment_type, ..
-            } => Some((name.clone(), segment_type.clone())),
+            Node::Raw { class_types, .. } => Some(class_types.clone()),
+            Node::Segment { class_types, .. } => {
+                if class_types.is_empty() {
+                    None
+                } else {
+                    Some(class_types.clone())
+                }
+            }
             _ => None,
         }
-    }
-
-    /// Get bracket information (for Bracketed nodes)
-    fn bracket_persists(&self) -> Option<bool> {
-        match &self.0 {
-            Node::Bracketed {
-                bracket_persists, ..
-            } => Some(*bracket_persists),
-            _ => None,
-        }
-    }
-
-    /// Convert to Python dict representation (for debugging/inspection)
-    fn to_dict(&self, py: Python) -> PyResult<Py<PyAny>> {
-        self.to_dict_recursive(py, 0, 100)
     }
 
     /// Convert to tuple representation (mirrors Python's to_tuple)
@@ -142,7 +131,7 @@ impl PyNode {
         include_meta: bool,
     ) -> PyResult<Py<PyAny>> {
         let tuple_val = self.0.to_tuple(code_only, show_raw, include_meta);
-        self.tuple_value_to_python(py, &tuple_val)
+        Self::tuple_value_to_python(py, &tuple_val)
     }
 
     /// Get record representation (for YAML serialization)
@@ -156,7 +145,6 @@ impl PyNode {
     ) -> PyResult<Option<Py<PyAny>>> {
         match self.0.as_record(code_only, show_raw, include_meta) {
             Some(yaml_val) => {
-                // Convert serde_yaml::Value to Python object
                 let py_obj = Self::yaml_to_python(py, &yaml_val)?;
                 Ok(Some(py_obj))
             }
@@ -167,19 +155,35 @@ impl PyNode {
     /// Represent node as string
     fn __repr__(&self) -> String {
         match &self.0 {
-            Node::Token {
-                token_type, raw, ..
+            Node::Raw {
+                segment_type, raw, ..
             } => {
-                format!("RsNode(Token(type='{}', raw='{}'))", token_type, raw)
+                format!("RsNode(Raw(type='{}', raw='{}'))", segment_type, raw)
             }
-            Node::Ref { name, .. } => {
-                format!("RsNode(Ref(name='{}'))", name)
+            Node::Segment {
+                segment_class,
+                children,
+                ..
+            } => {
+                format!(
+                    "RsNode(Segment(class='{}', {} children))",
+                    segment_class,
+                    children.len()
+                )
             }
-            Node::Sequence { children } => {
-                format!("RsNode(Sequence({} children))", children.len())
+            Node::Meta { meta_type, .. } => {
+                format!("RsNode(Meta({:?}))", meta_type)
+            }
+            Node::Unparsable {
+                expected, children, ..
+            } => {
+                format!(
+                    "RsNode(Unparsable(expected='{}', {} children))",
+                    expected,
+                    children.len()
+                )
             }
             Node::Empty => "RsNode(Empty)".to_string(),
-            _ => format!("RsNode({})", self.node_type()),
         }
     }
 
@@ -190,108 +194,13 @@ impl PyNode {
 }
 
 impl PyNode {
-    fn to_dict_recursive(&self, py: Python, depth: usize, max_depth: usize) -> PyResult<Py<PyAny>> {
-        if depth > max_depth {
-            return Ok("...".into_pyobject(py)?.into());
-        }
-
-        let dict = PyDict::new(py);
-        dict.set_item("node_type", self.node_type())?;
-
-        match &self.0 {
-            Node::Token {
-                token_type,
-                raw,
-                token_idx,
-            } => {
-                dict.set_item("token_type", token_type)?;
-                dict.set_item("raw", raw)?;
-                dict.set_item("token_idx", token_idx)?;
-            }
-            Node::Whitespace { raw, token_idx }
-            | Node::Newline { raw, token_idx }
-            | Node::Comment { raw, token_idx }
-            | Node::EndOfFile { raw, token_idx } => {
-                dict.set_item("raw", raw)?;
-                dict.set_item("token_idx", token_idx)?;
-            }
-            Node::Ref {
-                name,
-                segment_type,
-                child,
-            } => {
-                dict.set_item("name", name)?;
-                dict.set_item("segment_type", segment_type)?;
-                let child_node = PyNode((**child).clone());
-                dict.set_item(
-                    "child",
-                    child_node.to_dict_recursive(py, depth + 1, max_depth)?,
-                )?;
-            }
-            Node::Sequence { children } | Node::DelimitedList { children } => {
-                let py_children = PyList::empty(py);
-                for child in children {
-                    let child_node = PyNode(child.clone());
-                    py_children.append(child_node.to_dict_recursive(
-                        py,
-                        depth + 1,
-                        max_depth,
-                    )?)?;
-                }
-                dict.set_item("children", py_children)?;
-            }
-            Node::Bracketed {
-                children,
-                bracket_persists,
-            } => {
-                let py_children = PyList::empty(py);
-                for child in children {
-                    let child_node = PyNode(child.clone());
-                    py_children.append(child_node.to_dict_recursive(
-                        py,
-                        depth + 1,
-                        max_depth,
-                    )?)?;
-                }
-                dict.set_item("children", py_children)?;
-                dict.set_item("bracket_persists", bracket_persists)?;
-            }
-            Node::Unparsable {
-                expected_message,
-                children,
-            } => {
-                dict.set_item("expected_message", expected_message)?;
-                let py_children = PyList::empty(py);
-                for child in children {
-                    let child_node = PyNode(child.clone());
-                    py_children.append(child_node.to_dict_recursive(
-                        py,
-                        depth + 1,
-                        max_depth,
-                    )?)?;
-                }
-                dict.set_item("children", py_children)?;
-            }
-            Node::Meta {
-                token_type,
-                token_idx,
-            } => {
-                dict.set_item("token_type", token_type)?;
-                dict.set_item("token_idx", token_idx)?;
-            }
-            Node::Empty => {}
-        }
-
-        Ok(dict.into())
-    }
-
-    fn tuple_value_to_python(&self, py: Python, val: &NodeTupleValue) -> PyResult<Py<PyAny>> {
+    fn tuple_value_to_python(py: Python, val: &NodeTupleValue) -> PyResult<Py<PyAny>> {
         match val {
             NodeTupleValue::Raw(key, s) => Ok((key, s).into_pyobject(py)?.into()),
             NodeTupleValue::Tuple(key, children) => {
                 let py_children = PyList::empty(py);
                 for child in children {
-                    py_children.append(self.tuple_value_to_python(py, child)?)?;
+                    py_children.append(Self::tuple_value_to_python(py, child)?)?;
                 }
                 Ok((key, py_children).into_pyobject(py)?.into())
             }
@@ -341,7 +250,7 @@ impl From<Node> for PyNode {
 }
 
 /// Python-wrapped ParseError
-#[pyclass(name = "RsParseError", module = "sqlfluffrs", extends=PyException)]
+#[pyclass(name = "RsParseError", module = "sqlfluffrs", extends=PyException, from_py_object)]
 #[derive(Clone)]
 pub struct PyParseError {
     #[pyo3(get)]
@@ -378,7 +287,7 @@ impl From<ParseError> for PyParseError {
 /// Python's existing apply() logic, avoiding double-counting issues in Rust.
 ///
 /// frozen=true makes this immutable (matches Python's @dataclass(frozen=True))
-#[pyclass(name = "RsMatchResult", module = "sqlfluffrs", frozen)]
+#[pyclass(name = "RsMatchResult", module = "sqlfluffrs", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyMatchResult(pub MatchResult);
 
@@ -393,7 +302,7 @@ impl PyMatchResult {
     /// Get the matched class type as a string (or None)
     #[getter]
     fn matched_class(&self) -> Option<String> {
-        self.0.matched_class.clone()
+        self.0.matched_class.as_ref().map(|s| s.class_name.clone())
     }
 
     /// Get child matches as a list of PyMatchResult objects
@@ -409,19 +318,31 @@ impl PyMatchResult {
     /// Get instance_types (semantic type markers like "keyword", "star")
     #[getter]
     fn instance_types(&self) -> Option<Vec<String>> {
-        self.0.instance_types.clone()
+        self.0
+            .matched_class
+            .as_ref()
+            .and_then(|s| s.segment_kwargs.instance_types.clone())
     }
 
     /// Get trim_chars for the segment
     #[getter]
     fn trim_chars(&self) -> Option<Vec<String>> {
-        self.0.trim_chars.clone()
+        self.0
+            .matched_class
+            .as_ref()
+            .and_then(|s| s.segment_kwargs.trim_chars.clone())
     }
 
     /// Get casefold mode (for case-insensitive matching)
     #[getter]
     fn casefold(&self) -> Option<String> {
-        match self.0.casefold {
+        match self
+            .0
+            .matched_class
+            .as_ref()
+            .map(|s| s.segment_kwargs.casefold.clone())
+            .unwrap_or_default()
+        {
             sqlfluffrs_types::token::CaseFold::None => None,
             sqlfluffrs_types::token::CaseFold::Upper => Some("upper".to_string()),
             sqlfluffrs_types::token::CaseFold::Lower => Some("lower".to_string()),
@@ -431,23 +352,31 @@ impl PyMatchResult {
     /// Get quoted_value for identifier normalization
     #[getter]
     fn quoted_value(&self, py: Python<'_>) -> Option<(String, Py<PyAny>)> {
-        self.0.quoted_value.as_ref().map(|(pattern, group)| {
-            let py_group: Py<PyAny> = match group {
-                sqlfluffrs_types::regex::RegexModeGroup::Index(idx) => {
-                    idx.into_pyobject(py).unwrap().into()
-                }
-                sqlfluffrs_types::regex::RegexModeGroup::Name(name) => {
-                    name.clone().into_pyobject(py).unwrap().into()
-                }
-            };
-            (pattern.clone(), py_group)
-        })
+        self.0
+            .matched_class
+            .as_ref()
+            .and_then(|s| s.segment_kwargs.quoted_value.clone())
+            .as_ref()
+            .map(|(pattern, group)| {
+                let py_group: Py<PyAny> = match group {
+                    sqlfluffrs_types::regex::RegexModeGroup::Index(idx) => {
+                        idx.into_pyobject(py).unwrap().into()
+                    }
+                    sqlfluffrs_types::regex::RegexModeGroup::Name(name) => {
+                        name.clone().into_pyobject(py).unwrap().into()
+                    }
+                };
+                (pattern.clone(), py_group)
+            })
     }
 
     /// Get escape_replacement for escape sequence handling
     #[getter]
     fn escape_replacement(&self) -> Option<(String, String)> {
-        self.0.escape_replacement.clone()
+        self.0
+            .matched_class
+            .as_ref()
+            .and_then(|s| s.segment_kwargs.escape_replacement.clone())
     }
 
     /// Get insert_segments (meta segments like Indent/Dedent to insert)
@@ -456,10 +385,10 @@ impl PyMatchResult {
         self.0
             .insert_segments
             .iter()
-            .map(|(idx, seg_type, is_implicit)| {
-                let type_name = match seg_type {
-                    crate::parser::MetaSegmentType::Indent => "indent",
-                    crate::parser::MetaSegmentType::Dedent => "dedent",
+            .map(|(idx, seg_type)| {
+                let (type_name, is_implicit) = match seg_type {
+                    MetaSegment::Indent { is_implicit } => ("indent", is_implicit),
+                    MetaSegment::Dedent { is_implicit } => ("dedent", is_implicit),
                 };
                 (*idx, type_name.to_string(), *is_implicit)
             })
@@ -469,17 +398,26 @@ impl PyMatchResult {
     /// Get parse_error (error message and token position) if present
     #[getter]
     fn parse_error(&self) -> Option<(String, usize)> {
-        self.0.parse_error.clone()
+        self.0
+            .matched_class
+            .as_ref()
+            .and_then(|s| s.segment_kwargs.parse_error.clone())
     }
 
-    /// Get segment_kwargs dictionary (e.g., "expected" for UnparsableSegment)
+    /// Get segment_kwargs dictionary (e.g., parsed properties for segments)
     #[getter]
-    fn segment_kwargs(&self) -> std::collections::HashMap<String, String> {
-        self.0
-            .segment_kwargs
-            .iter()
-            .map(|(k, v)| (k.clone(), v.clone()))
-            .collect()
+    fn segment_kwargs(&self, py: Python) -> PyResult<Py<PyAny>> {
+        let dict = PyDict::new(py);
+
+        if let Some(matched_class) = self.0.matched_class.as_ref() {
+            let sk = &matched_class.segment_kwargs;
+
+            if let Some((ref msg, _pos)) = sk.parse_error.as_ref() {
+                dict.set_item("expected", msg.clone())?;
+            }
+        }
+
+        Ok(dict.into())
     }
 
     /// Check if this is an empty match
@@ -507,6 +445,32 @@ impl PyMatchResult {
             self.0.child_matches.len()
         )
     }
+
+    /// Build the full AST as an `RsNode` from this MatchResult and tokens.
+    ///
+    /// Applies the match result against the provided tokens to construct the
+    /// complete Rust-side AST which can be used by Rust linting rules
+    /// (e.g., respace/LT01) without round-tripping through Python's segment
+    /// tree. Optionally prepend `leading` and append `trailing` non-code
+    /// tokens to the root.
+    ///
+    /// This is the single PyO3 entry-point for node construction.
+    #[pyo3(signature = (tokens, leading=vec![], trailing=vec![]))]
+    fn apply_as_node(
+        &self,
+        tokens: Vec<PyToken>,
+        leading: Vec<PyToken>,
+        trailing: Vec<PyToken>,
+    ) -> PyNode {
+        let rust_leading: Vec<Token> = leading.into_iter().map(|t| t.into()).collect();
+        let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
+        let rust_trailing: Vec<Token> = trailing.into_iter().map(|t| t.into()).collect();
+        let node = self
+            .0
+            .clone()
+            .apply_as_root(&rust_tokens, &rust_leading, &rust_trailing);
+        PyNode(node)
+    }
 }
 
 /// Python-wrapped Parser
@@ -514,15 +478,21 @@ impl PyMatchResult {
 pub struct PyParser {
     dialect: Dialect,
     indent_config: hashbrown::HashMap<&'static str, bool>,
+    max_parser_iterations: usize,
+    parser_warn_threshold: usize,
+    max_parse_depth: usize,
 }
 
 #[pymethods]
 impl PyParser {
     #[new]
-    #[pyo3(signature = (dialect=None, indent_config=None))]
+    #[pyo3(signature = (dialect=None, indent_config=None, max_parser_iterations=None, parser_warn_threshold=None, max_parse_depth=0))]
     pub fn new(
         dialect: Option<&str>,
-        indent_config: Option<std::collections::HashMap<String, bool>>,
+        indent_config: Option<HashMap<String, bool>>,
+        max_parser_iterations: Option<usize>,
+        parser_warn_threshold: Option<usize>,
+        max_parse_depth: usize,
     ) -> PyResult<Self> {
         let dialect = dialect
             .and_then(|d| Dialect::from_str(d).ok())
@@ -545,6 +515,9 @@ impl PyParser {
         Ok(PyParser {
             dialect,
             indent_config,
+            max_parser_iterations: max_parser_iterations.unwrap_or(3_000_000),
+            parser_warn_threshold: parser_warn_threshold.unwrap_or(2_000_000),
+            max_parse_depth,
         })
     }
 
@@ -569,17 +542,18 @@ impl PyParser {
         compute_bracket_pairs(&mut rust_tokens);
 
         // Create parser
-        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
+        let mut parser = Parser::new_with_max_parse_depth(
+            &rust_tokens,
+            self.dialect,
+            self.indent_config.clone(),
+            self.max_parse_depth,
+        )
+        .with_parser_limits(self.max_parser_iterations, self.parser_warn_threshold);
 
         // Parse and get the MatchResult directly
-        let match_result = parser
-            .call_rule_as_root_match_result()
-            .map_err(parse_error_to_pyerr)?;
+        let match_result = parser.call_rule_as_root().map_err(parse_error_to_pyerr)?;
 
-        // Flatten transparent grammar nodes before sending to Python
-        let flattened = match_result.flatten_transparent();
-
-        Ok(PyMatchResult(flattened))
+        Ok(PyMatchResult(match_result))
     }
 
     /// Parse SQL from tokens and return MatchResult along with parser statistics.
@@ -600,7 +574,7 @@ impl PyParser {
     pub fn parse_match_result_with_stats(
         &self,
         tokens: Vec<PyToken>,
-    ) -> PyResult<(PyMatchResult, std::collections::HashMap<String, usize>)> {
+    ) -> PyResult<(PyMatchResult, HashMap<String, usize>)> {
         // Convert PyToken to internal Token
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
@@ -608,21 +582,24 @@ impl PyParser {
         compute_bracket_pairs(&mut rust_tokens);
 
         // Create parser
-        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
+        let mut parser = Parser::new_with_max_parse_depth(
+            &rust_tokens,
+            self.dialect,
+            self.indent_config.clone(),
+            self.max_parse_depth,
+        )
+        .with_parser_limits(self.max_parser_iterations, self.parser_warn_threshold);
 
         // Parse and get the MatchResult directly
         let match_result = parser
-            .call_rule_as_root_match_result()
+            .call_rule_as_root()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
-
-        // Flatten transparent grammar nodes before sending to Python
-        let flattened = match_result.flatten_transparent();
 
         // Collect statistics
         let (cache_hits, cache_misses, _) = parser.table_cache.stats();
         let cache_entries = parser.table_cache.len();
 
-        let mut stats = std::collections::HashMap::new();
+        let mut stats = HashMap::new();
         stats.insert("cache_hits".to_string(), cache_hits);
         stats.insert("cache_misses".to_string(), cache_misses);
         stats.insert("cache_entries".to_string(), cache_entries);
@@ -643,7 +620,7 @@ impl PyParser {
         );
         stats.insert("terminator_hits".to_string(), parser.terminator_hits.get());
 
-        Ok((PyMatchResult(flattened), stats))
+        Ok((PyMatchResult(match_result), stats))
     }
 
     /// Parse SQL from tokens and return grammar call counts for debugging.
@@ -656,7 +633,7 @@ impl PyParser {
     pub fn parse_match_result_with_grammar_counts(
         &self,
         tokens: Vec<PyToken>,
-    ) -> PyResult<(PyMatchResult, std::collections::HashMap<String, usize>)> {
+    ) -> PyResult<(PyMatchResult, HashMap<String, usize>)> {
         // Convert PyToken to internal Token
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
@@ -664,16 +641,22 @@ impl PyParser {
         compute_bracket_pairs(&mut rust_tokens);
 
         // Create parser with grammar counting enabled
-        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
+        let mut parser = Parser::new_with_max_parse_depth(
+            &rust_tokens,
+            self.dialect,
+            self.indent_config.clone(),
+            self.max_parse_depth,
+        )
+        .with_parser_limits(self.max_parser_iterations, self.parser_warn_threshold);
 
         // Track grammar calls using cache misses as a proxy
         // Each unique (grammar_id, pos) pair in the cache represents one grammar call
         let match_result = parser
-            .call_rule_as_root_match_result()
+            .call_rule_as_root()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
 
         // Count calls per grammar by iterating cache entries
-        let mut grammar_counts = std::collections::HashMap::new();
+        let mut grammar_counts = HashMap::new();
 
         for (key, _result) in parser.table_cache.iter() {
             let grammar_id = sqlfluffrs_types::GrammarId(key.grammar_id);

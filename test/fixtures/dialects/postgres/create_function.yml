@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59cbbb8e382521d8e53fd13bd2aa59e6705d11cf7a8c09f18acda2fca24e374c
+_hash: 272bf9509d1827e35b56b044903a97e88a69c9029bc4688490344203153c5d1d
 file:
 - statement:
     create_function_statement:
@@ -542,49 +542,61 @@ file:
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - keyword: ALL
-    - keyword: 'ON'
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: check_password
-    - function_parameter_list:
-        bracketed:
-        - start_bracket: (
-        - parameter: uname
-        - data_type:
-            keyword: TEXT
-        - comma: ','
-        - parameter: pass
-        - data_type:
-            keyword: TEXT
-        - end_bracket: )
-    - keyword: FROM
-    - object_reference:
-        naked_identifier: PUBLIC
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: ALL
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: FUNCTION
+          function_name:
+            function_name_identifier: check_password
+          function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: uname
+            - data_type:
+                keyword: TEXT
+            - comma: ','
+            - parameter: pass
+            - data_type:
+                keyword: TEXT
+            - end_bracket: )
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            naked_identifier: PUBLIC
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: 'ON'
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: check_password
-    - function_parameter_list:
-        bracketed:
-        - start_bracket: (
-        - parameter: uname
-        - data_type:
-            keyword: TEXT
-        - comma: ','
-        - parameter: pass
-        - data_type:
-            keyword: TEXT
-        - end_bracket: )
-    - keyword: TO
-    - role_reference:
-        naked_identifier: admins
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: EXECUTE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: FUNCTION
+          function_name:
+            function_name_identifier: check_password
+          function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: uname
+            - data_type:
+                keyword: TEXT
+            - comma: ','
+            - parameter: pass
+            - data_type:
+                keyword: TEXT
+            - end_bracket: )
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: admins
 - statement_terminator: ;
 - statement:
     transaction_statement:

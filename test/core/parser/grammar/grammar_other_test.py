@@ -10,6 +10,7 @@ import pytest
 from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Anything, Delimited, Nothing
+from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.types import ParseMode
 
@@ -57,7 +58,7 @@ def test__parser__grammar_delimited(
         allow_trailing=allow_trailing,
         min_delimiters=min_delimiters,
     )
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    ctx = ParseContext(dialect=fresh_ansi_dialect, max_parse_depth=0)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         # Matching with whitespace shouldn't match if we need at least one delimiter
         m = g.match(test_segments, 0, ctx)
@@ -216,7 +217,7 @@ def test__parser__grammar_anything_match(
     NOTE: Anything combined with terminators implements the semantics
     which used to be implemented by `GreedyUntil`.
     """
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    ctx = ParseContext(dialect=fresh_ansi_dialect, max_parse_depth=0)
     terms = [StringParser(kw, KeywordSegment) for kw in terminators]
     result = Anything(terminators=terms).match(test_segments, 0, parse_context=ctx)
     assert result.matched_slice == slice(0, match_length)
@@ -225,16 +226,40 @@ def test__parser__grammar_anything_match(
 
 def test__parser__grammar_nothing_match(test_segments, fresh_ansi_dialect):
     """Test the Nothing grammar."""
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    ctx = ParseContext(dialect=fresh_ansi_dialect, max_parse_depth=0)
     assert not Nothing().match(test_segments, 0, ctx)
 
 
 def test__parser__grammar_noncode_match(test_segments, fresh_ansi_dialect):
     """Test the NonCodeMatcher."""
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    ctx = ParseContext(dialect=fresh_ansi_dialect, max_parse_depth=0)
     # NonCode Matcher doesn't work with simple
     assert NonCodeMatcher().simple(ctx) is None
     # We should match one and only one segment
     match = NonCodeMatcher().match(test_segments, 1, parse_context=ctx)
     assert match
     assert match.matched_slice == slice(1, 2)
+
+
+@pytest.mark.parametrize(
+    "token_list,expected",
+    [
+        (["IS", " ", "DISTINCT", " ", "FROM"], True),
+        (["IS", " ", "NOT", " ", "DISTINCT", " ", "FROM"], True),
+        (["IS", " ", "REALLY", " ", "DISTINCT", " ", "FROM"], False),
+        (["NOT", " ", "DISTINCT", " ", "FROM"], False),
+    ],
+)
+def test__parser__grammar_preceded_by_matcher(
+    token_list, expected, generate_test_segments, fresh_ansi_dialect
+):
+    """Test the lookbehind matcher with explicit keyword sequences."""
+    matcher = PrecededByMatcher(
+        preceding_sequences=(("IS", "DISTINCT"), ("IS", "NOT", "DISTINCT")),
+    )
+    test_segments = generate_test_segments(token_list)
+    ctx = ParseContext(dialect=fresh_ansi_dialect, max_parse_depth=0)
+
+    match = matcher.match(test_segments, len(test_segments) - 1, ctx)
+
+    assert bool(match) is expected

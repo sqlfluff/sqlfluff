@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 420fdbbf980c6fed8ce72e3b3284bb4c189e165b9f3c7c2a4807711ed9d6c8ff
+_hash: 0a00e29ff215e1dee12b3058111cc96acd8302dc601273378aec2084cd963b21
 file:
 - statement:
     create_view_statement:
@@ -725,6 +725,38 @@ file:
         column_reference:
           naked_identifier: col1
         end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: src_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_with_change_tracking
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        end_bracket: )
+    - keyword: CHANGE_TRACKING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
     - keyword: AS
     - select_statement:
         select_clause:

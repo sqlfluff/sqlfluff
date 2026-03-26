@@ -25,6 +25,7 @@ DECLARE @dec_ps_var DEC(15, 3);
 DECLARE @float_var FLOAT;
 DECLARE @float_p_var FLOAT(24);
 DECLARE @real_var REAL;
+DECLARE @double_precision_var DOUBLE PRECISION;
 
 -- Date and time types
 DECLARE @date_var DATE;
@@ -84,6 +85,13 @@ DECLARE @uniqueidentifier_var UNIQUEIDENTIFIER;
 DECLARE @xml_var XML;
 DECLARE @json_var JSON;
 
+-- typed XML
+DECLARE @typed_xml XML (SomeSchemaCollection);
+DECLARE @typed_xml XML (dbo.SomeSchemaCollection);
+DECLARE @typed_xml XML ([dbo].[SomeSchemaCollection]);
+DECLARE @typed_xml_document XML (DOCUMENT dbo.SomeSchemaCollection);
+DECLARE @typed_xml_cnt XML (CONTENT dbo.SomeSchemaCollection);
+
 -- Spatial types
 DECLARE @geography_var GEOGRAPHY;
 DECLARE @geometry_var GEOMETRY;
@@ -101,6 +109,7 @@ DECLARE @sys_type sys.sysname;
 
 -- Bracketed data type identifiers
 DECLARE @bracketed_type [sys].[sysname];
+DECLARE @bracketed_varchar [varchar](32);
 GO
 
 -- Data types in CREATE TABLE
@@ -119,6 +128,7 @@ CREATE TABLE DataTypesTest (
     -- Approximate numeric
     col_float FLOAT,
     col_real REAL,
+    col_double_precision DOUBLE PRECISION,
 
     -- Date and time
     col_date DATE,
@@ -155,7 +165,12 @@ CREATE TABLE DataTypesTest (
     col_hierarchyid HIERARCHYID,
     col_sql_variant SQL_VARIANT,
     col_timestamp TIMESTAMP,
-    col_rowversion ROWVERSION
+    col_rowversion ROWVERSION,
+
+    -- typed XML
+    col_xml_typed XML (dbo.SomeXMLSchemaCollection),
+    col_xml_typed_doc XML (DOCUMENT dbo.SomeXMLSchemaCollection),
+    col_xml_typed_con XML (CONTENT dbo.SomeXMLSchemaCollection)
 );
 GO
 

@@ -34,7 +34,7 @@ SQLFluff is a dialect-flexible SQL linter and auto-fixer supporting 25+ SQL dial
 ## Universal Conventions
 
 ### Language Support
-- **Python**: 3.9 minimum, 3.12 recommended for development, 3.13 supported
+- **Python**: 3.9 minimum, 3.13 recommended for development, 3.14 supported
 - **Rust**: Experimental, used for performance-critical lexing/parsing
 
 ### Code Quality Standards
@@ -87,7 +87,7 @@ python test/generate_parse_fixture_yml.py -d tsql
 .venv/bin/pre-commit run --all-files
 
 # Individual checks
-black src/ test/                # Format
+ruff format src/ test/          # Format
 ruff check src/ test/           # Lint
 mypy src/sqlfluff/              # Type check
 ```

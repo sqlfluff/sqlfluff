@@ -17,7 +17,6 @@ impl Parser<'_> {
     pub(crate) fn handle_anynumberof_table_driven_initial(
         &mut self,
         mut frame: TableParseFrame,
-        parent_terminators: &[GrammarId],
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         self.pos = frame.pos;
@@ -73,12 +72,11 @@ impl Parser<'_> {
             if let Some(exclude_id) = self.grammar_ctx.exclude(grammar_id) {
                 self.pos = start_pos;
                 if let Ok(exclude_result) =
-                    self.parse_table_iterative(exclude_id, parent_terminators)
+                    self.parse_table_iterative_match_result(exclude_id, &frame.table_terminators)
                 {
                     if !exclude_result.is_empty() {
                         vdebug!("AnyNumberOf[table]: Exclude grammar matched, returning Empty");
-                        stack.insert_empty_result(frame.frame_id, start_pos);
-                        return Ok(TableFrameResult::Done);
+                        return Ok(stack.complete_frame_empty(&frame));
                     }
                 }
                 self.pos = start_pos; // Reset position
@@ -104,21 +102,21 @@ impl Parser<'_> {
 
         if pruned_children.is_empty() {
             vdebug!("AnyNumberOf[table]: No elements to match after filtering");
-            stack.insert_empty_result(frame.frame_id, start_pos);
-            return Ok(TableFrameResult::Done);
+            return Ok(stack.complete_frame_empty(&frame));
         }
 
         // Initialize option counter for max_times_per_element tracking
+        #[cfg(feature = "verbose-debug")]
         let pruned_children_count = pruned_children.len();
         let first_element = pruned_children[0];
         let option_counter: hashbrown::HashMap<u64, usize> =
             pruned_children.iter().map(|id| (id.0 as u64, 0)).collect();
 
-        // Combine terminators
+        // Combine terminators (read parent terminators from frame directly)
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
         let all_terminators = Parser::combine_terminators_table_driven(
             &local_terminators,
-            parent_terminators,
+            &frame.table_terminators,
             reset_terminators,
         );
 
@@ -162,10 +160,17 @@ impl Parser<'_> {
             frame.parent_max_idx
         );
 
-        frame.state = FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: pruned_children_count,
-        };
+        // If we're already at or past max_idx, return Empty
+        if start_pos >= max_idx {
+            vdebug!(
+                "AnyNumberOf[table]: start_pos >= max_idx ({} >= {}), returning Empty",
+                start_pos,
+                max_idx
+            );
+            return Ok(stack.complete_frame_empty(&frame));
+        }
+
+        frame.state = FrameState::WaitingForChild { child_index: 0 };
 
         // Store context with max_times config and pruned element list
         frame.context = FrameContext::AnyNumberOfTableDriven {
@@ -177,24 +182,21 @@ impl Parser<'_> {
             option_counter,
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
-            longest_match: None,
+            matched: Arc::new(MatchResult::empty_at(start_pos)),
+            longest_match: (Arc::new(MatchResult::empty_at(start_pos)), None),
             tried_elements: 0,
         };
 
-        // Persist the combined terminators on the parent frame so subsequent
-        // child frames (created during waiting/continuation) reuse the same
-        // terminator set. Not setting this caused later child frames to be
-        // created without terminators which can change matching behavior.
-        frame.table_terminators = SmallVec::from_vec(all_terminators.clone());
-        stack.push(&mut frame);
+        // Move terminators into frame (no clone)
+        frame.table_terminators = SmallVec::from_vec(all_terminators);
 
         // Create initial child frame for the first element candidate and
         // let the WaitingForChild handler iterate remaining candidates.
-        let mut child_frame = TableParseFrame::new_child(
+        let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             first_element,
             start_pos,
-            all_terminators.clone(),
+            frame.table_terminators.to_vec(),
             Some(max_idx),
         );
 
@@ -215,17 +217,14 @@ impl Parser<'_> {
         }
 
         // Push parent then child (parent.last_child_frame_id was set in context)
-        stack.increment_frame_id_counter();
-        stack.push(&mut child_frame);
-
-        Ok(TableFrameResult::Done)
+        Ok(stack.push_child_and_wait(frame, child_frame, 0))
     }
 
     /// Handle AnyNumberOf WaitingForChild state using table-driven approach
     pub(crate) fn handle_anynumberof_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_match: &MatchResult,
+        child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -273,11 +272,7 @@ impl Parser<'_> {
 
         // Update longest_match if this child is better
         if !child_match.is_empty() && *child_end_pos <= *ctx.max_idx {
-            ctx.update_longest_match(
-                Arc::new(child_match.clone()),
-                *child_end_pos,
-                current_candidate,
-            );
+            ctx.update_longest_match(Arc::clone(child_match), *child_end_pos, current_candidate);
         }
 
         *ctx.tried_elements += 1;
@@ -311,14 +306,8 @@ impl Parser<'_> {
             next_candidate.0
         );
 
-        // Update frame state
-        frame.state = FrameState::WaitingForChild {
-            child_index: next_element_idx,
-            total_children: ctx.pruned_children.len(),
-        };
-
         // Create and push child frame
-        let mut child_frame = TableParseFrame::new_child(
+        let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             next_candidate,
             *ctx.working_idx,
@@ -329,11 +318,7 @@ impl Parser<'_> {
         // Update last_child_frame_id
         *ctx.last_child_frame_id = Some(stack.frame_id_counter);
 
-        stack.increment_frame_id_counter();
-        stack.push(&mut frame);
-        stack.push(&mut child_frame);
-
-        Ok(TableFrameResult::Done)
+        Ok(stack.push_child_and_wait(frame, child_frame, next_element_idx))
     }
 
     /// Process the longest match after all candidates are tried
@@ -357,37 +342,31 @@ impl Parser<'_> {
         vdebug!(
             "AnyNumberOf[table]: All candidates tried at pos={}, longest_match={:?}, count={}, min_times={}",
             ctx.working_idx,
-            ctx.longest_match.as_ref().map(|(_, end, gid)| (end, gid.0)),
+            (ctx.longest_match.0.end(), ctx.longest_match.1.map(|gid| gid.0)),
             ctx.count,
             inst.min_times
         );
 
         // Take longest_match to avoid borrow issues
-        let (best_match, best_end_pos, best_gid) =
-            if let Some((ref m, pos, gid)) = ctx.longest_match {
-                (Arc::clone(m), *pos, gid)
-            } else {
-                // No match found - finalize
-                vdebug!(
-                    "AnyNumberOf[table]: No match found, finalizing with count={}",
-                    ctx.count
-                );
-                let matched_idx = *ctx.matched_idx;
-                return Ok(frame.transition_to_combining(Some(matched_idx), stack));
-            };
+        let (best_match, best_gid) = if let (ref m, Some(gid)) = ctx.longest_match {
+            (Arc::clone(m), gid)
+        } else {
+            // No match found - finalize
+            vdebug!(
+                "AnyNumberOf[table]: No match found, finalizing with count={}",
+                ctx.count
+            );
+            let matched_idx = *ctx.matched_idx;
+            return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
+        };
 
         // Check for zero-width match
-        if best_end_pos == *ctx.working_idx {
+        if best_match.end() == *ctx.working_idx {
             log::warn!(
                 "AnyNumberOf[table]: zero-width match at {}, stopping",
                 ctx.working_idx
             );
-            return Ok(frame.transition_to_combining(None, stack));
-        }
-
-        // We no longer "collect tokens", it's all lazy evaluation now.
-        if allow_gaps && *ctx.matched_idx < *ctx.working_idx {
-            *ctx.matched_idx = *ctx.working_idx;
+            return Ok(stack.transition_to_combining(frame, None));
         }
 
         // Check max_times constraint
@@ -395,7 +374,7 @@ impl Parser<'_> {
             if *ctx.count >= max {
                 vdebug!("AnyNumberOf[table]: Reached max_times={}", max);
                 let matched_idx = *ctx.matched_idx;
-                return Ok(frame.transition_to_combining(Some(matched_idx), stack));
+                return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
             }
         }
 
@@ -411,13 +390,13 @@ impl Parser<'_> {
                     max_per
                 );
                 let matched_idx = *ctx.matched_idx;
-                return Ok(frame.transition_to_combining(Some(matched_idx), stack));
+                return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
             }
         }
 
         // Match succeeded - accumulate and continue
-        frame.accumulated.push(Arc::clone(&best_match));
-        *ctx.matched_idx = best_end_pos;
+        MatchResult::append_into(ctx.matched, best_match.clone());
+        *ctx.matched_idx = best_match.end();
         *ctx.working_idx = *ctx.matched_idx;
         *ctx.count += 1;
 
@@ -452,7 +431,7 @@ impl Parser<'_> {
                 ctx.max_idx
             );
             let matched_idx = *ctx.matched_idx;
-            return Ok(frame.transition_to_combining(Some(matched_idx), stack));
+            return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
         }
 
         // Continue matching - re-prune at new position
@@ -487,14 +466,14 @@ impl Parser<'_> {
         if repruned_children.is_empty() {
             vdebug!("AnyNumberOf[table]: All elements pruned after match");
             let matched_idx = *ctx.matched_idx;
-            return Ok(frame.transition_to_combining(Some(matched_idx), stack));
+            return Ok(stack.transition_to_combining(frame, Some(matched_idx)));
         }
 
         // Reset for next repetition
         ctx.reset_for_next_repetition(&repruned_children);
 
         let next_element = repruned_children[0];
-        let mut child_frame = TableParseFrame::new_child(
+        let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             next_element,
             *ctx.working_idx,
@@ -506,26 +485,20 @@ impl Parser<'_> {
         *ctx.last_child_frame_id = Some(stack.frame_id_counter);
 
         // Update frame state
-        frame.state = FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: repruned_children.len(),
-        };
-
-        stack.increment_frame_id_counter();
-        stack.push(&mut frame);
-        stack.push(&mut child_frame);
-        Ok(TableFrameResult::Done)
+        Ok(stack.push_child_and_wait(frame, child_frame, 0))
     }
 
     /// Handle AnyNumberOf Combining state using table-driven approach
     pub(crate) fn handle_anynumberof_table_driven_combining(
         &mut self,
         mut frame: TableParseFrame,
+        stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let FrameContext::AnyNumberOfTableDriven {
             grammar_id,
             count,
             matched_idx,
+            matched,
             ..
         } = &frame.context
         else {
@@ -537,35 +510,23 @@ impl Parser<'_> {
         let inst = self.grammar_ctx.inst(*grammar_id);
 
         vdebug!(
-            "AnyNumberOf[table] Combining: frame_id={}, accumulated={}, count={}",
+            "AnyNumberOf[table] Combining: frame_id={}, count={}",
             frame.frame_id,
-            frame.accumulated.len(),
             count
         );
 
         if *count < inst.min_times as usize {
             // Didn't meet min_times
-            self.pos = frame.pos;
-            frame.end_pos = Some(frame.pos);
-            frame.state = FrameState::Complete(Arc::new(MatchResult::empty_at(frame.pos)));
-            return Ok(TableFrameResult::Push(frame));
+            return Ok(stack.complete_frame_empty(&frame));
         }
 
         // Build final result
         let (result_match, final_pos) = {
             // Success - use lazy evaluation - store child_matches
-            if frame.accumulated.is_empty() {
-                (Arc::new(MatchResult::empty_at(frame.pos)), frame.pos)
+            if matched.is_empty() {
+                return Ok(stack.complete_frame_empty(&frame));
             } else {
-                let accumulated = std::mem::take(&mut frame.accumulated);
-                (
-                    Arc::new(MatchResult::sequence(
-                        frame.pos,
-                        *matched_idx,
-                        accumulated.into_vec(),
-                    )),
-                    *matched_idx,
-                )
+                (matched.clone(), *matched_idx)
             }
         };
 

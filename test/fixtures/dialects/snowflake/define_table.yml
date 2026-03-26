@@ -1,0 +1,44 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cc2ff0f5fb6e08e3c860af183effc03d06a9f87cff7c455a8706c13ffae835f4
+file:
+  statement:
+    create_table_statement:
+    - keyword: DEFINE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: DCM_PROJECT
+      - dot: .
+      - naked_identifier: RAW
+      - dot: .
+      - naked_identifier: INVENTORY
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: ITEM_ID
+          data_type:
+            data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+          naked_identifier: REGION_ID
+          data_type:
+            data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+          naked_identifier: IN_STOCK
+          data_type:
+            data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+          naked_identifier: COUNTED_ON
+          data_type:
+            data_type_identifier: DATE
+      - end_bracket: )
+    - keyword: change_tracking
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+  statement_terminator: ;
