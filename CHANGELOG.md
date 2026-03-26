@@ -18,7 +18,7 @@ This minor release expands SQLFluff in four meaningful ways: recursion protectio
 complete Rust-backed execution, broader dialect support, and better performance on large
 templated projects.
 
-* Security improvements which protect against resource exhaustion through malicious queries
+* Security improvements that protect against resource exhaustion through malicious queries
   by limiting recursion within the parser. Users can configure the new `max_parse_depth`
   config setting to enable deeper parsing in their project if necessary.
 * Rust support moves forward again, with Python now able to call Rust apply logic, full lazy
@@ -28,8 +28,8 @@ templated projects.
 * The dbt templater now includes support for the dbt return builtin, improved thread handling
   from profiles, and fixes for several Jinja edge cases.
 * Users also gain more indentation configuration flexibility, plus a wide set of rule and parser
-  correctness fixes. Specifically the ability to skip enforcement of implicit indentation in specific
-  dialect elemments.
+  correctness fixes. Specifically, the ability to skip enforcement of implicit indents for specific
+  dialect elements.
 
 Also, welcome to the **nineteen** new contributors! Thanks for your contributions! 🏆
 
