@@ -1300,3 +1300,67 @@ class TestErrorRecoveryAndDeadlocks:
             shm.unlink()
             runner._worker_init_data = None
             runner._worker_linter_cache = None
+
+    def test_terminate_pool_join_has_timeout(self):
+        """pool.join() in _terminate_pool uses a timeout to prevent deadlock."""
+        import inspect
+        import textwrap
+
+        source = textwrap.dedent(inspect.getsource(WarmWorkerRunner._terminate_pool))
+        assert "join(timeout=" in source
+
+    def test_terminate_pool_survives_join_timeout(self):
+        """_terminate_pool doesn't hang if pool.join times out."""
+        t = MockWarmTemplater()
+
+        def _hang_join(timeout=None):
+            # Simulate join timing out (returns without raising).
+            pass
+
+        t._warm_pool = types.SimpleNamespace(terminate=lambda: None, join=_hang_join)
+        # Should complete without hanging.
+        WarmWorkerRunner._terminate_pool(t)
+        assert t._warm_pool is None
+
+    def test_broadcast_timeout_triggers_pool_cleanup(self):
+        """When broadcast times out, except Exception calls _terminate_pool."""
+        import unittest.mock
+
+        config = FluffConfig(overrides={"dialect": "ansi"})
+        lntr = Linter(config=config)
+        r = WarmWorkerRunner(lntr, config, processes=2)
+
+        # Mock a pool whose map_async().get() raises TimeoutError.
+        mock_pool = unittest.mock.MagicMock()
+        mock_pool.map_async.return_value.get.side_effect = TimeoutError(
+            "broadcast hung"
+        )
+        lntr.templater._warm_pool = mock_pool
+        lntr.templater._warm_pool_processes = 2
+
+        with unittest.mock.patch.object(
+            WarmWorkerRunner, "_terminate_pool"
+        ) as mock_term:
+            try:
+                list(r.run([], fix=False))
+            except TimeoutError:
+                pass
+            assert mock_term.called
+
+    def test_pool_reuse_after_early_generator_close(self, tmp_path):
+        """Pool survives generator close (early break) and works next call."""
+        for i in range(3):
+            (tmp_path / f"f{i}.sql").write_text("SELECT 1\n")
+
+        config = FluffConfig(overrides={"dialect": "ansi"})
+        lntr = Linter(config=config)
+        try:
+            # Call lint_paths twice. If the pool were corrupted by
+            # an abandoned imap_unordered iterator from the first
+            # call, the second would deadlock or error.
+            r1 = lntr.lint_paths((str(tmp_path),), processes=2, retain_files=True)
+            r2 = lntr.lint_paths((str(tmp_path),), processes=2, retain_files=True)
+            assert sum(p.stats()["files"] for p in r1.paths) == 3
+            assert sum(p.stats()["files"] for p in r2.paths) == 3
+        finally:
+            WarmWorkerRunner._terminate_pool(lntr.templater)

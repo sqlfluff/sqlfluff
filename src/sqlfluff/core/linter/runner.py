@@ -704,12 +704,16 @@ class WarmWorkerRunner(MultiProcessRunner):
 
         Called on any error to ensure the next lint_paths() call
         starts with a fresh pool rather than reusing a broken one.
+
+        Uses a join timeout to prevent deadlock if a worker is stuck
+        in a C extension (pickle, Jinja) and doesn't respond to
+        SIGTERM from pool.terminate().
         """
         pool = getattr(templater, "_warm_pool", None)
         if pool is not None:
             try:
                 pool.terminate()
-                pool.join()
+                pool.join(timeout=5)
             except Exception:
                 pass
             templater._warm_pool = None

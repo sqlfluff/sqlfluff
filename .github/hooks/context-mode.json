@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\shaun\\.claude\\plugins\\cache\\context-mode\\context-mode\\1.0.18/hooks/pretooluse.mjs\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\shaun\\.claude\\plugins\\cache\\context-mode\\context-mode\\1.0.18/hooks/posttooluse.mjs\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\shaun\\.claude\\plugins\\cache\\context-mode\\context-mode\\1.0.18/hooks/precompact.mjs\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\shaun\\.claude\\plugins\\cache\\context-mode\\context-mode\\1.0.18/hooks/sessionstart.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}

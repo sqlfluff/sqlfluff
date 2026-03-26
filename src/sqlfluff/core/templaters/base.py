@@ -592,7 +592,7 @@ class RawTemplater:
         if pool is not None:
             try:
                 pool.terminate()
-                pool.join()
+                pool.join(timeout=5)
             except Exception:
                 pass
             self._warm_pool = None
