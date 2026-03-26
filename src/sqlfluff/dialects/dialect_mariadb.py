@@ -741,7 +741,7 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
                 Ref.keyword("STORAGE", optional=True),
                 "ENGINE",
                 Ref("EqualsSegment", optional=True),
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
             ),
             # AUTO_INCREMENT [=] number
             Sequence(
@@ -761,7 +761,7 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
                 "CHARACTER",
                 "SET",
                 Ref("EqualsSegment", optional=True),
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
             ),
             # CHECKSUM [=] {0 | 1}
             Sequence(
@@ -774,7 +774,7 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
                 Ref.keyword("DEFAULT", optional=True),
                 "COLLATE",
                 Ref("EqualsSegment", optional=True),
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
             ),
             # COMMENT [=] 'string'
             Sequence(

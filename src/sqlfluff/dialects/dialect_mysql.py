@@ -1579,7 +1579,7 @@ class TableOptionsSegment(BaseSegment):
                 "CHARACTER",
                 "SET",
                 Ref("EqualsSegment", optional=True),
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
             ),
             # CHECKSUM [=] {0 | 1}
             Sequence(
@@ -1592,7 +1592,7 @@ class TableOptionsSegment(BaseSegment):
                 Ref.keyword("DEFAULT", optional=True),
                 "COLLATE",
                 Ref("EqualsSegment", optional=True),
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
             ),
             # COMMENT [=] 'string'
             Sequence(
@@ -1635,7 +1635,7 @@ class TableOptionsSegment(BaseSegment):
             Sequence(
                 "ENGINE",
                 Ref("EqualsSegment", optional=True),
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
             ),
             # ENGINE_ATTRIBUTE [=] 'string'
             Sequence(
