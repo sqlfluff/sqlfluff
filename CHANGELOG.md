@@ -39,7 +39,7 @@ Also, welcome to the **nineteen** new contributors! Thanks for your contribution
 * Add double precision type for T-SQL [#7620](https://github.com/sqlfluff/sqlfluff/pull/7620) [@grv87](https://github.com/grv87)
 * Fix RF01/RF02 false positives for Redshift UNPIVOT output aliases [#7602](https://github.com/sqlfluff/sqlfluff/pull/7602) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
 * Fix crash on malformed inline config using = syntax [#7672](https://github.com/sqlfluff/sqlfluff/pull/7672) [@shi-vy](https://github.com/shi-vy)
-* Recusion check [#7473](https://github.com/sqlfluff/sqlfluff/pull/7473) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Recursion check [#7473](https://github.com/sqlfluff/sqlfluff/pull/7473) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * chore(rust): bump cargo deps [#7675](https://github.com/sqlfluff/sqlfluff/pull/7675) [@keraion](https://github.com/keraion)
 * fix(rust): place remaining `vdebug` behind `verbose-debug` feature [#7674](https://github.com/sqlfluff/sqlfluff/pull/7674) [@keraion](https://github.com/keraion)
 * chore: Update deprecated `gitwildmatch` to `gitignore` [#7673](https://github.com/sqlfluff/sqlfluff/pull/7673) [@keraion](https://github.com/keraion)
