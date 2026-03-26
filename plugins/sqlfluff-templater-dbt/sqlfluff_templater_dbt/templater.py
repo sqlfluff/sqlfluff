@@ -429,7 +429,9 @@ class DbtTemplater(JinjaTemplater):
             pass
         return modules
 
-    def get_warm_worker_setup_func(self) -> tuple[str, str]:
+    def get_warm_worker_setup_func(  # pragma: no cover
+        self,
+    ) -> tuple[str, str]:
         """Return (module, function_name) for the worker setup function.
 
         The setup function is called in each worker process during pool
