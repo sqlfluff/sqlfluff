@@ -570,7 +570,9 @@ class JinjaTemplater(PythonTemplater):
 
             # Pass 1: get all macro names and insert late-bound functions into
             # the context for every known macro.
-            macro_names = self._extract_macros(config=config, env=env, ctx=live_context)
+            macro_names = self._extract_macros(
+                config=config, env=env, ctx=live_context
+            ).keys()
             late_binding_macros = {}
             for k in macro_names:
 
