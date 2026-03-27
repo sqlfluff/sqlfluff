@@ -1174,7 +1174,6 @@ class CreateVirtualTableStatementSegment(BaseSegment):
                             Ref("QuotedLiteralSegment"),
                             Ref("NumericLiteralSegment"),
                             Ref("ObjectReferenceSegment"),
-                            Ref("SingleIdentifierGrammar"),
                         ),
                     ),
                     Ref("QuotedLiteralSegment"),
