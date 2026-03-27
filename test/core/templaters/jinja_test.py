@@ -741,7 +741,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_l_metas/011", False, True),
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
-        ("jinja_n_nested_macros/jinja", True, False),
+        ("jinja_n_nested_macros/explicit_import", True, False),
+        ("jinja_n_nested_macros/implicit_import", True, False),
         # Test more dbt configurations
         ("jinja_o_config_override_dbt_builtins/override_dbt_builtins", True, False),
         ("jinja_p_disable_dbt_builtins/disable_dbt_builtins", True, False),

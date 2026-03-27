@@ -235,6 +235,40 @@ class JinjaTemplater(PythonTemplater):
                 )
         return macro_ctx
 
+    def _extract_macros(
+        self, config: FluffConfig, env: Environment, ctx: dict[str, Any]
+    ) -> dict[str, DbtMacroWrapper]:
+        """Load macros directly in a config and from load_macros_from_path.
+
+        Args:
+            config: The config to extract macros from.
+            env: The environment.
+            ctx: The context.
+
+        Returns:
+            dict: A dictionary containing the extracted macros.
+        """
+        macro_ctx: dict[str, DbtMacroWrapper] = {}
+
+        macros_path = self._get_macros_path(config, "load_macros_from_path")
+        exclude_macros_path = self._get_macros_path(config, "exclude_macros_from_path")
+        if macros_path:
+            macro_ctx.update(
+                self._extract_macros_from_path(
+                    macros_path,
+                    env=env,
+                    ctx=ctx,
+                    exclude_paths=exclude_macros_path,
+                )
+            )
+
+        # Load config macros, these will take precedence over macros from the path
+        macro_ctx.update(
+            self._extract_macros_from_config(config=config, env=env, ctx=ctx)
+        )
+
+        return macro_ctx
+
     def _extract_libraries_from_config(self, config: FluffConfig) -> dict[str, Any]:
         """Extracts libraries from the given configuration.
 
@@ -530,24 +564,26 @@ class JinjaTemplater(PythonTemplater):
 
         # Load macros from path (if applicable)
         if config:
-            macros_path = self._get_macros_path(config, "load_macros_from_path")
-            exclude_macros_path = self._get_macros_path(
-                config, "exclude_macros_from_path"
-            )
-            if macros_path:
-                live_context.update(
-                    self._extract_macros_from_path(
-                        macros_path,
-                        env=env,
-                        ctx=live_context,
-                        exclude_paths=exclude_macros_path,
-                    )
-                )
+            # References to variables are fixed when macros are compiled. In
+            # order to handle macros that refer to other macros from another
+            # file, we have to make two passes:
 
-            # Load config macros, these will take precedence over macros from the path
+            # Pass 1: get all macro names and insert late-bound functions into
+            # the context for every known macro.
+            macro_names = self._extract_macros(config=config, env=env, ctx=live_context)
+            late_binding_macros = {}
+            for k in macro_names:
+
+                def late_binding_macro(macro_name):
+                    return lambda *args, **kwargs: live_context[macro_name](
+                        *args, **kwargs
+                    )
+
+                late_binding_macros[k] = late_binding_macro(k)
+            # Pass 2: load the macros, with the late bindings in the context
             live_context.update(
-                self._extract_macros_from_config(
-                    config=config, env=env, ctx=live_context
+                self._extract_macros(
+                    config=config, env=env, ctx=live_context | late_binding_macros
                 )
             )
 
