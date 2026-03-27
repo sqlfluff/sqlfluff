@@ -574,7 +574,7 @@ class JinjaTemplater(PythonTemplater):
             late_binding_macros = {}
             for k in macro_names:
 
-                def late_binding_macro(macro_name):
+                def late_binding_macro(macro_name: str) -> Callable[..., Any]:
                     return lambda *args, **kwargs: live_context[macro_name](
                         *args, **kwargs
                     )
