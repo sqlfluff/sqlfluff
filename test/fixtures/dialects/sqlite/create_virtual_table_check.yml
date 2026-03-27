@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 40d41a29d566359d8a6bc4558b28d55e2e32c08b6e1f28b4064ad3eb67036235
+_hash: 13391037237a799784309634714c243eff85f9664b9cfb86c1872ffa8464b2fb
 file:
 - statement:
     create_virtual_table_statement:
@@ -138,5 +138,27 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "''"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_virtual_table_statement:
+    - keyword: CREATE
+    - keyword: VIRTUAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ft2
+    - keyword: USING
+    - naked_identifier: fts5
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: a
+      - comma: ','
+      - naked_identifier: content
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - naked_identifier: main
+        - dot: .
+        - naked_identifier: emails
       - end_bracket: )
 - statement_terminator: ;
