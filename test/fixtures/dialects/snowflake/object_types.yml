@@ -20,9 +20,9 @@ file:
                   object_literal:
                     start_curly_bracket: '{'
                     object_literal_element:
-                    - quoted_literal: '''foo'''
+                    - quoted_literal: "'foo'"
                     - colon: ':'
-                    - quoted_literal: '''bar'''
+                    - quoted_literal: "'bar'"
                     end_curly_bracket: '}'
                 keyword: AS
                 data_type:
