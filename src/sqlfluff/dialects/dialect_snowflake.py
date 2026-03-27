@@ -9706,7 +9706,6 @@ class ObjectTypeSchemaSegment(BaseSegment):
                 Ref("DatatypeSegment"),
                 Sequence("NOT", "NULL", optional=True),
             ),
-            optional=True,
         ),
     )
 
