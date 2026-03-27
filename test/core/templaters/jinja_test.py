@@ -614,9 +614,9 @@ def test__templater_jinja_dbt_builtin_function():
         "FROM {{ ref('my_model') }}\n"
     )
     outstr, vs = JinjaTemplater().process(in_str=instr, fname="test.sql", config=config)
-    assert str(outstr) == (
-        "SELECT my_dataset_my_udf(some_column, other_column) AS result\n"
-        "FROM my_model\n"
+    assert (
+        str(outstr)
+        == "SELECT my_dataset_my_udf(some_column, other_column) AS result\nFROM my_model\n"
     )
     assert len(vs) == 0
 
