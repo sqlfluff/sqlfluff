@@ -19,3 +19,6 @@ CREATE VIRTUAL TABLE IF NOT EXISTS sample_schema.email USING fts5(
     0,
     "complex-field@!#"
 );
+
+CREATE VIRTUAL TABLE ft USING fts5(a, b, c, content='');
+
