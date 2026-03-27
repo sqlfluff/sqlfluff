@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 60197f061b2430359a5d50db61b961cd03dd3b23ed5d7ead1f118649a1630e63
+_hash: 8b248c75ef6cd290f895be23e10381115495cc3ef9e27e137da60db9ab3db81c
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -40,4 +40,26 @@ file:
             alias_operator:
               keyword: AS
             naked_identifier: baz
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  null_literal: 'NULL'
+                keyword: AS
+                data_type:
+                  data_type_identifier: OBJECT
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: bare_obj
+- statement_terminator: ;
