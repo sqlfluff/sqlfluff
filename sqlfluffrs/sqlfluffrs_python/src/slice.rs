@@ -18,8 +18,10 @@ impl From<RsSlice> for PySlice {
     }
 }
 
-impl<'py> FromPyObject<'py> for PySlice {
-    fn extract_bound(obj: &pyo3::Bound<'py, pyo3::PyAny>) -> PyResult<Self> {
+impl<'a, 'py> FromPyObject<'a, 'py> for PySlice {
+    type Error = PyErr;
+
+    fn extract(obj: pyo3::Borrowed<'a, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
         let start = obj.getattr("start")?.extract::<usize>()?;
         let stop = obj.getattr("stop")?.extract::<usize>()?;
         Ok(PySlice(RsSlice { start, stop }))

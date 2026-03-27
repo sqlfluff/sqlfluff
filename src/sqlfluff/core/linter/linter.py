@@ -277,6 +277,16 @@ class Linter:
                 parse_statistics=parse_statistics,
             )
         except SQLParseError as err:
+            if err.segment is None:
+                anchor = next((seg for seg in tokens if seg.is_code), None)
+                if anchor is not None:
+                    err = SQLParseError(
+                        description=err.description,
+                        segment=anchor,
+                        ignore=err.ignore,
+                        fatal=err.fatal,
+                        warning=err.warning,
+                    )
             linter_logger.info("PARSING FAILED! : %s", err)
             violations.append(err)
             return None, violations
@@ -569,6 +579,7 @@ class Linter:
                                 crawler.code,
                                 anchor_info,
                                 fix_even_unparsable=config.get("fix_even_unparsable"),
+                                max_parse_depth=config.get("max_parse_depth"),
                             )
 
                             # Check for infinite loops. We use a combination of the
@@ -755,13 +766,9 @@ class Linter:
                 allowed_rules_ref_map = cls.allowed_rule_ref_map(
                     rule_pack.reference_map, disable_noqa_except
                 )
-                ignore_mask, ignore_violations = IgnoreMask.from_source(
+                ignore_mask, ignore_violations = IgnoreMask.from_source_with_dialect(
                     parsed.source_str,
-                    [
-                        lm
-                        for lm in parsed.config.get("dialect_obj").lexer_matchers
-                        if lm.name == "inline_comment"
-                    ][0],
+                    parsed.config.get("dialect_obj"),
                     allowed_rules_ref_map,
                 )
                 violations += ignore_violations

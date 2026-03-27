@@ -1450,6 +1450,22 @@ class AlterDatabaseStatementSegment(BaseSegment):
             ),
             _recovery_options,
         ),
+        # Optional WITH termination clause
+        # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-transact-sql-set-options
+        Sequence(
+            "WITH",
+            OneOf(
+                Sequence(
+                    "ROLLBACK",
+                    "AFTER",
+                    Ref("NumericLiteralSegment"),
+                    OneOf("SECONDS", optional=True),
+                ),
+                Sequence("ROLLBACK", "IMMEDIATE"),
+                "NO_WAIT",
+            ),
+            optional=True,
+        ),
     )
 
     _add_secondary_option = OneOf(
@@ -3532,6 +3548,10 @@ class DatatypeSegment(BaseSegment):
                 "FLOAT",
                 Ref("BracketedArguments", optional=True),
             ),
+            Sequence(
+                "DOUBLE",
+                "PRECISION",
+            ),
             "REAL",
             # Date and time types
             "DATE",
@@ -4125,7 +4145,7 @@ class SetStatementSegment(BaseSegment):
                             Ref("EqualsSegment"),
                             Ref("ExpressionSegment"),
                         ),
-                        # The below for https://learn.microsoft.com/en-us/sql/t-sql/statements/set-deadlock-priority-transact-sql # noqa
+                        # The below for https://learn.microsoft.com/en-us/sql/t-sql/statements/set-deadlock-priority-transact-sql
                         "LOW",
                         "NORMAL",
                         "HIGH",
@@ -5056,6 +5076,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Delimited(
                     Ref("ComputedColumnDefinitionSegment"),
                     Ref("ColumnDefinitionSegment"),
+                    Ref("PeriodSegment"),
                 ),
             ),
             Sequence(
@@ -7590,7 +7611,11 @@ class CreateTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("ObjectReferenceSegment"),
         OneOf(
-            Sequence("FROM", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "FROM",
+                Ref("DatatypeSegment"),
+                OneOf("NULL", Sequence("NOT", "NULL"), optional=True),
+            ),
             Sequence(
                 "AS",
                 "TABLE",

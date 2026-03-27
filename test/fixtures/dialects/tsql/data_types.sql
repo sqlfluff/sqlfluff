@@ -25,6 +25,7 @@ DECLARE @dec_ps_var DEC(15, 3);
 DECLARE @float_var FLOAT;
 DECLARE @float_p_var FLOAT(24);
 DECLARE @real_var REAL;
+DECLARE @double_precision_var DOUBLE PRECISION;
 
 -- Date and time types
 DECLARE @date_var DATE;
@@ -127,6 +128,7 @@ CREATE TABLE DataTypesTest (
     -- Approximate numeric
     col_float FLOAT,
     col_real REAL,
+    col_double_precision DOUBLE PRECISION,
 
     -- Date and time
     col_date DATE,

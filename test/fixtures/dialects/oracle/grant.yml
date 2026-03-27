@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 171171db8b369c26530be3aa171d7eff2a5c147251ec79dafa53d37527681e70
+_hash: 2462cc8b0d741806119bdac0f6f2972e2bbe9130962f10cf2b5ccaa7ae6393fe
 file:
   batch:
   - statement:
@@ -267,4 +267,45 @@ file:
         - access_target:
             object_reference:
               naked_identifier: oe
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            access_permission:
+              keyword: CONNECT
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: some_user
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            access_permission:
+              keyword: RESOURCE
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: hr
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+        grant_statement:
+        - keyword: GRANT
+        - access_permissions:
+            access_permission:
+              keyword: TRIGGER
+        - keyword: 'ON'
+        - object_reference:
+          - naked_identifier: hr
+          - dot: .
+          - naked_identifier: employees
+        - keyword: TO
+        - access_target:
+            object_reference:
+              naked_identifier: some_user2
   - statement_terminator: ;

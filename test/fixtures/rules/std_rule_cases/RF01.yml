@@ -202,6 +202,30 @@ test_pass_exasol_select_into:
     core:
       dialect: exasol
 
+test_pass_oracle_sequence_nextval:
+  # Oracle sequence pseudocolumns should not be interpreted as table references.
+  pass_str: |
+    SELECT emloye_seq.NEXTVAL, name, a, b FROM Employee;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_schema_sequence_currval:
+  # Oracle also supports [schema.]sequence.CURRVAL access.
+  pass_str: |
+    SELECT hr.emloye_seq.CURRVAL FROM dual;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_sequence_currval:
+  # Oracle also supports sequence.CURRVAL access without schema qualifier.
+  pass_str: |
+    SELECT emloye_seq.CURRVAL FROM dual;
+  configs:
+    core:
+      dialect: oracle
+
 test_pass_simple_delete:
   pass_str: |
     delete from table1 where 1 = 1
@@ -634,3 +658,89 @@ test_fail_explode_nested_field_sparksql:
     rules:
       references.from:
         force_enable: true
+
+test_pass_redshift_object_unpivot:
+  # Redshift SUPER type object unpivoting introduces standalone aliases.
+  # See: https://github.com/sqlfluff/sqlfluff/issues/6765
+  pass_str: |
+    SELECT
+        x.json,
+        key1,
+        value2.field2
+    FROM table1 AS x,
+        UNPIVOT x.json AS value1 AT key1,
+        value1.field1 AS value2 AT key2
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_redshift_from_unpivot_output_aliases:
+  # Redshift UNPIVOT introduces standalone output aliases.
+  # Unqualified references to the generated output columns should be allowed.
+  pass_str: |
+    SELECT
+        color,
+        cnt
+    FROM count_by_color UNPIVOT (
+        cnt FOR color IN (red, green, blue)
+    )
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_snowflake_from_unpivot_output_aliases:
+  # Snowflake UNPIVOT introduces standalone output aliases.
+  pass_str: |
+    SELECT
+        col_name,
+        val
+    FROM my_tbl
+    UNPIVOT (val FOR col_name IN (a, b))
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_bigquery_single_column_unpivot_output_aliases:
+  # BigQuery single-column UNPIVOT introduces standalone output aliases.
+  pass_str: |
+    SELECT
+        quarter,
+        sales
+    FROM Produce
+    UNPIVOT(sales FOR quarter IN (Q1, Q2, Q3, Q4))
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_duckdb_single_key_unpivot_output_aliases:
+  # DuckDB single-key UNPIVOT introduces standalone output aliases.
+  pass_str: |
+    SELECT
+        month,
+        sales
+    FROM monthly_sales UNPIVOT (
+        sales
+        FOR month IN (jan, feb, mar, apr, may, jun)
+    )
+  configs:
+    core:
+      dialect: duckdb
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_redshift_array_unnest:
+  # Redshift SUPER type array unnesting introduces standalone aliases.
+  pass_str: |
+    SELECT
+        ed.shop_id,
+        key,
+        value
+    FROM example_data AS ed,
+        ed.inventory AS value AT key
+  configs:
+    core:
+      dialect: redshift

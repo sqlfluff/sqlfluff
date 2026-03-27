@@ -908,7 +908,7 @@ pub mod python {
         }
     }
 
-    #[pyclass(name = "RsLexer", subclass, module = "sqlfluffrs")]
+    #[pyclass(name = "RsLexer", subclass, module = "sqlfluffrs", from_py_object)]
     #[repr(transparent)]
     #[derive(Clone)]
     pub struct PyLexer(pub Lexer);

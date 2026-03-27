@@ -75,9 +75,7 @@ class Rule_AL03(BaseRule):
             sp.is_type("cast_expression")
         ) and not children.children().select(
             sp.is_type("cast_expression")
-        ).children().any(
-            sp.is_type("function")
-        ):
+        ).children().any(sp.is_type("function")):
             return None
 
         parent_stack = functional_context.parent_stack

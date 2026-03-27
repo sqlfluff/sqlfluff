@@ -111,3 +111,44 @@ BEGIN
   p(30000);
 END;
 /
+
+-- IS [NOT] OF type predicate (Oracle OO PL/SQL)
+DECLARE
+  obj_ref SYS.ANYDATA;
+BEGIN
+  IF obj_ref IS OF (emp_t) THEN
+    NULL;
+  ELSIF obj_ref IS NOT OF (mgr_t, emp_t) THEN
+    NULL;
+  ELSIF obj_ref IS OF TYPE (worker_t) THEN
+    NULL;
+  ELSIF obj_ref IS NOT OF TYPE (mgr_t) THEN
+    NULL;
+  ELSIF obj_ref IS OF (ONLY emp_t) THEN
+    NULL;
+  ELSIF obj_ref IS NOT OF (ONLY mgr_t, ONLY emp_t) THEN
+    NULL;
+  END IF;
+END;
+/
+
+-- Anonymous block with IF/ELSIF/ELSE
+DECLARE
+  AUDITINFO VARCHAR2(2000);
+  EVENT VARCHAR2(10);
+BEGIN
+  IF 1 = 1 THEN
+    AUDITINFO := 'Insert row into ';
+    EVENT := 'INSERT';
+  ELSIF 1 = 2 THEN
+    AUDITINFO := 'Delete row from ';
+    EVENT := 'DELETE';
+  ELSIF 1 = 3 THEN
+    AUDITINFO := 'Update row from ';
+    EVENT := 'UPDATE';
+  ELSE
+    AUDITINFO := 'Unknow operation ';
+    EVENT := 'UNKNOW';
+  END IF;
+END;
+/

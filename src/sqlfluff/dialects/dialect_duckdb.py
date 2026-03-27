@@ -48,7 +48,7 @@ unquoted, and more unusually, *also when quoted*). See the
 The dialect for `DuckDB <https://duckdb.org/>`_.
 
 .. _`DuckDB Identifiers Documentation`: https://duckdb.org/docs/sql/dialect/keywords_and_identifiers
-""",  # noqa: E501
+""",
 )
 
 duckdb_dialect.sets("reserved_keywords").update(
@@ -206,6 +206,7 @@ duckdb_dialect.replace(
             ),
             Ref("FunctionSegment"),
             Ref("ArrayLiteralSegment"),
+            Ref("MapLiteralSegment"),
             Ref("QuotedLiteralSegment"),
             Ref("ColumnReferenceSegment"),
         ),
@@ -249,6 +250,7 @@ duckdb_dialect.replace(
         ),
     ),
     BaseExpressionElementGrammar=OneOf(
+        Ref("MapLiteralSegment"),
         postgres_dialect.get_grammar("BaseExpressionElementGrammar"),
         Ref("ColumnIndexSegment"),
     ),
@@ -406,6 +408,42 @@ class MapTypeSchemaSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             Ref("DatatypeSegment"),
+        ),
+    )
+
+
+class MapLiteralElementSegment(BaseSegment):
+    """A map literal element segment.
+
+    e.g. 'key1': 50
+    Keys in DuckDB map literals can be any expression.
+    """
+
+    type = "map_literal_element"
+    match_grammar: Matchable = Sequence(
+        Ref("BaseExpressionElementGrammar"),
+        Ref("ColonSegment"),
+        Ref("BaseExpressionElementGrammar"),
+    )
+
+
+class MapLiteralSegment(BaseSegment):
+    """A map literal segment.
+
+    https://duckdb.org/docs/stable/sql/data_types/map
+    e.g. MAP {'key1': 50, 'key2': 75}
+    """
+
+    type = "map_literal"
+    match_grammar: Matchable = Sequence(
+        "MAP",
+        Bracketed(
+            Delimited(
+                Ref("MapLiteralElementSegment"),
+                optional=True,
+                allow_trailing=True,
+            ),
+            bracket_type="curly",
         ),
     )
 
@@ -911,14 +949,15 @@ class FromPivotExpressionSegment(BaseSegment):
                 Sequence(
                     Ref("FunctionSegment"),
                     Ref("AliasExpressionSegment", optional=True),
-                )
+                ),
+                allow_trailing=True,
             ),
             "FOR",
             AnyNumberOf(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
                     "IN",
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
+                    Bracketed(Delimited(Ref("LiteralGrammar"), allow_trailing=True)),
                 ),
             ),
             Ref("GroupByClauseSegment", optional=True),
@@ -948,9 +987,10 @@ class SimplifiedPivotExpressionSegment(BaseSegment):
                 ),
                 Sequence(
                     "IN",
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
+                    Bracketed(Delimited(Ref("LiteralGrammar"), allow_trailing=True)),
                     optional=True,
                 ),
+                allow_trailing=True,
             ),
             optional=True,
         ),
@@ -961,6 +1001,7 @@ class SimplifiedPivotExpressionSegment(BaseSegment):
                     Ref("FunctionSegment"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
+                allow_trailing=True,
             ),
             optional=True,
         ),
@@ -980,7 +1021,9 @@ class FromUnpivotExpressionSegment(BaseSegment):
         Bracketed(
             OneOf(
                 Ref("SingleIdentifierGrammar"),
-                Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+                Bracketed(
+                    Delimited(Ref("SingleIdentifierGrammar"), allow_trailing=True)
+                ),
             ),
             "FOR",
             AnyNumberOf(
@@ -991,11 +1034,15 @@ class FromUnpivotExpressionSegment(BaseSegment):
                         Delimited(
                             Sequence(
                                 OptionallyBracketed(
-                                    Delimited(Ref("SingleIdentifierGrammar"))
+                                    Delimited(
+                                        Ref("SingleIdentifierGrammar"),
+                                        allow_trailing=True,
+                                    )
                                 ),
                                 Ref("AliasExpressionSegment", optional=True),
                             ),
                             Ref("ColumnsExpressionGrammar"),
+                            allow_trailing=True,
                         ),
                     ),
                 ),
@@ -1020,10 +1067,11 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
             Sequence(
                 OneOf(
                     Ref("ExpressionSegment"),
-                    Bracketed(Delimited(Ref("ExpressionSegment"))),
+                    Bracketed(Delimited(Ref("ExpressionSegment"), allow_trailing=True)),
                 ),
                 Ref("AliasExpressionSegment", optional=True),
             ),
+            allow_trailing=True,
         ),
         Sequence(
             "INTO",
@@ -1032,6 +1080,7 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
             "VALUE",
             Delimited(
                 Ref("SingleIdentifierGrammar"),
+                allow_trailing=True,
             ),
             optional=True,
         ),

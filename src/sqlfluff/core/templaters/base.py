@@ -177,9 +177,9 @@ class TemplatedFile:
                     "literal", slice(0, len(source_str)), slice(0, len(source_str))
                 )
             ]
-            assert (
-                raw_sliced is None
-            ), "Templated file was not sliced, but not has raw slices."
+            assert raw_sliced is None, (
+                "Templated file was not sliced, but not has raw slices."
+            )
             self.raw_sliced: list[RawFileSlice] = [
                 RawFileSlice(source_str, "literal", 0)
             ]
@@ -512,6 +512,11 @@ class RawTemplater:
     name = "raw"
     templater_selector = "templater"
     config_subsection: tuple[str, ...] = ()
+    # When True, parallel runners will defer render_file into the worker
+    # process instead of templating in the main process and shipping the
+    # full RenderedFile across the IPC boundary.  Set to False for any
+    # templater that requires main-process state (e.g. dbt's manifest).
+    templates_in_worker: bool = True
 
     def __init__(
         self,

@@ -55,7 +55,7 @@ class DbtConfigArgs:
     profile: Optional[str] = None
     target: Optional[str] = None
     target_path: Optional[str] = None
-    threads: int = 1
+    threads: Optional[int] = None
     single_threaded: bool = False
     # dict in 1.5.x onwards, json string before.
     # NOTE: We always set this value when instantiating this
@@ -114,7 +114,7 @@ def handle_dbt_errors(
 
     https://docs.python.org/3/library/exceptions.html#inheriting-from-built-in-exceptions
     https://github.com/sqlfluff/sqlfluff/issues/6037
-    """  # noqa E501
+    """
 
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         def wrapped_method(*args, **kwargs) -> T:
@@ -174,6 +174,9 @@ class DbtTemplater(JinjaTemplater):
     name = "dbt"
     sequential_fail_limit = 3
     adapters = {}
+    # dbt builds a cross-file manifest in the main process, so templating
+    # cannot be deferred to worker processes.
+    templates_in_worker = False
 
     def __init__(self, override_context: Optional[dict[str, Any]] = None):
         self.sqlfluff_config = None
@@ -262,6 +265,8 @@ class DbtTemplater(JinjaTemplater):
         # 1.5.x+ this is a dict.
         cli_vars = self._get_cli_vars()
 
+        _threads = self._get_threads()
+
         flags.set_from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
@@ -269,7 +274,7 @@ class DbtTemplater(JinjaTemplater):
                 profile=self._get_profile(),
                 target_path=self._get_target_path(),
                 vars=cli_vars,
-                threads=1,
+                threads=_threads,
             ),
             user_config,
         )
@@ -281,7 +286,7 @@ class DbtTemplater(JinjaTemplater):
                 target=self._get_target(),
                 target_path=self._get_target_path(),
                 vars=cli_vars,
-                threads=1,
+                threads=_threads,
             )
         )
 
@@ -424,6 +429,17 @@ class DbtTemplater(JinjaTemplater):
         return self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "target_path")
         )
+
+    def _get_threads(self) -> Optional[int]:
+        """Get the dbt threads value from the configuration.
+
+        If not set, returns ``None`` which lets dbt use the value
+        from ``profiles.yml``.
+        """
+        value = self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "threads")
+        )
+        return int(value) if value is not None else None
 
     def _get_cli_vars(self) -> dict:
         cli_vars = self.sqlfluff_config.get_section(
@@ -574,6 +590,17 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
+            # Fallback: try symlink resolution for dbt local packages.
+            # dbt deps creates symlinks (e.g., dbt_packages/my_pkg -> packages/my_pkg)
+            # and records the symlink path in the manifest. When the input file is
+            # specified via the real path, the selector above finds nothing. Resolve
+            # both sides to handle the mismatch.
+            for uid, node in self.dbt_manifest.nodes.items():
+                if (Path(dbt_dir) / node.original_file_path).resolve() == abs_path:
+                    results = [node]
+                    break
+
+        if not results:
             skip_reason = self._find_skip_reason(abs_path)
             if skip_reason:
                 raise SQLFluffSkipFile(
@@ -676,6 +703,10 @@ class DbtTemplater(JinjaTemplater):
         # NOTE: _find_node will raise a compilation exception if the project
         # fails to compile, and we catch that in the outer `.process()` method.
         node = self._find_node(fname, config, dbt_dir)
+        # Use the node's original_file_path for the from_string comparison below.
+        # This handles symlinked paths (e.g., dbt local packages) where fname
+        # may differ from what the manifest records.
+        original_file_path = node.original_file_path
 
         templater_logger.debug(
             "_find_node for path %r returned object of type %s.", fname, type(node)

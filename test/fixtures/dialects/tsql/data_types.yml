@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d03e669b6c5f9c91441883c6c321fceb60da3d43050ace0a8ccf0383942164c3
+_hash: 93b834cfeb99f973aad0867a5968f256a9f85113d5454ed4c4cf18a0289566a6
 file:
 - batch:
   - statement:
@@ -189,6 +189,14 @@ file:
         parameter: '@real_var'
         data_type:
           keyword: REAL
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@double_precision_var'
+        data_type:
+        - keyword: DOUBLE
+        - keyword: PRECISION
   - statement_terminator: ;
   - statement:
       declare_segment:
@@ -875,6 +883,12 @@ file:
             naked_identifier: col_real
             data_type:
               keyword: REAL
+        - comma: ','
+        - column_definition:
+            naked_identifier: col_double_precision
+            data_type:
+            - keyword: DOUBLE
+            - keyword: PRECISION
         - comma: ','
         - column_definition:
             naked_identifier: col_date

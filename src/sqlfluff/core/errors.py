@@ -253,7 +253,8 @@ class SQLParseError(SQLBaseError):
         """
         error_msg = str(rs_error)
         error_segment: Optional["BaseSegment"] = None
-        error_segment = segments[(rs_error.pos or 0)]
+        error_pos = getattr(rs_error, "pos", 0)
+        error_segment = segments[int(error_pos or 0)]
 
         return cls(
             description=error_msg,

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09932703362d42bf81706716637af4523ce68574d4d6539724089b61842ffed3
+_hash: 0372d59b52907211a2eb331b08161487f6b45714594c1ac677432811150db0b8
 file:
 - batch:
     statement:
@@ -55,16 +55,11 @@ file:
                 - statement_terminator: ;
               - when_clause:
                 - keyword: WHEN
-                - expression:
-                    function:
-                      function_name:
-                        function_name_identifier: UPDATING
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            quoted_literal: "'salary'"
-                          end_bracket: )
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'salary'"
+                    end_bracket: )
                 - keyword: THEN
                 - statement:
                     function:
@@ -81,16 +76,11 @@ file:
                 - statement_terminator: ;
               - when_clause:
                 - keyword: WHEN
-                - expression:
-                    function:
-                      function_name:
-                        function_name_identifier: UPDATING
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            quoted_literal: "'department_id'"
-                          end_bracket: )
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'department_id'"
+                    end_bracket: )
                 - keyword: THEN
                 - statement:
                     function:

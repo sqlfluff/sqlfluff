@@ -15,14 +15,18 @@ _build
 dist
 .pytest_cache
 /sqlfluff-*
+.tmp
 
 # Ignore the Environment
 env
 .tox
 venv
 .venv
+.virtualenv_app_data
 .python-version
 uv.lock
+.tmp
+.virtualenv_app_data
 
 # Ignore coverage reports
 .coverage
