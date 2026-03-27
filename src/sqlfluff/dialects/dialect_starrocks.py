@@ -357,6 +357,66 @@ class CreateRoutineLoadDataSourcePropertiesSegment(BaseSegment):
     )
 
 
+class LoadLabelPropertySegment(BaseSegment):
+    """A key/value property entry for LOAD LABEL and BROKER properties."""
+
+    type = "load_label_property"
+    match_grammar = Sequence(
+        Ref("QuotedLiteralSegment"), Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+    )
+
+
+class LoadDataDescSegment(BaseSegment):
+    """A data description entry for LOAD LABEL."""
+
+    type = "load_data_desc"
+    match_grammar = Sequence(
+        "DATA",
+        "INFILE",
+        Bracketed(Ref("QuotedLiteralSegment")),
+        "INTO",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "FORMAT",
+            "AS",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+    )
+
+
+class LoadLabelStatementSegment(BaseSegment):
+    """A `LOAD LABEL` statement for StarRocks."""
+
+    type = "load_label_statement"
+    match_grammar = Sequence(
+        "LOAD",
+        "LABEL",
+        OneOf(
+            Sequence(
+                Ref("DatabaseReferenceSegment"),
+                Ref("DotSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Bracketed(Delimited(Ref("LoadDataDescSegment"))),
+        "WITH",
+        "BROKER",
+        Bracketed(Delimited(Ref("LoadLabelPropertySegment"))),
+        Sequence(
+            "PROPERTIES",
+            Bracketed(Delimited(Ref("LoadLabelPropertySegment"))),
+            optional=True,
+        ),
+    )
+
+
 """Grammar for STOP ROUTINE LOAD statement in StarRocks."""
 
 
@@ -420,7 +480,7 @@ class ResumeRoutineLoadStatementSegment(BaseSegment):
 
 
 class InsertOverwriteStatementSegment(BaseSegment):
-    """A `INSERT OVERWRITE` statement with optional PARTITION clause."""
+    """A `INSERT OVERWRITE` statement with optional PARTITION and LABEL clauses."""
 
     type = "insert_overwrite_statement"
     match_grammar = Sequence(
@@ -440,6 +500,12 @@ class InsertOverwriteStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Sequence(
+            "WITH",
+            "LABEL",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
         Ref("SelectableGrammar"),
     )
 
@@ -449,6 +515,7 @@ class StatementSegment(mysql.StatementSegment):
 
     match_grammar = mysql.StatementSegment.match_grammar.copy(
         insert=[
+            Ref("LoadLabelStatementSegment"),
             Ref("CreateRoutineLoadStatementSegment"),
             Ref("StopRoutineLoadStatementSegment"),
             Ref("PauseRoutineLoadStatementSegment"),
