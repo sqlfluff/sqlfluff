@@ -89,24 +89,6 @@ def test_space_is_not_reserved(raw: str) -> None:
     assert result.num_violations() == 0
 
 
-@pytest.mark.parametrize(
-    "sql",
-    [
-        "ALTER MATERIALIZED VIEW my_view SET (timescaledb.materialized_only = FALSE);",
-        "ALTER MATERIALIZED VIEW my_view RESET (timescaledb.materialized_only);",
-        "ALTER VIEW my_view SET (timescaledb.materialized_only = FALSE);",
-        "ALTER VIEW my_view RESET (timescaledb.materialized_only);",
-    ],
-)
-def test_postgres_alter_view_dotted_option_names(sql: str) -> None:
-    """Test postgres ALTER VIEW statements parse dotted option names."""
-    parsed = Linter(dialect="postgres").parse_string(sql)
-
-    assert not parsed.violations
-    assert parsed.tree is not None
-    assert "unparsable" not in parsed.tree.type_set()
-
-
 def test_priority_keyword_merge() -> None:
     """Test merging on keyword lists works as expected."""
     kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]

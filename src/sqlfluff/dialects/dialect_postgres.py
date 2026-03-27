@@ -442,10 +442,15 @@ postgres_dialect.add(
         CodeSegment,
         type="properties_naked_identifier",
     ),
-    QualifiedParameterNameSegment=RegexParser(
-        r'(?:[A-Z_][A-Z0-9_$]*|"[^"]*")(?:\.(?:[A-Z_][A-Z0-9_$]*|"[^"]*"))?',
-        CodeSegment,
-        type="parameter",
+    QualifiedParameterNameGrammar=Sequence(
+        Ref("ParameterNameSegment"),
+        Sequence(
+            Ref("DotSegment"),
+            Ref("ParameterNameSegment"),
+            optional=True,
+            allow_gaps=False,
+        ),
+        allow_gaps=False,
     ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -3303,7 +3308,7 @@ class AlterMaterializedViewActionSegment(BaseSegment):
                     Bracketed(
                         Delimited(
                             Sequence(
-                                Ref("QualifiedParameterNameSegment"),
+                                Ref("QualifiedParameterNameGrammar"),
                                 Ref("EqualsSegment"),
                                 Ref("LiteralGrammar"),
                             ),
@@ -3312,7 +3317,7 @@ class AlterMaterializedViewActionSegment(BaseSegment):
                 ),
                 Sequence(
                     "RESET",
-                    Bracketed(Delimited(Ref("QualifiedParameterNameSegment"))),
+                    Bracketed(Delimited(Ref("QualifiedParameterNameGrammar"))),
                 ),
                 Sequence(
                     "SET", "STORAGE", OneOf("PLAIN", "EXTERNAL", "EXTENDED", "MAIN")
@@ -3327,7 +3332,7 @@ class AlterMaterializedViewActionSegment(BaseSegment):
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref("QualifiedParameterNameSegment"),
+                        Ref("QualifiedParameterNameGrammar"),
                         Sequence(
                             Ref("EqualsSegment"), Ref("LiteralGrammar"), optional=True
                         ),
@@ -3337,7 +3342,7 @@ class AlterMaterializedViewActionSegment(BaseSegment):
         ),
         Sequence(
             "RESET",
-            Bracketed(Delimited(Ref("QualifiedParameterNameSegment"))),
+            Bracketed(Delimited(Ref("QualifiedParameterNameGrammar"))),
         ),
         Sequence(
             "OWNER",
@@ -3523,7 +3528,7 @@ class AlterViewStatementSegment(BaseSegment):
                 Bracketed(
                     Delimited(
                         Sequence(
-                            Ref("QualifiedParameterNameSegment"),
+                            Ref("QualifiedParameterNameGrammar"),
                             Sequence(
                                 Ref("EqualsSegment"),
                                 Ref("LiteralGrammar"),
@@ -3535,7 +3540,7 @@ class AlterViewStatementSegment(BaseSegment):
             ),
             Sequence(
                 "RESET",
-                Bracketed(Delimited(Ref("QualifiedParameterNameSegment"))),
+                Bracketed(Delimited(Ref("QualifiedParameterNameGrammar"))),
             ),
         ),
     )

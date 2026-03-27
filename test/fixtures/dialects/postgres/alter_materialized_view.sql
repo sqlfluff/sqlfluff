@@ -23,9 +23,11 @@ ALTER MATERIALIZED VIEW bar SET ( storage_parameter, storage_parameter);
 ALTER MATERIALIZED VIEW bar SET (
     storage_parameter = 'some_value', storage_parameter
 );
+ALTER MATERIALIZED VIEW bar SET ( timescaledb.materialized_only = false );
 
 ALTER MATERIALIZED VIEW bar RESET ( storage_parameter);
 ALTER MATERIALIZED VIEW bar RESET ( storage_parameter, storage_parameter);
+ALTER MATERIALIZED VIEW bar RESET ( timescaledb.materialized_only );
 
 ALTER MATERIALIZED VIEW bar OWNER TO baz_role;
 ALTER MATERIALIZED VIEW bar OWNER TO "baz-role";

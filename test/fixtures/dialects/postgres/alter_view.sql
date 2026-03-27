@@ -43,11 +43,13 @@ ALTER VIEW IF EXISTS myview SET SCHEMA new_schema;
 ALTER VIEW myview SET ( view_option_name );
 ALTER VIEW myview SET ( view_option_name  = 1);
 ALTER VIEW myview SET ( view_option_name  = 1, view_option_name2 = 'value', view_option_name3, view_option_name4 = false);
+ALTER VIEW myview SET ( timescaledb.materialized_only = false );
 ALTER VIEW IF EXISTS myview SET ( view_option_name );
 ALTER VIEW IF EXISTS myview SET ( view_option_name  = 1);
 ALTER VIEW IF EXISTS myview SET ( view_option_name, view_option_name2 = 1, view_option_name3);
 
 ALTER VIEW myview RESET ( view_option_name );
 ALTER VIEW myview RESET ( view_option_name, view_option_name2 );
+ALTER VIEW myview RESET ( timescaledb.materialized_only );
 ALTER VIEW IF EXISTS myview RESET ( view_option_name );
 ALTER VIEW IF EXISTS myview RESET ( view_option_name, view_option_name2 );
