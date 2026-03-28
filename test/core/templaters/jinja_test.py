@@ -600,6 +600,27 @@ def test__templater_jinja_dynamic_variable_no_violations():
     assert len(vs) == 0
 
 
+def test__templater_jinja_dbt_builtin_function():
+    """Test that dbt's `function()` builtin mock is available in Jinja templater."""
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = bigquery\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "apply_dbt_builtins = True\n"
+    )
+    instr = (
+        "SELECT {{ function('my_dataset_my_udf') }}(some_column, other_column) AS result\n"
+        "FROM {{ ref('my_model') }}\n"
+    )
+    outstr, vs = JinjaTemplater().process(in_str=instr, fname="test.sql", config=config)
+    assert (
+        str(outstr)
+        == "SELECT my_dataset_my_udf(some_column, other_column) AS result\nFROM my_model\n"
+    )
+    assert len(vs) == 0
+
+
 def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
