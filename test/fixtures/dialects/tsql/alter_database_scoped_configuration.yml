@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b051a762488eb432b7684f4d14b36dccbe394832a047deb3361807e4d71117de
+_hash: 47eae85d39693c06406db9eafc92d57bcbabeffedda71d019670b3d3d634cceb
 file:
   batch:
   - statement:
@@ -81,6 +81,42 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: PRIMARY
+  - statement_terminator: ;
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: SET
+      - keyword: ELEVATE_ONLINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'OFF'
+  - statement_terminator: ;
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: SET
+      - keyword: ELEVATE_ONLINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: WHEN_SUPPORTED
+  - statement_terminator: ;
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: SET
+      - keyword: ELEVATE_RESUMABLE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: FAIL_UNSUPPORTED
   - statement_terminator: ;
   - statement:
       alter_database_scoped_configuration_statement:

@@ -1542,6 +1542,12 @@ class AlterDatabaseScopedConfigurationSegment(BaseSegment):
 
     type = "alter_database_scoped_configuration_statement"
 
+    _elevate_option = Sequence(
+        OneOf("ELEVATE_ONLINE", "ELEVATE_RESUMABLE"),
+        Ref("EqualsSegment"),
+        OneOf("OFF", "WHEN_SUPPORTED", "FAIL_UNSUPPORTED"),
+    )
+
     _set_option = Sequence(
         Ref("NakedIdentifierSegment"),
         Ref("EqualsSegment"),
@@ -1570,7 +1576,10 @@ class AlterDatabaseScopedConfigurationSegment(BaseSegment):
             Sequence(
                 Sequence("FOR", "SECONDARY", optional=True),
                 "SET",
-                _set_option,
+                OneOf(
+                    _elevate_option,
+                    _set_option,
+                ),
             ),
         ),
     )
