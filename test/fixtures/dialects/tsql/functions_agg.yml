@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d9e8eb52a190635317e8b732d0d15c25cff9e50d401b040c9aad1a7b02241d0b
+_hash: 102e9fea8252a04908e718f0118a2e808e3a98e472652e0fb9ac2b46f92c7db8
 file:
   batch:
   - statement:
@@ -31,11 +31,12 @@ file:
               - keyword: group
               - bracketed:
                   start_bracket: (
-                  orderby_clause:
-                  - keyword: order
-                  - keyword: by
-                  - column_reference:
-                      naked_identifier: v
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: order
+                    - keyword: by
+                    - column_reference:
+                        naked_identifier: v
                   end_bracket: )
             alias_expression:
               alias_operator:
@@ -57,13 +58,14 @@ file:
               - keyword: GROUP
               - bracketed:
                   start_bracket: (
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: t
-                    - dot: .
-                    - naked_identifier: Rate
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: Rate
                   end_bracket: )
               - keyword: OVER
               - bracketed:
@@ -94,13 +96,14 @@ file:
               - keyword: GROUP
               - bracketed:
                   start_bracket: (
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: t
-                    - dot: .
-                    - naked_identifier: Rate
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: Rate
                   end_bracket: )
               - keyword: OVER
               - bracketed:

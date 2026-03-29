@@ -4527,7 +4527,7 @@ class WithinGroupClause(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(
-            Ref("OrderByClauseSegment"),
+            Ref("AggregateOrderByClause"),
         ),
         Sequence(
             "OVER",
