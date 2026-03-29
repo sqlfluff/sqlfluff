@@ -174,7 +174,9 @@ def _has_value_table_function(
         # function.
         return False  # pragma: no cover
 
-    for function_name in table_expr.recursive_crawl("function_name"):
+    for function_name in table_expr.recursive_crawl(
+        "function_name", no_recursive_seg_type="select_statement"
+    ):
         # Other rules can increase whitespace in the function name, so use strip to
         # remove
         # See: https://github.com/sqlfluff/sqlfluff/issues/1304

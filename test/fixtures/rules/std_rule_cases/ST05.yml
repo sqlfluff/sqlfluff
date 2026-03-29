@@ -1249,3 +1249,48 @@ test_fail_clickhouse_expression_cte_preserved:
   configs:
     core:
       dialect: clickhouse
+
+issue_6176_subquery_with_table_function_in_inner_from:
+  # Regression test for https://github.com/sqlfluff/sqlfluff/issues/6176
+  # ST05 was not detecting subqueries in FROM when the inner query used a
+  # value table function (e.g. UNNEST). _has_value_table_function was
+  # incorrectly descending into the inner select_statement and finding
+  # function names there, causing the outer subquery to be misclassified
+  # as a value table function and skipped.
+  fail_str: |
+    select
+        d AS days
+    from (
+        select *
+        from
+            UNNEST(
+                GENERATE_DATE_ARRAY(
+                    '2016-01-01',
+                    CURRENT_DATE(),
+                    INTERVAL 1 DAY
+                )
+            ) as d
+    )
+    order by 1
+  fix_str: |
+    with prep_1 as (
+        select *
+        from
+            UNNEST(
+                GENERATE_DATE_ARRAY(
+                    '2016-01-01',
+                    CURRENT_DATE(),
+                    INTERVAL 1 DAY
+                )
+            ) as d
+    )
+    select
+        d AS days
+    from prep_1
+    order by 1
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
