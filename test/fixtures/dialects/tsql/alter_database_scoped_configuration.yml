@@ -1,0 +1,103 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b051a762488eb432b7684f4d14b36dccbe394832a047deb3361807e4d71117de
+file:
+  batch:
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: SET
+      - naked_identifier: MAXDOP
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: SET
+      - naked_identifier: LEGACY_CARDINALITY_ESTIMATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: SET
+      - naked_identifier: PARAMETER_SNIFFING
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'OFF'
+  - statement_terminator: ;
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: SET
+      - naked_identifier: MAXDOP
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: PRIMARY
+  - statement_terminator: ;
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: FOR
+      - keyword: SECONDARY
+      - keyword: SET
+      - naked_identifier: MAXDOP
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '4'
+  - statement_terminator: ;
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: FOR
+      - keyword: SECONDARY
+      - keyword: SET
+      - naked_identifier: LEGACY_CARDINALITY_ESTIMATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: PRIMARY
+  - statement_terminator: ;
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: CLEAR
+      - keyword: PROCEDURE_CACHE
+  - statement_terminator: ;
+  - statement:
+      alter_database_scoped_configuration_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: SCOPED
+      - keyword: CONFIGURATION
+      - keyword: CLEAR
+      - keyword: PROCEDURE_CACHE
+      - numeric_literal: '0x06000500F443610F003B7CD12C02'
+  - statement_terminator: ;

@@ -931,6 +931,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("GrantStatementSegment"),
             Ref("DenyStatementSegment"),
             Ref("RevokeStatementSegment"),
+            Ref("AlterDatabaseScopedConfigurationSegment"),
         ],
         remove=[
             Ref("AccessStatementSegment"),
@@ -1529,6 +1530,48 @@ class AlterDatabaseStatementSegment(BaseSegment):
             "FAILOVER",
             "FORCE_FAILOVER_ALLOW_DATA_LOSS",
             optional=True,
+        ),
+    )
+
+
+class AlterDatabaseScopedConfigurationSegment(BaseSegment):
+    """An `ALTER DATABASE SCOPED CONFIGURATION` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql
+    """
+
+    type = "alter_database_scoped_configuration_statement"
+
+    _set_option = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("EqualsSegment"),
+        OneOf(
+            "ON",
+            "OFF",
+            "PRIMARY",
+            Ref("NumericLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "DATABASE",
+        "SCOPED",
+        "CONFIGURATION",
+        OneOf(
+            # CLEAR PROCEDURE_CACHE [plan_handle]
+            Sequence(
+                "CLEAR",
+                "PROCEDURE_CACHE",
+                Ref("NumericLiteralSegment", optional=True),
+            ),
+            # [FOR SECONDARY] SET <option> = <value>
+            Sequence(
+                Sequence("FOR", "SECONDARY", optional=True),
+                "SET",
+                _set_option,
+            ),
         ),
     )
 
