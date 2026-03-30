@@ -14,4 +14,6 @@ WITH BROKER
 PROPERTIES
 (
     "timeout" = "3600"
+    "timeout" = "3600"
 )
+;
