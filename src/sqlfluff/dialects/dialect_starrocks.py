@@ -373,7 +373,7 @@ class LoadDataDescSegment(BaseSegment):
     match_grammar = Sequence(
         "DATA",
         "INFILE",
-        Bracketed(Ref("QuotedLiteralSegment")),
+        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
         "INTO",
         "TABLE",
         Ref("TableReferenceSegment"),
@@ -525,7 +525,7 @@ class StatementSegment(mysql.StatementSegment):
         insert=[
             Ref("InsertOverwriteStatementSegment"),
         ],
-        at=1,
+        at=1, # ensure that it takes priority over MySQL's native InsertStatementSegment.
     )
 
 
