@@ -525,7 +525,7 @@ class StatementSegment(mysql.StatementSegment):
         insert=[
             Ref("InsertOverwriteStatementSegment"),
         ],
-        at=1, # ensure that it takes priority over MySQL's native InsertStatementSegment.
+        at=1,  # ensure that it takes priority over MySQL's native InsertStatementSegment.
     )
 
 
