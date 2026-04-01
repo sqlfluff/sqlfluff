@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     IdentifierSegment,
     ImplicitIndent,
     Indent,
+    KeywordSegment,
     LiteralKeywordSegment,
     LiteralSegment,
     Matchable,
@@ -406,6 +407,9 @@ postgres_dialect.sets("date_part_function_name").clear()
 postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIES"])
 
 postgres_dialect.add(
+    # PROVIDER is used in CREATE COLLATION syntax but is not a PostgreSQL keyword
+    # per the docs appendix, so we register it manually to avoid RF04 false positives.
+    ProviderKeywordSegment=StringParser("provider", KeywordSegment),
     JsonOperatorSegment=TypedParser(
         "json_operator", SymbolSegment, type="binary_operator"
     ),
