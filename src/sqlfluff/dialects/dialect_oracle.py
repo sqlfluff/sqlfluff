@@ -523,7 +523,14 @@ oracle_dialect.add(
     ),
     UnpivotNullsGrammar=Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULLS"),
     StatementAndDelimiterGrammar=Sequence(
-        Ref("StatementSegment"),
+        # PlsqlStatementSegment extends StatementSegment with ProcedureCallStatementSegment.
+        # Using it here (rather than plain StatementSegment) means bare procedure-call
+        # syntax is only tried inside PL/SQL block bodies (BEGIN/END, loops, IF, etc.)
+        # that use OneOrMoreStatementsGrammar -> StatementAndDelimiterGrammar.
+        # The top-level BatchSegment references StatementSegment directly, so it is
+        # shielded from ProcedureCallStatementSegment and cannot silently absorb DDL
+        # unreserved keywords (e.g. NOCACHE, NOROWDEPENDENCIES) as phantom calls.
+        Ref("PlsqlStatementSegment"),
         Ref("DelimiterGrammar", optional=True),
     ),
     OneOrMoreStatementsGrammar=AnyNumberOf(
@@ -1394,6 +1401,39 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("AlterSynonymStatementSegment"),
+        ],
+    )
+
+
+class PlsqlStatementSegment(StatementSegment):
+    """PL/SQL block statement with bare procedure call support.
+
+    Adds `ProcedureCallStatementSegment` (e.g. `my_proc;`) for use
+    inside PL/SQL blocks only. This avoids a bug where unreserved DDL
+    keywords (e.g. `NOCACHE`, `NOROWDEPENDENCIES`) could be silently
+    consumed as phantom procedure calls at the top level, hiding real
+    syntax errors. The bug was triggered by Python 3.14's changed
+    dictionary iteration order affecting `longest_match` branch
+    selection; earlier Python versions happened to avoid it due to
+    different internal ordering, making the behaviour non-deterministic
+    across runtimes.
+
+    *Known limitation*: bare procedure calls outside a PL/SQL block
+    (i.e. not inside `BEGIN/END`, loops, or `IF`) are not supported
+    and will produce a parse error. Supporting both safely would require
+    a context-aware grammar that can distinguish unreserved DDL keywords
+    from procedure names -- not possible with the flat `BatchSegment`
+    architecture.
+    """
+
+    type = "statement"
+
+    match_grammar = StatementSegment.match_grammar.copy(
+        insert=[
+            # Must be last: bare reference or call without parentheses used as
+            # a statement (procedure call).  More specific segments above take
+            # priority when the lookahead matches their keywords.
+            Ref("ProcedureCallStatementSegment"),
         ],
     )
 
@@ -3297,6 +3337,49 @@ class AssignmentStatementSegment(BaseSegment):
     )
 
 
+class ProcedureCallStatementSegment(BaseSegment):
+    """A PL/SQL procedure invocation used as a statement, without an argument list.
+
+    Oracle calls this a *subprogram invocation*; both procedures and functions
+    fall under that umbrella. This segment handles only the **procedure** case
+    (a procedure invocation is a PL/SQL *statement*, whereas a function
+    invocation is an *expression*) and only when the argument list is omitted
+    entirely.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/subprogram-invocations.html
+
+    *Known limitation:* collection methods with reserved-keyword names
+    (e.g. `my_collection.DELETE;`) cannot be parsed because
+    `NakedIdentifierSegment` rejects reserved keywords.  Methods with
+    unreserved names (`EXTEND`, `TRIM`, `FIRST`, `LAST`) work fine.
+    """
+
+    type = "procedure_call_statement"
+
+    # END, EXCEPTION, and ELSIF are *unreserved*, so NakedIdentifierSegment
+    # would accept them as identifiers and this segment would consume them
+    # before the enclosing block structure can claim them as block-closing
+    # tokens. All other block keywords (ELSE, WHEN, THEN, LOOP, BEGIN, IF,
+    # ...) are *reserved* and are therefore already rejected by NakedIdentifier
+    # Segment's anti_template without explicit exclusion here.
+    _block_closing_kw_exclusion = OneOf(
+        Ref.keyword("END"),
+        Ref.keyword("EXCEPTION"),
+        Ref.keyword("ELSIF"),
+    )
+
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar", exclude=_block_closing_kw_exclusion),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar", exclude=_block_closing_kw_exclusion),
+            ),
+            max_times=2,
+        ),
+    )
+
+
 class IfExpressionStatement(BaseSegment):
     """IF-ELSE statement.
 
@@ -3654,7 +3737,11 @@ class LoopStatementSegment(BaseSegment):
     type = "loop_statement"
 
     match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar", optional=True),
+        Ref(
+            "SingleIdentifierGrammar",
+            optional=True,
+            exclude=Ref.keyword("END"),
+        ),
         "LOOP",
         Indent,
         Ref("OneOrMoreStatementsGrammar"),
