@@ -1,5 +1,6 @@
 """Test SQLMesh templater with SQLFluff rules."""
 
+import shutil
 from pathlib import Path
 
 import pytest
@@ -141,21 +142,16 @@ class TestSQLMeshRules:
             )
         )
 
-        try:
-            # This should work if SQLMesh is installed and can render macros
-            linted_dir = linter.lint_path(str(model_path))
-            linted_file = linted_dir.files[0]
+        # This should work if SQLMesh is installed and can render macros.
+        # Only skip for known environmental failures (missing SQLMesh), let other
+        # exceptions propagate as real test failures.
+        linted_dir = linter.lint_path(str(model_path))
+        linted_file = linted_dir.files[0]
 
-            # We don't assert specific violations since this depends on
-            # SQLMesh rendering, but the test should not crash
-            violations = linted_file.check_tuples()
-            print(f"Found {len(violations)} violations in macro model")
-
-        except ImportError:
-            pytest.skip("SQLMesh not installed")
-        except Exception as e:
-            # Log the error for debugging but don't fail
-            print(f"SQLMesh macro rendering failed: {e}")
+        # We don't assert specific violations since this depends on
+        # SQLMesh rendering, but the test should not crash
+        violations = linted_file.check_tuples()
+        print(f"Found {len(violations)} violations in macro model")
 
     def test_linter_integration_multiple_files(self, sqlmesh_fluff_config, fixture_dir):
         """Test linter can process multiple SQLMesh files."""
@@ -177,8 +173,25 @@ class TestSQLMeshRules:
         sql_files = [f for f in linted_dir.files if f.path.endswith(".sql")]
         assert len(sql_files) > 0, "Should find SQL model files"
 
-    def test_sqlmesh_fix_behavior(self, sqlmesh_fluff_config, fixture_dir):
+    def test_sqlmesh_fix_behavior(self, sqlmesh_fluff_config, fixture_dir, tmp_path):
         """Test that fix behavior works correctly with SQLMesh templater."""
+        # Create a temporary copy of the fixture project so we don't pollute the
+        # shared fixtures directory (important for parallel test execution).
+
+        temp_project_dir = tmp_path / "sqlmesh_project"
+        shutil.copytree(str(fixture_dir), str(temp_project_dir))
+
+        # Build a config that points at the temporary project copy
+        temp_config = {
+            "core": sqlmesh_fluff_config["core"].copy(),
+            "templater": {
+                "sqlmesh": {
+                    **sqlmesh_fluff_config["templater"]["sqlmesh"],
+                    "project_dir": str(temp_project_dir),
+                }
+            },
+        }
+
         # Create a test file with deliberate formatting issues that can be fixed
         test_content = """MODEL (
   name test_fix_behavior,
@@ -191,88 +204,82 @@ id,
   email
 FROM source_table   """  # Mixed indentation + trailing whitespace
 
-        test_file_path = fixture_dir / "models" / "test_fix_behavior.sql"
+        test_file_path = temp_project_dir / "models" / "test_fix_behavior.sql"
 
-        # Write test content
+        # Write test content into the temporary project
         with open(test_file_path, "w") as f:
             f.write(test_content)
 
-        try:
-            # Create linter with rules that can be auto-fixed
-            linter = Linter(
-                config=FluffConfig(
-                    configs=sqlmesh_fluff_config,
-                    overrides={
-                        "rules": ["LT01", "LT02"]
-                    },  # Trailing whitespace + indentation
+        # Create linter with rules that can be auto-fixed
+        linter = Linter(
+            config=FluffConfig(
+                configs=temp_config,
+                overrides={
+                    "rules": ["LT01", "LT02"]
+                },  # Trailing whitespace + indentation
+            )
+        )
+
+        # First, lint without fix to see violations
+        linted_dir_check = linter.lint_path(str(test_file_path))
+        linted_file_check = linted_dir_check.files[0]
+        violations_before = linted_file_check.check_tuples()
+        print(f"Found {len(violations_before)} violations before fix")
+
+        # Now lint with fix=True
+        linted_dir = linter.lint_path(str(test_file_path), fix=True)
+        linted_file = linted_dir.files[0]
+
+        # Check that we found violations that can be fixed
+        violations_after = linted_file.check_tuples()
+        print(f"Found {len(violations_after)} violations after fix")
+
+        # Try to get the fixed string
+        if hasattr(linted_file, "fix_string"):
+            fixed_content, _ = linted_file.fix_string()
+            print(f"Fixed content length: {len(fixed_content)}")
+
+            # Verify the fixed content is different from original
+            # (This means our slice mapping worked correctly)
+            if fixed_content != test_content:
+                print("✅ Fix successfully modified content")
+
+                # Verify it still contains our SQLMesh MODEL block
+                assert "MODEL (" in fixed_content, (
+                    "Fixed content should preserve SQLMesh MODEL block"
                 )
-            )
+                assert "name test_fix_behavior" in fixed_content, (
+                    "Fixed content should preserve model name"
+                )
+                assert "SELECT" in fixed_content, (
+                    "Fixed content should preserve SELECT"
+                )
 
-            # First, lint without fix to see violations
-            linted_dir_check = linter.lint_path(str(test_file_path))
-            linted_file_check = linted_dir_check.files[0]
-            violations_before = linted_file_check.check_tuples()
-            print(f"Found {len(violations_before)} violations before fix")
+                # Check that slice mapping preserved structure
+                lines = fixed_content.split("\n")
+                model_line_found = False
+                select_line_found = False
+                for line in lines:
+                    if "MODEL (" in line:
+                        model_line_found = True
+                    if "SELECT" in line:
+                        select_line_found = True
 
-            # Now lint with fix=True
-            linted_dir = linter.lint_path(str(test_file_path), fix=True)
-            linted_file = linted_dir.files[0]
+                assert model_line_found and select_line_found, (
+                    "Fixed content should have proper structure"
+                )
 
-            # Check that we found violations that can be fixed
-            violations_after = linted_file.check_tuples()
-            print(f"Found {len(violations_after)} violations after fix")
-
-            # Try to get the fixed string
-            if hasattr(linted_file, "fix_string"):
-                fixed_content, _ = linted_file.fix_string()
-                print(f"Fixed content length: {len(fixed_content)}")
-
-                # Verify the fixed content is different from original
-                # (This means our slice mapping worked correctly)
-                if fixed_content != test_content:
-                    print("✅ Fix successfully modified content")
-
-                    # Verify it still contains our SQLMesh MODEL block
-                    assert "MODEL (" in fixed_content, (
-                        "Fixed content should preserve SQLMesh MODEL block"
-                    )
-                    assert "name test_fix_behavior" in fixed_content, (
-                        "Fixed content should preserve model name"
-                    )
-                    assert "SELECT" in fixed_content, (
-                        "Fixed content should preserve SELECT"
-                    )
-
-                    # Check that slice mapping preserved structure
-                    lines = fixed_content.split("\n")
-                    model_line_found = False
-                    select_line_found = False
-                    for line in lines:
-                        if "MODEL (" in line:
-                            model_line_found = True
-                        if "SELECT" in line:
-                            select_line_found = True
-
-                    assert model_line_found and select_line_found, (
-                        "Fixed content should have proper structure"
-                    )
-
-                else:
-                    print(
-                        "ℹ️  No fixes were applied (content already clean or unfixable)"
-                    )
             else:
-                print("ℹ️  fix_string method not available")
+                print(
+                    "ℹ️  No fixes were applied (content already clean or unfixable)"
+                )
+        else:
+            print("ℹ️  fix_string method not available")
 
-            # Main assertion: The process should not crash and should preserve SQLMesh structure
-            assert linted_file.templated_file is not None, (
-                "Templated file should be created"
-            )
-
-        finally:
-            # Clean up test file
-            if test_file_path.exists():
-                test_file_path.unlink()
+        # Main assertion: The process should not crash and should preserve SQLMesh structure
+        assert linted_file.templated_file is not None, (
+            "Templated file should be created"
+        )
 
     def test_sqlmesh_fix_slice_mapping_accuracy(
         self, sqlmesh_fluff_config, fixture_dir

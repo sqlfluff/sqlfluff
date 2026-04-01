@@ -62,15 +62,17 @@ class TestSQLMeshTemplaterIntegration:
             project_dir = Path(temp_dir) / "test_project"
             project_dir.mkdir()
 
-            # Create a basic config file
-            config_file = project_dir / "sqlmesh_config.yml"
+            # Create a basic config file (SQLMesh looks for config.py or config.yml)
+            config_file = project_dir / "config.yml"
             config_file.write_text(
-                """
+                """\
+model_defaults:
+  dialect: duckdb
 gateways:
   local:
     connection:
       type: duckdb
-      database: :memory:
+      database: ':memory:'
 """
             )
 
@@ -80,15 +82,9 @@ gateways:
             templater.sqlfluff_config = config
             templater.project_dir = str(project_dir)
 
-            # Try to create SQLMesh context
-            try:
-                context = templater.sqlmesh_context
-                assert context is not None
-            except ImportError:
-                pytest.skip("SQLMesh not installed")
-            except Exception as e:
-                # Log the error but don't fail the test
-                print(f"SQLMesh context creation failed: {e}")
+            # Try to create SQLMesh context and assert it is created successfully
+            context = templater.sqlmesh_context
+            assert context is not None
 
     def test_model_name_extraction_for_audits(self):
         """Test audit file names are resolved like model files."""

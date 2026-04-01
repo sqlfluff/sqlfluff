@@ -3,7 +3,7 @@ MODEL (
   kind VIEW
 );
 
-SELECT 
+SELECT
     id,
     name,
     created_at

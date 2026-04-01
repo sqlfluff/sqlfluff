@@ -33,6 +33,9 @@ def sqlmesh_templater(fixture_dir):
         }
     )
 
+    # Assign config so the templater can use it (e.g. in process())
+    templater.sqlfluff_config = config
+
     # Update the project dir to the sqlmesh project dir
     templater.project_dir = str(fixture_dir)
 
@@ -45,15 +48,10 @@ class TestSQLMeshFixtures:
     def test_simple_model_processing(self, sqlmesh_templater, fixture_dir):
         """Test processing a simple model without macros."""
         model_path = fixture_dir / "models" / "simple_model.sql"
-        expected_path = fixture_dir / "templated_output" / "simple_model.sql"
 
         # Read the input model
         with open(model_path, "r") as f:
             model_content = f.read()
-
-        # Read expected output
-        with open(expected_path, "r") as f:
-            expected_content = f.read()
 
         # Test model name extraction
         model_name = sqlmesh_templater._get_model_name_from_path(str(model_path))
@@ -138,10 +136,16 @@ class TestSQLMeshFixtures:
         pytest.importorskip("sqlmesh")
         model_path = fixture_dir / "models" / "simple_model.sql"
 
+        # Read the input model so we can pass it to the templater
+        with open(model_path, "r") as f:
+            model_content = f.read()
+
         try:
             # Try to process the file with SQLMesh
             templated_file, errors = sqlmesh_templater.process(
-                fname=str(model_path), config=sqlmesh_templater.sqlfluff_config
+                fname=str(model_path),
+                in_str=model_content,
+                config=sqlmesh_templater.sqlfluff_config,
             )
 
             # If we get here, SQLMesh is installed and working
@@ -150,9 +154,6 @@ class TestSQLMeshFixtures:
 
         except ImportError:
             pytest.skip("SQLMesh not installed")
-        except Exception as e:
-            # Log the error for debugging but don't fail
-            print(f"SQLMesh processing failed: {e}")
 
     def test_fixture_completeness(self, fixture_dir):
         """Test that all fixture files exist and are readable."""

@@ -73,10 +73,31 @@ def handle_sqlmesh_errors(
             try:
                 return wrapped_method(*args, **kwargs)
             except Exception as err:
+                # If this is a *direct* SQLMesh exception, convert it.
                 if is_sqlmesh_exception(err):
                     _detail = _extract_error_detail(err)
                     raise error_class(preamble + _detail)
-                # If it's not a SQLMesh exception, just re-raise as is.
+
+                # If this is a SQLTemplaterError that was raised "from" a
+                # SQLMesh exception, convert based on the underlying cause.
+                if isinstance(err, SQLTemplaterError) and is_sqlmesh_exception(
+                    err.__cause__
+                ):
+                    _detail = _extract_error_detail(err.__cause__)
+                    raise error_class(preamble + _detail)
+
+                # Otherwise, strip any SQLMesh exceptions from the context so
+                # the resulting exception can be safely pickled. Rather than
+                # mutating the caught exception in place (which can lead to
+                # unexpected behaviour), re-raise as a fresh instance of the
+                # same type so no SQLMesh context is attached.
+                if is_sqlmesh_exception(err.__cause__) or is_sqlmesh_exception(
+                    err.__context__
+                ):
+                    raise type(err)(*err.args)
+
+                # If it's not a SQLMesh exception (or has been cleaned), just
+                # re-raise as is.
                 raise
 
         return wrapped_method_inner
@@ -161,11 +182,11 @@ class SQLMeshTemplater(JinjaTemplater):
             templater_logger.info(
                 f"Loading SQLMesh context from project: {self.project_dir}"
             )
-        except ImportError as e:
+        except ImportError:
             raise SQLTemplaterError(
                 "SQLMesh is not installed. Please install SQLMesh to use the sqlmesh templater: "
                 "pip install sqlmesh"
-            ) from e
+            )
 
         try:
             context = SQLMeshContext(
@@ -179,7 +200,7 @@ class SQLMeshTemplater(JinjaTemplater):
             raise SQLTemplaterError(
                 f"Failed to create SQLMesh context: {e}. "
                 "Check your SQLMesh project configuration."
-            ) from e
+            )
 
     @large_file_check
     @handle_sqlmesh_errors(
@@ -221,9 +242,12 @@ class SQLMeshTemplater(JinjaTemplater):
         model_name = self._get_model_name_from_path(fname)
 
         if not model_name:
-            raise SQLTemplaterError(
+            templater_logger.info(
                 f"Could not determine SQLMesh model name for {fname}. "
-                f"Ensure the file is in the SQLMesh project directory: {self.project_dir}"
+                "Falling back to literal templating (no SQLMesh rendering)."
+            )
+            return self._create_literal_templated_file(
+                fname, in_str, source_content=in_str
             )
 
         # Use SQLMesh Context.render() to get the rendered SQL
@@ -248,7 +272,7 @@ class SQLMeshTemplater(JinjaTemplater):
             raise SQLTemplaterError(
                 f"SQLMesh rendering failed for model '{model_name}': {e}. "
                 f"Check your SQLMesh model syntax and project configuration."
-            ) from e
+            )
 
         # Create slice mapping using Jinja templater's slice_file method
         # This handles the complex position mapping for fix suggestions
@@ -330,9 +354,15 @@ class SQLMeshTemplater(JinjaTemplater):
             source_content if source_content is not None else templated_content
         )
 
+        # Use "literal" when source and templated content are the same length/content,
+        # and "templated" otherwise to avoid confusing fix mapping.
+        _slice_type = (
+            "literal" if actual_source == templated_content else "templated"
+        )
+
         sliced_file = [
             TemplatedFileSlice(
-                slice_type="literal",
+                slice_type=_slice_type,
                 source_slice=slice(0, len(actual_source)),
                 templated_slice=slice(0, len(templated_content)),
             )
