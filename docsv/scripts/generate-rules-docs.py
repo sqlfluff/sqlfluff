@@ -362,6 +362,7 @@ def _convert_rst_list_tables(text: str) -> str:
         output.append("| " + " | ".join("---" for _ in range(column_count)) + " |")
         for row in body_rows:
             output.append("| " + " | ".join(row) + " |")
+        output.append("")
 
     return "\n".join(output)
 
