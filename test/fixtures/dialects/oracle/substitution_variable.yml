@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d4c49b1035639be97af8f2e4d0681230d7120b2cb1dc7d8f474a19ac125d9cb7
+_hash: f61a68c2908326c3047043a99dab4e8b3944e8aeb84e73488646be513d075ff0
 file:
   batch:
   - statement:
@@ -19,7 +19,7 @@ file:
         - keyword: to
         - access_target:
             role_reference:
-              sqlplus_variable:
+              substitution_variable:
                 ampersand: '&'
                 naked_identifier: REGISTRY
   - statement_terminator: ;
@@ -29,7 +29,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
             expression:
-              sqlplus_variable:
+              substitution_variable:
                 ampersand: '&'
                 naked_identifier: SORTCOL
         - comma: ','
@@ -41,7 +41,7 @@ file:
           from_expression:
             from_expression_element:
               table_expression:
-                sqlplus_variable:
+                substitution_variable:
                   ampersand: '&'
                   naked_identifier: MYTABLE
         where_clause:
@@ -98,7 +98,7 @@ file:
               naked_identifier: employee_id
             comparison_operator:
               raw_comparison_operator: '='
-            sqlplus_variable:
+            substitution_variable:
               ampersand: '&'
               naked_identifier: myv
   - statement_terminator: ;
@@ -131,7 +131,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
             expression:
-              sqlplus_variable:
+              substitution_variable:
                 ampersand: '&'
                 naked_identifier: GROUP_COL
         - comma: ','
@@ -143,7 +143,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    sqlplus_variable:
+                    substitution_variable:
                       ampersand: '&'
                       naked_identifier: NUMBER_COL
                   end_bracket: )
@@ -154,14 +154,14 @@ file:
           from_expression:
             from_expression_element:
               table_expression:
-                sqlplus_variable:
+                substitution_variable:
                   ampersand: '&'
                   naked_identifier: MY_TABLE
         groupby_clause:
         - keyword: GROUP
         - keyword: BY
         - expression:
-            sqlplus_variable:
+            substitution_variable:
               ampersand: '&'
               naked_identifier: GROUP_COL
   - statement_terminator: ;
@@ -187,7 +187,7 @@ file:
               naked_identifier: employee_id
             comparison_operator:
               raw_comparison_operator: '='
-            sqlplus_variable:
+            substitution_variable:
             - ampersand: '&'
             - ampersand: '&'
             - naked_identifier: myv
@@ -203,7 +203,7 @@ file:
           bracketed:
             start_bracket: (
             expression:
-              sqlplus_variable:
+              substitution_variable:
                 ampersand: '&'
                 naked_identifier: myv
             end_bracket: )
