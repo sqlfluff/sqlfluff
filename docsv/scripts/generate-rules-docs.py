@@ -292,7 +292,7 @@ def _convert_rst_list_tables(text: str) -> str:
 
     while i < len(lines):
         line = lines[i]
-        if not re.match(r"^\.\.\s+list-table::\s*$", line):
+        if not re.match(r"^\.\.\s+list-table::.*$", line):
             output.append(line)
             i += 1
             continue
@@ -354,7 +354,7 @@ def _convert_rst_list_tables(text: str) -> str:
             header = rows[header_index]
             body_rows = rows[header_index + 1 :]
 
-        column_count = max(len(header), *(len(row) for row in body_rows))
+        column_count = max([len(header)] + [len(row) for row in body_rows])
         header = _normalize_table_row(header, column_count)
         body_rows = [_normalize_table_row(row, column_count) for row in body_rows]
 
