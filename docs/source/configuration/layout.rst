@@ -812,6 +812,49 @@ available:
       then there must be a line break on *both sides* (i.e. that it should
       be the only thing on that line.
 
+   *  :code:`trailing` and :code:`leading` can also be qualified with the
+      :code:`:attached` modifier - which *additionally* requires that the
+      operator must not appear on a line by itself. In other words, if there
+      is a line break on *both sides*, the operator is considered standalone
+      and must be moved to be directly attached to the adjacent token. This
+      is useful for operators like the Oracle PL/SQL assignment operator
+      :code:`:=`, where you want it either mid-line or strictly
+      trailing/leading (not floating alone). For example:
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:assignment_operator]
+         line_position = trailing:attached
+
+      With :code:`trailing:attached`, the operator must end the previous
+      line when a line break is involved:
+
+      .. code-block:: sql
+
+         -- Allowed: mid-line
+         my_var := some_value;
+         -- Allowed: truly trailing
+         my_var :=
+             some_value;
+         -- NOT allowed: standalone (own line) or leading
+         my_var
+         :=
+         some_value;
+
+      With :code:`leading:attached`, the operator must start the next line
+      and be directly followed by the RHS token (no blank line between):
+
+      .. code-block:: sql
+
+         -- Allowed: mid-line
+         my_var := some_value;
+         -- Allowed: truly leading (attached to RHS)
+         my_var
+             := some_value;
+         -- NOT allowed: standalone (own line) or trailing
+         my_var :=
+             some_value;
+
    *  All of the above options can be qualified with the :code:`:strict`
       modifier - which prevents the *inline* case. For example:
 

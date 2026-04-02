@@ -1,5 +1,20 @@
 rule: LT03
 
+passes_shortcut_fallthrough_alone:
+  # When line_position = "alone", _check_trail_lead_shortcut returns False
+  # (defers to full reflow) since "alone" is not "leading" or "trailing".
+  # An inline := satisfies the alone constraint, so this is a pass.
+  # This covers the return False fallback in _check_trail_lead_shortcut.
+  pass_str: |
+    LET MY_VAR := SOME_VALUE;
+  configs:
+    layout:
+      type:
+        assignment_operator:
+          line_position: alone
+    core:
+      dialect: snowflake
+
 passes_on_before_default:
   pass_str: |
     select
@@ -288,3 +303,252 @@ fixes_tuple_error_issue:
   configs:
     indentation:
       template_blocks_indent: false
+
+# Assignment operator (:=) tests (Oracle PL/SQL)
+
+# --- trailing config (tolerates standalone := on its own line) ---
+
+assignment_operator_trailing_passes_same_line:
+  # := on the same line as the variable is fine
+  pass_str: |
+    MY_VAR := SOME_VALUE;
+  configs: &assignment_trailing
+    layout:
+      type:
+        assignment_operator:
+          line_position: trailing
+    core:
+      dialect: oracle
+
+assignment_operator_trailing_passes_truly_trailing:
+  # := at end of first line (before newline) is correct for trailing
+  pass_str: |
+    MY_VAR :=
+        SOME_VALUE;
+  configs: *assignment_trailing
+
+assignment_operator_trailing_fails_leading:
+  # := at start of second line must be moved to end of first line
+  fail_str: |
+    MY_VAR
+      := SOME_VALUE;
+  fix_str: |
+    MY_VAR :=
+      SOME_VALUE;
+  configs: *assignment_trailing
+
+assignment_operator_trailing_passes_on_own_line:
+  # := on its own line (newlines on both sides) is tolerated by plain trailing
+  pass_str: |
+    MY_VAR
+    :=
+    SOME_VALUE;
+  configs: *assignment_trailing
+
+# --- trailing:attached config (operator MUST be on the end of the prev line) ---
+
+assignment_operator_trailing_attached_passes_same_line:
+  # := on the same line as the variable is fine
+  pass_str: |
+    MY_VAR := SOME_VALUE;
+  configs: &assignment_trailing_attached
+    layout:
+      type:
+        assignment_operator:
+          line_position: "trailing:attached"
+    core:
+      dialect: oracle
+
+assignment_operator_trailing_attached_passes_truly_trailing:
+  # := at end of first line (before newline) is correct
+  pass_str: |
+    MY_VAR :=
+      SOME_VALUE;
+  configs: *assignment_trailing_attached
+
+assignment_operator_trailing_attached_fails_leading:
+  # := at start of second line must be moved to end of first line
+  fail_str: |
+    MY_VAR
+      := SOME_VALUE;
+  fix_str: |
+    MY_VAR :=
+      SOME_VALUE;
+  configs: *assignment_trailing_attached
+
+assignment_operator_trailing_attached_fails_on_own_line:
+  # := on its own line (newlines on both sides) must be moved to end of variable line
+  fail_str: |
+    MY_VAR
+    :=
+    SOME_FUNCTION(
+      PARAM1,
+      PARAM2
+    );
+  fix_str: |
+    MY_VAR :=
+    SOME_FUNCTION(
+      PARAM1,
+      PARAM2
+    );
+  configs: *assignment_trailing_attached
+
+assignment_operator_trailing_attached_fails_multiline_rhs:
+  # := on its own line with a multi-line RHS expression
+  fail_str: |
+    AUDITINFO
+    :=
+    AUDITINFO
+    || 'SUFFIX';
+  fix_str: |
+    AUDITINFO :=
+    AUDITINFO
+    || 'SUFFIX';
+  configs: *assignment_trailing_attached
+
+# --- leading config (assignment operator should start the line) ---
+
+assignment_operator_leading_passes_same_line:
+  # := on same line as the variable is fine for leading too (mid-line)
+  pass_str: |
+    MY_VAR := SOME_VALUE;
+  configs: &assignment_leading
+    layout:
+      type:
+        assignment_operator:
+          line_position: leading
+    core:
+      dialect: oracle
+
+assignment_operator_leading_passes_truly_leading:
+  # := at start of second line is correct for leading
+  pass_str: |
+    MY_VAR
+      := SOME_VALUE;
+  configs: *assignment_leading
+
+assignment_operator_leading_fails_trailing:
+  # := at end of first line must be moved to start of second line
+  fail_str: |
+    MY_VAR :=
+      SOME_VALUE;
+  fix_str: |
+    MY_VAR
+      := SOME_VALUE;
+  configs: *assignment_leading
+
+assignment_operator_leading_passes_on_own_line:
+  # := on its own line (newlines on both sides) is ok for leading
+  # (it's on a new line, which satisfies the leading constraint)
+  pass_str: |
+    MY_VAR
+    :=
+    SOME_VALUE;
+  configs: *assignment_leading
+
+# --- leading:attached config (operator MUST start the next line, attached to the RHS) ---
+
+assignment_operator_leading_attached_passes_same_line:
+  # := on the same line is fine (mid-line)
+  pass_str: |
+    MY_VAR := SOME_VALUE;
+  configs: &assignment_leading_attached
+    layout:
+      type:
+        assignment_operator:
+          line_position: "leading:attached"
+    core:
+      dialect: oracle
+
+assignment_operator_leading_attached_passes_truly_leading:
+  # := at the start of the next line, directly before the RHS - correct
+  pass_str: |
+    MY_VAR
+      := SOME_VALUE;
+  configs: *assignment_leading_attached
+
+assignment_operator_leading_attached_fails_trailing:
+  # := at end of first line must be moved to start of second line
+  fail_str: |
+    MY_VAR :=
+      SOME_VALUE;
+  fix_str: |
+    MY_VAR
+      := SOME_VALUE;
+  configs: *assignment_leading_attached
+
+assignment_operator_leading_attached_fails_on_own_line:
+  # := on its own line must be joined to the RHS (remove newline after :=)
+  fail_str: |
+    MY_VAR
+    :=
+    SOME_VALUE;
+  fix_str: |
+    MY_VAR
+    := SOME_VALUE;
+  configs: *assignment_leading_attached
+
+# --- Cross-dialect: Snowflake scripting (LET statement) ---
+# These tests guard that assignment_operator handling is dialect-agnostic.
+# Snowflake uses := in LET statements (scripting blocks); the same
+# trailing:attached and leading:attached semantics should apply.
+
+assignment_operator_snowflake_trailing_attached_passes:
+  # LET var := value on same line is always fine
+  pass_str: |
+    LET MY_VAR := SOME_VALUE;
+  configs: &snowflake_trailing_attached
+    layout:
+      type:
+        assignment_operator:
+          line_position: "trailing:attached"
+    core:
+      dialect: snowflake
+
+assignment_operator_snowflake_trailing_attached_passes_truly_trailing:
+  # := at end of line (before newline) is correct for trailing:attached
+  pass_str: |
+    LET MY_VAR :=
+      SOME_VALUE;
+  configs: *snowflake_trailing_attached
+
+assignment_operator_snowflake_trailing_attached_fails_standalone:
+  # := on its own line must be moved to the end of the LET line
+  fail_str: |
+    LET MY_VAR
+    :=
+    SOME_VALUE;
+  fix_str: |
+    LET MY_VAR :=
+    SOME_VALUE;
+  configs: *snowflake_trailing_attached
+
+assignment_operator_snowflake_leading_attached_passes:
+  # LET var := value on same line is always fine
+  pass_str: |
+    LET MY_VAR := SOME_VALUE;
+  configs: &snowflake_leading_attached
+    layout:
+      type:
+        assignment_operator:
+          line_position: "leading:attached"
+    core:
+      dialect: snowflake
+
+assignment_operator_snowflake_leading_attached_passes_truly_leading:
+  # := at start of next line, directly before the RHS - correct
+  pass_str: |
+    LET MY_VAR
+      := SOME_VALUE;
+  configs: *snowflake_leading_attached
+
+assignment_operator_snowflake_leading_attached_fails_standalone:
+  # := on its own line must be joined to the RHS (remove newline after :=)
+  fail_str: |
+    LET MY_VAR
+    :=
+    SOME_VALUE;
+  fix_str: |
+    LET MY_VAR
+    := SOME_VALUE;
+  configs: *snowflake_leading_attached
