@@ -62,6 +62,11 @@ def rst_to_markdown(rst_text: str) -> str:
     # Convert RST code-block directives to Markdown code fences.
     md = _convert_rst_code_blocks(md)
 
+    # Some sections may still be indented in the raw docstring even though they
+    # are markdown structure rather than literal code. Normalize them so later
+    # markdown parsing and config-table conversion remain stable.
+    md = _normalize_indented_markdown_blocks(md)
+
     md = re.sub(r"\n{3,}", "\n\n", md)
     return md.strip()
 
@@ -87,9 +92,16 @@ def _convert_rst_code_blocks(text: str) -> str:
         i += 1
 
         # Consume block lines (blank lines and indented lines).
+        # Some generated docstrings can contain later markdown-ish sections
+        # which are still indented in the raw text. Stop before those so they
+        # don't get swallowed into the fenced code block.
         block_lines: list[str] = []
         while i < len(lines):
             current = lines[i]
+
+            if _should_terminate_rst_code_block(block_lines, current):
+                break
+
             if current == "" or current.startswith((" ", "\t")):
                 block_lines.append(current)
                 i += 1
@@ -131,6 +143,67 @@ def _convert_rst_code_blocks(text: str) -> str:
         output.append("```")
 
     return "\n".join(output)
+
+
+def _should_terminate_rst_code_block(block_lines: list[str], current_line: str) -> bool:
+    """Return whether an indented line should terminate a converted code block."""
+    if not block_lines or not current_line.startswith((" ", "\t")):
+        return False
+
+    if block_lines[-1] != "":
+        return False
+
+    stripped = current_line.strip()
+    if not stripped:
+        return False
+
+    return bool(
+        re.match(r"^\*\*[^*]+\*\*$", stripped)
+        or stripped.startswith("|")
+        or stripped.startswith(":::")
+        or stripped.startswith(".. ")
+        or re.match(r"^#{1,6}\s", stripped)
+    )
+
+
+def _normalize_indented_markdown_blocks(text: str) -> str:
+    """Dedent markdown structure lines that should not remain as code blocks."""
+    lines = text.split("\n")
+    output: list[str] = []
+    dedenting = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        if dedenting:
+            if line.startswith("    "):
+                output.append(line[4:])
+                continue
+            if line == "":
+                output.append(line)
+                continue
+            dedenting = False
+
+        if line.startswith("    ") and _is_markdown_structure_line(stripped):
+            output.append(line[4:])
+            dedenting = True
+            continue
+
+        output.append(line)
+
+    return "\n".join(output)
+
+
+def _is_markdown_structure_line(stripped_line: str) -> bool:
+    """Return whether a stripped line looks like markdown structure."""
+    return bool(
+        re.match(r"^\*\*[^*]+\*\*$", stripped_line)
+        or stripped_line.startswith("|")
+        or stripped_line.startswith(":::")
+        or stripped_line.startswith(".. ")
+        or re.match(r"^[-*]\s+", stripped_line)
+        or re.match(r"^#{1,6}\s", stripped_line)
+    )
 
 
 def _convert_rst_admonitions(text: str) -> str:
