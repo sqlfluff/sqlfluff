@@ -57,6 +57,30 @@ jobs:
         working-directory: docsv
         run: pnpm run docs:build
 
+      - name: 🔎 Debug generated RF01 section
+        working-directory: docsv
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          references_path = Path("reference/rules/references.md")
+          content = references_path.read_text()
+          start_marker = "## RF01: references.from {#rf01}"
+          end_marker = "\n---\n\n## RF02: references.qualification {#rf02}"
+
+          start = content.find(start_marker)
+          end = content.find(end_marker, start)
+
+          print("===== GENERATED RF01 SECTION START =====")
+          if start == -1:
+              print("RF01 section not found in generated references.md")
+          else:
+              if end == -1:
+                  end = len(content)
+              print(content[start:end].rstrip())
+          print("===== GENERATED RF01 SECTION END =====")
+          PY
+
       - name: ⬆️ Upload artifact
         uses: actions/upload-pages-artifact@v4
         if: ${{ !env.ACT }}
