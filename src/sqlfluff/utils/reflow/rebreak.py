@@ -134,6 +134,12 @@ class _RebreakLocation:
         newlines_on_neither_side = n_prev_newlines + n_next_newlines == 0
         newlines_on_both_sides = n_prev_newlines > 0 and n_next_newlines > 0
 
+        # For trailing operators, newlines on both sides means the operator
+        # is on its own line and must be moved to be truly trailing.
+        # We must NOT skip this case.
+        if newlines_on_both_sides and self.line_position == "trailing":
+            return False
+
         return (
             # If there isn't a newline on either side then carry
             # on, unless it's strict.
@@ -532,8 +538,11 @@ def rebreak_sequence(
                     continue
 
         elif loc.line_position == "trailing":
-            if elem_buff[loc.next.newline_pt_idx].num_newlines():
-                # We're good, it's already trailing.
+            if (
+                elem_buff[loc.next.newline_pt_idx].num_newlines()
+                and not elem_buff[loc.prev.newline_pt_idx].num_newlines()
+            ):
+                # We're good, it's truly trailing (newline after, none before).
                 continue
 
             # Generate the text for any issues.

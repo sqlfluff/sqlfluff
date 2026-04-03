@@ -261,3 +261,105 @@ fixes_tuple_error_issue:
   configs:
     indentation:
       template_blocks_indent: false
+
+# Assignment operator (:=) tests (Oracle PL/SQL)
+
+# --- trailing config (assignment operator should end the line) ---
+assignment_operator_trailing_passes_same_line:
+  # := on the same line as the variable is fine
+  pass_str: |
+    MY_VAR := SOME_VALUE;
+  configs: &assignment_trailing
+    layout:
+      type:
+        assignment_operator:
+          line_position: trailing
+    core:
+      dialect: oracle
+
+assignment_operator_trailing_passes_truly_trailing:
+  # := at end of first line (before newline) is correct for trailing
+  pass_str: |
+    MY_VAR :=
+        SOME_VALUE;
+  configs: *assignment_trailing
+
+assignment_operator_trailing_fails_leading:
+  # := at start of second line must be moved to end of first line
+  fail_str: |
+    MY_VAR
+        := SOME_VALUE;
+  fix_str: |
+    MY_VAR :=
+        SOME_VALUE;
+  configs: *assignment_trailing
+
+assignment_operator_trailing_fails_on_own_line:
+  # := on its own line (newlines on both sides) must be moved to end of variable line
+  fail_str: |
+    MY_VAR
+    :=
+    SOME_FUNCTION(
+        PARAM1,
+        PARAM2
+    );
+  fix_str: |
+    MY_VAR :=
+    SOME_FUNCTION(
+        PARAM1,
+        PARAM2
+    );
+  configs: *assignment_trailing
+
+assignment_operator_trailing_fails_multiline_rhs:
+  # := on its own line with a multi-line RHS expression
+  fail_str: |
+    AUDITINFO
+    :=
+    AUDITINFO
+    || 'SUFFIX';
+  fix_str: |
+    AUDITINFO :=
+    AUDITINFO
+    || 'SUFFIX';
+  configs: *assignment_trailing
+
+# --- leading config (assignment operator should start the line) ---
+
+assignment_operator_leading_passes_same_line:
+  # := on same line as the variable is fine for leading too (mid-line)
+  pass_str: |
+    MY_VAR := SOME_VALUE;
+  configs: &assignment_leading
+    layout:
+      type:
+        assignment_operator:
+          line_position: leading
+    core:
+      dialect: oracle
+
+assignment_operator_leading_passes_truly_leading:
+  # := at start of second line is correct for leading
+  pass_str: |
+    MY_VAR
+        := SOME_VALUE;
+  configs: *assignment_leading
+
+assignment_operator_leading_fails_trailing:
+  # := at end of first line must be moved to start of second line
+  fail_str: |
+    MY_VAR :=
+        SOME_VALUE;
+  fix_str: |
+    MY_VAR
+        := SOME_VALUE;
+  configs: *assignment_leading
+
+assignment_operator_leading_passes_on_own_line:
+  # := on its own line (newlines on both sides) is ok for leading
+  # (it's on a new line, which satisfies the leading constraint)
+  pass_str: |
+    MY_VAR
+    :=
+    SOME_VALUE;
+  configs: *assignment_leading

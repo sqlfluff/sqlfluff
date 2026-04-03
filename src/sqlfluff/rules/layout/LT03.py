@@ -60,7 +60,9 @@ class Rule_LT03(BaseRule):
     name = "layout.operators"
     aliases = ("L007",)
     groups = ("all", "layout")
-    crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
+    crawl_behaviour = SegmentSeekerCrawler(
+        {"binary_operator", "comparison_operator", "assignment_operator"}
+    )
     is_fix_compatible = True
 
     def _seek_newline(
@@ -109,11 +111,15 @@ class Rule_LT03(BaseRule):
 
         # Shortcut #2: Trailing.
         elif line_position == "trailing":
-            if self._seek_newline(parent.segments, idx, dir=1):
+            has_newline_after = self._seek_newline(parent.segments, idx, dir=1)
+            has_newline_before = self._seek_newline(parent.segments, idx, dir=-1)
+            # Only shortcut if operator is truly trailing (newline after, not before)
+            # or fully mid-line (no newlines on either side).
+            # If there's a newline both before AND after, the operator is on its
+            # own line and must go through the full reflow check.
+            if has_newline_after and not has_newline_before:
                 return True
-            # If we didn't find a newline after, if there's _also_ not a newline
-            # before, then we can also shortcut. i.e. it's a comma "mid line".
-            if not self._seek_newline(parent.segments, idx, dir=-1):
+            if not has_newline_after and not has_newline_before:
                 return True
         return False
 
@@ -143,6 +149,14 @@ class Rule_LT03(BaseRule):
             )
             if self._check_trail_lead_shortcut(
                 context.segment, context.parent_stack[-1], binary_positioning
+            ):
+                return [LintResult()]
+        elif context.segment.is_type("assignment_operator"):
+            assignment_positioning = context.config.get(
+                "line_position", ["layout", "type", "assignment_operator"]
+            )
+            if self._check_trail_lead_shortcut(
+                context.segment, context.parent_stack[-1], assignment_positioning
             ):
                 return [LintResult()]
 
