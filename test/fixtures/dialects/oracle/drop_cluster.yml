@@ -1,0 +1,68 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2f21bf5a1b1fa3f8c833165053580e34128e8582a9016f12334d6ca7bdc0d928
+file:
+  batch:
+  - statement:
+      drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - object_reference:
+          naked_identifier: language
+  - statement_terminator: ;
+  - statement:
+      drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - object_reference:
+          naked_identifier: personnel
+      - keyword: INCLUDING
+      - keyword: TABLES
+  - statement_terminator: ;
+  - statement:
+      drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - object_reference:
+          naked_identifier: personnel
+      - keyword: INCLUDING
+      - keyword: TABLES
+      - keyword: CASCADE
+      - keyword: CONSTRAINTS
+  - statement_terminator: ;
+  - statement:
+      drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+          naked_identifier: language
+  - statement_terminator: ;
+  - statement:
+      drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+          naked_identifier: personnel
+      - keyword: INCLUDING
+      - keyword: TABLES
+  - statement_terminator: ;
+  - statement:
+      drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - object_reference:
+        - naked_identifier: myschema
+        - dot: .
+        - naked_identifier: personnel
+      - keyword: INCLUDING
+      - keyword: TABLES
+      - keyword: CASCADE
+      - keyword: CONSTRAINTS
+  - statement_terminator: ;

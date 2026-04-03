@@ -1401,6 +1401,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("AlterSynonymStatementSegment"),
+            Ref("DropProfileStatementSegment"),
+            Ref("DropClusterStatementSegment"),
         ],
     )
 
@@ -4229,6 +4231,74 @@ class AlterSynonymStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         OneOf("EDITIONABLE", "NONEDITIONABLE", "COMPILE"),
+    )
+
+
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
+    """A `DROP USER` statement.
+
+    Extends ANSI to support Oracle's optional ``CASCADE`` clause, which drops
+    all objects in the user's schema before removing the user.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/DROP-USER.html
+    """
+
+    type = "drop_user_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "USER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("RoleReferenceSegment"),
+        Ref.keyword("CASCADE", optional=True),
+    )
+
+
+class DropProfileStatementSegment(BaseSegment):
+    """A `DROP PROFILE` statement.
+
+    ``CASCADE`` deassigns the profile from any users to whom it is assigned,
+    reassigning them to the ``DEFAULT`` profile.  Required when the profile is
+    currently assigned to one or more users.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/DROP-PROFILE.html
+    """
+
+    type = "drop_profile_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "PROFILE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref.keyword("CASCADE", optional=True),
+    )
+
+
+class DropClusterStatementSegment(BaseSegment):
+    """A `DROP CLUSTER` statement.
+
+    ``INCLUDING TABLES`` drops all tables that belong to the cluster.
+    ``CASCADE CONSTRAINTS`` (only valid after ``INCLUDING TABLES``) drops
+    referential integrity constraints from tables in other schemas that
+    reference primary/unique keys in the cluster's tables.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/DROP-CLUSTER.html
+    """
+
+    type = "drop_cluster_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CLUSTER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "INCLUDING",
+            "TABLES",
+            Sequence("CASCADE", "CONSTRAINTS", optional=True),
+            optional=True,
+        ),
     )
 
 
