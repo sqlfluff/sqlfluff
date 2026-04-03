@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0372d59b52907211a2eb331b08161487f6b45714594c1ac677432811150db0b8
+_hash: 025c8c0c73784ba02bb8f842d4dc97e3d18559669916ca1a6241767d81023e49
 file:
 - batch:
     statement:
@@ -183,21 +183,21 @@ file:
                   bracketed:
                   - start_bracket: (
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
                       naked_identifier: customer_id
                   - comma: ','
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
                       naked_identifier: cust_last_name
                   - comma: ','
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
@@ -226,21 +226,21 @@ file:
                   bracketed:
                   - start_bracket: (
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
                       naked_identifier: order_id
                   - comma: ','
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
                       naked_identifier: order_date
                   - comma: ','
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
@@ -349,21 +349,21 @@ file:
                   keyword: VALUES
                   bracketed:
                   - start_bracket: (
-                  - sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: emp_id
                   - comma: ','
-                  - sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: lastname
                   - comma: ','
                   - expression:
-                      sqlplus_variable:
-                      - colon: ':'
+                      bind_variable:
+                      - bind_colon: ':'
                       - parameter: Employee
                       - dot: .
                       - parameter: lastname
@@ -375,20 +375,20 @@ file:
                   - expression:
                       bare_function: SYSDATE
                   - comma: ','
-                  - sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: job
                   - comma: ','
-                  - sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: sal
                   - comma: ','
-                  - sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Department
                     - dot: .
                     - parameter: department_id
@@ -584,7 +584,7 @@ file:
               - assignment_operator: :=
               - expression:
                   bind_variable:
-                    colon_delimiter: ':'
+                    bind_colon: ':'
                     trigger_correlation_name:
                       keyword: NEW
                     dot: .
@@ -621,7 +621,7 @@ file:
               - assignment_operator: :=
               - expression:
                   bind_variable:
-                    colon_delimiter: ':'
+                    bind_colon: ':'
                     trigger_correlation_name:
                       keyword: NEW
                     dot: .
@@ -713,7 +713,7 @@ file:
               - statement:
                   assignment_segment_statement:
                     bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
@@ -728,7 +728,7 @@ file:
               - statement:
                   assignment_segment_statement:
                     bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .

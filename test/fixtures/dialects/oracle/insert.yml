@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa3a5fa53786662f0cb7ed9d487d71738f9eecb708734849ff82a409bdae78c0
+_hash: dc3bd04edadee0f4e1b6284495bd269054a3273d3ea6a0cfbbf2afd25b6c9f21
 file:
   batch:
   - statement:
@@ -368,12 +368,12 @@ file:
           naked_identifier: job_id
           into_clause:
           - keyword: INTO
-          - sqlplus_variable:
-              colon: ':'
+          - bind_variable:
+              bind_colon: ':'
               parameter: bnd1
           - comma: ','
-          - sqlplus_variable:
-              colon: ':'
+          - bind_variable:
+              bind_colon: ':'
               parameter: bnd2
   - statement_terminator: ;
   - statement:

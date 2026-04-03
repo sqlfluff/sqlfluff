@@ -475,6 +475,11 @@ oracle_dialect.add(
     ),
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    # Colon prefix for bind variables (:var) and trigger pseudorecords
+    # (:NEW, :OLD). Distinct from ColonSegment so the global
+    # `spacing_before = touch` on type "colon" doesn't collapse the
+    # required space before these variables.
+    BindColonSegment=StringParser(":", SymbolSegment, type="bind_colon"),
     AssignmentOperatorSegment=StringParser(
         ":=", SymbolSegment, type="assignment_operator"
     ),
@@ -960,7 +965,7 @@ oracle_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("TriggerCorrelationReferenceSegment"),
-            Ref("SqlplusVariableGrammar"),
+            Ref("BindVariableSegment"),
             Ref.keyword("LEVEL"),
             Ref.keyword("ROWNUM"),
             Ref.keyword("ANY"),
@@ -972,7 +977,7 @@ oracle_dialect.replace(
     ).copy(
         insert=[
             Ref("ConnectByRootGrammar"),
-            Ref("SqlplusSubstitutionVariableSegment"),
+            Ref("SubstitutionVariableSegment"),
         ]
     ),
     Expression_D_Grammar=Sequence(
@@ -1033,7 +1038,7 @@ oracle_dialect.replace(
                 ),
             ),
             Ref("LocalAliasSegment"),
-            Ref("SqlplusSubstitutionVariableSegment"),
+            Ref("SubstitutionVariableSegment"),
             Ref("ImplicitCursorAttributesGrammar"),
             Sequence(
                 Ref("ObjectReferenceSegment"),
@@ -1065,7 +1070,7 @@ oracle_dialect.replace(
     UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
-            Ref("SqlplusSubstitutionVariableSegment"),
+            Ref("SubstitutionVariableSegment"),
         ]
     ),
     SequenceMinValueGrammar=OneOf(
@@ -1848,17 +1853,17 @@ class ColumnDefinitionSegment(BaseSegment):
     )
 
 
-class SqlplusVariableGrammar(BaseSegment):
-    """SQLPlus Bind Variables :thing.
+class BindVariableSegment(BaseSegment):
+    """Bind variable (e.g. :var, :var.field).
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/using-substitution-variables-sqlplus.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/mlejs/bind-variables.html
     """
 
-    type = "sqlplus_variable"
+    type = "bind_variable"
 
     match_grammar = Sequence(
         OptionallyBracketed(
-            Ref("ColonSegment"),
+            Ref("BindColonSegment"),
             Ref("ParameterNameSegment"),
             Sequence(Ref("DotSegment"), Ref("ParameterNameSegment"), optional=True),
         )
@@ -2049,12 +2054,12 @@ class TriggerCorrelationNameSegment(BaseSegment):
 
 
 class TriggerCorrelationReferenceSegment(BaseSegment):
-    """A segment to represent pseudorecords like :NEW, :OLD, and :PARENT."""
+    """Trigger pseudorecord reference (:NEW, :OLD, :PARENT)."""
 
     type = "bind_variable"
 
     match_grammar = Sequence(
-        Ref("ColonDelimiterSegment"),
+        Ref("BindColonSegment"),
         Ref("TriggerCorrelationNameSegment"),
         Sequence(
             Ref("DotSegment"),
@@ -2127,13 +2132,13 @@ class FunctionNameSegment(BaseSegment):
     )
 
 
-class SqlplusSubstitutionVariableSegment(BaseSegment):
-    """SQLPlus Substitution Variables &thing.
+class SubstitutionVariableSegment(BaseSegment):
+    """SQL*Plus substitution variable (&var, &&var).
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqpug/using-substitution-variables-sqlplus.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/using-substitution-variables-sqlplus.html
     """
 
-    type = "sqlplus_variable"
+    type = "substitution_variable"
 
     match_grammar = Sequence(
         Ref("AmpersandSegment"),
@@ -2258,7 +2263,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
 
     match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
         insert=[
-            Ref("SqlplusSubstitutionVariableSegment"),
+            Ref("SubstitutionVariableSegment"),
         ]
     )
 
@@ -3330,7 +3335,7 @@ class AssignmentStatementSegment(BaseSegment):
             Ref("DotSegment", optional=True),
             OneOf(
                 Ref("TriggerCorrelationReferenceSegment"),
-                Ref("SqlplusVariableGrammar"),
+                Ref("BindVariableSegment"),
             ),
             optional=True,
         ),
@@ -3805,7 +3810,7 @@ class CloseStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CLOSE",
-        OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar")),
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment")),
     )
 
 
@@ -3819,7 +3824,7 @@ class OpenForStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "OPEN",
-        OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar")),
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment")),
         "FOR",
         OneOf(
             Ref("SingleQuotedIdentifierSegment"),
@@ -3853,7 +3858,7 @@ class FetchStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "FETCH",
-        OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar")),
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment")),
         OneOf(
             Ref("IntoClauseSegment"),
             Sequence(
@@ -3878,7 +3883,7 @@ class IntoClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "INTO",
-        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))),
+        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment"))),
     )
 
 
@@ -3895,7 +3900,7 @@ class BulkCollectIntoClauseSegment(BaseSegment):
         "COLLECT",
         "INTO",
         ImplicitIndent,
-        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))),
+        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment"))),
         Dedent,
     )
 
