@@ -18,8 +18,10 @@ from sqlfluff.core.errors import (
     SQLTemplaterError,
 )
 from sqlfluff.core.linter import runner
+from sqlfluff.core.linter.common import DeferredRenderTask
 from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
+from sqlfluff.core.templaters import RawTemplater
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 try:
@@ -354,6 +356,134 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
             result.reraise()
 
 
+def test__linter__templates_in_worker_default():
+    """RawTemplater (and subclasses) should have templates_in_worker=True."""
+    assert RawTemplater().templates_in_worker is True
+
+
+def test__parallel_runner__iter_partials_deferred():
+    """iter_partials emits DeferredRenderTask items when templates_in_worker=True."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(dialect="ansi")
+    thd_runner = runner.MultiThreadRunner(lntr, config, processes=1)
+    partials = list(
+        thd_runner.iter_partials(
+            ["test/fixtures/linter/passing.sql"],
+            fix=False,
+        )
+    )
+    assert len(partials) == 1
+    fname, task = partials[0]
+    assert isinstance(task, DeferredRenderTask)
+    assert task.fname == "test/fixtures/linter/passing.sql"
+    assert task.fix is False
+
+
+def test__parallel_runner__iter_partials_non_worker_path(monkeypatch):
+    """iter_partials falls back to callables when templates_in_worker=False.
+
+    Simulates the behaviour of a main-process-only templater such as dbt.
+    """
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(dialect="ansi")
+    # Force the flag off (mirrors what DbtTemplater sets)
+    monkeypatch.setattr(lntr.templater, "templates_in_worker", False)
+    thd_runner = runner.MultiThreadRunner(lntr, config, processes=1)
+    partials = list(
+        thd_runner.iter_partials(
+            ["test/fixtures/linter/passing.sql"],
+            fix=False,
+        )
+    )
+    assert len(partials) == 1
+    _fname, task = partials[0]
+    assert callable(task)
+    assert not isinstance(task, DeferredRenderTask)
+
+
+def test__parallel_runner__apply_deferred_task():
+    """_apply with a DeferredRenderTask should render and return a LintedFile."""
+    from sqlfluff.core.linter import LintedFile
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    task = DeferredRenderTask(
+        fname="test/fixtures/linter/passing.sql",
+        root_config=config,
+        fix=False,
+    )
+    result = runner.ParallelRunner._apply(("test/fixtures/linter/passing.sql", task))
+    assert isinstance(result, LintedFile)
+
+
+def test__parallel_runner__apply_callable_task(monkeypatch):
+    """_apply with a PartialLintCallable covers the dbt-like non-deferred path.
+
+    When templates_in_worker=False (as with DbtTemplater), ParallelRunner
+    iter_partials falls back to the base class and yields callables rather than
+    DeferredRenderTask objects.  _apply() should call the callable directly and
+    return a LintedFile.
+    """
+    from sqlfluff.core.linter import LintedFile
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(dialect="ansi")
+    # Simulate a main-process-only templater (e.g. dbt) that disables
+    # worker-side rendering.
+    monkeypatch.setattr(lntr.templater, "templates_in_worker", False)
+    thd_runner = runner.MultiThreadRunner(lntr, config, processes=1)
+    partials = list(
+        thd_runner.iter_partials(
+            ["test/fixtures/linter/passing.sql"],
+            fix=False,
+        )
+    )
+    fname, task = partials[0]
+    assert callable(task) and not isinstance(task, DeferredRenderTask)
+    result = runner.ParallelRunner._apply((fname, task))
+    assert isinstance(result, LintedFile)
+
+
+def test__parallel_runner__apply_skip_file():
+    """_apply wraps a SQLFluffSkipFile raised during render into DelayedException.
+
+    Uses a byte limit of 5, which is below the size of passing.sql (16 bytes),
+    so render_file raises SQLFluffSkipFile.
+    """
+    config = FluffConfig(overrides={"large_file_skip_byte_limit": 5, "dialect": "ansi"})
+    task = DeferredRenderTask(
+        fname="test/fixtures/linter/passing.sql",
+        root_config=config,
+        fix=False,
+    )
+    result = runner.ParallelRunner._apply(("test/fixtures/linter/passing.sql", task))
+    assert isinstance(result, runner.DelayedException)
+    assert isinstance(result.ee, SQLFluffSkipFile)
+
+
+def test__parallel_runner__skip_file_handled_in_run():
+    """SQLFluffSkipFile in a deferred worker logs a plain skip warning.
+
+    Uses a byte limit of 5, which is below the size of passing.sql (16 bytes),
+    so render_file raises SQLFluffSkipFile.
+    The runner should not emit the "Unable to lint … Please report" error
+    message — that is reserved for genuine unexpected failures.
+    """
+    config = FluffConfig(overrides={"large_file_skip_byte_limit": 5, "dialect": "ansi"})
+    lntr = Linter(config=config)
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        # Consume the iterator — errors surface only when results are consumed.
+        list(
+            runner.MultiThreadRunner(lntr, config, processes=1).run(
+                ["test/fixtures/linter/passing.sql"],
+                fix=False,
+            )
+        )
+    # The skip message must appear in the warning output.
+    assert "over the limit of 5" in caplog.text
+    # The "please report" message must NOT appear — a skip is not a bug.
+    assert "Please report" not in caplog.text
+
+
 @pytest.mark.parametrize(
     "mock_cpu,in_processes,exp_processes",
     [
@@ -400,6 +530,64 @@ def test__linter__linting_unexpected_error_handled_gracefully(
         and "Exception: Something unexpected happened"
         in patched_logger.warning.call_args[0][0]
     )
+
+
+def test__linter__lint_paths_closes_runner_iterator_on_early_break(monkeypatch):
+    """Ensure lint_paths closes runner iterator when loop exits early."""
+    test_path = os.path.normpath("test/fixtures/linter/passing.sql")
+
+    class ClosableIterator:
+        """Simple iterator tracking whether close() gets called."""
+
+        def __init__(self, item):
+            self.item = item
+            self.closed = False
+            self._yielded = False
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            if self._yielded:
+                raise StopIteration
+            self._yielded = True
+            return self.item
+
+        def close(self):
+            self.closed = True
+
+    class StubRunner:
+        """Runner that returns a pre-created iterator."""
+
+        def __init__(self, iterator):
+            self.iterator = iterator
+
+        def run(self, fnames, fix):
+            return self.iterator
+
+    fatal_error = DummyLintError(line_no=1)
+    fatal_error.fatal = True
+    linted_file = runner.LintedFile(
+        path=test_path,
+        violations=[fatal_error],
+        timings=None,
+        tree=None,
+        ignore_mask=None,
+        templated_file=None,
+        encoding="utf8",
+    )
+    closable_iterator = ClosableIterator(linted_file)
+
+    monkeypatch.setattr(
+        runner,
+        "get_runner",
+        lambda *args, **kwargs: (StubRunner(closable_iterator), 2),
+    )
+
+    lntr = Linter(dialect="ansi")
+    lntr.lint_paths((test_path,), processes=2)
+
+    assert closable_iterator.closed
 
 
 def test__linter__empty_file():
@@ -495,6 +683,28 @@ def test__linter__templating_fail():
                 ("CP01", 2, 10),
                 ("CP01", 2, 34),
                 ("CP01", 2, 52),
+            ],
+        ),
+        (
+            "test/fixtures/linter/jinja_variants/branching_cp01.sql",
+            "CP01",
+            False,
+            [
+                # Nested IF/ELIF blocks should surface keyword violations
+                # from every variant we render.
+                ("CP01", 3, 1),
+                ("CP01", 5, 11),
+                ("CP01", 7, 11),
+                ("CP01", 9, 1),
+                ("CP01", 11, 1),
+                ("CP01", 11, 15),
+                ("CP01", 11, 25),
+                ("CP01", 13, 1),
+                ("CP01", 13, 15),
+                ("CP01", 13, 25),
+                ("CP01", 15, 1),
+                ("CP01", 15, 15),
+                ("CP01", 15, 25),
             ],
         ),
     ],

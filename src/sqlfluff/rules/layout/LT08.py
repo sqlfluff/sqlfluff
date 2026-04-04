@@ -45,9 +45,11 @@ class Rule_LT08(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Blank line expected but not found after CTE definition."""
         error_buffer = []
+        # Strip any modifier suffix (e.g. ":align-following", ":strict")
+        # to get the base comma style ("leading" or "trailing").
         global_comma_style = context.config.get(
             "line_position", ["layout", "type", "comma"]
-        )
+        ).split(":")[0]
         assert context.segment.is_type("with_compound_statement")
         # First we need to find all the commas, the end brackets, the
         # things that come after that and the blank lines in between.
@@ -103,6 +105,18 @@ class Rule_LT08(BaseRule):
                     comma_line_idx = line_idx
                     comma_seg_idx = seg_idx
                 seg_idx += 1
+
+            # Check if the next code segment is CYCLE or SEARCH
+            # These are part of the CTE definition itself (PostgreSQL),
+            # so we should not require a blank line before them.
+            if forward_slice[seg_idx].is_type("keyword") and forward_slice[
+                seg_idx
+            ].raw_upper in ("CYCLE", "SEARCH"):
+                self.logger.info(
+                    "Skipping blank line requirement: CTE followed by %s clause",
+                    forward_slice[seg_idx].raw_upper,
+                )
+                continue
 
             # Infer the comma style (NB this could be different for each case!)
             if comma_line_idx is None:

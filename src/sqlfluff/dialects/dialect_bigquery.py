@@ -40,6 +40,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
+from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
@@ -387,6 +388,7 @@ bigquery_dialect.replace(
     MergeIntoLiteralGrammar=Sequence("MERGE", Ref.keyword("INTO", optional=True)),
     AccessorGrammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
+        Ref("ChainedFunctionCallSegment"),
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
     ),
@@ -394,7 +396,10 @@ bigquery_dialect.replace(
     NotEnforcedGrammar=Sequence("NOT", "ENFORCED"),
     ReferenceMatchGrammar=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
@@ -660,7 +665,6 @@ class MultiStatementSegment(BaseSegment):
         Ref("WhileStatementSegment"),
         Ref("LoopStatementSegment"),
         Ref("IfStatementSegment"),
-        Ref("CreateProcedureStatementSegment"),
         Ref("BeginStatementSegment"),
     )
 
@@ -719,6 +723,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
+            Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("UndropSchemaStatementSegment"),
             Ref("AlterOrganizationStatementSegment"),
@@ -1231,14 +1236,17 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 Ref("ArrayAggFunctionNameSegment"),
                 Ref("ArrayAggFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
             ),
             Sequence(
                 Ref("ArrayConcatAggFunctionNameSegment"),
                 Ref("ArrayConcatAggFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
             ),
             Sequence(
                 Ref("StringAggFunctionNameSegment"),
                 Ref("StringAggFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
             ),
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone
@@ -1567,6 +1575,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("ArrayTypeSegment"),
         Ref("StructTypeSegment"),
+        Ref("TableTypeSegment"),
     )
 
 
@@ -1597,6 +1606,37 @@ class StructTypeSchemaSegment(BaseSegment):
                         Ref("DatatypeSegment"),
                     ),
                 ),
+                AnyNumberOf(Ref("ColumnConstraintSegment")),
+                Ref("OptionsSegment", optional=True),
+            ),
+        ),
+        bracket_type="angle",
+        bracket_pairs_set="angle_bracket_pairs",
+    )
+
+
+class TableTypeSegment(BaseSegment):
+    """Expression to construct a TABLE datatype.
+
+    This mirrors the STRUCT type but is used for table-valued parameters in UDFs and stored procedures.
+    """
+
+    type = "data_type"
+    match_grammar = Sequence(
+        "TABLE",
+        Ref("TableTypeSchemaSegment"),
+    )
+
+
+class TableTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a TABLE datatype."""
+
+    type = "table_type_schema"
+    match_grammar = Bracketed(
+        Delimited(  # Comma-separated list of field names/types
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Ref("DatatypeSegment"),
                 AnyNumberOf(Ref("ColumnConstraintSegment")),
                 Ref("OptionsSegment", optional=True),
             ),
@@ -3795,5 +3835,19 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
         Bracketed(
             OneOf(Ref("SelectableGrammar"), Ref("PipeStatementSegment")),
             parse_mode=ParseMode.GREEDY,
+        ),
+    )
+
+
+class ChainedFunctionCallSegment(BaseSegment):
+    """Postfix chained function call accessor: .FUNC(args...) in BigQuery."""
+
+    type = "chained_function_call"
+
+    match_grammar = Sequence(
+        Ref("DotSegment"),
+        Ref("FunctionNameIdentifierSegment"),
+        Bracketed(
+            Ref("FunctionContentsGrammar", optional=True),
         ),
     )

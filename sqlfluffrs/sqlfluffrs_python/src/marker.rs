@@ -9,7 +9,15 @@ use crate::templater::templatefile::{PySqlFluffTemplatedFile, PyTemplatedFile};
 use sqlfluffrs_types::marker::PositionMarker as RsPositionMarker;
 use sqlfluffrs_types::templater::templatefile::TemplatedFile as RsTemplatedFile;
 
-#[pyclass(name = "RsPositionMarker", str, eq, ord, frozen, module = "sqlfluffrs")]
+#[pyclass(
+    name = "RsPositionMarker",
+    str,
+    eq,
+    ord,
+    frozen,
+    module = "sqlfluffrs",
+    from_py_object
+)]
 #[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct PyPositionMarker(pub RsPositionMarker);
@@ -185,8 +193,10 @@ impl PartialOrd for PyPositionMarker {
 #[derive(Clone, IntoPyObject, Debug)]
 pub struct PySqlFluffPositionMarker(pub PyPositionMarker);
 
-impl<'py> FromPyObject<'py> for PySqlFluffPositionMarker {
-    fn extract_bound(obj: &pyo3::Bound<'py, pyo3::PyAny>) -> PyResult<Self> {
+impl<'a, 'py> FromPyObject<'a, 'py> for PySqlFluffPositionMarker {
+    type Error = PyErr;
+
+    fn extract(obj: pyo3::Borrowed<'a, 'py, pyo3::PyAny>) -> Result<Self, Self::Error> {
         let source_slice = obj.getattr("source_slice")?.extract::<PySlice>()?.0;
         let templated_slice = obj.getattr("templated_slice")?.extract::<PySlice>()?.0;
         let templated_file: Arc<RsTemplatedFile> = obj

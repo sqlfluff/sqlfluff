@@ -35,6 +35,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
+from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_exasol_keywords import (
     BARE_FUNCTIONS,
@@ -243,7 +244,10 @@ exasol_dialect.replace(
     LikeGrammar=OneOf("LIKE", "REGEXP_LIKE"),
     NanLiteralSegment=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
-        "FROM",
+        Ref(
+            "FromKeywordSegment",
+            exclude=is_distinct_from_lookbehind,
+        ),
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",

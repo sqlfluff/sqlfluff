@@ -128,3 +128,19 @@ ALTER TABLE x ON CLUSTER '{cluster}' REPLACE PARTITION 'y' FROM z;
 
 -- ALTER TABLE with Settings
 ALTER TABLE x ADD COLUMN y Int32 ALIAS z + 10 SETTINGS abc=1;
+
+-- UPDATE mutation examples
+ALTER TABLE my_table UPDATE column_name = 'new_value' WHERE condition = true;
+ALTER TABLE my_table UPDATE column_name = 'new_value' WHERE condition = true SETTINGS mutations_sync = 1;
+ALTER TABLE users UPDATE age = age + 1 WHERE id = 100;
+ALTER TABLE users UPDATE status = 'active', last_login = now() WHERE user_id IN (1, 2, 3);
+ALTER TABLE products ON CLUSTER '{cluster}' UPDATE price = price * 1.1 WHERE category = 'electronics';
+ALTER TABLE events UPDATE event_count = event_count + 1 WHERE event_date = today() SETTINGS mutations_sync = 2;
+
+-- DELETE mutation examples
+ALTER TABLE my_table DELETE WHERE condition = true;
+ALTER TABLE my_table DELETE WHERE condition = true SETTINGS mutations_sync = 1;
+ALTER TABLE logs DELETE WHERE log_date < today() - INTERVAL 30 DAY;
+ALTER TABLE users DELETE WHERE deleted = 1 AND last_activity < now() - INTERVAL 1 YEAR;
+ALTER TABLE sessions ON CLUSTER '{cluster}' DELETE WHERE session_id IN (SELECT id FROM expired_sessions);
+ALTER TABLE temp_data DELETE WHERE created_at < '2023-01-01' SETTINGS mutations_sync = 2;

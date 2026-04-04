@@ -3,85 +3,166 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ef0b2797aa047b7a3819bcc49b606e532d14f0c004ca49400f3a8bc610b1d73b
+_hash: d902632d8a243de280943a658b69eb8e24130967b05a4238c1da6c6260d037c9
 file:
-- statement:
-    begin_end_block:
-    - declare_segment:
-        keyword: DECLARE
-        naked_identifier: done
-        data_type:
-          data_type_identifier: BOOLEAN
-        assignment_operator: :=
-        expression:
-          boolean_literal: 'FALSE'
-        statement_terminator: ;
-    - keyword: BEGIN
-    - statement:
-        while_loop_statement:
-          keyword: WHILE
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+          keyword: DECLARE
+          naked_identifier: done
+          data_type:
+            data_type_identifier: BOOLEAN
+          assignment_operator: :=
           expression:
-            column_reference:
-              naked_identifier: done
-          loop_statement:
-          - keyword: LOOP
-          - statement:
-              function:
-                function_name:
-                  naked_identifier: DBMS_OUTPUT
-                  dot: .
-                  function_name_identifier: PUT_LINE
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      quoted_literal: "'This line does not print.'"
-                    end_bracket: )
-          - statement_terminator: ;
-          - statement:
-              assignment_segment_statement:
-                object_reference:
-                  naked_identifier: done
-                assignment_operator: :=
-                expression:
-                  boolean_literal: 'TRUE'
-          - statement_terminator: ;
-          - keyword: END
-          - keyword: LOOP
-    - statement_terminator: ;
-    - statement:
-        while_loop_statement:
-          keyword: WHILE
-          expression:
-            keyword: NOT
-            column_reference:
-              naked_identifier: done
-          loop_statement:
-          - keyword: LOOP
-          - statement:
-              function:
-                function_name:
-                  naked_identifier: DBMS_OUTPUT
-                  dot: .
-                  function_name_identifier: PUT_LINE
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      quoted_literal: "'Hello, world!'"
-                    end_bracket: )
-          - statement_terminator: ;
-          - statement:
-              assignment_segment_statement:
-                object_reference:
-                  naked_identifier: done
-                assignment_operator: :=
-                expression:
-                  boolean_literal: 'TRUE'
-          - statement_terminator: ;
-          - keyword: END
-          - keyword: LOOP
-    - statement_terminator: ;
-    - keyword: END
-- statement_terminator: ;
-- statement_terminator: /
+            boolean_literal: 'FALSE'
+          statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          while_loop_statement:
+            keyword: WHILE
+            expression:
+              column_reference:
+                naked_identifier: done
+            loop_statement:
+            - keyword: LOOP
+            - statement:
+                function:
+                  function_name:
+                    naked_identifier: DBMS_OUTPUT
+                    dot: .
+                    function_name_identifier: PUT_LINE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'This line does not print.'"
+                      end_bracket: )
+            - statement_terminator: ;
+            - statement:
+                assignment_segment_statement:
+                  object_reference:
+                    naked_identifier: done
+                  assignment_operator: :=
+                  expression:
+                    boolean_literal: 'TRUE'
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - statement:
+          while_loop_statement:
+            keyword: WHILE
+            expression:
+              keyword: NOT
+              column_reference:
+                naked_identifier: done
+            loop_statement:
+            - keyword: LOOP
+            - statement:
+                function:
+                  function_name:
+                    naked_identifier: DBMS_OUTPUT
+                    dot: .
+                    function_name_identifier: PUT_LINE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'Hello, world!'"
+                      end_bracket: )
+            - statement_terminator: ;
+            - statement:
+                assignment_segment_statement:
+                  object_reference:
+                    naked_identifier: done
+                  assignment_operator: :=
+                  expression:
+                    boolean_literal: 'TRUE'
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          while_loop_statement:
+            keyword: WHILE
+            expression:
+              boolean_literal: 'TRUE'
+            loop_statement:
+            - keyword: LOOP
+            - statement:
+                while_loop_statement:
+                  keyword: WHILE
+                  expression:
+                    boolean_literal: 'TRUE'
+                  loop_statement:
+                  - keyword: LOOP
+                  - statement:
+                      null_statement:
+                        keyword: 'NULL'
+                  - statement_terminator: ;
+                  - keyword: END
+                  - keyword: LOOP
+                  - naked_identifier: inner_loop
+            - statement_terminator: ;
+            - statement:
+                exit_statement:
+                  keyword: EXIT
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          for_loop_statement:
+          - keyword: FOR
+          - naked_identifier: i
+          - keyword: IN
+          - numeric_literal: '1'
+          - dot: .
+          - dot: .
+          - numeric_literal: '3'
+          - loop_statement:
+            - keyword: LOOP
+            - statement:
+                for_loop_statement:
+                - keyword: FOR
+                - naked_identifier: j
+                - keyword: IN
+                - numeric_literal: '1'
+                - dot: .
+                - dot: .
+                - numeric_literal: '3'
+                - loop_statement:
+                  - keyword: LOOP
+                  - statement:
+                      null_statement:
+                        keyword: 'NULL'
+                  - statement_terminator: ;
+                  - keyword: END
+                  - keyword: LOOP
+                  - naked_identifier: inner_loop
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+            - naked_identifier: outer_loop
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /

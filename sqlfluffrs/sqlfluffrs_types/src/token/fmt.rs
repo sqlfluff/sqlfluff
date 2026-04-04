@@ -6,7 +6,7 @@ impl Display for Token {
         write!(
             f,
             "<{}: ({}) '{}'>",
-            self.token_type.clone(),
+            self.class_name.clone(),
             self.pos_marker.clone().expect("PositionMarker unset"),
             self.raw.escape_debug(),
         )

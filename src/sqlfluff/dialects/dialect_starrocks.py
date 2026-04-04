@@ -8,7 +8,9 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
+    ImplicitIndent,
     Matchable,
     MultiStringParser,
     OneOf,
@@ -254,6 +256,31 @@ class DistributionSegment(BaseSegment):
     )
 
 
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`.
+
+    StarRocks QUALIFY constraints:
+    - Only supports three window functions: ROW_NUMBER(), RANK(), and DENSE_RANK()
+    - Execution order: FROM → WHERE → GROUP BY → HAVING →
+        WINDOW → QUALIFY → DISTINCT → ORDER BY → LIMIT
+
+    https://docs.starrocks.io/docs/sql-reference/sql-functions/Window_function/#qualify
+    """
+
+    type = "qualify_clause"
+    match_grammar = Sequence(
+        "QUALIFY",
+        ImplicitIndent,
+        # Must be a window function followed by comparison
+        Sequence(
+            Ref("FunctionSegment"),  # Window function with OVER clause
+            Ref("ComparisonOperatorGrammar"),
+            Ref("ExpressionSegment"),
+        ),
+        Dedent,
+    )
+
+
 class IndexDefinitionSegment(BaseSegment):
     """Bitmap index definition specific to StarRocks."""
 
@@ -330,6 +357,66 @@ class CreateRoutineLoadDataSourcePropertiesSegment(BaseSegment):
     )
 
 
+class LoadLabelPropertySegment(BaseSegment):
+    """A key/value property entry for LOAD LABEL and BROKER properties."""
+
+    type = "load_label_property"
+    match_grammar = Sequence(
+        Ref("QuotedLiteralSegment"), Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+    )
+
+
+class LoadDataDescSegment(BaseSegment):
+    """A data description entry for LOAD LABEL."""
+
+    type = "load_data_desc"
+    match_grammar = Sequence(
+        "DATA",
+        "INFILE",
+        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        "INTO",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "FORMAT",
+            "AS",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+    )
+
+
+class LoadLabelStatementSegment(BaseSegment):
+    """A `LOAD LABEL` statement for StarRocks."""
+
+    type = "load_label_statement"
+    match_grammar = Sequence(
+        "LOAD",
+        "LABEL",
+        OneOf(
+            Sequence(
+                Ref("DatabaseReferenceSegment"),
+                Ref("DotSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Bracketed(Delimited(Ref("LoadDataDescSegment"))),
+        "WITH",
+        "BROKER",
+        Bracketed(Delimited(Ref("LoadLabelPropertySegment"))),
+        Sequence(
+            "PROPERTIES",
+            Bracketed(Delimited(Ref("LoadLabelPropertySegment"))),
+            optional=True,
+        ),
+    )
+
+
 """Grammar for STOP ROUTINE LOAD statement in StarRocks."""
 
 
@@ -392,14 +479,88 @@ class ResumeRoutineLoadStatementSegment(BaseSegment):
     )
 
 
+class InsertOverwriteStatementSegment(BaseSegment):
+    """A `INSERT OVERWRITE` statement with optional PARTITION and LABEL clauses."""
+
+    type = "insert_overwrite_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        "OVERWRITE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "PARTITION",
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("ExpressionSegment"),
+                        Ref("NakedIdentifierSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    )
+                )
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            "LABEL",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref("SelectableGrammar"),
+    )
+
+
 class StatementSegment(mysql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = mysql.StatementSegment.match_grammar.copy(
         insert=[
+            Ref("LoadLabelStatementSegment"),
             Ref("CreateRoutineLoadStatementSegment"),
             Ref("StopRoutineLoadStatementSegment"),
             Ref("PauseRoutineLoadStatementSegment"),
             Ref("ResumeRoutineLoadStatementSegment"),
         ]
+    ).copy(
+        insert=[
+            Ref("InsertOverwriteStatementSegment"),
+        ],
+        at=1,  # ensure that it takes priority over MySQL's native InsertStatementSegment.
+    )
+
+
+class UnorderedSelectStatementSegment(mysql.UnorderedSelectStatementSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    Enhanced for StarRocks to include QUALIFY clause support.
+    QUALIFY is positioned after WINDOW clause per StarRocks execution order.
+    """
+
+    type = "select_statement"
+
+    match_grammar = mysql.UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+    )
+
+
+class SelectStatementSegment(mysql.SelectStatementSegment):
+    """A `SELECT` statement including QUALIFY support.
+
+    StarRocks supports QUALIFY for filtering based on window functions.
+    """
+
+    type = "select_statement"
+
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("UpsertClauseListSegment"),
+            Ref("WithCheckOptionSegment"),
+        ],
+        replace_terminators=True,
     )

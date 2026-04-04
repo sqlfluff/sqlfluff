@@ -11,20 +11,12 @@ This file provides Python-specific development guidelines for SQLFluff's main so
 
 ### Code Style & Formatting
 
-#### Black (Auto-formatter)
-- Default settings (line length: 88 characters)
-- Run: `black src/ test/`
-- Automatically enforced via pre-commit hooks
-
-#### Ruff (Linter)
-- Fast Python linter with isort and pydocstyle integration
+#### Ruff (Linter + Formatter)
+- Fast Python linter and formatter with isort and pydocstyle integration
+- Run formatter: `ruff format src/ test/`
 - Run: `ruff check src/ test/`
 - Auto-fix: `ruff check --fix src/ test/`
 - Checks import order, docstring style, common code smells
-
-#### Flake8 (Additional Linting)
-- Used with flake8-black plugin
-- Configured in `pyproject.toml`
 
 ### Type Annotations
 
@@ -290,7 +282,7 @@ pytest test/core/parser/grammar_test.py::test_sequence_matching -v
 mypy src/sqlfluff/
 
 # Format and lint
-black src/ test/
+ruff format src/ test/
 ruff check --fix src/ test/
 ```
 

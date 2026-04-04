@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "4.0.3"
+version = "4.1.0"
 description = "The SQL Linter for Humans"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
@@ -98,7 +98,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-rs = ["sqlfluffrs==4.0.3"]
+rs = ["sqlfluffrs==4.1.0"]
 
 [project.urls]
 Homepage = "https://www.sqlfluff.com"
@@ -130,11 +130,12 @@ sqlfluff_rules_structure = "sqlfluff.rules.structure"
 sqlfluff_rules_convention = "sqlfluff.rules.convention"
 sqlfluff_rules_jinja = "sqlfluff.rules.jinja"
 sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
+sqlfluff_rules_oracle = "sqlfluff.rules.oracle"
 
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "4.0.3"
+stable_version = "4.1.0"
 
 
 [tool.setuptools.package-data]
@@ -228,6 +229,12 @@ ignore_missing_imports = true
 module = "tblib.*"
 ignore_missing_imports = true
 
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.format]
+quote-style = "double"
+
 [tool.ruff.lint]
 extend-select = ["I", "D"]
 
@@ -235,7 +242,6 @@ extend-select = ["I", "D"]
 # D107: Missing docstring in __init__
 # D418: Function/ Method decorated with @overload shouldn’t contain a docstring
 ignore = ["D107", "D105", "D418"]
-
 
 [tool.ruff.lint.isort]
 # Mark sqlfluff, test and it's plugins as known first party
@@ -290,3 +296,16 @@ uri-ignore-words-list = "crate"
 # file
 #  D = "-"
 #  dictionary = "dev/tools/codespell/codespell-dict.txt"
+
+[tool.uv.workspace]
+# When installed from a Git URL (e.g. `uvx --from git+... sqlfluff`), uv treats
+# the repository as a workspace root. Declaring members tells uv which local
+# packages are part of that workspace so it can build from source in this repo.
+members = ["sqlfluffrs"]
+
+[tool.uv.sources]
+# Force uv to resolve these package names from the local workspace members
+# instead of PyPI. This is what makes Git-based builds work reliably for:
+# - the main `sqlfluff` package
+# - the optional `sqlfluffrs` package
+sqlfluffrs = { workspace = true }

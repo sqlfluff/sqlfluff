@@ -3,215 +3,2758 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d769af0449f931aab8e131f48d87f64c8260b09d944567e1583bb56e388185a1
+_hash: 84cc4dde7589635c20b9a60ec28137cbb9fe8393f2571db92bb12cefd93706be
 file:
-- statement:
-    create_table_statement:
-    - keyword: create
-    - keyword: table
-    - table_reference:
-        naked_identifier: tabl#e1
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          naked_identifier: c1
-          data_type:
-            data_type_identifier: SMALLINT
-      - comma: ','
-      - column_definition:
-          naked_identifier: c2
-          data_type:
-            data_type_identifier: DATE
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: create
-    - keyword: table
-    - table_reference:
-        naked_identifier: table1$
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          naked_identifier: c1
-          data_type:
-            data_type_identifier: SMALLINT
-      - comma: ','
-      - column_definition:
-          naked_identifier: c2
-          data_type:
-            data_type_identifier: DATE
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: create
-    - keyword: table
-    - table_reference:
-        naked_identifier: tab#le1$
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          naked_identifier: c1
-          data_type:
-            data_type_identifier: SMALLINT
-      - comma: ','
-      - column_definition:
-          naked_identifier: c2
-          data_type:
-            data_type_identifier: DATE
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: create
-    - keyword: table
-    - table_reference:
-        naked_identifier: tab#le1$
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          naked_identifier: c#1
-          data_type:
-            data_type_identifier: SMALLINT
-      - comma: ','
-      - column_definition:
-          naked_identifier: c$2
-          data_type:
-            data_type_identifier: DATE
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: t1
-    - bracketed:
-        start_bracket: (
-        column_definition:
-        - naked_identifier: id
-        - data_type:
-            data_type_identifier: NUMBER
-        - keyword: GENERATED
-        - keyword: AS
-        - keyword: IDENTITY
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: t2
-    - bracketed:
-        start_bracket: (
-        column_definition:
-        - naked_identifier: id
-        - data_type:
-            data_type_identifier: NUMBER
-        - keyword: GENERATED
-        - keyword: BY
-        - keyword: DEFAULT
-        - keyword: AS
-        - keyword: IDENTITY
-        - bracketed:
-          - start_bracket: (
-          - keyword: START
-          - keyword: WITH
-          - numeric_literal: '100'
-          - keyword: INCREMENT
+  batch:
+  - statement:
+      create_table_statement:
+      - keyword: create
+      - keyword: table
+      - table_reference:
+          naked_identifier: tabl#e1
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: c1
+            data_type:
+              data_type_identifier: SMALLINT
+        - comma: ','
+        - column_definition:
+            naked_identifier: c2
+            data_type:
+              data_type_identifier: DATE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: create
+      - keyword: table
+      - table_reference:
+          naked_identifier: table1$
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: c1
+            data_type:
+              data_type_identifier: SMALLINT
+        - comma: ','
+        - column_definition:
+            naked_identifier: c2
+            data_type:
+              data_type_identifier: DATE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: create
+      - keyword: table
+      - table_reference:
+          naked_identifier: tab#le1$
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: c1
+            data_type:
+              data_type_identifier: SMALLINT
+        - comma: ','
+        - column_definition:
+            naked_identifier: c2
+            data_type:
+              data_type_identifier: DATE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: create
+      - keyword: table
+      - table_reference:
+          naked_identifier: tab#le1$
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: c#1
+            data_type:
+              data_type_identifier: SMALLINT
+        - comma: ','
+        - column_definition:
+            naked_identifier: c$2
+            data_type:
+              data_type_identifier: DATE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t1
+      - bracketed:
+          start_bracket: (
+          column_definition:
+          - naked_identifier: id
+          - data_type:
+              data_type_identifier: NUMBER
+          - keyword: GENERATED
+          - keyword: AS
+          - keyword: IDENTITY
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t2
+      - bracketed:
+          start_bracket: (
+          column_definition:
+          - naked_identifier: id
+          - data_type:
+              data_type_identifier: NUMBER
+          - keyword: GENERATED
           - keyword: BY
-          - numeric_literal: '10'
-          - end_bracket: )
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: t3
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          naked_identifier: id
-          data_type:
-            data_type_identifier: NUMBER
-          column_constraint_segment:
           - keyword: DEFAULT
-          - naked_identifier: some_seq
-          - dot: .
-          - keyword: NEXTVAL
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: departments_demo
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          naked_identifier: department_id
-          data_type:
-            data_type_identifier: NUMBER
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '4'
-                end_bracket: )
-          column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-          keyword: ENABLE
-      - comma: ','
-      - column_definition:
-          naked_identifier: department_name
-          data_type:
-            data_type_identifier: VARCHAR2
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '30'
-                end_bracket: )
-          column_constraint_segment:
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: START
+            - keyword: WITH
+            - numeric_literal: '100'
+            - keyword: INCREMENT
+            - keyword: BY
+            - numeric_literal: '10'
+            - end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t4
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: DEFAULT
+            - naked_identifier: some_seq
+            - dot: .
+            - keyword: CURRVAL
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t3
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: DEFAULT
+            - naked_identifier: some_seq
+            - dot: .
+            - keyword: NEXTVAL
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t5
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: DEFAULT
+            - naked_identifier: myschema
+            - dot: .
+            - naked_identifier: some_seq
+            - dot: .
+            - keyword: CURRVAL
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t6
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: DEFAULT
+            - naked_identifier: myschema
+            - dot: .
+            - naked_identifier: some_seq
+            - dot: .
+            - keyword: NEXTVAL
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: departments_demo
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: department_id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+            keyword: ENABLE
+        - comma: ','
+        - column_definition:
+            naked_identifier: department_name
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '30'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: dept_name_nn
+            - keyword: NOT
+            - keyword: 'NULL'
+            keyword: DISABLE
+        - comma: ','
+        - column_definition:
+            naked_identifier: manager_id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '6'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: location_id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: dn
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '300'
+                  end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_storage
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          comma: ','
+          table_constraint:
           - keyword: CONSTRAINT
           - object_reference:
-              naked_identifier: dept_name_nn
-          - keyword: NOT
-          - keyword: 'NULL'
-          keyword: DISABLE
-      - comma: ','
-      - column_definition:
-          naked_identifier: manager_id
-          data_type:
-            data_type_identifier: NUMBER
-            bracketed_arguments:
-              bracketed:
+              naked_identifier: t_storage_pk
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+              - keyword: PCTFREE
+              - numeric_literal: '10'
+              - keyword: INITRANS
+              - numeric_literal: '2'
+              - keyword: MAXTRANS
+              - numeric_literal: '255'
+              - keyword: TABLESPACE
+              - object_reference:
+                  naked_identifier: idx_ts
+              - storage_clause:
+                  keyword: STORAGE
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: INITIAL
+                  - numeric_literal: '256'
+                  - size_prefix: K
+                  - keyword: NEXT
+                  - numeric_literal: '256'
+                  - size_prefix: K
+                  - keyword: MINEXTENTS
+                  - numeric_literal: '1'
+                  - keyword: MAXEXTENTS
+                  - numeric_literal: '121'
+                  - keyword: PCTINCREASE
+                  - numeric_literal: '0'
+                  - keyword: FREELISTS
+                  - numeric_literal: '1'
+                  - keyword: FREELIST
+                  - keyword: GROUPS
+                  - numeric_literal: '1'
+                  - keyword: BUFFER_POOL
+                  - keyword: DEFAULT
+                  - end_bracket: )
+              - keyword: LOGGING
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: LOGGING
+        - keyword: PCTFREE
+        - numeric_literal: '10'
+        - keyword: PCTUSED
+        - numeric_literal: '70'
+        - keyword: INITRANS
+        - numeric_literal: '1'
+        - keyword: MAXTRANS
+        - numeric_literal: '255'
+        - storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '655'
+            - size_prefix: K
+            - keyword: NEXT
+            - numeric_literal: '655'
+            - size_prefix: K
+            - keyword: MINEXTENTS
+            - numeric_literal: '1'
+            - keyword: MAXEXTENTS
+            - keyword: UNLIMITED
+            - keyword: PCTINCREASE
+            - numeric_literal: '1'
+            - keyword: FREELISTS
+            - numeric_literal: '1'
+            - keyword: FREELIST
+            - keyword: GROUPS
+            - numeric_literal: '1'
+            - keyword: BUFFER_POOL
+            - keyword: DEFAULT
+            - end_bracket: )
+        - keyword: NOPARALLEL
+        - keyword: NOCACHE
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_using_named_idx
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: t_named_idx_pk
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - index_reference:
+              - naked_identifier: idx_ts
+              - dot: .
+              - naked_identifier: t_named_idx_pk
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_parallel
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: payload
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4000'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: NOLOGGING
+        - keyword: PCTFREE
+        - numeric_literal: '5'
+        - keyword: INITRANS
+        - numeric_literal: '4'
+        - storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '1'
+            - size_prefix: M
+            - keyword: NEXT
+            - numeric_literal: '1'
+            - size_prefix: M
+            - keyword: MAXEXTENTS
+            - keyword: UNLIMITED
+            - keyword: BUFFER_POOL
+            - keyword: KEEP
+            - end_bracket: )
+        - keyword: PARALLEL
+        - numeric_literal: '8'
+        - keyword: NOCACHE
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_compress_default
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: COMPRESS
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_compress_oltp
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: COMPRESS
+        - keyword: FOR
+        - keyword: OLTP
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_compress_query_low
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: COMPRESS
+        - keyword: FOR
+        - keyword: QUERY
+        - keyword: LOW
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_compress_query_high
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: COMPRESS
+        - keyword: FOR
+        - keyword: QUERY
+        - keyword: HIGH
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_compress_archive_low
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: COMPRESS
+        - keyword: FOR
+        - keyword: ARCHIVE
+        - keyword: LOW
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_compress_archive_high
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: COMPRESS
+        - keyword: FOR
+        - keyword: ARCHIVE
+        - keyword: HIGH
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_nocompress
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: NOCOMPRESS
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_row_movement
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: partition_key
+            data_type:
+              data_type_identifier: DATE
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: ENABLE
+        - keyword: ROW
+        - keyword: MOVEMENT
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_no_row_movement
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: DISABLE
+        - keyword: ROW
+        - keyword: MOVEMENT
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_result_cache_default
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: RESULT_CACHE
+        - bracketed:
+          - start_bracket: (
+          - keyword: MODE
+          - keyword: DEFAULT
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_result_cache_force
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: RESULT_CACHE
+        - bracketed:
+          - start_bracket: (
+          - keyword: MODE
+          - keyword: FORCE
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_default
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_memcompress_query_high
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: data
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '200'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: MEMCOMPRESS
+        - keyword: FOR
+        - keyword: QUERY
+        - keyword: HIGH
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_memcompress_archive_low
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: MEMCOMPRESS
+        - keyword: FOR
+        - keyword: ARCHIVE
+        - keyword: LOW
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_priority_critical
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: PRIORITY
+        - keyword: CRITICAL
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_full
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: MEMCOMPRESS
+        - keyword: FOR
+        - keyword: QUERY
+        - keyword: HIGH
+        - keyword: PRIORITY
+        - keyword: HIGH
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_no_memcompress
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: 'NO'
+        - keyword: MEMCOMPRESS
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_no_memcompress_priority
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: 'NO'
+        - keyword: MEMCOMPRESS
+        - keyword: PRIORITY
+        - keyword: HIGH
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_no_inmemory
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: 'NO'
+        - keyword: INMEMORY
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_distribute_auto
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: DISTRIBUTE
+        - keyword: AUTO
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_distribute_by_rowid_range
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - keyword: ROWID
+        - keyword: RANGE
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_distribute_by_partition
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - keyword: PARTITION
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_distribute_by_subpartition
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - keyword: SUBPARTITION
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_distribute_for_service
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: DISTRIBUTE
+        - keyword: AUTO
+        - keyword: FOR
+        - keyword: SERVICE
+        - object_reference:
+            naked_identifier: my_service
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_distribute_for_service_default
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: DISTRIBUTE
+        - keyword: FOR
+        - keyword: SERVICE
+        - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_duplicate
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: DUPLICATE
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_duplicate_all
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: DUPLICATE
+        - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_no_duplicate
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: 'NO'
+        - keyword: DUPLICATE
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_inmemory_all_subclauses
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: data
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '200'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: INMEMORY
+        - keyword: MEMCOMPRESS
+        - keyword: FOR
+        - keyword: QUERY
+        - keyword: HIGH
+        - keyword: PRIORITY
+        - keyword: HIGH
+        - keyword: DISTRIBUTE
+        - keyword: AUTO
+        - keyword: DUPLICATE
+        - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_flashback
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: info
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '100'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: FLASHBACK
+        - keyword: ARCHIVE
+        - object_reference:
+            naked_identifier: my_fba
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_flashback_default
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: FLASHBACK
+        - keyword: ARCHIVE
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_no_flashback
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: 'NO'
+        - keyword: FLASHBACK
+        - keyword: ARCHIVE
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_rowdeps
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: ROWDEPENDENCIES
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_norowdeps
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: NOROWDEPENDENCIES
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_segment_immediate
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: SEGMENT
+        - keyword: CREATION
+        - keyword: IMMEDIATE
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_segment_deferred
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: SEGMENT
+        - keyword: CREATION
+        - keyword: DEFERRED
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_segment_immediate_storage
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - numeric_literal: '19'
+                - comma: ','
+                - numeric_literal: '0'
+                - end_bracket: )
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: id_pk
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: SEGMENT
+        - keyword: CREATION
+        - keyword: IMMEDIATE
+        - keyword: PCTFREE
+        - numeric_literal: '10'
+        - keyword: PCTUSED
+        - numeric_literal: '40'
+        - keyword: INITRANS
+        - numeric_literal: '1'
+        - keyword: MAXTRANS
+        - numeric_literal: '255'
+        - keyword: NOCOMPRESS
+        - keyword: LOGGING
+        - storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '65536'
+            - keyword: NEXT
+            - numeric_literal: '1048576'
+            - keyword: MINEXTENTS
+            - numeric_literal: '1'
+            - keyword: MAXEXTENTS
+            - numeric_literal: '2147483645'
+            - keyword: PCTINCREASE
+            - numeric_literal: '0'
+            - keyword: FREELISTS
+            - numeric_literal: '1'
+            - keyword: FREELIST
+            - keyword: GROUPS
+            - numeric_literal: '1'
+            - keyword: BUFFER_POOL
+            - keyword: DEFAULT
+            - keyword: FLASH_CACHE
+            - keyword: DEFAULT
+            - keyword: CELL_FLASH_CACHE
+            - keyword: DEFAULT
+            - end_bracket: )
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_flash_cache_keep
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+          storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '64'
+            - size_prefix: K
+            - keyword: BUFFER_POOL
+            - keyword: DEFAULT
+            - keyword: FLASH_CACHE
+            - keyword: KEEP
+            - keyword: CELL_FLASH_CACHE
+            - keyword: KEEP
+            - end_bracket: )
+          keyword: TABLESPACE
+          object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_flash_cache_none
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+          storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '64'
+            - size_prefix: K
+            - keyword: FLASH_CACHE
+            - keyword: NONE
+            - keyword: CELL_FLASH_CACHE
+            - keyword: NONE
+            - end_bracket: )
+          keyword: TABLESPACE
+          object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_storage_maxsize
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+          storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '8'
+            - size_prefix: M
+            - keyword: MAXSIZE
+            - numeric_literal: '1'
+            - size_prefix: G
+            - end_bracket: )
+          keyword: TABLESPACE
+          object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_storage_maxsize_unlimited
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+          storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '8'
+            - size_prefix: M
+            - keyword: MAXSIZE
+            - keyword: UNLIMITED
+            - end_bracket: )
+          keyword: TABLESPACE
+          object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_row_store_compress_basic
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: data
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '200'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: ROW
+        - keyword: STORE
+        - keyword: COMPRESS
+        - keyword: BASIC
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_row_store_compress_advanced
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: data
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '200'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: ROW
+        - keyword: STORE
+        - keyword: COMPRESS
+        - keyword: ADVANCED
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_row_store_compress_no_level
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: ROW
+        - keyword: STORE
+        - keyword: COMPRESS
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_column_store_compress
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: data
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '200'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: COLUMN
+        - keyword: STORE
+        - keyword: COMPRESS
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_column_store_compress_query_low
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: data
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '200'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: COLUMN
+        - keyword: STORE
+        - keyword: COMPRESS
+        - keyword: FOR
+        - keyword: QUERY
+        - keyword: LOW
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_column_store_compress_query_high
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: data
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '200'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: COLUMN
+        - keyword: STORE
+        - keyword: COMPRESS
+        - keyword: FOR
+        - keyword: QUERY
+        - keyword: HIGH
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_column_store_compress_archive_high
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: data
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '200'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: COLUMN
+        - keyword: STORE
+        - keyword: COMPRESS
+        - keyword: FOR
+        - keyword: ARCHIVE
+        - keyword: HIGH
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_column_store_compress_no_row_locking
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: data
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '200'
+                  end_bracket: )
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: COLUMN
+        - keyword: STORE
+        - keyword: COMPRESS
+        - keyword: FOR
+        - keyword: QUERY
+        - keyword: HIGH
+        - keyword: 'NO'
+        - keyword: ROW
+        - keyword: LEVEL
+        - keyword: LOCKING
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_monitoring
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: MONITORING
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_nomonitoring
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: NOMONITORING
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_all_physical
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '18'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: institution
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '11'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: payload
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '1000'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: created_at
+          - data_type:
+              data_type_identifier: DATE
+          - column_constraint_segment:
+              keyword: DEFAULT
+              bare_function: SYSDATE
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: t_all_phys_pk
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+              - keyword: PCTFREE
+              - numeric_literal: '10'
+              - keyword: INITRANS
+              - numeric_literal: '2'
+              - keyword: MAXTRANS
+              - numeric_literal: '255'
+              - keyword: TABLESPACE
+              - object_reference:
+                  naked_identifier: idx_ts
+              - storage_clause:
+                  keyword: STORAGE
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: INITIAL
+                  - numeric_literal: '256'
+                  - size_prefix: K
+                  - keyword: NEXT
+                  - numeric_literal: '256'
+                  - size_prefix: K
+                  - keyword: MINEXTENTS
+                  - numeric_literal: '1'
+                  - keyword: MAXEXTENTS
+                  - numeric_literal: '121'
+                  - keyword: PCTINCREASE
+                  - numeric_literal: '0'
+                  - keyword: FREELISTS
+                  - numeric_literal: '1'
+                  - keyword: FREELIST
+                  - keyword: GROUPS
+                  - numeric_literal: '1'
+                  - keyword: BUFFER_POOL
+                  - keyword: DEFAULT
+                  - end_bracket: )
+              - keyword: LOGGING
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: t_all_phys_uk
+          - keyword: UNIQUE
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: institution
+            - comma: ','
+            - column_reference:
+                naked_identifier: payload
+            - end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+              - keyword: PCTFREE
+              - numeric_literal: '10'
+              - keyword: TABLESPACE
+              - object_reference:
+                  naked_identifier: idx_ts
+              - storage_clause:
+                  keyword: STORAGE
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: INITIAL
+                  - numeric_literal: '140'
+                  - size_prefix: K
+                  - keyword: NEXT
+                  - numeric_literal: '360'
+                  - size_prefix: K
+                  - keyword: BUFFER_POOL
+                  - keyword: KEEP
+                  - end_bracket: )
+              - keyword: NOLOGGING
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: data_ts
+        - keyword: LOGGING
+        - keyword: PCTFREE
+        - numeric_literal: '10'
+        - keyword: PCTUSED
+        - numeric_literal: '70'
+        - keyword: INITRANS
+        - numeric_literal: '1'
+        - keyword: MAXTRANS
+        - numeric_literal: '255'
+        - storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '655'
+            - size_prefix: K
+            - keyword: NEXT
+            - numeric_literal: '655'
+            - size_prefix: K
+            - keyword: MINEXTENTS
+            - numeric_literal: '1'
+            - keyword: MAXEXTENTS
+            - keyword: UNLIMITED
+            - keyword: PCTINCREASE
+            - numeric_literal: '1'
+            - keyword: FREELISTS
+            - numeric_literal: '1'
+            - keyword: FREELIST
+            - keyword: GROUPS
+            - numeric_literal: '1'
+            - keyword: BUFFER_POOL
+            - keyword: DEFAULT
+            - end_bracket: )
+        - keyword: COMPRESS
+        - keyword: FOR
+        - keyword: OLTP
+        - keyword: PARALLEL
+        - numeric_literal: '4'
+        - keyword: NOCACHE
+        - keyword: RESULT_CACHE
+        - bracketed:
+          - start_bracket: (
+          - keyword: MODE
+          - keyword: DEFAULT
+          - end_bracket: )
+        - keyword: INMEMORY
+        - keyword: MEMCOMPRESS
+        - keyword: FOR
+        - keyword: QUERY
+        - keyword: HIGH
+        - keyword: PRIORITY
+        - keyword: HIGH
+        - keyword: ENABLE
+        - keyword: ROW
+        - keyword: MOVEMENT
+        - keyword: FLASHBACK
+        - keyword: ARCHIVE
+        - object_reference:
+            naked_identifier: corp_fba
+        - keyword: ROWDEPENDENCIES
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_using_idx_inline
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_using_idx_inline
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
                 start_bracket: (
-                numeric_literal: '6'
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: pk_t_using_idx_inline_idx
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_using_idx_inline
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: id
+                    end_bracket: )
                 end_bracket: )
-      - comma: ','
-      - column_definition:
-          naked_identifier: location_id
-          data_type:
-            data_type_identifier: NUMBER
-            bracketed_arguments:
-              bracketed:
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_using_idx_inline_unique
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: uq_t_using_idx_inline_unique
+          - keyword: UNIQUE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
                 start_bracket: (
-                numeric_literal: '4'
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: UNIQUE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: uq_t_using_idx_inline_unique_idx
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_using_idx_inline_unique
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: id
+                    end_bracket: )
                 end_bracket: )
-      - comma: ','
-      - column_definition:
-          naked_identifier: dn
-          data_type:
-            data_type_identifier: VARCHAR2
-            bracketed_arguments:
-              bracketed:
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_using_idx_inline_attrs
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_t_using_idx_inline_attrs
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - bracketed:
                 start_bracket: (
-                numeric_literal: '300'
+                create_index_statement:
+                - keyword: CREATE
+                - keyword: INDEX
+                - index_reference:
+                    naked_identifier: pk_t_using_idx_inline_attrs_idx
+                - keyword: 'ON'
+                - table_reference:
+                    naked_identifier: t_using_idx_inline_attrs
+                - bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      naked_identifier: id
+                    end_bracket: )
+                - oracle_index_physical_attributes:
+                  - keyword: TABLESPACE
+                  - object_reference:
+                      naked_identifier: idx_ts
+                  - keyword: PCTFREE
+                  - numeric_literal: '10'
+                  - keyword: NOLOGGING
                 end_bracket: )
-      - end_bracket: )
-- statement_terminator: ;
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_ctas_nologging
+      - oracle_physical_attributes:
+        - keyword: NOLOGGING
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: users
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: emp
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_ctas_storage
+      - oracle_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: users
+        - keyword: PCTFREE
+        - numeric_literal: '5'
+        - keyword: INITRANS
+        - numeric_literal: '4'
+        - storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '1'
+            - size_prefix: M
+            - keyword: NEXT
+            - numeric_literal: '1'
+            - size_prefix: M
+            - end_bracket: )
+        - keyword: NOLOGGING
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: emp
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: GLOBAL
+      - keyword: TEMPORARY
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_ctas_temp
+      - keyword: 'ON'
+      - keyword: COMMIT
+      - keyword: PRESERVE
+      - keyword: ROWS
+      - oracle_physical_attributes:
+        - keyword: NOLOGGING
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: temp_ts
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: emp
+  - statement_terminator: ;

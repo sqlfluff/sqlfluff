@@ -188,6 +188,11 @@ def _check_references(
     seen_ref_types: set[str] = set()
     for ref in references:
         this_ref_type: str = ref.qualification()
+        # Skip unqualified templated references (e.g., placeholder parameters like
+        # :colname that get rendered as bare identifiers by the templater). These
+        # are not real column references and should not be qualified or flagged.
+        if this_ref_type == "unqualified" and ref.is_templated:
+            continue
         if this_ref_type == "qualified" and is_struct_dialect:
             # If this col appears "qualified" check if it is more logically a struct.
             if next(ref.iter_raw_references()).part != table_ref_str:
@@ -211,7 +216,10 @@ def _check_references(
 
         if fix_inconsistent_to and single_table_references == "consistent":
             # If we found a "consistent" error but we have a fix directive,
-            # recurse with a different single_table_references value
+            # recurse with a different single_table_references value.
+            # This re-check iterates the same references list, so the templated
+            # unqualified-reference skip above still applies and intentionally
+            # keeps those placeholders out of every consistency pass.
             yield from _check_references(
                 table_aliases,
                 standalone_aliases,
@@ -253,11 +261,19 @@ def _validate_one_reference(
     # If the reference is qualified, see that the table is not in the standalone_aliases
     # namely for lambda expressions.
     if ref.is_qualified():
+        standalone_alias_raws = [a.raw for a in standalone_aliases]
         for part in ref.extract_possible_references(
             level=ref.ObjectReferenceLevel.TABLE
         ):
-            if part.segments[0].raw in [a.raw for a in standalone_aliases]:
+            if part.part in standalone_alias_raws:
                 return None
+        # Also check the leading (first) part of the reference. For multi-part
+        # references like `item.taskId.oid` (e.g. in Databricks higher-order
+        # functions), the lambda parameter `item` is at the SCHEMA level, not
+        # TABLE level. We need to check it against standalone aliases too.
+        first_raw_ref = next(ref.iter_raw_references(), None)
+        if first_raw_ref and first_raw_ref.part in standalone_alias_raws:
+            return None
 
     # Oddball case: tsql table variables can't be used to qualify references.
     # This appears here as an empty string for table_ref_str.

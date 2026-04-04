@@ -2,10 +2,6 @@
 
 # code linting and formatting
 # ---------------------------
-flake8
-flake8-docstrings
-black>=22.1.0
-flake8-black>=0.3.7
 ruff
 import-linter
 yamllint

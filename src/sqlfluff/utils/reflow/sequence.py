@@ -113,13 +113,13 @@ class ReflowSequence:
         EvenType = ReflowPoint if OddType is ReflowBlock else ReflowBlock
         try:
             # Check odds are all points
-            assert all(
-                isinstance(elem, OddType) for elem in elements[::2]
-            ), f"Not all odd elements are {OddType.__name__}"
+            assert all(isinstance(elem, OddType) for elem in elements[::2]), (
+                f"Not all odd elements are {OddType.__name__}"
+            )
             # Check evens are all blocks
-            assert all(
-                isinstance(elem, EvenType) for elem in elements[1::2]
-            ), f"Not all even elements are {EvenType.__name__}"
+            assert all(isinstance(elem, EvenType) for elem in elements[1::2]), (
+                f"Not all even elements are {EvenType.__name__}"
+            )
             return None
         except AssertionError as err:  # pragma: no cover
             for elem in elements:
@@ -639,6 +639,7 @@ class ReflowSequence:
             self.elements,
             single_indent=single_indent,
             skip_indentation_in=self.reflow_config.skip_indentation_in,
+            skip_implicit_indents_in=self.reflow_config.skip_implicit_indents_in,
             implicit_indents=self.reflow_config.implicit_indents,
             ignore_comment_lines=self.reflow_config.ignore_comment_lines,
             indentation_align_following=indentation_align_following,

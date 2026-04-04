@@ -8,13 +8,15 @@ import pytest
 
 from sqlfluff.cli.commands import lint
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.linter import runner
+from sqlfluff.core.linter.common import DeferredRenderTask
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
 
 @pytest.mark.parametrize(
     "path", ["models/my_new_project/disabled_model.sql", "macros/echo.sql"]
 )
-def test__linter__skip_file(path, project_dir, dbt_fluff_config):  # noqa
+def test__linter__skip_file(path, project_dir, dbt_fluff_config):
     """Test that the linter skips disabled dbt models and macros."""
     conf = FluffConfig(configs=dbt_fluff_config)
     lntr = Linter(config=conf)
@@ -39,7 +41,7 @@ def test__linter__lint_ephemeral_3_level(project_dir, dbt_fluff_config):
     lntr.lint_path(path=model_file_path)
 
 
-def test__linter__config_pairs(dbt_fluff_config):  # noqa
+def test__linter__config_pairs(dbt_fluff_config):
     """Test that the dbt templater returns version information in it's config."""
     conf = FluffConfig(configs=dbt_fluff_config)
     lntr = Linter(config=conf)
@@ -96,3 +98,46 @@ profiles_dir = {old_cwd}/{profiles_dir}
         assert os.path.exists("dir1/dir2/dbt/dbt_project/target")
     finally:
         os.chdir(old_cwd)
+
+
+def test__dbt_templater__templates_in_worker_false():
+    """DbtTemplater.templates_in_worker must be False.
+
+    The dbt templater holds a compiled dbt manifest in memory that is not
+    safe to rebuild inside a worker process. Parallel runners check this flag
+    and fall back to the main-process (fat-path) templating when it is False,
+    sending only the pre-rendered RenderedFile across the IPC boundary.
+    """
+    from sqlfluff_templater_dbt.templater import DbtTemplater
+
+    assert DbtTemplater.templates_in_worker is False
+
+
+def test__dbt_linter__parallel_partials_path(project_dir, dbt_fluff_config):
+    """Parallel linting with the dbt templater uses the main-process render path.
+
+    Because DbtTemplater.templates_in_worker=False, ParallelRunner.iter_partials
+    must yield callable partials (RenderedFile already attached), NOT
+    DeferredRenderTask objects. This ensures the manifest is only compiled once
+    in the main process and the worker only handles the lint step.
+    """
+    conf = FluffConfig(configs=dbt_fluff_config)
+    lntr = Linter(config=conf)
+    models_dir = os.path.join(project_dir, "models", "my_new_project")
+    files = [
+        os.path.join(models_dir, "operator_errors.sql"),
+        os.path.join(models_dir, "single_trailing_newline.sql"),
+    ]
+
+    thd_runner = runner.MultiThreadRunner(lntr, conf, processes=2)
+    partials = list(thd_runner.iter_partials(files, fix=False))
+
+    assert len(partials) == 2
+    for _fname, task in partials:
+        # Must be a callable partial, not a DeferredRenderTask.
+        assert callable(task)
+        assert not isinstance(task, DeferredRenderTask)
+
+    # Also verify that the full parallel lint run completes without error.
+    results = list(thd_runner.run(files, fix=False))
+    assert len(results) == 2

@@ -13,8 +13,6 @@ import tempfile
 import textwrap
 from unittest.mock import MagicMock, patch
 
-import chardet
-
 # Testing libraries
 import pytest
 import yaml
@@ -33,6 +31,9 @@ from sqlfluff.cli.commands import (
     rules,
     version,
 )
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.config import clear_config_caches
+from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
 # tomllib is only in the stdlib from 3.11+
@@ -837,6 +838,67 @@ def test__cli__command_lint_skip_ignore_files():
     assert "LT12" in result.stdout.strip()
 
 
+def test__cli__command_parse_respects_inline_noqa_for_prs():
+    """Check parse command respects inline noqa suppression for PRS errors."""
+    result = invoke_assert_code(
+        args=[parse, ["-", "--dialect=mariadb"]],
+        cli_input="SeLeCt  1 frm tBl ;    -- noqa",
+    )
+
+    assert result.exit_code == 0
+    assert "==== parsing violations ====" not in result.stdout
+
+
+def test__cli__command_parse_disable_noqa_shows_prs():
+    """Check parse command ignores inline noqa when disable_noqa is enabled."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[parse, ["-", "--dialect=mariadb", "--disable-noqa"]],
+        cli_input="SeLeCt  1 frm tBl ;    -- noqa",
+    )
+
+    assert "==== parsing violations ====" in result.stdout
+    assert "PRS" in result.stdout
+
+
+def test__get_filtered_parse_violations_caches_rulepack_per_config():
+    """Check parse violation filtering reuses rulepack lookups for one config."""
+    linter = Linter(config=FluffConfig(overrides={"dialect": "ansi"}))
+    parsed_string = linter.parse_string("SELEC * FROM foo -- noqa: PRS")
+    cache = {}
+
+    with patch.object(
+        linter, "get_rulepack", wraps=linter.get_rulepack
+    ) as get_rulepack:
+        sqlfluff.cli.commands._get_filtered_parse_violations(
+            parsed_string, linter, cache
+        )
+        sqlfluff.cli.commands._get_filtered_parse_violations(
+            parsed_string, linter, cache
+        )
+
+    assert get_rulepack.call_count == 1
+
+
+def test__get_filtered_parse_violations_respects_warning_config_for_malformed_noqa():
+    """Check malformed noqa parse errors are omitted when configured as warnings.
+
+    Unlike the lint path (which still displays warnings), the parse path has no
+    separate warnings display mechanism, so warning-class violations are silently
+    dropped from the returned list.
+    """
+    linter = Linter(
+        config=FluffConfig(overrides={"dialect": "ansi", "warnings": "PRS"})
+    )
+    parsed_string = linter.parse_string("select 1 --noqa missing semicolon")
+
+    violations = sqlfluff.cli.commands._get_filtered_parse_violations(
+        parsed_string, linter, {}
+    )
+
+    assert violations == []
+
+
 @pytest.mark.parametrize(
     "command",
     [
@@ -1030,9 +1092,9 @@ def generic_roundtrip_test(
     )
     # Check the output file has the correct encoding after fix
     if output_file_encoding:
-        with open(filepath, mode="rb") as f:
-            data = f.read()
-        assert chardet.detect(data)["encoding"] == output_file_encoding
+        assert (
+            get_encoding(filepath, config_encoding="autodetect") == output_file_encoding
+        )
     # Also check the file mode was preserved.
     status = os.stat(filepath)
     assert stat.S_ISREG(status.st_mode)
@@ -1271,10 +1333,13 @@ where processdate ! 3
     if fix_even_unparsable:
         with open(fixed_path, "r") as f:
             fixed_sql = f.read()
-            assert fixed_sql == """SELECT my_col
+            assert (
+                fixed_sql
+                == """SELECT my_col
 FROM my_schema.my_table
 WHERE processdate ! 3
 """
+            )
     else:
         assert not os.path.isfile(fixed_path)
 
@@ -1661,6 +1726,62 @@ def test__cli__command_fail_nice_not_found(command):
             "exist(s): this_file_does_not_exist.sql"
         ),
     )
+
+
+def test__cli__command_invalid_pyproject_toml_user_error(monkeypatch):
+    """Invalid pyproject.toml should surface a concise user error."""
+    import sqlfluff.core.config.loader as config_loader
+
+    original_load_config_at_path = config_loader.load_config_at_path
+    home_path = os.path.expanduser("~")
+    project_root = pathlib.Path.cwd().resolve()
+
+    def safe_load_config_at_path(path):
+        if os.path.abspath(path) == os.path.abspath(home_path):
+            return {}
+        return original_load_config_at_path(path)
+
+    monkeypatch.setattr(config_loader, "load_config_at_path", safe_load_config_at_path)
+
+    project_path = None
+    sql_file = None
+    for candidate in (pathlib.Path(tempfile.gettempdir()), project_root.parent):
+        candidate = candidate.resolve()
+        if candidate == project_root or project_root in candidate.parents:
+            continue
+        try:
+            project_path = pathlib.Path(tempfile.mkdtemp(dir=str(candidate)))
+            (project_path / "pyproject.toml").write_text(
+                '\ufeff[tool.sqlfluff.core]\ndialect = "ansi"\n',
+                encoding="utf-8",
+            )
+            sql_file = project_path / "query.sql"
+            sql_file.write_text("select 1", encoding="utf-8")
+            break
+        except PermissionError:
+            if project_path is not None:
+                shutil.rmtree(project_path, ignore_errors=True)
+            project_path = None
+            sql_file = None
+            continue
+
+    if project_path is None or sql_file is None:
+        pytest.skip("No writable temp directory available outside the project root.")
+
+    try:
+        result = invoke_assert_code(
+            ret_code=2,
+            args=[lint, ["--dialect", "ansi", str(sql_file)]],
+            assert_stderr_contains="User Error: Failed to parse TOML config file",
+        )
+    finally:
+        clear_config_caches()
+        shutil.rmtree(project_path, ignore_errors=True)
+
+    stderr = result.stderr.replace("\\", "/")
+    assert str(project_path / "pyproject.toml").replace("\\", "/") in stderr
+    assert "UTF-8 BOM" in stderr
+    assert "Traceback" not in result.output
 
 
 @patch("click.utils.should_strip_ansi")
@@ -2055,9 +2176,9 @@ def test___main___help():
 @pytest.mark.parametrize(
     "encoding_in,encoding_out",
     [
-        ("utf-8", "ascii"),  # chardet will detect ascii as a subset of utf-8
-        ("utf-8-sig", "UTF-8-SIG"),
-        ("utf-32", "UTF-32"),
+        ("utf-8", "ascii"),
+        ("utf-8-sig", "utf-8-sig"),
+        ("utf-32", "utf-32"),
     ],
 )
 def test_encoding(encoding_in, encoding_out):
@@ -2385,10 +2506,12 @@ def test__cli__fix_multiple_errors_quiet_check():
             # Test with the confirmation step.
             "y",
         ],
-        assert_stdout_contains=("""2 fixable linting violations found
+        assert_stdout_contains=(
+            """2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
 == [test/fixtures/linter/multiple_sql_errors.sql] FIXED
-All Finished"""),
+All Finished"""
+        ),
     )
 
 

@@ -87,7 +87,7 @@ python test/generate_parse_fixture_yml.py -d tsql
 .venv/bin/pre-commit run --all-files
 
 # Individual checks
-black src/ test/                # Format
+ruff format src/ test/          # Format
 ruff check src/ test/           # Lint
 mypy src/sqlfluff/              # Type check
 ```

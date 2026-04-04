@@ -53,9 +53,9 @@ def has_untemplated_newline(point: ReflowPoint) -> bool:
             return True
         if seg.is_type("placeholder"):
             seg = cast(TemplateSegment, seg)
-            assert (
-                seg.block_type == "literal"
-            ), "Expected only literal placeholders in ReflowPoint."
+            assert seg.block_type == "literal", (
+                "Expected only literal placeholders in ReflowPoint."
+            )
             if "\n" in seg.source_str:
                 return True
     return False
@@ -1350,8 +1350,17 @@ def _calculate_desired_starting_indent(
     if not starting_indent_compensation_spaces:
         return unaligned_starting_indent
 
-    # We don't have a good way to enable leading comma alignment for tabs or spaces with
-    # size less than 4, so we'll warn and return the desired indent.
+    # At indent level 0 (e.g. leading commas between top-level CTEs), there's
+    # no indent to compensate, this is expected and not an error.
+    if desired_indent_units == 0:
+        reflow_logger.debug(
+            "No indentation at indent level 0. Skipping indentation compensation."
+        )
+        return unaligned_starting_indent
+
+    # We don't have a good way to enable leading comma alignment for tabs or
+    # indents smaller than the compensation requires, so warn and return the
+    # unaligned indent.
     if len(unaligned_starting_indent) < abs(starting_indent_compensation_spaces):
         reflow_logger.warning(
             "Not enough space to compensate indentation. "
@@ -1738,6 +1747,7 @@ def lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: str,
     skip_indentation_in: frozenset[str] = frozenset(),
+    skip_implicit_indents_in: frozenset[str] = frozenset(),
     implicit_indents: str = "forbid",
     ignore_comment_lines: bool = False,
     indentation_align_following: Optional[dict[str, int]] = None,
@@ -1832,13 +1842,38 @@ def lint_indent_points(
                 reflow_logger.info("          %s", res.description)
         results += line_results
 
-    # Now handle require implicit_indents by converting newlines to spaces at
-    # tracked positions
+    # Handle implicit indent collapsing when implicit_indents = require.
     if implicit_indents == "require" and implicit_indent_locs:
-        implicit_results = _convert_newlines_to_spaces(
-            elem_buffer, implicit_indent_locs
-        )
-        results = implicit_results + results
+        # Exclude elements listed in skip_implicit_indents_in.
+        if skip_implicit_indents_in:
+            filtered_locs = set()
+            for i in implicit_indent_locs:
+                # Check the adjacent block for ancestry
+                next_elem = elem_buffer[i + 1] if i + 1 < len(elem_buffer) else None
+                if isinstance(next_elem, ReflowBlock):
+                    stack_types = next_elem.depth_info.stack_class_types
+                else:  # pragma: no cover
+                    stack_types = ()
+                if stack_types and any(
+                    skip_implicit_indents_in.intersection(types)
+                    for types in stack_types
+                ):
+                    reflow_logger.debug(
+                        "Skipping implicit indent collapse at %s "
+                        "because it is within one of %s",
+                        i,
+                        skip_implicit_indents_in,
+                    )
+                    continue
+                filtered_locs.add(i)
+            implicit_indent_locs = filtered_locs
+
+        # Convert remaining newlines to spaces at tracked positions.
+        if implicit_indent_locs:
+            implicit_results = _convert_newlines_to_spaces(
+                elem_buffer, implicit_indent_locs
+            )
+            results = implicit_results + results
 
     return elem_buffer, results
 
@@ -2338,6 +2373,34 @@ def _fix_long_line_with_integer_targets(
     return line_results
 
 
+def _is_templated_safe_break(elements: ReflowSequenceType, e_idx: int) -> bool:
+    """Check if inserting a line break at e_idx is safe for templated files.
+
+    A break point is unsafe if BOTH adjacent content segments are non-literal
+    (i.e., the break is within a template expansion). Inserting a line break
+    within rendered template content cannot be mapped back to the source file
+    correctly, which can lead to content duplication or corruption.
+
+    See: https://github.com/sqlfluff/sqlfluff/issues/7639
+    """
+    # Check the segment before the break point.
+    before_literal = True
+    if e_idx > 0 and elements[e_idx - 1].segments:
+        seg_before = elements[e_idx - 1].segments[-1]
+        if seg_before.pos_marker and not seg_before.pos_marker.is_literal():
+            before_literal = False
+
+    # Check the segment after the break point.
+    after_literal = True
+    if e_idx + 1 < len(elements) and elements[e_idx + 1].segments:
+        seg_after = elements[e_idx + 1].segments[0]
+        if seg_after.pos_marker and not seg_after.pos_marker.is_literal():
+            after_literal = False
+
+    # Unsafe only if BOTH sides are non-literal (within template expansion).
+    return before_literal or after_literal
+
+
 def lint_line_length(
     elements: ReflowSequenceType,
     root_segment: BaseSegment,
@@ -2528,28 +2591,47 @@ def lint_line_length(
                 if i in target_breaks:
                     target_breaks.remove(i)
 
-                # Is it an "integer" indent or a fractional indent?
-                # Integer indents (i.e. 1.0, 2.0, ...) are based on Indent and
-                # Dedent tokens. Fractional indents (i.e. 1.5, 1.52, ...) are
-                # based more on rebreak spans (e.g. around commas and operators).
-                # The latter is simpler in that it doesn't change the indents,
-                # just adds line breaks. The former is more complicated.
-                # NOTE: Both of these methods mutate the `elem_buffer`.
-                if target_balance % 1 == 0:
-                    line_results = _fix_long_line_with_integer_targets(
-                        elem_buffer,
-                        target_breaks,
-                        line_length_limit,
-                        desired_indent,
-                        current_indent,
-                    )
-                else:
-                    line_results = _fix_long_line_with_fractional_targets(
-                        elem_buffer, target_breaks, desired_indent
-                    )
+                # Filter out break points within templated (non-literal)
+                # regions. Breaking within a template expansion (e.g. a
+                # rendered Jinja macro) can't be safely mapped back to
+                # source and leads to content duplication.
+                # https://github.com/sqlfluff/sqlfluff/issues/7639
+                target_breaks = [
+                    e_idx
+                    for e_idx in target_breaks
+                    if _is_templated_safe_break(elem_buffer, e_idx)
+                ]
 
-                # Consolidate all the results for the line into one.
-                fixes = fixes_from_results(line_results)
+                if not target_breaks:
+                    reflow_logger.debug(
+                        "    All break points are in templated regions. "
+                        "Treating as unfixable."
+                    )
+                    fixes = []
+                else:
+                    # Is it an "integer" indent or a fractional indent?
+                    # Integer indents (i.e. 1.0, 2.0, ...) are based on
+                    # Indent and Dedent tokens. Fractional indents (i.e.
+                    # 1.5, 1.52, ...) are based more on rebreak spans
+                    # (e.g. around commas and operators). The latter is
+                    # simpler in that it doesn't change the indents, just
+                    # adds line breaks. The former is more complicated.
+                    # NOTE: Both of these methods mutate `elem_buffer`.
+                    if target_balance % 1 == 0:
+                        line_results = _fix_long_line_with_integer_targets(
+                            elem_buffer,
+                            target_breaks,
+                            line_length_limit,
+                            desired_indent,
+                            current_indent,
+                        )
+                    else:
+                        line_results = _fix_long_line_with_fractional_targets(
+                            elem_buffer, target_breaks, desired_indent
+                        )
+
+                    # Consolidate all the results for the line into one.
+                    fixes = fixes_from_results(line_results)
 
             results.append(
                 LintResult(

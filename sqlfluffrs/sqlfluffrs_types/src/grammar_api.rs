@@ -292,6 +292,42 @@ impl<'a> GrammarContext<'a> {
         }
     }
 
+    /// Get the ``_class_types`` hierarchy for a grammar instruction, if recorded.
+    ///
+    /// Returns ``None`` when the instruction has no recorded class hierarchy (e.g.
+    /// pure grammar combinators like Sequence/OneOf, or the dialect was generated
+    /// without this table).  Returns a ``Vec`` of type strings ordered as stored by
+    /// the Python codegen (sorted alphabetically from ``sorted(_class_types)``).
+    #[inline]
+    pub fn segment_class_types(&self, id: GrammarId) -> Option<Vec<String>> {
+        if self.tables.segment_class_types_sparse.is_empty() {
+            return None;
+        }
+
+        let target = id.get();
+        let result = self
+            .tables
+            .segment_class_types_sparse
+            .binary_search_by_key(&target, |&(gid, _, _)| gid);
+
+        match result {
+            Ok(idx) => {
+                let (_, offset, count) = self.tables.segment_class_types_sparse[idx];
+                if count == 0 {
+                    return None;
+                }
+                let start = offset as usize;
+                let mut out = Vec::with_capacity(count as usize);
+                for i in 0..count as usize {
+                    let str_idx = self.tables.segment_class_types_data[start + i];
+                    out.push(self.tables.get_string(str_idx).to_string());
+                }
+                Some(out)
+            }
+            Err(_) => None,
+        }
+    }
+
     /// Get string template (for StringParser/TypedParser/Token variants)
     #[inline]
     pub fn template(&self, id: GrammarId) -> &'static str {
@@ -540,6 +576,28 @@ impl<'a> GrammarContext<'a> {
     pub fn tables(&self) -> &'a GrammarTables {
         self.tables
     }
+
+    #[inline]
+    pub fn get_type(&self, grammar_id: GrammarId) -> Option<String> {
+        match self.variant(grammar_id) {
+            GrammarVariant::Ref => self.segment_type(grammar_id).map(|s| s.to_string()),
+            GrammarVariant::Meta => {
+                let token_type_id = self.tables().aux_data_offsets[grammar_id.get() as usize];
+                Some(self.tables().get_string(token_type_id).to_string())
+            }
+            GrammarVariant::StringParser | GrammarVariant::TypedParser => {
+                let aux_start = self.tables().aux_data_offsets[grammar_id.get() as usize] as usize;
+                let token_type_idx = self.tables().aux_data[aux_start + 1];
+                Some(self.tables().get_string(token_type_idx).to_string())
+            }
+            GrammarVariant::MultiStringParser | GrammarVariant::RegexParser => {
+                let aux_start = self.tables().aux_data_offsets[grammar_id.get() as usize] as usize;
+                let token_type_idx = self.tables().aux_data[aux_start + 2];
+                Some(self.tables().get_string(token_type_idx).to_string())
+            }
+            _ => None,
+        }
+    }
 }
 
 /// Helper functions for common patterns
@@ -547,19 +605,19 @@ pub mod patterns {
     use super::*;
 
     /// Check if any child matches a predicate
-    pub fn any_child<F>(ctx: &GrammarContext, id: GrammarId, mut predicate: F) -> bool
+    pub fn any_child<F>(ctx: &GrammarContext, id: GrammarId, predicate: F) -> bool
     where
         F: FnMut(GrammarId) -> bool,
     {
-        ctx.children(id).any(|child| predicate(child))
+        ctx.children(id).any(predicate)
     }
 
     /// Check if all children match a predicate
-    pub fn all_children<F>(ctx: &GrammarContext, id: GrammarId, mut predicate: F) -> bool
+    pub fn all_children<F>(ctx: &GrammarContext, id: GrammarId, predicate: F) -> bool
     where
         F: FnMut(GrammarId) -> bool,
     {
-        ctx.children(id).all(|child| predicate(child))
+        ctx.children(id).all(predicate)
     }
 
     /// Find first child matching a predicate
@@ -649,6 +707,8 @@ mod tests {
             CASEFOLD_SPARSE,
             TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
+            &[], // segment_class_types_sparse
+            &[], // segment_class_types_data
         );
 
         let ctx = GrammarContext::new(&tables);
@@ -702,6 +762,8 @@ mod tests {
             CASEFOLD_SPARSE,
             TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
+            &[], // segment_class_types_sparse
+            &[], // segment_class_types_data
         );
 
         let ctx = GrammarContext::new(&tables);

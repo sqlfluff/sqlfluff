@@ -61,3 +61,114 @@ test_pass_cte_comment_after_as:
     select 1
     )
     select * from a
+
+test_fail_postgres_cycle_clause_with_blank_line:
+  # PostgreSQL CYCLE clause should be on same line as closing bracket
+  # LT01 should remove blank lines and add single space between ) and CYCLE
+  fail_str: |
+    WITH RECURSIVE t (n) AS (
+        VALUES (1)
+        UNION ALL
+        SELECT n + 1 FROM t
+        WHERE n < 10
+    )
+
+    CYCLE n SET is_cycle USING path
+    SELECT * FROM t;
+  fix_str: |
+    WITH RECURSIVE t (n) AS (
+        VALUES (1)
+        UNION ALL
+        SELECT n + 1 FROM t
+        WHERE n < 10
+    ) CYCLE n SET is_cycle USING path
+    SELECT * FROM t;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_cycle_clause:
+  # PostgreSQL CYCLE clause correctly formatted
+  pass_str: |
+    WITH RECURSIVE t (n) AS (
+        VALUES (1)
+        UNION ALL
+        SELECT n + 1 FROM t
+        WHERE n < 10
+    ) CYCLE n SET is_cycle USING path
+    SELECT * FROM t;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_search_clause:
+  # PostgreSQL SEARCH clause correctly formatted
+  pass_str: |
+    WITH RECURSIVE t (id, link) AS (
+        SELECT id, link FROM tree
+        UNION ALL
+        SELECT t.id, t.link FROM tree t, t st WHERE t.id = st.link
+    ) SEARCH DEPTH FIRST BY id SET ordercol
+    SELECT * FROM t;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_oracle_bind_variable_into_clause:
+  # Oracle trigger correlation variables (:NEW, :OLD) and bind variables
+  # must not trigger LT01 spacing violations.  The natural space before ":"
+  # should be kept and there must be no space between ":" and the name.
+  pass_str: |
+    BEGIN
+        SELECT seq.NEXTVAL INTO :NEW.col FROM DUAL;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_bind_variable_no_space_before_colon:
+  # Missing space before bind-variable colon should be flagged and fixed.
+  fail_str: |
+    BEGIN
+        SELECT seq.NEXTVAL INTO:NEW.col FROM DUAL;
+    END;
+  fix_str: |
+    BEGIN
+        SELECT seq.NEXTVAL INTO :NEW.col FROM DUAL;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_bind_variable_simple:
+  pass_str: SELECT :var FROM DUAL;
+  configs:
+    core:
+      dialect: oracle
+
+# Substitution variable tests (&var, &&var)
+test_pass_oracle_substitution_variable_single:
+  # &var should have no internal spaces.
+  pass_str: SELECT &col FROM DUAL;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_substitution_variable_double:
+  # &&var should have no internal spaces.
+  pass_str: SELECT &&col FROM DUAL;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_substitution_variable_in_where:
+  pass_str: SELECT * FROM employees WHERE department_id = &dept_id;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_substitution_variable_as_table:
+  pass_str: SELECT * FROM &table_name;
+  configs:
+    core:
+      dialect: oracle

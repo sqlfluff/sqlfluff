@@ -127,3 +127,7 @@ FROM (
 	UNION ALL
 	SELECT TOP (1) ID FROM dbo.SomeTable ORDER BY ID DESC
 ) x;
+
+SELECT $0 DollarAmt, $-1 NegAmt, -$.01 NegPenny, -+$-+$+++2 CrazyButValid;
+
+SELECT ￡100 FWPoundAmt, ￠100 FWCent;

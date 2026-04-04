@@ -3,7 +3,7 @@
 import os
 import sys
 from io import StringIO
-from typing import Optional, Union
+from typing import Callable, Optional, Union
 
 import click
 from colorama import Style
@@ -684,6 +684,9 @@ class OutputStreamFormatter(FormatterInterface):
         total_time: float,
         verbose: int,
         parsed_strings: list[ParsedString],
+        violations_getter: Optional[
+            Callable[[ParsedString], list[SQLBaseError]]
+        ] = None,
     ) -> int:
         """Used by human formatting during the `sqlfluff parse` command."""
         violations_count = 0
@@ -725,7 +728,11 @@ class OutputStreamFormatter(FormatterInterface):
                             self.colorize("...Failed to Parse...", Color.red)
                         )
 
-            violations = parsed_string.violations
+            violations = (
+                violations_getter(parsed_string)
+                if violations_getter
+                else parsed_string.violations
+            )
             violations_count += len(violations)
             if violations:
                 output_stream.write("==== parsing violations ====")  # pragma: no cover

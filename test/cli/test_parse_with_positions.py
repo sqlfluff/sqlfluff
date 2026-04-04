@@ -154,13 +154,13 @@ def test__meta_segment_to_tuple_with_positions():
 
     # Test to_tuple with include_position=True to cover line 259 in meta.py
     tuple_with_pos = indent.to_tuple(include_position=True)
-    assert (
-        len(tuple_with_pos) == 3
-    ), f"Expected 3-element tuple, got {len(tuple_with_pos)}"
+    assert len(tuple_with_pos) == 3, (
+        f"Expected 3-element tuple, got {len(tuple_with_pos)}"
+    )
     assert tuple_with_pos[0] == "indent"
-    assert isinstance(
-        tuple_with_pos[2], dict
-    ), f"Third element should be dict, got {type(tuple_with_pos[2])}"
+    assert isinstance(tuple_with_pos[2], dict), (
+        f"Third element should be dict, got {type(tuple_with_pos[2])}"
+    )
     assert "start_line_no" in tuple_with_pos[2]
     assert "end_line_no" in tuple_with_pos[2]
     assert tuple_with_pos[2]["start_line_no"] == 2

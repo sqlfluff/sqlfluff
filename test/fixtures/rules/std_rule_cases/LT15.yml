@@ -226,3 +226,40 @@ test_pass_tsql_inside_batch_respects_statement_limit:
       layout.newlines:
         maximum_empty_lines_inside_statements: 1
         maximum_empty_lines_between_statements: 1
+
+test_pass_cte_blank_line_not_inside_statement:
+  # Blank line between a CTE closing bracket and the main query should not be
+  # considered "inside a statement" and should not be removed when
+  # maximum_empty_lines_inside_statements = 0. This avoids conflict with LT08.
+  pass_str: |
+    WITH plop AS (
+        SELECT * FROM foo
+    )
+
+    SELECT a FROM plop
+  configs:
+    rules:
+      layout.newlines:
+        maximum_empty_lines_inside_statements: 0
+
+test_fail_extra_blank_in_cte_body:
+  # Blank lines inside a CTE body ARE inside a statement and should be removed.
+  fail_str: |
+    WITH plop AS (
+        SELECT *
+
+        FROM foo
+    )
+
+    SELECT a FROM plop
+  fix_str: |
+    WITH plop AS (
+        SELECT *
+        FROM foo
+    )
+
+    SELECT a FROM plop
+  configs:
+    rules:
+      layout.newlines:
+        maximum_empty_lines_inside_statements: 0

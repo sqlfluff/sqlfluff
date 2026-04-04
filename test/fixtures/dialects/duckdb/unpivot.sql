@@ -59,3 +59,31 @@ UNPIVOT (
         (apr, may, jun) AS q2
     )
 );
+
+-- Trailing commas in simplified UNPIVOT
+UNPIVOT monthly_sales
+ON jan, feb, mar, apr, may, jun,
+INTO
+NAME month
+VALUE sales;
+
+UNPIVOT monthly_sales
+ON jan, feb, mar, apr, may, jun,
+INTO
+NAME month
+VALUE month_1_sales, month_2_sales,;
+
+-- Trailing commas in standard UNPIVOT
+SELECT * FROM monthly_sales
+UNPIVOT INCLUDE NULLS (
+    sales FOR month IN (jan, feb, mar,)
+);
+
+FROM monthly_sales
+UNPIVOT (
+    (month_1_sales, month_2_sales, month_3_sales)
+    FOR quarter IN (
+        (jan, feb, mar) AS q1,
+        (apr, may, jun) AS q2,
+    )
+);

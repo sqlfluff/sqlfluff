@@ -23,7 +23,7 @@ from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplat
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
-from sqlfluff.core.templaters.jinja import DummyUndefined
+from sqlfluff.core.templaters.jinja import DummyUndefined, UndefinedRecorder
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTagConfiguration
 
 JINJA_STRING = (
@@ -600,6 +600,27 @@ def test__templater_jinja_dynamic_variable_no_violations():
     assert len(vs) == 0
 
 
+def test__templater_jinja_dbt_builtin_function():
+    """Test that dbt's `function()` builtin mock is available in Jinja templater."""
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = bigquery\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "apply_dbt_builtins = True\n"
+    )
+    instr = (
+        "SELECT {{ function('my_dataset_my_udf') }}(some_column, other_column) AS result\n"
+        "FROM {{ ref('my_model') }}\n"
+    )
+    outstr, vs = JinjaTemplater().process(in_str=instr, fname="test.sql", config=config)
+    assert (
+        str(outstr)
+        == "SELECT my_dataset_my_udf(some_column, other_column) AS result\nFROM my_model\n"
+    )
+    assert len(vs) == 0
+
+
 def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
@@ -708,6 +729,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_c_dbt/dbt_builtins_test", True, False),
         ("jinja_c_dbt/dbt_builtins_zip", True, False),
         ("jinja_c_dbt/dbt_builtins_zip_strict", True, False),
+        ("jinja_c_dbt/dbt_builtins_return", True, False),
         # do directive
         ("jinja_e/jinja", True, False),
         # case sensitivity and python literals
@@ -740,7 +762,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_l_metas/011", False, True),
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
-        ("jinja_n_nested_macros/jinja", True, False),
+        ("jinja_n_nested_macros/explicit_import", True, False),
+        ("jinja_n_nested_macros/implicit_import", True, False),
         # Test more dbt configurations
         ("jinja_o_config_override_dbt_builtins/override_dbt_builtins", True, False),
         ("jinja_p_disable_dbt_builtins/disable_dbt_builtins", True, False),
@@ -783,9 +806,9 @@ def test__templater_jinja_block_matching(caplog):
     ]
 
     # Group them together by block UUID
-    assert all(
-        seg.block_uuid for seg in template_segments
-    ), "All templated segments should have a block uuid!"
+    assert all(seg.block_uuid for seg in template_segments), (
+        "All templated segments should have a block uuid!"
+    )
     grouped = defaultdict(list)
     for seg in template_segments:
         grouped[seg.block_uuid].append(seg.pos_marker.working_loc)
@@ -1798,6 +1821,41 @@ def test_undefined_magic_methods():
     assert ud + ud is ud
 
 
+def test_undefined_recorder_iter_records_name():
+    """Regression guard: UndefinedRecorder.__iter__ yields one element and records the name.
+
+    The __iter__ behaviour is intentionally unchanged. The fix for multi-variable
+    for-loop crashes (ValueError: not enough values to unpack) is handled by
+    catching ValueError in the templater exception handler, not by emptying the
+    iterator here.
+    """
+    undefined_set: set[str] = set()
+    ur = UndefinedRecorder("my_var", undefined_set)
+    assert len(list(ur)) == 1
+    assert "my_var" in undefined_set
+
+
+def test_jinja_undefined_multivar_for_loop_user_friendly_error():
+    """Test that multi-variable for loops over undefined vars raise a user-friendly error.
+
+    Reproduces: ValueError: not enough values to unpack (expected 2, got 1)
+    when a Jinja template has {% for key, value in undefined.items() %}.
+    The fix catches the ValueError and raises SQLTemplaterError instead of crashing.
+    """
+    t = JinjaTemplater()
+    with pytest.raises(SQLTemplaterError, match="Unrecoverable failure"):
+        t.process(
+            in_str=(
+                "SELECT 1\n"
+                "{% for field, conditions in undefined_dict.items() %}\n"
+                "AND {{ field }} = '{{ conditions }}'\n"
+                "{% endfor %}\n"
+            ),
+            fname="test.sql",
+            config=FluffConfig(overrides={"templater": "jinja", "dialect": "ansi"}),
+        )
+
+
 @pytest.mark.parametrize(
     "sql_path, expected_renderings",
     [
@@ -1930,8 +1988,7 @@ def test__templater_jinja_dotted_context_config():
     t = JinjaTemplater()
     outstr, _ = t.process(
         in_str=(
-            "SELECT * FROM `{{ namespace.projectname }}."
-            "{{ namespace.env }}_test.table`"
+            "SELECT * FROM `{{ namespace.projectname }}.{{ namespace.env }}_test.table`"
         ),
         fname="test.sql",
         config=config,

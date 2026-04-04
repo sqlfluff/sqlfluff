@@ -1,0 +1,45 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f14af1276b7c4dad919185d0c284a4e1f57f52c2a5b68c676a7f8a40242da71b
+file:
+  statement:
+    create_task_statement:
+    - keyword: DEFINE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: DCM_PROJECT_DEV
+      - dot: .
+      - naked_identifier: ANALYTICS
+      - dot: .
+      - naked_identifier: TSK_INGEST_DAILY_ORDERS
+    - parameter: warehouse
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'DCM_PROJECT_WH'"
+    - keyword: schedule
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 0 4 * * * UTC'"
+    - keyword: AS
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: mytable
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: ts
+            end_bracket: )
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '1'
+              end_bracket: )
+  statement_terminator: ;

@@ -1,0 +1,23 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a379e475429cc7ec7ecfecadaba273749335488e5e24dfd9eff083187c19026e
+file:
+  statement:
+    define_stage_statement:
+    - keyword: DEFINE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: FINANCE_DB
+      - dot: .
+      - naked_identifier: RAW
+      - dot: .
+      - naked_identifier: TASTY_BYTES_ORDERS
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Internal stage for uploading files'"
+  statement_terminator: ;

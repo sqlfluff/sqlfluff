@@ -18,7 +18,7 @@ use sqlfluffrs_types::{
 };
 
 /// Python wrapper for the CaseFold enum
-#[pyclass(name = "RsCaseFold", module = "sqlfluffrs")]
+#[pyclass(name = "RsCaseFold", module = "sqlfluffrs", from_py_object)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct PyCaseFold(pub CaseFold);
 
@@ -73,7 +73,7 @@ impl From<PyCaseFold> for CaseFold {
     }
 }
 
-#[pyclass(name = "RsSourceFix")]
+#[pyclass(name = "RsSourceFix", from_py_object)]
 #[repr(transparent)]
 #[derive(Clone)]
 pub struct PySourceFix(pub SourceFix);
@@ -90,7 +90,7 @@ impl From<SourceFix> for PySourceFix {
     }
 }
 
-#[pyclass(name = "RsPathStep")]
+#[pyclass(name = "RsPathStep", from_py_object)]
 #[repr(transparent)]
 #[derive(Clone)]
 pub struct PyPathStep(pub PathStep);
@@ -107,7 +107,7 @@ impl From<PathStep> for PyPathStep {
     }
 }
 
-#[pyclass(name = "RsTupleSerialisedSegment")]
+#[pyclass(name = "RsTupleSerialisedSegment", from_py_object)]
 #[repr(transparent)]
 #[derive(Clone)]
 pub struct PyTupleSerialisedSegment(pub TupleSerialisedSegment);
@@ -152,7 +152,7 @@ impl From<TupleSerialisedSegment> for PyTupleSerialisedSegment {
     }
 }
 
-#[pyclass(name = "RsToken", weakref, module = "sqlfluffrs")]
+#[pyclass(name = "RsToken", weakref, module = "sqlfluffrs", from_py_object)]
 #[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct PyToken(pub Token);
@@ -615,8 +615,10 @@ impl From<Token> for PyToken {
 #[derive(IntoPyObject)]
 pub struct PySqlFluffToken(pub PyToken);
 
-impl<'py> FromPyObject<'py> for PySqlFluffToken {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+impl<'a, 'py> FromPyObject<'a, 'py> for PySqlFluffToken {
+    type Error = PyErr;
+
+    fn extract(ob: pyo3::Borrowed<'a, 'py, PyAny>) -> Result<Self, Self::Error> {
         let raw = ob.getattr("raw")?.extract::<String>()?;
         let class_types = ob
             .getattr("_class_types")

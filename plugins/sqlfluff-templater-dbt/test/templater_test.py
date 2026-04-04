@@ -288,7 +288,7 @@ def test__templater_dbt_templating_test_lex(
     # Count the newlines.
     n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
     print(
-        f"Loaded {path!r} (n_newlines: {n_trailing_newlines}): " f"{source_dbt_sql!r}",
+        f"Loaded {path!r} (n_newlines: {n_trailing_newlines}): {source_dbt_sql!r}",
     )
 
     templated_file, _ = dbt_templater.process(
@@ -348,6 +348,79 @@ def test_dbt_fails_stdin(dbt_templater, dbt_fluff_config):
             fname="stdin",
             config=FluffConfig(configs=dbt_fluff_config),
         )
+
+
+def test__find_node_with_symlinked_local_package(tmp_path):
+    """Test that _find_node resolves symlinks for dbt local packages.
+
+    When a dbt local package is used (via 'local:' in packages.yml), dbt deps
+    creates a symlink in dbt_packages/ pointing to the local package directory.
+    The manifest records the symlink path (dbt_packages/...) as original_file_path.
+    _find_node must resolve symlinks to match input paths against manifest entries.
+    """
+    # Create a real file structure with a symlink mimicking dbt local packages:
+    #   dbt_dir/
+    #     packages/my_pkg/models/my_model.sql  <- real file
+    #     dbt_packages/my_pkg -> ../packages/my_pkg  <- symlink created by dbt deps
+    real_dir = tmp_path / "packages" / "my_pkg" / "models"
+    real_dir.mkdir(parents=True)
+    (real_dir / "my_model.sql").write_text("select 1 as id")
+
+    pkg_dir = tmp_path / "dbt_packages"
+    pkg_dir.mkdir()
+    (pkg_dir / "my_pkg").symlink_to(tmp_path / "packages" / "my_pkg")
+
+    # The manifest records the symlink path as original_file_path
+    symlink_rel_path = "dbt_packages/my_pkg/models/my_model.sql"
+    real_rel_path = "packages/my_pkg/models/my_model.sql"
+
+    # Build a mock node whose original_file_path is the symlink path
+    mock_node = mock.MagicMock()
+    mock_node.original_file_path = symlink_rel_path
+
+    # Build a mock manifest with this node
+    mock_manifest = mock.MagicMock()
+    mock_manifest.nodes = {"model.my_pkg.my_model": mock_node}
+    mock_manifest.macros = {}
+    mock_manifest.disabled = {}
+
+    # The dbt path selector returns nothing (simulating the path mismatch)
+    mock_selector = mock.MagicMock()
+    mock_selector.search.return_value = []
+
+    dbt_templater = FluffConfig(
+        overrides={"dialect": "ansi", "templater": "dbt"}
+    ).get_templater()
+    dbt_templater.project_dir = str(tmp_path)
+    config = FluffConfig(overrides={"dialect": "ansi", "templater": "dbt"})
+
+    with (
+        mock.patch.object(
+            type(dbt_templater),
+            "dbt_manifest",
+            new_callable=lambda: property(lambda self: mock_manifest),
+        ),
+        mock.patch.object(
+            type(dbt_templater),
+            "dbt_selector_method",
+            new_callable=lambda: property(lambda self: mock_selector),
+        ),
+    ):
+        # Input via real path (packages/my_pkg/...) should find the node
+        node = dbt_templater._find_node(
+            fname=str(tmp_path / real_rel_path),
+            config=config,
+            dbt_dir=str(tmp_path),
+        )
+        assert node is mock_node
+
+        # Input via symlink path (dbt_packages/my_pkg/...) should also find the node
+        node = dbt_templater._find_node(
+            fname=str(tmp_path / symlink_rel_path),
+            config=config,
+            dbt_dir=str(tmp_path),
+        )
+        assert node is mock_node
 
 
 @pytest.mark.parametrize(
@@ -505,9 +578,9 @@ def test__templater_dbt_handle_exceptions(
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
     shutil.move(src_fpath, target_fpath)
-    dbt_fluff_config["templater"]["dbt"][
-        "dbt_skip_compilation_error"
-    ] = dbt_skip_compilation_error
+    dbt_fluff_config["templater"]["dbt"]["dbt_skip_compilation_error"] = (
+        dbt_skip_compilation_error
+    )
     try:
         with pytest.raises(exception_class) as excinfo:
             dbt_templater.process(
@@ -586,9 +659,9 @@ def test__templater_dbt_handle_database_connection_failure(
         )
     )
     dbt_fluff_config_fail = deepcopy(dbt_fluff_config)
-    dbt_fluff_config_fail["templater"]["dbt"][
-        "profiles_dir"
-    ] = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
+    dbt_fluff_config_fail["templater"]["dbt"]["profiles_dir"] = (
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
+    )
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
     shutil.move(src_fpath, target_fpath)
@@ -631,7 +704,7 @@ def test__project_dir_does_not_exist_error(dbt_templater):
     with fluff_log_catcher(logging.ERROR, "sqlfluff.templater") as caplog:
         dbt_project_dir = dbt_templater._get_project_dir()
     assert (
-        f"dbt_project_dir: {dbt_project_dir} could not be accessed. " "Check it exists."
+        f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists."
     ) in caplog.text
 
 
@@ -738,3 +811,38 @@ def test__dbt_log_supression(dbt_project_folder):
         == "dbt_project/models/my_new_project/operator_errors.sql"
     )
     assert len(first_file["violations"]) == 2
+
+
+def test__templater_dbt_threads_default(dbt_templater):
+    """When threads is not configured, _get_threads() returns None.
+
+    This lets dbt use the value from profiles.yml rather than
+    overriding it.
+    """
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {
+                "dbt": {
+                    "profiles_dir": "~/.dbt",
+                }
+            },
+        },
+    )
+    assert dbt_templater._get_threads() is None
+
+
+def test__templater_dbt_threads_explicit(dbt_templater):
+    """When threads is set in the config, _get_threads() returns it as int."""
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {
+                "dbt": {
+                    "profiles_dir": "~/.dbt",
+                    "threads": "4",
+                }
+            },
+        },
+    )
+    assert dbt_templater._get_threads() == 4

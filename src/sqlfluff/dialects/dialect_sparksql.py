@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     AnySetOf,
     Anything,
     BaseSegment,
+    BinaryOperatorSegment,
     Bracketed,
     BracketedSegment,
     CodeSegment,
@@ -77,7 +78,7 @@ Versions of Spark prior to 3.x will only support the Hive dialect.
 .. _`Spark SQL`: https://spark.apache.org/docs/latest/sql-ref.html
 .. _`Delta Lake`: https://docs.delta.io/latest/quick-start.html#set-up-apache-spark-with-delta-lake
 .. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
-.. _`Spark Identifiers`: https://spark.apache.org/docs/latest/sql-ref-identifier.html""",  # noqa: E501
+.. _`Spark Identifiers`: https://spark.apache.org/docs/latest/sql-ref-identifier.html""",
 )
 
 sparksql_dialect.patch_lexer_matchers(
@@ -575,7 +576,7 @@ sparksql_dialect.add(
         "DBPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
     DataSourcesV2FileTypeGrammar=OneOf(
-        # https://github.com/apache/spark/tree/master/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/v2  # noqa: E501
+        # https://github.com/apache/spark/tree/master/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/v2
         # Separated here because these allow for additional
         # commands such as Select From File
         # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
@@ -1112,7 +1113,7 @@ class SQLConfPropertiesSegment(BaseSegment):
     )
 
 
-class DivBinaryOperatorSegment(BaseSegment):
+class DivBinaryOperatorSegment(BinaryOperatorSegment):
     """DIV type binary_operator."""
 
     type = "binary_operator"
@@ -1172,8 +1173,14 @@ class PrimitiveTypeSegment(BaseSegment):
         "TIMESTAMP_LTZ",
         "TIMESTAMP_NTZ",
         "STRING",
+        # CHAR, CHARACTER, and VARCHAR require mandatory length
         Sequence(
-            OneOf("CHAR", "CHARACTER", "VARCHAR", "DECIMAL", "DEC", "NUMERIC"),
+            OneOf("CHAR", "CHARACTER", "VARCHAR"),
+            Ref("BracketedArguments"),
+        ),
+        # DECIMAL, DEC, and NUMERIC have optional precision/scale
+        Sequence(
+            OneOf("DECIMAL", "DEC", "NUMERIC"),
             Ref("BracketedArguments", optional=True),
         ),
         "BINARY",
@@ -1881,6 +1888,120 @@ class InsertStatementSegment(BaseSegment):
                 Ref("BracketedColumnReferenceListGrammar"),
                 Ref("InsertSourceGrammar"),
             ),
+        ),
+    )
+
+
+class FromInsertSourceClauseSegment(BaseSegment):
+    """A `FROM` source clause within a `FROM ... INSERT ...` statement."""
+
+    type = "from_insert_source_clause"
+    match_grammar = Sequence(
+        "FROM",
+        Delimited(
+            Ref("FromInsertFromExpressionSegment"),
+        ),
+    )
+
+
+class FromInsertFromExpressionElementSegment(ansi.FromExpressionElementSegment):
+    """A table expression within a `FROM ... INSERT ...` source clause.
+
+    SparkSQL keeps `INSERT` unreserved, so in this context we must prevent it
+    from being consumed as an implicit alias for the shared source.
+    """
+
+    match_grammar = Sequence(
+        Ref("PreTableFunctionKeywordsGrammar", optional=True),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref("SamplingExpressionSegment", optional=True),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf(
+                Ref.keyword("INSERT"),
+                Ref("FromClauseTerminatorGrammar"),
+                Ref("JoinLikeClauseGrammar"),
+            ),
+            optional=True,
+        ),
+        Ref("PostTableExpressionGrammar", optional=True),
+    )
+
+
+class FromInsertFromExpressionSegment(BaseSegment):
+    """A FROM expression within a `FROM ... INSERT ...` source clause."""
+
+    type = "from_expression"
+    match_grammar = OptionallyBracketed(
+        Sequence(
+            Indent,
+            OneOf(
+                Ref("MLTableExpressionSegment"),
+                Ref("FromInsertFromExpressionElementSegment"),
+                Bracketed(Ref("FromInsertFromExpressionSegment")),
+                terminators=[
+                    Sequence("ORDER", "BY"),
+                    Sequence("GROUP", "BY"),
+                    Ref.keyword("INSERT"),
+                ],
+            ),
+            Dedent,
+            Conditional(Indent, indented_joins=True),
+            AnyNumberOf(
+                Sequence(
+                    OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
+                ),
+                optional=True,
+                terminators=[
+                    Sequence("ORDER", "BY"),
+                    Sequence("GROUP", "BY"),
+                    Ref.keyword("INSERT"),
+                ],
+            ),
+            Conditional(Dedent, indented_joins=True),
+        )
+    )
+
+
+class FromInsertClauseSegment(BaseSegment):
+    """An `INSERT` target within a `FROM ... INSERT ...` statement."""
+
+    type = "from_insert_clause"
+    match_grammar = Sequence(
+        "INSERT",
+        OneOf("INTO", "OVERWRITE"),
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                Ref("PartitionSpecGrammar", optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref(
+                    "InsertSourceGrammar",
+                    terminators=[Ref.keyword("INSERT")],
+                ),
+            ),
+            Sequence(
+                "REPLACE",
+                Ref("WhereClauseSegment"),
+                Ref(
+                    "InsertSourceGrammar",
+                    terminators=[Ref.keyword("INSERT")],
+                ),
+            ),
+        ),
+    )
+
+
+class FromInsertStatementSegment(BaseSegment):
+    """A `FROM ... INSERT ...` statement."""
+
+    type = "from_insert_statement"
+    match_grammar = Sequence(
+        Ref("FromInsertSourceClauseSegment"),
+        AnyNumberOf(
+            Ref("FromInsertClauseSegment"),
+            min_times=1,
         ),
     )
 
@@ -2846,6 +2967,7 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         # Segments defined in Spark3 dialect
         insert=[
+            Ref("FromInsertStatementSegment"),
             # Data Definition Statements
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterTableStatementSegment"),

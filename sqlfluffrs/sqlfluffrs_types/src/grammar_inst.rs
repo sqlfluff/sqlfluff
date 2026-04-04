@@ -52,6 +52,7 @@ pub enum GrammarVariant {
     Empty = 15,
     Missing = 16,
     Token = 17,
+    PrecededBy = 18,
 }
 
 // /// Parse mode for grammar matching (1 byte)
@@ -386,7 +387,7 @@ impl GrammarId {
 
     /// Convenience: get instruction from GRAMMAR_TABLE
     #[inline]
-    pub fn inst<'a>(self, grammar_table: &'a [GrammarInst]) -> &'a GrammarInst {
+    pub fn inst(self, grammar_table: &[GrammarInst]) -> &GrammarInst {
         &grammar_table[self.0 as usize]
     }
 }

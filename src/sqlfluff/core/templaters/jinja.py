@@ -10,7 +10,6 @@ import sys
 from collections.abc import Iterable, Iterator
 from functools import reduce
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Optional,
@@ -41,12 +40,9 @@ from sqlfluff.core.templaters.base import (
     TemplatedFileSlice,
     large_file_check,
 )
-from sqlfluff.core.templaters.builtins.dbt import DBT_BUILTINS
+from sqlfluff.core.templaters.builtins.dbt import DBT_BUILTINS, DbtMacroWrapper
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
-
-if TYPE_CHECKING:  # pragma: no cover
-    from jinja2.runtime import Macro
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -108,7 +104,7 @@ class JinjaTemplater(PythonTemplater):
     @staticmethod
     def _extract_macros_from_template(
         template: str, env: Environment, ctx: dict[str, Any]
-    ) -> dict[str, "Macro"]:
+    ) -> dict[str, DbtMacroWrapper]:
         """Take a template string and extract any macros from it.
 
         Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
@@ -118,10 +114,10 @@ class JinjaTemplater(PythonTemplater):
                 syntax. We assume that outer functions will catch this
                 exception and handle it appropriately.
         """
-        from jinja2.runtime import Macro  # noqa
+        from jinja2.runtime import Macro
 
         # Iterate through keys exported from the loaded template string
-        context: dict[str, Macro] = {}
+        context: dict[str, DbtMacroWrapper] = {}
         # NOTE: `env.from_string()` will raise TemplateSyntaxError if `template`
         # is invalid.
         macro_template = env.from_string(template, globals=ctx)
@@ -132,7 +128,7 @@ class JinjaTemplater(PythonTemplater):
                 attr = getattr(macro_template.module, k)
                 # Is it a macro? If so install it at the name of the macro
                 if isinstance(attr, Macro):
-                    context[k] = attr
+                    context[k] = DbtMacroWrapper(attr)
         except UndefinedError:
             # This occurs if any file in the macro path references an
             # undefined Jinja variable. It's safe to ignore this. Any
@@ -148,7 +144,7 @@ class JinjaTemplater(PythonTemplater):
         env: Environment,
         ctx: dict[str, Any],
         exclude_paths: Optional[list[str]] = None,
-    ) -> dict[str, "Macro"]:
+    ) -> dict[str, DbtMacroWrapper]:
         """Take a path and extract macros from it.
 
         Args:
@@ -164,7 +160,7 @@ class JinjaTemplater(PythonTemplater):
             ValueError: If a path does not exist.
             SQLTemplaterError: If there is an error in the Jinja macro file.
         """
-        macro_ctx: dict[str, "Macro"] = {}
+        macro_ctx: dict[str, DbtMacroWrapper] = {}
         for path_entry in path:
             # Does it exist? It should as this check was done on config load.
             if not os.path.exists(path_entry):
@@ -208,7 +204,7 @@ class JinjaTemplater(PythonTemplater):
 
     def _extract_macros_from_config(
         self, config: FluffConfig, env: Environment, ctx: dict[str, Any]
-    ) -> dict[str, "Macro"]:
+    ) -> dict[str, DbtMacroWrapper]:
         """Take a config and load any macros from it.
 
         Args:
@@ -227,7 +223,7 @@ class JinjaTemplater(PythonTemplater):
             loaded_context = {}
 
         # Iterate to load macros
-        macro_ctx: dict[str, "Macro"] = {}
+        macro_ctx: dict[str, DbtMacroWrapper] = {}
         for value in loaded_context.values():
             try:
                 macro_ctx.update(
@@ -237,6 +233,40 @@ class JinjaTemplater(PythonTemplater):
                 raise SQLFluffUserError(
                     f"Error loading user provided macro:\n`{value}`\n> {err}."
                 )
+        return macro_ctx
+
+    def _extract_macros(
+        self, config: FluffConfig, env: Environment, ctx: dict[str, Any]
+    ) -> dict[str, DbtMacroWrapper]:
+        """Load macros directly in a config and from load_macros_from_path.
+
+        Args:
+            config: The config to extract macros from.
+            env: The environment.
+            ctx: The context.
+
+        Returns:
+            dict: A dictionary containing the extracted macros.
+        """
+        macro_ctx: dict[str, DbtMacroWrapper] = {}
+
+        macros_path = self._get_macros_path(config, "load_macros_from_path")
+        exclude_macros_path = self._get_macros_path(config, "exclude_macros_from_path")
+        if macros_path:
+            macro_ctx.update(
+                self._extract_macros_from_path(
+                    macros_path,
+                    env=env,
+                    ctx=ctx,
+                    exclude_paths=exclude_macros_path,
+                )
+            )
+
+        # Load config macros, these will take precedence over macros from the path
+        macro_ctx.update(
+            self._extract_macros_from_config(config=config, env=env, ctx=ctx)
+        )
+
         return macro_ctx
 
     def _extract_libraries_from_config(self, config: FluffConfig) -> dict[str, Any]:
@@ -280,9 +310,9 @@ class JinjaTemplater(PythonTemplater):
             # the guidance of the python docs:
             # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
             spec = module_finder.find_spec(module_name, None)
-            assert (
-                spec
-            ), f"Module {module_name} failed to be found despite being listed."
+            assert spec, (
+                f"Module {module_name} failed to be found despite being listed."
+            )
             module = importlib.util.module_from_spec(spec)
             sys.modules[module_name] = module
             assert spec.loader, f"Module {module_name} missing expected loader."
@@ -534,24 +564,28 @@ class JinjaTemplater(PythonTemplater):
 
         # Load macros from path (if applicable)
         if config:
-            macros_path = self._get_macros_path(config, "load_macros_from_path")
-            exclude_macros_path = self._get_macros_path(
-                config, "exclude_macros_from_path"
-            )
-            if macros_path:
-                live_context.update(
-                    self._extract_macros_from_path(
-                        macros_path,
-                        env=env,
-                        ctx=live_context,
-                        exclude_paths=exclude_macros_path,
-                    )
-                )
+            # References to variables are fixed when macros are compiled. In
+            # order to handle macros that refer to other macros from another
+            # file, we have to make two passes:
 
-            # Load config macros, these will take precedence over macros from the path
+            # Pass 1: get all macro names and insert late-bound functions into
+            # the context for every known macro.
+            macro_names = self._extract_macros(
+                config=config, env=env, ctx=live_context
+            ).keys()
+            late_binding_macros = {}
+            for k in macro_names:
+
+                def late_binding_macro(macro_name: str) -> Callable[..., Any]:
+                    return lambda *args, **kwargs: live_context[macro_name](
+                        *args, **kwargs
+                    )
+
+                late_binding_macros[k] = late_binding_macro(k)
+            # Pass 2: load the macros, with the late bindings in the context
             live_context.update(
-                self._extract_macros_from_config(
-                    config=config, env=env, ctx=live_context
+                self._extract_macros(
+                    config=config, env=env, ctx=live_context | late_binding_macros
                 )
             )
 
@@ -732,7 +766,12 @@ class JinjaTemplater(PythonTemplater):
                     in_str, syntax_tree, undefined_variables
                 ),
             )
-        except (TemplateError, TypeError) as err:
+        except (TemplateError, TypeError, ValueError) as err:
+            # ValueError is caught to handle multi-variable for-loop unpacking
+            # failures, e.g. {% for key, val in undefined_var.items() %} raises
+            # "not enough values to unpack" because the undefined stub yields
+            # only one element. We surface this as a user-friendly error rather
+            # than an unhandled crash.
             templater_logger.info("Unrecoverable Jinja Error: %s", err, exc_info=True)
             raise SQLTemplaterError(
                 (
@@ -918,9 +957,9 @@ class JinjaTemplater(PythonTemplater):
                     # (here that is options[0]).
                     new_value = "True" if options[0] == branch + 1 else "False"
                     new_source = f"{{% {raw_file_slice.tag} {new_value} %}}"
-                    tracer_trace.raw_slice_info[raw_file_slice].alternate_code = (
-                        new_source
-                    )
+                    tracer_trace.raw_slice_info[
+                        raw_file_slice
+                    ].alternate_code = new_source
                     override_raw_slices.append(branch)
                     length_deltas[raw_file_slice.source_idx] = len(new_source) - len(
                         raw_file_slice.raw

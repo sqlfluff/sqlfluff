@@ -1,11 +1,254 @@
-"""Tests for the RustParser error handling."""
+"""Tests for the RustParser error handling and iteration limits."""
 
 import pytest
 
+from sqlfluff.core.errors import SQLFluffUserError
+
 try:
     from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER, RustParser
+    from sqlfluffrs import RsParser
 except ImportError:
     _HAS_RUST_PARSER = False
+
+
+# ============================================================================
+# max_parse_depth edge-case tests (lines 94-97 of rust_parser.py)
+# ============================================================================
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__max_parse_depth_invalid_string_raises_config_error():
+    """Invalid string values for max_parse_depth are rejected by config validation."""
+    from sqlfluff.core import FluffConfig
+
+    with pytest.raises(SQLFluffUserError):
+        FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": "invalid"})
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__max_parse_depth_zero_disables_limit():
+    """RustParser with max_parse_depth=0 sets no depth limit.
+
+    A value of 0 means "unlimited depth";
+    simple SQL should still parse without errors.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 0})
+    parser = RustParser(config=config)
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+    result = parser.parse(segments, fname="test.sql")
+    assert result is not None
+    assert result.is_type("file")
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__max_parse_depth_negative_one_raises_config_error():
+    """RustParser config rejects negative max_parse_depth values.
+
+    Public configuration uses ``0`` as the only disable value so that Python
+    and Rust expose the same contract.
+    """
+    from sqlfluff.core import FluffConfig
+
+    with pytest.raises(SQLFluffUserError):
+        FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": -1})
+
+
+# ---------------------------------------------------------------------------
+# Iteration limit constants (should match default_config.cfg and core.rs)
+# ---------------------------------------------------------------------------
+_DEFAULT_MAX_ITERATIONS = 3_000_000
+_DEFAULT_WARN_THRESHOLD = 2_000_000
+
+
+# ============================================================================
+# Iteration limit tests
+# ============================================================================
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__iteration_limit__default_config_values():
+    """Default config values for iteration limits match documented constants.
+
+    The default values are defined in three places that must stay in sync:
+    - ``default_config.cfg``  (Python config layer)
+    - ``core.rs``             (Rust ``Parser::new`` defaults)
+    - The constants in this test file
+
+    If this test fails, update all three locations together.
+    """
+    from sqlfluff.core import FluffConfig
+
+    config = FluffConfig.from_string("[sqlfluff]\ndialect = ansi")
+
+    assert config.get("rust_parser_max_iterations") == _DEFAULT_MAX_ITERATIONS, (
+        "rust_parser_max_iterations default does not match expected constant "
+        f"({_DEFAULT_MAX_ITERATIONS}). Update default_config.cfg."
+    )
+    assert config.get("rust_parser_warn_threshold") == _DEFAULT_WARN_THRESHOLD, (
+        "rust_parser_warn_threshold default does not match expected constant "
+        f"({_DEFAULT_WARN_THRESHOLD}). Update default_config.cfg."
+    )
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__iteration_limit__rs_parser_constructor_accepts_limits():
+    """Rust parser constructor accepts and stores keyword arguments without error."""
+    # Low values — just checking the constructor signature, not triggering limits.
+    p = RsParser(
+        dialect="ansi",
+        indent_config={},
+        max_parser_iterations=500_000,
+        parser_warn_threshold=250_000,
+    )
+    # The dialect getter confirms the object was created successfully.
+    assert p.dialect == "ansi"
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__iteration_limit__exceeded_raises_base_exception():
+    """Exceeding max_parser_iterations raises a BaseException (PanicException).
+
+    ``max_parser_iterations=1`` is impossibly low for any real SQL, so even
+    ``SELECT 1`` crosses the limit.  The Rust panic surfaces in Python as
+    ``pyo3_runtime.PanicException``, which inherits from ``BaseException``
+    (not ``Exception``).
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig.from_string("[sqlfluff]\ndialect = ansi")
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+    tokens = [
+        s._rstoken
+        for s in segments
+        if hasattr(s, "_rstoken") and s._rstoken is not None
+    ]
+
+    p = RsParser(
+        dialect="ansi",
+        indent_config={},
+        max_parser_iterations=1,
+        parser_warn_threshold=1,
+    )
+
+    with pytest.raises(BaseException) as exc_info:
+        p.parse_match_result_from_tokens(tokens)
+
+    assert "maximum iteration limit" in str(exc_info.value), (
+        "Expected 'maximum iteration limit' in the panic message, got: "
+        f"{exc_info.value}"
+    )
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__iteration_limit__exceeded_via_rust_parser_wrapper():
+    """RustParser.parse() propagates the panic when max_parser_iterations is exceeded.
+
+    This exercises the full Python wrapper path: config → RsParser constructor
+    → parse_match_result_from_tokens → Rust panic → BaseException in Python.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig.from_string(
+        "[sqlfluff]\ndialect = ansi\nrust_parser_max_iterations = 1"
+    )
+    assert config.get("rust_parser_max_iterations") == 1
+
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+
+    parser = RustParser(config=config)
+
+    with pytest.raises(BaseException) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert "maximum iteration limit" in str(exc_info.value)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__iteration_limit__high_limit_parses_normally():
+    """A high (or default) iteration limit does not prevent normal parsing."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig.from_string(
+        "[sqlfluff]\ndialect = ansi\nrust_parser_max_iterations = 10000000"
+    )
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT a, b FROM t WHERE x = 1")
+
+    parser = RustParser(config=config)
+    result = parser.parse(segments, fname="test.sql")
+
+    assert result is not None
+    assert result.is_type("file")
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__iteration_limit__warn_threshold_lower_than_max_still_parses():
+    """Setting parser_warn_threshold below the actual iteration count does not abort.
+
+    This only causes a Rust-level warning log to stderr.
+
+    The parse must still succeed as long as max_parser_iterations is not
+    reached.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    # warn_threshold=1 means any real query will exceed it and emit a warning,
+    # but max_parser_iterations is high enough that the parse completes.
+    config = FluffConfig.from_string(
+        "[sqlfluff]\ndialect = ansi\n"
+        "rust_parser_warn_threshold = 1\n"
+        "rust_parser_max_iterations = 10000000"
+    )
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+
+    parser = RustParser(config=config)
+    result = parser.parse(segments, fname="test.sql")
+
+    assert result is not None
+    assert result.is_type("file")
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__iteration_limit__via_stats_method_same_behaviour():
+    """parse_match_result_with_stats also enforces max_parser_iterations.
+
+    The stats method uses the same underlying parser and must raise the
+    same ``BaseException`` when the limit is exceeded.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig.from_string("[sqlfluff]\ndialect = ansi")
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+    tokens = [
+        s._rstoken
+        for s in segments
+        if hasattr(s, "_rstoken") and s._rstoken is not None
+    ]
+
+    p = RsParser(
+        dialect="ansi",
+        indent_config={},
+        max_parser_iterations=1,
+        parser_warn_threshold=1,
+    )
+
+    with pytest.raises(BaseException) as exc_info:
+        p.parse_match_result_with_stats(tokens)
+
+    assert "maximum iteration limit" in str(exc_info.value)
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
@@ -83,6 +326,8 @@ def test__rust_parser__parse_error_from_exception():
     assert "Couldn't find closing bracket" in str(error)
     # The error should have a segment associated with it
     assert error.segment is not None
+    assert error.line_no > 0
+    assert error.line_pos > 0
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")

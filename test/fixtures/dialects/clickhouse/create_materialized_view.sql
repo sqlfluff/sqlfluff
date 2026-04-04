@@ -218,3 +218,20 @@ SELECT
     _error AS error
 FROM db.kafka
 WHERE length(_error) > 0;
+
+-- Materialized view with TO, column list, definer, security, and comment
+CREATE MATERIALIZED VIEW IF NOT EXISTS db.secure_mv
+ON CLUSTER mycluster
+TO db.secure_target (event_date, user_id, revenue)
+DEFINER = CURRENT_USER
+SQL SECURITY DEFINER
+AS
+SELECT
+    toDate(event_time) AS event_date,
+    user_id,
+    sum(amount) AS revenue
+FROM db.events
+GROUP BY
+    event_date,
+    user_id
+COMMENT 'Materialized view with security options';
