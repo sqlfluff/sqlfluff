@@ -1350,8 +1350,17 @@ def _calculate_desired_starting_indent(
     if not starting_indent_compensation_spaces:
         return unaligned_starting_indent
 
-    # We don't have a good way to enable leading comma alignment for tabs or spaces with
-    # size less than 4, so we'll warn and return the desired indent.
+    # At indent level 0 (e.g. leading commas between top-level CTEs), there's
+    # no indent to compensate, this is expected and not an error.
+    if desired_indent_units == 0:
+        reflow_logger.debug(
+            "No indentation at indent level 0. Skipping indentation compensation."
+        )
+        return unaligned_starting_indent
+
+    # We don't have a good way to enable leading comma alignment for tabs or
+    # indents smaller than the compensation requires, so warn and return the
+    # unaligned indent.
     if len(unaligned_starting_indent) < abs(starting_indent_compensation_spaces):
         reflow_logger.warning(
             "Not enough space to compensate indentation. "
