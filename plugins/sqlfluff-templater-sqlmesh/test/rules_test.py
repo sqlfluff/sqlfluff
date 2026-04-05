@@ -1,11 +1,17 @@
 """Test SQLMesh templater with SQLFluff rules."""
 
+import sys
 from pathlib import Path
 
 import pytest
 
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
+
+_SKIP_PY314 = pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="SQLMesh does not yet support Python 3.14 (upstream ast.Str / argparse issues)",
+)
 
 
 @pytest.fixture
@@ -32,6 +38,7 @@ def sqlmesh_fluff_config(fixture_dir):
     }
 
 
+@_SKIP_PY314
 class TestSQLMeshRules:
     """Test SQLMesh templater with SQLFluff linting rules."""
 
