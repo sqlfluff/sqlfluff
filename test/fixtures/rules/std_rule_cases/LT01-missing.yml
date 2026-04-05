@@ -113,3 +113,62 @@ test_pass_postgres_search_clause:
   configs:
     core:
       dialect: postgres
+
+test_pass_oracle_bind_variable_into_clause:
+  # Oracle trigger correlation variables (:NEW, :OLD) and bind variables
+  # must not trigger LT01 spacing violations.  The natural space before ":"
+  # should be kept and there must be no space between ":" and the name.
+  pass_str: |
+    BEGIN
+        SELECT seq.NEXTVAL INTO :NEW.col FROM DUAL;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_bind_variable_no_space_before_colon:
+  # Missing space before bind-variable colon should be flagged and fixed.
+  fail_str: |
+    BEGIN
+        SELECT seq.NEXTVAL INTO:NEW.col FROM DUAL;
+    END;
+  fix_str: |
+    BEGIN
+        SELECT seq.NEXTVAL INTO :NEW.col FROM DUAL;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_bind_variable_simple:
+  pass_str: SELECT :var FROM DUAL;
+  configs:
+    core:
+      dialect: oracle
+
+# Substitution variable tests (&var, &&var)
+test_pass_oracle_substitution_variable_single:
+  # &var should have no internal spaces.
+  pass_str: SELECT &col FROM DUAL;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_substitution_variable_double:
+  # &&var should have no internal spaces.
+  pass_str: SELECT &&col FROM DUAL;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_substitution_variable_in_where:
+  pass_str: SELECT * FROM employees WHERE department_id = &dept_id;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_substitution_variable_as_table:
+  pass_str: SELECT * FROM &table_name;
+  configs:
+    core:
+      dialect: oracle

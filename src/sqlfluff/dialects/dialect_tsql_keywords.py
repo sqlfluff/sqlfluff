@@ -1,6 +1,6 @@
 r"""A list of all SQL key words.
 
-https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver16
+https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver17
 
 Run the script in a browser console to extract all reserved keywords:
 
@@ -220,7 +220,7 @@ RESERVED_KEYWORDS = [
 # reserved in T-SQL. They can be used as identifiers without quoting.
 # The dialect implementation only blocks RESERVED_KEYWORDS in NakedIdentifierSegment,
 # allowing these future reserved keywords to be used freely as identifiers.
-# https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
+# https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver17
 FUTURE_RESERVED_KEYWORDS = [
     "ABSOLUTE",
     "ACTION",
@@ -636,6 +636,7 @@ UNRESERVED_KEYWORDS = [
     "ELEMENTS",
     "ELEVATE_ONLINE",
     "ELEVATE_RESUMABLE",
+    "ENABLE",
     "ENABLE_BROKER",
     "ENCODING",
     "ENCRYPTED",
@@ -969,6 +970,7 @@ UNRESERVED_KEYWORDS = [
     "STATISTICAL_SEMANTICS",
     "STATISTICS_INCREMENTAL",
     "STATISTICS_NORECOMPUTE",
+    "STOP",
     "STOPLIST",
     "STOP_ON_ERROR",
     "STRING_AGG",
