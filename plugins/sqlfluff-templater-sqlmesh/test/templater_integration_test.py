@@ -1,5 +1,6 @@
 """Integration tests for SQLMesh templater with SQLFluff core functionality."""
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -7,6 +8,11 @@ import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
 from sqlfluff_templater_sqlmesh.templater import SQLMeshTemplater
+
+_SKIP_PY314 = pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="SQLMesh does not yet support Python 3.14 (upstream ast.Str / argparse issues)",
+)
 
 
 @pytest.fixture
@@ -33,6 +39,7 @@ def sqlmesh_config(fixture_dir):
 class TestSQLMeshTemplaterIntegration:
     """Test SQLMesh templater integration with SQLFluff core."""
 
+    @_SKIP_PY314
     def test_templater_creates_valid_templated_file(self, sqlmesh_config, fixture_dir):
         """Test that templater produces valid TemplatedFile objects."""
         # Use Linter to test templater integration
@@ -59,6 +66,7 @@ class TestSQLMeshTemplaterIntegration:
         with pytest.raises(SQLFluffUserError, match="Specified path does not exist"):
             linter.lint_path("/non/existent/file.sql")
 
+    @_SKIP_PY314
     def test_templater_with_inline_content(self, sqlmesh_config, fixture_dir):
         """Test templater with provided string content."""
         # Test inline content using the dbt pattern - call templater.process() directly
@@ -128,6 +136,7 @@ SELECT 1 as test_column"""
                 result == expected
             ), f"Path {file_path} should give {expected}, got {result}"
 
+    @_SKIP_PY314
     def test_end_to_end_linting_workflow(self, sqlmesh_config, fixture_dir):
         """Test complete workflow: templater -> parser -> linter."""
         # Use existing simple_model.sql - SQLMesh knows about this model
@@ -152,6 +161,7 @@ SELECT 1 as test_column"""
         assert "SELECT" in linted_file.templated_file.templated_str
         assert "MODEL" not in linted_file.templated_file.templated_str
 
+    @_SKIP_PY314
     def test_slice_mapping_accuracy(self, sqlmesh_config, fixture_dir):
         """Test that slice mapping is accurate for error positioning."""
         linter = Linter(config=FluffConfig(configs=sqlmesh_config))
@@ -173,6 +183,7 @@ SELECT 1 as test_column"""
             assert slice_obj.templated_slice.start >= 0
             assert slice_obj.templated_slice.stop <= len(templated_file.templated_str)
 
+    @_SKIP_PY314
     def test_error_handling_with_invalid_project_dir(self, fixture_dir):
         """Test error handling with invalid project directory."""
         # Config with non-existent project directory

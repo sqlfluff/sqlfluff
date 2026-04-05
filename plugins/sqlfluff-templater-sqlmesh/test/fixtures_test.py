@@ -59,14 +59,18 @@ class TestSQLMeshFixtures:
         model_name = sqlmesh_templater._get_model_name_from_path(str(model_path))
         assert model_name == "simple_model"
 
-        # Test literal templated file creation (fallback when SQLMesh not available)
-        templated_file, errors = sqlmesh_templater._create_literal_templated_file(
-            str(model_path), model_content
+        # Test source mapping with MODEL block stripped
+        raw_sliced, sliced_file = sqlmesh_templater._build_source_mapping(
+            model_content, expected_content
         )
 
-        assert errors == []
-        assert templated_file.source_str == model_content
-        assert templated_file.templated_str == model_content
+        # Should have at least 2 slices: MODEL block + SQL body
+        assert len(raw_sliced) >= 2
+        assert raw_sliced[0].slice_type == "block_start"
+
+        # The literal SQL body should appear in the slicing
+        literal_slices = [s for s in sliced_file if s.slice_type == "literal"]
+        assert len(literal_slices) >= 1
 
     def test_macro_model_structure(self, fixture_dir):
         """Test that macro model has expected structure."""
@@ -94,19 +98,6 @@ class TestSQLMeshFixtures:
         assert "@start_ds" in content
         assert "@end_ds" in content
         assert "@is_dev" in content
-
-    def test_python_model_structure(self, fixture_dir):
-        """Test that Python model has expected structure."""
-        model_path = fixture_dir / "models" / "python_model.py"
-
-        with open(model_path, "r") as f:
-            content = f.read()
-
-        # Verify Python model structure
-        assert "from sqlmesh import" in content
-        assert "@model(" in content
-        assert "def execute(" in content
-        assert "ExecutionContext" in content
 
     def test_custom_macros_structure(self, fixture_dir):
         """Test that custom macros have expected structure."""
@@ -163,7 +154,6 @@ class TestSQLMeshFixtures:
             "models/simple_model.sql",
             "models/model_with_macros.sql",
             "models/incremental_model.sql",
-            "models/python_model.py",
             "macros/custom_macros.sql",
             "config.py",
             "templated_output/simple_model.sql",

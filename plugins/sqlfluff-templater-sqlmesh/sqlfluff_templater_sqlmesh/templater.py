@@ -9,9 +9,11 @@ such, all imports of the SQLMesh libraries are contained within the
 SQLMeshTemplater class and so are only imported when necessary.
 """
 
+import difflib
 import logging
 import os
 import os.path
+import re
 from functools import cached_property
 from typing import (
     TYPE_CHECKING,
@@ -142,6 +144,208 @@ class SQLMeshTemplater(JinjaTemplater):
             (self.templater_selector, self.name, "gateway")
         )
 
+    @staticmethod
+    def _find_model_block_end(source: str) -> Optional[int]:
+        """Find the end of the MODEL (...); block in a SQLMesh source file.
+
+        Handles nested parentheses (e.g. INCREMENTAL_BY_TIME_RANGE(...))
+        and string literals within the MODEL block.
+
+        Returns the index just past the MODEL block including any trailing
+        whitespace, or None if no MODEL block is found.
+        """
+        match = re.match(r"\s*MODEL\s*\(", source, re.IGNORECASE)
+        if not match:
+            return None
+
+        depth = 0
+        in_string = False
+        string_char = None
+        i = match.start()
+
+        while i < len(source):
+            ch = source[i]
+            if in_string:
+                if ch == string_char:
+                    # Handle escaped quotes (e.g. '' inside a single-quoted string)
+                    if i + 1 < len(source) and source[i + 1] == string_char:
+                        i += 1  # Skip the escaped quote
+                    else:
+                        in_string = False
+            elif ch in ("'", '"'):
+                in_string = True
+                string_char = ch
+            elif ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    # Found the closing paren — consume the trailing semicolon.
+                    rest = source[i + 1 :]
+                    semi_match = re.match(r"\s*;", rest)
+                    if semi_match:
+                        end_idx = i + 1 + semi_match.end()
+                    else:
+                        end_idx = i + 1
+                    # Consume trailing whitespace/newlines so the SQL body
+                    # starts at real content.
+                    while end_idx < len(source) and source[end_idx] in (
+                        " ",
+                        "\t",
+                        "\n",
+                        "\r",
+                    ):
+                        end_idx += 1
+                    return end_idx
+            i += 1
+
+        return None
+
+    @staticmethod
+    def _coalesce_diff_opcodes(
+        opcodes: list[tuple[str, int, int, int, int]],
+    ) -> list[tuple[str, int, int, int, int]]:
+        """Merge diff opcodes so that no ``delete`` or ``insert`` stands alone.
+
+        ``difflib.SequenceMatcher`` can split a single macro expansion like
+        ``@if(@DEV, 'dev', 'prod')`` into ``delete + equal('dev') + delete``
+        because the literal ``'dev'`` is a common substring. Those isolated
+        ``delete`` opcodes would produce zero-length template slices that
+        confuse SQLFluff's position-mapping logic.
+
+        This method coalesces every run of non-``equal`` opcodes (and any
+        ``equal`` opcodes sandwiched between them) into a single ``replace``.
+        """
+        if not opcodes:
+            return opcodes
+
+        result: list[tuple[str, int, int, int, int]] = []
+        i = 0
+        while i < len(opcodes):
+            tag = opcodes[i][0]
+            if tag == "equal":
+                result.append(opcodes[i])
+                i += 1
+                continue
+
+            # Start of a non-equal run — accumulate until we find a
+            # standalone equal (one not followed by another non-equal).
+            _, run_i1, run_i2, run_j1, run_j2 = opcodes[i]
+            i += 1
+            while i < len(opcodes):
+                next_tag = opcodes[i][0]
+                if next_tag != "equal":
+                    run_i2 = opcodes[i][2]
+                    run_j2 = opcodes[i][4]
+                    i += 1
+                elif (
+                    i + 1 < len(opcodes) and opcodes[i + 1][0] != "equal"
+                ):
+                    # Equal sandwiched between non-equals — absorb both.
+                    run_i2 = opcodes[i + 1][2]
+                    run_j2 = opcodes[i + 1][4]
+                    i += 2
+                else:
+                    break
+
+            result.append(("replace", run_i1, run_i2, run_j1, run_j2))
+
+        return result
+
+    def _build_source_mapping(
+        self,
+        source_str: str,
+        rendered_sql: str,
+    ) -> tuple[list["RawFileSlice"], list["TemplatedFileSlice"]]:
+        """Build accurate source-to-rendered position mappings.
+
+        Splits the source at the MODEL block boundary, then uses
+        difflib.SequenceMatcher to align the SQL body with the rendered
+        output. Returns (raw_sliced, sliced_file) conforming to the
+        TemplatedFile contract.
+        """
+        from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
+
+        raw_sliced: list[RawFileSlice] = []
+        sliced_file: list[TemplatedFileSlice] = []
+
+        # Identify the MODEL block boundary.
+        model_block_end = self._find_model_block_end(source_str)
+
+        if model_block_end:
+            model_block = source_str[:model_block_end]
+            sql_body = source_str[model_block_end:]
+            source_offset = model_block_end
+
+            # MODEL block is source-only (not present in rendered output).
+            raw_sliced.append(
+                RawFileSlice(
+                    raw=model_block,
+                    slice_type="block_start",
+                    source_idx=0,
+                    block_idx=0,
+                )
+            )
+            sliced_file.append(
+                TemplatedFileSlice(
+                    slice_type="block_start",
+                    source_slice=slice(0, model_block_end),
+                    templated_slice=slice(0, 0),
+                )
+            )
+        else:
+            sql_body = source_str
+            source_offset = 0
+
+        # Use difflib to align the SQL body with the rendered SQL, then
+        # coalesce so that no delete/insert produces a zero-length slice.
+        block_idx = 1 if model_block_end else 0
+        matcher = difflib.SequenceMatcher(
+            None, sql_body, rendered_sql, autojunk=False
+        )
+        opcodes = self._coalesce_diff_opcodes(list(matcher.get_opcodes()))
+
+        for tag, i1, i2, j1, j2 in opcodes:
+            src_start = i1 + source_offset
+            src_end = i2 + source_offset
+            source_text = source_str[src_start:src_end]
+
+            if tag == "equal":
+                raw_sliced.append(
+                    RawFileSlice(
+                        raw=source_text,
+                        slice_type="literal",
+                        source_idx=src_start,
+                        block_idx=block_idx,
+                    )
+                )
+                sliced_file.append(
+                    TemplatedFileSlice(
+                        slice_type="literal",
+                        source_slice=slice(src_start, src_end),
+                        templated_slice=slice(j1, j2),
+                    )
+                )
+            else:
+                # "replace" (including coalesced delete/insert).
+                raw_sliced.append(
+                    RawFileSlice(
+                        raw=source_text,
+                        slice_type="templated",
+                        source_idx=src_start,
+                        block_idx=block_idx,
+                    )
+                )
+                sliced_file.append(
+                    TemplatedFileSlice(
+                        slice_type="templated",
+                        source_slice=slice(src_start, src_end),
+                        templated_slice=slice(j1, j2),
+                    )
+                )
+
+        return raw_sliced, sliced_file
+
     @cached_property
     def sqlmesh_version(self):
         """Gets the SQLMesh version."""
@@ -227,60 +431,40 @@ class SQLMeshTemplater(JinjaTemplater):
             )
 
         # Use SQLMesh Context.render() to get the rendered SQL
-        templater_logger.info(f"Rendering SQLMesh model: {model_name}")
+        templater_logger.debug("Rendering SQLMesh model: %s", model_name)
 
         try:
             rendered_ast = self.sqlmesh_context.render(
                 model_name,
-                expand=True,  # Expand all macros and dependencies
-                no_format=True,  # Don't format, let SQLFluff handle that
+                expand=True,
+                no_format=True,
             )
-            # Convert SQLGlot AST to SQL string
             rendered_sql = (
                 rendered_ast.sql()
                 if hasattr(rendered_ast, "sql")
                 else str(rendered_ast)
             )
-            templater_logger.info(f"Successfully rendered SQLMesh model: {model_name}")
-            templater_logger.debug(f"Rendered SQL: {rendered_sql}")
+            templater_logger.debug("Rendered SQL: %r", rendered_sql)
 
         except Exception as e:
             raise SQLTemplaterError(
                 f"SQLMesh rendering failed for model '{model_name}': {e}. "
-                f"Check your SQLMesh model syntax and project configuration."
+                "Check your SQLMesh model syntax and project configuration."
             ) from e
 
-        # Create slice mapping using Jinja templater's slice_file method
-        # This handles the complex position mapping for fix suggestions
-        def render_func(template_str):
-            """Render function that returns the SQLMesh-rendered SQL."""
-            return rendered_sql
+        # Build accurate source-to-rendered position mappings.
+        raw_sliced, sliced_file = self._build_source_mapping(in_str, rendered_sql)
 
-        try:
-            raw_sliced, sliced_file, templated_sql = self.slice_file(
-                in_str,
-                render_func=render_func,
-                config=config,
-            )
-
-            return (
-                TemplatedFile(
-                    source_str=in_str,
-                    templated_str=templated_sql,
-                    fname=fname,
-                    sliced_file=sliced_file,
-                    raw_sliced=raw_sliced,
-                ),
-                [],
-            )
-
-        except Exception as e:
-            templater_logger.warning(
-                f"Failed to create slice mapping for {fname}: {e}. Using literal mapping."
-            )
-            return self._create_literal_templated_file(
-                fname, rendered_sql, source_content=in_str
-            )
+        return (
+            TemplatedFile(
+                source_str=in_str,
+                templated_str=rendered_sql,
+                fname=fname,
+                sliced_file=sliced_file,
+                raw_sliced=raw_sliced,
+            ),
+            [],
+        )
 
     def _get_model_name_from_path(self, fname):
         """Extract the SQLMesh model name from a file path."""
@@ -316,42 +500,3 @@ class SQLMeshTemplater(JinjaTemplater):
             templater_logger.error(f"Failed to extract model name from {fname}: {e}")
             return None
 
-    def _create_literal_templated_file(
-        self, fname, templated_content, source_content=None
-    ):
-        """Create a TemplatedFile with literal (no templating) content."""
-        from sqlfluff.core.templaters.slicers.tracer import TemplatedFileSlice
-        from sqlfluff.core.templaters.base import RawFileSlice
-
-        # Use source_content if provided, otherwise use templated_content for both
-        actual_source = (
-            source_content if source_content is not None else templated_content
-        )
-
-        sliced_file = [
-            TemplatedFileSlice(
-                slice_type="literal",
-                source_slice=slice(0, len(actual_source)),
-                templated_slice=slice(0, len(templated_content)),
-            )
-        ]
-
-        raw_sliced = [
-            RawFileSlice(
-                raw=actual_source,
-                slice_type="literal",
-                source_idx=0,
-                block_idx=0,
-            )
-        ]
-
-        return (
-            TemplatedFile(
-                source_str=actual_source,
-                templated_str=templated_content,
-                fname=fname,
-                sliced_file=sliced_file,
-                raw_sliced=raw_sliced,
-            ),
-            [],
-        )
