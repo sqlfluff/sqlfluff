@@ -45,16 +45,27 @@ def rst_to_markdown(rst_text: str) -> str:
     md = re.sub(r"`([^`<]+)\s+<(https?://[^>]+)>`", r"[\1](\2)", md)
 
     # Convert rst inline roles/inline literals to markdown code spans.
+    # Convert sqlfluff-specific refs before generic :ref: to avoid leaving a
+    # stray ':sqlfluff' prefix behind.
+    md = re.sub(r":sqlfluff:ref:`([^`]+)`", r"`\1`", md)
     md = re.sub(r":code:`([^`]+)`", r"`\1`", md)
     md = re.sub(r":ref:`([^`]+)`", r"`\1`", md)
-    md = re.sub(r":sqlfluff:ref:`([^`]+)`", r"`\1`", md)
     md = re.sub(r"``([^`]+)``", r"`\1`", md)
 
     # Normalize visible-space symbols to a clearer glyph.
     md = md.replace("•", "◦")
 
+    # Convert rst list-table directives before code-block conversion so they
+    # cannot be misinterpreted as loose markdown lists or paragraphs.
+    md = _convert_rst_list_tables(md)
+
     # Convert RST code-block directives to Markdown code fences.
     md = _convert_rst_code_blocks(md)
+
+    # Some sections may still be indented in the raw docstring even though they
+    # are markdown structure rather than literal code. Normalize them so later
+    # markdown parsing and config-table conversion remain stable.
+    md = _normalize_indented_markdown_blocks(md)
 
     md = re.sub(r"\n{3,}", "\n\n", md)
     return md.strip()
@@ -81,9 +92,16 @@ def _convert_rst_code_blocks(text: str) -> str:
         i += 1
 
         # Consume block lines (blank lines and indented lines).
+        # Some generated docstrings can contain later markdown-ish sections
+        # which are still indented in the raw text. Stop before those so they
+        # don't get swallowed into the fenced code block.
         block_lines: list[str] = []
         while i < len(lines):
             current = lines[i]
+
+            if _should_terminate_rst_code_block(block_lines, current):
+                break
+
             if current == "" or current.startswith((" ", "\t")):
                 block_lines.append(current)
                 i += 1
@@ -125,6 +143,67 @@ def _convert_rst_code_blocks(text: str) -> str:
         output.append("```")
 
     return "\n".join(output)
+
+
+def _should_terminate_rst_code_block(block_lines: list[str], current_line: str) -> bool:
+    """Return whether an indented line should terminate a converted code block."""
+    if not block_lines or not current_line.startswith((" ", "\t")):
+        return False
+
+    if block_lines[-1] != "":
+        return False
+
+    stripped = current_line.strip()
+    if not stripped:
+        return False
+
+    return bool(
+        re.match(r"^\*\*[^*]+\*\*$", stripped)
+        or stripped.startswith("|")
+        or stripped.startswith(":::")
+        or stripped.startswith(".. ")
+        or re.match(r"^#{1,6}\s", stripped)
+    )
+
+
+def _normalize_indented_markdown_blocks(text: str) -> str:
+    """Dedent markdown structure lines that should not remain as code blocks."""
+    lines = text.split("\n")
+    output: list[str] = []
+    dedenting = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        if dedenting:
+            if line.startswith("    "):
+                output.append(line[4:])
+                continue
+            if line == "":
+                output.append(line)
+                continue
+            dedenting = False
+
+        if line.startswith("    ") and _is_markdown_structure_line(stripped):
+            output.append(line[4:])
+            dedenting = True
+            continue
+
+        output.append(line)
+
+    return "\n".join(output)
+
+
+def _is_markdown_structure_line(stripped_line: str) -> bool:
+    """Return whether a stripped line looks like markdown structure."""
+    return bool(
+        re.match(r"^\*\*[^*]+\*\*$", stripped_line)
+        or stripped_line.startswith("|")
+        or stripped_line.startswith(":::")
+        or stripped_line.startswith(".. ")
+        or re.match(r"^[-*]\s+", stripped_line)
+        or re.match(r"^#{1,6}\s", stripped_line)
+    )
 
 
 def _convert_rst_admonitions(text: str) -> str:
@@ -203,6 +282,135 @@ def _convert_rst_admonitions(text: str) -> str:
         output.append(":::")
 
     return "\n".join(output)
+
+
+def _convert_rst_list_tables(text: str) -> str:
+    """Convert simple rst list-table directives to markdown tables."""
+    lines = text.split("\n")
+    output: list[str] = []
+    i = 0
+
+    while i < len(lines):
+        line = lines[i]
+        if not re.match(r"^\.\.\s+list-table::.*$", line):
+            output.append(line)
+            i += 1
+            continue
+
+        i += 1
+        block_lines: list[str] = []
+        while i < len(lines):
+            current = lines[i]
+            if current == "" or current.startswith((" ", "\t")):
+                block_lines.append(current)
+                i += 1
+                continue
+            break
+
+        option_lines: list[str] = []
+        content_lines: list[str] = []
+        for block_line in block_lines:
+            if re.match(r"^\s*:[a-zA-Z_][\w-]*:\s*.*$", block_line):
+                option_lines.append(block_line)
+            else:
+                content_lines.append(block_line)
+
+        header_rows = 1
+        for option_line in option_lines:
+            match = re.match(r"^\s*:header-rows:\s*(\d+)\s*$", option_line)
+            if match:
+                header_rows = int(match.group(1))
+                break
+
+        while content_lines and not content_lines[0].strip():
+            content_lines.pop(0)
+        while content_lines and not content_lines[-1].strip():
+            content_lines.pop()
+
+        min_indent = min(
+            (
+                len(content_line) - len(content_line.lstrip())
+                for content_line in content_lines
+                if content_line.strip()
+            ),
+            default=0,
+        )
+        dedented_lines = [
+            content_line[min_indent:] if content_line.strip() else ""
+            for content_line in content_lines
+        ]
+
+        rows = _parse_rst_list_table_rows(dedented_lines)
+        if not rows:
+            output.append(line)
+            output.extend(block_lines)
+            continue
+
+        header_index = 0 if header_rows > 0 else None
+        if header_index is None:
+            header = [f"Column {index + 1}" for index in range(len(rows[0]))]
+            body_rows = rows
+        else:
+            header = rows[header_index]
+            body_rows = rows[header_index + 1 :]
+
+        column_count = max([len(header)] + [len(row) for row in body_rows])
+        header = _normalize_table_row(header, column_count)
+        body_rows = [_normalize_table_row(row, column_count) for row in body_rows]
+
+        output.append("| " + " | ".join(header) + " |")
+        output.append("| " + " | ".join("---" for _ in range(column_count)) + " |")
+        for row in body_rows:
+            output.append("| " + " | ".join(row) + " |")
+        output.append("")
+
+    return "\n".join(output)
+
+
+def _parse_rst_list_table_rows(lines: list[str]) -> list[list[str]]:
+    """Parse dedented rst list-table rows into a row/cell structure."""
+    rows: list[list[str]] = []
+    current_row: list[list[str]] = []
+    current_cell: list[str] | None = None
+
+    for line in lines:
+        row_match = re.match(r"^\*\s-\s(.*)$", line)
+        if row_match:
+            if current_row:
+                rows.append([_collapse_table_cell(cell) for cell in current_row])
+            current_row = [[row_match.group(1)]]
+            current_cell = current_row[-1]
+            continue
+
+        cell_match = re.match(r"^\s+-\s(.*)$", line)
+        if cell_match and current_row:
+            current_row.append([cell_match.group(1)])
+            current_cell = current_row[-1]
+            continue
+
+        if current_cell is not None:
+            current_cell.append(line)
+
+    if current_row:
+        rows.append([_collapse_table_cell(cell) for cell in current_row])
+
+    return rows
+
+
+def _collapse_table_cell(cell_lines: list[str]) -> str:
+    """Collapse multiline rst list-table cell content to a single markdown cell."""
+    parts: list[str] = []
+    for line in cell_lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        parts.append(stripped)
+    return " ".join(parts).replace("|", "\\|")
+
+
+def _normalize_table_row(row: list[str], column_count: int) -> list[str]:
+    """Pad a table row to the expected number of columns."""
+    return row + [""] * (column_count - len(row))
 
 
 def _convert_rst_reference_links(text: str) -> str:
