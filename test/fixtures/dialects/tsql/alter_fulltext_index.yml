@@ -1,0 +1,448 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b2b050a3d9f3c6f5e4cc25665a2e4b0896563f75248369acfc0ae21be8d54278
+file:
+  batch:
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: ENABLE
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: DISABLE
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: CHANGE_TRACKING
+      - keyword: MANUAL
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: CHANGE_TRACKING
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AUTO
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: CHANGE_TRACKING
+      - keyword: 'OFF'
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: ADD
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '[Document]'
+        - keyword: TYPE
+        - keyword: COLUMN
+        - quoted_identifier: '[FileExtension]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1033'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '[DocFr]'
+        - keyword: LANGUAGE
+        - numeric_literal: '0x040c'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '[Title]'
+        - keyword: LANGUAGE
+        - quoted_literal: "'English'"
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '[Summary]'
+        - keyword: STATISTICAL_SEMANTICS
+        - end_bracket: )
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          quoted_identifier: '[Summary]'
+      - keyword: ADD
+      - keyword: STATISTICAL_SEMANTICS
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          quoted_identifier: '[Summary]'
+      - keyword: DROP
+      - keyword: STATISTICAL_SEMANTICS
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: DROP
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '[Summary]'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '[Title]'
+        - end_bracket: )
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: START
+      - keyword: FULL
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: START
+      - keyword: INCREMENTAL
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: START
+      - keyword: UPDATE
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: STOP
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: PAUSE
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: RESUME
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: STOPLIST
+      - keyword: 'OFF'
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: STOPLIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: SYSTEM
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: STOPLIST
+      - object_reference:
+          quoted_identifier: '[custom_stoplist_name]'
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: SEARCH
+      - keyword: PROPERTY
+      - keyword: LIST
+      - keyword: 'OFF'
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: SEARCH
+      - keyword: PROPERTY
+      - keyword: LIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          quoted_identifier: '[DocumentPropertyList]'
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: POPULATION
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: SEARCH
+      - keyword: PROPERTY
+      - keyword: LIST
+      - object_reference:
+          naked_identifier: DocumentPropertyList
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: ADD
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '[col1]'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: DROP
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '[col1]'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: DROP
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '[col1]'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '[col2]'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: STOPLIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          quoted_identifier: '[custom_stoplist_name]'
+  - statement_terminator: ;
+  - statement:
+      alter_fulltext_index_statement:
+      - keyword: ALTER
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - keyword: SET
+      - keyword: SEARCH
+      - keyword: PROPERTY
+      - keyword: LIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'OFF'
+  - statement_terminator: ;
