@@ -9685,6 +9685,40 @@ class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
     )
 
 
+class ObjectTypeSegment(BaseSegment):
+    """Structured OBJECT datatype."""
+
+    type = "object_type"
+    match_grammar = Sequence(
+        "OBJECT",
+        Ref("ObjectTypeSchemaSegment"),
+    )
+
+
+class ObjectTypeSchemaSegment(BaseSegment):
+    """Schema for a structured OBJECT datatype."""
+
+    type = "object_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment"),
+                Sequence("NOT", "NULL", optional=True),
+            ),
+        ),
+    )
+
+
+class DatatypeSegment(ansi.DatatypeSegment):
+    """A Snowflake data type segment."""
+
+    match_grammar = OneOf(
+        Ref("ObjectTypeSegment"),
+        ansi.DatatypeSegment.match_grammar,
+    )
+
+
 class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
 
