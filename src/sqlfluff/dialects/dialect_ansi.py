@@ -2892,8 +2892,8 @@ class SelectStatementSegment(BaseSegment):
 ansi_dialect.add(
     # Things that behave like select statements
     SelectableGrammar=OneOf(
-        OptionallyBracketed(Ref("WithCompoundStatementSegment")),
         OptionallyBracketed(Ref("WithCompoundNonSelectStatementSegment")),
+        OptionallyBracketed(Ref("WithCompoundStatementSegment")),
         Ref("NonWithSelectableGrammar"),
         Bracketed(Ref("SelectableGrammar")),
     ),
@@ -2989,6 +2989,7 @@ class WithCompoundStatementSegment(BaseSegment):
         ),
         Conditional(Dedent, indented_ctes=True),
         Ref("NonWithSelectableGrammar"),
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 
 

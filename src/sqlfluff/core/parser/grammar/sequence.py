@@ -138,6 +138,9 @@ class Sequence(BaseGrammar):
         insert_segments: tuple[tuple[int, type[MetaSegment]], ...] = ()
         child_matches: tuple[MatchResult, ...] = ()
         first_match = True
+        # Track whether any required element has been matched yet.
+        # Used by GREEDY_ONCE_STARTED to determine when to "commit".
+        first_required_matched = False
         # Metas with a negative indent value come AFTER
         # the whitespace. Positive or neutral come BEFORE.
         # HOWEVER: If one is already there, we must preserve
@@ -211,6 +214,12 @@ class Sequence(BaseGrammar):
                     self.parse_mode == ParseMode.STRICT
                     # If nothing has been matched _anyway_ then just bail out.
                     or matched_idx == start_idx
+                    # In GREEDY_ONCE_STARTED mode, only commit if we have
+                    # matched at least one required element.
+                    or (
+                        self.parse_mode == ParseMode.GREEDY_ONCE_STARTED
+                        and not first_required_matched
+                    )
                 ):
                     return MatchResult.empty_at(idx)
 
@@ -252,10 +261,10 @@ class Sequence(BaseGrammar):
 
                 if (
                     self.parse_mode == ParseMode.GREEDY_ONCE_STARTED
-                    and matched_idx == start_idx
+                    and not first_required_matched
                 ):
                     # If it's only greedy once started, and we haven't matched
-                    # anything yet, then we also don't match anything.
+                    # any required element yet, then we also don't match anything.
                     return MatchResult.empty_at(idx)
 
                 # On any of the other modes (GREEDY or GREEDY_ONCE_STARTED)
@@ -315,6 +324,9 @@ class Sequence(BaseGrammar):
             # Otherwise we _do_ have a match. Update the position.
             matched_idx = elem_match.matched_slice.stop
             parse_context.update_progress(matched_idx)
+            # Track when we have matched a required element.
+            if not elem.is_optional():
+                first_required_matched = True
 
             if first_match and self.parse_mode == ParseMode.GREEDY_ONCE_STARTED:
                 # In the GREEDY_ONCE_STARTED mode, we first look ahead to find a
@@ -341,9 +353,13 @@ class Sequence(BaseGrammar):
         # If we get to here, we've matched all of the elements (or skipped them).
         insert_segments += tuple((matched_idx, meta) for meta in meta_buffer)
 
-        # Finally if we're in one of the greedy modes, and there's anything
+        # Finally if we're in GREEDY mode, and there's anything
         # left as unclaimed, mark it as unparsable.
-        if self.parse_mode in (ParseMode.GREEDY, ParseMode.GREEDY_ONCE_STARTED):
+        # NOTE: In GREEDY_ONCE_STARTED mode we do NOT mark remaining content
+        # as unparsable - we leave it for other grammar rules to potentially
+        # match. The "started" behaviour only applies to failure cases
+        # (handled above), not to success with leftover content.
+        if self.parse_mode == ParseMode.GREEDY:
             if max_idx > matched_idx:
                 _idx = skip_start_index_forward_to_code(segments, matched_idx, max_idx)
                 _stop_idx = skip_stop_index_backward_to_code(segments, max_idx, _idx)
