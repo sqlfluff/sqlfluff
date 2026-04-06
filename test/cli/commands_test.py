@@ -2048,6 +2048,64 @@ def test__cli__command_lint_serialize_github_annotation():
     ]
 
 
+def test__cli__command_lint_serialize_github_annotation_issue_7543_pass():
+    """Ensure LT02 does not falsely flag issue #7543 repro SQL."""
+    fpath = "test/fixtures/linter/issue_7543_values_indent_ok.sql"
+    config_path = "test/fixtures/cli/extra_configs/.sqlfluff_issue_7543"
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                "github-annotation",
+                "--config",
+                config_path,
+                "--rules",
+                "LT02",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=0,
+    )
+    assert json.loads(result.stdout) == []
+
+
+def test__cli__command_lint_serialize_github_annotation_issue_7543_fail():
+    """Ensure LT02 reports 4 spaces for issue #7543 VALUES indentation."""
+    fpath = "test/fixtures/linter/issue_7543_values_indent_bad.sql"
+    config_path = "test/fixtures/cli/extra_configs/.sqlfluff_issue_7543"
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                "github-annotation",
+                "--config",
+                config_path,
+                "--rules",
+                "LT02",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    result = json.loads(result.stdout)
+    assert result == [
+        {
+            "annotation_level": "warning",
+            "file": os.path.normpath(fpath),
+            "start_line": 6,
+            "start_column": 1,
+            "end_line": 6,
+            "end_column": 3,
+            "message": "LT02: Expected indent of 4 spaces.",
+            "title": "SQLFluff",
+        }
+    ]
+
+
 @pytest.mark.parametrize(
     "filename,expected_output",
     [

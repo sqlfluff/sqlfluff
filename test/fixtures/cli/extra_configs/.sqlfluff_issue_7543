@@ -1,0 +1,15 @@
+[sqlfluff]
+dialect = snowflake
+templater = jinja
+
+[sqlfluff:indentation]
+indented_joins = False
+indented_ctes = False
+indented_using_on = True
+indent_unit = space
+tab_space_size = 2
+template_blocks_indent = True
+implicit_indents = require
+
+[sqlfluff:layout:type:comma]
+line_position = leading
