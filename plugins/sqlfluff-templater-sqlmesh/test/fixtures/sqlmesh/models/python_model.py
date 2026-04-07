@@ -1,6 +1,7 @@
 """Example Python model for SQLMesh test fixtures."""
 
 import typing as t
+
 from sqlmesh import ExecutionContext, model
 
 
@@ -17,7 +18,6 @@ def execute(
     **kwargs: t.Any,
 ) -> t.Dict[str, t.Any]:
     """Execute the Python model."""
-
     # Fetch data from upstream model
     df = context.fetchdf("SELECT * FROM source_table")
 

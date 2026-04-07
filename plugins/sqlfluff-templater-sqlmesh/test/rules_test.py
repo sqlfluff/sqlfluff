@@ -251,9 +251,7 @@ FROM source_table   """  # Mixed indentation + trailing whitespace
                 assert "name test_fix_behavior" in fixed_content, (
                     "Fixed content should preserve model name"
                 )
-                assert "SELECT" in fixed_content, (
-                    "Fixed content should preserve SELECT"
-                )
+                assert "SELECT" in fixed_content, "Fixed content should preserve SELECT"
 
                 # Check that slice mapping preserved structure
                 lines = fixed_content.split("\n")
@@ -270,9 +268,7 @@ FROM source_table   """  # Mixed indentation + trailing whitespace
                 )
 
             else:
-                print(
-                    "ℹ️  No fixes were applied (content already clean or unfixable)"
-                )
+                print("ℹ️  No fixes were applied (content already clean or unfixable)")
         else:
             print("ℹ️  fix_string method not available")
 

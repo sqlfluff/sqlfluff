@@ -3,7 +3,7 @@ MODEL (
   kind VIEW
 );
 
-SELECT 
+SELECT
     @each(
         ['id', 'name', 'email'],
         column -> column

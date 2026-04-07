@@ -356,9 +356,7 @@ class SQLMeshTemplater(JinjaTemplater):
 
         # Use "literal" when source and templated content are the same length/content,
         # and "templated" otherwise to avoid confusing fix mapping.
-        _slice_type = (
-            "literal" if actual_source == templated_content else "templated"
-        )
+        _slice_type = "literal" if actual_source == templated_content else "templated"
 
         sliced_file = [
             TemplatedFileSlice(

@@ -16,6 +16,7 @@ def fixture_dir():
 
 @pytest.fixture
 def sqlmesh_templater(fixture_dir):
+    """Create and configure SQLMesh templater for tests."""
     # Create templater directly (for unit testing specific methods)
     templater = SQLMeshTemplater()
 

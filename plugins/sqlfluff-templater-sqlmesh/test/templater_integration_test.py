@@ -3,10 +3,10 @@
 from pathlib import Path
 
 import pytest
+from sqlfluff_templater_sqlmesh.templater import SQLMeshTemplater
 
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
-from sqlfluff_templater_sqlmesh.templater import SQLMeshTemplater
 
 
 @pytest.fixture
@@ -124,9 +124,9 @@ SELECT 1 as test_column"""
 
         for file_path, expected in test_cases:
             result = templater._get_model_name_from_path(file_path)
-            assert (
-                result == expected
-            ), f"Path {file_path} should give {expected}, got {result}"
+            assert result == expected, (
+                f"Path {file_path} should give {expected}, got {result}"
+            )
 
     def test_end_to_end_linting_workflow(self, sqlmesh_config, fixture_dir):
         """Test complete workflow: templater -> parser -> linter."""
