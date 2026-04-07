@@ -45,3 +45,16 @@ EXCEPTION
                                     'SQLCODE', SQLCODE,
                                     'SQLERRM', SQLERRM,
                                     'SQLSTATE', SQLSTATE);
+
+EXCEPTION
+    WHEN OTHER THEN
+        ROLLBACK;
+        RAISE;
+
+EXCEPTION
+    WHEN MY_EXCEPTION THEN
+        LET err_msg := SQLERRM;
+        RETURN err_msg;
+    WHEN OTHER THEN
+        ROLLBACK;
+        RAISE;
