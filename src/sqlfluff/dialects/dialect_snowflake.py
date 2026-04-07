@@ -10504,6 +10504,17 @@ class ExceptionBlockStatementSegment(BaseSegment):
                 ),
             ),
             Ref("StatementSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DelimiterGrammar"),
+                    # Exclude ExceptionBlockStatementSegment to prevent greedy
+                    # consumption of the next EXCEPTION block as a statement body.
+                    Ref(
+                        "StatementSegment",
+                        exclude=Ref("ExceptionBlockStatementSegment"),
+                    ),
+                ),
+            ),
         ),
         AnyNumberOf(
             Sequence(
@@ -10527,6 +10538,17 @@ class ExceptionBlockStatementSegment(BaseSegment):
                     ),
                 ),
                 Ref("StatementSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("DelimiterGrammar"),
+                        # Exclude ExceptionBlockStatementSegment to prevent greedy
+                        # consumption of the next EXCEPTION block as a statement body.
+                        Ref(
+                            "StatementSegment",
+                            exclude=Ref("ExceptionBlockStatementSegment"),
+                        ),
+                    ),
+                ),
             ),
         ),
     )
