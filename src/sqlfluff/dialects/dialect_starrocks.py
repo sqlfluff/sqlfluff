@@ -18,7 +18,10 @@ from sqlfluff.core.parser import (
     Ref,
     SegmentGenerator,
     Sequence,
+    StringParser,
+    SymbolSegment,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_starrocks_keywords import (
     starrocks_reserved_keywords,
@@ -45,6 +48,13 @@ starrocks_dialect.update_keywords_set_from_multiline_string(
 )
 
 
+# Add angle bracket pairs for complex type support (ARRAY, MAP, STRUCT)
+starrocks_dialect.bracket_sets("angle_bracket_pairs").update(
+    [
+        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
+    ]
+)
+
 # Add the engine types set
 starrocks_dialect.sets("engine_types").update(
     ["olap", "mysql", "elasticsearch", "hive", "hudi", "iceberg", "jdbc"]
@@ -52,6 +62,10 @@ starrocks_dialect.sets("engine_types").update(
 
 
 starrocks_dialect.add(
+    StartAngleBracketSegment=StringParser(
+        "<", SymbolSegment, type="start_angle_bracket"
+    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
     EngineTypeSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
             dialect.sets("engine_types"),
@@ -60,6 +74,64 @@ starrocks_dialect.add(
         )
     ),
 )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """ARRAY<type> data type for StarRocks.
+
+    https://docs.starrocks.io/docs/sql-reference/data-types/semi_structured/Array/
+    """
+
+    type = "array_type"
+    match_grammar = Sequence(
+        "ARRAY",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+    )
+
+
+class DatatypeSegment(mysql.DatatypeSegment):
+    """Data type segment extended with StarRocks complex types (ARRAY, MAP, STRUCT).
+
+    https://docs.starrocks.io/docs/sql-reference/data-types/semi_structured/Array/
+    https://docs.starrocks.io/docs/sql-reference/data-types/semi_structured/Map/
+    https://docs.starrocks.io/docs/sql-reference/data-types/semi_structured/Struct/
+    """
+
+    type = "data_type"
+    match_grammar = mysql.DatatypeSegment.match_grammar.copy(
+        insert=[
+            Ref("ArrayTypeSegment"),
+            Sequence(
+                "MAP",
+                Bracketed(
+                    Sequence(
+                        Ref("DatatypeSegment"),
+                        Ref("CommaSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                    bracket_pairs_set="angle_bracket_pairs",
+                    bracket_type="angle",
+                ),
+            ),
+            Sequence(
+                "STRUCT",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("DatatypeSegment"),
+                        ),
+                    ),
+                    bracket_pairs_set="angle_bracket_pairs",
+                    bracket_type="angle",
+                ),
+            ),
+        ]
+    )
 
 
 class CreateTableStatementSegment(mysql.CreateTableStatementSegment):

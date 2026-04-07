@@ -727,3 +727,10 @@ INPLACE
 NOCOPY
 INSTANT
 """
+
+# StarRocks complex/semi-structured type keywords
+starrocks_unreserved_keywords += """
+ARRAY
+MAP
+STRUCT
+"""
