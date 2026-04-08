@@ -1563,7 +1563,7 @@ class FunctionParameterListGrammarWithComments(BaseSegment):
             Sequence(
                 Ref("FunctionParameterGrammar"),
                 AnyNumberOf(
-                    Sequence("DEFAULT", Ref("LiteralGrammar"), optional=True),
+                    Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
                     Ref("CommentClauseSegment", optional=True),
                 ),
             ),

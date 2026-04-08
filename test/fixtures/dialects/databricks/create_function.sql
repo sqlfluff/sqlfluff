@@ -96,6 +96,24 @@ SELECT col_a, col_b FROM my_table
 ;
 
 
+-- Create function with function call as default value (issue #7240)
+CREATE FUNCTION example_function (
+    param1 date DEFAULT current_date()
+)
+RETURNS TABLE
+RETURN
+SELECT param1 AS col;
+
+-- Create function with multiple params having function defaults (issue #7240)
+CREATE FUNCTION example_function2 (
+    param1 date DEFAULT current_date(),
+    param2 int DEFAULT 1,
+    param3 string DEFAULT concat('a', 'b')
+)
+RETURNS TABLE
+RETURN
+SELECT param1, param2, param3;
+
 -- backticked identifier
 create or replace function `catalog`.`schema`.`name` (
     param int

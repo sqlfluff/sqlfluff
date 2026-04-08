@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4e9291c11141e27435b3e37ac80bfe6ac5714cc290dac9035d4859cf75fd1f96
+_hash: 61a988b33ddabd503a14f2c568274f4b6ca126fa4f3e89756ad9902cdf3c7932
 file:
 - statement:
     create_function_statement:
@@ -325,7 +325,8 @@ file:
             primitive_type:
               keyword: INT
         - keyword: DEFAULT
-        - numeric_literal: '1'
+        - expression:
+            numeric_literal: '1'
         - comment_clause:
             keyword: COMMENT
             quoted_literal: "'number of dice to roll (Default: 1)'"
@@ -335,7 +336,8 @@ file:
             primitive_type:
               keyword: INT
         - keyword: DEFAULT
-        - numeric_literal: '6'
+        - expression:
+            numeric_literal: '6'
         - comment_clause:
             keyword: COMMENT
             quoted_literal: "'number of sides per die (Default: 6)'"
@@ -533,6 +535,114 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: example_function
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: param1
+          data_type:
+            primitive_type:
+              keyword: date
+          keyword: DEFAULT
+          expression:
+            function:
+              function_name:
+                function_name_identifier: current_date
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - function_definition:
+        keyword: RETURN
+        expression:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: param1
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: col
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: example_function2
+    - function_parameter_list_with_comments:
+        bracketed:
+        - start_bracket: (
+        - parameter: param1
+        - data_type:
+            primitive_type:
+              keyword: date
+        - keyword: DEFAULT
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: current_date
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - comma: ','
+        - parameter: param2
+        - data_type:
+            primitive_type:
+              keyword: int
+        - keyword: DEFAULT
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - parameter: param3
+        - data_type:
+            primitive_type:
+              keyword: string
+        - keyword: DEFAULT
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: concat
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'a'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'b'"
+                - end_bracket: )
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - function_definition:
+        keyword: RETURN
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: param1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: param2
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: param3
 - statement_terminator: ;
 - statement:
     create_sql_function_statement:
