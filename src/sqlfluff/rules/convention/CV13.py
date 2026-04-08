@@ -70,9 +70,7 @@ class Rule_CV13(BaseRule):
                 continue
 
             # Flag if at least one side is a string literal.
-            if not (
-                left.is_type("quoted_literal") or right.is_type("quoted_literal")
-            ):
+            if not (left.is_type("quoted_literal") or right.is_type("quoted_literal")):
                 continue
 
             # Build fix: replace the "+" SymbolSegment with "||".
