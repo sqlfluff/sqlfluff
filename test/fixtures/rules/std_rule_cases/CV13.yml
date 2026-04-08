@@ -1,0 +1,104 @@
+rule: CV13
+
+# --- Failing cases (dialects where + is NOT valid for string concat) ---
+
+test_fail_simple_string_concat_databricks:
+  fail_str: |
+    SELECT 'a' + 'b'
+  fix_str: |
+    SELECT 'a' || 'b'
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_simple_string_concat_sparksql:
+  fail_str: |
+    SELECT 'a' + 'b'
+  fix_str: |
+    SELECT 'a' || 'b'
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_simple_string_concat_ansi:
+  fail_str: |
+    SELECT 'a' + 'b'
+  fix_str: |
+    SELECT 'a' || 'b'
+
+test_fail_simple_string_concat_postgres:
+  fail_str: |
+    SELECT 'a' + 'b'
+  fix_str: |
+    SELECT 'a' || 'b'
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_string_plus_column_databricks:
+  # At least one side is a string literal
+  fail_str: |
+    SELECT 'prefix_' + col1 FROM t
+  fix_str: |
+    SELECT 'prefix_' || col1 FROM t
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_column_plus_string_databricks:
+  fail_str: |
+    SELECT col1 + '_suffix' FROM t
+  fix_str: |
+    SELECT col1 || '_suffix' FROM t
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_multiple_string_concats:
+  fail_str: |
+    SELECT 'a' + 'b' + 'c'
+  fix_str: |
+    SELECT 'a' || 'b' || 'c'
+  configs:
+    core:
+      dialect: databricks
+
+# --- Passing cases ---
+
+test_pass_correct_concat_operator_databricks:
+  pass_str: |
+    SELECT 'a' || 'b'
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_numeric_addition:
+  # Numeric addition should not be flagged
+  pass_str: |
+    SELECT 1 + 2
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_column_addition:
+  # Column + column with no string literals should not be flagged
+  pass_str: |
+    SELECT col1 + col2 FROM t
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_tsql_string_concat:
+  # TSQL supports + for string concatenation, should not flag
+  pass_str: |
+    SELECT 'a' + 'b'
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_concat_function_databricks:
+  pass_str: |
+    SELECT CONCAT('a', 'b')
+  configs:
+    core:
+      dialect: databricks
