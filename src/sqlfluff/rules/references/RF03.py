@@ -20,6 +20,11 @@ from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 
+# PostgreSQL JSON/JSONB operators. A column_reference immediately preceding one
+# of these is the JSON object being accessed, not a regular column that should
+# receive table qualification.
+_JSON_OPERATORS = {"->", "->>", "#>", "#>>"}
+
 
 class Rule_RF03(BaseRule):
     """Column references should be qualified consistently in single table statements.
@@ -169,6 +174,30 @@ class Rule_RF03(BaseRule):
             yield from self._visit_queries(child, visited)
 
 
+def _is_before_json_operator(ref: ObjectReferenceSegment) -> bool:
+    """Check if a reference is immediately followed by a JSON operator.
+
+    In PostgreSQL, expressions like ``obj ->> 'key'`` parse ``obj`` as a
+    ``column_reference``.  That reference represents the JSON/JSONB object
+    being accessed, **not** a column that should be table-qualified.
+    """
+    parent_tuple = ref.get_parent()
+    if not parent_tuple:
+        return False
+    parent_seg, _idx = parent_tuple
+    found_ref = False
+    for sibling in parent_seg.iter_segments():
+        if sibling is ref:
+            found_ref = True
+            continue
+        if found_ref and not sibling.is_whitespace:
+            return (
+                sibling.is_type("binary_operator")
+                and sibling.raw in _JSON_OPERATORS
+            )
+    return False
+
+
 def _check_references(
     table_aliases: list[AliasInfo],
     standalone_aliases: list[BaseSegment],
@@ -192,6 +221,11 @@ def _check_references(
         # :colname that get rendered as bare identifiers by the templater). These
         # are not real column references and should not be qualified or flagged.
         if this_ref_type == "unqualified" and ref.is_templated:
+            continue
+        # Skip references that are immediately followed by a JSON operator
+        # (e.g. ``obj ->> 'key'``).  The reference is the JSON/JSONB object
+        # being accessed and should not receive table qualification.
+        if _is_before_json_operator(ref):
             continue
         if this_ref_type == "qualified" and is_struct_dialect:
             # If this col appears "qualified" check if it is more logically a struct.

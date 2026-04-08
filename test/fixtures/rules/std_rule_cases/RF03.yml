@@ -588,3 +588,101 @@ test_pass_placeholder_colon_double_colon_cast:
     templater:
       placeholder:
         param_style: colon
+
+test_pass_postgres_json_arrow_operator:
+  # References immediately before JSON operators should not be qualified.
+  # https://github.com/sqlfluff/sqlfluff/issues/6904
+  pass_str: |
+    SELECT
+        my_tbl.pattern_obj ->> 'column' AS col_val
+    FROM my_tbl
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_pass_postgres_json_operators_all_variants:
+  # All four PostgreSQL JSON operators should be excluded from qualification.
+  # https://github.com/sqlfluff/sqlfluff/issues/6904
+  pass_str: |
+    SELECT
+        my_tbl.data -> 'key' AS json_val,
+        my_tbl.data ->> 'key' AS text_val,
+        my_tbl.data #> '{a,b}' AS nested_json,
+        my_tbl.data #>> '{a,b}' AS nested_text
+    FROM my_tbl
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_pass_postgres_json_operator_unqualified_ref:
+  # An unqualified reference followed by a JSON operator should not be
+  # flagged even when single_table_references = qualified.
+  # https://github.com/sqlfluff/sqlfluff/issues/6904
+  pass_str: |
+    SELECT
+        data ->> 'key' AS key_val
+    FROM my_tbl
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_pass_postgres_json_operator_in_case_expression:
+  # Original issue scenario: JSON operators inside CASE expressions.
+  # https://github.com/sqlfluff/sqlfluff/issues/6904
+  pass_str: |
+    SELECT
+        CASE
+            WHEN data ->> 'column' = 'material'
+                THEN data ->> 'pattern'
+            ELSE 'none'
+        END AS pattern_match
+    FROM my_tbl
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_pass_postgres_json_operator_consistent_mode:
+  # In consistent mode, JSON-operator references should not count as
+  # "unqualified" and should not create an inconsistency with qualified refs.
+  # https://github.com/sqlfluff/sqlfluff/issues/6904
+  pass_str: |
+    SELECT
+        t.col1,
+        t.data ->> 'key' AS key_val
+    FROM my_table AS t
+  configs:
+    core:
+      dialect: postgres
+
+test_fix_postgres_json_operator_skips_json_refs:
+  # When fixing, JSON-operator references should be left alone but
+  # other unqualified references should still be qualified.
+  # https://github.com/sqlfluff/sqlfluff/issues/6904
+  fail_str: |
+    SELECT
+        pattern_obj ->> 'column' AS col_val,
+        other_col
+    FROM JSONB_ARRAY_ELEMENTS(material_mapping) AS pattern_obj
+  fix_str: |
+    SELECT
+        pattern_obj ->> 'column' AS col_val,
+        pattern_obj.other_col
+    FROM JSONB_ARRAY_ELEMENTS(pattern_obj.material_mapping) AS pattern_obj
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
