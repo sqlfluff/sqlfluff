@@ -30,6 +30,13 @@ class Rule_LT09(BaseRule):
        If you want it to be treated as multiple select targets, configure
        ``wildcard_policy = multiple``.
 
+    .. note::
+       By default (``single_target_policy = same_line``), a single select target
+       is allowed to remain on the same line as the ``SELECT`` keyword (e.g.
+       ``SELECT a FROM foo``). If you want *all* select targets, including single
+       ones, to be placed on a new line set ``single_target_policy = new_line``.
+       This gives consistent formatting regardless of the number of select targets.
+
     **Anti-pattern**
 
     Multiple select targets on the same line.
@@ -39,7 +46,8 @@ class Rule_LT09(BaseRule):
         select a, b
         from foo;
 
-        -- Single select target on its own line.
+        -- Single select target on its own line
+        -- (with default ``single_target_policy = same_line``).
 
         SELECT
             a
@@ -58,9 +66,16 @@ class Rule_LT09(BaseRule):
         from foo;
 
         -- Single select target on the same line as the ``SELECT``
-        -- keyword.
+        -- keyword (with default ``single_target_policy = same_line``).
 
         SELECT a
+        FROM foo;
+
+        -- With ``single_target_policy = new_line``, single select
+        -- targets must also be on a new line for consistency.
+
+        SELECT
+            a
         FROM foo;
 
         -- When select targets span multiple lines, however they
@@ -79,12 +94,13 @@ class Rule_LT09(BaseRule):
     name = "layout.select_targets"
     aliases = ("L036",)
     groups = ("all", "layout")
-    config_keywords = ["wildcard_policy"]
+    config_keywords = ["wildcard_policy", "single_target_policy"]
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         self.wildcard_policy: str
+        self.single_target_policy: str
         assert context.segment.is_type("select_clause")
         select_targets_info = self._get_indexes(context)
         select_clause = FunctionalContext(context).segment
@@ -248,6 +264,26 @@ class Rule_LT09(BaseRule):
         select_children = select_clause.children()
         target_seg = select_children[target_idx]
 
+        # When single_target_policy is "new_line", a single select target
+        # should be treated like multiple targets: it must be on its own line
+        # after SELECT. This gives consistent formatting regardless of the
+        # number of targets.
+        if self.single_target_policy == "new_line":
+            # Target is already on its own line - that's what we want.
+            if (
+                select_targets_info.select_idx
+                < select_targets_info.first_new_line_idx
+                < target_idx
+            ):
+                return None
+
+            # Target is on the same line as SELECT - need to move it
+            # to a new line (like multi-target behavior).
+            return self._eval_multiple_select_target_elements(
+                select_targets_info, context.segment
+            )
+
+        # Default behavior (single_target_policy = "same_line"):
         # If it's all on one line, then there's no issue.
         if not (
             select_targets_info.select_idx
