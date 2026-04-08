@@ -191,10 +191,7 @@ def _is_before_json_operator(ref: ObjectReferenceSegment) -> bool:
             found_ref = True
             continue
         if found_ref and not sibling.is_whitespace:
-            return (
-                sibling.is_type("binary_operator")
-                and sibling.raw in _JSON_OPERATORS
-            )
+            return sibling.is_type("binary_operator") and sibling.raw in _JSON_OPERATORS
     return False
 
 
