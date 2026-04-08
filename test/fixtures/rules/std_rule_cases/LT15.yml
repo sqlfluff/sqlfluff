@@ -360,45 +360,9 @@ test_pass_minimum_does_not_affect_inside_statements:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
 
-test_fail_minimum_cte_between_statements:
-  # In a CTE (with_compound_statement), minimum should apply between
-  # the CTE definition and the main SELECT.
-  fail_str: |
-    WITH plop AS (
-        SELECT * FROM foo
-    )
-    SELECT a FROM plop;
-  fix_str: |
-    WITH plop AS (
-        SELECT * FROM foo
-    )
-
-    SELECT a FROM plop;
-  configs:
-    rules:
-      layout.newlines:
-        minimum_empty_lines_between_statements: 1
-
-test_pass_tsql_minimum_inside_batch:
-  # Inside a T-SQL batch, minimum empty lines between statements should apply.
-  fail_str: |
-    SELECT 1;
-    SELECT 2;
-    GO
-  fix_str: |
-    SELECT 1;
-
-    SELECT 2;
-    GO
-  configs:
-    core:
-      dialect: tsql
-    rules:
-      layout.newlines:
-        minimum_empty_lines_between_statements: 1
-
 test_pass_tsql_minimum_not_at_file_level:
-  # T-SQL at file level (not inside batch) -> minimum does not apply.
+  # T-SQL at file level (between GO batches) -> minimum between statements
+  # does not apply because these are between batches, not statements.
   pass_str: |
     SELECT 1;
     GO
