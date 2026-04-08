@@ -160,7 +160,7 @@ class Rule_RF01(BaseRule):
     def _should_ignore_reference(
         self, reference: ObjectReferenceSegment, selectable: Selectable
     ) -> bool:
-        if self._is_oracle_sequence_pseudocolumn(reference, selectable):
+        if self._is_sequence_pseudocolumn(reference, selectable):
             return True
         ref_path = selectable.selectable.path_to(reference)
         # Ignore references occurring in an "INTO" clause:
@@ -173,15 +173,16 @@ class Rule_RF01(BaseRule):
         else:
             return False  # pragma: no cover
 
-    def _is_oracle_sequence_pseudocolumn(
+    def _is_sequence_pseudocolumn(
         self, reference: ObjectReferenceSegment, selectable: Selectable
     ) -> bool:
-        """Whether reference is an Oracle sequence pseudocolumn access.
+        """Whether reference is a sequence pseudocolumn access.
 
-        Oracle treats ``sequence.NEXTVAL`` and ``sequence.CURRVAL`` as sequence
+        Oracle and Snowflake treat ``sequence.NEXTVAL`` and
+        ``sequence.CURRVAL`` (or ``db.schema.sequence.NEXTVAL``) as sequence
         pseudocolumn access rather than table/column access.
         """
-        if selectable.dialect.name != "oracle":
+        if selectable.dialect.name not in ("oracle", "snowflake"):
             return False
 
         reference_parts = list(reference.iter_raw_references())
