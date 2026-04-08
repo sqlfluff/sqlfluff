@@ -153,9 +153,7 @@ class Rule_LT15(BaseRule):
                 for sibling in context.siblings_post:
                     if sibling.is_type("newline"):
                         consecutive_newlines += 1
-                    elif sibling.is_type(
-                        "statement", "statement_terminator", "batch"
-                    ):
+                    elif sibling.is_type("statement", "statement_terminator", "batch"):
                         # Found a statement or related content after the
                         # newline gap - we're truly between statements.
                         has_following_statement = True
