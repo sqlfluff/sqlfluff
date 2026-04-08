@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4d3dc4b1f6a0465380e35b028887702df2381c574681d87ac867477628c4024a
+_hash: 6345cd7f4d54d1b9ac88a05c469dac1d95483e525997ac2bbd8a8eba5043fbc6
 file:
 - statement:
     access_statement:
@@ -29,9 +29,8 @@ file:
           object_reference:
             naked_identifier: prj_table
       - keyword: TO
-      - access_target:
-          role_reference:
-            naked_identifier: prj_svc
+      - role_reference:
+          naked_identifier: prj_svc
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -57,9 +56,8 @@ file:
           object_reference:
             naked_identifier: prj_table
       - keyword: TO
-      - access_target:
-          role_reference:
-            quoted_identifier: "'prj_svc'"
+      - role_reference:
+          quoted_identifier: "'prj_svc'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -85,9 +83,8 @@ file:
           object_reference:
             naked_identifier: prj_table
       - keyword: TO
-      - access_target:
-          role_reference:
-            quoted_literal: '"prj_svc"'
+      - role_reference:
+          quoted_literal: '"prj_svc"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -113,9 +110,8 @@ file:
           object_reference:
             naked_identifier: prj_table
       - keyword: TO
-      - access_target:
-          role_reference:
-            quoted_identifier: '`prj_svc`'
+      - role_reference:
+          quoted_identifier: '`prj_svc`'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -141,11 +137,10 @@ file:
           object_reference:
             naked_identifier: prj_table
       - keyword: TO
-      - access_target:
-          role_reference:
-          - quoted_identifier: "'prj_svc'"
-          - at_sign_literal: '@'
-          - quoted_identifier: "'%'"
+      - role_reference:
+        - quoted_identifier: "'prj_svc'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'%'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -171,11 +166,10 @@ file:
           object_reference:
             naked_identifier: prj_table
       - keyword: TO
-      - access_target:
-          role_reference:
-          - quoted_literal: '"prj_svc"'
-          - at_sign_literal: '@'
-          - quoted_literal: '"%"'
+      - role_reference:
+        - quoted_literal: '"prj_svc"'
+        - at_sign_literal: '@'
+        - quoted_literal: '"%"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -201,11 +195,10 @@ file:
           object_reference:
             naked_identifier: prj_table
       - keyword: TO
-      - access_target:
-          role_reference:
-          - quoted_identifier: '`prj_svc`'
-          - at_sign_literal: '@'
-          - quoted_identifier: '`%`'
+      - role_reference:
+        - quoted_identifier: '`prj_svc`'
+        - at_sign_literal: '@'
+        - quoted_identifier: '`%`'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -231,11 +224,10 @@ file:
           object_reference:
             naked_identifier: prj_table
       - keyword: TO
-      - access_target:
-          role_reference:
-          - quoted_identifier: '`prj_svc`'
-          - at_sign_literal: '@'
-          - quoted_identifier: '`%`'
+      - role_reference:
+        - quoted_identifier: '`prj_svc`'
+        - at_sign_literal: '@'
+        - quoted_identifier: '`%`'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -251,11 +243,10 @@ file:
             dot: .
             star: '*'
       - keyword: TO
-      - access_target:
-          role_reference:
-          - quoted_identifier: "'prj_svc'"
-          - at_sign_literal: '@'
-          - quoted_identifier: "'%'"
+      - role_reference:
+        - quoted_identifier: "'prj_svc'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'%'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -272,11 +263,10 @@ file:
             dot: .
             star: '*'
       - keyword: TO
-      - access_target:
-          role_reference:
-          - quoted_identifier: "'prj_svc'"
-          - at_sign_literal: '@'
-          - quoted_identifier: "'localhost'"
+      - role_reference:
+        - quoted_identifier: "'prj_svc'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'localhost'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -293,9 +283,80 @@ file:
           - dot: .
           - star: '*'
       - keyword: TO
-      - access_target:
-          role_reference:
-          - quoted_identifier: "'prj_svc'"
-          - at_sign_literal: '@'
-          - quoted_identifier: "'%'"
+      - role_reference:
+        - quoted_identifier: "'prj_svc'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'%'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - role_reference:
+        - quoted_identifier: "'role-name'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'%'"
+      - keyword: TO
+      - role_reference:
+        - quoted_identifier: "'user_name'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'%'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - role_reference:
+        - quoted_identifier: "'role-one'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'%'"
+      - comma: ','
+      - role_reference:
+        - quoted_identifier: "'role-two'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'%'"
+      - keyword: TO
+      - role_reference:
+        - quoted_identifier: "'user_name'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'%'"
+- statement_terminator: ;
+- statement:
+    set_default_role_statement:
+    - keyword: SET
+    - keyword: DEFAULT
+    - keyword: ROLE
+    - keyword: ALL
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'user_name'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
+- statement_terminator: ;
+- statement:
+    set_default_role_statement:
+    - keyword: SET
+    - keyword: DEFAULT
+    - keyword: ROLE
+    - keyword: NONE
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'user_name'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
+- statement_terminator: ;
+- statement:
+    set_default_role_statement:
+    - keyword: SET
+    - keyword: DEFAULT
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: "'role-name'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'user_name'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
 - statement_terminator: ;
