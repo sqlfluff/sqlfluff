@@ -16,7 +16,6 @@ from sqlfluff.core.parser import (
 from sqlfluff.core.rules import RuleContext
 from sqlfluff.rules.convention.CV13 import Rule_CV13, _find_non_whitespace
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
