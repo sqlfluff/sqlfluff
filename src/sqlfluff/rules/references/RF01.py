@@ -162,6 +162,8 @@ class Rule_RF01(BaseRule):
     ) -> bool:
         if self._is_sequence_pseudocolumn(reference, selectable):
             return True
+        if self._is_databricks_metadata_column(reference, selectable):
+            return True
         ref_path = selectable.selectable.path_to(reference)
         # Ignore references occurring in an "INTO" clause:
         # - They are table references, not column references.
@@ -195,6 +197,29 @@ class Rule_RF01(BaseRule):
         return bool(last_part.segments) and (
             last_part.segments[0].is_type("naked_identifier")
             and last_part.part.upper() in {"NEXTVAL", "CURRVAL"}
+        )
+
+    def _is_databricks_metadata_column(
+        self, reference: ObjectReferenceSegment, selectable: Selectable
+    ) -> bool:
+        """Whether reference is a Databricks/SparkSQL _metadata virtual column.
+
+        Databricks and SparkSQL provide a special hidden column ``_metadata``
+        for file-based data sources. It can be accessed as
+        ``_metadata.file_path``, ``_metadata.file_name``, etc.
+        See: https://docs.databricks.com/en/ingestion/file-metadata-column.html
+        """
+        if selectable.dialect.name not in ("databricks", "sparksql"):
+            return False
+
+        reference_parts = list(reference.iter_raw_references())
+        if len(reference_parts) < 2:
+            return False
+
+        first_part = reference_parts[0]
+        return bool(first_part.segments) and (
+            first_part.segments[0].is_type("naked_identifier")
+            and first_part.part.upper() == "_METADATA"
         )
 
     def _get_table_refs(
