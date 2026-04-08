@@ -1,18 +1,12 @@
 """Integration tests for SQLMesh templater with SQLFluff core functionality."""
 
-import sys
 from pathlib import Path
 
 import pytest
+from sqlfluff_templater_sqlmesh.templater import SQLMeshTemplater
 
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
-from sqlfluff_templater_sqlmesh.templater import SQLMeshTemplater
-
-_SKIP_PY314 = pytest.mark.skipif(
-    sys.version_info >= (3, 14),
-    reason="SQLMesh does not yet support Python 3.14 (upstream ast.Str / argparse issues)",
-)
 
 
 @pytest.fixture
@@ -39,7 +33,6 @@ def sqlmesh_config(fixture_dir):
 class TestSQLMeshTemplaterIntegration:
     """Test SQLMesh templater integration with SQLFluff core."""
 
-    @_SKIP_PY314
     def test_templater_creates_valid_templated_file(self, sqlmesh_config, fixture_dir):
         """Test that templater produces valid TemplatedFile objects."""
         # Use Linter to test templater integration
@@ -66,7 +59,6 @@ class TestSQLMeshTemplaterIntegration:
         with pytest.raises(SQLFluffUserError, match="Specified path does not exist"):
             linter.lint_path("/non/existent/file.sql")
 
-    @_SKIP_PY314
     def test_templater_with_inline_content(self, sqlmesh_config, fixture_dir):
         """Test templater with provided string content."""
         # Test inline content using the dbt pattern - call templater.process() directly
@@ -132,11 +124,10 @@ SELECT 1 as test_column"""
 
         for file_path, expected in test_cases:
             result = templater._get_model_name_from_path(file_path)
-            assert (
-                result == expected
-            ), f"Path {file_path} should give {expected}, got {result}"
+            assert result == expected, (
+                f"Path {file_path} should give {expected}, got {result}"
+            )
 
-    @_SKIP_PY314
     def test_end_to_end_linting_workflow(self, sqlmesh_config, fixture_dir):
         """Test complete workflow: templater -> parser -> linter."""
         # Use existing simple_model.sql - SQLMesh knows about this model
@@ -161,7 +152,6 @@ SELECT 1 as test_column"""
         assert "SELECT" in linted_file.templated_file.templated_str
         assert "MODEL" not in linted_file.templated_file.templated_str
 
-    @_SKIP_PY314
     def test_slice_mapping_accuracy(self, sqlmesh_config, fixture_dir):
         """Test that slice mapping is accurate for error positioning."""
         linter = Linter(config=FluffConfig(configs=sqlmesh_config))
@@ -183,9 +173,12 @@ SELECT 1 as test_column"""
             assert slice_obj.templated_slice.start >= 0
             assert slice_obj.templated_slice.stop <= len(templated_file.templated_str)
 
-    @_SKIP_PY314
-    def test_error_handling_with_invalid_project_dir(self, fixture_dir):
+    def test_error_handling_with_invalid_project_dir(self, tmp_path):
         """Test error handling with invalid project directory."""
+        # Create a SQL file in a temp directory that has no .sqlfluff override
+        test_sql = tmp_path / "test_model.sql"
+        test_sql.write_text("SELECT 1 AS col\n")
+
         # Config with non-existent project directory
         config = FluffConfig(
             configs={
@@ -196,15 +189,23 @@ SELECT 1 as test_column"""
                         "config": "local",
                     }
                 },
-            }
+            },
+            overrides={"dialect": "duckdb"},
         )
 
         linter = Linter(config=config)
-        model_path = fixture_dir / "models" / "simple_model.sql"
 
-        # Should handle gracefully (likely fall back to literal templating)
-        linted_dir = linter.lint_path(str(model_path))
+        # Linting should complete but templating should fail and be reported
+        # because SQLMesh can't find a project at /non/existent/directory, and
+        # the file is also outside that (non-existent) project tree.
+        linted_dir = linter.lint_path(str(test_sql))
         linted_file = linted_dir.files[0]
 
-        # Should not crash, may fall back to literal processing
+        # The templater falls back to literal templating when the model name
+        # cannot be determined (file is outside the project dir).
         assert linted_file.templated_file is not None
+        # Source and templated SQL should be identical for a literal mapping
+        assert (
+            linted_file.templated_file.source_str
+            == linted_file.templated_file.templated_str
+        )

@@ -7,6 +7,7 @@ def test_sqlmesh_templater_init():
     """Test that SQLMeshTemplater can be instantiated."""
     templater = SQLMeshTemplater()
     assert templater.name == "sqlmesh"
+    assert templater.templates_in_worker is False
     assert templater.sequential_fail_limit == 3
 
 
