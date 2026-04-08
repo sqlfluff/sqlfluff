@@ -512,7 +512,7 @@ def rebreak_sequence(
                     # create fix since the "any" constraint won't generate
                     # a separate fix for it.
                     # See: https://github.com/sqlfluff/sqlfluff/issues/6801
-                    trailing_spacing: list[RawSegment] = []
+                    trailing_spacing: list[BaseSegment] = []
                     if not new_point.segments and not new_results:
                         pre_constraint, post_constraint, _ = determine_constraints(
                             cast(
@@ -629,7 +629,7 @@ def rebreak_sequence(
                     )
 
                     # See trailing tricky case comment and #6801.
-                    leading_spacing: list[RawSegment] = []
+                    leading_spacing: list[BaseSegment] = []
                     if not new_point.segments and not new_results:
                         pre_constraint, post_constraint, _ = determine_constraints(
                             cast(
