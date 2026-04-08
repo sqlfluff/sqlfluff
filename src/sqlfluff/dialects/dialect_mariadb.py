@@ -38,6 +38,11 @@ Identifiers: |back_quotes|.
 
 The dialect for `MariaDB <https://www.mariadb.org/>`_.""",
 )
+
+# MariaDB's inline comment lexer is intentionally inherited from MySQL:
+# both dialects accept '--' with or without a following space, matching
+# the permissive real-world behaviour of both engines.
+
 mariadb_dialect.update_keywords_set_from_multiline_string(
     "unreserved_keywords", mariadb_unreserved_keywords
 )
