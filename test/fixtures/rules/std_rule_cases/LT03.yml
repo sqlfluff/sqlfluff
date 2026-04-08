@@ -275,6 +275,44 @@ passes_leading_align_following_comparison_operator:
         comparison_operator:
           line_position: "leading:align-following"
 
+fixes_and_blank_line_spacing_after_any:
+  # https://github.com/sqlfluff/sqlfluff/issues/6801
+  # When spacing_after="any" for binary_operator, a blank line between
+  # AND and the next token should not cause them to merge (e.g. "ANDb").
+  fail_str: |
+    SELECT a AND
+
+    b
+  fix_str: |
+    SELECT a
+
+    AND b
+  configs: &spacing_after_any
+    layout:
+      type:
+        binary_operator:
+          spacing_after: "any"
+
+fixes_and_comment_line_spacing_after_any:
+  # https://github.com/sqlfluff/sqlfluff/issues/6801
+  # When spacing_after="any" for binary_operator, a comment between
+  # AND and the next token should not cause them to merge (e.g. "ANDb").
+  fail_str: |
+    SELECT a AND
+    -- some comment
+    b
+  fix_str: |
+    SELECT a
+    -- some comment
+    AND b
+  configs: *spacing_after_any
+
+passes_and_single_line_spacing_after_any:
+  # https://github.com/sqlfluff/sqlfluff/issues/6801
+  # Single-line AND with spacing_after="any" should be unaffected.
+  pass_str: SELECT a AND b
+  configs: *spacing_after_any
+
 fixes_tuple_error_issue:
   # https://github.com/sqlfluff/sqlfluff/issues/4184
   # NB: This one isn't fixable.

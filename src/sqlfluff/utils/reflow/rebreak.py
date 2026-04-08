@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import cast
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
+from sqlfluff.core.parser.segments import WhitespaceSegment
 from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 from sqlfluff.utils.reflow.helpers import (
@@ -12,6 +13,7 @@ from sqlfluff.utils.reflow.helpers import (
     fixes_from_results,
     pretty_segment_name,
 )
+from sqlfluff.utils.reflow.respace import determine_constraints
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset
@@ -501,6 +503,31 @@ def rebreak_sequence(
                         tab_space_size=tab_space_size,
                     )
 
+                    # If respace produced no spacing because the constraint
+                    # is "any" (which preserves existing spacing but won't
+                    # create new spacing), we still need at least one space
+                    # between the moved operator and the next code token to
+                    # prevent them from merging (e.g. "ANDb" instead of
+                    # "AND b"). Include the whitespace directly in the
+                    # create fix since the "any" constraint won't generate
+                    # a separate fix for it.
+                    # See: https://github.com/sqlfluff/sqlfluff/issues/6801
+                    trailing_spacing: list[RawSegment] = []
+                    if not new_point.segments and not new_results:
+                        pre_constraint, post_constraint, _ = determine_constraints(
+                            cast(
+                                ReflowBlock,
+                                elem_buff[loc.next.adj_pt_idx - 1],
+                            ),
+                            cast(
+                                ReflowBlock,
+                                elem_buff[loc.next.pre_code_pt_idx + 1],
+                            ),
+                        )
+                        if "any" in (pre_constraint, post_constraint):
+                            new_point = ReflowPoint((WhitespaceSegment(),))
+                            trailing_spacing = list(new_point.segments)
+
                     create_anchor = first_create_anchor(
                         elem_buff,
                         range(loc.next.pre_code_pt_idx, loc.next.adj_pt_idx - 1, -1),
@@ -509,7 +536,7 @@ def rebreak_sequence(
                     fixes.append(
                         LintFix.create_after(
                             create_anchor,
-                            [loc.target],
+                            [loc.target] + trailing_spacing,
                         )
                     )
 
@@ -601,6 +628,23 @@ def rebreak_sequence(
                         tab_space_size=tab_space_size,
                     )
 
+                    # See trailing tricky case comment and #6801.
+                    leading_spacing: list[RawSegment] = []
+                    if not new_point.segments and not new_results:
+                        pre_constraint, post_constraint, _ = determine_constraints(
+                            cast(
+                                ReflowBlock,
+                                elem_buff[loc.prev.pre_code_pt_idx - 1],
+                            ),
+                            cast(
+                                ReflowBlock,
+                                elem_buff[loc.prev.adj_pt_idx + 1],
+                            ),
+                        )
+                        if "any" in (pre_constraint, post_constraint):
+                            new_point = ReflowPoint((WhitespaceSegment(),))
+                            leading_spacing = list(new_point.segments)
+
                     lead_create_anchor = first_create_anchor(
                         elem_buff,
                         range(loc.prev.pre_code_pt_idx, loc.prev.adj_pt_idx + 1),
@@ -623,7 +667,7 @@ def rebreak_sequence(
                         fixes.append(
                             LintFix.create_before(
                                 prev_code_anchor,
-                                [loc.target],
+                                leading_spacing + [loc.target],
                             )
                         )
                     else:
@@ -631,7 +675,7 @@ def rebreak_sequence(
                         fixes.append(
                             LintFix.create_after(
                                 lead_create_anchor[-1],
-                                [loc.target],
+                                leading_spacing + [loc.target],
                             )
                         )
 
