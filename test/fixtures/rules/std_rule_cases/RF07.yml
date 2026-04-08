@@ -1,0 +1,152 @@
+rule: RF07
+
+# Failing cases - column in CLUSTER BY not in table definition
+
+test_fail_cluster_by_column_not_in_table_databricks:
+  fail_str: |
+    CREATE TABLE my_catalog.my_schema.my_table (
+        col1 STRING
+    )
+    CLUSTER BY (col2)
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_cluster_by_one_of_two_columns_missing_databricks:
+  fail_str: |
+    CREATE TABLE my_table (
+        col1 STRING,
+        col2 INT
+    )
+    CLUSTER BY (col1, col3)
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_cluster_by_column_not_in_table_sparksql:
+  fail_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY (col2)
+    ;
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_cluster_by_with_using_databricks:
+  fail_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    USING DELTA
+    CLUSTER BY (col2)
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_cluster_by_case_insensitive_mismatch:
+  # col2 is not defined regardless of case
+  fail_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY (COL2)
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+# Passing cases
+
+test_pass_cluster_by_column_exists_databricks:
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY (col1)
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_multiple_columns_exist_databricks:
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING,
+        col2 INT,
+        col3 DOUBLE
+    )
+    CLUSTER BY (col1, col3)
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_case_insensitive_databricks:
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY (COL1)
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_auto_databricks:
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY AUTO
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_none_databricks:
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY NONE
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_ctas_no_column_defs_databricks:
+  # No column definitions, so the rule should not flag anything
+  pass_str: |
+    CREATE TABLE my_table
+    CLUSTER BY (col1)
+    AS SELECT col1 FROM other_table
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_column_exists_sparksql:
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY (col1)
+    ;
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_no_cluster_by_databricks:
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    ;
+  configs:
+    core:
+      dialect: databricks
