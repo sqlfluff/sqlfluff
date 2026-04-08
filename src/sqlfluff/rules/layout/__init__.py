@@ -43,6 +43,13 @@ def get_configs_info() -> dict[str, ConfigInfo]:
                 "in T-SQL. Batches are separated by GO statements."
             ),
         },
+        "minimum_empty_lines_between_statements": {
+            "validation": range(1000),
+            "definition": (
+                "The minimum number of empty lines required between statements. "
+                "Set to 1 to ensure at least one blank line separates statements."
+            ),
+        },
         "wildcard_policy": {
             "validation": ["single", "multiple"],
             "definition": "Treatment of wildcards. Defaults to ``single``.",

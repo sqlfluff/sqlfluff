@@ -263,3 +263,99 @@ test_fail_extra_blank_in_cte_body:
     rules:
       layout.newlines:
         maximum_empty_lines_inside_statements: 0
+
+# Minimum empty lines between statements tests
+
+test_pass_minimum_empty_lines_already_present:
+  # With minimum_empty_lines_between_statements = 1, this should pass
+  # because there is already one empty line between the two statements.
+  pass_str: |
+    SELECT 1;
+
+    SELECT 2;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_empty_lines_missing:
+  # With minimum_empty_lines_between_statements = 1, this should fail
+  # because there is no empty line between the two statements.
+  fail_str: |
+    SELECT 1;
+    SELECT 2;
+  fix_str: |
+    SELECT 1;
+
+    SELECT 2;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_empty_lines_missing_three_statements:
+  # Three statements with no empty lines between them.
+  fail_str: |
+    SELECT 1;
+    SELECT 2;
+    SELECT 3;
+  fix_str: |
+    SELECT 1;
+
+    SELECT 2;
+
+    SELECT 3;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_zero_no_empty_lines:
+  # With minimum = 0 (default), no empty lines is fine.
+  pass_str: |
+    SELECT 1;
+    SELECT 2;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 0
+
+test_pass_minimum_two_empty_lines:
+  # With minimum = 2, two empty lines between statements should pass.
+  pass_str: |
+    SELECT 1;
+
+
+    SELECT 2;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 2
+
+test_fail_minimum_two_empty_lines_only_one_present:
+  # With minimum = 2, only one empty line should fail.
+  fail_str: |
+    SELECT 1;
+
+    SELECT 2;
+  fix_str: |
+    SELECT 1;
+
+
+    SELECT 2;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 2
+
+test_pass_minimum_does_not_affect_inside_statements:
+  # Minimum should not affect the inside of statements.
+  # No empty line inside the SELECT is fine even with minimum = 1.
+  pass_str: |
+    SELECT foo
+    FROM bar
+    WHERE x = 1;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
