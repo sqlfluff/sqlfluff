@@ -67,7 +67,7 @@ def _get_struct_alias_refs(segment: BaseSegment) -> set[int]:
 
 def _get_object_references(
     segment: BaseSegment,
-    exclude_ids: set[int] | None = None,
+    exclude_ids: Optional[set[int]] = None,
 ) -> list[ObjectReferenceSegment]:
     return list(
         cast(ObjectReferenceSegment, _seg)
