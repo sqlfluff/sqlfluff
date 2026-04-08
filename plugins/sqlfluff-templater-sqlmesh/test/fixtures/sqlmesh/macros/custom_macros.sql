@@ -1,7 +1,7 @@
 -- Custom macros for SQLMesh test fixtures
 
 @DEF(safe_divide, column, divisor)
-    CASE 
+    CASE
         WHEN @divisor = 0 THEN NULL
         ELSE @column / @divisor
     END

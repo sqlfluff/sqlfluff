@@ -15,7 +15,6 @@ config = Config(
             }
         }
     },
-    # Define variables that our test models use
     variables={
         "start_date": "2023-01-01",
         "DEV": True,

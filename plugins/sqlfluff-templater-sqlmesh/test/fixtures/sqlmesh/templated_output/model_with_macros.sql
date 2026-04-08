@@ -1,4 +1,4 @@
-SELECT 
+SELECT
     id,
     name,
     email,
