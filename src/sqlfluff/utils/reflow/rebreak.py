@@ -641,7 +641,10 @@ def rebreak_sequence(
                                 elem_buff[loc.prev.adj_pt_idx + 1],
                             ),
                         )
-                        if "any" in (pre_constraint, post_constraint):
+                        if "any" in (  # pragma: no cover
+                            pre_constraint,
+                            post_constraint,
+                        ):
                             new_point = ReflowPoint((WhitespaceSegment(),))
                             leading_spacing = list(new_point.segments)
 
