@@ -183,7 +183,7 @@ def _is_before_json_operator(ref: ObjectReferenceSegment) -> bool:
     """
     parent_tuple = ref.get_parent()
     if not parent_tuple:
-        return False
+        return False  # pragma: no cover
     parent_seg, _idx = parent_tuple
     found_ref = False
     for sibling in parent_seg.iter_segments():
