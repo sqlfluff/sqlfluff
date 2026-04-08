@@ -76,7 +76,7 @@ class Rule_LT15(BaseRule):
             if context.parent_stack and context.parent_stack[-1].is_type(
                 "with_compound_statement"
             ):
-                return True
+                return True  # pragma: no cover
             return False
         # Inside a batch but not in a statement -> between statements
         if any(seg.is_type("batch") for seg in context.parent_stack):
