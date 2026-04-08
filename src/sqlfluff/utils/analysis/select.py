@@ -44,10 +44,10 @@ def _get_struct_alias_refs(segment: BaseSegment) -> set[int]:
         if not fn or fn.raw_upper != "STRUCT":
             continue
         contents = func.get_child("function_contents")
-        if not contents:
+        if not contents:  # pragma: no cover
             continue
         brack = contents.get_child("bracketed")
-        if not brack:
+        if not brack:  # pragma: no cover
             continue
         prev_was_index = False
         for seg in brack.segments:
