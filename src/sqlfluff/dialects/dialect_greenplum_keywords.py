@@ -1,6 +1,6 @@
 """Keywords in the Greenplum Dialect.
 
-https://docs.vmware.com/en/VMware-Greenplum/6/greenplum-database/ref_guide-sql-keywords.html
+https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql-keywords.html
 """
 
 greenplum_keywords = [
