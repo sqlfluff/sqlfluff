@@ -106,7 +106,7 @@ class CreateExternalTableStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE` statement.
 
     As specified in
-    https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_EXTERNAL_TABLE.html
+    https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql_commands-CREATE_EXTERNAL_TABLE.html
     """
 
     type = "create_external_table_statement"
@@ -117,14 +117,19 @@ class CreateExternalTableStatementSegment(BaseSegment):
         "EXTERNAL",
         Ref.keyword("WEB", optional=True),
         "TABLE",
-        Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("ColumnReferenceSegment"),
-                    Ref("DatatypeSegment"),
+        OneOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
                 ),
+            ),
+            Sequence(
+                "LIKE",
+                Ref("TableReferenceSegment"),
             ),
         ),
         OneOf(
@@ -148,7 +153,7 @@ class CreateExternalTableStatementSegment(BaseSegment):
                             "SEGMENT",
                             Ref("NumericLiteralSegment"),
                         ),
-                        Sequence("MASTER"),
+                        "COORDINATOR",
                         Ref("NumericLiteralSegment"),
                     ),
                     optional=True,
@@ -160,6 +165,11 @@ class CreateExternalTableStatementSegment(BaseSegment):
         Bracketed(
             Delimited(
                 OneOf(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
                     Sequence(
                         Ref("ParameterNameSegment"),
                         OneOf(
@@ -177,6 +187,18 @@ class CreateExternalTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Sequence(
+            "OPTIONS",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
         AnyNumberOf(
             Sequence(
                 "ENCODING",
@@ -185,11 +207,7 @@ class CreateExternalTableStatementSegment(BaseSegment):
             Sequence(
                 "LOG",
                 "ERRORS",
-                Sequence(
-                    "INTO",
-                    Ref("TableReferenceSegment"),
-                    optional=True,
-                ),
+                Ref.keyword("PERSISTENTLY", optional=True),
             ),
             Sequence(
                 "SEGMENT",
@@ -207,7 +225,7 @@ class DropExternalTableStatementSegment(BaseSegment):
     """A `DROP EXTERNAL TABLE` statement.
 
     As specified in
-    https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-DROP_EXTERNAL_TABLE.html
+    https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql_commands-DROP_EXTERNAL_TABLE.html
     """
 
     type = "drop_external_table_statement"
@@ -227,7 +245,7 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
     As specified in
-    https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE.html
+    https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql_commands-CREATE_TABLE.html
     This is overridden from Postgres to add the `DISTRIBUTED` clause.
     """
 
@@ -385,7 +403,7 @@ class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
     """A `CREATE TABLE AS` statement.
 
     As specified in
-    https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
+    https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql_commands-CREATE_TABLE_AS.html
     This is overridden from Postgres to add the `DISTRIBUTED` clause.
     """
 
