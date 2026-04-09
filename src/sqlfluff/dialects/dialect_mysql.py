@@ -1349,6 +1349,56 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
     )
 
 
+class GrantStatementSegment(ansi.GrantStatementSegment):
+    """A `GRANT` statement, MySQL specific.
+
+    https://dev.mysql.com/doc/refman/8.0/en/grant.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        OneOf(
+            # Privilege grant: GRANT priv ON object TO user
+            Sequence(
+                Ref("AccessPermissionsSegment"),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
+            # Role grant: GRANT 'role'@'host' TO 'user'@'host'
+            Delimited(Ref("RoleReferenceSegment")),
+        ),
+        "TO",
+        Delimited(Ref("RoleReferenceSegment")),
+        OneOf(
+            Sequence("WITH", "GRANT", "OPTION"),
+            Sequence("WITH", "ADMIN", "OPTION"),
+            optional=True,
+        ),
+    )
+
+
+class SetDefaultRoleStatementSegment(BaseSegment):
+    """A `SET DEFAULT ROLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/set-default-role.html
+    """
+
+    type = "set_default_role_statement"
+
+    match_grammar: Matchable = Sequence(
+        "SET",
+        "DEFAULT",
+        "ROLE",
+        OneOf(
+            "ALL",
+            "NONE",
+            Delimited(Ref("RoleReferenceSegment")),
+        ),
+        "TO",
+        Delimited(Ref("RoleReferenceSegment")),
+    )
+
+
 class DeclareStatement(BaseSegment):
     """DECLARE statement.
 
@@ -1461,6 +1511,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateEventStatementSegment"),
             Ref("AlterEventStatementSegment"),
             Ref("DropEventStatementSegment"),
+            Ref("SetDefaultRoleStatementSegment"),
         ],
         remove=[
             # handle CREATE SCHEMA in CreateDatabaseStatementSegment
