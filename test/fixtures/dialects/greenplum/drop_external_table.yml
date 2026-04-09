@@ -1,0 +1,54 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4bbf4b9b811d836d7d3283ef78de59d88bf6f450dd76e971f889760e472b942f
+file:
+- statement:
+    drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_expenses
+- statement_terminator: ;
+- statement:
+    drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: ext_expenses
+- statement_terminator: ;
+- statement:
+    drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_expenses
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: WEB
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: log_output
+- statement_terminator: ;
+- statement:
+    drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: ext_expenses
+    - keyword: RESTRICT
+- statement_terminator: ;
