@@ -150,3 +150,51 @@ test_pass_no_cluster_by_databricks:
   configs:
     core:
       dialect: databricks
+
+test_pass_cluster_by_quoted_column_matches_unquoted_def:
+  # Backtick-quoted column in CLUSTER BY should match unquoted definition
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY (`col1`)
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_unquoted_column_matches_quoted_def:
+  # Unquoted column in CLUSTER BY should match backtick-quoted definition
+  pass_str: |
+    CREATE TABLE my_table (
+        `col1` STRING
+    )
+    CLUSTER BY (col1)
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_both_quoted:
+  # Both definition and CLUSTER BY are backtick-quoted
+  pass_str: |
+    CREATE TABLE my_table (
+        `col1` STRING
+    )
+    CLUSTER BY (`col1`)
+    ;
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_cluster_by_quoted_column_not_in_table:
+  # Backtick-quoted column in CLUSTER BY that does not exist
+  fail_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY (`col2`)
+    ;
+  configs:
+    core:
+      dialect: databricks

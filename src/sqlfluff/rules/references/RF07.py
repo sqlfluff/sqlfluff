@@ -2,6 +2,7 @@
 
 from typing import Optional
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
@@ -50,6 +51,18 @@ class Rule_RF07(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"create_table_statement"})
     is_fix_compatible = False
 
+    @staticmethod
+    def _normalise_identifier(col_ref: BaseSegment) -> str:
+        """Extract and normalise an identifier from a column_reference.
+
+        Strips surrounding quotes (backticks, double-quotes) so that
+        quoted and unquoted references to the same column compare equal.
+        """
+        raw = col_ref.raw
+        if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in ("`", '"'):
+            raw = raw[1:-1]
+        return raw.upper()
+
     def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Validate CLUSTER BY columns against column definitions."""
         assert context.segment.is_type("create_table_statement")
@@ -61,7 +74,7 @@ class Rule_RF07(BaseRule):
             # column name itself.
             col_ref = next(col_def.recursive_crawl("column_reference"), None)
             if col_ref is not None:
-                defined_columns.add(col_ref.raw.upper())
+                defined_columns.add(self._normalise_identifier(col_ref))
 
         # If there are no explicit column definitions (e.g. CTAS), skip.
         if not defined_columns:
@@ -73,7 +86,7 @@ class Rule_RF07(BaseRule):
             "table_cluster_by_clause"
         ):
             for col_ref in cluster_clause.recursive_crawl("column_reference"):
-                if col_ref.raw.upper() not in defined_columns:
+                if self._normalise_identifier(col_ref) not in defined_columns:
                     results.append(
                         LintResult(
                             anchor=col_ref,
