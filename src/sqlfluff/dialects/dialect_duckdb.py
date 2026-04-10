@@ -121,6 +121,12 @@ duckdb_dialect.add(
     FactorialOperatorSegment=TypedParser(
         "not", SymbolSegment, type="factorial_operator"
     ),
+    # `!=` is lexed as a single `not_equal` token in DuckDB (see the lexer
+    # patches below) so the postfix factorial operator above can't eagerly
+    # consume the `!`. Parse the token as a normal comparison operator.
+    NotEqualSingleTokenSegment=TypedParser(
+        "not_equal", ComparisonOperatorSegment, type="comparison_operator"
+    ),
 )
 
 duckdb_dialect.replace(
@@ -238,6 +244,7 @@ duckdb_dialect.replace(
         insert=[
             Ref("EqualsSegment_a"),
             Ref("GlobOperatorSegment"),
+            Ref("NotEqualSingleTokenSegment"),
         ]
     ),
     LikeGrammar=postgres_dialect.get_grammar("LikeGrammar").copy(
@@ -285,6 +292,18 @@ duckdb_dialect.insert_lexer_matchers(
         RegexLexer("column_index", r"#[0-9]+", CodeSegment),
     ],
     before="divide",
+)
+
+# DuckDB allows postfix `!` as a factorial operator (`5!`), which collides
+# with `!=` because the lexer would otherwise emit `!` and `=` as two
+# tokens, allowing the factorial parser in `Expression_C_Grammar` to eagerly
+# consume the `!`. Lex `!=` as a single token before `!` is matched on its
+# own so the factorial path is never reached for `!=`.
+duckdb_dialect.insert_lexer_matchers(
+    [
+        StringLexer("not_equal", "!=", CodeSegment),
+    ],
+    before="not",
 )
 
 duckdb_dialect.patch_lexer_matchers(
