@@ -38,7 +38,10 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
-from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
+from sqlfluff.core.parser.grammar.lookbehind import (
+    PrecededByMatcher,
+    is_distinct_from_lookbehind,
+)
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -124,6 +127,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "MODE",
         "MODIFY",
         "MONITORING",
+        "MULTISET",
         "NESTED_TABLE_ID",
         "NOAUDIT",
         "NOCOMPRESS",
@@ -918,6 +922,7 @@ oracle_dialect.replace(
     ),
     IsClauseGrammar=OneOf(
         ansi_dialect.get_grammar("IsClauseGrammar"),
+        "EMPTY",
         Sequence(
             "OF",
             Ref.keyword("TYPE", optional=True),
@@ -1117,6 +1122,9 @@ oracle_dialect.replace(
             Ref("PowerOperatorSegment"),
         ]
     ),
+    BinaryOperatorGrammar=ansi_dialect.get_grammar("BinaryOperatorGrammar").copy(
+        insert=[Ref("MultisetOperatorSegment")]
+    ),
     SelectClauseTerminatorGrammar=OneOf(
         "BULK",
         "INTO",
@@ -1128,10 +1136,34 @@ oracle_dialect.replace(
         Sequence("ORDER", "BY"),
         "LIMIT",
         "OVERLAPS",
-        Ref("SetOperatorSegment"),
+        # In Oracle, MULTISET EXCEPT/INTERSECT/UNION are binary operators
+        # on nested table collections, so we must not treat the UNION/EXCEPT/
+        # INTERSECT keyword as a set-operator terminator when it is preceded
+        # by MULTISET.
+        Ref(
+            "SetOperatorSegment",
+            exclude=PrecededByMatcher(
+                preceding_sequences=(("MULTISET",),),
+            ),
+        ),
         "FETCH",
     ),
 )
+
+
+class MultisetOperatorSegment(BaseSegment):
+    """A MULTISET operator (MULTISET EXCEPT/INTERSECT/UNION [ALL|DISTINCT]).
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Multiset-Operators.html
+    """
+
+    type = "binary_operator"
+
+    match_grammar = Sequence(
+        "MULTISET",
+        OneOf("EXCEPT", "INTERSECT", "UNION"),
+        OneOf("ALL", "DISTINCT", optional=True),
+    )
 
 
 class AlterIndexStatementSegment(BaseSegment):

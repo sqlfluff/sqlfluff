@@ -1,0 +1,651 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ec24b6baf97659f7b5ce55f4aba60c9adbd732441150259421cf037faadabc0b
+file:
+- batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                naked_identifier: cust_address_ntab
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: EXCEPT
+            - column_reference:
+                naked_identifier: cust_address2_ntab
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: multiset_except
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_demo
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: customer_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                naked_identifier: cust_address_ntab
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: EXCEPT
+              - keyword: ALL
+            - column_reference:
+                naked_identifier: cust_address2_ntab
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: multiset_except_all
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_demo
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: customer_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                naked_identifier: cust_address_ntab
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: EXCEPT
+              - keyword: DISTINCT
+            - column_reference:
+                naked_identifier: cust_address2_ntab
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: multiset_except_distinct
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_demo
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: customer_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                naked_identifier: cust_address_ntab
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: INTERSECT
+            - column_reference:
+                naked_identifier: cust_address2_ntab
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: multiset_intersect
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_demo
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: customer_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                naked_identifier: cust_address_ntab
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: INTERSECT
+              - keyword: DISTINCT
+            - column_reference:
+                naked_identifier: cust_address2_ntab
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: multiset_intersect_distinct
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_demo
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: customer_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                naked_identifier: cust_address_ntab
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: UNION
+            - column_reference:
+                naked_identifier: cust_address2_ntab
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: multiset_union
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_demo
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: customer_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                naked_identifier: cust_address_ntab
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: UNION
+              - keyword: DISTINCT
+            - column_reference:
+                naked_identifier: cust_address2_ntab
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: multiset_union_distinct
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_demo
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: customer_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                naked_identifier: cust_address_ntab
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: UNION
+              - keyword: ALL
+            - column_reference:
+                naked_identifier: cust_address2_ntab
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: multiset_union_all
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_demo
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: customer_id
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                naked_identifier: cust_address_ntab
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: INTERSECT
+              - keyword: ALL
+            - column_reference:
+                naked_identifier: cust_address2_ntab
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: multiset_intersect_all
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_demo
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: customer_id
+  - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: customers_demo
+        alias_expression:
+          naked_identifier: cd
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: cust_address_ntab
+            comparison_operator:
+              raw_comparison_operator: '='
+            function:
+              function_name:
+                function_name_identifier: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: MULTISET
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            select_statement:
+                              select_clause:
+                                keyword: SELECT
+                                select_clause_element:
+                                  column_reference:
+                                  - naked_identifier: c
+                                  - dot: .
+                                  - naked_identifier: cust_address
+                              from_clause:
+                                keyword: FROM
+                                from_expression:
+                                  from_expression_element:
+                                    table_expression:
+                                      table_reference:
+                                        naked_identifier: customers
+                                    alias_expression:
+                                      naked_identifier: c
+                              where_clause:
+                                keyword: WHERE
+                                expression:
+                                - column_reference:
+                                  - naked_identifier: c
+                                  - dot: .
+                                  - naked_identifier: customer_id
+                                - comparison_operator:
+                                    raw_comparison_operator: '='
+                                - column_reference:
+                                  - naked_identifier: cd
+                                  - dot: .
+                                  - naked_identifier: customer_id
+                          end_bracket: )
+                  keyword: AS
+                  data_type:
+                    data_type_identifier: cust_address_tab_typ
+                  end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      begin_end_block:
+      - declare_segment:
+        - keyword: DECLARE
+        - collection_type:
+          - keyword: TYPE
+          - naked_identifier: list_of_names_t
+          - keyword: IS
+          - keyword: TABLE
+          - keyword: OF
+          - data_type:
+              data_type_identifier: varchar2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '100'
+                  end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: happyfamily
+        - data_type:
+            data_type_identifier: list_of_names_t
+        - assignment_operator: :=
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: LIST_OF_NAMES_T
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: children
+        - data_type:
+            data_type_identifier: list_of_names_t
+        - assignment_operator: :=
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: LIST_OF_NAMES_T
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: parents
+        - data_type:
+            data_type_identifier: list_of_names_t
+        - assignment_operator: :=
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: LIST_OF_NAMES_T
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: parents
+            assignment_operator: :=
+            expression:
+            - column_reference:
+                naked_identifier: happyfamily
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: EXCEPT
+            - column_reference:
+                naked_identifier: children
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+      slash: /
+- batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_demo
+        where_clause:
+          keyword: WHERE
+          expression:
+          - bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: cust_address_ntab
+              - binary_operator:
+                - keyword: MULTISET
+                - keyword: EXCEPT
+              - column_reference:
+                  naked_identifier: cust_address2_ntab
+              end_bracket: )
+          - keyword: IS
+          - keyword: EMPTY
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: department_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: order_items_demo
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: department_id
+        having_clause:
+          keyword: HAVING
+          expression:
+          - bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: col1_ntab
+              - binary_operator:
+                - keyword: MULTISET
+                - keyword: INTERSECT
+              - column_reference:
+                  naked_identifier: col2_ntab
+              end_bracket: )
+          - keyword: IS
+          - keyword: NOT
+          - keyword: EMPTY
+  - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: order_items_demo
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: col1_ntab
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+            - column_reference:
+                naked_identifier: col1_ntab
+            - binary_operator:
+              - keyword: MULTISET
+              - keyword: UNION
+            - column_reference:
+                naked_identifier: col2_ntab
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: order_id
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      begin_end_block:
+      - declare_segment:
+        - keyword: DECLARE
+        - collection_type:
+          - keyword: TYPE
+          - naked_identifier: list_of_names_t
+          - keyword: IS
+          - keyword: TABLE
+          - keyword: OF
+          - data_type:
+              data_type_identifier: varchar2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '100'
+                  end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: a
+        - data_type:
+            data_type_identifier: list_of_names_t
+        - assignment_operator: :=
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: LIST_OF_NAMES_T
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: b
+        - data_type:
+            data_type_identifier: list_of_names_t
+        - assignment_operator: :=
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: LIST_OF_NAMES_T
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: c
+        - data_type:
+            data_type_identifier: list_of_names_t
+        - assignment_operator: :=
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: LIST_OF_NAMES_T
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          if_then_statement:
+          - if_clause:
+            - keyword: IF
+            - expression:
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                  - column_reference:
+                      naked_identifier: a
+                  - binary_operator:
+                    - keyword: MULTISET
+                    - keyword: EXCEPT
+                  - column_reference:
+                      naked_identifier: b
+                  end_bracket: )
+              - keyword: IS
+              - keyword: EMPTY
+            - keyword: THEN
+          - statement:
+              assignment_segment_statement:
+                object_reference:
+                  naked_identifier: c
+                assignment_operator: :=
+                expression:
+                  column_reference:
+                    naked_identifier: a
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+      slash: /
