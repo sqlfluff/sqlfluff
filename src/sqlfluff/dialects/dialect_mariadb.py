@@ -36,12 +36,13 @@ mariadb_dialect = mysql_dialect.copy_as(
 **Quotes**: String Literals: ``''``, ``""`` or ``@``,
 Identifiers: |back_quotes|.
 
-The dialect for `MariaDB <https://www.mariadb.org/>`_.""",
-)
+The dialect for `MariaDB <https://www.mariadb.org/>`_.
 
-# MariaDB's inline comment lexer is intentionally inherited from MySQL:
-# both dialects accept '--' with or without a following space, matching
-# the permissive real-world behaviour of both engines.
+**Inline comments**: both ``-- comment`` (with space) and ``--comment``
+(without space) are accepted, matching the permissive behaviour of the
+real MariaDB engine and the MySQL dialect from which this dialect
+inherits its lexer.""",
+)
 
 mariadb_dialect.update_keywords_set_from_multiline_string(
     "unreserved_keywords", mariadb_unreserved_keywords
