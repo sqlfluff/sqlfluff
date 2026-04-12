@@ -291,7 +291,7 @@ def parse_with_rust(sql: str, dialect: str = "ansi") -> ParserMetrics:
 
     # Get lexer and tokens using dialect parameter
     lexer = sqlfluffrs.RsLexer(dialect=dialect)
-    tokens, _ = lexer._lex(sql)  # noqa: SLF001
+    tokens, _ = lexer._lex(sql)
     metrics.token_count = len(tokens)
 
     # Create parser and parse with stats

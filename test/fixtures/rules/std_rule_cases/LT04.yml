@@ -386,3 +386,37 @@ trailing_comma_strict_tsql_exec:
       type:
         comma:
           line_position: trailing:strict
+
+leading_comma_align_following_pass:
+  # Ensure leading:align-following doesn't crash on comma placement
+  pass_str: |
+    select
+        a
+        , b
+        , c
+    from foo
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: "leading:align-following"
+
+leading_comma_align_following_fail:
+  # Trailing commas should be fixed to leading with align-following
+  fail_str: |
+    select
+        a,
+        b,
+        c
+    from foo
+  fix_str: |
+    select
+        a
+        , b
+        , c
+    from foo
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: "leading:align-following"

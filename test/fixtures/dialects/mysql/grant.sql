@@ -9,3 +9,8 @@ GRANT INSERT, UPDATE, DELETE, SELECT, REFERENCES ON prj_table TO `prj_svc` @`%`;
 GRANT ALL ON db1.* TO 'prj_svc'@'%';
 GRANT ALL PRIVILEGES ON db1.* TO 'prj_svc'@'localhost';
 GRANT ALL PRIVILEGES ON *.* TO 'prj_svc'@'%';
+GRANT 'role-name'@'%' TO 'user_name'@'%';
+GRANT 'role-one'@'%', 'role-two'@'%' TO 'user_name'@'%';
+SET DEFAULT ROLE ALL TO 'user_name'@'%';
+SET DEFAULT ROLE NONE TO 'user_name'@'%';
+SET DEFAULT ROLE 'role-name'@'%' TO 'user_name'@'%';

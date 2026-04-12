@@ -1,0 +1,354 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4d207bf412e35f8ec4d14f462221d6f51f137b290a9d91a9a04c6b17d5d872e3
+file:
+- statement:
+    from_insert_statement:
+    - from_insert_source_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab1
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab2
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '2'
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab3
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    from_insert_statement:
+    - from_insert_source_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab1
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab2
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: tab1
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '2'
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab3
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: tab1
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    from_insert_statement:
+    - from_insert_source_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab1
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab2
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: tab1
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '2'
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab3
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: tab1
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    from_insert_statement:
+    - from_insert_source_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: src1
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: src2
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: src1
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: src2
+                - dot: .
+                - naked_identifier: id
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab2
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+              - naked_identifier: src1
+              - dot: .
+              - naked_identifier: id
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+              - naked_identifier: src2
+              - dot: .
+              - naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '2'
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab3
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+              - naked_identifier: src2
+              - dot: .
+              - naked_identifier: id
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+              - naked_identifier: src1
+              - dot: .
+              - naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    from_insert_statement:
+    - from_insert_source_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: id
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: flag
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: tab1
+                end_bracket: )
+            alias_expression:
+              naked_identifier: src
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab2
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: id
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '2'
+    - from_insert_clause:
+      - keyword: INSERT
+      - keyword: INTO
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: tab3
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: id
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: flag
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '3'
+- statement_terminator: ;

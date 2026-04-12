@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f88ed4788e2dd7a08a8fe8f57bcd38f0d9b03effb440eacfa9bb183661dcb5c
+_hash: 4a2b8a051b7901394feeb2de0888ded60ff4f1e62daa2d593b7d699c5b9d31f1
 file:
 - statement:
     exception_block_statement:
@@ -323,4 +323,54 @@ file:
                     column_reference:
                       naked_identifier: SQLSTATE
                 - end_bracket: )
+- statement_terminator: ;
+- statement:
+    exception_block_statement:
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - object_reference:
+        naked_identifier: OTHER
+    - keyword: THEN
+    - statement:
+        transaction_statement:
+          keyword: ROLLBACK
+    - statement_terminator: ;
+    - statement:
+        scripting_raise_statement:
+          keyword: RAISE
+- statement_terminator: ;
+- statement:
+    exception_block_statement:
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - object_reference:
+        naked_identifier: MY_EXCEPTION
+    - keyword: THEN
+    - statement:
+        scripting_let_statement:
+          keyword: LET
+          variable: err_msg
+          assignment_operator: :=
+          expression:
+            column_reference:
+              naked_identifier: SQLERRM
+    - statement_terminator: ;
+    - statement:
+        return_statement:
+          keyword: RETURN
+          expression:
+            column_reference:
+              naked_identifier: err_msg
+    - statement_terminator: ;
+    - keyword: WHEN
+    - object_reference:
+        naked_identifier: OTHER
+    - keyword: THEN
+    - statement:
+        transaction_statement:
+          keyword: ROLLBACK
+    - statement_terminator: ;
+    - statement:
+        scripting_raise_statement:
+          keyword: RAISE
 - statement_terminator: ;

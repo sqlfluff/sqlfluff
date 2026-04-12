@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 75bd79907979e6ea7aebeb6f7d48fc286a783a67d2656f26fe0d620845221e4d
+_hash: 16d15e8519dbab613a443eba667433d314693c98d6d2c44b720110d4b04c96d5
 file:
 - statement:
     alter_view_statement:
@@ -585,6 +585,23 @@ file:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - parameter: timescaledb
+      - dot: .
+      - parameter: materialized_only
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'false'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
@@ -657,6 +674,20 @@ file:
       - parameter: view_option_name
       - comma: ','
       - parameter: view_option_name2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RESET
+    - bracketed:
+      - start_bracket: (
+      - parameter: timescaledb
+      - dot: .
+      - parameter: materialized_only
       - end_bracket: )
 - statement_terminator: ;
 - statement:

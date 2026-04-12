@@ -65,30 +65,15 @@ class Rule_ST10(BaseRule):
                 if seg.raw not in ("=", "!=", "<>"):
                     continue
 
-                has_other_operators_on_lhs = any(
-                    subsegments[i]
-                    for i in range(idx - 1, -1, -1)
-                    if subsegments[i].is_type("comparison_operator", "binary_operator")
-                )
-
-                has_other_operators_on_rhs = any(
-                    subsegments[i]
-                    for i in range(idx - 1, -1, -1)
-                    if subsegments[i].is_type("comparison_operator", "binary_operator")
-                )
-
-                if has_other_operators_on_lhs or has_other_operators_on_rhs:
-                    # Figuring our precedence of different operators is outside of scope
-                    continue
-
-                lhs = next(
+                lhs_idx, lhs = next(
                     (
-                        subsegments[i]
+                        (i, subsegments[i])
                         for i in range(idx - 1, -1, -1)
                         if not subsegments[i].is_whitespace
                     ),
-                    None,
+                    (None, None),
                 )
+
                 rhs = next(
                     (
                         subsegments[i]
@@ -97,11 +82,34 @@ class Rule_ST10(BaseRule):
                     ),
                     None,
                 )
-                if not lhs or not rhs:
+                if lhs is None or rhs is None or lhs_idx is None:
                     # Should be unreachable with correctly parsed tree
                     continue  # pragma: no cover
 
                 if lhs.is_templated or rhs.is_templated:
+                    continue
+
+                prev_before_lhs = (
+                    next(
+                        (
+                            subsegments[i]
+                            for i in range(lhs_idx - 1, -1, -1)
+                            if not subsegments[i].is_whitespace
+                        ),
+                        None,
+                    )
+                    if lhs_idx > 0
+                    else None
+                )
+
+                # We treat the pieces immediately left and right of `=` as its operands.
+                # After AND or OR, that is correct (e.g. `... OR 1 = 2`).
+                # After other binary operators, it is not correct (e.g. `num % 2 = 0`).
+                if (
+                    prev_before_lhs is not None
+                    and prev_before_lhs.is_type("binary_operator")
+                    and prev_before_lhs.raw_normalized().upper() not in ("AND", "OR")
+                ):
                     continue
 
                 # literals need explicit handling (due to well-defined allow-list)

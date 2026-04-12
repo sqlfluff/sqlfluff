@@ -9700,6 +9700,40 @@ class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
     )
 
 
+class ObjectTypeSegment(BaseSegment):
+    """Structured OBJECT datatype."""
+
+    type = "object_type"
+    match_grammar = Sequence(
+        "OBJECT",
+        Ref("ObjectTypeSchemaSegment"),
+    )
+
+
+class ObjectTypeSchemaSegment(BaseSegment):
+    """Schema for a structured OBJECT datatype."""
+
+    type = "object_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment"),
+                Sequence("NOT", "NULL", optional=True),
+            ),
+        ),
+    )
+
+
+class DatatypeSegment(ansi.DatatypeSegment):
+    """A Snowflake data type segment."""
+
+    match_grammar = OneOf(
+        Ref("ObjectTypeSegment"),
+        ansi.DatatypeSegment.match_grammar,
+    )
+
+
 class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
 
@@ -10485,6 +10519,17 @@ class ExceptionBlockStatementSegment(BaseSegment):
                 ),
             ),
             Ref("StatementSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DelimiterGrammar"),
+                    # Exclude ExceptionBlockStatementSegment to prevent greedy
+                    # consumption of the next EXCEPTION block as a statement body.
+                    Ref(
+                        "StatementSegment",
+                        exclude=Ref("ExceptionBlockStatementSegment"),
+                    ),
+                ),
+            ),
         ),
         AnyNumberOf(
             Sequence(
@@ -10508,6 +10553,17 @@ class ExceptionBlockStatementSegment(BaseSegment):
                     ),
                 ),
                 Ref("StatementSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("DelimiterGrammar"),
+                        # Exclude ExceptionBlockStatementSegment to prevent greedy
+                        # consumption of the next EXCEPTION block as a statement body.
+                        Ref(
+                            "StatementSegment",
+                            exclude=Ref("ExceptionBlockStatementSegment"),
+                        ),
+                    ),
+                ),
             ),
         ),
     )

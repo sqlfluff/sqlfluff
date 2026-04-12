@@ -3,7 +3,7 @@
 import hashlib
 import io
 import os
-from typing import NamedTuple
+from typing import Any, NamedTuple, Optional
 
 import pytest
 import yaml
@@ -36,6 +36,26 @@ class ParseExample(NamedTuple):
 
     dialect: str
     sqlfile: str
+
+
+DEEP_PARSE_DEPTH_OVERRIDES: dict[tuple[str, str], int] = {
+    ("ansi", "expression_recursion.sql"): 2000,
+}
+
+
+def config_overrides_for_fixture(
+    dialect: str,
+    sqlfile: str,
+    config_overrides: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    """Build config overrides for a fixture, including deep recursion cases."""
+    overrides: dict[str, Any] = {"dialect": dialect}
+    if config_overrides:
+        overrides.update(config_overrides)
+    max_parse_depth = DEEP_PARSE_DEPTH_OVERRIDES.get((dialect, sqlfile))
+    if max_parse_depth is not None:
+        overrides["max_parse_depth"] = max_parse_depth
+    return overrides
 
 
 def get_parse_fixtures(
@@ -113,9 +133,12 @@ def process_struct(obj):
         raise TypeError(f"Not sure how to deal with type {type(obj)}: {obj!r}")
 
 
-def parse_example_file(dialect: str, sqlfile: str):
+def parse_example_file(
+    dialect: str, sqlfile: str, config_overrides: Optional[dict[str, Any]] = None
+):
     """Parse example SQL file, return parse tree."""
-    config = FluffConfig(overrides=dict(dialect=dialect))
+    overrides = config_overrides_for_fixture(dialect, sqlfile, config_overrides)
+    config = FluffConfig(overrides=overrides)
     # Load the SQL
     raw = load_file(dialect, sqlfile)
     # Lex and parse the file

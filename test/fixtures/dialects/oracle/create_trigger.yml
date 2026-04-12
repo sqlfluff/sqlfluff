@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09932703362d42bf81706716637af4523ce68574d4d6539724089b61842ffed3
+_hash: 025c8c0c73784ba02bb8f842d4dc97e3d18559669916ca1a6241767d81023e49
 file:
 - batch:
     statement:
@@ -55,16 +55,11 @@ file:
                 - statement_terminator: ;
               - when_clause:
                 - keyword: WHEN
-                - expression:
-                    function:
-                      function_name:
-                        function_name_identifier: UPDATING
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            quoted_literal: "'salary'"
-                          end_bracket: )
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'salary'"
+                    end_bracket: )
                 - keyword: THEN
                 - statement:
                     function:
@@ -81,16 +76,11 @@ file:
                 - statement_terminator: ;
               - when_clause:
                 - keyword: WHEN
-                - expression:
-                    function:
-                      function_name:
-                        function_name_identifier: UPDATING
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            quoted_literal: "'department_id'"
-                          end_bracket: )
+                - keyword: UPDATING
+                - bracketed:
+                    start_bracket: (
+                    quoted_literal: "'department_id'"
+                    end_bracket: )
                 - keyword: THEN
                 - statement:
                     function:
@@ -193,21 +183,21 @@ file:
                   bracketed:
                   - start_bracket: (
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
                       naked_identifier: customer_id
                   - comma: ','
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
                       naked_identifier: cust_last_name
                   - comma: ','
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
@@ -236,21 +226,21 @@ file:
                   bracketed:
                   - start_bracket: (
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
                       naked_identifier: order_id
                   - comma: ','
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
                       naked_identifier: order_date
                   - comma: ','
                   - bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
@@ -359,21 +349,21 @@ file:
                   keyword: VALUES
                   bracketed:
                   - start_bracket: (
-                  - sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: emp_id
                   - comma: ','
-                  - sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: lastname
                   - comma: ','
                   - expression:
-                      sqlplus_variable:
-                      - colon: ':'
+                      bind_variable:
+                      - bind_colon: ':'
                       - parameter: Employee
                       - dot: .
                       - parameter: lastname
@@ -385,20 +375,20 @@ file:
                   - expression:
                       bare_function: SYSDATE
                   - comma: ','
-                  - sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: job
                   - comma: ','
-                  - sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: sal
                   - comma: ','
-                  - sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Department
                     - dot: .
                     - parameter: department_id
@@ -594,7 +584,7 @@ file:
               - assignment_operator: :=
               - expression:
                   bind_variable:
-                    colon_delimiter: ':'
+                    bind_colon: ':'
                     trigger_correlation_name:
                       keyword: NEW
                     dot: .
@@ -631,7 +621,7 @@ file:
               - assignment_operator: :=
               - expression:
                   bind_variable:
-                    colon_delimiter: ':'
+                    bind_colon: ':'
                     trigger_correlation_name:
                       keyword: NEW
                     dot: .
@@ -723,7 +713,7 @@ file:
               - statement:
                   assignment_segment_statement:
                     bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .
@@ -738,7 +728,7 @@ file:
               - statement:
                   assignment_segment_statement:
                     bind_variable:
-                      colon_delimiter: ':'
+                      bind_colon: ':'
                       trigger_correlation_name:
                         keyword: new
                       dot: .

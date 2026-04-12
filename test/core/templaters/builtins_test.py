@@ -172,3 +172,20 @@ def test_relation_emulator_magic_methods():
     assert str(s.include(database=False)) == "sourcename_tablename"
     assert str(s.some_new_method()) == "sourcename_tablename"
     assert str(s.something().something) == "sourcename_tablename"
+
+    # tests for 'function'
+    f = DBT_BUILTINS["function"]("my_udf")
+    assert str(f) == "my_udf"
+    assert f.something is f
+    assert str(f.database) == "this_database"
+    assert str(f.schema) == "this_schema"
+    assert str(f.name) == "my_udf"
+    assert str(f.identifier) == "my_udf"
+    assert f.is_table is True
+    assert str(f.something().something) == "my_udf"
+
+    # tests for schema-qualified 'function'
+    f = DBT_BUILTINS["function"]("my_schema", "my_udf")
+    assert str(f) == "my_udf"
+    assert str(f.name) == "my_udf"
+    assert str(f.identifier) == "my_udf"

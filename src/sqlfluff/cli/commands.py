@@ -578,7 +578,7 @@ def get_linter_and_formatter(
 )
 @click.version_option()
 def cli() -> None:
-    """SQLFluff is a modular SQL linter for humans."""  # noqa D403
+    """SQLFluff is a modular SQL linter for humans."""
 
 
 @cli.command()
@@ -892,7 +892,7 @@ def lint(
                         "defaultConfiguration": {
                             "level": "note" if violation["warning"] else "error"
                         },
-                        "helpUri": f"https://docs.sqlfluff.com/en/stable/rules.html#{str(rule_id).lower()}",  # noqa: E501
+                        "helpUri": f"https://docs.sqlfluff.com/en/stable/rules.html#{str(rule_id).lower()}",
                     }
                     sarif_rules.append(rule_info)
                     rules_seen.add(rule_id)
@@ -940,7 +940,7 @@ def lint(
 
         # Build complete SARIF document
         sarif_output = {
-            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",  # noqa: E501
+            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
             "version": "2.1.0",
             "runs": [
                 {
