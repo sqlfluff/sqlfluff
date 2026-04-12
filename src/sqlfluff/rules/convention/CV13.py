@@ -106,5 +106,4 @@ def _find_non_whitespace(segments, idx, direction):
             i += direction
             continue
         return seg
-        i += direction
     return None
