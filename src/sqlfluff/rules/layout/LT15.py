@@ -144,7 +144,18 @@ class Rule_LT15(BaseRule):
             # Check if this is the first newline in a sequence (the previous
             # raw segment is not a newline). This ensures we only trigger the
             # minimum check once per gap, avoiding duplicate fixes.
-            if context.raw_stack and not context.raw_stack[-1].is_type("newline"):
+            # Walk backwards through raw_stack, skipping whitespace,
+            # to find the previous significant segment. If it's NOT a
+            # newline, this is the first newline in the gap sequence.
+            prev_significant = None
+            for raw_seg in reversed(context.raw_stack):
+                if raw_seg.is_type("whitespace") or raw_seg.is_meta:
+                    continue
+                prev_significant = raw_seg
+                break
+            if prev_significant is None or not prev_significant.is_type(
+                "newline"
+            ):
                 # This is the first newline after non-newline content.
                 # Count consecutive newlines starting from this one by
                 # looking at sibling segments after the current one.
