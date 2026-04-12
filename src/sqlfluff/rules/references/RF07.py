@@ -57,8 +57,21 @@ class Rule_RF07(BaseRule):
 
         Strips surrounding quotes (backticks, double-quotes) so that
         quoted and unquoted references to the same column compare equal.
+        Handles multi-part references like `a`.`b` by normalising each
+        part separately.
         """
         raw = col_ref.raw
+        # Handle multi-part references (e.g. `schema`.`col`)
+        if "." in raw:
+            parts = raw.split(".")
+            normalised = []
+            for part in parts:
+                part = part.strip()
+                if len(part) >= 2 and part[0] == part[-1] and part[0] in ("`", '"'):
+                    part = part[1:-1]
+                normalised.append(part.upper())
+            return ".".join(normalised)
+        # Simple identifier
         if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in ("`", '"'):
             raw = raw[1:-1]
         return raw.upper()
