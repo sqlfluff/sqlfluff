@@ -43,13 +43,17 @@ class Rule_CV13(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"expression"})
     is_fix_compatible = True
 
-    # Dialects where + is a valid string concatenation operator.
-    _plus_concat_dialects = frozenset({"tsql"})
+    # Dialects where || is the string concatenation operator.
+    # In MySQL-family dialects, || is logical OR by default, so we skip those.
+    _pipe_concat_dialects = frozenset({
+        "ansi", "postgres", "bigquery", "snowflake", "databricks",
+        "sparksql", "sqlite", "duckdb", "hive", "redshift", "oracle",
+    })
 
     def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Flag ``+`` used for string concatenation in unsupported dialects."""
-        # Skip dialects where + is valid for string concatenation.
-        if context.dialect.name in self._plus_concat_dialects:
+        # Skip dialects where || is NOT the concat operator.
+        if context.dialect.name not in self._pipe_concat_dialects:
             return None
 
         assert context.segment.is_type("expression")
@@ -93,10 +97,14 @@ class Rule_CV13(BaseRule):
 
 def _find_non_whitespace(segments, idx, direction):
     """Walk segments from *idx* in *direction* skipping whitespace and meta."""
+    if direction not in (-1, 1):
+        raise ValueError("direction must be -1 or 1")
     i = idx + direction
     while 0 <= i < len(segments):
         seg = segments[i]
-        if not seg.is_type("whitespace", "newline", "indent", "dedent"):
-            return seg
+        if seg.is_type("whitespace", "newline", "indent", "dedent") or seg.is_meta:
+            i += direction
+            continue
+        return seg
         i += direction
     return None
