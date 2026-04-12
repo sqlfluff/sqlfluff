@@ -672,14 +672,14 @@ test_fix_postgres_json_operator_skips_json_refs:
   # https://github.com/sqlfluff/sqlfluff/issues/6904
   fail_str: |
     SELECT
-        pattern_obj ->> 'column' AS col_val,
+        data ->> 'key' AS key_val,
         other_col
-    FROM JSONB_ARRAY_ELEMENTS(material_mapping) AS pattern_obj
+    FROM my_table
   fix_str: |
     SELECT
-        pattern_obj ->> 'column' AS col_val,
-        pattern_obj.other_col
-    FROM JSONB_ARRAY_ELEMENTS(pattern_obj.material_mapping) AS pattern_obj
+        data ->> 'key' AS key_val,
+        my_table.other_col
+    FROM my_table
   configs:
     core:
       dialect: postgres
