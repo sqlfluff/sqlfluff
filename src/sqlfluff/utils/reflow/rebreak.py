@@ -4,8 +4,7 @@ import logging
 from dataclasses import dataclass
 from typing import cast
 
-from sqlfluff.core.parser import BaseSegment, RawSegment
-from sqlfluff.core.parser.segments import WhitespaceSegment
+from sqlfluff.core.parser import BaseSegment, RawSegment, WhitespaceSegment
 from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 from sqlfluff.utils.reflow.helpers import (
@@ -524,7 +523,7 @@ def rebreak_sequence(
                                 elem_buff[loc.next.pre_code_pt_idx + 1],
                             ),
                         )
-                        if "any" in (pre_constraint, post_constraint):
+                        if "any" in (pre_constraint, post_constraint) and "touch" not in (pre_constraint, post_constraint):
                             new_point = ReflowPoint((WhitespaceSegment(),))
                             trailing_spacing = list(new_point.segments)
 
@@ -644,7 +643,7 @@ def rebreak_sequence(
                         if "any" in (  # pragma: no cover
                             pre_constraint,
                             post_constraint,
-                        ):
+                        ) and "touch" not in (pre_constraint, post_constraint):
                             new_point = ReflowPoint((WhitespaceSegment(),))
                             leading_spacing = list(new_point.segments)
 
