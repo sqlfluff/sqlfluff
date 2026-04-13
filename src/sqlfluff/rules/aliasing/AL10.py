@@ -9,7 +9,7 @@ class Rule_AL10(BaseRule):
     """Derived tables must have an alias.
 
     A derived table (subquery in a ``FROM`` clause) without an alias will
-    cause a runtime error in most SQL dialects including MySQL, PostgreSQL,
+    cause a syntax error in most SQL dialects including MySQL, PostgreSQL,
     and T-SQL.
 
     **Anti-pattern**
@@ -64,12 +64,13 @@ class Rule_AL10(BaseRule):
     def _contains_derived_table(from_expression_element: BaseSegment) -> bool:
         """Check whether a FROM expression element contains a derived table.
 
-        A derived table is a subquery (SELECT, set expression, or CTE)
-        nested inside a FROM clause, potentially wrapped in brackets.
+        A derived table is a subquery (SELECT, set expression, or WITH-compound
+        statement) nested inside a FROM clause, potentially wrapped in brackets.
         """
         for segment in from_expression_element.iter_segments(expanding=("bracketed",)):
             if segment.is_type("table_expression"):
-                # Check for nested SELECT, UNION/INTERSECT/EXCEPT, or CTE.
+                # Check for nested SELECT, UNION/INTERSECT/EXCEPT, or
+                # WITH-compound statement.
                 for seg in segment.iter_segments(expanding=("bracketed",)):
                     if seg.is_type(
                         "select_statement",
