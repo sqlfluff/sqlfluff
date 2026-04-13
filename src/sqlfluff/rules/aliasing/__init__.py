@@ -62,6 +62,7 @@ def get_rules() -> list[type[BaseRule]]:
     from sqlfluff.rules.aliasing.AL07 import Rule_AL07
     from sqlfluff.rules.aliasing.AL08 import Rule_AL08
     from sqlfluff.rules.aliasing.AL09 import Rule_AL09
+    from sqlfluff.rules.aliasing.AL10 import Rule_AL10
 
     return [
         Rule_AL01,
@@ -73,4 +74,5 @@ def get_rules() -> list[type[BaseRule]]:
         Rule_AL07,
         Rule_AL08,
         Rule_AL09,
+        Rule_AL10,
     ]
