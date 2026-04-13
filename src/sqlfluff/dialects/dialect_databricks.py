@@ -1873,6 +1873,7 @@ class ColumnPropertiesSegment(BaseSegment):
             "DEFAULT",
             Ref("ColumnConstraintDefaultGrammar"),
         ),
+        Sequence("COLLATE", Ref("CollationReferenceSegment")),
         Ref("CommentGrammar"),
         Ref("ColumnConstraintSegment"),
         Ref("MaskStatementSegment"),
