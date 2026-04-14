@@ -2832,3 +2832,36 @@ test_pass_from_values_bracketed_implicit_allow:
       dialect: snowflake
     indentation:
       implicit_indents: allow
+
+test_pass_jinja_if_with_in_clause:
+  # Regression test for GitHub issue #7740.
+  # Parenthesized expressions inside a Jinja if-block must not produce
+  # false-positive LT02 violations.  The indentation is correct; removing
+  # the parentheses should not change the linting outcome.
+  pass_str: |
+    SELECT 1
+    WHERE
+        1 = 1
+        {%- if true %}
+        AND x IN (1)
+        {%- endif %}
+  configs:
+    core:
+      templater: jinja
+    indentation:
+      template_blocks_indent: false
+
+test_pass_jinja_if_with_in_clause_multi_value:
+  # Same scenario with multiple values in the IN list (issue #7740).
+  pass_str: |
+    SELECT 1
+    WHERE
+        1 = 1
+        {%- if true %}
+        AND x IN (1, 2, 3)
+        {%- endif %}
+  configs:
+    core:
+      templater: jinja
+    indentation:
+      template_blocks_indent: false
