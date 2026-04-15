@@ -231,7 +231,7 @@ class JinjaTemplater(PythonTemplater):
                 )
             except TemplateSyntaxError as err:
                 raise SQLFluffUserError(
-                    f"Error loading user provided macro:\n`{value}`\n> {err}."
+                    f"Error loading user-provided macro:\n`{value}`\n> {err}."
                 )
         return macro_ctx
 
