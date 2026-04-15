@@ -13,7 +13,7 @@ merge into t1 using t2 on t1.t1key = t2.t2key
 
 MERGE INTO target_table AS t
 USING source_table AS s
-    ON targ.id = src.id
+    ON targ.id = s.id
 WHEN MATCHED THEN UPDATE ALL BY NAME
 WHEN NOT MATCHED THEN INSERT ALL BY NAME;
 
