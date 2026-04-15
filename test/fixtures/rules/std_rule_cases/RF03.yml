@@ -622,6 +622,19 @@ test_pass_sparksql_struct_function_aliases:
     core:
       dialect: sparksql
 
+test_pass_hive_struct_function_aliases:
+  # STRUCT() function aliases in Hive should also be handled correctly.
+  # https://github.com/sqlfluff/sqlfluff/issues/6919
+  pass_str: |
+    SELECT
+        tbl.a,
+        STRUCT(
+            tbl.b AS val
+        ) AS measurement
+    FROM tbl
+  configs:
+    core:
+      dialect: hive
 test_pass_placeholder_colon_double_colon_cast:
   # Placeholder parameters followed by :: cast operator should not be treated
   # as unqualified column references. See: https://github.com/sqlfluff/sqlfluff/issues/7570
