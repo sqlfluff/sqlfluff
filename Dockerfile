@@ -1,13 +1,5 @@
-FROM dhi.io/python:3-debian13-dev
+FROM dhi.io/python:3.14-debian13-dev AS build
 
-# OCI annotations
-LABEL org.opencontainers.image.title="sqlfluff" \
-      org.opencontainers.image.authors="sqlfluff Community" \
-      org.opencontainers.image.description="A modular SQL linter and auto-formatter with support for multiple dialects and templated code" \
-      org.opencontainers.image.source="https://github.com/sqlfluff/sqlfluff" \
-      org.opencontainers.image.documentation="https://docs.sqlfluff.com/en/stable/"
-
-# Set separate working directory for easier debugging.
 WORKDIR /app
 
 # Create virtual environment.
@@ -16,8 +8,6 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH=$VIRTUAL_ENV/bin:$PATH
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel pip-tools
 
-# Install requirements separately
-# to take advantage of layer caching.
 # N.B. we extract the requirements from pyproject.toml
 COPY pyproject.toml .
 # Use piptools to extract requirements from pyproject.toml as described in
@@ -33,8 +23,16 @@ COPY src ./src
 # Install sqlfluff package.
 RUN pip install --no-cache-dir --no-dependencies .
 
-# Switch to non-root user.
-USER 5000
+FROM dhi.io/python:3.14-debian13
+# OCI annotations
+LABEL org.opencontainers.image.title="sqlfluff" \
+      org.opencontainers.image.authors="sqlfluff Community" \
+      org.opencontainers.image.description="A modular SQL linter and auto-formatter with support for multiple dialects and templated code" \
+      org.opencontainers.image.source="https://github.com/sqlfluff/sqlfluff" \
+      org.opencontainers.image.documentation="https://docs.sqlfluff.com/en/stable/"
+
+COPY --from=build /app/.venv /app/.venv
+ENV VIRTUAL_ENV=/app/.venv PATH=/app/.venv/bin:$PATH
 
 # Switch to new working directory as default bind mount location.
 # User can bind mount to /sql and not have to specify the full file path in the command:
