@@ -620,14 +620,14 @@ test_pass_postgres_json_operators_all_variants:
       references.consistent:
         single_table_references: qualified
 
-test_pass_postgres_json_operator_unqualified_ref:
-  # An unqualified reference followed by a JSON operator should not be
-  # flagged even when single_table_references = qualified.
+test_pass_postgres_json_operator_value_table_alias:
+  # A value-table alias used directly with a JSON operator should not be
+  # qualified into ``pattern_obj.pattern_obj``.
   # https://github.com/sqlfluff/sqlfluff/issues/6904
   pass_str: |
     SELECT
-        data ->> 'key' AS key_val
-    FROM my_tbl
+        pattern_obj ->> 'key' AS key_val
+    FROM JSONB_ARRAY_ELEMENTS('[{"key":"value"}]'::jsonb) AS pattern_obj
   configs:
     core:
       dialect: postgres
@@ -636,16 +636,19 @@ test_pass_postgres_json_operator_unqualified_ref:
         single_table_references: qualified
 
 test_pass_postgres_json_operator_in_case_expression:
-  # Original issue scenario: JSON operators inside CASE expressions.
+  # Original issue scenario: JSON operators inside CASE expressions for a
+  # value-table alias should not be qualified.
   # https://github.com/sqlfluff/sqlfluff/issues/6904
   pass_str: |
     SELECT
         CASE
-            WHEN data ->> 'column' = 'material'
-                THEN data ->> 'pattern'
+            WHEN pattern_obj ->> 'column' = 'material'
+                THEN pattern_obj ->> 'pattern'
             ELSE 'none'
         END AS pattern_match
-    FROM my_tbl
+    FROM JSONB_ARRAY_ELEMENTS(
+        '[{"column":"material","pattern":"stripes"}]'::jsonb
+    ) AS pattern_obj
   configs:
     core:
       dialect: postgres
@@ -654,8 +657,8 @@ test_pass_postgres_json_operator_in_case_expression:
         single_table_references: qualified
 
 test_pass_postgres_json_operator_consistent_mode:
-  # In consistent mode, JSON-operator references should not count as
-  # "unqualified" and should not create an inconsistency with qualified refs.
+  # Qualified JSON-operator references should continue to pass in consistent
+  # mode after fixing the alias-collision case.
   # https://github.com/sqlfluff/sqlfluff/issues/6904
   pass_str: |
     SELECT
@@ -666,9 +669,9 @@ test_pass_postgres_json_operator_consistent_mode:
     core:
       dialect: postgres
 
-test_fix_postgres_json_operator_skips_json_refs:
-  # When fixing, JSON-operator references should be left alone but
-  # other unqualified references should still be qualified.
+test_fix_postgres_json_operator_qualifies_regular_json_refs:
+  # Regular JSON-column references should still be qualified when RF03 is
+  # configured for qualified references.
   # https://github.com/sqlfluff/sqlfluff/issues/6904
   fail_str: |
     SELECT
@@ -677,7 +680,7 @@ test_fix_postgres_json_operator_skips_json_refs:
     FROM my_table
   fix_str: |
     SELECT
-        data ->> 'key' AS key_val,
+        my_table.data ->> 'key' AS key_val,
         my_table.other_col
     FROM my_table
   configs:

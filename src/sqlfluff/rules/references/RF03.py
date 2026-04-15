@@ -20,9 +20,7 @@ from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 
-# PostgreSQL JSON/JSONB operators. A column_reference immediately preceding one
-# of these is the JSON object being accessed, not a regular column that should
-# receive table qualification.
+# PostgreSQL JSON/JSONB operators.
 _JSON_OPERATORS = {"->", "->>", "#>", "#>>"}
 
 
@@ -219,14 +217,21 @@ def _check_references(
         # are not real column references and should not be qualified or flagged.
         if this_ref_type == "unqualified" and ref.is_templated:
             continue
-        # Skip references that are immediately followed by a JSON operator
-        # (e.g. ``obj ->> 'key'``).  The reference is the JSON/JSONB object
-        # being accessed and should not receive table qualification.
-        if _is_before_json_operator(ref):
+        first_raw_ref = next(ref.iter_raw_references())
+        # Skip JSON-operator references only in the alias-collision case from
+        # #6904 where the unqualified reference is the single visible table
+        # alias itself (e.g. ``pattern_obj ->> 'key'`` for
+        # ``... AS pattern_obj``). Regular unqualified JSON column references
+        # should still follow RF03's qualification rules.
+        if (
+            this_ref_type == "unqualified"
+            and _is_before_json_operator(ref)
+            and first_raw_ref.part == table_ref_str
+        ):
             continue
         if this_ref_type == "qualified" and is_struct_dialect:
             # If this col appears "qualified" check if it is more logically a struct.
-            if next(ref.iter_raw_references()).part != table_ref_str:
+            if first_raw_ref.part != table_ref_str:
                 this_ref_type = "unqualified"
 
         lint_res = _validate_one_reference(
