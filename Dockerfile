@@ -1,5 +1,12 @@
 FROM dhi.io/python:3-debian13-dev
 
+# OCI annotations
+LABEL org.opencontainers.image.title="sqlfluff" \
+      org.opencontainers.image.authors="sqlfluff Community" \
+      org.opencontainers.image.description=" A modular SQL linter and auto-formatter with support for multiple dialects and templated code" \
+      org.opencontainers.image.source="https://github.com/sqlfluff/sqlfluff" \
+      org.opencontainers.image.documentation="https://docs.sqlfluff.com/en/stable/"
+
 # Set separate working directory for easier debugging.
 WORKDIR /app
 
