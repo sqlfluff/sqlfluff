@@ -71,3 +71,11 @@ CREATE DYNAMIC TABLE product (
       product_price,
       product_stock
     FROM staging_table;
+
+CREATE DYNAMIC TABLE tagged_product (
+  product_id WITH TAG (cost_center = 'engineering')
+)
+  TARGET_LAG = '20 minutes'
+  WAREHOUSE = mywh
+  AS
+    SELECT product_id FROM staging_table;

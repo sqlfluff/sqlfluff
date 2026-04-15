@@ -5286,6 +5286,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                     ),
                                 ),
                             ),
+                            Ref("TagBracketedEqualsSegment", optional=True),
                             Ref("CommentClauseSegment", optional=True),
                         ),
                     ),
