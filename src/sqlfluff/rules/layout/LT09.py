@@ -265,20 +265,10 @@ class Rule_LT09(BaseRule):
         target_seg = select_children[target_idx]
 
         # When single_target_policy is "new_line", a single select target
-        # should be treated like multiple targets: it must be on its own line
-        # after SELECT. This gives consistent formatting regardless of the
-        # number of targets.
+        # should be treated like multiple targets so the full multi-target
+        # layout logic is applied consistently, including any FROM placement
+        # fixes when FROM is still on the same line as the target.
         if self.single_target_policy == "new_line":
-            # Target is already on its own line - that's what we want.
-            if (
-                select_targets_info.select_idx
-                < select_targets_info.first_new_line_idx
-                < target_idx
-            ):
-                return None
-
-            # Target is on the same line as SELECT - need to move it
-            # to a new line (like multi-target behavior).
             return self._eval_multiple_select_target_elements(
                 select_targets_info, context.segment
             )
