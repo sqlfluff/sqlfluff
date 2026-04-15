@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bullseye
+FROM dhi.io/python:3-debian13-dev
 
 # Set separate working directory for easier debugging.
 WORKDIR /app
