@@ -8842,7 +8842,10 @@ class MergeUpdateClauseSegment(ansi.MergeUpdateClauseSegment):
 
     match_grammar = Sequence(
         "UPDATE",
-        Ref("SetClauseListSegment"),
+        OneOf(
+            Ref("SetClauseListSegment"),
+            Sequence("ALL", "BY", "NAME"),
+        ),
         Ref("WhereClauseSegment", optional=True),
     )
 
@@ -8861,10 +8864,15 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
 
     match_grammar = Sequence(
         "INSERT",
-        Indent,
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Dedent,
-        Ref("ValuesClauseSegment", optional=True),
+        OneOf(
+            Sequence("ALL", "BY", "NAME"),
+            Sequence(
+                Indent,
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
+                Ref("ValuesClauseSegment", optional=True),
+            ),
+        ),
         Ref("WhereClauseSegment", optional=True),
     )
 
