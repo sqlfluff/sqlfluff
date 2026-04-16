@@ -4668,6 +4668,8 @@ class ReservedKeywordFunctionNameSegment(BaseSegment):
     type = "function_name"
     match_grammar = OneOf(
         "COALESCE",
+        "CONTAINSTABLE",
+        "FREETEXTTABLE",
         "LEFT",
         "NULLIF",
         "RIGHT",
