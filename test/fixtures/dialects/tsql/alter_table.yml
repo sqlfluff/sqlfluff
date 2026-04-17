@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc302a2ea83d7b01dfa8a2e28948b1f4277d2094a5913b1fc5a36ab1c0b9e1cb
+_hash: 9891315b941eef5d8715916d6e75b520600c58e8f544dcdbb98606250618eeee
 file:
 - batch:
     statement:
@@ -438,6 +438,30 @@ file:
       - keyword: CONSTRAINT
       - object_reference:
           quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Attachment]'
+      - keyword: NOCHECK
+      - keyword: CONSTRAINT
+      - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Attachment]'
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - keyword: ALL
   - statement_terminator: ;
   - statement:
       alter_table_statement:
