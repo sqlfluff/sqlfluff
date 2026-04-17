@@ -411,6 +411,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         Sequence("OR", "REPLACE", optional=True),
+        Ref("TemporaryGrammar", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
