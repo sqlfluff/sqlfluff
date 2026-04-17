@@ -1671,7 +1671,7 @@ test_pass_combined_comment_impulses:
                 NOT bool_column AND NOT bool_column
                 AND some_column >= 1  -- This is a comment
         )
-    ),
+    )
 
     SELECT *
     FROM cte
