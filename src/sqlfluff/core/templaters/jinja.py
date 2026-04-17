@@ -95,6 +95,11 @@ class JinjaTemplater(PythonTemplater):
     """
 
     name = "jinja"
+    # Enable persistent warm worker pools. Workers cache the Linter and
+    # templater across files, avoiding ~193 KB of config pickling per file
+    # and repeated Linter/templater construction. Uses default protocol
+    # implementations from RawTemplater (no heavy init needed for Jinja).
+    supports_warm_workers = True
 
     class Libraries:
         """Mock namespace for user-defined Jinja library."""
