@@ -26,7 +26,49 @@ class SelectStatementColumnsAndTables(NamedTuple):
     table_reference_buffer: list[ObjectReferenceSegment]
 
 
-def _get_object_references(segment: BaseSegment) -> list[ObjectReferenceSegment]:
+def _get_struct_alias_refs(segment: BaseSegment) -> set[int]:
+    """Get the ids of object references that are aliases inside STRUCT functions.
+
+    In dialects like Databricks, SparkSQL, and Hive, STRUCT() is parsed as a
+    regular function where aliases appear as column_reference segments:
+        STRUCT(expr AS alias_name, ...)
+    These alias names are not real column references and should be excluded
+    from linting rules that check column references.
+    """
+    struct_alias_ids: set[int] = set()
+    for func in segment.recursive_crawl(
+        "function",
+        no_recursive_seg_type=["select_statement", "merge_statement"],
+    ):
+        fn = func.get_child("function_name")
+        if not fn or fn.raw_upper != "STRUCT":
+            continue
+        contents = func.get_child("function_contents")
+        if not contents:  # pragma: no cover
+            continue
+        brack = contents.get_child("bracketed")
+        if not brack:  # pragma: no cover
+            continue
+        prev_was_index = False
+        for seg in brack.segments:
+            if seg.is_type("index_column_definition"):
+                prev_was_index = True
+            elif prev_was_index and not seg.is_type(
+                "whitespace", "newline", "indent", "dedent"
+            ):
+                # This segment is the alias expression after AS inside STRUCT.
+                # Collect all object_reference descendants - they are alias
+                # names, not real column references.
+                for ref in seg.recursive_crawl("object_reference"):
+                    struct_alias_ids.add(id(ref))
+                prev_was_index = False
+    return struct_alias_ids
+
+
+def _get_object_references(
+    segment: BaseSegment,
+    exclude_ids: Optional[set[int]] = None,
+) -> list[ObjectReferenceSegment]:
     return list(
         cast(ObjectReferenceSegment, _seg)
         for _seg in segment.recursive_crawl(
@@ -36,6 +78,8 @@ def _get_object_references(segment: BaseSegment) -> list[ObjectReferenceSegment]
         # Exclude collation references - they inherit from ObjectReferenceSegment
         # but should not be treated as column/table references for linting purposes
         if not _seg.is_type("collation_reference")
+        # Exclude references that are aliases inside STRUCT() functions
+        and (exclude_ids is None or id(_seg) not in exclude_ids)
     )
 
 
@@ -58,7 +102,11 @@ def get_select_statement_info(
         return None
     # NOTE: In this first crawl, don't crawl inside any sub-selects, that's very
     # important for both isolation and performance reasons.
-    reference_buffer = _get_object_references(sc)
+    # Identify references that are aliases inside STRUCT() functions so we can
+    # exclude them. These are alias definitions, not real column references.
+    # See: https://github.com/sqlfluff/sqlfluff/issues/6919
+    struct_alias_ids = _get_struct_alias_refs(sc)
+    reference_buffer = _get_object_references(sc, exclude_ids=struct_alias_ids)
     table_reference_buffer = []
     for potential_clause in (
         "where_clause",
