@@ -89,6 +89,22 @@ def test_space_is_not_reserved(raw: str) -> None:
     assert result.num_violations() == 0
 
 
+def test_postgres_copy_from_stdin_data_block_parses() -> None:
+    """Ensure COPY FROM STDIN data blocks parse without unparsable sections."""
+    sql = (
+        "COPY public.bookshelves_books (username, work_id, bookshelf_id) FROM stdin;\n"
+        "openlibrary\t15298516\t1\n"
+        "openlibrary\t45310\t3\n"
+        "\\.\n"
+        "SELECT 1;"
+    )
+    parsed = Linter(dialect="postgres").parse_string(sql)
+
+    assert parsed.tree is not None
+    assert "unparsable" not in parsed.tree.type_set()
+    assert "postgres_copy_stdin_data_statement" in parsed.tree.type_set()
+
+
 def test_priority_keyword_merge() -> None:
     """Test merging on keyword lists works as expected."""
     kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]

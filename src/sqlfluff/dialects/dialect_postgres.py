@@ -210,6 +210,13 @@ postgres_dialect.insert_lexer_matchers(
             LiteralSegment,
         ),
         RegexLexer(
+            # Matches PostgreSQL COPY FROM STDIN data blocks (including raw data
+            # rows) through the terminating "\\." line.
+            "postgres_copy_stdin_data_block",
+            r"(?i)COPY\b.*?\bFROM\b\s+STDIN\b.*?;\r?\n(?:.*?\r?\n)*?\\\.[ \t]*(?=\r?\n|$)",
+            CodeSegment,
+        ),
+        RegexLexer(
             # Matches the psql \copy meta-command, including the form with a
             # parenthesized query that can span multiple lines.
             # https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-COPY
@@ -503,6 +510,11 @@ postgres_dialect.add(
     ),
     PsqlCopyMetaCommandSegment=TypedParser(
         "psql_copy_command", CodeSegment, type="psql_copy_command"
+    ),
+    PostgresCopyStdinDataSegment=TypedParser(
+        "postgres_copy_stdin_data_block",
+        CodeSegment,
+        type="postgres_copy_stdin_data_statement",
     ),
     PsqlSetMetaCommandSegment=TypedParser(
         "psql_set_command", CodeSegment, type="psql_set_command"
@@ -6997,6 +7009,19 @@ class PsqlSetMetaCommandStatementSegment(BaseSegment):
     )
 
 
+class PostgresCopyStdinDataStatementSegment(BaseSegment):
+    r"""A PostgreSQL COPY FROM STDIN data block.
+
+    This includes the COPY statement and raw data rows terminated by ``\.``.
+    """
+
+    type = "postgres_copy_stdin_data_statement"
+
+    match_grammar = Sequence(
+        Ref("PostgresCopyStdinDataSegment"),
+    )
+
+
 class DropForeignTableStatement(BaseSegment):
     """A `DROP FOREIGN TABLE` Statement.
 
@@ -7283,6 +7308,7 @@ class FileSegment(BaseFileSegment):
     """
 
     match_grammar = AnyNumberOf(
+        Ref("PostgresCopyStdinDataStatementSegment"),
         Ref("PsqlCopyMetaCommandStatementSegment"),
         Ref("PsqlSetMetaCommandStatementSegment"),
         Delimited(
