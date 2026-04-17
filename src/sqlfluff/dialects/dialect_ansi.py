@@ -2336,6 +2336,7 @@ ansi_dialect.add(
         Ref("ShorthandCastSegment"),
         terminators=[Ref("CommaSegment")],
     ),
+    LateralColumnAliasExpressionGrammar=Nothing(),
     Expression_D_Potential_Select_Statement_Without_Brackets=OneOf(
         Ref("SelectStatementSegment"),
         Ref("LiteralGrammar"),
@@ -2353,6 +2354,7 @@ ansi_dialect.add(
             Ref("FunctionSegment"),
             Bracketed(
                 OneOf(
+                    Ref("LateralColumnAliasExpressionGrammar"),
                     # We're using the expression segment here rather than the grammar so
                     # that in the parsed structure we get nested elements.
                     Ref("ExpressionSegment"),
