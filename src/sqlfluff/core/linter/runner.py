@@ -42,6 +42,7 @@ class BaseRunner(ABC):
     ) -> None:
         self.linter = linter
         self.config = config
+        self.skipped_file_count: int = 0
 
     pass_formatter = True
 
@@ -54,6 +55,7 @@ class BaseRunner(ABC):
                 yield fname, self.linter.render_file(fname, self.config)
             except SQLFluffSkipFile as s:
                 linter_logger.warning(str(s))
+                self.skipped_file_count += 1
 
     def iter_partials(
         self,
@@ -193,6 +195,7 @@ class ParallelRunner(BaseRunner):
                             # large_file_skip_byte_limit). Log a plain warning,
                             # not the "please report as bug" message.
                             linter_logger.warning(str(lint_result.ee))
+                            self.skipped_file_count += 1
                         else:
                             try:
                                 lint_result.reraise()

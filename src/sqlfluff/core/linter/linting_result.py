@@ -42,6 +42,7 @@ class LintingResult:
         self.paths: list[LintedDir] = []
         self._start_time: float = time.monotonic()
         self.total_time: float = 0.0
+        self.files_skipped: int = 0
 
     def add(self, path: LintedDir) -> None:
         """Add a new `LintedDir` to this result."""

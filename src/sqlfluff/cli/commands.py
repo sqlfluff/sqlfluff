@@ -988,6 +988,9 @@ def lint(
             formatter.completion_message()
         exit_code = result.stats(EXIT_FAIL, EXIT_SUCCESS)["exit code"]
         assert isinstance(exit_code, int), "result.stats error code must be integer."
+        # If large_file_skip_fail is set and files were skipped, fail.
+        if result.files_skipped and config.get("large_file_skip_fail"):
+            exit_code = max(exit_code, EXIT_FAIL)
         sys.exit(exit_code)
     else:
         sys.exit(EXIT_SUCCESS)
@@ -1250,6 +1253,10 @@ def _paths_fix(
 
     if persist_timing:
         result.persist_timing_records(persist_timing)
+
+    # If large_file_skip_fail is set and files were skipped, fail.
+    if result.files_skipped and linter.config.get("large_file_skip_fail"):
+        exit_code = max(exit_code, EXIT_FAIL)
 
     sys.exit(exit_code)
 
