@@ -289,14 +289,8 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         Indent,
         OneOf(
             "ALL",
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingSetsClauseSegment"),
-                Ref("ColumnReferenceSegment"),
-                Ref("NumericLiteralSegment"),
-                Ref("ExpressionSegment"),
-                terminators=[Ref("GroupByClauseTerminatorGrammar")],
-            ),
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
             Sequence(
                 Delimited(
                     Ref("ColumnReferenceSegment"),
@@ -304,7 +298,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                     Ref("ExpressionSegment"),
                     terminators=[Ref("GroupByClauseTerminatorGrammar")],
                 ),
-                Ref("GroupingSetsClauseSegment"),
+                Ref("GroupingSetsClauseSegment", optional=True),
             ),
         ),
         Dedent,
