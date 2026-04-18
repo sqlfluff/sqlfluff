@@ -1167,6 +1167,15 @@ class CreateVirtualTableStatementSegment(BaseSegment):
         Bracketed(
             Delimited(
                 OneOf(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                    ),
                     Ref("QuotedLiteralSegment"),
                     Ref("NumericLiteralSegment"),
                     Ref("SingleIdentifierGrammar"),

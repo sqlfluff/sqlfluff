@@ -600,6 +600,27 @@ def test__templater_jinja_dynamic_variable_no_violations():
     assert len(vs) == 0
 
 
+def test__templater_jinja_dbt_builtin_function():
+    """Test that dbt's `function()` builtin mock is available in Jinja templater."""
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = bigquery\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "apply_dbt_builtins = True\n"
+    )
+    instr = (
+        "SELECT {{ function('my_dataset_my_udf') }}(some_column, other_column) AS result\n"
+        "FROM {{ ref('my_model') }}\n"
+    )
+    outstr, vs = JinjaTemplater().process(in_str=instr, fname="test.sql", config=config)
+    assert (
+        str(outstr)
+        == "SELECT my_dataset_my_udf(some_column, other_column) AS result\nFROM my_model\n"
+    )
+    assert len(vs) == 0
+
+
 def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
@@ -741,7 +762,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_l_metas/011", False, True),
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
-        ("jinja_n_nested_macros/jinja", True, False),
+        ("jinja_n_nested_macros/explicit_import", True, False),
+        ("jinja_n_nested_macros/implicit_import", True, False),
         # Test more dbt configurations
         ("jinja_o_config_override_dbt_builtins/override_dbt_builtins", True, False),
         ("jinja_p_disable_dbt_builtins/disable_dbt_builtins", True, False),

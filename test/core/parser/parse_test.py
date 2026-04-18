@@ -18,7 +18,7 @@ class BasicSegment(BaseSegment):
 
 def test__parser__parse_match(test_segments):
     """Test match method on a real segment."""
-    ctx = ParseContext(dialect=None)
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
     # This should match and have consumed everything, which should
     # now be part of a BasicSegment.
     match = BasicSegment.match(test_segments, 0, parse_context=ctx)

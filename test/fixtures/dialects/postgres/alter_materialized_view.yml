@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3827e0a24b512773b329bff3e882cb66d93c1d21315b2c99482da5948691f869
+_hash: b9428d483d86b5236294c9dc852712e1e87baa60f128006e903be5a0c98e261d
 file:
 - statement:
     alter_materialized_view_statement:
@@ -268,6 +268,25 @@ file:
     - table_reference:
         naked_identifier: bar
     - alter_materialized_view_action_segment:
+        keyword: SET
+        bracketed:
+        - start_bracket: (
+        - parameter: timescaledb
+        - dot: .
+        - parameter: materialized_only
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - boolean_literal: 'false'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: bar
+    - alter_materialized_view_action_segment:
         keyword: RESET
         bracketed:
           start_bracket: (
@@ -288,6 +307,22 @@ file:
         - parameter: storage_parameter
         - comma: ','
         - parameter: storage_parameter
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: bar
+    - alter_materialized_view_action_segment:
+        keyword: RESET
+        bracketed:
+        - start_bracket: (
+        - parameter: timescaledb
+        - dot: .
+        - parameter: materialized_only
         - end_bracket: )
 - statement_terminator: ;
 - statement:

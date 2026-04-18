@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 77772ae82a89f4c7fcb387496811507fbd8c3b8e717514fb57f9f07a053c59a1
+_hash: d902632d8a243de280943a658b69eb8e24130967b05a4238c1da6c6260d037c9
 file:
-  batch:
+- batch:
     statement:
       begin_end_block:
       - declare_segment:
@@ -82,6 +82,85 @@ file:
             - statement_terminator: ;
             - keyword: END
             - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          while_loop_statement:
+            keyword: WHILE
+            expression:
+              boolean_literal: 'TRUE'
+            loop_statement:
+            - keyword: LOOP
+            - statement:
+                while_loop_statement:
+                  keyword: WHILE
+                  expression:
+                    boolean_literal: 'TRUE'
+                  loop_statement:
+                  - keyword: LOOP
+                  - statement:
+                      null_statement:
+                        keyword: 'NULL'
+                  - statement_terminator: ;
+                  - keyword: END
+                  - keyword: LOOP
+                  - naked_identifier: inner_loop
+            - statement_terminator: ;
+            - statement:
+                exit_statement:
+                  keyword: EXIT
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          for_loop_statement:
+          - keyword: FOR
+          - naked_identifier: i
+          - keyword: IN
+          - numeric_literal: '1'
+          - dot: .
+          - dot: .
+          - numeric_literal: '3'
+          - loop_statement:
+            - keyword: LOOP
+            - statement:
+                for_loop_statement:
+                - keyword: FOR
+                - naked_identifier: j
+                - keyword: IN
+                - numeric_literal: '1'
+                - dot: .
+                - dot: .
+                - numeric_literal: '3'
+                - loop_statement:
+                  - keyword: LOOP
+                  - statement:
+                      null_statement:
+                        keyword: 'NULL'
+                  - statement_terminator: ;
+                  - keyword: END
+                  - keyword: LOOP
+                  - naked_identifier: inner_loop
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+            - naked_identifier: outer_loop
       - statement_terminator: ;
       - keyword: END
     statement_terminator: ;

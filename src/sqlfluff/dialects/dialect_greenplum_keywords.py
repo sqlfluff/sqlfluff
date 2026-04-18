@@ -1,12 +1,13 @@
 """Keywords in the Greenplum Dialect.
 
-https://docs.vmware.com/en/VMware-Greenplum/6/greenplum-database/ref_guide-sql-keywords.html
+https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql-keywords.html
 """
 
 greenplum_keywords = [
     ("ACTIVE", "non-reserved"),
     ("CONCURRENCY", "non-reserved"),
     ("CONTAINS", "non-reserved"),
+    ("COORDINATOR", "non-reserved"),
     ("CPU_RATE_LIMIT", "non-reserved"),
     ("CPUSET", "non-reserved"),
     ("CREATEEXTTABLE", "non-reserved"),
@@ -49,6 +50,7 @@ greenplum_keywords = [
     # ("PARTITION", "reserved"),
     ("PARTITIONS", "non-reserved"),
     ("PERCENT", "non-reserved"),
+    ("PERSISTENTLY", "non-reserved"),
     # ("PRECEDING", "reserved"),
     ("PROTOCOL", "non-reserved"),
     ("QUEUE", "non-reserved"),

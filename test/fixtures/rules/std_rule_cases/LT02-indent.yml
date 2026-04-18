@@ -2777,3 +2777,91 @@ test_indent_leading_segment_align_following_window_function:
       indented_joins: True
       allow_implicit_indents: False
       indented_on_contents: True
+
+# Issue 6675: FROM VALUES on the same line should be acceptable
+# when implicit_indents is set to "allow".
+test_pass_from_values_same_line_implicit_allow:
+  # FROM VALUES on the same line should pass with implicit_indents = allow
+  pass_str: |
+    SELECT *
+    FROM VALUES
+        (1, 'something'),
+        (2, 'something');
+  configs:
+    core:
+      dialect: snowflake
+    indentation:
+      implicit_indents: allow
+
+test_pass_from_values_inline_implicit_allow:
+  # FROM VALUES all on one line should always pass
+  pass_str: |
+    SELECT *
+    FROM VALUES (1, 'something'), (2, 'something');
+  configs:
+    core:
+      dialect: snowflake
+    indentation:
+      implicit_indents: allow
+
+test_pass_from_values_separate_line_implicit_allow:
+  # FROM with VALUES on a separate indented line should also pass
+  pass_str: |
+    SELECT *
+    FROM
+        VALUES
+        (1, 'something'),
+        (2, 'something');
+  configs:
+    core:
+      dialect: snowflake
+    indentation:
+      implicit_indents: allow
+
+test_pass_from_values_bracketed_implicit_allow:
+  # FROM with bracketed VALUES should pass
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES
+        (1, 'something'),
+        (2, 'something')
+    );
+  configs:
+    core:
+      dialect: snowflake
+    indentation:
+      implicit_indents: allow
+
+test_pass_jinja_if_with_in_clause:
+  # Regression test for GitHub issue #7740.
+  # Parenthesized expressions inside a Jinja if-block must not produce
+  # false-positive LT02 violations.  The indentation is correct; removing
+  # the parentheses should not change the linting outcome.
+  pass_str: |
+    SELECT 1
+    WHERE
+        1 = 1
+        {%- if true %}
+        AND x IN (1)
+        {%- endif %}
+  configs:
+    core:
+      templater: jinja
+    indentation:
+      template_blocks_indent: false
+
+test_pass_jinja_if_with_in_clause_multi_value:
+  # Same scenario with multiple values in the IN list (issue #7740).
+  pass_str: |
+    SELECT 1
+    WHERE
+        1 = 1
+        {%- if true %}
+        AND x IN (1, 2, 3)
+        {%- endif %}
+  configs:
+    core:
+      templater: jinja
+    indentation:
+      template_blocks_indent: false

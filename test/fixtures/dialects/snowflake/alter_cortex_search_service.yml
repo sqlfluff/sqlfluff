@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ffe2787251973962e11960b54672bd8f7acc1dee7baca9604c8c7b0b0588475
+_hash: c0e9e370d203815307e3fdae3549d03a3a687042008fdf05b178ea40279aa67e
 file:
 - statement:
-    alter_streamlit_statement:
+    alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -21,7 +21,7 @@ file:
         naked_identifier: my_new_wh
 - statement_terminator: ;
 - statement:
-    alter_streamlit_statement:
+    alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -36,7 +36,7 @@ file:
         quoted_literal: "'new_comment'"
 - statement_terminator: ;
 - statement:
-    alter_streamlit_statement:
+    alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -50,7 +50,7 @@ file:
     - dynamic_table_lag_interval_segment: "'1 hour'"
 - statement_terminator: ;
 - statement:
-    alter_streamlit_statement:
+    alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -61,7 +61,7 @@ file:
     - keyword: SERVING
 - statement_terminator: ;
 - statement:
-    alter_streamlit_statement:
+    alter_cortex_search_service_statement:
     - keyword: alter
     - keyword: cortex
     - keyword: search
@@ -72,7 +72,7 @@ file:
     - keyword: indexing
 - statement_terminator: ;
 - statement:
-    alter_streamlit_statement:
+    alter_cortex_search_service_statement:
     - keyword: alter
     - keyword: cortex
     - keyword: search
@@ -85,7 +85,7 @@ file:
     - keyword: indexing
 - statement_terminator: ;
 - statement:
-    alter_streamlit_statement:
+    alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -100,7 +100,7 @@ file:
         naked_identifier: my_new_wh
 - statement_terminator: ;
 - statement:
-    alter_streamlit_statement:
+    alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -117,4 +117,38 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - dynamic_table_lag_interval_segment: "'1 hour'"
+- statement_terminator: ;
+- statement:
+    alter_cortex_search_service_statement:
+    - keyword: ALTER
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: mysvc
+    - keyword: ADD
+    - keyword: SCORING
+    - keyword: PROFILE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: myprofile
+    - quoted_literal: "'{\n    \"functions\": {\n      \"myprofile_boosts\": [\n \
+        \       { \"column\": \"EXAMPLE_COLUMN\", \"weight\": 10 }\n      ]\n    }\n\
+        \  }'"
+- statement_terminator: ;
+- statement:
+    alter_cortex_search_service_statement:
+    - keyword: ALTER
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: mysvc
+    - keyword: DROP
+    - keyword: SCORING
+    - keyword: PROFILE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: myprofile
 - statement_terminator: ;

@@ -1,0 +1,11 @@
+file:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            quoted_literal: "'1, 2, 3, 4, 5'"
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: numbers
