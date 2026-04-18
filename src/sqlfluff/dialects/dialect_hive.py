@@ -280,6 +280,31 @@ class EqualsSegment(ansi.EqualsSegment):
     )
 
 
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
+    """A Hive `GROUP BY` clause supporting trailing `GROUPING SETS`."""
+
+    match_grammar = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
+            Sequence(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+                Ref("GroupingSetsClauseSegment", optional=True),
+            ),
+        ),
+        Dedent,
+    )
+
+
 class StructTypeSegment(ansi.StructTypeSegment):
     """Expression to construct a STRUCT datatype."""
 
