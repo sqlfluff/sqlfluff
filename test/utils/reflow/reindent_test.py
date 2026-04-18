@@ -1004,3 +1004,41 @@ def test_reflow__indent_compensation_success_path(default_config, caplog):
     assert result is not None
     # The warning is logged (visible in test output) but we don't assert on it
     # due to pytest-xdist capture limitations
+
+
+def test_reflow__indent_compensation_skipped_at_level_zero(default_config):
+    """Test that indent compensation is skipped at indent level 0.
+
+    When a leading comma appears at indent level 0 (e.g. between top-level
+    CTEs), there is no indent to compensate. This should be a silent no-op
+    rather than a warning.
+    """
+    from sqlfluff.utils.reflow.config import ReflowConfig
+
+    # SQL with a leading comma at indent level 0 (between CTEs)
+    raw_sql = "with cte_a as (select 1)\n\n, cte_b as (select 2)\n\nselect * from cte_a"
+
+    root = parse_ansi_string(raw_sql, default_config)
+
+    custom_config_dict = {
+        "comma": {
+            "line_position": "leading:align-following",
+            "spacing_after": "single",
+        }
+    }
+    reflow_config = ReflowConfig.from_dict(
+        custom_config_dict,
+        indent_unit="space",
+        tab_space_size=4,
+    )
+
+    seq = ReflowSequence.from_root(root, config=default_config)
+    seq = ReflowSequence(
+        elements=seq.elements,
+        root_segment=seq.root_segment,
+        reflow_config=reflow_config,
+        depth_map=seq.depth_map,
+    )
+
+    result = seq.reindent()
+    assert result is not None

@@ -350,3 +350,40 @@ test_fail_no_blank_line_leading_comma:
     )
 
     select * from my_cte cross join other_cte
+
+test_fail_oneline_cte_leading_align_following_comma:
+  # Test oneline cte with leading:align-following comma style doesn't crash
+  fail_str: |
+    with a as (select 1), b as (select 2) select * from a
+
+  fix_str: |
+    with a as (select 1)
+
+    , b as (select 2)
+
+    select * from a
+
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: "leading:align-following"
+
+test_pass_blank_line_after_cte_leading_align_following_comma:
+  # Passing case with leading:align-following and blank lines already present
+  pass_str: |
+    with my_cte as (
+        select 1
+    )
+
+    , other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte
+
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: "leading:align-following"

@@ -40,6 +40,10 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects.dialect_oracle_keywords import (
+    oracle_reserved_keywords,
+    oracle_unreserved_keywords,
+)
 
 ansi_dialect = load_raw_dialect("ansi")
 oracle_dialect = ansi_dialect.copy_as(
@@ -50,332 +54,12 @@ oracle_dialect = ansi_dialect.copy_as(
 .. _`Oracle`: https://www.oracle.com/database/technologies/appdev/sql.html""",
 )
 
-oracle_dialect.sets("reserved_keywords").update(
-    [
-        "ACCESS",
-        "ADD",
-        "ALL",
-        "ALTER",
-        "AND",
-        "ANY",
-        "AS",
-        "ASC",
-        "AUDIT",
-        "BETWEEN",
-        "BY",
-        "CHAR",
-        "CHECK",
-        "CLUSTER",
-        "COLUMN",
-        "COLUMN_VALUE",
-        "COMMENT",
-        "COMPRESS",
-        "CONNECT",
-        "CONNECT_BY_ROOT",
-        "CONSTRAINT",
-        "CREATE",
-        "CURRENT",
-        "DATE",
-        "DECIMAL",
-        "DEFAULT",
-        "DEFINITION",
-        "DELETE",
-        "DELETING",
-        "DESC",
-        "DISABLE",
-        "DISTINCT",
-        "DROP",
-        "ELSE",
-        "ENABLE",
-        "EXCLUSIVE",
-        "EXECUTE",
-        "EXISTS",
-        "FILE",
-        "FLOAT",
-        "FOR",
-        "FORCE",
-        "FROM",
-        "GRANT",
-        "GROUP",
-        "HAVING",
-        "IDENTIFIED",
-        "IMMEDIATE",
-        "IN",
-        "INCREMENT",
-        "INDEX",
-        "INDEXTYPE",
-        "INITIAL",
-        "INSERT",
-        "INSERTING",
-        "INTEGER",
-        "INTERSECT",
-        "INTO",
-        "INVISIBLE",
-        "IS",
-        "LEVEL",
-        "LIKE",
-        "LOCK",
-        "LOGGING",
-        "LONG",
-        "LOOP",
-        "MAXEXTENTS",
-        "MINUS",
-        "MLSLABEL",
-        "MODE",
-        "MODIFY",
-        "MONITORING",
-        "NESTED_TABLE_ID",
-        "NOAUDIT",
-        "NOCOMPRESS",
-        "NOLOGGING",
-        "NOMONITORING",
-        "NOREVERSE",
-        "NOT",
-        "NOWAIT",
-        "NULL",
-        "NUMBER",
-        "OF",
-        "OFFLINE",
-        "ON",
-        "ONLINE",
-        "OPTION",
-        "OR",
-        "ORDER",
-        "OVERFLOW",
-        "PARAMETERS",
-        "PCTFREE",
-        "PIVOT",
-        "PRIOR",
-        "PRIVATE",
-        "PROMPT",
-        "PUBLIC",
-        "RAW",
-        "REBUILD",
-        "RENAME",
-        "RESOURCE",
-        "REVERSE",
-        "REVOKE",
-        "ROW",
-        "ROWID",
-        "ROWNUM",
-        "ROWS",
-        "SELECT",
-        "SESSION",
-        "SET",
-        "SHARE",
-        "SIBLINGS",
-        "SIZE",
-        "SMALLINT",
-        "START",
-        "SUCCESSFUL",
-        "SYNONYM",
-        "SYSDATE",
-        "TABLE",
-        "THEN",
-        "TO",
-        "TRIGGER",
-        "UID",
-        "UNION",
-        "UNIQUE",
-        "UNPIVOT",
-        "UNUSABLE",
-        "UPDATE",
-        "UPDATING",
-        "USER",
-        "VALIDATE",
-        "VALUES",
-        "VARCHAR",
-        "VARCHAR2",
-        "VIEW",
-        "VISIBLE",
-        "WHEN",
-        "WHENEVER",
-        "WHERE",
-        "WITH",
-    ]
+oracle_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", oracle_reserved_keywords
 )
 
-oracle_dialect.sets("unreserved_keywords").update(
-    [
-        "ABSENT",
-        "ACCESSIBLE",
-        "ACTIVE",
-        "ADMINISTER",
-        "ADVANCED",
-        "ADVISE",
-        "ADVISOR",
-        "ANALYTIC",
-        "ARCHIVAL",
-        "ARCHIVE",
-        "AUTHENTICATED",
-        "AUTHID",
-        "AUTO",
-        "BASIC",
-        "BECOME",
-        "BITMAP",
-        "BODY",
-        "BUFFER_POOL",
-        "BULK",
-        "BULK_EXCEPTIONS",
-        "BULK_ROWCOUNT",
-        "BYTE",
-        "CAPACITY",
-        "CELL_FLASH_CACHE",
-        "COLLECT",
-        "COMMITTED",
-        "COMPILE",
-        "COMPOUND",
-        "CONSTANT",
-        "CONSTRAINTS",
-        "CONTAINER",
-        "CONTEXT",
-        "CREATION",
-        "CRITICAL",
-        "CROSSEDITION",
-        "CURRVAL",
-        "CURSOR",
-        "DBA_RECYCLEBIN",
-        "DBTIMEZONE",
-        "DDL",
-        "DEBUG",
-        "DEFERRED",
-        "DELEGATE",
-        "DIGEST",
-        "DIMENSION",
-        "DIRECTIVE",
-        "DIRECTORIES",
-        "DIRECTORY",
-        "DISTRIBUTE",
-        "DML",
-        "DUPLICATE",
-        "EDITION",
-        "EDITIONABLE",
-        "EDITIONING",
-        "EDITIONS",
-        "ELSIF",
-        "EMPTY",
-        "ERROR",
-        "ERRORS",
-        "EXEMPT",
-        "EXPIRE",
-        "EXTERNALLY",
-        "FINE",
-        "FLASHBACK",
-        "FLASH_CACHE",
-        "FOLLOWS",
-        "FORALL",
-        "FREELIST",
-        "FREELISTS",
-        "GLOBALLY",
-        "GROUPS",
-        "GUARD",
-        "HIERARCHY",
-        "HIGH",
-        "HTTP",
-        "INDICES",
-        "INHERITANY",
-        "INITRANS",
-        "INMEMORY",
-        "ISOLATION_LEVEL",
-        "ISOPEN",
-        "JAVA",
-        "JOB",
-        "KEEP",
-        "LIBRARY",
-        "LINK",
-        "LOCKDOWN",
-        "LOCKING",
-        "LOG",
-        "LOGMINING",
-        "LOOP",
-        "LOW",
-        "MAXSIZE",
-        "MAXTRANS",
-        "MEASURE",
-        "MEDIUM",
-        "MEMCOMPRESS",
-        "MINEXTENTS",
-        "MINING",
-        "MOVEMENT",
-        "MUTABLE",
-        "NESTED",
-        "NEXTVAL",
-        "NOCOPY",
-        "NOMAXVALUE",
-        "NOMINVALUE",
-        "NONE",
-        "NONEDITIONABLE",
-        "NOPARALLEL",
-        "NOROWDEPENDENCIES",
-        "NOSORT",
-        "NOTFOUND",
-        "NOTHING",
-        "OID",
-        "OLTP",
-        "OPTIMAL",
-        "ORA_ROWSCN",
-        "OUTLINE",
-        "PACKAGE",
-        "PAIRS",
-        "PARALLEL",
-        "PARALLEL_ENABLE",
-        "PARENT",
-        "PCTINCREASE",
-        "PCTUSED",
-        "PERSISTABLE",
-        "PIPELINED",
-        "PLUGGABLE",
-        "POLYMORPHIC",
-        "PRAGMA",
-        "PRECEDES",
-        "PRIORITY",
-        "PRIVILEGE",
-        "PROFILE",
-        "PROGRAM",
-        "PROPERTY",
-        "QUERY",
-        "QUOTA",
-        "RAISE",
-        "RECORD",
-        "RECYCLE",
-        "REDACTION",
-        "REDEFINE",
-        "REFRESH",
-        "REJECT",
-        "RELIES_ON",
-        "REMOTE",
-        "RESTRICTED",
-        "RESULT_CACHE",
-        "RESUMABLE",
-        "RETURNING",
-        "REUSE",
-        "REVERSE",
-        "REWRITE",
-        "ROWDEPENDENCIES",
-        "ROWTYPE",
-        "SCHEDULER",
-        "SEGMENT",
-        "SERIALIZABLE",
-        "SERVICE",
-        "SESSION_USER",
-        "SHARD",
-        "SHARD_ENABLE",
-        "SHARED",
-        "SHARING",
-        "SIGN",
-        "SPECIFICATION",
-        "SQL_MACRO",
-        "STORAGE",
-        "STORE",
-        "SUBPARTITION",
-        "SYNC",
-        "SYSGUID",
-        "TIMEOUT",
-        "TIME_ZONE",
-        "UNLIMITED",
-        "VARRAY",
-        "VISIBILITY",
-    ]
+oracle_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", oracle_unreserved_keywords
 )
 
 oracle_dialect.sets("bare_functions").clear()
@@ -475,6 +159,11 @@ oracle_dialect.add(
     ),
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    # Colon prefix for bind variables (:var) and trigger pseudorecords
+    # (:NEW, :OLD). Distinct from ColonSegment so the global
+    # `spacing_before = touch` on type "colon" doesn't collapse the
+    # required space before these variables.
+    BindColonSegment=StringParser(":", SymbolSegment, type="bind_colon"),
     AssignmentOperatorSegment=StringParser(
         ":=", SymbolSegment, type="assignment_operator"
     ),
@@ -523,7 +212,14 @@ oracle_dialect.add(
     ),
     UnpivotNullsGrammar=Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULLS"),
     StatementAndDelimiterGrammar=Sequence(
-        Ref("StatementSegment"),
+        # PlsqlStatementSegment extends StatementSegment with ProcedureCallStatementSegment.
+        # Using it here (rather than plain StatementSegment) means bare procedure-call
+        # syntax is only tried inside PL/SQL block bodies (BEGIN/END, loops, IF, etc.)
+        # that use OneOrMoreStatementsGrammar -> StatementAndDelimiterGrammar.
+        # The top-level BatchSegment references StatementSegment directly, so it is
+        # shielded from ProcedureCallStatementSegment and cannot silently absorb DDL
+        # unreserved keywords (e.g. NOCACHE, NOROWDEPENDENCIES) as phantom calls.
+        Ref("PlsqlStatementSegment"),
         Ref("DelimiterGrammar", optional=True),
     ),
     OneOrMoreStatementsGrammar=AnyNumberOf(
@@ -953,7 +649,7 @@ oracle_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("TriggerCorrelationReferenceSegment"),
-            Ref("SqlplusVariableGrammar"),
+            Ref("BindVariableSegment"),
             Ref.keyword("LEVEL"),
             Ref.keyword("ROWNUM"),
             Ref.keyword("ANY"),
@@ -965,7 +661,7 @@ oracle_dialect.replace(
     ).copy(
         insert=[
             Ref("ConnectByRootGrammar"),
-            Ref("SqlplusSubstitutionVariableSegment"),
+            Ref("SubstitutionVariableSegment"),
         ]
     ),
     Expression_D_Grammar=Sequence(
@@ -1026,7 +722,7 @@ oracle_dialect.replace(
                 ),
             ),
             Ref("LocalAliasSegment"),
-            Ref("SqlplusSubstitutionVariableSegment"),
+            Ref("SubstitutionVariableSegment"),
             Ref("ImplicitCursorAttributesGrammar"),
             Sequence(
                 Ref("ObjectReferenceSegment"),
@@ -1058,7 +754,7 @@ oracle_dialect.replace(
     UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
-            Ref("SqlplusSubstitutionVariableSegment"),
+            Ref("SubstitutionVariableSegment"),
         ]
     ),
     SequenceMinValueGrammar=OneOf(
@@ -1394,6 +1090,41 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("AlterSynonymStatementSegment"),
+            Ref("DropProfileStatementSegment"),
+            Ref("DropClusterStatementSegment"),
+        ],
+    )
+
+
+class PlsqlStatementSegment(StatementSegment):
+    """PL/SQL block statement with bare procedure call support.
+
+    Adds `ProcedureCallStatementSegment` (e.g. `my_proc;`) for use
+    inside PL/SQL blocks only. This avoids a bug where unreserved DDL
+    keywords (e.g. `NOCACHE`, `NOROWDEPENDENCIES`) could be silently
+    consumed as phantom procedure calls at the top level, hiding real
+    syntax errors. The bug was triggered by Python 3.14's changed
+    dictionary iteration order affecting `longest_match` branch
+    selection; earlier Python versions happened to avoid it due to
+    different internal ordering, making the behaviour non-deterministic
+    across runtimes.
+
+    *Known limitation*: bare procedure calls outside a PL/SQL block
+    (i.e. not inside `BEGIN/END`, loops, or `IF`) are not supported
+    and will produce a parse error. Supporting both safely would require
+    a context-aware grammar that can distinguish unreserved DDL keywords
+    from procedure names -- not possible with the flat `BatchSegment`
+    architecture.
+    """
+
+    type = "statement"
+
+    match_grammar = StatementSegment.match_grammar.copy(
+        insert=[
+            # Must be last: bare reference or call without parentheses used as
+            # a statement (procedure call).  More specific segments above take
+            # priority when the lookahead matches their keywords.
+            Ref("ProcedureCallStatementSegment"),
         ],
     )
 
@@ -1806,17 +1537,17 @@ class ColumnDefinitionSegment(BaseSegment):
     )
 
 
-class SqlplusVariableGrammar(BaseSegment):
-    """SQLPlus Bind Variables :thing.
+class BindVariableSegment(BaseSegment):
+    """Bind variable (e.g. :var, :var.field).
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/using-substitution-variables-sqlplus.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/mlejs/bind-variables.html
     """
 
-    type = "sqlplus_variable"
+    type = "bind_variable"
 
     match_grammar = Sequence(
         OptionallyBracketed(
-            Ref("ColonSegment"),
+            Ref("BindColonSegment"),
             Ref("ParameterNameSegment"),
             Sequence(Ref("DotSegment"), Ref("ParameterNameSegment"), optional=True),
         )
@@ -2007,12 +1738,12 @@ class TriggerCorrelationNameSegment(BaseSegment):
 
 
 class TriggerCorrelationReferenceSegment(BaseSegment):
-    """A segment to represent pseudorecords like :NEW, :OLD, and :PARENT."""
+    """Trigger pseudorecord reference (:NEW, :OLD, :PARENT)."""
 
     type = "bind_variable"
 
     match_grammar = Sequence(
-        Ref("ColonDelimiterSegment"),
+        Ref("BindColonSegment"),
         Ref("TriggerCorrelationNameSegment"),
         Sequence(
             Ref("DotSegment"),
@@ -2085,13 +1816,13 @@ class FunctionNameSegment(BaseSegment):
     )
 
 
-class SqlplusSubstitutionVariableSegment(BaseSegment):
-    """SQLPlus Substitution Variables &thing.
+class SubstitutionVariableSegment(BaseSegment):
+    """SQL*Plus substitution variable (&var, &&var).
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqpug/using-substitution-variables-sqlplus.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/using-substitution-variables-sqlplus.html
     """
 
-    type = "sqlplus_variable"
+    type = "substitution_variable"
 
     match_grammar = Sequence(
         Ref("AmpersandSegment"),
@@ -2216,7 +1947,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
 
     match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
         insert=[
-            Ref("SqlplusSubstitutionVariableSegment"),
+            Ref("SubstitutionVariableSegment"),
         ]
     )
 
@@ -3288,12 +3019,55 @@ class AssignmentStatementSegment(BaseSegment):
             Ref("DotSegment", optional=True),
             OneOf(
                 Ref("TriggerCorrelationReferenceSegment"),
-                Ref("SqlplusVariableGrammar"),
+                Ref("BindVariableSegment"),
             ),
             optional=True,
         ),
         OneOf(Ref("AssignmentOperatorSegment"), "DEFAULT"),
         Ref("ExpressionSegment"),
+    )
+
+
+class ProcedureCallStatementSegment(BaseSegment):
+    """A PL/SQL procedure invocation used as a statement, without an argument list.
+
+    Oracle calls this a *subprogram invocation*; both procedures and functions
+    fall under that umbrella. This segment handles only the **procedure** case
+    (a procedure invocation is a PL/SQL *statement*, whereas a function
+    invocation is an *expression*) and only when the argument list is omitted
+    entirely.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/lnpls/subprogram-invocations.html
+
+    *Known limitation:* collection methods with reserved-keyword names
+    (e.g. `my_collection.DELETE;`) cannot be parsed because
+    `NakedIdentifierSegment` rejects reserved keywords.  Methods with
+    unreserved names (`EXTEND`, `TRIM`, `FIRST`, `LAST`) work fine.
+    """
+
+    type = "procedure_call_statement"
+
+    # END, EXCEPTION, and ELSIF are *unreserved*, so NakedIdentifierSegment
+    # would accept them as identifiers and this segment would consume them
+    # before the enclosing block structure can claim them as block-closing
+    # tokens. All other block keywords (ELSE, WHEN, THEN, LOOP, BEGIN, IF,
+    # ...) are *reserved* and are therefore already rejected by NakedIdentifier
+    # Segment's anti_template without explicit exclusion here.
+    _block_closing_kw_exclusion = OneOf(
+        Ref.keyword("END"),
+        Ref.keyword("EXCEPTION"),
+        Ref.keyword("ELSIF"),
+    )
+
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar", exclude=_block_closing_kw_exclusion),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar", exclude=_block_closing_kw_exclusion),
+            ),
+            max_times=2,
+        ),
     )
 
 
@@ -3654,7 +3428,11 @@ class LoopStatementSegment(BaseSegment):
     type = "loop_statement"
 
     match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar", optional=True),
+        Ref(
+            "SingleIdentifierGrammar",
+            optional=True,
+            exclude=Ref.keyword("END"),
+        ),
         "LOOP",
         Indent,
         Ref("OneOrMoreStatementsGrammar"),
@@ -3716,7 +3494,7 @@ class CloseStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CLOSE",
-        OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar")),
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment")),
     )
 
 
@@ -3730,7 +3508,7 @@ class OpenForStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "OPEN",
-        OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar")),
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment")),
         "FOR",
         OneOf(
             Ref("SingleQuotedIdentifierSegment"),
@@ -3764,7 +3542,7 @@ class FetchStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "FETCH",
-        OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar")),
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment")),
         OneOf(
             Ref("IntoClauseSegment"),
             Sequence(
@@ -3789,7 +3567,7 @@ class IntoClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "INTO",
-        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))),
+        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment"))),
     )
 
 
@@ -3806,7 +3584,7 @@ class BulkCollectIntoClauseSegment(BaseSegment):
         "COLLECT",
         "INTO",
         ImplicitIndent,
-        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))),
+        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment"))),
         Dedent,
     )
 
@@ -4145,6 +3923,74 @@ class AlterSynonymStatementSegment(BaseSegment):
     )
 
 
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
+    """A `DROP USER` statement.
+
+    Extends ANSI to support Oracle's optional ``CASCADE`` clause, which drops
+    all objects in the user's schema before removing the user.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/DROP-USER.html
+    """
+
+    type = "drop_user_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "USER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("RoleReferenceSegment"),
+        Ref.keyword("CASCADE", optional=True),
+    )
+
+
+class DropProfileStatementSegment(BaseSegment):
+    """A `DROP PROFILE` statement.
+
+    ``CASCADE`` deassigns the profile from any users to whom it is assigned,
+    reassigning them to the ``DEFAULT`` profile.  Required when the profile is
+    currently assigned to one or more users.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/DROP-PROFILE.html
+    """
+
+    type = "drop_profile_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "PROFILE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref.keyword("CASCADE", optional=True),
+    )
+
+
+class DropClusterStatementSegment(BaseSegment):
+    """A `DROP CLUSTER` statement.
+
+    ``INCLUDING TABLES`` drops all tables that belong to the cluster.
+    ``CASCADE CONSTRAINTS`` (only valid after ``INCLUDING TABLES``) drops
+    referential integrity constraints from tables in other schemas that
+    reference primary/unique keys in the cluster's tables.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/DROP-CLUSTER.html
+    """
+
+    type = "drop_cluster_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CLUSTER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "INCLUDING",
+            "TABLES",
+            Sequence("CASCADE", "CONSTRAINTS", optional=True),
+            optional=True,
+        ),
+    )
+
+
 class AccessPermissionSegment(ansi.AccessPermissionSegment):
     """An access permission."""
 
@@ -4159,6 +4005,7 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
         Sequence("BECOME", "USER"),
         Sequence("CHANGE", "NOTIFICATION"),
         "COMMENT",
+        "CONNECT",
         "CREATE",
         "DEBUG",
         "DELETE",
@@ -4187,6 +4034,7 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
         "READ",
         "REDEFINE",
         "REFERENCES",
+        "RESOURCE",
         "RESTRICTED",
         "RESUMABLE",
         "SELECT",
@@ -4194,6 +4042,7 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
         "SIGN",
         Sequence("TABLE", "RETENTION"),
         "TRANSLATE",
+        "TRIGGER",
         "UNDER",
         "UNLIMITED",
         "UPDATE",

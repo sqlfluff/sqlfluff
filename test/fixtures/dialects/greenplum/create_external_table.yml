@@ -1,0 +1,491 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5c8aedaa23e7f1567fd32e1bb8ecf8ef5af38ba771673c6317413045d286ad60
+file:
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_expenses
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: name
+      - data_type:
+          keyword: text
+      - comma: ','
+      - column_reference:
+          naked_identifier: category
+      - data_type:
+          keyword: text
+      - comma: ','
+      - column_reference:
+          naked_identifier: desc1
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'gpfdist://etlhost-1:8081/*'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_expenses
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: name
+      - data_type:
+          keyword: text
+      - comma: ','
+      - column_reference:
+          naked_identifier: category
+      - data_type:
+          keyword: text
+      - comma: ','
+      - column_reference:
+          naked_identifier: amount
+      - data_type:
+          keyword: float4
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'gpfdist://etlhost-1:8081/*.txt'"
+      - comma: ','
+      - quoted_literal: "'gpfdist://etlhost-2:8082/*.txt'"
+      - end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_csv
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'gpfdist://etlhost-1:8081/data.csv'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'CSV'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "','"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: READABLE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_read
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: val
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'gpfdist://etlhost-1:8081/data.txt'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: WRITABLE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_write
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: val
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'gpfdist://etlhost-1:8081/output/'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: WEB
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: log_output
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: linenum
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: message
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: EXECUTE
+    - quoted_literal: "'/var/load_scripts/get_log_data.sh'"
+    - keyword: 'ON'
+    - keyword: HOST
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_encoded
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'gpfdist://etlhost-1:8081/data.txt'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+    - keyword: ENCODING
+    - quoted_literal: "'UTF8'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_with_errors
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'gpfdist://etlhost-1:8081/data.txt'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+    - keyword: LOG
+    - keyword: ERRORS
+    - keyword: SEGMENT
+    - keyword: REJECT
+    - keyword: LIMIT
+    - numeric_literal: '5'
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: WRITABLE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_write_random
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: val
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'gpfdist://etlhost-1:8081/output/'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: RANDOMLY
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: WEB
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: cmd_output
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: val
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: EXECUTE
+    - quoted_literal: "'/usr/local/bin/mycommand'"
+    - keyword: 'ON'
+    - keyword: COORDINATOR
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_custom_fmt
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: data
+      - data_type:
+          keyword: bytea
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'gpfdist://etlhost-1:8081/data.bin'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'CUSTOM'"
+    - bracketed:
+        start_bracket: (
+        parameter: FORMATTER
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'fixedwidth_in'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_with_options
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'pxf://tmp/data?PROFILE=HdfsTextSimple'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "','"
+        end_bracket: )
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        parameter: mpp_execute
+        quoted_literal: "'all segments'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_like
+    - keyword: LIKE
+    - table_reference:
+        naked_identifier: other_table
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'gpfdist://etlhost-1:8081/data.txt'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'CSV'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ext_log_errors
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: LOCATION
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'gpfdist://etlhost-1:8081/data.txt'"
+        end_bracket: )
+    - keyword: FORMAT
+    - quoted_literal: "'TEXT'"
+    - bracketed:
+        start_bracket: (
+        parameter: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+    - keyword: LOG
+    - keyword: ERRORS
+    - keyword: SEGMENT
+    - keyword: REJECT
+    - keyword: LIMIT
+    - numeric_literal: '10'
+    - keyword: PERCENT
+- statement_terminator: ;

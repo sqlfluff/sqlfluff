@@ -542,3 +542,66 @@ test_align_alias_with_tabs_custom_tab_size:
           spacing_before: align
           align_within: select_clause
           align_scope: bracketed
+
+# SparkSQL struct field access alignment tests (issue #6913)
+# These test that expressions with semi_structured_expression (dot access)
+# on function results correctly participate in alias alignment.
+test_align_alias_sparksql_struct_access:
+  # The exact pattern from issue #6913: ELEMENT_AT(...).f1
+  # Previously reported as unfixable in v3.3.1.
+  fail_str: |
+    select
+        1 as c1,
+        'a' as c2,
+        ELEMENT_AT(FROM_JSON('[{"f1":"v1","f2":"v2"}]', 'ARRAY<STRUCT<f1: STRING, f2: STRING>>'), -1).f1 as c3
+  fix_str: |
+    select
+        1                                                                                                as c1,
+        'a'                                                                                              as c2,
+        ELEMENT_AT(FROM_JSON('[{"f1":"v1","f2":"v2"}]', 'ARRAY<STRUCT<f1: STRING, f2: STRING>>'), -1).f1 as c3
+  configs: &sparksql_align_alias
+    core:
+      dialect: sparksql
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
+
+test_align_alias_sparksql_struct_access_pass:
+  # Already aligned struct access should pass.
+  pass_str: |
+    select
+        1                                                                                                as c1,
+        'a'                                                                                              as c2,
+        ELEMENT_AT(FROM_JSON('[{"f1":"v1","f2":"v2"}]', 'ARRAY<STRUCT<f1: STRING, f2: STRING>>'), -1).f1 as c3
+  configs: *sparksql_align_alias
+
+test_align_alias_sparksql_named_struct:
+  # named_struct with dot access alignment
+  fail_str: |
+    select
+        col1 as a,
+        named_struct('x', 1, 'y', 2).x as b
+    from t
+  fix_str: |
+    select
+        col1                           as a,
+        named_struct('x', 1, 'y', 2).x as b
+    from t
+  configs: *sparksql_align_alias
+
+test_align_alias_sparksql_mixed_struct_and_plain:
+  # Mix of plain columns and struct access expressions
+  fail_str: |
+    select
+        ELEMENT_AT(arr, 1).field1 as b,
+        col1 as a
+    from t
+  fix_str: |
+    select
+        ELEMENT_AT(arr, 1).field1 as b,
+        col1                      as a
+    from t
+  configs: *sparksql_align_alias

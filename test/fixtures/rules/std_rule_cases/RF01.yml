@@ -744,3 +744,87 @@ test_pass_redshift_array_unnest:
   configs:
     core:
       dialect: redshift
+
+test_pass_snowflake_sequence_nextval:
+  # Snowflake sequence pseudocolumns should not be interpreted as table
+  # references.  https://github.com/sqlfluff/sqlfluff/issues/7036
+  pass_str: |
+    SELECT
+        XYZ.SCHEMA.SEQ_1.NEXTVAL AS COL_1,
+        COL_2
+    FROM XYZ.SCHEMA.TAB_1
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_sequence_currval:
+  # Snowflake also supports CURRVAL on sequences.
+  pass_str: |
+    SELECT SEQ_1.CURRVAL FROM XYZ.SCHEMA.TAB_1
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_schema_sequence_nextval:
+  # Snowflake two-part sequence reference with schema qualifier.
+  pass_str: |
+    SELECT MY_SCHEMA.SEQ_1.NEXTVAL FROM MY_SCHEMA.TAB_1
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_databricks_metadata_file_path:
+  # Databricks _metadata virtual column should not trigger RF01.
+  # https://github.com/sqlfluff/sqlfluff/issues/7587
+  # https://docs.databricks.com/en/ingestion/file-metadata-column.html
+  pass_str: |
+    SELECT _metadata.file_path
+    FROM read_files('path/to/data')
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_databricks_metadata_multiple_fields:
+  # Multiple _metadata subfields should all be allowed.
+  pass_str: |
+    SELECT
+        _metadata.file_path,
+        _metadata.file_name,
+        _metadata.file_size,
+        _metadata.file_modification_time
+    FROM my_table
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_databricks_metadata_in_where:
+  # _metadata should be recognized in WHERE clauses too.
+  pass_str: |
+    SELECT *
+    FROM my_table
+    WHERE _metadata.file_path LIKE '%test%'
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_sparksql_metadata_file_path:
+  # SparkSQL also supports the _metadata virtual column.
+  pass_str: |
+    SELECT _metadata.file_path
+    FROM my_table
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_databricks_non_metadata_reference:
+  # Non-_metadata references should still be flagged in Databricks
+  # when force_enable is true.
+  fail_str: |
+    SELECT unknown_table.column
+    FROM read_files('path/to/data')
+  configs:
+    core:
+      dialect: databricks
+    rules:
+      references.from:
+        force_enable: true

@@ -8098,7 +8098,7 @@ class AlterCortexSearchServiceStatementSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/alter-cortex-search
     """
 
-    type = "alter_streamlit_statement"
+    type = "alter_cortex_search_service_statement"
 
     match_grammar = Sequence(
         "ALTER",
@@ -8132,6 +8132,21 @@ class AlterCortexSearchServiceStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "ADD",
+                "SCORING",
+                "PROFILE",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "DROP",
+                "SCORING",
+                "PROFILE",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
         ),
     )
 
@@ -8827,7 +8842,10 @@ class MergeUpdateClauseSegment(ansi.MergeUpdateClauseSegment):
 
     match_grammar = Sequence(
         "UPDATE",
-        Ref("SetClauseListSegment"),
+        OneOf(
+            Ref("SetClauseListSegment"),
+            Sequence("ALL", "BY", "NAME"),
+        ),
         Ref("WhereClauseSegment", optional=True),
     )
 
@@ -8846,10 +8864,15 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
 
     match_grammar = Sequence(
         "INSERT",
-        Indent,
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Dedent,
-        Ref("ValuesClauseSegment", optional=True),
+        OneOf(
+            Sequence("ALL", "BY", "NAME"),
+            Sequence(
+                Indent,
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
+                Ref("ValuesClauseSegment", optional=True),
+            ),
+        ),
         Ref("WhereClauseSegment", optional=True),
     )
 
@@ -9685,6 +9708,40 @@ class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
     )
 
 
+class ObjectTypeSegment(BaseSegment):
+    """Structured OBJECT datatype."""
+
+    type = "object_type"
+    match_grammar = Sequence(
+        "OBJECT",
+        Ref("ObjectTypeSchemaSegment"),
+    )
+
+
+class ObjectTypeSchemaSegment(BaseSegment):
+    """Schema for a structured OBJECT datatype."""
+
+    type = "object_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment"),
+                Sequence("NOT", "NULL", optional=True),
+            ),
+        ),
+    )
+
+
+class DatatypeSegment(ansi.DatatypeSegment):
+    """A Snowflake data type segment."""
+
+    match_grammar = OneOf(
+        Ref("ObjectTypeSegment"),
+        ansi.DatatypeSegment.match_grammar,
+    )
+
+
 class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
 
@@ -10470,6 +10527,17 @@ class ExceptionBlockStatementSegment(BaseSegment):
                 ),
             ),
             Ref("StatementSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DelimiterGrammar"),
+                    # Exclude ExceptionBlockStatementSegment to prevent greedy
+                    # consumption of the next EXCEPTION block as a statement body.
+                    Ref(
+                        "StatementSegment",
+                        exclude=Ref("ExceptionBlockStatementSegment"),
+                    ),
+                ),
+            ),
         ),
         AnyNumberOf(
             Sequence(
@@ -10493,6 +10561,17 @@ class ExceptionBlockStatementSegment(BaseSegment):
                     ),
                 ),
                 Ref("StatementSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("DelimiterGrammar"),
+                        # Exclude ExceptionBlockStatementSegment to prevent greedy
+                        # consumption of the next EXCEPTION block as a statement body.
+                        Ref(
+                            "StatementSegment",
+                            exclude=Ref("ExceptionBlockStatementSegment"),
+                        ),
+                    ),
+                ),
             ),
         ),
     )

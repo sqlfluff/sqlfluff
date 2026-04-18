@@ -919,7 +919,7 @@ class ObjectLiteralElementSegment(ansi.ObjectLiteralElementSegment):
 
     match_grammar: Matchable = Sequence(
         OneOf(
-            Ref("NakedIdentifierSegment"),
+            Ref("SingleIdentifierGrammar"),
             Ref("QuotedLiteralSegment"),
         ),
         Ref("ColonSegment"),

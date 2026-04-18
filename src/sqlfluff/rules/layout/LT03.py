@@ -98,8 +98,11 @@ class Rule_LT03(BaseRule):
             line_position: The `line_position` config for the segment.
         """
         idx = parent.segments.index(segment)
+        # Strip any modifier suffix (e.g. ":align-following") to get the
+        # base position for the shortcut check.
+        base_position = line_position.split(":")[0]
         # Shortcut #1: Leading.
-        if line_position == "leading":
+        if base_position == "leading":
             if self._seek_newline(parent.segments, idx, dir=-1):
                 return True
             # If we didn't find a newline before, if there's _also_ not a newline
@@ -108,7 +111,7 @@ class Rule_LT03(BaseRule):
                 return True
 
         # Shortcut #2: Trailing.
-        elif line_position == "trailing":
+        elif base_position == "trailing":
             if self._seek_newline(parent.segments, idx, dir=1):
                 return True
             # If we didn't find a newline after, if there's _also_ not a newline

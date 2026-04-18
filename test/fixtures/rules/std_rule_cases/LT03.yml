@@ -248,6 +248,33 @@ passes_operator_alone_on_line:
       ||
       'jklm'
 
+passes_leading_align_following_binary_operator:
+  # Ensure leading:align-following doesn't crash on binary operators
+  pass_str: |
+    select
+        a
+        + b
+    from foo
+  configs:
+    layout:
+      type:
+        binary_operator:
+          line_position: "leading:align-following"
+
+passes_leading_align_following_comparison_operator:
+  # Ensure leading:align-following doesn't crash on comparison operators
+  pass_str: |
+    select *
+    from foo
+    where
+        a
+        = 1
+  configs:
+    layout:
+      type:
+        comparison_operator:
+          line_position: "leading:align-following"
+
 fixes_tuple_error_issue:
   # https://github.com/sqlfluff/sqlfluff/issues/4184
   # NB: This one isn't fixable.
