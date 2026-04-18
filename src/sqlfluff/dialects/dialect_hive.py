@@ -750,6 +750,7 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
+            Ref("FromInsertStatementSegment"),
             Ref("AlterDatabaseStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
             Ref("MsckTableStatementSegment"),
@@ -802,11 +803,88 @@ class InsertStatementSegment(BaseSegment):
                 Ref.keyword("TABLE", optional=True),
                 Ref("TableReferenceSegment"),
                 Ref("PartitionSpecGrammar", optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
                 OneOf(
                     Ref("SelectableGrammar"),
                     Ref("ValuesClauseSegment"),
                 ),
             ),
+        ),
+    )
+
+
+class FromInsertSourceClauseSegment(BaseSegment):
+    """A `FROM` source clause within a `FROM ... INSERT ...` statement."""
+
+    type = "from_insert_source_clause"
+    match_grammar = Sequence(
+        "FROM",
+        Delimited(
+            Ref("FromExpressionSegment"),
+        ),
+    )
+
+
+class FromInsertClauseSegment(BaseSegment):
+    """An `INSERT` target within a `FROM ... INSERT ...` statement."""
+
+    type = "from_insert_clause"
+    match_grammar = Sequence(
+        "INSERT",
+        OneOf(
+            Sequence(
+                "OVERWRITE",
+                OneOf(
+                    Sequence(
+                        "TABLE",
+                        Ref("TableReferenceSegment"),
+                        Ref("PartitionSpecGrammar", optional=True),
+                        Ref("IfNotExistsGrammar", optional=True),
+                        Ref(
+                            "SelectableGrammar",
+                            terminators=[Ref.keyword("INSERT")],
+                        ),
+                    ),
+                    Sequence(
+                        Sequence("LOCAL", optional=True),
+                        "DIRECTORY",
+                        Ref("QuotedLiteralSegment"),
+                        Ref("RowFormatClauseSegment", optional=True),
+                        Ref("StoredAsGrammar", optional=True),
+                        Ref(
+                            "SelectableGrammar",
+                            terminators=[Ref.keyword("INSERT")],
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "INTO",
+                Ref.keyword("TABLE", optional=True),
+                Ref("TableReferenceSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                OneOf(
+                    Ref(
+                        "SelectableGrammar",
+                        terminators=[Ref.keyword("INSERT")],
+                    ),
+                    Ref("ValuesClauseSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class FromInsertStatementSegment(BaseSegment):
+    """A `FROM ... INSERT ...` statement."""
+
+    type = "from_insert_statement"
+    match_grammar = Sequence(
+        Ref("FromInsertSourceClauseSegment"),
+        AnyNumberOf(
+            Ref("FromInsertClauseSegment"),
+            min_times=1,
         ),
     )
 

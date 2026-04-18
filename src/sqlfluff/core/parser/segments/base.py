@@ -1250,9 +1250,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def validate_segment_with_reparse(
         self,
         dialect: Dialect,
+        max_parse_depth: int,
     ) -> bool:
         """Checks correctness of new segment by re-parsing it."""
-        ctx = ParseContext(dialect=dialect)
+        ctx = ParseContext(dialect=dialect, max_parse_depth=max_parse_depth)
         # We're going to check the rematch without any metas because the
         # matching routines will assume they haven't already been added.
         # We also strip any non-code from the ends which might have moved.

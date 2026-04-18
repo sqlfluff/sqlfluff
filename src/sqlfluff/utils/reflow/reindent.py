@@ -515,6 +515,33 @@ def _revise_templated_lines(
                             continue
 
                         _this_through = net_balance + ip.indent_trough
+                        # Guard: skip a zero trough caused by closing same-line
+                        # (untaken) indents during a net-loss dedent. This prevents
+                        # false-positive Case 3 triggers when a keyword's implicit
+                        # indent (e.g. IN (1)) was opened on the same line as the
+                        # bracket — the dedent reaches 0 but is not a genuine
+                        # cross-tree boundary.
+                        # We compute the set of untaken indent levels that are actually
+                        # being closed by this IP (those in the range
+                        # [closing_indent_balance, initial_indent_balance)) and check
+                        # whether any of them were same-line (untaken). Only if the
+                        # trough is exactly 0 (not a genuine deep trough) do we skip.
+                        dedented_untaken_balances = (
+                            tuple(
+                                balance
+                                for balance in range(
+                                    ip.initial_indent_balance,
+                                    ip.closing_indent_balance,
+                                    -1,
+                                )
+                                if balance in ip.untaken_indents
+                            )
+                            if ip.indent_impulse < 0
+                            else ()
+                        )
+                        if _this_through == 0 and dedented_untaken_balances:
+                            net_balance += ip.indent_impulse
+                            continue
                         temp_balance_trough = (
                             _this_through
                             if temp_balance_trough is None
@@ -1350,8 +1377,17 @@ def _calculate_desired_starting_indent(
     if not starting_indent_compensation_spaces:
         return unaligned_starting_indent
 
-    # We don't have a good way to enable leading comma alignment for tabs or spaces with
-    # size less than 4, so we'll warn and return the desired indent.
+    # At indent level 0 (e.g. leading commas between top-level CTEs), there's
+    # no indent to compensate, this is expected and not an error.
+    if desired_indent_units == 0:
+        reflow_logger.debug(
+            "No indentation at indent level 0. Skipping indentation compensation."
+        )
+        return unaligned_starting_indent
+
+    # We don't have a good way to enable leading comma alignment for tabs or
+    # indents smaller than the compensation requires, so warn and return the
+    # unaligned indent.
     if len(unaligned_starting_indent) < abs(starting_indent_compensation_spaces):
         reflow_logger.warning(
             "Not enough space to compensate indentation. "

@@ -29,7 +29,7 @@ def structural_parse_mode_test(generate_test_segments, fresh_ansi_dialect):
     ):
         segments = generate_test_segments(test_segment_seeds)
         # Dialect is required here only to have access to bracket segments.
-        ctx = ParseContext(dialect=fresh_ansi_dialect)
+        ctx = ParseContext(dialect=fresh_ansi_dialect, max_parse_depth=0)
 
         # NOTE: We pass terminators using kwargs rather than directly because some
         # classes don't support it (e.g. Bracketed).

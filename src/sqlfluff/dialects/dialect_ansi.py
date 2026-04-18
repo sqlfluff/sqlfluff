@@ -1758,7 +1758,7 @@ class FromExpressionSegment(BaseSegment):
     type = "from_expression"
     match_grammar: Matchable = OptionallyBracketed(
         Sequence(
-            Indent,
+            ImplicitIndent,
             OneOf(
                 # check first for MLTableExpression,
                 # because of possible FunctionSegment in

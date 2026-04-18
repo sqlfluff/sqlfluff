@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8fee3a0d2d24198661de7bc8552815e9ec0dc9d569f0e22be0007be06aa0e7d
+_hash: e9e75f6f941ef87fcc42539782902fb8e9a4d6b811945a7edb7e8ca44084897e
 file:
   statement:
     insert_overwrite_statement:
@@ -18,6 +18,9 @@ file:
           column_reference:
             naked_identifier: p20240101
         end_bracket: )
+    - keyword: WITH
+    - keyword: LABEL
+    - naked_identifier: target_table_123
     - select_statement:
         select_clause:
           keyword: SELECT

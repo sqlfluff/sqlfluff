@@ -612,3 +612,85 @@ test_pass_exists_subquery_subqueries_ignore_external_references:
     rules:
       references.qualification:
         subqueries_ignore_external_references: true
+
+test_pass_redshift_object_unpivot:
+  # Redshift SUPER type object unpivoting introduces standalone aliases.
+  # Unqualified references to unpivot output aliases should be allowed.
+  # See: https://github.com/sqlfluff/sqlfluff/issues/6765
+  pass_str: |
+    SELECT
+        x.json,
+        key1,
+        value2.field2
+    FROM table1 AS x,
+        UNPIVOT x.json AS value1 AT key1,
+        value1.field1 AS value2 AT key2
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_redshift_from_unpivot_output_aliases:
+  # Redshift UNPIVOT introduces standalone output aliases.
+  # Unqualified references to the generated output columns should be allowed.
+  pass_str: |
+    SELECT
+        color,
+        cnt
+    FROM count_by_color UNPIVOT (
+        cnt FOR color IN (red, green, blue)
+    )
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_snowflake_from_unpivot_output_aliases:
+  # Snowflake UNPIVOT introduces standalone output aliases.
+  pass_str: |
+    SELECT
+        col_name,
+        val
+    FROM my_tbl
+    UNPIVOT (val FOR col_name IN (a, b))
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_bigquery_single_column_unpivot_output_aliases:
+  # BigQuery single-column UNPIVOT introduces standalone output aliases.
+  pass_str: |
+    SELECT
+        quarter,
+        sales
+    FROM Produce
+    UNPIVOT(sales FOR quarter IN (Q1, Q2, Q3, Q4))
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_duckdb_single_key_unpivot_output_aliases:
+  # DuckDB single-key UNPIVOT introduces standalone output aliases.
+  pass_str: |
+    SELECT
+        month,
+        sales
+    FROM monthly_sales UNPIVOT (
+        sales
+        FOR month IN (jan, feb, mar, apr, may, jun)
+    )
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_redshift_array_unnest:
+  # Redshift array unnesting introduces standalone aliases.
+  # Unqualified references to unnest output aliases should be allowed.
+  pass_str: |
+    SELECT
+        ed.shop_id,
+        key,
+        value
+    FROM example_data AS ed,
+        ed.inventory AS value AT key
+  configs:
+    core:
+      dialect: redshift

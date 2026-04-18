@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc31705eb94536e4c6dbeef78c923caca322998653865aa58bc616bdc1cf3cae
+_hash: e9ad9ea995f7840dfbb1ceca00b58927b16ac590fd47e1b313b3a038bdad857e
 file:
   batch:
   - statement:
@@ -177,11 +177,12 @@ file:
               - keyword: GROUP
               - bracketed:
                   start_bracket: (
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: hire_date
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: hire_date
                   end_bracket: )
         from_clause:
           keyword: FROM
@@ -214,12 +215,13 @@ file:
               - keyword: GROUP
               - bracketed:
                   start_bracket: (
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: salary
-                  - keyword: DESC
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: salary
+                    - keyword: DESC
                   end_bracket: )
         from_clause:
           keyword: FROM
@@ -253,11 +255,12 @@ file:
               - keyword: GROUP
               - bracketed:
                   start_bracket: (
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: employee_id
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: employee_id
                   end_bracket: )
               - keyword: OVER
               - bracketed:
@@ -332,14 +335,15 @@ file:
               - keyword: GROUP
               - bracketed:
                   start_bracket: (
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: last_name
-                  - comma: ','
-                  - column_reference:
-                      naked_identifier: first_name
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: last_name
+                    - comma: ','
+                    - column_reference:
+                        naked_identifier: first_name
                   end_bracket: )
         from_clause:
           keyword: FROM
@@ -516,12 +520,13 @@ file:
               - keyword: GROUP
               - bracketed:
                   start_bracket: (
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: score
-                  - keyword: DESC
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: score
+                    - keyword: DESC
                   end_bracket: )
         from_clause:
           keyword: FROM
@@ -558,11 +563,12 @@ file:
               - keyword: GROUP
               - bracketed:
                   start_bracket: (
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: attr_name
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: attr_name
                   end_bracket: )
         from_clause:
           keyword: FROM
@@ -600,11 +606,12 @@ file:
               - keyword: GROUP
               - bracketed:
                   start_bracket: (
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: item_name
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: item_name
                   end_bracket: )
               - keyword: OVER
               - bracketed:
@@ -943,12 +950,13 @@ file:
                 - keyword: GROUP
                 - bracketed:
                     start_bracket: (
-                    orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                        naked_identifier: salary
-                    - keyword: DESC
+                    aggregate_order_by:
+                      orderby_clause:
+                      - keyword: ORDER
+                      - keyword: BY
+                      - column_reference:
+                          naked_identifier: salary
+                      - keyword: DESC
                     end_bracket: )
               alias_expression:
                 alias_operator:

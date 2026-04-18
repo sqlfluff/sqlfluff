@@ -1,0 +1,913 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 532b899bf0a1b5871868dec909b1d218c69e3fabfaf3f6a7a25ef4af2500ad63
+file:
+  batch:
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_basic_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_multi_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            naked_identifier: col1
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col2
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col3
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: UNIQUE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_unique_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            naked_identifier: col1
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col2
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: BITMAP
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_bitmap_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: status_col
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_schema_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_ts_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+          keyword: TABLESPACE
+          object_reference:
+            naked_identifier: idx_ts
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_pct_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: PCTFREE
+        - numeric_literal: '10'
+        - keyword: INITRANS
+        - numeric_literal: '2'
+        - keyword: MAXTRANS
+        - numeric_literal: '255'
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_storage_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+          keyword: TABLESPACE
+          object_reference:
+            naked_identifier: idx_ts
+          storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '256'
+            - size_prefix: K
+            - keyword: NEXT
+            - numeric_literal: '256'
+            - size_prefix: K
+            - keyword: MINEXTENTS
+            - numeric_literal: '1'
+            - keyword: MAXEXTENTS
+            - keyword: UNLIMITED
+            - keyword: PCTINCREASE
+            - numeric_literal: '0'
+            - keyword: FREELISTS
+            - numeric_literal: '1'
+            - keyword: FREELIST
+            - keyword: GROUPS
+            - numeric_literal: '1'
+            - keyword: BUFFER_POOL
+            - keyword: DEFAULT
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_storage_keep_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+          keyword: TABLESPACE
+          object_reference:
+            naked_identifier: idx_ts
+          storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '512'
+            - size_prefix: K
+            - keyword: NEXT
+            - numeric_literal: '512'
+            - size_prefix: K
+            - keyword: MAXEXTENTS
+            - keyword: UNLIMITED
+            - keyword: BUFFER_POOL
+            - keyword: KEEP
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_storage_recycle_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+          keyword: TABLESPACE
+          object_reference:
+            naked_identifier: idx_ts
+          storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '128'
+            - size_prefix: K
+            - keyword: NEXT
+            - numeric_literal: '128'
+            - size_prefix: K
+            - keyword: MAXEXTENTS
+            - numeric_literal: '500'
+            - keyword: BUFFER_POOL
+            - keyword: RECYCLE
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_logging_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: LOGGING
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_nologging_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: NOLOGGING
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_parallel_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: PARALLEL
+        - numeric_literal: '4'
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_parallel_default_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: PARALLEL
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_noparallel_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: NOPARALLEL
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_online_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: ONLINE
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_compress_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            naked_identifier: col1
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col2
+        - end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: COMPRESS
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_compress_1_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            naked_identifier: col1
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col2
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col3
+        - end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: COMPRESS
+        - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: UNIQUE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_compress_2_unique_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            naked_identifier: col1
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col2
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col3
+        - end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: COMPRESS
+        - numeric_literal: '2'
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_nocompress_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: NOCOMPRESS
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_reverse_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: REVERSE
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_visible_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: VISIBLE
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_invisible_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: INVISIBLE
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_asc_desc_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            naked_identifier: col1
+            keyword: ASC
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col2
+            keyword: DESC
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col3
+            keyword: ASC
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_full_phys_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            naked_identifier: col1
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col2
+        - end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: NOLOGGING
+        - keyword: PCTFREE
+        - numeric_literal: '10'
+        - keyword: INITRANS
+        - numeric_literal: '2'
+        - keyword: MAXTRANS
+        - numeric_literal: '255'
+        - storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '655'
+            - size_prefix: K
+            - keyword: NEXT
+            - numeric_literal: '655'
+            - size_prefix: K
+            - keyword: MINEXTENTS
+            - numeric_literal: '1'
+            - keyword: MAXEXTENTS
+            - keyword: UNLIMITED
+            - keyword: PCTINCREASE
+            - numeric_literal: '50'
+            - keyword: FREELISTS
+            - numeric_literal: '1'
+            - keyword: FREELIST
+            - keyword: GROUPS
+            - numeric_literal: '1'
+            - keyword: BUFFER_POOL
+            - keyword: DEFAULT
+            - end_bracket: )
+        - keyword: PARALLEL
+        - numeric_literal: '8'
+        - keyword: NOCOMPRESS
+        - keyword: VISIBLE
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_nosort_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: NOSORT
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_nosort_attrs_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            naked_identifier: col1
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: col2
+        - end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: PCTFREE
+        - numeric_literal: '10'
+        - keyword: INITRANS
+        - numeric_literal: '2'
+        - keyword: NOLOGGING
+        - keyword: NOSORT
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_reverse_attrs_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - keyword: PCTFREE
+        - numeric_literal: '10'
+        - keyword: NOLOGGING
+        - keyword: REVERSE
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: log_instdati_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: log
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            naked_identifier: institution_id
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: datetime
+        - end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: PCTFREE
+        - numeric_literal: '10'
+        - keyword: INITRANS
+        - numeric_literal: '2'
+        - keyword: MAXTRANS
+        - numeric_literal: '255'
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '655'
+            - size_prefix: K
+            - keyword: NEXT
+            - numeric_literal: '655'
+            - size_prefix: K
+            - keyword: MINEXTENTS
+            - numeric_literal: '1'
+            - keyword: MAXEXTENTS
+            - keyword: UNLIMITED
+            - keyword: PCTINCREASE
+            - numeric_literal: '50'
+            - keyword: FREELISTS
+            - numeric_literal: '1'
+            - keyword: FREELIST
+            - keyword: GROUPS
+            - numeric_literal: '1'
+            - keyword: BUFFER_POOL
+            - keyword: DEFAULT
+            - end_bracket: )
+        - keyword: NOLOGGING
+        - keyword: NOPARALLEL
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: UNIQUE
+      - keyword: INDEX
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: filter_instkeytype_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: filter
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            naked_identifier: institution_id
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: filterkey
+        - comma: ','
+        - index_column_definition:
+            naked_identifier: filtertype_id
+        - end_bracket: )
+      - oracle_index_physical_attributes:
+        - keyword: PCTFREE
+        - numeric_literal: '10'
+        - keyword: INITRANS
+        - numeric_literal: '2'
+        - keyword: MAXTRANS
+        - numeric_literal: '255'
+        - keyword: TABLESPACE
+        - object_reference:
+            naked_identifier: idx_ts
+        - storage_clause:
+            keyword: STORAGE
+            bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '140'
+            - size_prefix: K
+            - keyword: NEXT
+            - numeric_literal: '360'
+            - size_prefix: K
+            - keyword: MINEXTENTS
+            - numeric_literal: '1'
+            - keyword: MAXEXTENTS
+            - keyword: UNLIMITED
+            - keyword: PCTINCREASE
+            - numeric_literal: '50'
+            - keyword: FREELISTS
+            - numeric_literal: '1'
+            - keyword: FREELIST
+            - keyword: GROUPS
+            - numeric_literal: '1'
+            - keyword: BUFFER_POOL
+            - keyword: DEFAULT
+            - end_bracket: )
+        - keyword: NOLOGGING
+        - keyword: PARALLEL
+        - numeric_literal: '4'
+  - statement_terminator: ;

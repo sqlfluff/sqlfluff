@@ -109,6 +109,7 @@ def apply_fixes(
     dialect: "Dialect",
     rule_code: str,
     fixes: dict[int, AnchorEditInfo],
+    max_parse_depth: int,
     fix_even_unparsable: bool = False,
 ) -> tuple["BaseSegment", list["BaseSegment"], list["BaseSegment"], bool]:
     """Apply a dictionary of fixes to this segment.
@@ -248,7 +249,13 @@ def apply_fixes(
     seg_queue = seg_buffer
     seg_buffer = []
     for seg in seg_queue:
-        s, pre, post, validated = apply_fixes(seg, dialect, rule_code, fixes)
+        s, pre, post, validated = apply_fixes(
+            seg,
+            dialect,
+            rule_code,
+            fixes,
+            max_parse_depth=max_parse_depth,
+        )
         # 'before' and 'after' will usually be empty. Only used when
         # lower-level fixes left 'seg' with non-code (usually
         # whitespace) segments as the first or last children. This is
@@ -322,7 +329,10 @@ def apply_fixes(
         # Otherwise only validate if there's a match_grammar. Otherwise we may get
         # strange results (for example with the BracketedSegment).
         elif hasattr(new_seg, "match_grammar"):
-            validated = new_seg.validate_segment_with_reparse(dialect)
+            validated = new_seg.validate_segment_with_reparse(
+                dialect,
+                max_parse_depth=max_parse_depth,
+            )
     else:
         validated = not requires_validate
     # Return the new segment and any non-code that needs to bubble up

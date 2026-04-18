@@ -51,6 +51,8 @@ class StatementSegment(postgres.StatementSegment):
             Ref("DeclareStatement"),
             Ref("CloseStatementSegment"),
             Ref("AnalizeSegment"),
+            Ref("CreateExternalTableStatementSegment"),
+            Ref("DropExternalTableStatementSegment"),
         ],
     )
 
@@ -100,11 +102,150 @@ class DistributedBySegment(BaseSegment):
     )
 
 
+class CreateExternalTableStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL TABLE` statement.
+
+    As specified in
+    https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql_commands-CREATE_EXTERNAL_TABLE.html
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf("READABLE", "WRITABLE", optional=True),
+        "EXTERNAL",
+        Ref.keyword("WEB", optional=True),
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "LIKE",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+        OneOf(
+            Sequence(
+                "LOCATION",
+                Bracketed(
+                    Delimited(
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "EXECUTE",
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    "ON",
+                    OneOf(
+                        "ALL",
+                        Sequence("HOST", Ref("QuotedLiteralSegment", optional=True)),
+                        Sequence(
+                            "SEGMENT",
+                            Ref("NumericLiteralSegment"),
+                        ),
+                        "COORDINATOR",
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        "FORMAT",
+        Ref("QuotedLiteralSegment"),
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("QuotedIdentifierSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "OPTIONS",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence(
+                "ENCODING",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "LOG",
+                "ERRORS",
+                Ref.keyword("PERSISTENTLY", optional=True),
+            ),
+            Sequence(
+                "SEGMENT",
+                "REJECT",
+                "LIMIT",
+                Ref("NumericLiteralSegment"),
+                OneOf("ROWS", "PERCENT", optional=True),
+            ),
+            Ref("DistributedBySegment"),
+        ),
+    )
+
+
+class DropExternalTableStatementSegment(BaseSegment):
+    """A `DROP EXTERNAL TABLE` statement.
+
+    As specified in
+    https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql_commands-DROP_EXTERNAL_TABLE.html
+    """
+
+    type = "drop_external_table_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "EXTERNAL",
+        Ref.keyword("WEB", optional=True),
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
     As specified in
-    https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE.html
+    https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql_commands-CREATE_TABLE.html
     This is overridden from Postgres to add the `DISTRIBUTED` clause.
     """
 
@@ -262,7 +403,7 @@ class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
     """A `CREATE TABLE AS` statement.
 
     As specified in
-    https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
+    https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql_commands-CREATE_TABLE_AS.html
     This is overridden from Postgres to add the `DISTRIBUTED` clause.
     """
 

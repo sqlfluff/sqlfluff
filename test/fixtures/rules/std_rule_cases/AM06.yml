@@ -701,3 +701,11 @@ test_pass_array_expression_bigquery:
   configs:
     core:
       dialect: bigquery
+
+test_pass_tsql_within_group_order_by:
+  # ORDER BY inside WITHIN GROUP should not be flagged by AM06
+  pass_str: |
+    SELECT STRING_AGG(v, ',') WITHIN GROUP (ORDER BY v) FROM t;
+  configs:
+    core:
+      dialect: tsql

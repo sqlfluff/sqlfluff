@@ -78,6 +78,12 @@ DBT_BUILTINS = {
         "source",
         lambda source_name, table: RelationEmulator(f"{source_name}_{table}"),
     ),
+    "function": FunctionWrapper(
+        "function",
+        # Mirror `ref` handling: tolerate optional qualifier args and use the
+        # last positional argument as the function identifier.
+        lambda *args, **kwargs: RelationEmulator(args[-1]),
+    ),
     "config": FunctionWrapper("config", lambda **kwargs: ""),
     "var": FunctionWrapper("var", lambda variable, default="": "item"),
     # `is_incremental()` renders as True, always in this case.

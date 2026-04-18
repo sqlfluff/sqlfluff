@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd51a5c24f787c35216072bc3fa03be92be30588bb2c23d01e33bdfb2d56934d
+_hash: da885addc886470561b32166d227adadc1ae5793297e68d88168667aae54b256
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -52,4 +52,83 @@ file:
                           keyword: AS
                         naked_identifier: a
                 end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          object_literal:
+          - start_curly_bracket: '{'
+          - object_literal_element:
+              quoted_identifier: '"id"'
+              colon: ':'
+              column_reference:
+                naked_identifier: foo
+          - comma: ','
+          - object_literal_element:
+              quoted_identifier: '"name"'
+              colon: ':'
+              column_reference:
+                naked_identifier: bar
+          - end_curly_bracket: '}'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: baz
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: foo
+                  keyword: IS
+                  null_literal: 'NULL'
+              - keyword: THEN
+              - expression:
+                  null_literal: 'NULL'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  object_literal:
+                  - start_curly_bracket: '{'
+                  - object_literal_element:
+                      quoted_identifier: '"id"'
+                      colon: ':'
+                      column_reference:
+                        naked_identifier: foo
+                  - comma: ','
+                  - object_literal_element:
+                      quoted_identifier: '"name"'
+                      colon: ':'
+                      column_reference:
+                        naked_identifier: bar
+                  - end_curly_bracket: '}'
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: baz
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;

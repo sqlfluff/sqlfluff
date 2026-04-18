@@ -18,7 +18,10 @@ from sqlfluff.core.parser import (
     Ref,
     SegmentGenerator,
     Sequence,
+    StringParser,
+    SymbolSegment,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_starrocks_keywords import (
     starrocks_reserved_keywords,
@@ -45,6 +48,13 @@ starrocks_dialect.update_keywords_set_from_multiline_string(
 )
 
 
+# Add angle bracket pairs for complex type support (ARRAY, MAP, STRUCT)
+starrocks_dialect.bracket_sets("angle_bracket_pairs").update(
+    [
+        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
+    ]
+)
+
 # Add the engine types set
 starrocks_dialect.sets("engine_types").update(
     ["olap", "mysql", "elasticsearch", "hive", "hudi", "iceberg", "jdbc"]
@@ -52,6 +62,10 @@ starrocks_dialect.sets("engine_types").update(
 
 
 starrocks_dialect.add(
+    StartAngleBracketSegment=StringParser(
+        "<", SymbolSegment, type="start_angle_bracket"
+    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
     EngineTypeSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
             dialect.sets("engine_types"),
@@ -60,6 +74,64 @@ starrocks_dialect.add(
         )
     ),
 )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """ARRAY<type> data type for StarRocks.
+
+    https://docs.starrocks.io/docs/sql-reference/data-types/semi_structured/Array/
+    """
+
+    type = "array_type"
+    match_grammar = Sequence(
+        "ARRAY",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+    )
+
+
+class DatatypeSegment(mysql.DatatypeSegment):
+    """Data type segment extended with StarRocks complex types (ARRAY, MAP, STRUCT).
+
+    https://docs.starrocks.io/docs/sql-reference/data-types/semi_structured/Array/
+    https://docs.starrocks.io/docs/sql-reference/data-types/semi_structured/Map/
+    https://docs.starrocks.io/docs/sql-reference/data-types/semi_structured/Struct/
+    """
+
+    type = "data_type"
+    match_grammar = mysql.DatatypeSegment.match_grammar.copy(
+        insert=[
+            Ref("ArrayTypeSegment"),
+            Sequence(
+                "MAP",
+                Bracketed(
+                    Sequence(
+                        Ref("DatatypeSegment"),
+                        Ref("CommaSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                    bracket_pairs_set="angle_bracket_pairs",
+                    bracket_type="angle",
+                ),
+            ),
+            Sequence(
+                "STRUCT",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("DatatypeSegment"),
+                        ),
+                    ),
+                    bracket_pairs_set="angle_bracket_pairs",
+                    bracket_type="angle",
+                ),
+            ),
+        ]
+    )
 
 
 class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
@@ -357,6 +429,66 @@ class CreateRoutineLoadDataSourcePropertiesSegment(BaseSegment):
     )
 
 
+class LoadLabelPropertySegment(BaseSegment):
+    """A key/value property entry for LOAD LABEL and BROKER properties."""
+
+    type = "load_label_property"
+    match_grammar = Sequence(
+        Ref("QuotedLiteralSegment"), Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+    )
+
+
+class LoadDataDescSegment(BaseSegment):
+    """A data description entry for LOAD LABEL."""
+
+    type = "load_data_desc"
+    match_grammar = Sequence(
+        "DATA",
+        "INFILE",
+        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        "INTO",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "FORMAT",
+            "AS",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+    )
+
+
+class LoadLabelStatementSegment(BaseSegment):
+    """A `LOAD LABEL` statement for StarRocks."""
+
+    type = "load_label_statement"
+    match_grammar = Sequence(
+        "LOAD",
+        "LABEL",
+        OneOf(
+            Sequence(
+                Ref("DatabaseReferenceSegment"),
+                Ref("DotSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Bracketed(Delimited(Ref("LoadDataDescSegment"))),
+        "WITH",
+        "BROKER",
+        Bracketed(Delimited(Ref("LoadLabelPropertySegment"))),
+        Sequence(
+            "PROPERTIES",
+            Bracketed(Delimited(Ref("LoadLabelPropertySegment"))),
+            optional=True,
+        ),
+    )
+
+
 """Grammar for STOP ROUTINE LOAD statement in StarRocks."""
 
 
@@ -420,7 +552,7 @@ class ResumeRoutineLoadStatementSegment(BaseSegment):
 
 
 class InsertOverwriteStatementSegment(BaseSegment):
-    """A `INSERT OVERWRITE` statement with optional PARTITION clause."""
+    """A `INSERT OVERWRITE` statement with optional PARTITION and LABEL clauses."""
 
     type = "insert_overwrite_statement"
     match_grammar = Sequence(
@@ -440,6 +572,12 @@ class InsertOverwriteStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Sequence(
+            "WITH",
+            "LABEL",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
         Ref("SelectableGrammar"),
     )
 
@@ -449,6 +587,7 @@ class StatementSegment(mysql.StatementSegment):
 
     match_grammar = mysql.StatementSegment.match_grammar.copy(
         insert=[
+            Ref("LoadLabelStatementSegment"),
             Ref("CreateRoutineLoadStatementSegment"),
             Ref("StopRoutineLoadStatementSegment"),
             Ref("PauseRoutineLoadStatementSegment"),
@@ -458,7 +597,7 @@ class StatementSegment(mysql.StatementSegment):
         insert=[
             Ref("InsertOverwriteStatementSegment"),
         ],
-        at=1,
+        at=1,  # ensure that it takes priority over MySQL's native InsertStatementSegment.
     )
 
 
