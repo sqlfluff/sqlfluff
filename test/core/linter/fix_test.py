@@ -254,3 +254,70 @@ def test__fix__jinja_non_empty_context_adjacent_to_quotes(caplog):
     assert changed
     assert fixed_sql == "SELECT\n    '{{ foo.bar }}'\nFROM baz\n"
     assert "Skipping edit patch on uncertain templated section" not in caplog.text
+
+
+def test__fix__warning_only_violations_are_still_fixed(tmp_path):
+    """Test that warning-level violations are fixed even without errors.
+
+    Regression test for https://github.com/sqlfluff/sqlfluff/issues/7101.
+    When all fixable violations are configured as warnings (via the
+    ``warnings`` config), ``persist_tree`` should still apply the fixes
+    rather than skipping the file.
+    """
+    # LT02 = incorrect indentation.  Configure it as a warning.
+    sql = "SELECT a\nFROM\n        foo;\n"
+    expected_fixed = "SELECT a\nFROM\n    foo;\n"
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "rules": "LT02",
+            "warnings": "LT02",
+        }
+    )
+    linter = Linter(config=config)
+    linted_file = linter.lint_string(sql, fix=True)
+
+    # The violation should be present but marked as a warning.
+    all_violations = linted_file.get_violations(filter_warning=False)
+    assert any(v.warning for v in all_violations), (
+        "Expected at least one warning-level violation"
+    )
+
+    # fix_string should produce the corrected SQL.
+    fixed_sql, changed = linted_file.fix_string()
+    assert changed
+    assert fixed_sql == expected_fixed
+
+    # persist_tree should detect the fixable warning and write it out.
+    sql_file = tmp_path / "test.sql"
+    sql_file.write_text(sql)
+    linted_file_on_disk = linter.lint_string(sql, fname=str(sql_file), fix=True)
+    success = linted_file_on_disk.persist_tree()
+    assert success
+    assert sql_file.read_text() == expected_fixed
+
+
+def test__fix__warning_and_error_violations_both_fixed(tmp_path):
+    """When a file has both warning and error violations, both are fixed.
+
+    Companion to the warning-only test above: make sure mixed severity
+    still works after the change.
+    """
+    # LT02 = indentation (warning), CP01 = capitalisation (error).
+    sql = "SELECT a\nfrom\n        foo;\n"
+    expected_fixed = "SELECT a\nFROM\n    foo;\n"
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "rules": "LT02,CP01",
+            "warnings": "LT02",
+        }
+    )
+    linter = Linter(config=config)
+
+    sql_file = tmp_path / "test.sql"
+    sql_file.write_text(sql)
+    linted_file = linter.lint_string(sql, fname=str(sql_file), fix=True)
+    success = linted_file.persist_tree()
+    assert success
+    assert sql_file.read_text() == expected_fixed

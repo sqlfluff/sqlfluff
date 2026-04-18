@@ -914,6 +914,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropExternalTableStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("CreateFullTextIndexStatementSegment"),
+            Ref("AlterFullTextIndexStatementSegment"),
+            Ref("DropFullTextIndexStatementSegment"),
             Ref("AtomicBeginEndSegment"),
             Ref("ReconfigureStatementSegment"),
             Ref("CreateColumnstoreIndexStatementSegment"),
@@ -931,6 +933,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("GrantStatementSegment"),
             Ref("DenyStatementSegment"),
             Ref("RevokeStatementSegment"),
+            Ref("AlterDatabaseScopedConfigurationSegment"),
         ],
         remove=[
             Ref("AccessStatementSegment"),
@@ -1529,6 +1532,57 @@ class AlterDatabaseStatementSegment(BaseSegment):
             "FAILOVER",
             "FORCE_FAILOVER_ALLOW_DATA_LOSS",
             optional=True,
+        ),
+    )
+
+
+class AlterDatabaseScopedConfigurationSegment(BaseSegment):
+    """An `ALTER DATABASE SCOPED CONFIGURATION` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql
+    """
+
+    type = "alter_database_scoped_configuration_statement"
+
+    _elevate_option = Sequence(
+        OneOf("ELEVATE_ONLINE", "ELEVATE_RESUMABLE"),
+        Ref("EqualsSegment"),
+        OneOf("OFF", "WHEN_SUPPORTED", "FAIL_UNSUPPORTED"),
+    )
+
+    _set_option = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("EqualsSegment"),
+        OneOf(
+            "ON",
+            "OFF",
+            "PRIMARY",
+            Ref("NumericLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "DATABASE",
+        "SCOPED",
+        "CONFIGURATION",
+        OneOf(
+            # CLEAR PROCEDURE_CACHE [plan_handle]
+            Sequence(
+                "CLEAR",
+                "PROCEDURE_CACHE",
+                Ref("NumericLiteralSegment", optional=True),
+            ),
+            # [FOR SECONDARY] SET <option> = <value>
+            Sequence(
+                Sequence("FOR", "SECONDARY", optional=True),
+                "SET",
+                OneOf(
+                    _elevate_option,
+                    _set_option,
+                ),
+            ),
         ),
     )
 
@@ -2387,56 +2441,83 @@ class CreateFullTextIndexStatementSegment(BaseSegment):
 
     _catalog_filegroup_option = Sequence(
         "ON",
-        Delimited(
-            AnySetOf(
-                Ref("ObjectReferenceSegment"),
-                Sequence(
-                    "FILEGROUP",
-                    Ref("ObjectReferenceSegment"),
-                ),
+        OneOf(
+            # Documented forms
+            Ref("ObjectReferenceSegment"),
+            Bracketed(
+                Delimited(
+                    AnySetOf(
+                        Ref("ObjectReferenceSegment"),
+                        Sequence(
+                            "FILEGROUP",
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                    ),
+                )
             ),
-            allow_trailing=True,
+            # Backward-compatible non-bracketed legacy form
+            Delimited(
+                AnySetOf(
+                    Ref("ObjectReferenceSegment"),
+                    Sequence(
+                        "FILEGROUP",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                allow_trailing=True,
+            ),
         ),
         optional=True,
     )
 
-    _with_option = Sequence(
-        "WITH",
-        Bracketed(
+    # NOTE: Per the official syntax, NO POPULATION is only valid as a suffix
+    # of CHANGE_TRACKING OFF (i.e. OFF [, NO POPULATION]). We model it as a
+    # separate delimited element so that it survives the comma-delimited WITH
+    # list used by both parenthesized and unparenthesized forms.  This means
+    # the parser is intentionally lenient and will accept NO POPULATION
+    # without a preceding CHANGE_TRACKING OFF.
+    _with_option_element = OneOf(
+        Sequence(
+            "CHANGE_TRACKING",
+            Ref("EqualsSegment", optional=True),
             OneOf(
-                Sequence(
-                    "CHANGE_TRACKING",
-                    Ref("EqualsSegment", optional=True),
-                    OneOf(
-                        "MANUAL",
-                        "AUTO",
-                        Delimited(
-                            "OFF",
-                            Sequence(
-                                "NO",
-                                "POPULATION",
-                                optional=True,
-                            ),
-                        ),
-                    ),
-                ),
-                Sequence(
-                    "STOPLIST",
-                    Ref("EqualsSegment", optional=True),
-                    OneOf(
-                        "OFF",
-                        "SYSTEM",
-                        Ref("ObjectReferenceSegment"),
-                    ),
-                ),
-                Sequence(
-                    "SEARCH",
-                    "PROPERTY",
-                    "LIST",
-                    Ref("EqualsSegment", optional=True),
-                    Ref("ObjectReferenceSegment"),
-                ),
+                "MANUAL",
+                "AUTO",
+                "OFF",
             ),
+        ),
+        Sequence(
+            "STOPLIST",
+            Ref("EqualsSegment", optional=True),
+            OneOf(
+                "OFF",
+                "SYSTEM",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+        Sequence(
+            "SEARCH",
+            "PROPERTY",
+            "LIST",
+            Ref("EqualsSegment", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            "NO",
+            "POPULATION",
+        ),
+    )
+
+    _with_option_list = Delimited(_with_option_element)
+
+    _with_option = OneOf(
+        Sequence(
+            "WITH",
+            Bracketed(_with_option_list),
+        ),
+        Sequence(
+            "WITH",
+            _with_option_list,
         ),
         optional=True,
     )
@@ -2455,14 +2536,14 @@ class CreateFullTextIndexStatementSegment(BaseSegment):
                         Sequence(
                             "TYPE",
                             "COLUMN",
-                            Ref("DatatypeSegment"),
+                            Ref("SingleIdentifierGrammar"),
                         ),
                         Sequence(
                             "LANGUAGE",
                             OneOf(
                                 Ref("NumericLiteralSegment"),
+                                Ref("HexadecimalLiteralSegment"),
                                 Ref("QuotedLiteralSegment"),
-                                optional=True,
                             ),
                         ),
                         "STATISTICAL_SEMANTICS",
@@ -2477,6 +2558,121 @@ class CreateFullTextIndexStatementSegment(BaseSegment):
             _catalog_filegroup_option,
         ),
         _with_option,
+    )
+
+
+class AlterFullTextIndexStatementSegment(BaseSegment):
+    """An `ALTER FULLTEXT INDEX` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-fulltext-index-transact-sql
+    """
+
+    type = "alter_fulltext_index_statement"
+
+    _column_with_options = Sequence(
+        Ref("ColumnReferenceSegment"),
+        AnySetOf(
+            Sequence(
+                "TYPE",
+                "COLUMN",
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                "LANGUAGE",
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Ref("HexadecimalLiteralSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            "STATISTICAL_SEMANTICS",
+        ),
+    )
+
+    _with_no_population = Sequence("WITH", "NO", "POPULATION", optional=True)
+
+    match_grammar = Sequence(
+        "ALTER",
+        "FULLTEXT",
+        "INDEX",
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Ref.keyword("ENABLE"),
+            Ref.keyword("DISABLE"),
+            Sequence(
+                "SET",
+                "CHANGE_TRACKING",
+                Ref("EqualsSegment", optional=True),
+                OneOf("MANUAL", "AUTO", "OFF"),
+            ),
+            Sequence(
+                "ADD",
+                Bracketed(Delimited(_column_with_options)),
+                _with_no_population,
+            ),
+            Sequence(
+                "ALTER",
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+                OneOf("ADD", "DROP"),
+                "STATISTICAL_SEMANTICS",
+                _with_no_population,
+            ),
+            Sequence(
+                "DROP",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                _with_no_population,
+            ),
+            Sequence(
+                "START",
+                OneOf("FULL", "INCREMENTAL", "UPDATE"),
+                "POPULATION",
+            ),
+            Sequence(
+                OneOf("STOP", "PAUSE", "RESUME"),
+                "POPULATION",
+            ),
+            Sequence(
+                "SET",
+                "STOPLIST",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    "OFF",
+                    "SYSTEM",
+                    Ref("ObjectReferenceSegment"),
+                ),
+                _with_no_population,
+            ),
+            Sequence(
+                "SET",
+                "SEARCH",
+                "PROPERTY",
+                "LIST",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    "OFF",
+                    Ref("ObjectReferenceSegment"),
+                ),
+                _with_no_population,
+            ),
+        ),
+    )
+
+
+class DropFullTextIndexStatementSegment(BaseSegment):
+    """A `DROP FULLTEXT INDEX` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-fulltext-index-transact-sql
+    """
+
+    type = "drop_fulltext_index_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "FULLTEXT",
+        "INDEX",
+        "ON",
+        Ref("TableReferenceSegment"),
     )
 
 
@@ -3548,6 +3744,10 @@ class DatatypeSegment(BaseSegment):
                 "FLOAT",
                 Ref("BracketedArguments", optional=True),
             ),
+            Sequence(
+                "DOUBLE",
+                "PRECISION",
+            ),
             "REAL",
             # Date and time types
             "DATE",
@@ -4141,7 +4341,7 @@ class SetStatementSegment(BaseSegment):
                             Ref("EqualsSegment"),
                             Ref("ExpressionSegment"),
                         ),
-                        # The below for https://learn.microsoft.com/en-us/sql/t-sql/statements/set-deadlock-priority-transact-sql # noqa
+                        # The below for https://learn.microsoft.com/en-us/sql/t-sql/statements/set-deadlock-priority-transact-sql
                         "LOW",
                         "NORMAL",
                         "HIGH",
@@ -4523,7 +4723,7 @@ class WithinGroupClause(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(
-            Ref("OrderByClauseSegment"),
+            Ref("AggregateOrderByClause"),
         ),
         Sequence(
             "OVER",

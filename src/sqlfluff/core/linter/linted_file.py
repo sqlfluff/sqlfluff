@@ -386,7 +386,7 @@ class LintedFile(NamedTuple):
         self, suffix: str = "", formatter: Optional[FormatterInterface] = None
     ) -> bool:
         """Persist changes to the given path."""
-        if self.num_violations(fixable=True) > 0:
+        if self.num_violations(fixable=True, filter_warning=False) > 0:
             write_buff, success = self.fix_string()
 
             if success:

@@ -188,7 +188,7 @@ class Rule_CV10(BaseRule):
                 ],
                 description=(
                     "Inconsistent use of preferred quote style '"
-                    f"{self._quotes_mapping[preferred_quoted_literal_style]['common_name']}"  # noqa: E501
+                    f"{self._quotes_mapping[preferred_quoted_literal_style]['common_name']}"
                     f"'. Use {fixed_string} instead of {context.segment.raw}."
                 ),
             )

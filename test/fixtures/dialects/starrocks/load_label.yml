@@ -1,0 +1,159 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5bd875ed6fff3ca1823852dc905645dbe02b476c434a3bc822dccca63f789a01
+file:
+  statement:
+    load_label_statement:
+    - keyword: LOAD
+    - keyword: LABEL
+    - object_reference:
+      - naked_identifier: ods
+      - dot: .
+      - naked_identifier: table1_24
+    - bracketed:
+        start_bracket: (
+        load_data_desc:
+        - keyword: DATA
+        - keyword: INFILE
+        - bracketed:
+            start_bracket: (
+            quoted_literal: '"cosn://bigdata/tmp/hive/table1/dt=2024-*/*"'
+            end_bracket: )
+        - keyword: INTO
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: table1
+        - keyword: FORMAT
+        - keyword: AS
+        - quoted_literal: '"Parquet"'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: meta_system
+          - comma: ','
+          - column_reference:
+              naked_identifier: meta_flag
+          - comma: ','
+          - column_reference:
+              naked_identifier: order_line_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: order_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: sn
+          - comma: ','
+          - column_reference:
+              naked_identifier: op_time
+          - comma: ','
+          - column_reference:
+              naked_identifier: order_write_time
+          - comma: ','
+          - column_reference:
+              naked_identifier: order_create_time
+          - comma: ','
+          - column_reference:
+              naked_identifier: mac
+          - comma: ','
+          - column_reference:
+              naked_identifier: ctei
+          - comma: ','
+          - column_reference:
+              naked_identifier: product_code
+          - comma: ','
+          - column_reference:
+              naked_identifier: product_name
+          - comma: ','
+          - column_reference:
+              naked_identifier: order_time
+          - comma: ','
+          - column_reference:
+              naked_identifier: warehouse
+          - comma: ','
+          - column_reference:
+              naked_identifier: order_code
+          - comma: ','
+          - column_reference:
+              naked_identifier: relate_order
+          - comma: ','
+          - column_reference:
+              naked_identifier: customer_name
+          - comma: ','
+          - column_reference:
+              naked_identifier: sale_department_code
+          - comma: ','
+          - column_reference:
+              naked_identifier: sale_department_name
+          - comma: ','
+          - column_reference:
+              naked_identifier: consignee_name
+          - comma: ','
+          - column_reference:
+              naked_identifier: consignee_phone
+          - comma: ','
+          - column_reference:
+              naked_identifier: consignee_address
+          - comma: ','
+          - column_reference:
+              naked_identifier: message
+          - comma: ','
+          - column_reference:
+              naked_identifier: arrival_date
+          - comma: ','
+          - column_reference:
+              naked_identifier: customer_code
+          - comma: ','
+          - column_reference:
+              naked_identifier: iot_create_time
+          - comma: ','
+          - column_reference:
+              naked_identifier: transfer_warehouse
+          - comma: ','
+          - column_reference:
+              naked_identifier: transfer_department
+          - comma: ','
+          - column_reference:
+              naked_identifier: other_out_type
+          - comma: ','
+          - column_reference:
+              naked_identifier: other_out_customer
+          - comma: ','
+          - column_reference:
+              naked_identifier: apply_department_name
+          - end_bracket: )
+        end_bracket: )
+    - keyword: WITH
+    - keyword: BROKER
+    - bracketed:
+      - start_bracket: (
+      - load_label_property:
+        - quoted_literal: '"fs.cosn.userinfo.secretId"'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"id"'
+      - comma: ','
+      - load_label_property:
+        - quoted_literal: '"fs.cosn.userinfo.secretKey"'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"key"'
+      - comma: ','
+      - load_label_property:
+        - quoted_literal: '"fs.cosn.bucket.endpoint_suffix"'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"myqcloud.com"'
+      - end_bracket: )
+    - keyword: PROPERTIES
+    - bracketed:
+        start_bracket: (
+        load_label_property:
+        - quoted_literal: '"timeout"'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"3600"'
+        end_bracket: )
+  statement_terminator: ;

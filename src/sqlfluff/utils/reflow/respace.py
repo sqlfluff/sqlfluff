@@ -583,9 +583,9 @@ def _extract_alignment_config(
     ('alias_expression', 'statement', None, None)
     >>> _extract_alignment_config("align:alias_expression:statement:bracketed")
     ('alias_expression', 'statement', 'bracketed', None)
-    >>> _extract_alignment_config("align:alias_expression:select_clause:bracketed:source")  # noqa: E501
+    >>> _extract_alignment_config("align:alias_expression:select_clause:bracketed:source")
     ('alias_expression', 'select_clause', 'bracketed', 'source')
-    >>> _extract_alignment_config("align:alias_expression:select_clause:bracketed:templated")  # noqa: E501
+    >>> _extract_alignment_config("align:alias_expression:select_clause:bracketed:templated")
     ('alias_expression', 'select_clause', 'bracketed', 'templated')
     """
     assert ":" in constraint
