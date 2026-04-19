@@ -521,7 +521,12 @@ class Bracketed(Sequence):
                 segments, end_bracket_idx
             )
 
-        # If there's a gap, add it as a child match
+        # NOTE: This is intentionally asymmetric. We don't add a matching
+        # leading gap before the content because `MatchResult.apply()` will
+        # preserve any untouched slice between `start_match` and the first
+        # content child anyway. Recording the post-content gap here is just
+        # explicit bookkeeping for the non-code we already skipped while
+        # locating the closing bracket; it doesn't affect the rendered result.
         child_matches: tuple[MatchResult, ...] = (start_match,)
         if not is_zero_slice(content_match.matched_slice):
             if content_match.matched_class:
