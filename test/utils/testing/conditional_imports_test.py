@@ -9,9 +9,8 @@ import pytest
 
 def test_testing_rules_error_message():
     """Test that _ensure_pytest gives helpful error message."""
-    from sqlfluff.utils.testing.rules import _ensure_pytest
-
     import sqlfluff.utils.testing.rules
+    from sqlfluff.utils.testing.rules import _ensure_pytest
 
     original_pytest = sqlfluff.utils.testing.rules.pytest
     try:
@@ -27,13 +26,12 @@ def test_testing_rules_error_message():
 
 def test_testing_logging_error_message():
     """Test that _ensure_pytest_logging gives helpful error message."""
+    import sqlfluff.utils.testing.logging
     from sqlfluff.utils.testing.logging import (
         LogCaptureHandler,
         _ensure_pytest_logging,
         _remove_ansi_escape_sequences,
     )
-
-    import sqlfluff.utils.testing.logging
 
     try:
         # Simulate ImportError path by setting to None
