@@ -115,6 +115,14 @@ teradata_dialect.sets("reserved_keywords").update(
 teradata_dialect.sets("bare_functions").update(["DATE"])
 
 teradata_dialect.replace(
+    CharCharacterSetGrammar=OneOf(
+        Sequence("CHARACTER", "SET", Ref("SingleIdentifierGrammar")),
+        Sequence(
+            Ref.keyword("NOT", optional=True),
+            OneOf("CASESPECIFIC", "CS"),
+        ),
+        OneOf("UPPERCASE", "UC"),
+    ),
     # ANSI standard comparison operators plus Teradata extensions
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
@@ -427,6 +435,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(  # FORMAT 'YYYY-MM-DD',
             "FORMAT", Ref("QuotedLiteralSegment"), optional=True
         ),
+        AnyNumberOf(Ref("CharCharacterSetGrammar"), optional=True),
     )
 
 
