@@ -1,33 +1,25 @@
 """Test conditional import paths when pytest is not available."""
 
-import os
+import builtins
 import sys
+from unittest.mock import MagicMock, patch
 
-# Add src to Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
+import pytest
 
 
 def test_testing_rules_error_message():
     """Test that _ensure_pytest gives helpful error message."""
-    from sqlfluff.utils.testing.rules import _ensure_pytest, pytest
+    from sqlfluff.utils.testing.rules import _ensure_pytest
 
-    # pytest should be available in test environment,
-    # so let's test the error path manually
-    original_pytest = pytest
+    import sqlfluff.utils.testing.rules
+
+    original_pytest = sqlfluff.utils.testing.rules.pytest
     try:
         # Temporarily set pytest to None to simulate ImportError path
-        import sqlfluff.utils.testing.rules
-
         sqlfluff.utils.testing.rules.pytest = None
-
-        try:
+        with pytest.raises(ImportError, match="testutils") as exc_info:
             _ensure_pytest()
-            assert False, "Should have raised ImportError"
-        except ImportError as e:
-            assert "testutils" in str(e)
-            assert "pytest is required" in str(e)
-            print("✓ testing.rules error message test passed")
-
+        assert "pytest is required" in str(exc_info.value)
     finally:
         # Restore original pytest
         sqlfluff.utils.testing.rules.pytest = original_pytest
@@ -41,84 +33,69 @@ def test_testing_logging_error_message():
         _remove_ansi_escape_sequences,
     )
 
-    # Test the error path manually by setting variables to None
-    original_handler = LogCaptureHandler
-    original_remove_func = _remove_ansi_escape_sequences
+    import sqlfluff.utils.testing.logging
 
     try:
         # Simulate ImportError path by setting to None
-        import sqlfluff.utils.testing.logging
-
         sqlfluff.utils.testing.logging.LogCaptureHandler = None
         sqlfluff.utils.testing.logging._remove_ansi_escape_sequences = None
-
-        try:
+        with pytest.raises(ImportError, match="testutils") as exc_info:
             _ensure_pytest_logging()
-            assert False, "Should have raised ImportError"
-        except ImportError as e:
-            assert "testutils" in str(e)
-            assert "pytest is required" in str(e)
-            print("✓ testing.logging error message test passed")
-
+        assert "pytest is required" in str(exc_info.value)
     finally:
         # Restore original values
-        sqlfluff.utils.testing.logging.LogCaptureHandler = original_handler
+        sqlfluff.utils.testing.logging.LogCaptureHandler = LogCaptureHandler
         sqlfluff.utils.testing.logging._remove_ansi_escape_sequences = (
-            original_remove_func
+            _remove_ansi_escape_sequences
         )
 
 
-def test_sqlfluff_pytest_assignment():
-    """Test that pytest gets assigned correctly in __init__.py."""
-    # Read the __init__.py file and verify the conditional import logic exists
-    init_path = os.path.join("src", "sqlfluff", "__init__.py")
-    with open(init_path, "r") as f:
-        content = f.read()
-
-    # Verify the try/except ImportError pattern exists
-    assert "try:" in content
-    assert "import pytest" in content
-    assert "except ImportError:" in content
-    assert "pytest = None" in content
-    print("✓ sqlfluff.__init__ conditional import structure verified")
-
-
-def test_testing_rules_import_structure():
-    """Test that testing.rules has the correct conditional import structure."""
-    rules_path = os.path.join("src", "sqlfluff", "utils", "testing", "rules.py")
-    with open(rules_path, "r") as f:
-        content = f.read()
-
-    # Verify the try/except ImportError pattern exists
-    assert "try:" in content
-    assert "import pytest" in content
-    assert "except ImportError:" in content
-    assert "pytest = None" in content
-    assert "def _ensure_pytest():" in content
-    print("✓ testing.rules conditional import structure verified")
+def test_sqlfluff_init_registers_assert_rewrite_when_pytest_available():
+    """sqlfluff.__init__ calls pytest.register_assert_rewrite when pytest is importable."""
+    mock_pytest = MagicMock()
+    saved = sys.modules.pop("sqlfluff", None)
+    try:
+        with patch.dict(sys.modules, {"pytest": mock_pytest}):
+            import sqlfluff  # noqa: F401
+        mock_pytest.register_assert_rewrite.assert_called_once_with(
+            "sqlfluff.utils.testing"
+        )
+    finally:
+        if saved is not None:
+            sys.modules["sqlfluff"] = saved
+        elif "sqlfluff" in sys.modules:
+            del sys.modules["sqlfluff"]
 
 
-def test_testing_logging_import_structure():
-    """Test that testing.logging has the correct conditional import structure."""
-    logging_path = os.path.join("src", "sqlfluff", "utils", "testing", "logging.py")
-    with open(logging_path, "r") as f:
-        content = f.read()
+def test_sqlfluff_init_handles_missing_pytest():
+    """Importing sqlfluff when pytest is unavailable does not raise an error."""
+    real_import = builtins.__import__
 
-    # Verify the try/except ImportError pattern exists
-    assert "try:" in content
-    assert "from _pytest.logging import (" in content
-    assert "LogCaptureHandler" in content
-    assert "except ImportError:" in content
-    assert "LogCaptureHandler = None" in content
-    assert "_remove_ansi_escape_sequences = None" in content
-    assert "def _ensure_pytest_logging():" in content
-    print("✓ testing.logging conditional import structure verified")
+    def import_without_pytest(name, *args, **kwargs):  # type: ignore[no-untyped-def]
+        if name == "pytest":
+            raise ImportError("No module named 'pytest'")
+        return real_import(name, *args, **kwargs)
+
+    saved = sys.modules.pop("sqlfluff", None)
+    try:
+        with patch("builtins.__import__", side_effect=import_without_pytest):
+            import sqlfluff  # noqa: F401
+    finally:
+        if saved is not None:
+            sys.modules["sqlfluff"] = saved
+        elif "sqlfluff" in sys.modules:
+            del sys.modules["sqlfluff"]
 
 
-if __name__ == "__main__":
-    test_sqlfluff_pytest_assignment()
-    test_testing_rules_import_structure()
-    test_testing_logging_import_structure()
-    test_testing_rules_error_message()
-    test_testing_logging_error_message()
-    print("All conditional import tests passed!")
+def test_ensure_pytest_does_not_raise_when_pytest_available():
+    """_ensure_pytest() succeeds without raising when pytest is importable."""
+    from sqlfluff.utils.testing.rules import _ensure_pytest
+
+    _ensure_pytest()  # Should not raise
+
+
+def test_ensure_pytest_logging_does_not_raise_when_pytest_available():
+    """_ensure_pytest_logging() succeeds without raising when pytest is importable."""
+    from sqlfluff.utils.testing.logging import _ensure_pytest_logging
+
+    _ensure_pytest_logging()  # Should not raise
