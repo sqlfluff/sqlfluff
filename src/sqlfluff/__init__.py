@@ -5,7 +5,7 @@ from importlib import metadata
 
 try:
     import pytest  # isort: skip
-except ImportError:
+except ImportError:  # pragma: no cover
     pytest = None  # type: ignore[assignment]
 
 # Expose the public API.

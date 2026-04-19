@@ -23,7 +23,7 @@ try:
         LogCaptureHandler,
         _remove_ansi_escape_sequences,
     )  # isort: skip
-except ImportError:
+except ImportError:  # pragma: no cover
     LogCaptureHandler = None  # type: ignore[assignment,misc]
     _remove_ansi_escape_sequences = None  # type: ignore[assignment]
 
@@ -54,7 +54,7 @@ if LogCaptureHandler is not None:
             result = self.stream.getvalue()
             return _remove_ansi_escape_sequences(result)
 
-else:
+else:  # pragma: no cover
     # Create a placeholder class that will never be instantiated
     # (since _ensure_pytest_logging will fail)
     class FluffLogHandler:  # type: ignore[no-redef]

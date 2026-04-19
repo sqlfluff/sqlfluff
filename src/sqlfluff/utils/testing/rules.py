@@ -10,7 +10,7 @@ from sqlfluff.core import Linter
 
 try:
     import pytest  # isort: skip
-except ImportError:
+except ImportError:  # pragma: no cover
     pytest = None  # type: ignore[assignment]
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import (
