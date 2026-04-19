@@ -3,6 +3,7 @@
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -17,6 +18,7 @@ from sqlfluff.core.parser import (
     OneOf,
     OptionallyBracketed,
     Ref,
+    RegexLexer,
     RegexParser,
     SegmentGenerator,
     Sequence,
@@ -44,6 +46,17 @@ hive_dialect = ansi_dialect.copy_as(
 hive_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 # hive_dialect.sets("reserved_keywords").clear()
 hive_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+
+hive_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "hive_variable",
+            r"\$\{[A-Za-z_][A-Za-z0-9_:]*\}",
+            CodeSegment,
+        ),
+    ],
+    before="dollar_quote",
+)
 
 hive_dialect.bracket_sets("angle_bracket_pairs").update(
     [
@@ -143,6 +156,7 @@ hive_dialect.add(
         type="quoted_identifier",
         casefold=str.lower,
     ),
+    HiveVariableSegment=TypedParser("hive_variable", CodeSegment, type="hive_variable"),
 )
 
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
@@ -176,7 +190,28 @@ hive_dialect.replace(
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
             Ref("BackQuotedIdentifierSegment"),
+            Ref("HiveVariableSegment"),
         ]
+    ),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[Ref("HiveVariableSegment")],
+        before=Ref("ArrayLiteralSegment"),
+    ),
+    InOperatorGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        "IN",
+        OneOf(
+            Bracketed(
+                OneOf(
+                    Delimited(
+                        Ref("Expression_A_Grammar"),
+                    ),
+                    Ref("SelectableGrammar"),
+                ),
+            ),
+            Ref("FunctionSegment"),
+            Ref("HiveVariableSegment"),
+        ),
     ),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
@@ -727,12 +762,22 @@ class SetStatementSegment(BaseSegment):
             # set key = value
             Sequence(
                 Delimited(
-                    Ref("ParameterNameSegment"),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("MinusSegment"),
+                                Ref("ParameterNameSegment"),
+                                allow_gaps=False,
+                            ),
+                        ),
+                        allow_gaps=False,
+                    ),
                     delimiter=OneOf(Ref("DotSegment"), Ref("ColonDelimiterSegment")),
                     allow_gaps=False,
                 ),
                 Ref("RawEqualsSegment"),
-                Ref("LiteralGrammar"),
+                Anything(),
             ),
             optional=True,
         ),
