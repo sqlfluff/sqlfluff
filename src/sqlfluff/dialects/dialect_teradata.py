@@ -123,6 +123,16 @@ teradata_dialect.replace(
         ),
         OneOf("UPPERCASE", "UC"),
     ),
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[
+            Sequence(
+                Ref("ExpressionSegment"),
+                "AS",
+                Ref("DatatypeSegment"),
+                AnyNumberOf(Ref("CharCharacterSetGrammar"), optional=True),
+            )
+        ]
+    ),
     # ANSI standard comparison operators plus Teradata extensions
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
@@ -435,7 +445,6 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(  # FORMAT 'YYYY-MM-DD',
             "FORMAT", Ref("QuotedLiteralSegment"), optional=True
         ),
-        AnyNumberOf(Ref("CharCharacterSetGrammar"), optional=True),
     )
 
 
