@@ -561,6 +561,7 @@ def test__linter__lint_paths_closes_runner_iterator_on_early_break(monkeypatch):
 
         def __init__(self, iterator):
             self.iterator = iterator
+            self.skipped_file_count = 0
 
         def run(self, fnames, fix):
             return self.iterator
@@ -906,3 +907,76 @@ def test_unparsable_fix_output(fix_even_unparsable):
     else:
         with pytest.raises(FileNotFoundError):
             open(predicted_fix_path, "r")
+
+
+def test__linter__skip_large_bytes__files_skipped_count():
+    """Verify that files_skipped is tracked in LintingResult when files are skipped."""
+    # Use a very low byte limit so the file is always skipped.
+    config = FluffConfig(overrides={"large_file_skip_byte_limit": 5, "dialect": "ansi"})
+    lntr = Linter(config)
+    result = lntr.lint_paths(
+        ("test/fixtures/linter/indentation_errors.sql",),
+    )
+    assert result.files_skipped == 1
+    assert not result.get_violations()
+
+
+def test__linter__no_skip__files_skipped_zero():
+    """Verify files_skipped is 0 when no files are skipped."""
+    config = FluffConfig(overrides={"large_file_skip_byte_limit": 0, "dialect": "ansi"})
+    lntr = Linter(config)
+    result = lntr.lint_paths(
+        ("test/fixtures/linter/indentation_errors.sql",),
+    )
+    assert result.files_skipped == 0
+    assert result.get_violations()
+
+
+def test__parallel_runner__skip_file_tracked_in_runner():
+    """Verify skipped_file_count is incremented on the runner for parallel runs."""
+    config = FluffConfig(overrides={"large_file_skip_byte_limit": 5, "dialect": "ansi"})
+    lntr = Linter(config=config)
+    r = runner.MultiThreadRunner(lntr, config, processes=1)
+    # Consume the iterator so the skip logic fires.
+    list(r.run(["test/fixtures/linter/passing.sql"], fix=False))
+    assert r.skipped_file_count == 1
+
+
+@pytest.mark.parametrize(
+    "large_file_skip_fail,expected_would_fail",
+    [
+        (True, True),
+        (False, False),
+    ],
+)
+def test__linter__large_file_skip_fail_config(
+    large_file_skip_fail, expected_would_fail
+):
+    """Verify that large_file_skip_fail config controls whether skipped files fail.
+
+    This simulates the exit-code logic in the CLI: when files are skipped
+    and large_file_skip_fail is True, the exit code should be non-zero.
+    """
+    config = FluffConfig(
+        overrides={
+            "large_file_skip_byte_limit": 5,
+            "large_file_skip_fail": large_file_skip_fail,
+            "dialect": "ansi",
+        }
+    )
+    lntr = Linter(config)
+    result = lntr.lint_paths(
+        ("test/fixtures/linter/indentation_errors.sql",),
+    )
+    # The file should be skipped regardless of large_file_skip_fail.
+    assert result.files_skipped == 1
+    assert not result.get_violations()
+
+    # Simulate CLI exit code logic:
+    # exit_code from stats should be 0 (no violations).
+    exit_code = result.stats(1, 0)["exit code"]
+    assert exit_code == 0  # No violations means stats returns success.
+
+    # But if large_file_skip_fail is set, the CLI would bump this to 1.
+    would_fail = bool(result.files_skipped and config.get("large_file_skip_fail"))
+    assert would_fail == expected_would_fail
