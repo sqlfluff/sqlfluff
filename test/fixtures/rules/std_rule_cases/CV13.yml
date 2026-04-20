@@ -1,0 +1,33 @@
+rule: CV13
+
+# ADD COLUMN
+
+test_pass_postgres_add_with_if_not_exists:
+  pass_str: |
+    ALTER TABLE my_table ADD COLUMN IF NOT EXISTS my_col INT;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_add_without_if_not_exists:
+  fail_str: |
+    ALTER TABLE my_table ADD COLUMN my_col INT;
+  configs:
+    core:
+      dialect: postgres
+
+# DROP COLUMN
+
+test_pass_postgres_drop_with_if_exists:
+  pass_str: |
+    ALTER TABLE my_table DROP COLUMN IF EXISTS my_col;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_drop_without_if_exists:
+  fail_str: |
+    ALTER TABLE my_table DROP COLUMN my_col;
+  configs:
+    core:
+      dialect: postgres
