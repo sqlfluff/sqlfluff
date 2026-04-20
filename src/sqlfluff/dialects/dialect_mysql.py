@@ -2331,6 +2331,30 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     )
 
 
+class TableExpressionSegment(ansi.TableExpressionSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    MySQL and MariaDB both reserve ``DUAL`` but also accept it as a
+    dummy table in ``FROM DUAL`` for compatibility with other dialects
+    and for conditional inserts such as
+    ``INSERT ... SELECT ... FROM DUAL WHERE NOT EXISTS (...)``.
+    Because ``DUAL`` is in the reserved-keywords set, the default
+    ``TableReferenceSegment`` won't match it, so accept it explicitly
+    here.
+    """
+
+    match_grammar: Matchable = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("TableReferenceSegment"),
+        Sequence("DUAL"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+        Bracketed(Ref("MergeStatementSegment")),
+    )
+
+
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """A `SELECT` statement.
 
