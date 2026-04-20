@@ -225,11 +225,14 @@ class TestFlinkSQLDialect:
             "SET 'execution.checkpointing.mode' = 'EXACTLY_ONCE'",
             "SET 'execution.checkpointing.unaligned.enabled' = 'true'",
             "SET 'execution.checkpointing.timeout' = '600000'",
+            "SET execution.runtime-mode = streaming",
+            "SET pipeline.name = 'foo'",
+            "SET execution.checkpointing.mode = EXACTLY_ONCE",
         ]
 
         for sql in statements:
-            result = linter.lint_string(sql)
-            assert result is not None
+            result = linter.parse_string(sql)
+            assert result.violations == []
 
     def test_flink_create_catalog(self):
         """Test FlinkSQL CREATE CATALOG statement."""

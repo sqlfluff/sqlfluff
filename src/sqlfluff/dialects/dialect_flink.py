@@ -10,6 +10,7 @@ https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -179,6 +180,32 @@ flink_dialect.add(
     ),
     # Double equals operator for connector options
     DoubleEqualsSegment=StringParser("==", SymbolSegment, type="double_equals"),
+    FlinkPropertyNamePartSegment=Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("MinusSegment"),
+                Ref("SingleIdentifierGrammar"),
+                allow_gaps=False,
+            ),
+        ),
+    ),
+    FlinkPropertyNameSegment=OneOf(
+        Delimited(
+            Ref("FlinkPropertyNamePartSegment"),
+            delimiter=Ref("DotSegment"),
+            allow_gaps=False,
+        ),
+        Ref("QuotedLiteralSegment"),
+    ),
+    FlinkPropertyValueSegment=OneOf(
+        Ref("LiteralGrammar"),
+        Delimited(
+            Ref("FlinkPropertyNamePartSegment"),
+            delimiter=Ref("DotSegment"),
+            allow_gaps=False,
+        ),
+    ),
     # Connector options for CREATE TABLE
     CreateTableConnectorOptionsSegment=Sequence(
         "WITH",
@@ -528,10 +555,17 @@ class SetStatementSegment(BaseSegment):
     type = "set_statement"
     match_grammar = Sequence(
         "SET",
-        Sequence(
-            Ref("QuotedLiteralSegment"),  # 'key' format
-            Ref("EqualsSegment"),  # single =
-            Ref("QuotedLiteralSegment"),  # 'value' format
+        OneOf(
+            Sequence(
+                Ref("FlinkPropertyNameSegment"),
+                Ref("EqualsSegment"),
+                Ref("FlinkPropertyValueSegment"),
+            ),
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
             optional=True,
         ),
     )
