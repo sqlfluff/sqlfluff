@@ -301,6 +301,17 @@ bigquery_dialect.replace(
             casefold=str.upper,
         )
     ),
+    # Extend ANSI to support `NOT AGGREGATE` modifier on parameters
+    # for aggregate function definitions.
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions#aggregate-udf-parameters
+    FunctionParameterGrammar=OneOf(
+        Sequence(
+            Ref("ParameterNameSegment", optional=True),
+            OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+            Sequence("NOT", "AGGREGATE", optional=True),
+        ),
+        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+    ),
     DatatypeIdentifierSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
             [
@@ -1412,6 +1423,33 @@ class StringAggFunctionContentsSegment(BaseSegment):
             )
         ),
         allow_gaps=False,
+    )
+
+
+class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
+    """A `CREATE FUNCTION` statement.
+
+    Extends ANSI to support `CREATE AGGREGATE FUNCTION`.
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
+    """
+
+    type = "create_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        Sequence("AGGREGATE", optional=True),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        Sequence(
+            "RETURNS",
+            Ref("DatatypeSegment"),
+            optional=True,
+        ),
+        Ref("FunctionDefinitionGrammar"),
     )
 
 
