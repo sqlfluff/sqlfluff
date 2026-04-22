@@ -1826,6 +1826,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
             Sequence(
                 "BEGIN",
                 "ATOMIC",
+                Indent,
                 AnyNumberOf(
                     Sequence(
                         Ref("InsertStatementSegment"),
@@ -1848,6 +1849,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                         Ref("SemicolonSegment"),
                     ),
                 ),
+                Dedent,
                 "END",
             ),
         ),
