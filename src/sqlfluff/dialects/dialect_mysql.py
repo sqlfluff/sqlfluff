@@ -355,7 +355,28 @@ mysql_dialect.add(
         type="json_path",
         trim_chars=("'",),
     ),
+    DualIdentifierSegment=StringParser(
+        "DUAL", IdentifierSegment, type="naked_identifier"
+    ),
 )
+
+
+class TableReferenceSegment(ansi.TableReferenceSegment):
+    """A reference to a table.
+
+    MySQL-family dialects allow the special `DUAL` pseudo-table in `FROM`
+    clauses.
+    """
+
+    match_grammar: Matchable = OneOf(
+        Ref("DualIdentifierSegment"),
+        Delimited(
+            Ref("SingleIdentifierGrammar"),
+            delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+            terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+            allow_gaps=False,
+        ),
+    )
 
 
 class AliasExpressionSegment(ansi.AliasExpressionSegment):

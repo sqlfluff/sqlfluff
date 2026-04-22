@@ -163,3 +163,11 @@ def test__dialect__base_parse_struct(
         "'python test/generate_parse_fixture_yml.py' to create YAML files "
         "in test/fixtures/dialects."
     )
+
+
+@pytest.mark.parametrize("dialect", ["mysql", "mariadb"])
+def test_mysql_family_dual_cannot_be_qualified(dialect: str) -> None:
+    """`DUAL` should only parse as a standalone pseudo-table."""
+    parsed = Linter(dialect=dialect).parse_string("SELECT 1 FROM schema.DUAL")
+
+    assert parsed.violations
