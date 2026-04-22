@@ -2529,6 +2529,25 @@ test_fail_sqlite_update_returning:
     core:
       dialect: sqlite
 
+test_fail_postgres_begin_atomic_function_body_indent:
+  fail_str: |
+    create or replace function batch_delete_cron_job_runs()
+    returns void
+    language sql
+    begin atomic
+      select 8;
+    end;
+  fix_str: |
+    create or replace function batch_delete_cron_job_runs()
+    returns void
+    language sql
+    begin atomic
+        select 8;
+    end;
+  configs:
+    core:
+      dialect: postgres
+
 test_fail_postgres_update_returning:
   fail_str: |
     UPDATE
