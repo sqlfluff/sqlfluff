@@ -275,6 +275,10 @@ sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
 
 # Real Segments
 sparksql_dialect.replace(
+    LateralColumnAliasExpressionGrammar=Sequence(
+        Ref("ExpressionSegment"),
+        Ref("AliasExpressionSegment"),
+    ),
     DateTimeLiteralGrammar=Sequence(
         OneOf(
             "DATE", "TIME", "TIMESTAMP", "INTERVAL", "TIMESTAMP_LTZ", "TIMESTAMP_NTZ"
