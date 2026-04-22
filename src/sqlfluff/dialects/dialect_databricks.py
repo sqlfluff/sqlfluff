@@ -145,10 +145,6 @@ databricks_dialect.add(
 
 # Override SingleIdentifierGrammar to include parameterized segments
 databricks_dialect.replace(
-    LateralColumnAliasExpressionGrammar=Sequence(
-        Ref("ExpressionSegment"),
-        Ref("AliasExpressionSegment"),
-    ),
     SingleIdentifierGrammar=sparksql_dialect.get_grammar(
         "SingleIdentifierGrammar"
     ).copy(
