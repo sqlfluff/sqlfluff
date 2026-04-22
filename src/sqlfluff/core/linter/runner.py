@@ -224,8 +224,10 @@ class ParallelRunner(BaseRunner):
             # in case it takes awhile.
             print("Received keyboard interrupt. Cleaning up and shutting down...")
         finally:
-            pool.terminate()
-            pool.join()
+            try:
+                pool.terminate()
+            finally:
+                pool.join()
 
     @staticmethod
     def _apply(
