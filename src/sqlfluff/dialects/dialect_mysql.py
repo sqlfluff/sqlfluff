@@ -368,14 +368,14 @@ class TableReferenceSegment(ansi.TableReferenceSegment):
     clauses.
     """
 
-    match_grammar: Matchable = Delimited(
-        OneOf(
+    match_grammar: Matchable = OneOf(
+        Ref("DualIdentifierSegment"),
+        Delimited(
             Ref("SingleIdentifierGrammar"),
-            Ref("DualIdentifierSegment"),
+            delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+            terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+            allow_gaps=False,
         ),
-        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
-        terminators=[Ref("ObjectReferenceTerminatorGrammar")],
-        allow_gaps=False,
     )
 
 
