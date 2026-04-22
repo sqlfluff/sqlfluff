@@ -2219,6 +2219,7 @@ class CreateTableFunctionStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref("OptionsSegment", optional=True),
         Sequence(
             "AS",
             OptionallyBracketed(Ref("SelectableGrammar")),
