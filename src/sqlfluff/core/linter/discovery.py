@@ -29,7 +29,7 @@ class IgnoreSpec(Protocol):
 
     def match_file(self, file: str) -> object:
         """Return a truthy match result if the file is ignored."""
-        ...
+        ...  # pragma: no cover
 
 
 IgnoreSpecRecord = tuple[str, str, IgnoreSpec]
