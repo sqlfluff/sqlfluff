@@ -3114,6 +3114,10 @@ class MergeStatementSegment(BaseSegment):
                 ),
                 Ref("AliasExpressionSegment", optional=True),
             ),
+            Sequence(
+                Ref("FunctionSegment"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
         ),
         Dedent,
         Conditional(Indent, indented_using_on=True),
