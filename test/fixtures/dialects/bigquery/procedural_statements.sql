@@ -11,6 +11,24 @@ WHILE true DO
   CONTINUE;
 END WHILE;
 
+-- WHILE with compound statements in body
+WHILE x > 0 DO
+  BEGIN
+    SET x = x - 1;
+    SELECT x;
+  EXCEPTION WHEN ERROR THEN
+    SET x = 0;
+  END;
+END WHILE;
+
+WHILE x > 0 DO
+  IF x > 5 THEN
+    SET x = x - 2;
+  ELSE
+    SET x = x - 1;
+  END IF;
+END WHILE;
+
 IF x >= 10 THEN
 	SELECT x;
 END IF;

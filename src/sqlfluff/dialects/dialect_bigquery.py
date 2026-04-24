@@ -967,7 +967,10 @@ class WhileStatementsSegment(BaseSegment):
     type = "while_statements"
     match_grammar = AnyNumberOf(
         Sequence(
-            Ref("StatementSegment"),
+            OneOf(
+                Ref("StatementSegment"),
+                Ref("MultiStatementSegment"),
+            ),
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "WHILE")],
