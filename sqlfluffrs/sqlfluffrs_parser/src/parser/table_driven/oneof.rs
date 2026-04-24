@@ -170,7 +170,7 @@ impl Parser<'_> {
             stack.frame_id_counter,
             first_child,
             post_skip_pos,
-            frame.table_terminators.to_vec(),
+            &frame.table_terminators,
             Some(max_idx),
         );
 
@@ -292,9 +292,13 @@ impl Parser<'_> {
                 let current_is_clean = !current_best.contains_unparsable();
 
                 if child_is_clean && !current_is_clean {
-                    true
+                    // Clean beats unclean only if it consumed at least as much.
+                    // A shorter clean match that leaves content unparsed is worse
+                    // than a longer unclean match that covers everything.
+                    consumed >= *current_consumed
                 } else if !child_is_clean && current_is_clean {
-                    false
+                    // Unclean only beats clean if strictly longer (same length: prefer clean).
+                    consumed > *current_consumed
                 } else {
                     consumed > *current_consumed
                 }
@@ -400,7 +404,7 @@ impl Parser<'_> {
                 stack.frame_id_counter,
                 next_child,
                 *post_skip_pos,
-                frame.table_terminators.to_vec(),
+                &frame.table_terminators,
                 Some(*max_idx),
             );
 

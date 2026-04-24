@@ -137,6 +137,15 @@ impl Parser<'_> {
         // Store calculated max_idx in frame for cache consistency
         frame.calculated_max_idx = Some(max_idx);
 
+        #[cfg(feature = "verbose-debug")]
+        {
+            vdebug!(
+                "Delimited[table]: Trying elements grammar_id={} with {} child_terminators",
+                elements_id.0,
+                child_terminators.len()
+            );
+        }
+
         // Store context - element_children now just contains the single elements_id
         // (which may be a OneOf internally)
         frame.context = FrameContext::DelimitedTableDriven {
@@ -157,26 +166,21 @@ impl Parser<'_> {
         // Push child to match element(s).
         // Pass child_terminators to allow the element matcher to try all candidates
         // without early termination from local terminators (e.g., ObjectReferenceTerminator).
+        let child_terminators_for_frame = {
+            let FrameContext::DelimitedTableDriven {
+                child_terminators, ..
+            } = &frame.context
+            else {
+                unreachable!()
+            };
+            child_terminators.clone()
+        };
         let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             elements_id,
             start_pos,
-            {
-                let FrameContext::DelimitedTableDriven {
-                    child_terminators, ..
-                } = &frame.context
-                else {
-                    unreachable!()
-                };
-                child_terminators.clone()
-            },
+            &child_terminators_for_frame,
             Some(max_idx),
-        );
-
-        vdebug!(
-            "Delimited[table]: Trying elements grammar_id={} with {} child_terminators",
-            elements_id.0,
-            child_terminators.len()
         );
 
         Ok(stack.push_child_and_wait(frame, child_frame, 0))
@@ -388,7 +392,7 @@ impl Parser<'_> {
                     stack.frame_id_counter,
                     delimiter_id,
                     *working_idx,
-                    frame.table_terminators.to_vec(),
+                    &frame.table_terminators,
                     None, // Don't constrain delimiter by max_idx
                 );
 
@@ -422,7 +426,7 @@ impl Parser<'_> {
                             stack.frame_id_counter,
                             elements_id,
                             *working_idx,
-                            child_terminators_clone.clone(),
+                            &child_terminators_clone,
                             Some(current_max_idx),
                         );
 
@@ -542,13 +546,57 @@ impl Parser<'_> {
 
                 // Delimiter matched and not a terminator: keep it in `delimiter_match`
                 // (it will be appended only if the next element succeeds).
-                // Recalculate max_idx from the new working position because the parent's
-                // limit may have pointed to the delimiter we just consumed.
+                // PYTHON PARITY: Never expand max_idx beyond parent_max_idx after a delimiter.
+                // In Python, Delimited receives sliced segments (parent only passes what's allowed),
+                // so it can never "escape" the parent's boundary. In Rust, always cap at
+                // parent_max_idx. If parent_limit <= working_idx, the element frame will see
+                // 0 tokens and return empty — correctly triggering allow_trailing logic.
+                //
+                // EXCEPTION: If parent_max_idx was AT the delimiter position (parent's trim
+                // found the comma as a terminator), the constraint is "stale" after consuming
+                // the delimiter. In that case, re-trim from the new position to find the
+                // next boundary (e.g. FROM keyword).
                 let new_max_idx = if let Some(parent_limit) = frame.parent_max_idx {
-                    // If parent_limit <= working_idx, it means the parent's constraint was
-                    // likely based on the delimiter we just consumed. Ignore it and use tokens.len()
                     if parent_limit <= *working_idx {
-                        self.tokens.len()
+                        // Avoid reparsing at parent_limit. We already know exactly where
+                        // the last delimiter matched from `pos_before_delimiter` +
+                        // `delimiter_match.matched_slice`, so we can determine if the parent
+                        // boundary was derived from that delimiter in O(1).
+                        let mut delimiter_consumed_parent_limit =
+                            if let (Some(before_delim), Some(dm)) =
+                                (pos_before_delimiter.as_ref(), delimiter_match.as_ref())
+                            {
+                                parent_limit >= *before_delim && parent_limit < dm.end()
+                            } else {
+                                false
+                            };
+
+                        // Fallback for edge cases where match span metadata is not enough
+                        // to infer whether parent_limit was derived from the consumed
+                        // delimiter. This preserves the previous behavior that relied on a
+                        // direct probe at parent_limit.
+                        if !delimiter_consumed_parent_limit {
+                            let saved_pos = self.pos;
+                            self.pos = parent_limit;
+                            delimiter_consumed_parent_limit = self
+                                .parse_table_iterative_match_result(delimiter_id, &[])
+                                .map(|r| !r.is_empty())
+                                .unwrap_or(false);
+                            self.pos = saved_pos;
+                        }
+
+                        if delimiter_consumed_parent_limit {
+                            // Parent's previous boundary was on the delimiter we just consumed.
+                            // Re-trim from the new working position.
+                            self.trim_to_terminator_table_driven(
+                                *working_idx,
+                                &frame.table_terminators,
+                            )?
+                        } else {
+                            // Genuine parent boundary (e.g., trailing comma with
+                            // newline before FROM). Cap to trigger allow_trailing.
+                            parent_limit
+                        }
                     } else {
                         parent_limit
                     }
@@ -577,7 +625,7 @@ impl Parser<'_> {
                     stack.frame_id_counter,
                     elements_id,
                     *working_idx,
-                    child_terminators_clone.clone(),
+                    &child_terminators_clone,
                     Some(*max_idx), // Use recalculated max_idx
                 );
 

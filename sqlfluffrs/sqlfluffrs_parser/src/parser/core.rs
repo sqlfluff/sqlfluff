@@ -1508,8 +1508,7 @@ impl<'a> Parser<'a> {
         parent_max_idx: Option<usize>,
     ) -> Result<MatchResult, ParseError> {
         // Create a temporary table-driven frame to use the initial handler and then extract MatchResult
-        let frame =
-            TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators.to_vec(), None);
+        let frame = TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators, None);
 
         match self.handle_anything_table_initial(
             frame,

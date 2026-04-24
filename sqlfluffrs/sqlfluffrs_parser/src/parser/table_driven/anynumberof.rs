@@ -196,7 +196,7 @@ impl Parser<'_> {
             stack.frame_id_counter,
             first_element,
             start_pos,
-            frame.table_terminators.to_vec(),
+            &frame.table_terminators,
             Some(max_idx),
         );
 
@@ -311,7 +311,7 @@ impl Parser<'_> {
             stack.frame_id_counter,
             next_candidate,
             *ctx.working_idx,
-            frame.table_terminators.to_vec(),
+            &frame.table_terminators,
             Some(*ctx.max_idx),
         );
 
@@ -477,7 +477,7 @@ impl Parser<'_> {
             stack.frame_id_counter,
             next_element,
             *ctx.working_idx,
-            frame.table_terminators.to_vec(),
+            &frame.table_terminators,
             Some(*ctx.max_idx),
         );
 
