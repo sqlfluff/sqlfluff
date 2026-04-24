@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9fce8c162bcaeb4150cca7216bf038c3a37e044d65f1d99f5956c06fb175afb3
+_hash: 23e0caf1c8bcfc61a920f4da056b5f4ccbe5563b75528625ce7f4c38f03dfcf1
 file:
 - statement:
     declare_segment:
@@ -67,6 +67,111 @@ file:
           continue_statement:
             keyword: CONTINUE
       - statement_terminator: ;
+    - keyword: END
+    - keyword: WHILE
+- statement_terminator: ;
+- multi_statement_segment:
+    while_statement:
+    - keyword: WHILE
+    - expression:
+        column_reference:
+          naked_identifier: x
+        comparison_operator:
+          raw_comparison_operator: '>'
+        numeric_literal: '0'
+    - keyword: DO
+    - while_statements:
+        multi_statement_segment:
+          begin_statement:
+          - keyword: BEGIN
+          - statement:
+              set_segment:
+                keyword: SET
+                naked_identifier: x
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                  binary_operator: '-'
+                  numeric_literal: '1'
+          - statement_terminator: ;
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: x
+          - statement_terminator: ;
+          - keyword: EXCEPTION
+          - keyword: WHEN
+          - keyword: ERROR
+          - keyword: THEN
+          - statement:
+              set_segment:
+                keyword: SET
+                naked_identifier: x
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '0'
+          - statement_terminator: ;
+          - keyword: END
+        statement_terminator: ;
+    - keyword: END
+    - keyword: WHILE
+- statement_terminator: ;
+- multi_statement_segment:
+    while_statement:
+    - keyword: WHILE
+    - expression:
+        column_reference:
+          naked_identifier: x
+        comparison_operator:
+          raw_comparison_operator: '>'
+        numeric_literal: '0'
+    - keyword: DO
+    - while_statements:
+        multi_statement_segment:
+          if_statement:
+          - keyword: IF
+          - expression:
+              column_reference:
+                naked_identifier: x
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '5'
+          - keyword: THEN
+          - if_statements:
+              statement:
+                set_segment:
+                  keyword: SET
+                  naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                    binary_operator: '-'
+                    numeric_literal: '2'
+              statement_terminator: ;
+          - keyword: ELSE
+          - if_statements:
+              statement:
+                set_segment:
+                  keyword: SET
+                  naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                    binary_operator: '-'
+                    numeric_literal: '1'
+              statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+        statement_terminator: ;
     - keyword: END
     - keyword: WHILE
 - statement_terminator: ;
