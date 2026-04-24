@@ -146,6 +146,16 @@ impl Parser<'_> {
             );
         }
 
+        // Pass child_terminators to allow the element matcher to try all candidates
+        // without early termination from local terminators (e.g., ObjectReferenceTerminator).
+        let child_frame = TableParseFrame::new_child(
+            stack.frame_id_counter,
+            elements_id,
+            start_pos,
+            &child_terminators,
+            Some(max_idx),
+        );
+
         // Store context - element_children now just contains the single elements_id
         // (which may be a OneOf internally)
         frame.context = FrameContext::DelimitedTableDriven {
@@ -164,25 +174,6 @@ impl Parser<'_> {
         };
 
         // Push child to match element(s).
-        // Pass child_terminators to allow the element matcher to try all candidates
-        // without early termination from local terminators (e.g., ObjectReferenceTerminator).
-        let child_terminators_for_frame = {
-            let FrameContext::DelimitedTableDriven {
-                child_terminators, ..
-            } = &frame.context
-            else {
-                unreachable!()
-            };
-            child_terminators.clone()
-        };
-        let child_frame = TableParseFrame::new_child(
-            stack.frame_id_counter,
-            elements_id,
-            start_pos,
-            &child_terminators_for_frame,
-            Some(max_idx),
-        );
-
         Ok(stack.push_child_and_wait(frame, child_frame, 0))
     }
 

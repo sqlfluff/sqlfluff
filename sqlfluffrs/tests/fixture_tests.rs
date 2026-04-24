@@ -1,3 +1,5 @@
+const FIXTURE_TEST_MAX_PARSE_DEPTH: usize = 1024;
+
 /// Normalize YAML by round-tripping through serde_yaml_ng
 fn normalize_yaml_through_serde(yaml_str: &str) -> Result<String, String> {
     // Parse YAML 1.1 and re-serialize with serde_yaml_ng
@@ -42,7 +44,7 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
             &tokens,
             dialect_obj,
             hashbrown::HashMap::new(),
-            1024,
+            FIXTURE_TEST_MAX_PARSE_DEPTH,
         );
         let ast = parser
             .call_rule_as_root()
@@ -509,8 +511,12 @@ impl FixtureTest {
 
         // Use a generous depth limit so stress-test fixtures like
         // expression_recursion don't hit the DoS guard (default 255).
-        let mut parser =
-            Parser::new_with_max_parse_depth(&tokens, dialect, hashbrown::HashMap::new(), 1024);
+        let mut parser = Parser::new_with_max_parse_depth(
+            &tokens,
+            dialect,
+            hashbrown::HashMap::new(),
+            FIXTURE_TEST_MAX_PARSE_DEPTH,
+        );
 
         // Try to parse as a file (top-level rule)
         let ast = parser
