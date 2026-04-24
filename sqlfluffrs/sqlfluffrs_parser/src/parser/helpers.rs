@@ -4,6 +4,7 @@
 //! including token navigation, whitespace handling, and terminator checking.
 
 use hashbrown::HashSet;
+use smallvec::SmallVec;
 
 use super::core::Parser;
 use sqlfluffrs_types::{GrammarId, ParseMode, Token};
@@ -224,9 +225,9 @@ impl<'a> Parser<'a> {
         local_terminators: &[GrammarId],
         parent_terminators: &[GrammarId],
         reset_terminators: bool,
-    ) -> Vec<GrammarId> {
+    ) -> SmallVec<[GrammarId; 4]> {
         if reset_terminators {
-            local_terminators.to_vec()
+            SmallVec::from_slice(local_terminators)
         } else {
             local_terminators
                 .iter()

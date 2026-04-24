@@ -1,3 +1,5 @@
+const FIXTURE_TEST_MAX_PARSE_DEPTH: usize = 1024;
+
 /// Normalize YAML by round-tripping through serde_yaml_ng
 fn normalize_yaml_through_serde(yaml_str: &str) -> Result<String, String> {
     // Parse YAML 1.1 and re-serialize with serde_yaml_ng
@@ -38,8 +40,12 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
         let lexer = sqlfluffrs_lexer::Lexer::new(None, dialect_obj.get_lexers().to_vec());
         let (tokens, lex_errors) = lexer.lex(input, false);
         assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
-        let mut parser =
-            sqlfluffrs_parser::parser::Parser::new(&tokens, dialect_obj, hashbrown::HashMap::new());
+        let mut parser = sqlfluffrs_parser::parser::Parser::new_with_max_parse_depth(
+            &tokens,
+            dialect_obj,
+            hashbrown::HashMap::new(),
+            FIXTURE_TEST_MAX_PARSE_DEPTH,
+        );
         let ast = parser
             .call_rule_as_root()
             .expect("Parse error")
@@ -503,12 +509,19 @@ impl FixtureTest {
             return Err(format!("Lexer errors: {:?}", lex_errors));
         }
 
-        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+        // Use a generous depth limit so stress-test fixtures like
+        // expression_recursion don't hit the DoS guard (default 255).
+        let mut parser = Parser::new_with_max_parse_depth(
+            &tokens,
+            dialect,
+            hashbrown::HashMap::new(),
+            FIXTURE_TEST_MAX_PARSE_DEPTH,
+        );
 
         // Try to parse as a file (top-level rule)
         let ast = parser
             .call_rule_as_root()
-            .expect("Parse error")
+            .map_err(|e| format!("Parse error: {:?}", e))?
             .apply_as_root(&tokens, &[], &[]);
         Ok(ast)
     }
