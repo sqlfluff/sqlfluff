@@ -26,6 +26,12 @@ def test_var_emulator_magic_methods():
     var = DBT_BUILTINS["var"]("foo")
 
     assert str(var) == "item"
+    assert var == "item"
+    assert var + "_suffix" == "item_suffix"
+    assert "prefix_" + var == "prefix_item"
+    assert var.upper() == "ITEM"
+    assert var[0] == "i"
+    assert var[:2] == "it"
     assert var.something is var
     assert var["something"] is var
     assert var["something"]["else"] is var

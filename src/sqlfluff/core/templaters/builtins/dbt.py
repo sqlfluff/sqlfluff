@@ -37,22 +37,22 @@ class RelationEmulator:
         return self.identifier
 
 
-class VarEmulator:
-    """A class which emulates dbt's `var()` return value."""
+class VarEmulator(str):
+    """A string-like class which emulates dbt's `var()` return value."""
 
-    def __init__(self, value: str = "item") -> None:
-        self.value = value
+    def __new__(cls, value: str = "item") -> "VarEmulator":
+        """Construct a string-like placeholder for mocked dbt `var()` output."""
+        return super().__new__(cls, value)
 
     def __getattr__(self, name: str) -> "VarEmulator":
         """When var.attribute is called return self as another placeholder."""
         return self
 
-    def __getitem__(self, name: Any) -> "VarEmulator":
-        """When var['key'] is called return self as another placeholder."""
+    def __getitem__(self, name: Any) -> str:
+        """When var['key'] is called return a placeholder instead of failing."""
+        if isinstance(name, (int, slice)):
+            return super().__getitem__(name)
         return self
-
-    def __str__(self) -> str:
-        return self.value
 
 
 class MacroReturn(Exception):
