@@ -108,3 +108,24 @@ rules = LT04, ST06
 
     # Check file is fixed.
     assert linted_file.fix_string()[0] == out_sql
+
+
+@pytest.mark.parametrize("dialect", ["postgres", "redshift", "snowflake"])
+def test_rule_st06_shorthand_casted_aggregates_are_complex(dialect: str) -> None:
+    """Test shorthand-casted aggregates remain in the complex target band."""
+    cfg = FluffConfig.from_string(
+        f"""[sqlfluff]
+dialect = {dialect}
+rules = ST06
+"""
+    )
+    linter = Linter(config=cfg)
+
+    pass_sql = "SELECT a, MIN(c)::DATE AS d FROM foo"
+    fail_sql = "SELECT MIN(c)::DATE AS d, a FROM foo"
+
+    assert not linter.lint_string(pass_sql).violations
+
+    linted_file = linter.lint_string(fail_sql, fix=True)
+    assert [v.rule.code for v in linted_file.violations] == ["ST06"]
+    assert linted_file.fix_string()[0] == pass_sql
