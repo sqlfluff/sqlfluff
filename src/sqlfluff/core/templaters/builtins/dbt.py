@@ -37,6 +37,24 @@ class RelationEmulator:
         return self.identifier
 
 
+class VarEmulator:
+    """A class which emulates dbt's `var()` return value."""
+
+    def __init__(self, value: str = "item") -> None:
+        self.value = value
+
+    def __getattr__(self, name: str) -> "VarEmulator":
+        """When var.attribute is called return self as another placeholder."""
+        return self
+
+    def __getitem__(self, name: Any) -> "VarEmulator":
+        """When var['key'] is called return self as another placeholder."""
+        return self
+
+    def __str__(self) -> str:
+        return self.value
+
+
 class MacroReturn(Exception):
     """Exception used to allow macros to return non-string values."""
 
@@ -85,7 +103,7 @@ DBT_BUILTINS = {
         lambda *args, **kwargs: RelationEmulator(args[-1]),
     ),
     "config": FunctionWrapper("config", lambda **kwargs: ""),
-    "var": FunctionWrapper("var", lambda variable, default="": "item"),
+    "var": FunctionWrapper("var", lambda variable, default="": VarEmulator()),
     # `is_incremental()` renders as True, always in this case.
     # TODO: This means we'll never parse other parts of the query,
     # that are only reachable when `is_incremental()` returns False.

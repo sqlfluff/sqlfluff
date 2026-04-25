@@ -21,6 +21,18 @@ def test_function_emulator():
         str(wrapped)
 
 
+def test_var_emulator_magic_methods():
+    """Test the placeholder methods defined on the mocked dbt `var()` result."""
+    var = DBT_BUILTINS["var"]("foo")
+
+    assert str(var) == "item"
+    assert var.something is var
+    assert var["something"] is var
+    assert var["something"]["else"] is var
+    assert str(var.something) == "item"
+    assert str(var["something"]) == "item"
+
+
 def test_relation_emulator_magic_methods():
     """Test all the magic methods defined on RelationEmulator."""
     # tests for 'this'
