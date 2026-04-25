@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 75a610840d7bc8a1820793d9d97af0727a137c1662071040a10c064e1f58b4d2
+_hash: c6934f9be54f4c5941368f2b2045463c54b406c90e9fe49f6b3908456f78c15e
 file:
 - statement:
     create_table_statement:
@@ -19,13 +19,12 @@ file:
           column_reference:
             naked_identifier: Org_Unit_Code
           data_type:
-            data_type_identifier: char
-            bracketed_arguments:
+          - data_type_identifier: char
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '6'
                 end_bracket: )
-          td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - naked_identifier: unicode
@@ -37,13 +36,12 @@ file:
           column_reference:
             naked_identifier: Org_Unit_Type
           data_type:
-            data_type_identifier: char
-            bracketed_arguments:
+          - data_type_identifier: char
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '3'
                 end_bracket: )
-          td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - naked_identifier: unicode
@@ -61,7 +59,6 @@ file:
                 start_bracket: (
                 numeric_literal: '10'
                 end_bracket: )
-          td_column_attribute_constraint:
             keyword: uppercase
           column_constraint_segment:
           - keyword: not
@@ -71,13 +68,12 @@ file:
           column_reference:
             naked_identifier: Parent_Org_Unit_Code
           data_type:
-            data_type_identifier: char
-            bracketed_arguments:
+          - data_type_identifier: char
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '6'
                 end_bracket: )
-          td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - naked_identifier: unicode
@@ -89,13 +85,12 @@ file:
           column_reference:
             naked_identifier: Parent_Org_Unit_Type
           data_type:
-            data_type_identifier: char
-            bracketed_arguments:
+          - data_type_identifier: char
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '3'
                 end_bracket: )
-          td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - naked_identifier: unicode
@@ -113,7 +108,6 @@ file:
                 start_bracket: (
                 numeric_literal: '10'
                 end_bracket: )
-          td_column_attribute_constraint:
             keyword: uppercase
           column_constraint_segment:
           - keyword: not
@@ -423,23 +417,22 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - column_reference:
+          column_reference:
             naked_identifier: CHAR_FIELD
-        - data_type:
-            data_type_identifier: CHAR
-            bracketed_arguments:
+          data_type:
+          - data_type_identifier: CHAR
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '19'
                 end_bracket: )
-        - td_column_attribute_constraint:
           - keyword: CHARACTER
           - keyword: SET
           - naked_identifier: LATIN
-        - td_column_attribute_constraint:
+          td_column_attribute_constraint:
           - keyword: NOT
           - keyword: CASESPECIFIC
-        - column_constraint_segment:
+          column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
       - comma: ','
@@ -549,13 +542,12 @@ file:
         - column_reference:
             naked_identifier: DES_EVENTO
         - data_type:
-            data_type_identifier: VARCHAR
-            bracketed_arguments:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '255'
                 end_bracket: )
-        - td_column_attribute_constraint:
           - keyword: CHARACTER
           - keyword: SET
           - naked_identifier: LATIN
@@ -639,13 +631,12 @@ file:
           column_reference:
             naked_identifier: Org_Unit_Code
           data_type:
-            data_type_identifier: char
-            bracketed_arguments:
+          - data_type_identifier: char
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '6'
                 end_bracket: )
-          td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - naked_identifier: unicode
@@ -657,13 +648,12 @@ file:
           column_reference:
             naked_identifier: Org_Unit_Type
           data_type:
-            data_type_identifier: char
-            bracketed_arguments:
+          - data_type_identifier: char
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '3'
                 end_bracket: )
-          td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - naked_identifier: unicode
@@ -681,7 +671,6 @@ file:
                 start_bracket: (
                 numeric_literal: '10'
                 end_bracket: )
-          td_column_attribute_constraint:
             keyword: uppercase
           column_constraint_segment:
           - keyword: not
@@ -691,13 +680,12 @@ file:
           column_reference:
             naked_identifier: Parent_Org_Unit_Code
           data_type:
-            data_type_identifier: char
-            bracketed_arguments:
+          - data_type_identifier: char
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '6'
                 end_bracket: )
-          td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - naked_identifier: unicode
@@ -709,13 +697,12 @@ file:
           column_reference:
             naked_identifier: Parent_Org_Unit_Type
           data_type:
-            data_type_identifier: char
-            bracketed_arguments:
+          - data_type_identifier: char
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '3'
                 end_bracket: )
-          td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - naked_identifier: unicode
@@ -733,7 +720,6 @@ file:
                 start_bracket: (
                 numeric_literal: '10'
                 end_bracket: )
-          td_column_attribute_constraint:
             keyword: uppercase
           column_constraint_segment:
           - keyword: not
@@ -983,23 +969,22 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - column_reference:
+          column_reference:
             naked_identifier: CHAR_FIELD
-        - data_type:
-            data_type_identifier: CHAR
-            bracketed_arguments:
+          data_type:
+          - data_type_identifier: CHAR
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '19'
                 end_bracket: )
-        - td_column_attribute_constraint:
           - keyword: CHARACTER
           - keyword: SET
           - naked_identifier: LATIN
-        - td_column_attribute_constraint:
+          td_column_attribute_constraint:
           - keyword: NOT
           - keyword: CASESPECIFIC
-        - column_constraint_segment:
+          column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
       - comma: ','

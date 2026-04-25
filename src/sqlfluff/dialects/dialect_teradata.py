@@ -129,7 +129,6 @@ teradata_dialect.replace(
                 Ref("ExpressionSegment"),
                 "AS",
                 Ref("DatatypeSegment"),
-                AnyNumberOf(Ref("CharCharacterSetGrammar"), optional=True),
             )
         ]
     ),
@@ -445,6 +444,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(  # FORMAT 'YYYY-MM-DD',
             "FORMAT", Ref("QuotedLiteralSegment"), optional=True
         ),
+        Ref("CharCharacterSetGrammar", optional=True),
     )
 
 
@@ -511,14 +511,7 @@ class TdColumnConstraintSegment(BaseSegment):
     type = "td_column_attribute_constraint"
     match_grammar = Sequence(
         OneOf(
-            Sequence(  # CHARACTER SET LATIN
-                "CHARACTER", "SET", Ref("SingleIdentifierGrammar")
-            ),
-            Sequence(  # [NOT] CASESPECIFIC
-                Ref.keyword("NOT", optional=True),
-                OneOf("CASESPECIFIC", "CS"),
-            ),
-            OneOf("UPPERCASE", "UC"),
+            Ref("CharCharacterSetGrammar"),
             Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
                 "COMPRESS",
                 OneOf(
