@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 31f18f5f9b60c3aec5c1e966259c8c6fdb7f84fe98d34b9f7620e66f2de287f1
+_hash: 01080dc0de2134424e169a92ba18294a0643b0a4b88f46b3459b6f907d21735e
 file:
 - statement:
     set_statement:
@@ -20,14 +20,16 @@ file:
       keyword: set
       parameter: foo
       raw_comparison_operator: '='
-      numeric_literal: '2'
+      expression:
+        numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     set_statement:
       keyword: set
       parameter: foo
       raw_comparison_operator: '='
-      single_quote: "'bar'"
+      expression:
+        quoted_literal: "'bar'"
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -36,7 +38,8 @@ file:
     - colon_delimiter: ':'
     - parameter: cat
     - raw_comparison_operator: '='
-    - double_quote: '"Chloe"'
+    - expression:
+        quoted_literal: '"Chloe"'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -49,7 +52,8 @@ file:
     - dot: .
     - parameter: mb
     - raw_comparison_operator: '='
-    - numeric_literal: '12000'
+    - expression:
+        numeric_literal: '12000'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -60,7 +64,9 @@ file:
     - dot: .
     - parameter: engine
     - raw_comparison_operator: '='
-    - word: tez
+    - expression:
+        column_reference:
+          naked_identifier: tez
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -79,7 +85,8 @@ file:
     - dot: .
     - parameter: output
     - raw_comparison_operator: '='
-    - word: 'false'
+    - expression:
+        boolean_literal: 'false'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -92,8 +99,10 @@ file:
     - dot: .
     - parameter: opts
     - raw_comparison_operator: '='
-    - minus: '-'
-    - word: Xmx13107m
+    - expression:
+        sign_indicator: '-'
+        column_reference:
+          naked_identifier: Xmx13107m
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -102,7 +111,9 @@ file:
     - colon_delimiter: ':'
     - parameter: schema
     - raw_comparison_operator: '='
-    - word: schema_test
+    - expression:
+        column_reference:
+          naked_identifier: schema_test
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -111,16 +122,19 @@ file:
     - colon_delimiter: ':'
     - parameter: tbl
     - raw_comparison_operator: '='
-    - word: tbl_test
+    - expression:
+        column_reference:
+          naked_identifier: tbl_test
 - statement_terminator: ;
 - statement:
     set_statement:
-    - keyword: set
-    - parameter: datafilter
-    - raw_comparison_operator: '='
-    - numeric_literal: '2021'
-    - word: AND
-    - numeric_literal: '2022'
+      keyword: set
+      parameter: datafilter
+      raw_comparison_operator: '='
+      expression:
+      - numeric_literal: '2021'
+      - binary_operator: AND
+      - numeric_literal: '2022'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -129,11 +143,14 @@ file:
       raw_comparison_operator: '='
       bracketed:
       - start_bracket: (
-      - numeric_literal: '1'
+      - expression:
+          numeric_literal: '1'
       - comma: ','
-      - numeric_literal: '2'
+      - expression:
+          numeric_literal: '2'
       - comma: ','
-      - numeric_literal: '3'
+      - expression:
+          numeric_literal: '3'
       - end_bracket: )
 - statement_terminator: ;
 - statement:

@@ -3,7 +3,6 @@
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
-    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -17,6 +16,7 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -157,6 +157,20 @@ hive_dialect.add(
         casefold=str.lower,
     ),
     HiveVariableSegment=TypedParser("hive_variable", CodeSegment, type="hive_variable"),
+    HiveReferenceIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
+        Ref("HiveVariableSegment"),
+        terminators=[Ref("DotSegment")],
+    ),
+    HiveSetValueGrammar=OneOf(
+        Bracketed(
+            Delimited(Ref("ExpressionSegment")),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        Ref("ExpressionSegment"),
+    ),
 )
 
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
@@ -190,7 +204,6 @@ hive_dialect.replace(
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
             Ref("BackQuotedIdentifierSegment"),
-            Ref("HiveVariableSegment"),
         ]
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
@@ -208,6 +221,7 @@ hive_dialect.replace(
                     ),
                     Ref("SelectableGrammar"),
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
             Ref("FunctionSegment"),
             Ref("HiveVariableSegment"),
@@ -366,6 +380,41 @@ class StructTypeSchemaSegment(BaseSegment):
         bracket_pairs_set="angle_bracket_pairs",
         bracket_type="angle",
     )
+
+
+class HiveObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A Hive reference that allows `${...}` parts within object paths."""
+
+    match_grammar: Matchable = Delimited(
+        Ref("HiveReferenceIdentifierGrammar"),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+        terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+        allow_gaps=False,
+    )
+
+
+class TableReferenceSegment(HiveObjectReferenceSegment):
+    """A reference to a table, CTE, subquery or alias."""
+
+    type = "table_reference"
+
+
+class SchemaReferenceSegment(HiveObjectReferenceSegment):
+    """A reference to a schema."""
+
+    type = "schema_reference"
+
+
+class DatabaseReferenceSegment(HiveObjectReferenceSegment):
+    """A reference to a database."""
+
+    type = "database_reference"
+
+
+class ColumnReferenceSegment(HiveObjectReferenceSegment):
+    """A reference to a column, field or alias."""
+
+    type = "column_reference"
 
 
 class CreateDatabaseStatementSegment(BaseSegment):
@@ -777,7 +826,7 @@ class SetStatementSegment(BaseSegment):
                     allow_gaps=False,
                 ),
                 Ref("RawEqualsSegment"),
-                Anything(),
+                Ref("HiveSetValueGrammar"),
             ),
             optional=True,
         ),
