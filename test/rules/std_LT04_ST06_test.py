@@ -3,6 +3,7 @@
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.rules.structure.ST06 import Rule_ST06
 
 
 @pytest.mark.parametrize(
@@ -129,3 +130,12 @@ rules = ST06
     linted_file = linter.lint_string(fail_sql, fix=True)
     assert [v.rule.code for v in linted_file.violations] == ["ST06"]
     assert linted_file.fix_string()[0] == pass_sql
+
+
+def test_rule_st06_simple_expression_helpers_reject_non_simple_segments() -> None:
+    """Test ST06 helper methods reject non-simple expression segments."""
+    parsed = Linter(dialect="ansi").parse_string("SELECT a + 1 AS sum FROM foo")
+    expression = next(parsed.tree.recursive_crawl("expression"))
+
+    assert not Rule_ST06._is_simple_cast_expression(expression)
+    assert not Rule_ST06._is_simple_expression_segment(expression)
