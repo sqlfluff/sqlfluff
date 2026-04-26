@@ -609,6 +609,30 @@ class ReadOnlyClauseSegment(BaseSegment):
     )
 
 
+class LockClauseSegment(BaseSegment):
+    """A Db2 lock clause that can follow certain isolation levels.
+
+    https://www.ibm.com/docs/en/db2-for-zos/13?topic=statement-isolation-clause
+    """
+
+    type = "lock_clause"
+
+    match_grammar = OneOf(
+        Sequence(
+            "USE",
+            "AND",
+            "KEEP",
+            OneOf("EXCLUSIVE", "UPDATE", "SHARE"),
+            "LOCKS",
+        ),
+        Sequence(
+            "KEEP",
+            "UPDATE",
+            "LOCKS",
+        ),
+    )
+
+
 class IsolationClauseSegment(BaseSegment):
     """A Db2 isolation clause in a `SELECT` statement.
 
@@ -619,7 +643,14 @@ class IsolationClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "WITH",
-        OneOf("RR", "RS", "CS", "UR"),
+        OneOf(
+            Sequence(
+                OneOf("RR", "RS"),
+                Ref("LockClauseSegment", optional=True),
+            ),
+            "CS",
+            "UR",
+        ),
     )
 
 
@@ -670,6 +701,28 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """A Db2 `SELECT` arm that can end before trailing fullselect clauses."""
+
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        terminators=[
+            Ref("ReadOnlyClauseSegment"),
+            Ref("IsolationClauseSegment"),
+        ]
+    )
+
+
+class SetExpressionSegment(ansi.SetExpressionSegment):
+    """A set expression with Db2-specific trailing clauses."""
+
+    match_grammar = ansi.SetExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("ReadOnlyClauseSegment", optional=True),
+            Ref("IsolationClauseSegment", optional=True),
+        ]
     )
 
 
