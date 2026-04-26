@@ -3,6 +3,7 @@
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.rules.structure.ST06 import Rule_ST06
 
 
 @pytest.mark.parametrize(
@@ -108,3 +109,33 @@ rules = LT04, ST06
 
     # Check file is fixed.
     assert linted_file.fix_string()[0] == out_sql
+
+
+@pytest.mark.parametrize("dialect", ["postgres", "redshift", "snowflake"])
+def test_rule_st06_shorthand_casted_aggregates_are_complex(dialect: str) -> None:
+    """Test shorthand-casted aggregates remain in the complex target band."""
+    cfg = FluffConfig.from_string(
+        f"""[sqlfluff]
+dialect = {dialect}
+rules = ST06
+"""
+    )
+    linter = Linter(config=cfg)
+
+    pass_sql = "SELECT a, MIN(c)::DATE AS d FROM foo"
+    fail_sql = "SELECT MIN(c)::DATE AS d, a FROM foo"
+
+    assert not linter.lint_string(pass_sql).violations
+
+    linted_file = linter.lint_string(fail_sql, fix=True)
+    assert [v.rule.code for v in linted_file.violations] == ["ST06"]
+    assert linted_file.fix_string()[0] == pass_sql
+
+
+def test_rule_st06_simple_expression_helpers_reject_non_simple_segments() -> None:
+    """Test ST06 helper methods reject non-simple expression segments."""
+    parsed = Linter(dialect="ansi").parse_string("SELECT a + 1 AS sum FROM foo")
+    expression = next(parsed.tree.recursive_crawl("expression"))
+
+    assert not Rule_ST06._is_simple_cast_expression(expression)
+    assert not Rule_ST06._is_simple_expression_segment(expression)
