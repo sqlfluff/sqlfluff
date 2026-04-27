@@ -75,3 +75,12 @@ COPY my_table TO STDOUT WITH CSV ESCAPE '\';
 COPY my_table(col1, col2) TO STDOUT WITH CSV ESCAPE AS '\';
 COPY my_table(col1, col2) TO STDOUT WITH CSV FORCE QUOTE *;
 COPY my_table(col1, col2) TO STDOUT WITH CSV FORCE QUOTE (col1, col2);
+
+-- Issue #7696: psql variable placeholders in COPY commands
+COPY tmp_table FROM :source;
+COPY tmp_table FROM :'source';
+COPY tmp_table TO :dest;
+COPY tmp_table FROM :source WITH (FORMAT csv, HEADER);
+COPY tmp_table(col1, col2) FROM :source WITH (FORMAT csv);
+COPY tmp_table TO PROGRAM :cmd;
+COPY tmp_table FROM PROGRAM :cmd;

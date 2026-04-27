@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7183a7dc7491c71f71cee5e900729ff0c5f0d5eb9d01884c0b76be0b066ad37c
+_hash: f17c05b9abe1d80116538c6e4a858ee7f704161e1411d2c410e0e1a05f8efbec
 file:
 - statement:
     copy_statement:
@@ -1440,4 +1440,98 @@ file:
       - column_reference:
           naked_identifier: col2
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - keyword: FROM
+    - psql_variable:
+        colon: ':'
+        parameter: source
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - keyword: FROM
+    - psql_variable:
+        colon: ':'
+        quoted_literal: "'source'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - keyword: TO
+    - psql_variable:
+        colon: ':'
+        parameter: dest
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - keyword: FROM
+    - psql_variable:
+        colon: ':'
+        parameter: source
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: FROM
+    - psql_variable:
+        colon: ':'
+        parameter: source
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: FORMAT
+        naked_identifier: csv
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - keyword: TO
+    - keyword: PROGRAM
+    - psql_variable:
+        colon: ':'
+        parameter: cmd
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - keyword: FROM
+    - keyword: PROGRAM
+    - psql_variable:
+        colon: ':'
+        parameter: cmd
 - statement_terminator: ;
