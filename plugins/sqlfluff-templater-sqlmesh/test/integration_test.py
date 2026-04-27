@@ -4,9 +4,14 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from sqlfluff_templater_sqlmesh.templater import SQLMeshTemplater
+from sqlfluff_templater_sqlmesh.templater import (
+    ERROR_PREAMBLE,
+    SQLMeshTemplater,
+    handle_sqlmesh_errors,
+)
 
 from sqlfluff.core import FluffConfig
+from sqlfluff.core.errors import SQLTemplaterError
 
 
 class TestSQLMeshTemplaterIntegration:
@@ -57,16 +62,75 @@ class TestSQLMeshTemplaterIntegration:
     def test_rendered_literal_templated_file(self):
         """Test rendered fallback files are marked as templated."""
         templater = SQLMeshTemplater()
+        source = "MODEL (name test);\nSELECT 1"
 
         templated_file, errors = templater._create_literal_templated_file(
             "test.sql",
             "SELECT 1",
-            source_content="MODEL (name test);\nSELECT 1",
+            source_content=source,
             was_rendered=True,
         )
 
         assert errors == []
         assert templated_file.sliced_file[0].slice_type == "templated"
+
+    def test_rendered_literal_templated_file_marks_raw_slice_templated(self):
+        """Rendered fallback raw slices are not considered literal."""
+        templater = SQLMeshTemplater()
+        source = "MODEL (name test);\nSELECT 1"
+
+        templated_file, errors = templater._create_literal_templated_file(
+            "test.sql",
+            "SELECT 1",
+            source_content=source,
+            was_rendered=True,
+        )
+
+        assert errors == []
+        assert templated_file.sliced_file[0].slice_type == "templated"
+        assert templated_file.raw_sliced[0].slice_type == "templated"
+        assert not templated_file.is_source_slice_literal(
+            slice(0, len(templated_file.source_str))
+        )
+
+    def test_handle_sqlmesh_errors_suppresses_direct_sqlmesh_context(self):
+        """Converted SQLMesh exceptions do not retain unsafe context."""
+
+        class FakeSQLMeshError(Exception):
+            """Exception with a SQLMesh module path."""
+
+        FakeSQLMeshError.__module__ = "sqlmesh.core.test"
+
+        @handle_sqlmesh_errors(SQLTemplaterError, ERROR_PREAMBLE)
+        def wrapped():
+            raise FakeSQLMeshError("boom")
+
+        with pytest.raises(SQLTemplaterError) as err:
+            wrapped()
+
+        assert err.value.__cause__ is None
+        assert err.value.__context__ is None
+
+    def test_handle_sqlmesh_errors_suppresses_sqltemplater_cause(self):
+        """SQLTemplaterError caused by SQLMesh is reraised without context."""
+
+        class FakeSQLMeshError(Exception):
+            """Exception with a SQLMesh module path."""
+
+        FakeSQLMeshError.__module__ = "sqlmesh.core.test"
+
+        @handle_sqlmesh_errors(SQLTemplaterError, ERROR_PREAMBLE)
+        def wrapped():
+            try:
+                raise FakeSQLMeshError("boom")
+            except FakeSQLMeshError as err:
+                raise SQLTemplaterError("wrapped") from err
+
+        with pytest.raises(SQLTemplaterError) as err:
+            wrapped()
+
+        assert err.value.__cause__ is None
+        assert err.value.__context__ is None
 
     def test_sqlmesh_context_creation(self):
         """Test SQLMesh context creation (requires SQLMesh installation)."""

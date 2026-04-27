@@ -60,6 +60,28 @@ class TestSQLMeshRules:
 
         assert linted.check_tuples() == []
 
+    def test_rule_sm01_ignores_join_tautology(self):
+        """SM01 only applies to WHERE predicates."""
+        linted = Linter(
+            config=FluffConfig(
+                configs={"core": {"dialect": "duckdb"}},
+                overrides={"rules": "SM01"},
+            )
+        ).lint_string("SELECT * FROM foo JOIN bar ON 1 = 1")
+
+        assert linted.check_tuples() == []
+
+    def test_rule_sm01_ignores_case_tautology(self):
+        """SM01 only applies to WHERE predicates."""
+        linted = Linter(
+            config=FluffConfig(
+                configs={"core": {"dialect": "duckdb"}},
+                overrides={"rules": "SM01"},
+            )
+        ).lint_string("SELECT CASE WHEN 1 = 1 THEN 'x' END AS value FROM foo")
+
+        assert linted.check_tuples() == []
+
     def test_rule_sm02_requires_cast_for_aliased_expression(self):
         """SM02 requires casts for aliased expressions."""
         linted = Linter(
@@ -83,6 +105,33 @@ class TestSQLMeshRules:
 
         assert linted.check_tuples() == []
 
+    def test_rule_sm02_rejects_nested_cast_expression(self):
+        """SM02 requires the final projected expression to be cast."""
+        linted = Linter(
+            config=FluffConfig(
+                configs={"core": {"dialect": "duckdb"}},
+                overrides={"rules": "SM02"},
+            )
+        ).lint_string(
+            "SELECT COALESCE(CAST(amount AS BIGINT), 0) AS amount FROM payments"
+        )
+
+        violations = linted.check_tuples()
+        assert any(code == "SM02" for code, *_ in violations), violations
+
+    def test_rule_sm02_allows_try_casted_aliased_expression(self):
+        """SM02 allows top-level cast-like functions."""
+        linted = Linter(
+            config=FluffConfig(
+                configs={"core": {"dialect": "duckdb"}},
+                overrides={"rules": "SM02"},
+            )
+        ).lint_string(
+            "SELECT TRY_CAST(amount AS BIGINT) AS amount_bigint FROM payments"
+        )
+
+        assert linted.check_tuples() == []
+
     def test_rule_sm03_blocks_adhoc_catalog(self):
         """SM03 flags AD_HOC catalog references."""
         linted = Linter(
@@ -91,6 +140,18 @@ class TestSQLMeshRules:
                 overrides={"rules": "SM03"},
             )
         ).lint_string("SELECT * FROM AD_HOC.analytics.orders")
+
+        violations = linted.check_tuples()
+        assert any(code == "SM03" for code, *_ in violations), violations
+
+    def test_rule_sm03_blocks_two_part_adhoc_catalog(self):
+        """SM03 flags two-part AD_HOC references."""
+        linted = Linter(
+            config=FluffConfig(
+                configs={"core": {"dialect": "duckdb"}},
+                overrides={"rules": "SM03"},
+            )
+        ).lint_string("SELECT * FROM AD_HOC.orders")
 
         violations = linted.check_tuples()
         assert any(code == "SM03" for code, *_ in violations), violations
