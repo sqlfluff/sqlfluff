@@ -57,6 +57,16 @@ def lex_and_parse(config_overrides: dict[str, Any], raw: str) -> Optional[Parsed
     return parsed_file
 
 
+@pytest.mark.parametrize("dialect", ["ansi", "hive"])
+def test__dialect__rejects_trailing_comma_after_final_cte(dialect):
+    """Ensure a trailing comma after the final CTE raises a parse error."""
+    parsed = Linter(dialect=dialect).parse_string(
+        "WITH cte AS (SELECT 1 AS x),\nSELECT x FROM cte;"
+    )
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+    assert parsing_errors
+
+
 @pytest.mark.integration
 @pytest.mark.parse_suite
 @pytest.mark.parametrize("dialect,file", parse_success_examples)

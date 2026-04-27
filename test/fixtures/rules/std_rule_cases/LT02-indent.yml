@@ -1671,7 +1671,7 @@ test_pass_combined_comment_impulses:
                 NOT bool_column AND NOT bool_column
                 AND some_column >= 1  -- This is a comment
         )
-    ),
+    )
 
     SELECT *
     FROM cte
@@ -2241,23 +2241,23 @@ test_implicit_indent_nested_when:
 test_fail_issue_4745:
   fail_str: |
     with
-    {% for a in [1, 2, 3] %}{% for b in ['C'] %}
+    {% for a in [1, 2, 3] %}{% set outer_loop = loop %}{% for b in ['C'] %}
 
     {{ b }}_fill_{{ a }} as (
         select *
         from data
-    ),
+    ){% if not (outer_loop.last and loop.last) %},{% endif %}
     {% endfor %}{% endfor %}
 
     select 1
   fix_str: |
     with
-    {% for a in [1, 2, 3] %}{% for b in ['C'] %}
+    {% for a in [1, 2, 3] %}{% set outer_loop = loop %}{% for b in ['C'] %}
 
         {{ b }}_fill_{{ a }} as (
             select *
             from data
-        ),
+        ){% if not (outer_loop.last and loop.last) %},{% endif %}
     {% endfor %}{% endfor %}
 
     select 1
