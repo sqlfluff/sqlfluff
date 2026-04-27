@@ -73,35 +73,40 @@ def handle_sqlmesh_errors(
 
     def decorator(wrapped_method: Callable[..., T]) -> Callable[..., T]:
         def wrapped_method_inner(*args, **kwargs) -> T:
+            new_error: Optional[Exception] = None
             try:
                 return wrapped_method(*args, **kwargs)
             except Exception as err:
                 # If this is a *direct* SQLMesh exception, convert it.
                 if is_sqlmesh_exception(err):
                     _detail = _extract_error_detail(err)
-                    raise error_class(preamble + _detail)
+                    new_error = error_class(preamble + _detail)
 
                 # If this is a SQLTemplaterError that was raised "from" a
                 # SQLMesh exception, convert based on the underlying cause.
-                if isinstance(err, SQLTemplaterError) and is_sqlmesh_exception(
+                elif isinstance(err, SQLTemplaterError) and is_sqlmesh_exception(
                     err.__cause__
                 ):
                     _detail = _extract_error_detail(err.__cause__)
-                    raise error_class(preamble + _detail)
+                    new_error = error_class(preamble + _detail)
 
                 # Otherwise, strip any SQLMesh exceptions from the context so
                 # the resulting exception can be safely pickled. Rather than
                 # mutating the caught exception in place (which can lead to
                 # unexpected behaviour), re-raise as a fresh instance of the
                 # same type so no SQLMesh context is attached.
-                if is_sqlmesh_exception(err.__cause__) or is_sqlmesh_exception(
+                elif is_sqlmesh_exception(err.__cause__) or is_sqlmesh_exception(
                     err.__context__
                 ):
-                    raise type(err)(*err.args)
+                    new_error = type(err)(*err.args)
 
                 # If it's not a SQLMesh exception (or has been cleaned), just
                 # re-raise as is.
-                raise
+                else:
+                    raise
+
+            assert new_error is not None
+            raise new_error from None
 
         return wrapped_method_inner
 
@@ -358,7 +363,7 @@ class SQLMeshTemplater(JinjaTemplater):
                 fname,
                 rendered_sql,
                 source_content=in_str,
-                was_rendered=False,
+                was_rendered=True,
             )
 
     def _get_model_name_from_path(self, fname: str) -> Optional[str]:
@@ -427,7 +432,7 @@ class SQLMeshTemplater(JinjaTemplater):
         raw_sliced = [
             RawFileSlice(
                 raw=actual_source,
-                slice_type="literal",
+                slice_type=_slice_type,
                 source_idx=0,
                 block_idx=0,
             )

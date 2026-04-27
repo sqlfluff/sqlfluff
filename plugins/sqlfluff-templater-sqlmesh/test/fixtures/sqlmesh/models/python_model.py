@@ -16,7 +16,7 @@ def execute(
     start: t.Optional[str] = None,
     end: t.Optional[str] = None,
     **kwargs: t.Any,
-) -> t.Dict[str, t.Any]:
+) -> t.Any:
     """Execute the Python model."""
     # Fetch data from upstream model
     df = context.fetchdf("SELECT * FROM source_table")
