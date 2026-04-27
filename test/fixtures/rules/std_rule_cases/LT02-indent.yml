@@ -2884,3 +2884,27 @@ test_pass_jinja_if_with_in_clause_multi_value:
       templater: jinja
     indentation:
       template_blocks_indent: false
+
+test_pass_issue_7543_indentation:
+  # Issue 7543: VALUES clause indentation inside FROM
+  pass_str: |
+    WITH cte_example (col1, col2) AS (
+      SELECT
+        $1,
+        $2
+      FROM (
+        VALUES ('value1', 'value2')
+      )
+    )
+    SELECT * FROM cte_example;
+  configs:
+    core:
+      dialect: snowflake
+    indentation:
+      tab_space_size: 2
+      indent_unit: space
+      indented_joins: false
+      indented_ctes: false
+      indented_using_on: true
+      template_blocks_indent: true
+      implicit_indents: require
