@@ -44,6 +44,9 @@ class Rule_SM01(BaseRule):
         if context.segment.raw != "=":
             return None
 
+        if not any(segment.is_type("where_clause") for segment in context.parent_stack):
+            return None
+
         expression = next(
             (
                 segment
@@ -151,10 +154,8 @@ class Rule_SM02(BaseRule):
         if segment.get_child("wildcard_expression") is not None:
             return None
 
-        if any(segment.recursive_crawl("cast_expression")):
-            return None
-
-        if self._has_cast_like_function(segment):
+        projected_segment = self._get_projected_segment(segment)
+        if projected_segment and self._is_top_level_cast(projected_segment):
             return None
 
         return LintResult(
@@ -177,12 +178,40 @@ class Rule_SM02(BaseRule):
             > 1
         )
 
-    def _has_cast_like_function(self, segment: BaseSegment) -> bool:
-        """Whether segment includes cast-like function usage."""
-        for function in segment.recursive_crawl("function"):
-            function_name = function.get_child("function_name")
-            if function_name and function_name.raw_upper in self._cast_function_names:
-                return True
+    @staticmethod
+    def _get_projected_segment(segment: BaseSegment) -> Optional[BaseSegment]:
+        """Return the top-level projected expression before the alias."""
+        return next(
+            (
+                child
+                for child in segment.segments
+                if not child.is_meta
+                and not child.is_whitespace
+                and not child.is_type("alias_expression")
+            ),
+            None,
+        )
+
+    def _is_top_level_cast(self, segment: BaseSegment) -> bool:
+        """Whether the final projected expression is explicitly cast."""
+        if segment.is_type("cast_expression"):
+            return True
+
+        if segment.is_type("function"):
+            function_name = segment.get_child("function_name")
+            return (
+                function_name is not None
+                and function_name.raw_upper in self._cast_function_names
+            )
+
+        if segment.is_type("expression"):
+            code_children = [
+                child
+                for child in segment.segments
+                if not child.is_meta and not child.is_whitespace
+            ]
+            return len(code_children) == 1 and self._is_top_level_cast(code_children[0])
+
         return False
 
 
@@ -206,7 +235,7 @@ class Rule_SM03(BaseRule):
             if seg.is_type("identifier", "naked_identifier", "quoted_identifier")
         ]
 
-        if len(identifiers) < 3:
+        if len(identifiers) < 2:
             return None
 
         catalog = identifiers[0]
