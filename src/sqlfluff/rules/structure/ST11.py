@@ -119,8 +119,11 @@ class Rule_ST11(BaseRule):
                     continue
                 else:
                     raise UnqualifiedReferenceError(ref.raw)
-            # Remove any quoting characters when returning.
-            yield parts[-2].part.upper().strip("\"'`[]")
+            # Yield all non-final parts to also handle multi-part references
+            # (e.g. table.struct.field, schema.table.column).
+            for part in parts[:-1]:
+                # Remove any quoting characters when returning.
+                yield part.part.upper().strip("\"'`[]")
 
     def _extract_references_from_select(
         self, segment: BaseSegment

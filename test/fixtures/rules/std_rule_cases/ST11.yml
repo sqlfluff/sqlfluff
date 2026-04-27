@@ -208,3 +208,18 @@ test_pass_quoted_brackets_table_name:
   configs:
     core:
       dialect: tsql
+
+test_pass_struct_field_access:
+  # Struct field access (e.g. alias.struct.field) should count as
+  # a reference to the alias, even when no direct columns are used.
+  pass_str: |
+    SELECT
+        a.id,
+        b.my_struct.field1,
+        b.my_struct.field2
+    FROM a
+    LEFT JOIN b
+        ON a.id = b.id
+  configs:
+    core:
+      dialect: bigquery
