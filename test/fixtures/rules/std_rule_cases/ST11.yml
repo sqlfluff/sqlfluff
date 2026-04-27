@@ -247,3 +247,15 @@ test_fail_struct_field_access_unused:
     FROM a
     LEFT JOIN b
         ON a.id = b.id
+
+test_pass_unaliased_schema_table_column:
+  # Unaliased qualified references (`schema.table.column`) should count
+  # as a reference to the joined table (whose name resolves to the last
+  # part of the table reference).
+  pass_str: |
+    SELECT
+        my_schema.a.id,
+        my_schema.b.name
+    FROM my_schema.a
+    LEFT JOIN my_schema.b
+        ON my_schema.a.id = my_schema.b.id
