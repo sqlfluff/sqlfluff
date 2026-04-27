@@ -716,6 +716,7 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("ExportTableMetadataStatementSegment"),
             Ref("ExportStatementSegment"),
             Ref("LoadDataStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
@@ -2279,6 +2280,12 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Ref("DefaultCollateSegment", optional=True),
         Ref("PartitionBySegment", optional=True),
         Ref("ClusterBySegment", optional=True),
+        Sequence(
+            "WITH",
+            "CONNECTION",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
         Ref("OptionsSegment", optional=True),
         # Create AS syntax:
         Sequence(
@@ -3089,6 +3096,22 @@ class ExportStatementSegment(BaseSegment):
         ),
         "AS",
         Ref("SelectableGrammar"),
+    )
+
+
+class ExportTableMetadataStatementSegment(BaseSegment):
+    """`EXPORT TABLE METADATA` statement.
+
+    https://cloud.google.com/bigquery/docs/exporting-data#export_table_metadata
+    """
+
+    type = "export_table_metadata_statement"
+    match_grammar: Matchable = Sequence(
+        "EXPORT",
+        "TABLE",
+        "METADATA",
+        "FROM",
+        Ref("TableReferenceSegment"),
     )
 
 

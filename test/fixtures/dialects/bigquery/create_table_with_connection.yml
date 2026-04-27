@@ -1,0 +1,118 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 76a5274545a7cdea375ef8088bb571fee61976eb5c48fd178aa723bc7b6a670f
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_dataset
+      - dot: .
+      - naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: STRING
+      - end_bracket: )
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          column_reference:
+            naked_identifier: id
+    - keyword: WITH
+    - keyword: CONNECTION
+    - object_reference:
+        quoted_identifier: '`europe-west4.my_connection`'
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: file_format
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"PARQUET"'
+        - comma: ','
+        - parameter: table_format
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"ICEBERG"'
+        - comma: ','
+        - parameter: storage_uri
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"gs://my-bucket/path"'
+        - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            quoted_literal: '"1"'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            quoted_literal: '"test"'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: name
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: my_dataset
+      - dot: .
+      - naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: STRING
+        end_bracket: )
+    - keyword: WITH
+    - keyword: CONNECTION
+    - object_reference:
+        quoted_identifier: '`my-project.us.my_connection`'
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: file_format
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"PARQUET"'
+        - comma: ','
+        - parameter: table_format
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"ICEBERG"'
+        - comma: ','
+        - parameter: storage_uri
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"gs://my-bucket/path"'
+        - end_bracket: )
+- statement_terminator: ;
