@@ -279,6 +279,15 @@ athena_dialect.replace(
     ),
     FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
         insert=[
+            Sequence(
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("ColonDelimiterSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
             Ref("ListaggOverflowClauseSegment"),
         ]
     ),
