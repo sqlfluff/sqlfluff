@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: acbe752dbc688f77d81e29201ed6d731756ec967a06479bd4026b87849830d5a
+_hash: ebe60cb758dfd6883f2d2c0af5aac33847a1a7ed62f432cf81dcce4c0f3ce2c6
 file:
 - statement:
     create_function_statement:
@@ -537,4 +537,27 @@ file:
         data_type_identifier: FLOAT
     - keyword: AS
     - udf_body: "'3.141592654::FLOAT'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_or_alter_fn
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: $$ SELECT x $$
 - statement_terminator: ;

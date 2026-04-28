@@ -3703,7 +3703,7 @@ class CreateProcedureStatementSegment(BaseSegment):
     type = "create_procedure_statement"
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
         "PROCEDURE",
         Ref("IfNotExistsGrammar", optional=True),
@@ -4079,7 +4079,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 "CREATE",
-                Ref("OrReplaceGrammar", optional=True),
+                Ref("AlterOrReplaceGrammar", optional=True),
                 OneOf("TEMP", "TEMPORARY", optional=True),
                 Sequence("SECURE", optional=True),
                 Sequence("AGGREGATE", optional=True),
@@ -4371,7 +4371,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
     type = "create_external_function_statement"
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
         "EXTERNAL",
         "FUNCTION",
@@ -5512,7 +5512,6 @@ class CreateStatementSegment(BaseSegment):
                     Sequence("NETWORK", "RULE"),
                     Sequence("RESOURCE", "MONITOR"),
                     "SHARE",
-                    "TAG",
                     Sequence("API", "INTEGRATION"),
                     Sequence("NOTIFICATION", "INTEGRATION"),
                     Sequence("SECURITY", "INTEGRATION"),
@@ -5521,13 +5520,20 @@ class CreateStatementSegment(BaseSegment):
                     Sequence("MATERIALIZED", "VIEW"),
                     Sequence("MASKING", "POLICY"),
                     "PIPE",
-                    Sequence("EXTERNAL", "FUNCTION"),
                     "SEQUENCE",
                 ),
             ),
             Sequence(
+                # Object types Snowflake supports for CREATE OR ALTER as well
+                # as CREATE OR REPLACE — see
+                # https://docs.snowflake.com/en/sql-reference/sql/create-or-alter
                 Ref("AlterOrReplaceGrammar", optional=True),
-                OneOf("WAREHOUSE", "DATABASE"),
+                OneOf(
+                    "WAREHOUSE",
+                    "DATABASE",
+                    "TAG",
+                    Sequence("EXTERNAL", "FUNCTION"),
+                ),
             ),
         ),
         Ref("IfNotExistsGrammar", optional=True),
@@ -6391,7 +6397,7 @@ class CreateFileFormatSegment(BaseSegment):
     type = "create_file_format_segment"
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         Sequence("FILE", "FORMAT"),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
@@ -10618,7 +10624,7 @@ class CreateAuthenticationPolicySegment(BaseSegment):
         OneOf(
             Sequence(
                 "CREATE",
-                Ref("OrReplaceGrammar", optional=True),
+                Ref("AlterOrReplaceGrammar", optional=True),
                 "AUTHENTICATION",
                 "POLICY",
                 Ref("IfNotExistsGrammar", optional=True),
