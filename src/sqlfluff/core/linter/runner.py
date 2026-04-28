@@ -179,46 +179,55 @@ class ParallelRunner(BaseRunner):
         the main thread can do the IO work while passing the parsing
         and linting work out to the threads.
         """
-        with self._create_pool(
+        # NOTE: We avoid using `with pool:` here because Pool.__exit__
+        # calls pool.terminate() but NOT pool.join(). Without join(), worker
+        # processes may still be alive when Python's resource_tracker runs at
+        # shutdown, causing "leaked semaphore objects" warnings from the named
+        # POSIX semaphores used by the pool's internal SimpleQueue locks.
+        pool = self._create_pool(
             self.processes,
             self._init_global,
-        ) as pool:
-            try:
-                for lint_result in self._map(
-                    pool,
-                    self._apply,
-                    self.iter_partials(fnames, fix=fix),
-                ):
-                    if isinstance(lint_result, DelayedException):
-                        if isinstance(lint_result.ee, SQLFluffSkipFile):
-                            # A file was skipped (e.g. exceeded
-                            # large_file_skip_byte_limit). Log a plain warning,
-                            # not the "please report as bug" message.
-                            linter_logger.warning(str(lint_result.ee))
-                            self.skipped_file_count += 1
-                        else:
-                            try:
-                                lint_result.reraise()
-                            except Exception as e:
-                                self._handle_lint_path_exception(lint_result.fname, e)
+        )
+        try:
+            for lint_result in self._map(
+                pool,
+                self._apply,
+                self.iter_partials(fnames, fix=fix),
+            ):
+                if isinstance(lint_result, DelayedException):
+                    if isinstance(lint_result.ee, SQLFluffSkipFile):
+                        # A file was skipped (e.g. exceeded
+                        # large_file_skip_byte_limit). Log a plain warning,
+                        # not the "please report as bug" message.
+                        linter_logger.warning(str(lint_result.ee))
+                        self.skipped_file_count += 1
                     else:
-                        # It's a LintedDir.
-                        if self.linter.formatter:
-                            self.linter.formatter.dispatch_file_violations(
-                                lint_result.path,
-                                lint_result,
-                                only_fixable=fix,
-                                warn_unused_ignores=self.linter.config.get(
-                                    "warn_unused_ignores"
-                                ),
-                            )
-                        yield lint_result
-            except KeyboardInterrupt:  # pragma: no cover
-                # On keyboard interrupt (Ctrl-C), terminate the workers.
-                # Notify the user we've received the signal and are cleaning up,
-                # in case it takes awhile.
-                print("Received keyboard interrupt. Cleaning up and shutting down...")
+                        try:
+                            lint_result.reraise()
+                        except Exception as e:
+                            self._handle_lint_path_exception(lint_result.fname, e)
+                else:
+                    # It's a LintedDir.
+                    if self.linter.formatter:
+                        self.linter.formatter.dispatch_file_violations(
+                            lint_result.path,
+                            lint_result,
+                            only_fixable=fix,
+                            warn_unused_ignores=self.linter.config.get(
+                                "warn_unused_ignores"
+                            ),
+                        )
+                    yield lint_result
+        except KeyboardInterrupt:  # pragma: no cover
+            # On keyboard interrupt (Ctrl-C), terminate the workers.
+            # Notify the user we've received the signal and are cleaning up,
+            # in case it takes awhile.
+            print("Received keyboard interrupt. Cleaning up and shutting down...")
+        finally:
+            try:
                 pool.terminate()
+            finally:
+                pool.join()
 
     @staticmethod
     def _apply(
