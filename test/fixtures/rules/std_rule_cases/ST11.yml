@@ -208,3 +208,54 @@ test_pass_quoted_brackets_table_name:
   configs:
     core:
       dialect: tsql
+
+test_pass_struct_field_access:
+  # Struct field access (e.g. alias.struct.field) should count as
+  # a reference to the alias, even when no direct columns are used.
+  pass_str: |
+    SELECT
+        a.id,
+        b.my_struct.field1,
+        b.my_struct.field2
+    FROM a
+    LEFT JOIN b
+        ON a.id = b.id
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_deeply_nested_struct_field_access:
+  # Deeply nested struct field access should also count as a reference.
+  pass_str: |
+    SELECT
+        a.id,
+        b.struct1.struct2.field
+    FROM a
+    LEFT JOIN b
+        ON a.id = b.id
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_struct_field_access_unused:
+  # Struct field access on an unrelated alias should still flag the
+  # joined table as unused.
+  fail_str: |
+    SELECT
+        a.id,
+        a.my_struct.field
+    FROM a
+    LEFT JOIN b
+        ON a.id = b.id
+
+test_pass_unaliased_schema_table_column:
+  # Unaliased qualified references (`schema.table.column`) should count
+  # as a reference to the joined table (whose name resolves to the last
+  # part of the table reference).
+  pass_str: |
+    SELECT
+        my_schema.a.id,
+        my_schema.b.name
+    FROM my_schema.a
+    LEFT JOIN my_schema.b
+        ON my_schema.a.id = my_schema.b.id
