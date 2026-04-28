@@ -11,7 +11,9 @@ impl<'a, 'py> FromPyObject<'a, 'py> for PyFluffConfig {
     fn extract(ob: pyo3::Borrowed<'a, 'py, PyAny>) -> Result<Self, Self::Error> {
         let configs = ob.getattr("_configs")?;
         let configs_dict = configs.cast::<PyDict>()?;
-        let core = configs_dict.get_item("core").ok().flatten().unwrap();
+        let core = configs_dict.get_item("core")?.ok_or_else(|| {
+            pyo3::exceptions::PyKeyError::new_err("Missing required config key: core")
+        })?;
         let core_dict = core.cast::<PyDict>()?;
         let dialect = core_dict
             .get_item("dialect")
