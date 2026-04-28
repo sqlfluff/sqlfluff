@@ -41,6 +41,7 @@ db2_dialect = ansi_dialect.copy_as(
 )
 db2_dialect.sets("reserved_keywords").remove("NATURAL")
 db2_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+db2_dialect.sets("unreserved_keywords").update(["CS", "RR", "RS", "UR"])
 
 
 db2_dialect.replace(
@@ -69,28 +70,56 @@ db2_dialect.replace(
         Ref("OverClauseSegment"),
         Ref("WithinGroupClauseSegment"),
     ),
+    SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "SelectClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Ref("ReadOnlyClauseSegment"),
+            Ref("IsolationClauseSegment"),
+        ],
+    ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "FromClauseTerminatorGrammar"
     ).copy(
-        insert=[Ref.keyword("OFFSET")],
+        insert=[
+            Ref.keyword("OFFSET"),
+            Ref("ReadOnlyClauseSegment"),
+            Ref("IsolationClauseSegment"),
+        ],
     ),
     WhereClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "WhereClauseTerminatorGrammar"
     ).copy(
-        insert=[Ref.keyword("OFFSET")],
+        insert=[
+            Ref.keyword("OFFSET"),
+            Ref("ReadOnlyClauseSegment"),
+            Ref("IsolationClauseSegment"),
+        ],
     ),
     GroupByClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "GroupByClauseTerminatorGrammar"
     ).copy(
-        insert=[Ref.keyword("OFFSET")],
+        insert=[
+            Ref.keyword("OFFSET"),
+            Ref("ReadOnlyClauseSegment"),
+            Ref("IsolationClauseSegment"),
+        ],
     ),
     HavingClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "HavingClauseTerminatorGrammar"
     ).copy(
-        insert=[Ref.keyword("OFFSET")],
+        insert=[
+            Ref.keyword("OFFSET"),
+            Ref("ReadOnlyClauseSegment"),
+            Ref("IsolationClauseSegment"),
+        ],
     ),
     OrderByClauseTerminators=ansi_dialect.get_grammar("OrderByClauseTerminators").copy(
-        insert=[Ref.keyword("OFFSET")],
+        insert=[
+            Ref.keyword("OFFSET"),
+            Ref("ReadOnlyClauseSegment"),
+            Ref("IsolationClauseSegment"),
+        ],
     ),
     Expression_C_Grammar=OneOf(
         Sequence("EXISTS", Bracketed(Ref("SelectableGrammar"))),
@@ -563,6 +592,68 @@ class LimitClauseSegment(BaseSegment):
     )
 
 
+class ReadOnlyClauseSegment(BaseSegment):
+    """A Db2 read-only clause in a `SELECT` statement.
+
+    https://www.ibm.com/docs/en/db2-for-zos/13?topic=statement-read-only-clause
+    """
+
+    type = "read_only_clause"
+
+    match_grammar = Sequence(
+        "FOR",
+        OneOf(
+            Sequence("READ", "ONLY"),
+            Sequence("FETCH", "ONLY"),
+        ),
+    )
+
+
+class LockClauseSegment(BaseSegment):
+    """A Db2 lock clause that can follow certain isolation levels.
+
+    https://www.ibm.com/docs/en/db2-for-zos/13?topic=statement-isolation-clause
+    """
+
+    type = "lock_clause"
+
+    match_grammar = OneOf(
+        Sequence(
+            "USE",
+            "AND",
+            "KEEP",
+            OneOf("EXCLUSIVE", "UPDATE", "SHARE"),
+            "LOCKS",
+        ),
+        Sequence(
+            "KEEP",
+            "UPDATE",
+            "LOCKS",
+        ),
+    )
+
+
+class IsolationClauseSegment(BaseSegment):
+    """A Db2 isolation clause in a `SELECT` statement.
+
+    https://www.ibm.com/docs/en/db2-for-zos/13?topic=statement-isolation-clause
+    """
+
+    type = "isolation_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        OneOf(
+            Sequence(
+                OneOf("RR", "RS"),
+                Ref("LockClauseSegment", optional=True),
+            ),
+            "CS",
+            "UR",
+        ),
+    )
+
+
 class WithinGroupClauseSegment(BaseSegment):
     """An WITHIN GROUP clause for window functions."""
 
@@ -610,4 +701,37 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """A Db2 `SELECT` arm that can end before trailing fullselect clauses."""
+
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        terminators=[
+            Ref("ReadOnlyClauseSegment"),
+            Ref("IsolationClauseSegment"),
+        ]
+    )
+
+
+class SetExpressionSegment(ansi.SetExpressionSegment):
+    """A set expression with Db2-specific trailing clauses."""
+
+    match_grammar = ansi.SetExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("ReadOnlyClauseSegment", optional=True),
+            Ref("IsolationClauseSegment", optional=True),
+        ]
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """A `SELECT` statement with Db2-specific trailing clauses."""
+
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("ReadOnlyClauseSegment", optional=True),
+            Ref("IsolationClauseSegment", optional=True),
+        ]
     )
