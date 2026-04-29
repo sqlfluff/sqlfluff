@@ -208,7 +208,7 @@ As well as branches, GitHub has the concept of *forks*, which basically
 means taking a complete copy of the repo (and all its branches at that
 time) into your own GitHub account. You can then create a branch in that
 fork, and then open a pull request to to merge code from your branch on
-your fork, all the way back to the the original repo (called the *upstream*
+your fork, all the way back to the original repo (called the *upstream*
 repo). It may sound like an Inception level of abstraction and confusion
 but it actually works quite well once you get your head around it.
 

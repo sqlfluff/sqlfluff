@@ -288,7 +288,7 @@ this (showing :code:`"NAN"` has not been added as a Keyword in this dialect)::
 
    RuntimeError: Grammar refers to 'NanKeywordSegment' which was not found in the redshift dialect
 
-Also if editing the main ANSI dialect, and adding the the ANSI keyword list,
+Also if editing the main ANSI dialect, and adding the ANSI keyword list,
 then take care to consider if it needs added to the other dialects if they
 will inherit this syntax - usually yes unless explicitly overridden in those
 dialects.

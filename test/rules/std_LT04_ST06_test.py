@@ -3,6 +3,7 @@
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.errors import SQLLintError, SQLParseError
 from sqlfluff.rules.structure.ST06 import Rule_ST06
 
 
@@ -57,7 +58,7 @@ select "col1"
       ,"col4"
       ,"col5"
 from cte1
-),
+)
 
 select * from cte2""",
             """with cte1 as (
@@ -83,7 +84,7 @@ select "col1",
       'start: ' + "col2" as "new_col2",
       'start2: ' + "col3" as "new_col3"
 from cte1
-),
+)
 
 select * from cte2""",
         ),
@@ -104,8 +105,14 @@ rules = LT04, ST06
     # Return linted/fixed file.
     linted_file = linter.lint_string(in_sql, fix=True)
 
+    parse_errors = linted_file.get_violations(types=SQLParseError)
+    assert not parse_errors
+
     # Check expected lint errors are raised.
-    assert set([v.rule.code for v in linted_file.violations]) == {"LT04", "ST06"}
+    assert {v.rule_code() for v in linted_file.get_violations(types=SQLLintError)} == {
+        "LT04",
+        "ST06",
+    }
 
     # Check file is fixed.
     assert linted_file.fix_string()[0] == out_sql

@@ -119,8 +119,14 @@ class Rule_ST11(BaseRule):
                     continue
                 else:
                     raise UnqualifiedReferenceError(ref.raw)
+            # Yield penultimate and first parts (deduplicated) to handle both
+            # unaliased qualified references (table at parts[-2], e.g.
+            # `schema.table.column`) and aliased references (alias at parts[0],
+            # e.g. `alias.struct.field`).
             # Remove any quoting characters when returning.
             yield parts[-2].part.upper().strip("\"'`[]")
+            if parts[0] is not parts[-2]:
+                yield parts[0].part.upper().strip("\"'`[]")
 
     def _extract_references_from_select(
         self, segment: BaseSegment
