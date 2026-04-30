@@ -41,7 +41,6 @@ db2_dialect = ansi_dialect.copy_as(
 )
 db2_dialect.sets("reserved_keywords").remove("NATURAL")
 db2_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-db2_dialect.sets("unreserved_keywords").update(["CS", "RR", "RS", "UR"])
 
 
 db2_dialect.replace(
