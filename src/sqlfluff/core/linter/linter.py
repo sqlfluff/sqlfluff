@@ -715,8 +715,7 @@ class Linter:
                 formatter=formatter,
             )
 
-            # Set legacy variables for now
-            # TODO: Revise this
+            # Set legacy variables for the return payload.
             templated_file = variant.templated_file
             tree = fixed_tree
 
@@ -724,8 +723,8 @@ class Linter:
             # than any generated during the fixing cycle.
             violations += initial_linting_errors
 
-            # Attempt to lint other variants if they exist.
-            # TODO: Revise whether this is sensible...
+            # Lint alternate variants (if they exist) so branch-specific violations from
+            # templated code are surfaced in the final deduplicated result set.
             for idx, alternate_variant in enumerate(parsed.parsed_variants):
                 if alternate_variant is variant or not alternate_variant.tree:
                     continue
@@ -895,12 +894,9 @@ class Linter:
             ):
                 if variant:
                     templated_variants.append(variant)
-                # NOTE: We could very easily end up with duplicate errors between
-                # different variants and this code doesn't currently do any
-                # deduplication between them. That will be resolved in further
-                # testing.
-                # TODO: Resolve potential duplicate templater violations between
-                # variants before we enable jinja variant linting by default.
+                # Duplicate templater errors can arise across variants. Final
+                # linted output deduplicates these in source space, but the
+                # intermediate ParsedString still preserves the per-variant list.
                 templater_violations += templater_errs
                 if len(templated_variants) >= variant_limit:
                     # Stop if we hit the limit.
