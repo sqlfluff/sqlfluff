@@ -38,7 +38,7 @@ from the primary render. In cases where many variants are generated, the perform
 impact can be more substantial.
 
 Configuration
-"""""""""""
+"""""""""""""
 
 Variant rendering is controlled by the top-level
 :code:`render_variant_limit` setting:
