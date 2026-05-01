@@ -40,8 +40,17 @@ the rendered version of the template will only include either the
 provided configuration for the templater), but not both.
 
 In this case, because SQLFluff linting can only operate on the output
-of the templater, some areas of the raw SQL will never be seen by the
+of the templater, some areas of the raw SQL may never be seen by the
 linter and will not be covered by lint rules.
 
-This is functionality we hope to support in future.
+SQLFluff can now render multiple template variants for templaters which
+support it, including [Jinja templater](jinja) and [dbt templater](dbt).
+See [Template Variant Rendering](variants) for details, limitations and
+configuration.
 :::
+
+- [Template Variant Rendering](variants)
+- [Jinja templater](jinja)
+- [Placeholder templater](placeholder)
+- [Python templater](python)
+- [dbt templater](dbt)

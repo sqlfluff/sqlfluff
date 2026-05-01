@@ -9,6 +9,10 @@ will be simpler. You should be aware when using the :code:`dbt` templater that
 you will be exposed to some of the complexity of :code:`dbt`. Users may wish to
 try both templaters and choose according to how they intend to use *SQLFluff*.
 
+Because the dbt templater subclasses the Jinja templater, it can also benefit
+from :ref:`templater_variant_rendering` when SQLFluff is linting branched
+templated SQL.
+
 A simple rule of thumb might be:
 
 - If you are using *SQLFluff* in a CI/CD context, where speed is not
