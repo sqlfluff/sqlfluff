@@ -61,7 +61,7 @@ Recommended values:
   templating and linting time noticeably.
 
 When To Use It
-"""""""""""
+""""""""""""""
 
 Variant rendering is most useful when your templated SQL contains control flow
 that changes the SQL structure, for example:
