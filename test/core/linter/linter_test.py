@@ -55,13 +55,16 @@ class DuplicateViolationTemplater(RawTemplater):
     ):
         """Yield the same templated file twice with duplicate errors."""
         for _ in range(2):
-            yield TemplatedFile(in_str, fname=fname), [
-                SQLTemplaterError(
-                    "Repeated templater issue",
-                    line_no=1,
-                    line_pos=1,
-                )
-            ]
+            yield (
+                TemplatedFile(in_str, fname=fname),
+                [
+                    SQLTemplaterError(
+                        "Repeated templater issue",
+                        line_no=1,
+                        line_pos=1,
+                    )
+                ],
+            )
 
 
 def normalise_paths(paths):
