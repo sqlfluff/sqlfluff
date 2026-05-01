@@ -699,7 +699,7 @@ class Linter:
         # only seed parse/lex violations from that root variant; alternate variants
         # are used to discover extra linting errors, but parse failures in them
         # should not make an otherwise valid file fail linting/fixing.
-        violations = list(parsed.templating_violations)
+        violations: list[SQLBaseError] = list(parsed.templating_violations)
         if root_variant:
             violations += root_variant.violations()
         else:
