@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8b2ed0cb4bac89e058a421e58baa8496f76b7c599ee31012b38cb1163fd19e0
+_hash: b8dbbdd31fe1c573ba9e9cafa87c0e23e93505088c2f5551e1a20465a4eb27b6
 file:
 - batch:
     statement:
@@ -546,45 +546,46 @@ file:
             keyword: AS
           naked_identifier: target
       - keyword: USING
-      - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
+      - table_expression:
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: ProductID
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: SUM
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: OrderQty
+                        end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: TotalQty
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: Sales
+                      - dot: .
+                      - naked_identifier: SalesOrderDetail
+              groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
                   naked_identifier: ProductID
-            - comma: ','
-            - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: SUM
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: OrderQty
-                      end_bracket: )
-                alias_expression:
-                  alias_operator:
-                    keyword: AS
-                  naked_identifier: TotalQty
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - naked_identifier: Sales
-                    - dot: .
-                    - naked_identifier: SalesOrderDetail
-            groupby_clause:
-            - keyword: GROUP
-            - keyword: BY
-            - column_reference:
-                naked_identifier: ProductID
-          end_bracket: )
+            end_bracket: )
       - alias_expression:
           alias_operator:
             keyword: AS
@@ -674,45 +675,46 @@ file:
             keyword: AS
           naked_identifier: target
       - keyword: USING
-      - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
+      - table_expression:
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: ProductID
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: SUM
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: OrderQty
+                        end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: TotalQty
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: Sales
+                      - dot: .
+                      - naked_identifier: SalesOrderDetail
+              groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
                   naked_identifier: ProductID
-            - comma: ','
-            - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: SUM
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: OrderQty
-                      end_bracket: )
-                alias_expression:
-                  alias_operator:
-                    keyword: AS
-                  naked_identifier: TotalQty
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - naked_identifier: Sales
-                    - dot: .
-                    - naked_identifier: SalesOrderDetail
-            groupby_clause:
-            - keyword: GROUP
-            - keyword: BY
-            - column_reference:
-                naked_identifier: ProductID
-          end_bracket: )
+            end_bracket: )
       - alias_expression:
           alias_operator:
             keyword: AS
