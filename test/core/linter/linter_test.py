@@ -799,6 +799,32 @@ FROM
     ]
 
 
+def test__parsed_string__ignores_alternate_variant_parse_errors_with_valid_root():
+    """ParsedString.violations should follow root-variant semantics."""
+    sql = """-- This file combines product data from individual brands into a staging table
+{% for product in ['table1', 'table2'] %}
+    SELECT
+        brand,
+        country_code,
+        category,
+        name,
+        id
+    FROM
+        {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+{% endfor %}
+"""
+
+    cfg = FluffConfig(overrides={"dialect": "ansi", "rules": "LT02"})
+    linter = Linter(config=cfg)
+    rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
+    parsed = linter.parse_rendered(rendered)
+
+    assert len(parsed.parsed_variants) == 2
+    assert parsed.root_variant() is not None
+    assert not parsed.violations
+
+
 def test__linter__deduplicates_duplicate_templater_violations_in_linted_output():
     """Verify duplicate templater errors from variants collapse in lint output."""
     config = FluffConfig(
