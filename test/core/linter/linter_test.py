@@ -751,6 +751,54 @@ where col_one between 3 and 4
     ]
 
 
+def test__linter__ignores_alternate_variant_parse_errors_when_root_variant_parses():
+    """Alternate variant parse errors should not fail a valid root variant."""
+    sql = """-- This file combines product data from individual brands into a staging table
+{% set products =  [
+  'table1',
+  'table2'] %}
+
+{% for product in products %}
+SELECT
+  brand,
+  country_code,
+  category,
+  name,
+  id
+FROM
+  {{ product }}
+{% if not loop.last -%} UNION ALL {%- endif %}
+{% endfor %}
+"""
+
+    linted = Linter(
+        config=FluffConfig(
+            configs={
+                "core": {
+                    "dialect": "ansi",
+                    "rules": "LT02",
+                    "render_variant_limit": 5,
+                }
+            }
+        )
+    ).lint_string(sql, fix=True)
+
+    assert not any(isinstance(v, SQLParseError) for v in linted.violations)
+    assert linted.check_tuples() == [
+        ("LT02", 7, 1),
+        ("LT02", 8, 1),
+        ("LT02", 9, 1),
+        ("LT02", 9, 2),
+        ("LT02", 10, 1),
+        ("LT02", 11, 1),
+        ("LT02", 12, 1),
+        ("LT02", 13, 1),
+        ("LT02", 14, 1),
+        ("LT02", 14, 6),
+        ("LT02", 15, 1),
+    ]
+
+
 def test__linter__deduplicates_duplicate_templater_violations_in_linted_output():
     """Verify duplicate templater errors from variants collapse in lint output."""
     config = FluffConfig(

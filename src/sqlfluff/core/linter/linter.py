@@ -678,7 +678,6 @@ class Linter:
         encoding: str = "utf8",
     ) -> LintedFile:
         """Lint a ParsedString and return a LintedFile."""
-        violations = parsed.violations
         time_dict = parsed.time_dict
         tree: Optional[BaseSegment] = None
         templated_file: Optional[TemplatedFile] = None
@@ -696,6 +695,20 @@ class Linter:
                 "lint_parsed found no valid root variant for %s", parsed.fname
             )
 
+        # Always surface templating violations. If we found a valid root variant,
+        # only seed parse/lex violations from that root variant; alternate variants
+        # are used to discover extra linting errors, but parse failures in them
+        # should not make an otherwise valid file fail linting/fixing.
+        violations = list(parsed.templating_violations)
+        if root_variant:
+            violations += root_variant.violations()
+        else:
+            violations += [
+                violation
+                for variant in parsed.parsed_variants
+                for violation in variant.violations()
+            ]
+
         # If there is a root variant, handle that first.
         if root_variant:
             linter_logger.info("lint_parsed - linting root variant (%s)", parsed.fname)
@@ -711,12 +724,12 @@ class Linter:
                 rule_pack=rule_pack,
                 fix=fix,
                 fname=parsed.fname,
-                templated_file=variant.templated_file,
+                templated_file=root_variant.templated_file,
                 formatter=formatter,
             )
 
             # Set legacy variables for the return payload.
-            templated_file = variant.templated_file
+            templated_file = root_variant.templated_file
             tree = fixed_tree
 
             # We're only going to return the *initial* errors, rather
@@ -726,7 +739,7 @@ class Linter:
             # Lint alternate variants (if they exist) so branch-specific violations from
             # templated code are surfaced in the final deduplicated result set.
             for idx, alternate_variant in enumerate(parsed.parsed_variants):
-                if alternate_variant is variant or not alternate_variant.tree:
+                if alternate_variant is root_variant or not alternate_variant.tree:
                     continue
                 linter_logger.info("lint_parsed - linting alt variant (%s)", idx)
                 (

@@ -84,6 +84,10 @@ There are still some important limits:
   including dbt, currently provide the most meaningful support.
 * More variants mean more work, so runtime and the number of surfaced issues can
   increase.
+* Alternate variants can surface additional lint violations, but parse or lex
+  failures in those alternate variants are not treated as fatal if SQLFluff has
+  a valid root variant to lint. That allows SQLFluff to keep the extra lint
+  coverage without failing an otherwise valid file.
 * Some templater errors may still be repeated across variants while the feature
   continues to mature.
 
@@ -96,6 +100,12 @@ important branches are still being missed.
 If you are debugging surprising output, temporarily setting
 :code:`render_variant_limit = 1` is a useful way to compare current behaviour
 with the old single-render model.
+
+If increasing :code:`render_variant_limit` surfaces new issues, that usually
+means SQLFluff found lint violations in a branch which the historical
+single-render flow did not reach. By contrast, parse failures in alternate
+branches are only surfaced when SQLFluff cannot find a valid root variant to
+lint.
 
 For teams using the :ref:`dbt_templater`, this setting complements the existing
 dbt configuration rather than replacing it. Accurate dbt rendering still depends
