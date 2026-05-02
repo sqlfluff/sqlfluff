@@ -7,7 +7,11 @@ import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter.fix import compute_anchor_edit_info
-from sqlfluff.core.linter.patch import FixPatch, generate_source_patches
+from sqlfluff.core.linter.patch import (
+    FixPatch,
+    generate_source_patches,
+    merge_source_patches,
+)
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
@@ -342,3 +346,17 @@ def test__fix__warning_and_error_violations_both_fixed(tmp_path):
     success = linted_file.persist_tree()
     assert success
     assert sql_file.read_text() == expected_fixed
+
+
+def test__fix__merge_source_patches_dedupes_and_skips_conflicts():
+    """Cross-variant patch merging should keep only safe source edits."""
+    patch_a = FixPatch(slice(1, 2), "A", "literal", slice(1, 2), "b", "b")
+    patch_a_dup = FixPatch(slice(1, 2), "A", "literal", slice(1, 2), "b", "b")
+    patch_b = FixPatch(slice(3, 4), "B", "literal", slice(3, 4), "d", "d")
+    conflicting_patch = FixPatch(
+        slice(3, 4), "C", "literal", slice(3, 4), "d", "d"
+    )
+
+    assert merge_source_patches(
+        [[patch_a, patch_b], [patch_a_dup, conflicting_patch]]
+    ) == [patch_a, patch_b]

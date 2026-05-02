@@ -825,6 +825,41 @@ def test__parsed_string__ignores_alternate_variant_parse_errors_with_valid_root(
     assert not parsed.violations
 
 
+def test__linter__fix_string_merges_non_conflicting_patches_across_variants():
+    """fix_string() should merge safe source edits from all parsed variants."""
+    sql = """{% if False %}
+SELECT 1
+{% else %}
+SELECT c
+FROM t
+WHERE c < 0
+{% endif %}"""
+    expected = """{% if False %}
+    SELECT 1
+{% else %}
+    SELECT c
+    FROM t
+    WHERE c < 0
+{% endif %}
+"""
+    config = FluffConfig(
+        configs={
+            "core": {
+                "dialect": "ansi",
+                "templater": "jinja",
+                "rules": "LT02,LT12",
+                "render_variant_limit": 5,
+            }
+        }
+    )
+
+    linted = Linter(config=config).lint_string(sql, fname="test.sql", fix=True)
+    fixed_sql, changed = linted.fix_string()
+
+    assert changed
+    assert fixed_sql == expected
+
+
 def test__linter__deduplicates_duplicate_templater_violations_in_linted_output():
     """Verify duplicate templater errors from variants collapse in lint output."""
     config = FluffConfig(
