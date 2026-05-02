@@ -77,3 +77,12 @@ OPEN cur_union;
 CLOSE cur_union;
 DEALLOCATE cur_union;
 GO
+
+DECLARE cur_union_legacy INSENSITIVE SCROLL CURSOR FOR
+SELECT 1 AS Id
+UNION ALL
+SELECT 2 AS Id;
+OPEN cur_union_legacy;
+CLOSE cur_union_legacy;
+DEALLOCATE cur_union_legacy;
+GO
