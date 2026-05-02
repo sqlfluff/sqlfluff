@@ -6272,6 +6272,7 @@ class TableExpressionSegment(BaseSegment):
         Sequence(Ref("TableReferenceSegment"), Ref("PostTableExpressionGrammar")),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
+        Ref("ContainstableSegment"),
         Ref("OpenRowSetSegment"),
         Ref("OpenJsonSegment"),
         Ref("OpenXmlSegment"),
@@ -8381,6 +8382,49 @@ class OpenJsonSegment(BaseSegment):
             ),
         ),
         Ref("OpenJsonWithClauseSegment", optional=True),
+    )
+
+
+class ContainstableSegment(BaseSegment):
+    """A `CONTAINSTABLE()` table-valued function.
+
+    https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/containstable-transact-sql
+    """
+
+    type = "containstable_segment"
+
+    _language_term = OneOf(
+        Ref("NumericLiteralSegment"),
+        Ref("HexadecimalLiteralSegment"),
+        Ref("QuotedLiteralSegmentOptWithN"),
+    )
+
+    _column_specification = OneOf(
+        Ref("ColumnReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        Ref("StarSegment"),
+    )
+
+    match_grammar = Sequence(
+        "CONTAINSTABLE",
+        Bracketed(
+            Ref("TableReferenceSegment"),
+            Ref("CommaSegment"),
+            _column_specification,
+            Ref("CommaSegment"),
+            Ref("QuotedLiteralSegmentOptWithN"),
+            Sequence(
+                Ref("CommaSegment"),
+                "LANGUAGE",
+                _language_term,
+                optional=True,
+            ),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
     )
 
 
