@@ -73,6 +73,7 @@ class LintedFile(NamedTuple):
     ignore_mask: Optional[IgnoreMask]
     templated_file: Optional[TemplatedFile]
     encoding: str
+    source_patches: Optional[list[FixPatch]] = None
 
     def check_tuples(
         self, raise_on_non_linting_violations: bool = True
@@ -231,12 +232,13 @@ class LintedFile(NamedTuple):
 
         original_source = self.templated_file.source_str
 
-        # Generate patches from the fixed tree. In the process we sort
-        # and deduplicate them so that the resultant list is in the
-        # the right order for the source file without any duplicates.
-        filtered_source_patches = generate_source_patches(
-            self.tree, self.templated_file
-        )
+        # Generate patches from the fixed tree, unless a merged set of source
+        # patches was already prepared across multiple variants.
+        filtered_source_patches = self.source_patches
+        if filtered_source_patches is None:
+            filtered_source_patches = generate_source_patches(
+                self.tree, self.templated_file
+            )
         linter_logger.debug("Filtered source patches:")
         for idx, patch in enumerate(filtered_source_patches):
             linter_logger.debug("    %s: %s", idx, patch)
