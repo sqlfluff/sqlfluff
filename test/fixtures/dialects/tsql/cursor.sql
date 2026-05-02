@@ -86,3 +86,13 @@ OPEN cur_union_legacy;
 CLOSE cur_union_legacy;
 DEALLOCATE cur_union_legacy;
 GO
+
+DECLARE cur_cte CURSOR LOCAL FAST_FORWARD FOR
+WITH cte AS (
+    SELECT 1 AS Id
+)
+SELECT Id FROM cte;
+OPEN cur_cte;
+CLOSE cur_cte;
+DEALLOCATE cur_cte;
+GO

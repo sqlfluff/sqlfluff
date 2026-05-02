@@ -512,6 +512,37 @@ tsql_dialect.add(
             ignore_case=False,
         )
     ),
+    CursorSelectableGrammar=OneOf(
+        OptionallyBracketed(Ref("CursorWithCompoundStatementSegment")),
+        Ref("CursorNonWithSelectableGrammar"),
+        Bracketed(Ref("CursorSelectableGrammar")),
+    ),
+    CursorNonWithSelectableGrammar=OneOf(
+        Ref("CursorSetExpressionSegment"),
+        OptionallyBracketed(Ref("CursorSelectStatementSegment")),
+        Ref("CursorNonSetSelectableGrammar"),
+    ),
+    CursorNonSetSelectableGrammar=OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("CursorUnorderedSelectStatementSegment"),
+        Bracketed(Ref("CursorSelectStatementSegment")),
+        Bracketed(Ref("CursorWithCompoundStatementSegment")),
+        Bracketed(Ref("CursorNonSetSelectableGrammar")),
+        Ref("CursorBracketedSetExpressionGrammar"),
+    ),
+    CursorUnorderedSetExpressionGrammar=Sequence(
+        Ref("CursorNonSetSelectableGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("SetOperatorSegment"),
+                Ref("CursorNonSetSelectableGrammar"),
+            ),
+            min_times=1,
+        ),
+    ),
+    CursorBracketedSetExpressionGrammar=Bracketed(
+        Ref("CursorUnorderedSetExpressionGrammar")
+    ),
 )
 
 tsql_dialect.replace(
@@ -1931,7 +1962,7 @@ class CursorDefinitionSegment(BaseSegment):
             Sequence("TYPE_WARNING", optional=True),
         ),
         "FOR",
-        Ref("NonWithSelectableGrammar"),
+        Ref("CursorSelectableGrammar"),
         Sequence(
             "FOR",
             "UPDATE",
@@ -2252,6 +2283,61 @@ class WithCompoundStatementSegment(BaseSegment):
             Ref("NonWithNonSelectableGrammar"),
             Ref("MergeStatementSegment"),
         ),
+    )
+
+
+class CursorWithCompoundStatementSegment(BaseSegment):
+    """A cursor SELECT statement preceded by CTEs.
+
+    Cursor declarations allow WITH + SELECT forms, but not the broader T-SQL
+    WITH forms that introduce DML or MERGE.
+    """
+
+    type = "with_compound_statement"
+    match_grammar = Sequence(
+        "WITH",
+        Ref.keyword("RECURSIVE", optional=True),
+        Conditional(Indent, indented_ctes=True),
+        Delimited(
+            Ref("CTEDefinitionSegment"),
+            terminators=["SELECT"],
+        ),
+        Conditional(Dedent, indented_ctes=True),
+        Ref("CursorNonWithSelectableGrammar"),
+    )
+
+
+class CursorUnorderedSelectStatementSegment(BaseSegment):
+    """A cursor SELECT body before OPTION or FOR clauses.
+
+    Cursor declarations disallow SELECT INTO.
+    """
+
+    type = "select_statement"
+    match_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+class CursorSelectStatementSegment(BaseSegment):
+    """A cursor SELECT statement.
+
+    Cursor declarations accept standard SELECT statements but exclude SELECT INTO
+    and FOR BROWSE.
+    """
+
+    type = "select_statement"
+    match_grammar = CursorUnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OptionClauseSegment", optional=True),
+            Ref("CursorForClauseSegment", optional=True),
+        ]
     )
 
 
@@ -3668,7 +3754,7 @@ class DeclareCursorStatementSegment(BaseSegment):
                 ),
                 "CURSOR",
                 "FOR",
-                Ref("NonWithSelectableGrammar"),
+                Ref("CursorSelectableGrammar"),
                 Sequence(
                     "FOR",
                     OneOf(
@@ -6780,6 +6866,24 @@ class SetExpressionSegment(BaseSegment):
     )
 
 
+class CursorSetExpressionSegment(BaseSegment):
+    """A cursor set expression with UNION, INTERSECT, or EXCEPT."""
+
+    type = "set_expression"
+    match_grammar = Sequence(
+        Ref("CursorNonSetSelectableGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("SetOperatorSegment"),
+                Ref("CursorNonSetSelectableGrammar"),
+            ),
+            min_times=1,
+        ),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("OptionClauseSegment", optional=True),
+    )
+
+
 class ForClauseSegment(BaseSegment):
     """A For Clause segment for TSQL.
 
@@ -6861,6 +6965,87 @@ class ForClauseSegment(BaseSegment):
                         ),
                         _common_directives_for_xml,
                         _elements,
+                        Sequence(
+                            OneOf(
+                                "XMLDATA",
+                                Sequence(
+                                    "XMLSCHEMA",
+                                    Bracketed(
+                                        Ref("LiteralGrammar"),
+                                        optional=True,
+                                    ),
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class CursorForClauseSegment(BaseSegment):
+    """A FOR clause allowed in cursor SELECT statements.
+
+    Cursor declarations disallow FOR BROWSE but still allow FOR XML and FOR JSON.
+    """
+
+    type = "for_clause"
+    match_grammar = Sequence(
+        "FOR",
+        OneOf(
+            Sequence(
+                "JSON",
+                Delimited(
+                    OneOf(
+                        "AUTO",
+                        "PATH",
+                    ),
+                    Sequence(
+                        "ROOT",
+                        Bracketed(
+                            Ref("LiteralGrammar"),
+                            optional=True,
+                        ),
+                        optional=True,
+                    ),
+                    Ref.keyword("INCLUDE_NULL_VALUES", optional=True),
+                    Ref.keyword("WITHOUT_ARRAY_WRAPPER", optional=True),
+                ),
+            ),
+            Sequence(
+                "XML",
+                OneOf(
+                    Delimited(
+                        Sequence(
+                            "PATH",
+                            Bracketed(
+                                Ref("LiteralGrammar"),
+                                optional=True,
+                            ),
+                        ),
+                        ForClauseSegment._common_directives_for_xml,
+                        ForClauseSegment._elements,
+                    ),
+                    Delimited(
+                        "EXPLICIT",
+                        ForClauseSegment._common_directives_for_xml,
+                        Ref.keyword("XMLDATA", optional=True),
+                    ),
+                    Delimited(
+                        OneOf(
+                            "AUTO",
+                            Sequence(
+                                "RAW",
+                                Bracketed(
+                                    Ref("LiteralGrammar"),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                        ForClauseSegment._common_directives_for_xml,
+                        ForClauseSegment._elements,
                         Sequence(
                             OneOf(
                                 "XMLDATA",

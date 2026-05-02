@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d46ec65e9129a0e72f454ea3180e28466028484b47f94f174b7682c009435adc
+_hash: 2258614970ac45aef12c73b9f5ae8ad3664c7f6c88ba7cd0380a0859bc94a5d9
 file:
 - batch:
   - statement:
@@ -638,6 +638,64 @@ file:
       deallocate_cursor_statement:
         keyword: DEALLOCATE
         naked_identifier: cur_union_legacy
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: cur_cte
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: LOCAL
+        - keyword: FAST_FORWARD
+        - keyword: FOR
+        - with_compound_statement:
+            keyword: WITH
+            common_table_expression:
+              naked_identifier: cte
+              keyword: AS
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      integer_literal: '1'
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: Id
+                end_bracket: )
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: Id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: cte
+  - statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        naked_identifier: cur_cte
+  - statement_terminator: ;
+  - statement:
+      close_cursor_statement:
+        keyword: CLOSE
+        naked_identifier: cur_cte
+  - statement_terminator: ;
+  - statement:
+      deallocate_cursor_statement:
+        keyword: DEALLOCATE
+        naked_identifier: cur_cte
   - statement_terminator: ;
   - go_statement:
       keyword: GO
