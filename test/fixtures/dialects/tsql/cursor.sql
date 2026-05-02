@@ -68,3 +68,12 @@ SELECT Id, SomeColumn FROM @table FOR UPDATE OF SomeColumn;
 OPEN db_cursor;
 FETCH ABSOLUTE @Rows FROM db_cursor;
 GO
+
+DECLARE cur_union CURSOR LOCAL FAST_FORWARD FOR
+SELECT 1 AS Id
+UNION ALL
+SELECT 2 AS Id;
+OPEN cur_union;
+CLOSE cur_union;
+DEALLOCATE cur_union;
+GO
