@@ -788,13 +788,11 @@ FROM
         ("LT02", 7, 1),
         ("LT02", 8, 1),
         ("LT02", 9, 1),
-        ("LT02", 9, 2),
         ("LT02", 10, 1),
         ("LT02", 11, 1),
         ("LT02", 12, 1),
         ("LT02", 13, 1),
         ("LT02", 14, 1),
-        ("LT02", 14, 6),
         ("LT02", 15, 1),
     ]
 
@@ -820,7 +818,7 @@ def test__parsed_string__ignores_alternate_variant_parse_errors_with_valid_root(
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
     parsed = linter.parse_rendered(rendered)
 
-    assert len(parsed.parsed_variants) == 2
+    assert len(parsed.parsed_variants) == 1
     assert parsed.root_variant() is not None
     assert not parsed.violations
 

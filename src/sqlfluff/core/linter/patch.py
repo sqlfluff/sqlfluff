@@ -27,9 +27,12 @@ class FixPatch:
     templated_str: str
     source_str: str
 
-    def dedupe_tuple(self) -> tuple[slice, str]:
+    def dedupe_tuple(self) -> tuple[tuple[int, int], str]:
         """Generate a tuple of this fix for deduping."""
-        return (self.source_slice, self.fixed_raw)
+        return (
+            (self.source_slice.start, self.source_slice.stop),
+            self.fixed_raw,
+        )
 
 
 def _iter_source_fix_patches(
@@ -347,8 +350,10 @@ def _patches_conflict(first: FixPatch, second: FixPatch) -> bool:
     if first.source_slice == second.source_slice:
         return first.fixed_raw != second.fixed_raw
 
-    first_start, first_stop = first.source_slice.start, first.source_slice.stop
-    second_start, second_stop = second.source_slice.start, second.source_slice.stop
+    first_start = int(first.source_slice.start)
+    first_stop = int(first.source_slice.stop)
+    second_start = int(second.source_slice.start)
+    second_stop = int(second.source_slice.stop)
 
     if first_start == first_stop == second_start == second_stop:
         return first_start == second_start
@@ -363,7 +368,7 @@ def merge_source_patches(patch_buffers: list[list[FixPatch]]) -> list[FixPatch]:
     that the non-conflicting subset can still be applied safely.
     """
     merged_patches: list[FixPatch] = []
-    dedupe_buffer: set[tuple[slice, str]] = set()
+    dedupe_buffer: set[tuple[tuple[int, int], str]] = set()
 
     for patch in sorted(
         (patch for patches in patch_buffers for patch in patches),
