@@ -353,9 +353,7 @@ def test__fix__merge_source_patches_dedupes_and_skips_conflicts():
     patch_a = FixPatch(slice(1, 2), "A", "literal", slice(1, 2), "b", "b")
     patch_a_dup = FixPatch(slice(1, 2), "A", "literal", slice(1, 2), "b", "b")
     patch_b = FixPatch(slice(3, 4), "B", "literal", slice(3, 4), "d", "d")
-    conflicting_patch = FixPatch(
-        slice(3, 4), "C", "literal", slice(3, 4), "d", "d"
-    )
+    conflicting_patch = FixPatch(slice(3, 4), "C", "literal", slice(3, 4), "d", "d")
 
     assert merge_source_patches(
         [[patch_a, patch_b], [patch_a_dup, conflicting_patch]]

@@ -35,8 +35,8 @@ from sqlfluff.core.linter.linted_file import (
     FileTimings,
     LintedFile,
 )
-from sqlfluff.core.linter.patch import generate_source_patches, merge_source_patches
 from sqlfluff.core.linter.linting_result import LintingResult
+from sqlfluff.core.linter.patch import generate_source_patches, merge_source_patches
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
