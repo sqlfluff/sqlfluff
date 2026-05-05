@@ -36,6 +36,7 @@ from sqlfluff.core.linter.linted_file import (
     LintedFile,
 )
 from sqlfluff.core.linter.linting_result import LintingResult
+from sqlfluff.core.linter.patch import generate_source_patches, merge_source_patches
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
@@ -678,28 +679,37 @@ class Linter:
         encoding: str = "utf8",
     ) -> LintedFile:
         """Lint a ParsedString and return a LintedFile."""
-        violations = parsed.violations
         time_dict = parsed.time_dict
         tree: Optional[BaseSegment] = None
         templated_file: Optional[TemplatedFile] = None
+        merged_source_patches = None
         t0 = time.monotonic()
 
-        # First identify the root variant. That's the first variant
-        # that successfully parsed.
-        root_variant: Optional[ParsedVariant] = None
-        for variant in parsed.parsed_variants:
-            if variant.tree:
-                root_variant = variant
-                break
-        else:
+        root_variant = parsed.root_variant()
+        if not root_variant:
             linter_logger.info(
                 "lint_parsed found no valid root variant for %s", parsed.fname
             )
+
+        # Always surface templating violations. If we found a valid root variant,
+        # only seed parse/lex violations from that root variant; alternate variants
+        # are used to discover extra linting errors, but parse failures in them
+        # should not make an otherwise valid file fail linting/fixing.
+        violations: list[SQLBaseError] = list(parsed.templating_violations)
+        if root_variant:
+            violations += root_variant.violations()
+        else:
+            violations += [
+                violation
+                for variant in parsed.parsed_variants
+                for violation in variant.violations()
+            ]
 
         # If there is a root variant, handle that first.
         if root_variant:
             linter_logger.info("lint_parsed - linting root variant (%s)", parsed.fname)
             assert root_variant.tree  # We just checked this.
+            variant_source_patches = []
             (
                 fixed_tree,
                 initial_linting_errors,
@@ -711,27 +721,30 @@ class Linter:
                 rule_pack=rule_pack,
                 fix=fix,
                 fname=parsed.fname,
-                templated_file=variant.templated_file,
+                templated_file=root_variant.templated_file,
                 formatter=formatter,
             )
 
-            # Set legacy variables for now
-            # TODO: Revise this
-            templated_file = variant.templated_file
+            # Set legacy variables for the return payload.
+            templated_file = root_variant.templated_file
             tree = fixed_tree
+            if fix:
+                variant_source_patches.append(
+                    generate_source_patches(fixed_tree, root_variant.templated_file)
+                )
 
             # We're only going to return the *initial* errors, rather
             # than any generated during the fixing cycle.
             violations += initial_linting_errors
 
-            # Attempt to lint other variants if they exist.
-            # TODO: Revise whether this is sensible...
+            # Lint alternate variants (if they exist) so branch-specific violations from
+            # templated code are surfaced in the final deduplicated result set.
             for idx, alternate_variant in enumerate(parsed.parsed_variants):
-                if alternate_variant is variant or not alternate_variant.tree:
+                if alternate_variant is root_variant or not alternate_variant.tree:
                     continue
                 linter_logger.info("lint_parsed - linting alt variant (%s)", idx)
                 (
-                    _,  # Fixed Tree
+                    alt_fixed_tree,
                     alt_linting_errors,
                     _,  # Ignore Mask
                     _,  # Timings
@@ -745,6 +758,16 @@ class Linter:
                     formatter=formatter,
                 )
                 violations += alt_linting_errors
+                if fix:
+                    variant_source_patches.append(
+                        generate_source_patches(
+                            alt_fixed_tree,
+                            alternate_variant.templated_file,
+                        )
+                    )
+
+            if fix:
+                merged_source_patches = merge_source_patches(variant_source_patches)
 
         # If no root variant, we should still apply ignores to any parsing
         # or templating fails.
@@ -790,6 +813,7 @@ class Linter:
             ignore_mask=ignore_mask,
             templated_file=templated_file,
             encoding=encoding,
+            source_patches=merged_source_patches,
         )
 
         # This is the main command line output from linting.
@@ -895,12 +919,9 @@ class Linter:
             ):
                 if variant:
                     templated_variants.append(variant)
-                # NOTE: We could very easily end up with duplicate errors between
-                # different variants and this code doesn't currently do any
-                # deduplication between them. That will be resolved in further
-                # testing.
-                # TODO: Resolve potential duplicate templater violations between
-                # variants before we enable jinja variant linting by default.
+                # Duplicate templater errors can arise across variants. Final
+                # linted output deduplicates these in source space, but the
+                # intermediate ParsedString still preserves the per-variant list.
                 templater_violations += templater_errs
                 if len(templated_variants) >= variant_limit:
                     # Stop if we hit the limit.

@@ -27,9 +27,12 @@ class FixPatch:
     templated_str: str
     source_str: str
 
-    def dedupe_tuple(self) -> tuple[slice, str]:
+    def dedupe_tuple(self) -> tuple[tuple[int, int], str]:
         """Generate a tuple of this fix for deduping."""
-        return (self.source_slice, self.fixed_raw)
+        return (
+            (self.source_slice.start, self.source_slice.stop),
+            self.fixed_raw,
+        )
 
 
 def _iter_source_fix_patches(
@@ -340,3 +343,49 @@ def generate_source_patches(
 
     # Sort the patches before building up the file.
     return sorted(filtered_source_patches, key=lambda x: x.source_slice.start)
+
+
+def _patches_conflict(first: FixPatch, second: FixPatch) -> bool:
+    """Return whether two source patches cannot be safely applied together."""
+    if first.source_slice == second.source_slice:
+        return first.fixed_raw != second.fixed_raw
+
+    first_start = int(first.source_slice.start)
+    first_stop = int(first.source_slice.stop)
+    second_start = int(second.source_slice.start)
+    second_stop = int(second.source_slice.stop)
+
+    if first_start == first_stop == second_start == second_stop:
+        return first_start == second_start
+
+    return max(first_start, second_start) < min(first_stop, second_stop)
+
+
+def merge_source_patches(patch_buffers: list[list[FixPatch]]) -> list[FixPatch]:
+    """Merge source patches from multiple variants.
+
+    Patches are deduplicated in source space. Conflicting patches are skipped so
+    that the non-conflicting subset can still be applied safely.
+    """
+    merged_patches: list[FixPatch] = []
+    dedupe_buffer: set[tuple[tuple[int, int], str]] = set()
+
+    for patch in sorted(
+        (patch for patches in patch_buffers for patch in patches),
+        key=lambda patch: (patch.source_slice.start, patch.source_slice.stop),
+    ):
+        dedupe_tuple = patch.dedupe_tuple()
+        if dedupe_tuple in dedupe_buffer:
+            continue
+
+        if any(_patches_conflict(existing, patch) for existing in merged_patches):
+            linter_logger.info(
+                "Skipping conflicting cross-variant patch: %s",
+                patch,
+            )
+            continue
+
+        merged_patches.append(patch)
+        dedupe_buffer.add(dedupe_tuple)
+
+    return merged_patches

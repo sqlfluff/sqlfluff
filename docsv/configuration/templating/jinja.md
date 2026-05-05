@@ -2,6 +2,10 @@
 
 The Jinja templater uses [Jinja2](https://jinja.palletsprojects.com/) to render templates.
 
+SQLFluff can also render multiple Jinja variants for a single file so that it
+can lint branches which would otherwise be unreached in a single render. See
+[Template Variant Rendering](variants).
+
 There are multiple, complementary ways of configuring the Jinja templater.
 
 - Reading variables and Jinja macros directly from the SQLFLuff config file

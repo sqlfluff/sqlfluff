@@ -10,6 +10,15 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [4.2.0] - TBD
+
+## Highlights
+
+* The default `render_variant_limit` is now `5` instead of `1`, so SQLFluff may
+  report new linting violations from templated branches that were previously not
+  inspected in Jinja and dbt projects. Documentation for the feature is now also
+  available in [Template Variant Rendering](docsv/configuration/templating/variants.md).
+
 ## [4.1.0] - 2026-03-26
 
 ## Highlights

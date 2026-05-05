@@ -1926,6 +1926,13 @@ def test_jinja_undefined_multivar_for_loop_user_friendly_error():
             ],
             id="inline_select",
         ),
+        pytest.param(
+            "trim_adjacent_whitespace_loop.sql",
+            [
+                "select\n    foo,\n    \n        i as col1,\n        i as col2\nfrom foo\n",
+            ],
+            id="trim_adjacent_whitespace_loop",
+        ),
     ],
 )
 def test__templater_lint_unreached_code(sql_path: str, expected_renderings):

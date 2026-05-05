@@ -6,6 +6,19 @@ requiring no change for the user are not mentioned. For full details
 of each individual release, see the detailed [changelog](https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md)
 
 
+## Upgrading to 4.2
+
+The default value of `render_variant_limit` is now `5` rather than `1`. For
+Jinja and dbt projects with conditional branches, SQLFluff will therefore lint
+more rendered variants by default.
+
+In practice, this means SQLFluff may now surface linting violations in templated
+branches that were previously not inspected.
+
+For details on how template variant rendering works, along with guidance on
+performance and tuning, see [Template Variant Rendering](../configuration/templating/variants).
+
+
 ## Upgrading to 4.x
 
 This release is the first where the optional Rust routines are available.

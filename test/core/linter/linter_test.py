@@ -21,7 +21,7 @@ from sqlfluff.core.linter import runner
 from sqlfluff.core.linter.common import DeferredRenderTask
 from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
-from sqlfluff.core.templaters import RawTemplater
+from sqlfluff.core.templaters import RawTemplater, TemplatedFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 try:
@@ -38,6 +38,33 @@ class DummyLintError(SQLBaseError):
     def __init__(self, line_no: int, code: str = "LT01"):
         self._code = code
         super().__init__(line_no=line_no)
+
+
+class DuplicateViolationTemplater(RawTemplater):
+    """Test templater which emits duplicate templater violations per variant."""
+
+    name = "duplicate_violation_test"
+
+    def process_with_variants(
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config=None,
+        formatter=None,
+    ):
+        """Yield the same templated file twice with duplicate errors."""
+        for _ in range(2):
+            yield (
+                TemplatedFile(in_str, fname=fname),
+                [
+                    SQLTemplaterError(
+                        "Repeated templater issue",
+                        line_no=1,
+                        line_pos=1,
+                    )
+                ],
+            )
 
 
 def normalise_paths(paths):
@@ -649,6 +676,209 @@ def test__linter__templating_fail():
     # There *should* be violations because there should be a templating fail.
     assert parsed.violations
     assert any(isinstance(v, SQLTemplaterError) for v in parsed.violations)
+
+
+def test__linter__variant_limit_surfaces_additional_branch_violations():
+    """Verify linting alternate variants surfaces branch-specific violations."""
+    sql = """select
+    {% if True %}
+        a as foo
+    {% else %}
+        b as foo
+    {% endif %}
+from example_table
+{% if False %}
+where col_one between 1 and 2
+{% elif True %}
+where col_one between 2 and 3
+{% else %}
+where col_one between 3 and 4
+{% endif %}
+"""
+
+    single_variant = Linter(
+        config=FluffConfig(
+            configs={
+                "core": {
+                    "dialect": "ansi",
+                    "rules": "CP01",
+                    "render_variant_limit": 1,
+                },
+                "rules": {
+                    "capitalisation.keywords": {"capitalisation_policy": "upper"}
+                },
+            }
+        )
+    ).lint_string(sql)
+
+    multi_variant = Linter(
+        config=FluffConfig(
+            configs={
+                "core": {
+                    "dialect": "ansi",
+                    "rules": "CP01",
+                    "render_variant_limit": 6,
+                },
+                "rules": {
+                    "capitalisation.keywords": {"capitalisation_policy": "upper"}
+                },
+            }
+        )
+    ).lint_string(sql)
+
+    assert single_variant.check_tuples() == [
+        ("CP01", 1, 1),
+        ("CP01", 3, 11),
+        ("CP01", 7, 1),
+        ("CP01", 11, 1),
+        ("CP01", 11, 15),
+        ("CP01", 11, 25),
+    ]
+    assert multi_variant.check_tuples() == [
+        ("CP01", 1, 1),
+        ("CP01", 3, 11),
+        ("CP01", 5, 11),
+        ("CP01", 7, 1),
+        ("CP01", 9, 1),
+        ("CP01", 9, 15),
+        ("CP01", 9, 25),
+        ("CP01", 11, 1),
+        ("CP01", 11, 15),
+        ("CP01", 11, 25),
+        ("CP01", 13, 1),
+        ("CP01", 13, 15),
+        ("CP01", 13, 25),
+    ]
+
+
+def test__linter__ignores_alternate_variant_parse_errors_when_root_variant_parses():
+    """Alternate variant parse errors should not fail a valid root variant."""
+    sql = """-- This file combines product data from individual brands into a staging table
+{% set products =  [
+  'table1',
+  'table2'] %}
+
+{% for product in products %}
+SELECT
+  brand,
+  country_code,
+  category,
+  name,
+  id
+FROM
+  {{ product }}
+{% if not loop.last -%} UNION ALL {%- endif %}
+{% endfor %}
+"""
+
+    linted = Linter(
+        config=FluffConfig(
+            configs={
+                "core": {
+                    "dialect": "ansi",
+                    "rules": "LT02",
+                    "render_variant_limit": 5,
+                }
+            }
+        )
+    ).lint_string(sql, fix=True)
+
+    assert not any(isinstance(v, SQLParseError) for v in linted.violations)
+    assert linted.check_tuples() == [
+        ("LT02", 7, 1),
+        ("LT02", 8, 1),
+        ("LT02", 9, 1),
+        ("LT02", 10, 1),
+        ("LT02", 11, 1),
+        ("LT02", 12, 1),
+        ("LT02", 13, 1),
+        ("LT02", 14, 1),
+        ("LT02", 15, 1),
+    ]
+
+
+def test__parsed_string__ignores_alternate_variant_parse_errors_with_valid_root():
+    """ParsedString.violations should follow root-variant semantics."""
+    sql = """-- This file combines product data from individual brands into a staging table
+{% for product in ['table1', 'table2'] %}
+    SELECT
+        brand,
+        country_code,
+        category,
+        name,
+        id
+    FROM
+        {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+{% endfor %}
+"""
+
+    cfg = FluffConfig(overrides={"dialect": "ansi", "rules": "LT02"})
+    linter = Linter(config=cfg)
+    rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
+    parsed = linter.parse_rendered(rendered)
+
+    assert len(parsed.parsed_variants) == 1
+    assert parsed.root_variant() is not None
+    assert not parsed.violations
+
+
+def test__linter__fix_string_merges_non_conflicting_patches_across_variants():
+    """fix_string() should merge safe source edits from all parsed variants."""
+    sql = """{% if False %}
+SELECT 1
+{% else %}
+SELECT c
+FROM t
+WHERE c < 0
+{% endif %}"""
+    expected = """{% if False %}
+    SELECT 1
+{% else %}
+    SELECT c
+    FROM t
+    WHERE c < 0
+{% endif %}
+"""
+    config = FluffConfig(
+        configs={
+            "core": {
+                "dialect": "ansi",
+                "templater": "jinja",
+                "rules": "LT02,LT12",
+                "render_variant_limit": 5,
+            }
+        }
+    )
+
+    linted = Linter(config=config).lint_string(sql, fname="test.sql", fix=True)
+    fixed_sql, changed = linted.fix_string()
+
+    assert changed
+    assert fixed_sql == expected
+
+
+def test__linter__deduplicates_duplicate_templater_violations_in_linted_output():
+    """Verify duplicate templater errors from variants collapse in lint output."""
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "rules": "CP01",
+        }
+    )
+    linter = Linter(config=config)
+    templater = DuplicateViolationTemplater()
+    linter.templater = templater
+    linter.config._configs["core"]["templater_obj"] = templater
+
+    parsed = linter.parse_string("SELECT 1\n")
+    linted = linter.lint_string("SELECT 1\n")
+
+    assert len(parsed.templating_violations) == 2
+    assert [
+        (violation.rule_code(), violation.line_no, violation.line_pos, violation.desc())
+        for violation in linted.violations
+    ] == [("TMP", 1, 1, "Repeated templater issue")]
 
 
 @pytest.mark.parametrize(

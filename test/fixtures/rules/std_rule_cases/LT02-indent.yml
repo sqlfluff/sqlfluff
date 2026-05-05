@@ -1518,7 +1518,7 @@ test_fail_fix_beside_templated:
     {% endif %}
   fix_str: |
     {% if False %}
-    SELECT 1
+        SELECT 1
     {% else %}
         SELECT c
         FROM t
@@ -2172,8 +2172,6 @@ test_bigquery_merge_statement_values_clause:
       dialect: bigquery
 
 test_fail_issue_4680:
-  # NOTE: It doesn't reindent the second clause, but the important
-  # thing is that we don't get an exception.
   fail_str: |
     SELECT col1
     FROM table
@@ -2190,8 +2188,8 @@ test_fail_issue_4680:
         {% if true %}
             col1 > 1
         {% else %}
-        col1 > 0
-      {% endif %}
+            col1 > 0
+        {% endif %}
 
 test_implicit_indent_when:
   fail_str: |
