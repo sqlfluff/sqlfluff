@@ -210,11 +210,11 @@ tsql_dialect.sets("currency_symbols").update(
 tsql_dialect.insert_lexer_matchers(
     [
         # According to Microsoft spec, subsequent characters in identifiers can include
-        # @, $, #, _ in addition to letters and numbers
+        # @, $, #, _ in addition to letters (Unicode 3.2) and numbers
         # https://learn.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers
         RegexLexer(
             "atsign",
-            r"[@][a-zA-Z0-9_@$#]+",
+            r"[@][a-zA-Z0-9_@$#\p{L}]+",
             CodeSegment,
         ),
         # Note: $ can only appear in subsequent positions of identifiers, not as prefix
@@ -576,7 +576,7 @@ tsql_dialect.replace(
         ],
     ),
     ParameterNameSegment=RegexParser(
-        r"@(?!@)[A-Za-z0-9_@$#]+", CodeSegment, type="parameter"
+        r"@(?!@)[A-Za-z0-9_@$#\p{L}]+", CodeSegment, type="parameter"
     ),
     FunctionParameterGrammar=Sequence(
         Ref("ParameterNameSegment", optional=True),
