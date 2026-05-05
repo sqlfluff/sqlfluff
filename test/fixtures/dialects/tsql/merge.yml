@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b73b841e1fdc0085877091eeba8d959706be28ca620115b129928eb10f1b961
+_hash: 665c26d63a489b5fc38dd9e277a29adf980887fa02cfd8e61f40634901c9c185
 file:
 - batch:
     statement:
@@ -16,10 +16,11 @@ file:
       - alias_expression:
           naked_identifier: dst
       - keyword: using
-      - table_reference:
-        - naked_identifier: schema1
-        - dot: .
-        - naked_identifier: table1
+      - table_expression:
+          table_reference:
+          - naked_identifier: schema1
+          - dot: .
+          - naked_identifier: table1
       - alias_expression:
           naked_identifier: src
       - join_on_condition:
@@ -155,8 +156,9 @@ file:
         - alias_expression:
             naked_identifier: dst
         - keyword: using
-        - table_reference:
-            naked_identifier: source_data
+        - table_expression:
+            table_reference:
+              naked_identifier: source_data
         - alias_expression:
             naked_identifier: src
         - join_on_condition:
@@ -255,12 +257,13 @@ file:
       - alias_expression:
           naked_identifier: dst
       - keyword: using
-      - table_reference:
-        - naked_identifier: LA
-        - dot: .
-        - naked_identifier: tt
-        - dot: .
-        - naked_identifier: dd
+      - table_expression:
+          table_reference:
+          - naked_identifier: LA
+          - dot: .
+          - naked_identifier: tt
+          - dot: .
+          - naked_identifier: dd
       - alias_expression:
           naked_identifier: src
       - join_on_condition:
@@ -477,17 +480,18 @@ file:
             keyword: AS
           naked_identifier: tgt
       - keyword: USING
-      - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                parameter: '@UnitMeasureCode'
-            - comma: ','
-            - select_clause_element:
-                parameter: '@Name'
-          end_bracket: )
+      - table_expression:
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  parameter: '@UnitMeasureCode'
+              - comma: ','
+              - select_clause_element:
+                  parameter: '@Name'
+            end_bracket: )
       - alias_expression:
           alias_operator:
             keyword: as
@@ -596,78 +600,79 @@ file:
             keyword: AS
           naked_identifier: tgt
       - keyword: USING
-      - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
-                  naked_identifier: ProductID
-            - comma: ','
-            - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: SUM
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: OrderQty
-                      end_bracket: )
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - naked_identifier: Sales
-                    - dot: .
-                    - naked_identifier: SalesOrderDetail
-                  alias_expression:
-                    alias_operator:
-                      keyword: AS
-                    naked_identifier: sod
-                join_clause:
-                  keyword: JOIN
+      - table_expression:
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: ProductID
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: SUM
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: OrderQty
+                        end_bracket: )
+              from_clause:
+                keyword: FROM
+                from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
                       - naked_identifier: Sales
                       - dot: .
-                      - naked_identifier: SalesOrderHeader
+                      - naked_identifier: SalesOrderDetail
                     alias_expression:
                       alias_operator:
                         keyword: AS
-                      naked_identifier: soh
-                  join_on_condition:
-                    keyword: 'ON'
-                    expression:
-                    - column_reference:
-                      - naked_identifier: sod
-                      - dot: .
-                      - naked_identifier: SalesOrderID
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - column_reference:
-                      - naked_identifier: soh
-                      - dot: .
-                      - naked_identifier: SalesOrderID
-                    - binary_operator: AND
-                    - column_reference:
-                      - naked_identifier: soh
-                      - dot: .
-                      - naked_identifier: OrderDate
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - parameter: '@OrderDate'
-            groupby_clause:
-            - keyword: GROUP
-            - keyword: BY
-            - column_reference:
-                naked_identifier: ProductID
-          end_bracket: )
+                      naked_identifier: sod
+                  join_clause:
+                    keyword: JOIN
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderHeader
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: soh
+                    join_on_condition:
+                      keyword: 'ON'
+                      expression:
+                      - column_reference:
+                        - naked_identifier: sod
+                        - dot: .
+                        - naked_identifier: SalesOrderID
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: soh
+                        - dot: .
+                        - naked_identifier: SalesOrderID
+                      - binary_operator: AND
+                      - column_reference:
+                        - naked_identifier: soh
+                        - dot: .
+                        - naked_identifier: OrderDate
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - parameter: '@OrderDate'
+              groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: ProductID
+            end_bracket: )
       - alias_expression:
           alias_operator:
             keyword: as
@@ -801,79 +806,80 @@ file:
             keyword: AS
           naked_identifier: pi
       - keyword: USING
-      - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
-                  naked_identifier: ProductID
-            - comma: ','
-            - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: SUM
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: OrderQty
-                      end_bracket: )
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - naked_identifier: Sales
-                    - dot: .
-                    - naked_identifier: SalesOrderDetail
-                  alias_expression:
-                    alias_operator:
-                      keyword: AS
-                    naked_identifier: sod
-                join_clause:
-                  keyword: JOIN
+      - table_expression:
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: ProductID
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: SUM
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: OrderQty
+                        end_bracket: )
+              from_clause:
+                keyword: FROM
+                from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
                       - naked_identifier: Sales
                       - dot: .
-                      - naked_identifier: SalesOrderHeader
+                      - naked_identifier: SalesOrderDetail
                     alias_expression:
                       alias_operator:
                         keyword: AS
-                      naked_identifier: soh
-                  join_on_condition:
-                    keyword: 'ON'
-                    expression:
-                    - column_reference:
-                      - naked_identifier: sod
-                      - dot: .
-                      - naked_identifier: SalesOrderID
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - column_reference:
-                      - naked_identifier: soh
-                      - dot: .
-                      - naked_identifier: SalesOrderID
-                    - binary_operator: AND
-                    - column_reference:
-                      - naked_identifier: soh
-                      - dot: .
-                      - naked_identifier: OrderDate
-                    - keyword: BETWEEN
-                    - quoted_literal: "'20030701'"
-                    - keyword: AND
-                    - quoted_literal: "'20030731'"
-            groupby_clause:
-            - keyword: GROUP
-            - keyword: BY
-            - column_reference:
-                naked_identifier: ProductID
-          end_bracket: )
+                      naked_identifier: sod
+                  join_clause:
+                    keyword: JOIN
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderHeader
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: soh
+                    join_on_condition:
+                      keyword: 'ON'
+                      expression:
+                      - column_reference:
+                        - naked_identifier: sod
+                        - dot: .
+                        - naked_identifier: SalesOrderID
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: soh
+                        - dot: .
+                        - naked_identifier: SalesOrderID
+                      - binary_operator: AND
+                      - column_reference:
+                        - naked_identifier: soh
+                        - dot: .
+                        - naked_identifier: OrderDate
+                      - keyword: BETWEEN
+                      - quoted_literal: "'20030701'"
+                      - keyword: AND
+                      - quoted_literal: "'20030731'"
+              groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: ProductID
+            end_bracket: )
       - alias_expression:
           alias_operator:
             keyword: AS
@@ -1028,30 +1034,31 @@ file:
                     - alias_expression:
                         naked_identifier: trg
                     - keyword: using
-                    - bracketed:
-                        start_bracket: (
-                        select_statement:
-                          select_clause:
-                            keyword: select
-                            select_clause_element:
-                              column_reference:
-                              - naked_identifier: gr
-                              - dot: .
-                              - naked_identifier: columnC
-                          from_clause:
-                            keyword: from
-                            from_expression:
-                              from_expression_element:
-                                table_expression:
-                                  table_reference:
-                                  - naked_identifier: sch2
-                                  - dot: .
-                                  - naked_identifier: table2
-                                alias_expression:
-                                  alias_operator:
-                                    keyword: as
-                                  naked_identifier: gr
-                        end_bracket: )
+                    - table_expression:
+                        bracketed:
+                          start_bracket: (
+                          select_statement:
+                            select_clause:
+                              keyword: select
+                              select_clause_element:
+                                column_reference:
+                                - naked_identifier: gr
+                                - dot: .
+                                - naked_identifier: columnC
+                            from_clause:
+                              keyword: from
+                              from_expression:
+                                from_expression_element:
+                                  table_expression:
+                                    table_reference:
+                                    - naked_identifier: sch2
+                                    - dot: .
+                                    - naked_identifier: table2
+                                  alias_expression:
+                                    alias_operator:
+                                      keyword: as
+                                    naked_identifier: gr
+                          end_bracket: )
                     - alias_expression:
                         naked_identifier: src
                     - join_on_condition:
@@ -1118,17 +1125,18 @@ file:
             keyword: AS
           naked_identifier: tgt
       - keyword: USING
-      - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                parameter: '@UnitMeasureCode'
-            - comma: ','
-            - select_clause_element:
-                parameter: '@Name'
-          end_bracket: )
+      - table_expression:
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  parameter: '@UnitMeasureCode'
+              - comma: ','
+              - select_clause_element:
+                  parameter: '@Name'
+            end_bracket: )
       - alias_expression:
           alias_operator:
             keyword: as
@@ -1255,79 +1263,80 @@ file:
             keyword: AS
           naked_identifier: pi
       - keyword: USING
-      - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
-                  naked_identifier: ProductID
-            - comma: ','
-            - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: SUM
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: OrderQty
-                      end_bracket: )
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - naked_identifier: Sales
-                    - dot: .
-                    - naked_identifier: SalesOrderDetail
-                  alias_expression:
-                    alias_operator:
-                      keyword: AS
-                    naked_identifier: sod
-                join_clause:
-                  keyword: JOIN
+      - table_expression:
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: ProductID
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: SUM
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: OrderQty
+                        end_bracket: )
+              from_clause:
+                keyword: FROM
+                from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
                       - naked_identifier: Sales
                       - dot: .
-                      - naked_identifier: SalesOrderHeader
+                      - naked_identifier: SalesOrderDetail
                     alias_expression:
                       alias_operator:
                         keyword: AS
-                      naked_identifier: soh
-                  join_on_condition:
-                    keyword: 'ON'
-                    expression:
-                    - column_reference:
-                      - naked_identifier: sod
-                      - dot: .
-                      - naked_identifier: SalesOrderID
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - column_reference:
-                      - naked_identifier: soh
-                      - dot: .
-                      - naked_identifier: SalesOrderID
-                    - binary_operator: AND
-                    - column_reference:
-                      - naked_identifier: soh
-                      - dot: .
-                      - naked_identifier: OrderDate
-                    - keyword: BETWEEN
-                    - quoted_literal: "'20030701'"
-                    - keyword: AND
-                    - quoted_literal: "'20030731'"
-            groupby_clause:
-            - keyword: GROUP
-            - keyword: BY
-            - column_reference:
-                naked_identifier: ProductID
-          end_bracket: )
+                      naked_identifier: sod
+                  join_clause:
+                    keyword: JOIN
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderHeader
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: soh
+                    join_on_condition:
+                      keyword: 'ON'
+                      expression:
+                      - column_reference:
+                        - naked_identifier: sod
+                        - dot: .
+                        - naked_identifier: SalesOrderID
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: soh
+                        - dot: .
+                        - naked_identifier: SalesOrderID
+                      - binary_operator: AND
+                      - column_reference:
+                        - naked_identifier: soh
+                        - dot: .
+                        - naked_identifier: OrderDate
+                      - keyword: BETWEEN
+                      - quoted_literal: "'20030701'"
+                      - keyword: AND
+                      - quoted_literal: "'20030731'"
+              groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: ProductID
+            end_bracket: )
       - alias_expression:
           alias_operator:
             keyword: AS
@@ -1445,7 +1454,7 @@ file:
     go_statement:
       keyword: GO
 - batch:
-    statement:
+  - statement:
       merge_statement:
       - keyword: MERGE
       - keyword: INTO
@@ -1454,18 +1463,19 @@ file:
         - dot: .
         - naked_identifier: target
       - keyword: USING
-      - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                integer_literal: '1'
-                alias_expression:
-                  alias_operator:
-                    keyword: AS
-                  naked_identifier: i
-          end_bracket: )
+      - table_expression:
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  integer_literal: '1'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: i
+            end_bracket: )
       - alias_expression:
           alias_operator:
             keyword: AS
@@ -1504,4 +1514,61 @@ file:
                     - naked_identifier: source
                     - dot: .
                     - naked_identifier: i
-    statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: SomeTable
+      - alias_expression:
+          naked_identifier: t
+      - keyword: USING
+      - table_expression:
+          table_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeFunction
+          post_table_expression:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+      - alias_expression:
+          naked_identifier: s
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: Id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: Id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: data
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: data
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO

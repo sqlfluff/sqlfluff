@@ -19,3 +19,7 @@ SELECT convert(hierarchyid, '/1/1/2').GetAncestor(2).GetAncestor(2) parent;
 
 SELECT @geography.STArea() area;
 SELECT @geography.STDistance(@other_geography) dist;
+
+SELECT na.Loc.query('.') FROM SomeTable CROSS APPLY SomeXMLColumn.nodex('/root/Location') AS na(Loc);
+SELECT T.c.query('.') FROM @x.nodes('/Root/row') T(c);
+GO
