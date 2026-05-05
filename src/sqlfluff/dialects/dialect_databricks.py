@@ -1538,6 +1538,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("SetTimeZoneStatementSegment"),
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
+            Ref("CreateTableCloneStatementSegment"),
             Ref("FunctionParameterListGrammarWithComments"),
             Ref("DeclareOrReplaceVariableStatementSegment"),
             Ref("CommentOnStatementSegment"),
@@ -1563,7 +1564,11 @@ class FunctionParameterListGrammarWithComments(BaseSegment):
             Sequence(
                 Ref("FunctionParameterGrammar"),
                 AnyNumberOf(
-                    Sequence("DEFAULT", Ref("LiteralGrammar"), optional=True),
+                    Sequence(
+                        "DEFAULT",
+                        OneOf(Ref("LiteralGrammar"), Ref("FunctionSegment")),
+                        optional=True,
+                    ),
                     Ref("CommentClauseSegment", optional=True),
                 ),
             ),
@@ -1837,6 +1842,40 @@ class CreateTableUsingStatementSegment(sparksql.CreateTableStatementSegment):
     )
 
 
+class CreateTableCloneStatementSegment(BaseSegment):
+    """A create table clone statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/delta-clone
+    """
+
+    type = "create_table_clone_statement"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                Sequence(
+                    "CREATE",
+                    "OR",
+                    optional=True,
+                ),
+                "REPLACE",
+                "TABLE",
+            ),
+            Sequence(
+                "CREATE",
+                "TABLE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+        ),
+        Ref("TableReferenceSegment"),
+        OneOf("SHALLOW", "DEEP", optional=True),
+        "CLONE",
+        Ref("TableReferenceSegment"),
+        Ref("TablePropertiesGrammar", optional=True),
+        Ref("LocationGrammar", optional=True),
+    )
+
+
 class TableSpecificationSegment(BaseSegment):
     """A table specification, e.g. for CREATE TABLE or ALTER TABLE.
 
@@ -1873,6 +1912,7 @@ class ColumnPropertiesSegment(BaseSegment):
             "DEFAULT",
             Ref("ColumnConstraintDefaultGrammar"),
         ),
+        Sequence("COLLATE", Ref("CollationReferenceSegment")),
         Ref("CommentGrammar"),
         Ref("ColumnConstraintSegment"),
         Ref("MaskStatementSegment"),

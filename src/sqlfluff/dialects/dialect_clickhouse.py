@@ -96,6 +96,10 @@ clickhouse_dialect.add(
 )
 
 clickhouse_dialect.replace(
+    LateralColumnAliasExpressionGrammar=Sequence(
+        Ref("ExpressionSegment"),
+        Ref("AliasExpressionSegment"),
+    ),
     BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
         Ref("StringBinaryOperatorGrammar"),

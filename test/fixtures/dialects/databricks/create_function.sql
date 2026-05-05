@@ -104,3 +104,11 @@ returns int
 return
 select param
 ;
+
+-- Create a function with function call as DEFAULT value (issue #6617)
+CREATE FUNCTION example_function (
+    param1 date DEFAULT current_date()
+)
+RETURNS TABLE
+RETURN
+SELECT param1 AS col;

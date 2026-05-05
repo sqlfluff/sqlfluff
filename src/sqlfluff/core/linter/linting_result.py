@@ -42,6 +42,7 @@ class LintingResult:
         self.paths: list[LintedDir] = []
         self._start_time: float = time.monotonic()
         self.total_time: float = 0.0
+        self.files_skipped: int = 0
 
     def add(self, path: LintedDir) -> None:
         """Add a new `LintedDir` to this result."""
@@ -80,8 +81,8 @@ class LintingResult:
 
     def num_violations(
         self,
-        types: Optional[Union[type[SQLBaseError], Iterable[type[SQLBaseError]]]] = None,
-        fixable: Optional[bool] = None,
+        types: type[SQLBaseError] | Iterable[type[SQLBaseError]] | None = None,
+        fixable: bool | None = None,
     ) -> int:
         """Count the number of violations in the result."""
         return sum(
@@ -89,7 +90,7 @@ class LintingResult:
         )
 
     def get_violations(
-        self, rules: Optional[Union[str, tuple[str, ...]]] = None
+        self, rules: str | tuple[str, ...] | None = None
     ) -> list[SQLBaseError]:
         """Return a list of violations in the result."""
         return [v for path in self.paths for v in path.get_violations(rules=rules)]

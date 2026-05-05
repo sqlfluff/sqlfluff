@@ -1,0 +1,407 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 28a0c14b8dcd378dc7763ed14cb4808320ed7226fdf63f24f8541dc7fdbc35b1
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: mydataset
+        dot: .
+        function_name_identifier: MEDIAN
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: value
+          data_type:
+            data_type_identifier: FLOAT64
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT64
+    - function_definition:
+        options_segment:
+          keyword: OPTIONS
+          bracketed:
+            start_bracket: (
+            parameter: description
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: '"Calculates the median value"'
+            end_bracket: )
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                naked_identifier: mydataset
+                dot: .
+                function_name_identifier: GET_QUANTILE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: value
+                - comma: ','
+                - expression:
+                    numeric_literal: '50'
+                - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: mydataset
+        dot: .
+        function_name_identifier: GET_QUANTILE
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: value
+        - data_type:
+            data_type_identifier: FLOAT64
+        - comma: ','
+        - parameter: percentile
+        - data_type:
+            data_type_identifier: INT64
+        - keyword: NOT
+        - keyword: AGGREGATE
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT64
+    - function_definition:
+        options_segment:
+          keyword: OPTIONS
+          bracketed:
+            start_bracket: (
+            parameter: description
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: '"Calculates approximate quantiles"'
+            end_bracket: )
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: IF
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                      naked_identifier: percentile
+                  - keyword: IS
+                  - null_literal: 'NULL'
+                  - binary_operator: OR
+                  - column_reference:
+                      naked_identifier: percentile
+                  - comparison_operator:
+                      raw_comparison_operator: <
+                  - numeric_literal: '0'
+                  - binary_operator: OR
+                  - column_reference:
+                      naked_identifier: percentile
+                  - comparison_operator:
+                      raw_comparison_operator: '>'
+                  - numeric_literal: '100'
+                - comma: ','
+                - expression:
+                    null_literal: 'NULL'
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: APPROX_QUANTILES
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: value
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '100'
+                        - end_bracket: )
+                      array_accessor:
+                        start_square_bracket: '['
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: SAFE_OFFSET
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  column_reference:
+                                    naked_identifier: percentile
+                                end_bracket: )
+                        end_square_bracket: ']'
+                - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: mydataset
+        dot: .
+        function_name_identifier: BUCKET_AGG
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: value
+        - data_type:
+            data_type_identifier: FLOAT64
+        - comma: ','
+        - parameter: ts
+        - data_type:
+            data_type_identifier: TIMESTAMP
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type:
+          keyword: STRUCT
+          struct_type_schema:
+          - start_angle_bracket: <
+          - parameter: total
+          - data_type:
+              data_type_identifier: FLOAT64
+          - comma: ','
+          - parameter: avg_value
+          - data_type:
+              data_type_identifier: FLOAT64
+          - comma: ','
+          - parameter: min_value
+          - data_type:
+              data_type_identifier: FLOAT64
+          - comma: ','
+          - parameter: max_value
+          - data_type:
+              data_type_identifier: FLOAT64
+          - comma: ','
+          - parameter: num_values
+          - data_type:
+              data_type_identifier: INT64
+          - comma: ','
+          - parameter: min_ts
+          - data_type:
+              data_type_identifier: TIMESTAMP
+          - comma: ','
+          - parameter: max_ts
+          - data_type:
+              data_type_identifier: TIMESTAMP
+          - end_angle_bracket: '>'
+    - function_definition:
+        options_segment:
+          keyword: OPTIONS
+          bracketed:
+            start_bracket: (
+            parameter: description
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: '"Aggregates raw data for bucket generation"'
+            end_bracket: )
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+            typed_struct_literal:
+              data_type:
+                keyword: STRUCT
+              struct_literal:
+                bracketed:
+                - start_bracket: (
+                - function:
+                    function_name:
+                      function_name_identifier: SUM
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: value
+                        end_bracket: )
+                - alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: total
+                - comma: ','
+                - function:
+                    function_name:
+                      function_name_identifier: AVG
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: value
+                        end_bracket: )
+                - alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: avg_value
+                - comma: ','
+                - function:
+                    function_name:
+                      function_name_identifier: MIN
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: value
+                        end_bracket: )
+                - alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: min_value
+                - comma: ','
+                - function:
+                    function_name:
+                      function_name_identifier: MAX
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: value
+                        end_bracket: )
+                - alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: max_value
+                - comma: ','
+                - function:
+                    function_name:
+                      function_name_identifier: COUNT
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: value
+                        end_bracket: )
+                - alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: num_values
+                - comma: ','
+                - function:
+                    function_name:
+                      function_name_identifier: MIN
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: ts
+                        end_bracket: )
+                - alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: min_ts
+                - comma: ','
+                - function:
+                    function_name:
+                      function_name_identifier: MAX
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: ts
+                        end_bracket: )
+                - alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: max_ts
+                - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        naked_identifier: mydataset
+        dot: .
+        function_name_identifier: SAFE_SUM
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: value
+          data_type:
+            data_type_identifier: FLOAT64
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT64
+    - function_definition:
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: SUM
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: IF
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            function:
+                              function_name:
+                                function_name_identifier: ABS
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                    column_reference:
+                                      naked_identifier: value
+                                  end_bracket: )
+                            comparison_operator:
+                            - raw_comparison_operator: <
+                            - raw_comparison_operator: '='
+                            numeric_literal: 1e300
+                        - comma: ','
+                        - expression:
+                            column_reference:
+                              naked_identifier: value
+                        - comma: ','
+                        - expression:
+                            null_literal: 'NULL'
+                        - end_bracket: )
+                  end_bracket: )
+          end_bracket: )
+- statement_terminator: ;

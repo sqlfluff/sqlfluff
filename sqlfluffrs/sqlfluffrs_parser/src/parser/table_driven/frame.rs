@@ -392,14 +392,14 @@ impl TableParseFrame {
         frame_id: usize,
         grammar_id: GrammarId,
         pos: usize,
-        table_terminators: Vec<GrammarId>,
+        table_terminators: &[GrammarId],
         parent_max_idx: Option<usize>,
     ) -> Self {
         TableParseFrame {
             frame_id,
             grammar_id,
             pos,
-            table_terminators: SmallVec::from_vec(table_terminators),
+            table_terminators: SmallVec::from_slice(table_terminators),
             state: FrameState::Initial,
             context: FrameContext::None,
             parent_max_idx,

@@ -3370,7 +3370,7 @@ as part of our [release notes](https://docs.sqlfluff.com/en/latest/releasenotes.
 Beyond the breaking changes, this release brings *a load* of additional
 changes:
 
-* Introduces the the `sqlfluff format` CLI command (a la `sqlfmt` or `black`)
+* Introduces the `sqlfluff format` CLI command (a la `sqlfmt` or `black`)
   to auto-format sql files using a known set of _fairly safe_ rules.
 * Databricks as a distinct new dialect (rather than as previously an alias
   for `sparksql`).
@@ -3612,7 +3612,7 @@ It contains:
   **name** of the rule rather than the **code**. Any configuration files
   which reference using legacy rules (or reference unknown rules) should
   now display warnings.
-* Introduces the the `sqlfluff format` CLI command (a la `sqlfmt` or `black`)
+* Introduces the `sqlfluff format` CLI command (a la `sqlfmt` or `black`)
   to auto-format sql files using a known set of _fairly safe_ rules.
 * Databricks as a distinct new dialect (rather than as previously an alias
   for `sparksql`).

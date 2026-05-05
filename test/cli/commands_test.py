@@ -2651,3 +2651,61 @@ def test__cli__render_pass():
         ],
         assert_stdout_contains="SELECT 56 FROM sch1.tbl2",
     )
+
+
+def test__cli__command_lint_large_file_skip_fail(tmpdir):
+    """Test that `lint` returns exit code 1 when large_file_skip_fail is set.
+
+    When a file is skipped due to large_file_skip_byte_limit and the
+    large_file_skip_fail config is True, the lint command should exit
+    with a non-zero exit code instead of silently succeeding.
+    """
+    # Create a SQL file larger than the byte limit.
+    sql_path = str(tmpdir / "big.sql")
+    with open(sql_path, "w") as f:
+        f.write("SELECT 1;\n")
+
+    # Write a config file that sets the byte limit very low and
+    # enables large_file_skip_fail.
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write(
+            "[sqlfluff]\n"
+            "dialect = ansi\n"
+            "large_file_skip_byte_limit = 5\n"
+            "large_file_skip_fail = True\n"
+        )
+
+    invoke_assert_code(
+        ret_code=1,
+        args=[lint, ["--config", config_path, sql_path]],
+    )
+
+
+def test__cli__command_fix_large_file_skip_fail(tmpdir):
+    """Test that `fix` returns exit code 1 when large_file_skip_fail is set.
+
+    When a file is skipped due to large_file_skip_byte_limit and the
+    large_file_skip_fail config is True, the fix command should exit
+    with a non-zero exit code instead of silently succeeding.
+    """
+    # Create a SQL file larger than the byte limit.
+    sql_path = str(tmpdir / "big.sql")
+    with open(sql_path, "w") as f:
+        f.write("SELECT 1;\n")
+
+    # Write a config file that sets the byte limit very low and
+    # enables large_file_skip_fail.
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write(
+            "[sqlfluff]\n"
+            "dialect = ansi\n"
+            "large_file_skip_byte_limit = 5\n"
+            "large_file_skip_fail = True\n"
+        )
+
+    invoke_assert_code(
+        ret_code=1,
+        args=[fix, ["--config", config_path, sql_path]],
+    )

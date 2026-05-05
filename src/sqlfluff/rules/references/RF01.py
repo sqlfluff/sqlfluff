@@ -176,26 +176,41 @@ class Rule_RF01(BaseRule):
     def _is_sequence_pseudocolumn(
         self, reference: ObjectReferenceSegment, selectable: Selectable
     ) -> bool:
-        """Whether reference is a sequence pseudocolumn access.
+        """Whether reference is a dialect-specific pseudocolumn access.
 
-        Oracle and Snowflake treat ``sequence.NEXTVAL`` and
-        ``sequence.CURRVAL`` (or ``db.schema.sequence.NEXTVAL``) as sequence
-        pseudocolumn access rather than table/column access.
+        Handles two cases:
+        - Oracle/Snowflake: ``sequence.NEXTVAL`` and ``sequence.CURRVAL``
+          (or ``db.schema.sequence.NEXTVAL``) are sequence pseudocolumn
+          access rather than table/column access.
+        - Databricks/SparkSQL: ``_metadata.file_path``,
+          ``_metadata.file_name``, etc. are virtual column access for
+          file-based data sources.
+          See: https://docs.databricks.com/en/ingestion/file-metadata-column.html
         """
-        if selectable.dialect.name not in ("oracle", "snowflake"):
-            return False
+        dialect_name = selectable.dialect.name
 
         reference_parts = list(reference.iter_raw_references())
         if len(reference_parts) < 2:
             return False
 
-        last_part = reference_parts[-1]
+        # Oracle/Snowflake: last part is NEXTVAL or CURRVAL.
+        if dialect_name in ("oracle", "snowflake"):
+            last_part = reference_parts[-1]
+            # Quoted identifiers should still be treated as ordinary references.
+            return bool(last_part.segments) and (
+                last_part.segments[0].is_type("naked_identifier")
+                and last_part.part.upper() in {"NEXTVAL", "CURRVAL"}
+            )
 
-        # Quoted identifiers should still be treated as ordinary references.
-        return bool(last_part.segments) and (
-            last_part.segments[0].is_type("naked_identifier")
-            and last_part.part.upper() in {"NEXTVAL", "CURRVAL"}
-        )
+        # Databricks/SparkSQL: first part is _metadata.
+        if dialect_name in ("databricks", "sparksql"):
+            first_part = reference_parts[0]
+            return bool(first_part.segments) and (
+                first_part.segments[0].is_type("naked_identifier")
+                and first_part.part.upper() == "_METADATA"
+            )
+
+        return False
 
     def _get_table_refs(
         self, ref: ObjectReferenceSegment, dialect: Dialect

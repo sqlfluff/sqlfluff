@@ -1758,7 +1758,7 @@ class FromExpressionSegment(BaseSegment):
     type = "from_expression"
     match_grammar: Matchable = OptionallyBracketed(
         Sequence(
-            Indent,
+            ImplicitIndent,
             OneOf(
                 # check first for MLTableExpression,
                 # because of possible FunctionSegment in
@@ -2336,6 +2336,7 @@ ansi_dialect.add(
         Ref("ShorthandCastSegment"),
         terminators=[Ref("CommaSegment")],
     ),
+    LateralColumnAliasExpressionGrammar=Nothing(),
     Expression_D_Potential_Select_Statement_Without_Brackets=OneOf(
         Ref("SelectStatementSegment"),
         Ref("LiteralGrammar"),
@@ -2353,6 +2354,7 @@ ansi_dialect.add(
             Ref("FunctionSegment"),
             Bracketed(
                 OneOf(
+                    Ref("LateralColumnAliasExpressionGrammar"),
                     # We're using the expression segment here rather than the grammar so
                     # that in the parsed structure we get nested elements.
                     Ref("ExpressionSegment"),
@@ -2985,7 +2987,6 @@ class WithCompoundStatementSegment(BaseSegment):
         Delimited(
             Ref("CTEDefinitionSegment"),
             terminators=["SELECT"],
-            allow_trailing=True,
         ),
         Conditional(Dedent, indented_ctes=True),
         Ref("NonWithSelectableGrammar"),
@@ -3007,7 +3008,6 @@ class WithCompoundNonSelectStatementSegment(BaseSegment):
         Delimited(
             Ref("CTEDefinitionSegment"),
             terminators=["SELECT"],
-            allow_trailing=True,
         ),
         Conditional(Dedent, indented_ctes=True),
         Ref("NonWithNonSelectableGrammar"),
@@ -3110,6 +3110,10 @@ class MergeStatementSegment(BaseSegment):
                 Bracketed(
                     Ref("SelectableGrammar"),
                 ),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+            Sequence(
+                Ref("FunctionSegment"),
                 Ref("AliasExpressionSegment", optional=True),
             ),
         ),

@@ -1181,6 +1181,8 @@ class Linter:
             if runner_close:
                 runner_close()
 
+        # Transfer skipped file count from the runner to the result.
+        result.files_skipped = runner.skipped_file_count
         result.stop_timer()
         return result
 

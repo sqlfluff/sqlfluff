@@ -50,6 +50,12 @@ pub enum FrameContext {
         meta_buffer: Vec<MetaSegment>, // Buffer for meta elements to be flushed after matching content
         insert_segments: Vec<(usize, MetaSegment)>, // (position, segments) to insert
         child_matches: Vec<Arc<MatchResult>>, // Store child matches here until sequence is complete
+        /// Terminators to pass to child element frames (excludes Sequence's own terminators).
+        /// Python parity: Python's Sequence does NOT push its own terminators into
+        /// parse_context.terminators. Children only see parent terminators, not the
+        /// Sequence's local terminators. The Sequence uses the combined set (own + parent)
+        /// only for its own trim_to_terminator / max_idx computation.
+        child_terminators: Vec<GrammarId>,
     },
     RefTableDriven {
         grammar_id: GrammarId,

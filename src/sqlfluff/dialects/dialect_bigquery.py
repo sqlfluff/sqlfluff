@@ -301,6 +301,17 @@ bigquery_dialect.replace(
             casefold=str.upper,
         )
     ),
+    # Extend ANSI to support `NOT AGGREGATE` modifier on parameters
+    # for aggregate function definitions.
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions#aggregate-udf-parameters
+    FunctionParameterGrammar=OneOf(
+        Sequence(
+            Ref("ParameterNameSegment", optional=True),
+            OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+            Sequence("NOT", "AGGREGATE", optional=True),
+        ),
+        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+    ),
     DatatypeIdentifierSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
             [
@@ -705,6 +716,7 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("ExportTableMetadataStatementSegment"),
             Ref("ExportStatementSegment"),
             Ref("LoadDataStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
@@ -956,7 +968,10 @@ class WhileStatementsSegment(BaseSegment):
     type = "while_statements"
     match_grammar = AnyNumberOf(
         Sequence(
-            Ref("StatementSegment"),
+            OneOf(
+                Ref("StatementSegment"),
+                Ref("MultiStatementSegment"),
+            ),
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "WHILE")],
@@ -1412,6 +1427,33 @@ class StringAggFunctionContentsSegment(BaseSegment):
             )
         ),
         allow_gaps=False,
+    )
+
+
+class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
+    """A `CREATE FUNCTION` statement.
+
+    Extends ANSI to support `CREATE AGGREGATE FUNCTION`.
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
+    """
+
+    type = "create_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        Sequence("AGGREGATE", optional=True),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        Sequence(
+            "RETURNS",
+            Ref("DatatypeSegment"),
+            optional=True,
+        ),
+        Ref("FunctionDefinitionGrammar"),
     )
 
 
@@ -2181,6 +2223,7 @@ class CreateTableFunctionStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref("OptionsSegment", optional=True),
         Sequence(
             "AS",
             OptionallyBracketed(Ref("SelectableGrammar")),
@@ -2237,6 +2280,12 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Ref("DefaultCollateSegment", optional=True),
         Ref("PartitionBySegment", optional=True),
         Ref("ClusterBySegment", optional=True),
+        Sequence(
+            "WITH",
+            "CONNECTION",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
         Ref("OptionsSegment", optional=True),
         # Create AS syntax:
         Sequence(
@@ -3047,6 +3096,22 @@ class ExportStatementSegment(BaseSegment):
         ),
         "AS",
         Ref("SelectableGrammar"),
+    )
+
+
+class ExportTableMetadataStatementSegment(BaseSegment):
+    """`EXPORT TABLE METADATA` statement.
+
+    https://cloud.google.com/bigquery/docs/exporting-data#export_table_metadata
+    """
+
+    type = "export_table_metadata_statement"
+    match_grammar: Matchable = Sequence(
+        "EXPORT",
+        "TABLE",
+        "METADATA",
+        "FROM",
+        Ref("TableReferenceSegment"),
     )
 
 

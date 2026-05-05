@@ -208,7 +208,7 @@ As well as branches, GitHub has the concept of *forks*, which basically
 means taking a complete copy of the repo (and all its branches at that
 time) into your own GitHub account. You can then create a branch in that
 fork, and then open a pull request to to merge code from your branch on
-your fork, all the way back to the the original repo (called the *upstream*
+your fork, all the way back to the original repo (called the *upstream*
 repo). It may sound like an Inception level of abstraction and confusion
 but it actually works quite well once you get your head around it.
 
@@ -476,7 +476,7 @@ So, when you're ready to make your first changes, do the following:
 
 5. If making code changes to the website then test them - follow instructions
    in `CONTRIBUTING.md`_ to set up the environment and then use
-   :code:`tox -e generate-fixture-yml,cov-init,py39,cov-report,linting` to
+   :code:`tox -e generate-fixture-yml,cov-init,py310,cov-report,linting` to
    run most of the tests.
 
 6. Add any new files you added in this change that you want tracked in
@@ -678,7 +678,7 @@ to open a pull request back to the original repo to accept your code into
 SQLFluff:
 
 1. Merge in any changes that happened to SQLFluff code since you branches (see above).
-2. Run all the automated tests :code:`tox -e generate-fixture-yml,cov-init,py39,cov-report,linting`.
+2. Run all the automated tests :code:`tox -e generate-fixture-yml,cov-init,py310,cov-report,linting`.
 3. Make sure all your changes are pushed to GitHub.
 4. Open a pull request in GitHub.
 5. If the pull request closes an issue then you can add "Closes #123" or

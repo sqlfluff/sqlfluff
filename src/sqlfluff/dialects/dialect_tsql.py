@@ -5307,7 +5307,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Sequence("WITH", OneOf("CHECK", "NOCHECK"), optional=True),
                 OneOf("CHECK", "NOCHECK"),
                 "CONSTRAINT",
-                Ref("ObjectReferenceSegment"),
+                OneOf("ALL", Ref("ObjectReferenceSegment")),
             ),
             Sequence(
                 "DROP",

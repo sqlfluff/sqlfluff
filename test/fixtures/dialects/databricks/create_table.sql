@@ -101,3 +101,8 @@ CREATE TABLE cluster_by_table_none (
 )
 USING DELTA
 CLUSTER BY NONE;
+
+CREATE TABLE collated_student (
+    id STRING COLLATE UTF8_BINARY NOT NULL COMMENT 'Required ID field'
+)
+USING DELTA;

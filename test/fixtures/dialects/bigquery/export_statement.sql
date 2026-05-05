@@ -71,3 +71,6 @@ EXPORT DATA OPTIONS
   header=true,
   field_delimiter=',')
 as SELECT col1,col2 FROM thetable;
+
+-- Export table metadata (BigLake / Iceberg)
+EXPORT TABLE METADATA FROM my_dataset.my_table;

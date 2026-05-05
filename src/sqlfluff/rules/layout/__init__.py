@@ -47,6 +47,16 @@ def get_configs_info() -> dict[str, ConfigInfo]:
             "validation": ["single", "multiple"],
             "definition": "Treatment of wildcards. Defaults to ``single``.",
         },
+        "single_target_policy": {
+            "validation": ["same_line", "new_line"],
+            "definition": (
+                "Treatment of single select targets. ``same_line`` (default) "
+                "allows a single select target on the same line as ``SELECT``. "
+                "``new_line`` requires even single targets to be on a new line, "
+                "giving consistent formatting regardless of the number of "
+                "select targets."
+            ),
+        },
     }
 
 

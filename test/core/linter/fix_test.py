@@ -256,6 +256,27 @@ def test__fix__jinja_non_empty_context_adjacent_to_quotes(caplog):
     assert "Skipping edit patch on uncertain templated section" not in caplog.text
 
 
+def test__fix__jinja_dbt_var_subscript_allows_layout_fix():
+    """Regression test for dbt `var()` placeholders used with subscripts."""
+    sql = "select {{ var('123')['123'] }} ,1/2 as d from d\n"
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = snowflake\n"
+        "rules = LT01\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "apply_dbt_builtins = True\n"
+    )
+    linter = Linter(config=config)
+
+    linted_file = linter.lint_string(sql, fname="test.sql", fix=True)
+    fixed_sql, changed = linted_file.fix_string()
+
+    assert changed
+    assert not any(v.rule_code() == "PRS" for v in linted_file.get_violations())
+    assert fixed_sql == "select {{ var('123')['123'] }}, 1 / 2 as d from d\n"
+
+
 def test__fix__warning_only_violations_are_still_fixed(tmp_path):
     """Test that warning-level violations are fixed even without errors.
 
