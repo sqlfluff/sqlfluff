@@ -136,7 +136,8 @@ class AnyNumberOf(BaseGrammar):
         """
         if self.exclude:
             with parse_context.deeper_match(
-                name=self.__class__.__name__ + "-Exclude"
+                name=self.__class__.__name__ + "-Exclude",
+                track_parse_depth=False,
             ) as ctx:
                 if self.exclude.match(segments, idx, ctx):
                     return MatchResult.empty_at(idx)
@@ -192,6 +193,7 @@ class AnyNumberOf(BaseGrammar):
                 name=self.__class__.__name__,
                 clear_terminators=self.reset_terminators,
                 push_terminators=self.terminators,
+                track_parse_depth=False,
             ) as ctx:
                 match, matched_option = longest_match(
                     # TODO: Resolve re-slice limit hack

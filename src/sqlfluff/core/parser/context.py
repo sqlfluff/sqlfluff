@@ -216,6 +216,7 @@ class ParseContext:
         clear_terminators: bool = False,
         push_terminators: Optional[Sequence["Matchable"]] = None,
         track_progress: Optional[bool] = None,
+        track_parse_depth: bool = True,
     ) -> Iterator["ParseContext"]:
         """Increment match depth.
 
@@ -234,10 +235,15 @@ class ParseContext:
                 tracking for deeper matches. This avoids having the linting
                 progress bar jump forward when performing greedy matches on
                 terminators.
+            track_parse_depth (:obj:`bool`, optional): Whether this context
+                should contribute to the `max_parse_depth` guard. Helper
+                wrappers used only for logging or dispatch can disable this
+                so the depth limit tracks real recursive descent instead.
         """
         self._match_stack.append(self.match_segment)
         self.match_segment = name
-        self.match_depth += 1
+        depth_delta = 1 if track_parse_depth else 0
+        self.match_depth += depth_delta
         if self.max_parse_depth > 0 and self.match_depth > self.max_parse_depth:
             raise SQLParseError(
                 f"Maximum parse depth exceeded (limit {self.max_parse_depth}). "
@@ -256,7 +262,7 @@ class ParseContext:
             self._reset_terminators(
                 _append, _terms, clear_terminators=clear_terminators
             )
-            self.match_depth -= 1
+            self.match_depth -= depth_delta
             # Reset back to old name
             self.match_segment = self._match_stack.pop()
             # Reset back to old progress tracking.

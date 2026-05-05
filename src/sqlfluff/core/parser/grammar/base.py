@@ -413,6 +413,7 @@ class Ref(BaseGrammar):
                 name=self._ref + "-Exclude",
                 clear_terminators=self.reset_terminators,
                 push_terminators=self.terminators,
+                track_parse_depth=False,
             ) as ctx:
                 if self.exclude.match(segments, idx, ctx):
                     return MatchResult.empty_at(idx)
@@ -423,6 +424,7 @@ class Ref(BaseGrammar):
             name=self._ref,
             clear_terminators=self.reset_terminators,
             push_terminators=self.terminators,
+            track_parse_depth=False,
         ) as ctx:
             return elem.match(segments, idx, parse_context)
 
