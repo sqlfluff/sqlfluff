@@ -1,0 +1,204 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f142f8944ed6dd987eb9ebf6e3813dce9a7ced06c05c349707584592b4f892e5
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                containstable_segment:
+                  keyword: CONTAINSTABLE
+                  bracketed:
+                  - start_bracket: (
+                  - table_reference:
+                      naked_identifier: Flags
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: FlagColors
+                  - comma: ','
+                  - quoted_literal: "'Green'"
+                  - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: KEY_TBL
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: KEY_TBL
+          - dot: .
+          - naked_identifier: RANK
+        - keyword: DESC
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: FT_TBL
+            - dot: .
+            - naked_identifier: Name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: KEY_TBL
+            - dot: .
+            - naked_identifier: RANK
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: Production
+                - dot: .
+                - naked_identifier: Product
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: FT_TBL
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  containstable_segment:
+                    keyword: CONTAINSTABLE
+                    bracketed:
+                    - start_bracket: (
+                    - table_reference:
+                      - naked_identifier: Production
+                      - dot: .
+                      - naked_identifier: Product
+                    - comma: ','
+                    - bracketed:
+                      - start_bracket: (
+                      - column_reference:
+                          naked_identifier: Name
+                      - comma: ','
+                      - column_reference:
+                          naked_identifier: ProductNumber
+                      - end_bracket: )
+                    - comma: ','
+                    - quoted_literal: "'ISABOUT (frame WEIGHT (.8), wheel WEIGHT (.4),\
+                        \ tire WEIGHT (.2))'"
+                    - comma: ','
+                    - keyword: LANGUAGE
+                    - quoted_literal: "N'English'"
+                    - comma: ','
+                    - numeric_literal: '5'
+                    - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: KEY_TBL
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: FT_TBL
+                  - dot: .
+                  - naked_identifier: ProductID
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                    naked_identifier: KEY_TBL
+                    dot: .
+                    quoted_identifier: '[KEY]'
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: KEY_TBL
+          - dot: .
+          - naked_identifier: RANK
+        - keyword: DESC
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: FT_TBL
+            - dot: .
+            - naked_identifier: ProductDescriptionID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: FT_TBL
+            - dot: .
+            - naked_identifier: Description
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: KEY_TBL
+            - dot: .
+            - naked_identifier: RANK
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: Production
+                - dot: .
+                - naked_identifier: ProductDescription
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: FT_TBL
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  containstable_segment:
+                    keyword: CONTAINSTABLE
+                    bracketed:
+                    - start_bracket: (
+                    - table_reference:
+                      - naked_identifier: Production
+                      - dot: .
+                      - naked_identifier: ProductDescription
+                    - comma: ','
+                    - star: '*'
+                    - comma: ','
+                    - quoted_literal: "'(light NEAR aluminum) OR (lightweight NEAR\
+                        \ aluminum)'"
+                    - comma: ','
+                    - numeric_literal: '5'
+                    - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: KEY_TBL
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: FT_TBL
+                  - dot: .
+                  - naked_identifier: ProductDescriptionID
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                    naked_identifier: KEY_TBL
+                    dot: .
+                    quoted_identifier: '[KEY]'
+  - statement_terminator: ;
