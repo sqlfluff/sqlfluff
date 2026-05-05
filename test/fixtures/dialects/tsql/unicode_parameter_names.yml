@@ -1,0 +1,133 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c803dee1172dcccd14abdcfa6e77ff098a91d11536b621fbecaf0156a69f59b8
+file:
+  batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@Дата'
+        data_type:
+          keyword: DATETIME2
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          function:
+            function_name:
+              function_name_identifier: GETDATE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@正常'
+        data_type:
+          keyword: INT
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          integer_literal: '0'
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@Größe'
+        data_type:
+          keyword: NVARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '50'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@Παράμετρος'
+        data_type:
+          keyword: INT
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@user_Имя'
+        data_type:
+          keyword: NVARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '100'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            parameter: '@Дата'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '[report_date]'
+        - comma: ','
+        - select_clause_element:
+            parameter: '@正常'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '[status]'
+        - comma: ','
+        - select_clause_element:
+            parameter: '@Größe'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '[size]'
+  - statement_terminator: ;
+  - statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: GetByCriteria
+      - procedure_parameter_list:
+        - parameter: '@Дата'
+        - data_type:
+            keyword: DATETIME2
+        - comma: ','
+        - parameter: '@user'
+        - data_type:
+            keyword: NVARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  integer_literal: '50'
+                end_bracket: )
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      parameter: '@Дата'
+                  - comma: ','
+                  - select_clause_element:
+                      parameter: '@user'
+            - statement_terminator: ;
+            - keyword: END
+          statement_terminator: ;
