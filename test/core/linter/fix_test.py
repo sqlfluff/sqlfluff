@@ -374,7 +374,7 @@ def test__fix__merge_source_patches_skips_conflicting_insertions_at_same_point()
         slice(5, 5),
         "B",
         "mid_point",
-        slice(2, 2, 1),
+        slice(2, 2),
         "",
         "",
     )
