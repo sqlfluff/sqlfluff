@@ -379,6 +379,6 @@ def test__fix__merge_source_patches_skips_conflicting_insertions_at_same_point()
         "",
     )
 
-    assert merge_source_patches(
-        [[first_insertion], [conflicting_insertion]]
-    ) == [first_insertion]
+    assert merge_source_patches([[first_insertion], [conflicting_insertion]]) == [
+        first_insertion
+    ]
