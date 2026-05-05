@@ -685,14 +685,8 @@ class Linter:
         merged_source_patches = None
         t0 = time.monotonic()
 
-        # First identify the root variant. That's the first variant
-        # that successfully parsed.
-        root_variant: Optional[ParsedVariant] = None
-        for variant in parsed.parsed_variants:
-            if variant.tree:
-                root_variant = variant
-                break
-        else:
+        root_variant = parsed.root_variant()
+        if not root_variant:
             linter_logger.info(
                 "lint_parsed found no valid root variant for %s", parsed.fname
             )
