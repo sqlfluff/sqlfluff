@@ -358,3 +358,27 @@ def test__fix__merge_source_patches_dedupes_and_skips_conflicts():
     assert merge_source_patches(
         [[patch_a, patch_b], [patch_a_dup, conflicting_patch]]
     ) == [patch_a, patch_b]
+
+
+def test__fix__merge_source_patches_skips_conflicting_insertions_at_same_point():
+    """Insert-only patches at the same source point should conflict."""
+    first_insertion = FixPatch(
+        slice(2, 2),
+        "A",
+        "mid_point",
+        slice(2, 2),
+        "",
+        "",
+    )
+    conflicting_insertion = FixPatch(
+        slice(5, 5),
+        "B",
+        "mid_point",
+        slice(2, 2, 1),
+        "",
+        "",
+    )
+
+    assert merge_source_patches(
+        [[first_insertion], [conflicting_insertion]]
+    ) == [first_insertion]

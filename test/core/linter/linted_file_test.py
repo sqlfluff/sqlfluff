@@ -4,6 +4,8 @@ import logging
 
 import pytest
 
+from sqlfluff.core import Linter
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.linter.patch import FixPatch
 from sqlfluff.core.templaters import RawFileSlice
@@ -261,3 +263,20 @@ def test_safe_create_replace_file(case, tmp_path):
         pass
     actual = p.read_text(encoding=case["encoding"])
     assert case["expected"] == actual
+
+
+def test__linted_file__fix_string_generates_patches_when_not_precomputed():
+    """fix_string() should generate patches when a fixed tree is present.
+
+    This covers the compatibility path for `LintedFile` instances which contain
+    a fixed parse tree but do not already carry precomputed `source_patches`.
+    """
+    sql = "SELECT\n  1\n"
+    config = FluffConfig(overrides={"dialect": "ansi", "rules": "LT02"})
+    linted = Linter(config=config).lint_string(sql, fix=True)
+    legacy_linted = linted._replace(source_patches=None)
+
+    fixed_sql, changed = legacy_linted.fix_string()
+
+    assert changed
+    assert fixed_sql == "SELECT\n    1\n"

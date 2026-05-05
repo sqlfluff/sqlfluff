@@ -236,6 +236,9 @@ class LintedFile(NamedTuple):
         # patches was already prepared across multiple variants.
         filtered_source_patches = self.source_patches
         if filtered_source_patches is None:
+            # NOTE: In normal usage, this clause is not hit, but has been kept
+            # for python API users who may rely on it. Consider deprecating
+            # this clause in the future if it isn't being used.
             filtered_source_patches = generate_source_patches(
                 self.tree, self.templated_file
             )
