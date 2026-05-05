@@ -315,6 +315,12 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
                 def imap_unordered(self, *args, **kwargs):
                     yield runner.DelayedException(ValueError())
 
+                def terminate(self):
+                    pass
+
+                def join(self):
+                    pass
+
             return ErrorPool()
 
         monkeypatch.setattr(runner.MultiProcessRunner, "_create_pool", _create_pool)
@@ -589,6 +595,96 @@ def test__linter__lint_paths_closes_runner_iterator_on_early_break(monkeypatch):
     lntr.lint_paths((test_path,), processes=2)
 
     assert closable_iterator.closed
+
+
+def test__parallel_runner__pool_join_called_on_cleanup(monkeypatch):
+    """Ensure ParallelRunner.run() calls pool.terminate() and pool.join().
+
+    Without pool.join(), worker processes may still be alive when Python's
+    resource_tracker runs at shutdown, causing "leaked semaphore" warnings
+    from the named POSIX semaphores used by the pool's internal queues.
+    """
+
+    class TrackingPool:
+        """Fake pool that records terminate/join calls."""
+
+        def __init__(self):
+            self.terminated = False
+            self.joined = False
+
+        def imap_unordered(self, func, iterable):
+            yield from ()
+
+        def imap(self, func, iterable):
+            yield from ()
+
+        def terminate(self):
+            self.terminated = True
+
+        def join(self):
+            self.joined = True
+
+    tracking_pool = TrackingPool()
+
+    monkeypatch.setattr(
+        runner.MultiThreadRunner,
+        "_create_pool",
+        classmethod(lambda cls, *a, **kw: tracking_pool),
+    )
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(config=config)
+    # Consume the generator to trigger the finally block.
+    list(runner.MultiThreadRunner(lntr, config, processes=1).run([], fix=False))
+
+    assert tracking_pool.terminated, "pool.terminate() was not called"
+    assert tracking_pool.joined, "pool.join() was not called"
+
+
+def test__parallel_runner__pool_join_called_on_generator_close(monkeypatch):
+    """pool.join() is called even when the generator is closed early."""
+
+    class TrackingPool:
+        """Fake pool that records terminate/join calls."""
+
+        def __init__(self):
+            self.terminated = False
+            self.joined = False
+
+        def imap_unordered(self, func, iterable):
+            # Yield a sentinel so the generator suspends at yield.
+            for item in iterable:
+                yield func(item)
+
+        def imap(self, func, iterable):
+            for item in iterable:
+                yield func(item)
+
+        def terminate(self):
+            self.terminated = True
+
+        def join(self):
+            self.joined = True
+
+    tracking_pool = TrackingPool()
+
+    monkeypatch.setattr(
+        runner.MultiThreadRunner,
+        "_create_pool",
+        classmethod(lambda cls, *a, **kw: tracking_pool),
+    )
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(config=config)
+    gen = runner.MultiThreadRunner(lntr, config, processes=1).run(
+        ["test/fixtures/linter/passing.sql"], fix=False
+    )
+    # Advance to the first yield, then close early.
+    next(gen, None)
+    gen.close()
+
+    assert tracking_pool.terminated, "pool.terminate() was not called"
+    assert tracking_pool.joined, "pool.join() was not called"
 
 
 def test__linter__empty_file():
