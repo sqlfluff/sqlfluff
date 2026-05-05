@@ -30,6 +30,28 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.parsers import TypedParser as _TypedParser
+
+
+class _FactorialTypedParser(_TypedParser):
+    """TypedParser for factorial ``!`` that yields when followed by ``=``.
+
+    In DuckDB, ``!`` serves as both a postfix factorial operator and as
+    part of the not-equal comparison operator (``!=``).  To avoid
+    greedily consuming the ``!`` before the comparison parser can
+    match ``!=``, we skip matching when the next raw token is ``=``.
+    """
+
+    def match(
+        self, segments, idx, parse_context
+    ):  # pragma: no cover
+        result = super().match(segments, idx, parse_context)
+        if result:
+            next_idx = result.matched_slice.stop
+            if next_idx < len(segments) and segments[next_idx].raw == "=":
+                return MatchResult.empty_at(idx)
+        return result
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
 
@@ -118,7 +140,7 @@ duckdb_dialect.add(
     AbsoluteValueOperatorSegment=TypedParser(
         "at", SymbolSegment, type="sign_indicator"
     ),
-    FactorialOperatorSegment=TypedParser(
+    FactorialOperatorSegment=_FactorialTypedParser(
         "not", SymbolSegment, type="factorial_operator"
     ),
 )
