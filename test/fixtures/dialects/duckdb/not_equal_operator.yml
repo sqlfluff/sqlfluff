@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cda472292f8dda5ff2f900f23bb135557fc560affd56eab56eff90a9d274e281
+_hash: 647d506913c9cc6443a392f5025f0a8f43c9d82179b3524df133af4b9f5f68a0
 file:
 - statement:
     select_statement:
@@ -16,7 +16,9 @@ file:
         expression:
         - column_reference:
             naked_identifier: a
-        - comparison_operator: '!='
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: '='
         - column_reference:
             naked_identifier: b
 - statement_terminator: ;
@@ -31,12 +33,16 @@ file:
         expression:
         - column_reference:
             naked_identifier: a
-        - comparison_operator: '!='
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: '='
         - numeric_literal: '0'
         - binary_operator: AND
         - column_reference:
             naked_identifier: b
-        - comparison_operator: '!='
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: '='
         - quoted_literal: "'foo'"
 - statement_terminator: ;
 - statement:
@@ -59,7 +65,9 @@ file:
         expression:
         - column_reference:
             naked_identifier: col1
-        - comparison_operator: '!='
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: '='
         - column_reference:
             naked_identifier: col2
 - statement_terminator: ;
@@ -106,6 +114,8 @@ file:
         expression:
         - numeric_literal: '5'
         - factorial_operator: '!'
-        - comparison_operator: '!='
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: '='
         - numeric_literal: '119'
 - statement_terminator: ;
