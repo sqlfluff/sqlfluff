@@ -181,3 +181,18 @@ def test_mysql_family_dual_cannot_be_qualified(dialect: str) -> None:
     parsed = Linter(dialect=dialect).parse_string("SELECT 1 FROM schema.DUAL")
 
     assert parsed.violations
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "DECLARE cur_into CURSOR FOR SELECT 1 INTO dbo.t;",
+        "DECLARE cur_browse CURSOR FOR SELECT 1 FOR BROWSE;",
+    ],
+)
+def test_tsql_cursor_rejects_disallowed_select_clauses(sql: str) -> None:
+    """Cursor declarations should reject documented invalid SELECT clauses."""
+    parsed = Linter(dialect="tsql").parse_string(sql)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
