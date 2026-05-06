@@ -5846,7 +5846,12 @@ class CopyStatementSegment(BaseSegment):
     type = "copy_statement"
 
     _target_subset = OneOf(
-        Ref("QuotedLiteralSegment"), Sequence("PROGRAM", Ref("QuotedLiteralSegment"))
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "PROGRAM",
+            OneOf(Ref("QuotedLiteralSegment"), Ref("PsqlVariableGrammar")),
+        ),
+        Ref("PsqlVariableGrammar"),
     )
 
     _table_definition = Sequence(
@@ -5989,6 +5994,7 @@ class CopyStatementSegment(BaseSegment):
                 OneOf(
                     Ref("QuotedLiteralSegment"),
                     Sequence("STDIN"),
+                    Ref("PsqlVariableGrammar"),
                 ),
                 _postgres9_compatible_stdin_options,
             ),
@@ -6007,6 +6013,7 @@ class CopyStatementSegment(BaseSegment):
                 OneOf(
                     Ref("QuotedLiteralSegment"),
                     Sequence("STDOUT"),
+                    Ref("PsqlVariableGrammar"),
                 ),
                 _postgres9_compatible_stdout_options,
             ),
