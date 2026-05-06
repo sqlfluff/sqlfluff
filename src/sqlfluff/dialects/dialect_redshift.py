@@ -3120,3 +3120,28 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
             optional=True,
         ),
     )
+
+
+class ExecuteStatementWithStoredProcedureSegment(BaseSegment):
+    """A `EXECUTE` statement that can only run within a stored procedure.
+
+    This is different from the `EXECUTE` statement commonly found within Postgres,
+    and instead allows dynmiac SQL to be run.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/c_PLpgSQL-statements.html#r_PLpgSQL-dynamic-sql
+    """
+
+    type = "execute_statement_within_stored_procedure"
+    match_grammar = Sequence(
+        "CREATE",
+        "PROCEDURE",
+        "AS",
+        "$$",
+        "BEGIN",
+        Sequence(
+            "EXECUTE",
+            Ref("QuotedLiteralSegment"),
+            Sequence("INTO", Ref("LocalVariableNameSegment"), optional=True),
+        ),
+        allow_gaps=True,
+    )
