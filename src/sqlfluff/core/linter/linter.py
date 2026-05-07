@@ -230,6 +230,20 @@ class Linter:
         fname: Optional[str] = None,
         parse_statistics: bool = False,
     ) -> tuple[Optional[BaseSegment], list[SQLParseError]]:
+        max_parse_nodes = config.get("max_parse_nodes")
+        assert isinstance(max_parse_nodes, int)
+        if max_parse_nodes > 0 and len(tokens) > max_parse_nodes:
+            anchor = next((seg for seg in tokens if seg.is_code), None)
+            err = SQLParseError(
+                description=(
+                    f"Maximum parse node count exceeded (limit {max_parse_nodes}). "
+                    "This may indicate unusually large SQL or a malicious input."
+                ),
+                segment=anchor,
+            )
+            linter_logger.info("PARSING SKIPPED! : %s", err)
+            return None, [err]
+
         # Use Rust parser if configured (experimental)
         use_rust = config.get_section(["core", "use_rust_parser"])
 

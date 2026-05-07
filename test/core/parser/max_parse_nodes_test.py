@@ -1,6 +1,7 @@
 """Tests for max_parse_nodes limit (DoS mitigation)."""
 
 import pytest
+from unittest.mock import patch
 
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.errors import SQLParseError
@@ -94,3 +95,59 @@ def test_validate_segment_with_reparse_respects_max_parse_nodes():
         )
 
     assert MESSAGE_PREFIX in exc_info.value.desc()
+
+
+def test_max_parse_nodes_token_gate_skips_python_parser():
+    """The shared token gate should reject oversized token streams before parsing."""
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "max_parse_nodes": MAX_NODE_LIMIT,
+            "use_rust_parser": False,
+        }
+    )
+    linter = Linter(config=config)
+    expr = "x" + "=x" * 6
+    sql = "SELECT " + ",".join(expr for _ in range(80))
+
+    with patch("sqlfluff.core.parser.parser.Parser.parse") as parse_mock:
+        parsed = linter.parse_string(sql)
+
+    parse_mock.assert_not_called()
+    assert parsed.violations
+    err = parsed.violations[0]
+    assert isinstance(err, SQLParseError)
+    assert MESSAGE_PREFIX in err.desc()
+    assert str(MAX_NODE_LIMIT) in err.desc()
+
+
+def test_max_parse_nodes_token_gate_skips_rust_parser():
+    """The shared token gate should also reject before the Rust parser starts."""
+    try:
+        from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER
+    except ImportError:
+        _HAS_RUST_PARSER = False
+
+    if not _HAS_RUST_PARSER:
+        pytest.skip("Rust parser not available")
+
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "max_parse_nodes": MAX_NODE_LIMIT,
+            "use_rust_parser": True,
+        }
+    )
+    linter = Linter(config=config)
+    expr = "x" + "=x" * 6
+    sql = "SELECT " + ",".join(expr for _ in range(80))
+
+    with patch("sqlfluff.core.parser.rust_parser.RustParser.parse") as parse_mock:
+        parsed = linter.parse_string(sql)
+
+    parse_mock.assert_not_called()
+    assert parsed.violations
+    err = parsed.violations[0]
+    assert isinstance(err, SQLParseError)
+    assert MESSAGE_PREFIX in err.desc()
+    assert str(MAX_NODE_LIMIT) in err.desc()

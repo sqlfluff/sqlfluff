@@ -206,7 +206,7 @@ impl Parser<'_> {
                     // The main loop then stores the result in stack.results for parent frames to access.
                     // This separation keeps handlers focused on producing results, while the main
                     // loop coordinates result storage.
-                    self.commit_table_frame_result(&mut stack, &frame, match_result);
+                    self.commit_table_frame_result(&mut stack, &frame, match_result)?;
                 }
             }
         }
@@ -372,6 +372,7 @@ impl Parser<'_> {
                 let res = self.handle_string_parser_table_driven(grammar_id);
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         // Insert result directly so parent frames can pick it up
                         vdebug!(
                             "[SYNC INSERT] frame_id={} StringParser result at pos {} -> match={:?}",
@@ -390,6 +391,7 @@ impl Parser<'_> {
                 let res = self.handle_multi_string_parser_table_driven(grammar_id);
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         vdebug!(
                             "[SYNC INSERT] frame_id={} MultiStringParser result at pos {}",
                             frame.frame_id,
@@ -405,6 +407,7 @@ impl Parser<'_> {
                 let res = self.handle_regex_parser_table_driven(grammar_id);
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         vdebug!(
                             "[SYNC INSERT] frame_id={} RegexParser result at pos {} -> match={:?}",
                             frame.frame_id,
@@ -421,6 +424,7 @@ impl Parser<'_> {
                 let res = self.handle_nothing_table_driven();
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         vdebug!(
                             "[SYNC INSERT] frame_id={} Nothing result at pos {} -> MatchResult",
                             frame.frame_id,
@@ -436,6 +440,7 @@ impl Parser<'_> {
                 let res = self.handle_empty_table_driven();
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         vdebug!(
                             "[SYNC INSERT] frame_id={} Empty result at pos {} -> MatchResult",
                             frame.frame_id,
@@ -451,6 +456,7 @@ impl Parser<'_> {
                 let res = self.handle_missing_table_driven();
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         vdebug!(
                             "[SYNC INSERT] frame_id={} Missing result at pos {} -> MatchResult",
                             frame.frame_id,
@@ -466,6 +472,7 @@ impl Parser<'_> {
                 let res = self.handle_token_table_driven(grammar_id);
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         vdebug!(
                             "[SYNC INSERT] frame_id={} Token result at pos {} -> MatchResult",
                             frame.frame_id,
@@ -481,6 +488,7 @@ impl Parser<'_> {
                 let res = self.handle_preceded_by_table_driven(grammar_id);
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         vdebug!(
                             "[SYNC INSERT] frame_id={} PrecededBy result at pos {} -> MatchResult",
                             frame.frame_id,
@@ -505,6 +513,7 @@ impl Parser<'_> {
                 );
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         vdebug!(
                             "[SYNC INSERT] frame_id={} Meta result at pos {} -> MatchResult",
                             frame.frame_id,
@@ -520,6 +529,7 @@ impl Parser<'_> {
                 let res = self.handle_noncode_matcher_table_driven();
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         vdebug!(
                             "[SYNC INSERT] frame_id={} NonCodeMatcher result at pos {} -> MatchResult",
                             frame.frame_id,
@@ -539,6 +549,7 @@ impl Parser<'_> {
                 );
                 match res {
                     Ok(match_result) => {
+                        self.check_parse_subtree_limit(&match_result)?;
                         vdebug!(
                             "[SYNC INSERT] frame_id={} Anything result at pos {} -> MatchResult",
                             frame.frame_id,
@@ -813,7 +824,9 @@ impl Parser<'_> {
         stack: &mut TableParseFrameStack,
         frame: &TableParseFrame,
         match_result: &Arc<MatchResult>,
-    ) {
+    ) -> Result<(), ParseError> {
+        self.check_parse_subtree_limit(match_result)?;
+
         // Log grammar path - different indicator for Empty vs matched nodes
         #[cfg(feature = "verbose-debug")]
         let end_pos = frame.end_pos.unwrap_or(self.pos);
@@ -896,7 +909,7 @@ impl Parser<'_> {
                             Ok(idx) => idx,
                             Err(_) => {
                                 // If max_idx calculation fails, skip caching
-                                return;
+                                return Ok(());
                             }
                         }
                     };
@@ -908,6 +921,8 @@ impl Parser<'_> {
                 }
             }
         }
+
+        Ok(())
     }
 
     /// Checks the cache for a frame and handles cache hits. Returns FrameResult indicating what to do next.
