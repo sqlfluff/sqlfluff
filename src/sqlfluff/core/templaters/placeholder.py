@@ -200,6 +200,9 @@ class PlaceholderTemplater(RawTemplater):
                     raw=in_str[span[0] : span[1]],
                     slice_type="templated",
                     source_idx=span[0],
+                    # Tagged as semantically literal, allowing lint filtering
+                    # to keep violations that only overlap placeholder params.
+                    tag="literal",
                 )
             )
             out_str += replacement

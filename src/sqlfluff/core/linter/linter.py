@@ -333,6 +333,9 @@ class Linter:
                 if (
                     # Is it in a literal section?
                     e.segment.pos_marker.is_literal()
+                    # Is it in placeholder-tagged template slices that are
+                    # semantically literal SQL (e.g. ${catalog})?
+                    or Linter._is_semantically_literal_templated(e)
                     # Is it a rule that is designed to work on templated sections?
                     or e.rule.targets_templated
                 ):
@@ -342,6 +345,23 @@ class Linter:
                 # malformed "noqa" comment).
                 result.append(e)
         return result
+
+    @staticmethod
+    def _is_semantically_literal_templated(error: SQLLintError) -> bool:
+        """Whether all non-literal raw slices in the anchor are semantically literal."""
+        assert error.segment.pos_marker
+        source_slice = error.segment.pos_marker.source_slice
+        non_literal_slices = []
+        for raw_slice in error.segment.pos_marker.templated_file.raw_sliced:
+            if raw_slice.end_source_idx() <= source_slice.start:
+                continue
+            if raw_slice.source_idx >= source_slice.stop:
+                break
+            if raw_slice.slice_type != "literal":
+                non_literal_slices.append(raw_slice)
+        return bool(non_literal_slices) and all(
+            raw_slice.tag == "literal" for raw_slice in non_literal_slices
+        )
 
     @staticmethod
     def _report_conflicting_fixes_same_anchor(message: str) -> None:  # pragma: no cover

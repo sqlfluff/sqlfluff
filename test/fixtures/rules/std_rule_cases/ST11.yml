@@ -259,3 +259,19 @@ test_pass_unaliased_schema_table_column:
     FROM my_schema.a
     LEFT JOIN my_schema.b
         ON my_schema.a.id = my_schema.b.id
+
+test_fail_placeholder_templater_unused_join:
+  # Regression: placeholder templater should not suppress ST11 violations.
+  fail_str: |
+    SELECT
+        foo.a
+    FROM ${CATALOG}.foo
+    LEFT JOIN ${CATALOG}.bar
+        ON foo.a = bar.a
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: dollar
+        CATALOG: my_catalog
