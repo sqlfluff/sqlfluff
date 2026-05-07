@@ -133,140 +133,154 @@ try:
                 we need to extract the original RsToken objects to pass to the Rust
                 parser directly.
             """
-            if not segments:  # pragma: no cover
-                return None
-
-            parse_context = ParseContext.from_config(config=self.config)
-            parse_context.seed_parse_nodes(len(segments))
-
-            # PYTHON PARITY: Trim non-code from start (like root_parse)
-            _start_idx = 0
-            for _start_idx in range(len(segments)):
-                if segments[_start_idx].is_code:
-                    break
-
-            # PYTHON PARITY: Trim non-code from end (like root_parse)
-            _end_idx = len(segments)
-            for _end_idx in range(len(segments), _start_idx - 1, -1):
-                if segments[_end_idx - 1].is_code:
-                    break
-
-            if _start_idx == _end_idx:
-                # No code segments - return FileSegment with just non-code
-                parse_context.increment_parse_nodes()
-                return self.RootSegment(segments=segments, fname=fname)
-
-            # Extract the original RsToken objects from the RawSegments
-            # PYTHON PARITY: Only parse the code portion (segments[_start_idx:_end_idx])
-            # Just like Python's match(segments[:_end_idx], _start_idx, ...)
-            tokens = self._extract_tokens_from_segments(segments[_start_idx:_end_idx])
-
-            # Parse using Rust parser to get MatchResult
-            # The Rust parser may raise RsParseError for certain parse errors (e.g.,
-            # missing closing brackets in terminators). We catch these and convert to
-            # SQLParseError. Regular parse errors are embedded in the MatchResult.
             try:
-                rs_match = self._rs_parser.parse_match_result_from_tokens(tokens)
-            except RsParseError as e:
-                # Convert Rust parse error to SQLParseError with position info
-                raise SQLParseError.from_rs_parse_error(
-                    e, segments[_start_idx:_end_idx]
-                ) from e
+                if not segments:  # pragma: no cover
+                    return None
 
-            # Convert RsMatchResult to Python MatchResult
-            # This also checks for embedded parse errors and raises them
-            match = self._convert_rs_match_result(
-                rs_match, segments[_start_idx:_end_idx]
-            )
-            parser_logger.info("Root Match:\n%s", match.stringify())
+                parse_context = ParseContext.from_config(config=self.config)
+                parse_context.seed_parse_nodes(len(segments))
 
-            # Apply the match result to construct the BaseSegment tree
-            # PYTHON PARITY: Pass only the code portion (segments[_start_idx:_end_idx])
-            # because match result indices are relative to this trimmed array
-            _matched = match.apply(
-                segments[_start_idx:_end_idx], parse_context=parse_context
-            )
-
-            # PYTHON PARITY: Add back any unmatched segments after the match
-            # (relative to the _start_idx:_end_idx range)
-            matched_stop = _start_idx + match.matched_slice.stop
-            _unmatched = segments[matched_stop:_end_idx]
-
-            # PYTHON PARITY: If there are unmatched code segments, wrap them in
-            # UnparsableSegment. This matches the logic in FileSegment.root_parse()
-            content: tuple[BaseSegment, ...]
-            if not match:
-                parse_context.increment_parse_nodes()
-                content = (
-                    UnparsableSegment(
-                        segments[_start_idx:_end_idx],
-                        expected=str(self.RootSegment.match_grammar),
-                    ),
-                )
-            elif _unmatched:
-                _idx = 0
-                for idx, seg in enumerate(_unmatched):
-                    if seg.is_code:
-                        _idx = idx
+                # PYTHON PARITY: Trim non-code from start (like root_parse)
+                _start_idx = 0
+                for _start_idx in range(len(segments)):
+                    if segments[_start_idx].is_code:
                         break
-                else:  # pragma: no cover
-                    _idx = len(_unmatched)
-                parse_context.increment_parse_nodes()
-                content = (
-                    _matched
-                    + _unmatched[:_idx]
-                    + (
+
+                # PYTHON PARITY: Trim non-code from end (like root_parse)
+                _end_idx = len(segments)
+                for _end_idx in range(len(segments), _start_idx - 1, -1):
+                    if segments[_end_idx - 1].is_code:
+                        break
+
+                if _start_idx == _end_idx:
+                    # No code segments - return FileSegment with just non-code
+                    parse_context.increment_parse_nodes()
+                    return self.RootSegment(segments=segments, fname=fname)
+
+                # Extract the original RsToken objects from the RawSegments
+                # PYTHON PARITY: Only parse the code portion (segments[_start_idx:_end_idx])
+                # Just like Python's match(segments[:_end_idx], _start_idx, ...)
+                tokens = self._extract_tokens_from_segments(segments[_start_idx:_end_idx])
+
+                # Parse using Rust parser to get MatchResult
+                # The Rust parser may raise RsParseError for certain parse errors (e.g.,
+                # missing closing brackets in terminators). We catch these and convert to
+                # SQLParseError. Regular parse errors are embedded in the MatchResult.
+                try:
+                    rs_match = self._rs_parser.parse_match_result_from_tokens(tokens)
+                except RsParseError as e:
+                    # Convert Rust parse error to SQLParseError with position info
+                    raise SQLParseError.from_rs_parse_error(
+                        e, segments[_start_idx:_end_idx]
+                    ) from e
+
+                # Convert RsMatchResult to Python MatchResult
+                # This also checks for embedded parse errors and raises them
+                match = self._convert_rs_match_result(
+                    rs_match, segments[_start_idx:_end_idx]
+                )
+                parser_logger.info("Root Match:\n%s", match.stringify())
+
+                # Apply the match result to construct the BaseSegment tree
+                # PYTHON PARITY: Pass only the code portion (segments[_start_idx:_end_idx])
+                # because match result indices are relative to this trimmed array
+                _matched = match.apply(
+                    segments[_start_idx:_end_idx], parse_context=parse_context
+                )
+
+                # PYTHON PARITY: Add back any unmatched segments after the match
+                # (relative to the _start_idx:_end_idx range)
+                matched_stop = _start_idx + match.matched_slice.stop
+                _unmatched = segments[matched_stop:_end_idx]
+
+                # PYTHON PARITY: If there are unmatched code segments, wrap them in
+                # UnparsableSegment. This matches the logic in FileSegment.root_parse()
+                content: tuple[BaseSegment, ...]
+                if not match:
+                    parse_context.increment_parse_nodes()
+                    content = (
                         UnparsableSegment(
-                            _unmatched[_idx:], expected="Nothing else in FileSegment."
+                            segments[_start_idx:_end_idx],
+                            expected=str(self.RootSegment.match_grammar),
                         ),
                     )
-                )
-            else:
-                content = _matched + _unmatched
+                elif _unmatched:
+                    _idx = 0
+                    for idx, seg in enumerate(_unmatched):
+                        if seg.is_code:
+                            _idx = idx
+                            break
+                    else:  # pragma: no cover
+                        _idx = len(_unmatched)
+                    parse_context.increment_parse_nodes()
+                    content = (
+                        _matched
+                        + _unmatched[:_idx]
+                        + (
+                            UnparsableSegment(
+                                _unmatched[_idx:],
+                                expected="Nothing else in FileSegment.",
+                            ),
+                        )
+                    )
+                else:
+                    content = _matched + _unmatched
 
-            parse_context.increment_parse_nodes()
-            result = self.RootSegment(
-                segments[:_start_idx] + content + segments[_end_idx:], fname=fname
-            )
+                parse_context.increment_parse_nodes()
+                result = self.RootSegment(
+                    segments[:_start_idx] + content + segments[_end_idx:], fname=fname
+                )
 
-            # Build the Rust Node tree (RsNode) from the MatchResult.
-            # This is used by Rust-side linting rules (e.g., LT01 respace)
-            # to avoid expensive round-tripping through Python's segment tree.
-            try:
-                # Extract leading non-code tokens (segments before _start_idx:
-                # whitespace/newlines at the start of the file) so the Rust node's
-                # flat raw list matches Python's raw_segments ordering exactly.
-                leading_tokens = (
-                    self._extract_tokens_from_segments(segments[:_start_idx])
-                    if _start_idx
-                    else []
-                )
-                # Extract trailing non-code tokens (segments after _end_idx: newline,
-                # end_of_file, etc.) and include them in the Rust node so that the
-                # reflow/respace rules can correctly detect EOF and trailing newlines.
-                trailing_tokens = (
-                    self._extract_tokens_from_segments(segments[_end_idx:])
-                    if _end_idx < len(segments)
-                    else []
-                )
-                result._rs_node = rs_match.apply_as_node(
-                    tokens,
-                    leading=leading_tokens,
-                    trailing=trailing_tokens,
-                )
-            except Exception:  # pragma: no cover
-                # Non-critical: if node building fails, rules fall back to Python
-                parser_logger.warning(
-                    f"Unable to apply match result in parse tree for {fname}, falling"
-                    " back to Python. Please report this as a bug with the SQL that"
-                    " caused it."
-                )
-                result._rs_node = None
+                # Build the Rust Node tree (RsNode) from the MatchResult.
+                # This is used by Rust-side linting rules (e.g., LT01 respace)
+                # to avoid expensive round-tripping through Python's segment tree.
+                try:
+                    # Extract leading non-code tokens (segments before _start_idx:
+                    # whitespace/newlines at the start of the file) so the Rust node's
+                    # flat raw list matches Python's raw_segments ordering exactly.
+                    leading_tokens = (
+                        self._extract_tokens_from_segments(segments[:_start_idx])
+                        if _start_idx
+                        else []
+                    )
+                    # Extract trailing non-code tokens (segments after _end_idx: newline,
+                    # end_of_file, etc.) and include them in the Rust node so that the
+                    # reflow/respace rules can correctly detect EOF and trailing newlines.
+                    trailing_tokens = (
+                        self._extract_tokens_from_segments(segments[_end_idx:])
+                        if _end_idx < len(segments)
+                        else []
+                    )
+                    result._rs_node = rs_match.apply_as_node(
+                        tokens,
+                        leading=leading_tokens,
+                        trailing=trailing_tokens,
+                    )
+                except Exception:  # pragma: no cover
+                    # Non-critical: if node building fails, rules fall back to Python
+                    parser_logger.warning(
+                        f"Unable to apply match result in parse tree for {fname}, falling"
+                        " back to Python. Please report this as a bug with the SQL that"
+                        " caused it."
+                    )
+                    result._rs_node = None
 
-            if parse_statistics:  # pragma: no cover
-                print("Warning: parse_statistics not yet implemented for Rust parser")
+                if parse_statistics:  # pragma: no cover
+                    print("Warning: parse_statistics not yet implemented for Rust parser")
 
-            return result
+                return result
+            except SQLParseError as err:
+                if err.segment is None:
+                    anchor = next((seg for seg in segments if seg.is_code), None)
+                    if anchor is not None:
+                        err = SQLParseError(
+                            description=err.description,
+                            segment=anchor,
+                            ignore=err.ignore,
+                            fatal=err.fatal,
+                            warning=err.warning,
+                        )
+                raise err
 
         @functools.lru_cache(maxsize=128)
         def _get_segment_class_by_name(
