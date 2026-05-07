@@ -13,6 +13,7 @@ MAX_DEPTH_LIMIT = 100
 NESTING_OVER_LIMIT = 120
 
 MESSAGE_PREFIX = "Maximum parse depth exceeded"
+NODE_MESSAGE_PREFIX = "Maximum parse node count exceeded"
 
 
 def _linter_with_depth_limit(limit: int):
@@ -97,3 +98,46 @@ def test_parse_context_max_parse_depth_zero_disables_limit():
     config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 0})
     ctx = ParseContext.from_config(config)
     assert ctx.max_parse_depth == 0
+
+
+def test_parse_context_reads_max_parse_nodes_from_config():
+    """ParseContext.from_config should load the configured node limit."""
+    from sqlfluff.core.parser.context import ParseContext
+
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_nodes": 1234})
+    ctx = ParseContext.from_config(config)
+    assert ctx.max_parse_nodes == 1234
+
+
+def test_parse_context_max_parse_nodes_zero_disables_limit():
+    """ParseContext.from_config with max_parse_nodes=0 disables the node limit."""
+    from sqlfluff.core.parser.context import ParseContext
+
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_nodes": 0})
+    ctx = ParseContext.from_config(config)
+    ctx.seed_parse_nodes(1000)
+    ctx.increment_parse_nodes(1000)
+    assert ctx.current_parse_nodes == 2000
+
+
+def test_parse_context_seed_parse_nodes_raises_on_limit():
+    """Seeding the node budget should enforce the configured limit."""
+    from sqlfluff.core.parser.context import ParseContext
+
+    ctx = ParseContext(dialect=None, max_parse_depth=0, max_parse_nodes=3)
+    with pytest.raises(SQLParseError) as exc_info:
+        ctx.seed_parse_nodes(4)
+    assert NODE_MESSAGE_PREFIX in exc_info.value.desc()
+    assert "3" in exc_info.value.desc()
+
+
+def test_parse_context_increment_parse_nodes_raises_on_limit():
+    """Incrementing parse nodes should enforce the configured limit."""
+    from sqlfluff.core.parser.context import ParseContext
+
+    ctx = ParseContext(dialect=None, max_parse_depth=0, max_parse_nodes=3)
+    ctx.seed_parse_nodes(2)
+    with pytest.raises(SQLParseError) as exc_info:
+        ctx.increment_parse_nodes(2)
+    assert NODE_MESSAGE_PREFIX in exc_info.value.desc()
+    assert "3" in exc_info.value.desc()

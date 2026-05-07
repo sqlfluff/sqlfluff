@@ -68,6 +68,7 @@ class BaseFileSegment(BaseSegment):
 
         if _start_idx == _end_idx:
             # Return just a file of non-code segments.
+            parse_context.increment_parse_nodes()
             return cls(segments, fname=fname)
 
         # Match the middle
@@ -88,11 +89,12 @@ class BaseFileSegment(BaseSegment):
             )
 
         parse_context.logger.info("Root Match:\n%s", match.stringify())
-        _matched = match.apply(segments)
+        _matched = match.apply(segments, parse_context=parse_context)
         _unmatched = segments[match.matched_slice.stop : _end_idx]
 
         content: tuple[BaseSegment, ...]
         if not match:
+            parse_context.increment_parse_nodes()
             content = (
                 UnparsableSegment(
                     segments[_start_idx:_end_idx], expected=str(cls.match_grammar)
@@ -103,6 +105,7 @@ class BaseFileSegment(BaseSegment):
             for _idx in range(len(_unmatched)):
                 if _unmatched[_idx].is_code:
                     break
+            parse_context.increment_parse_nodes()
             content = (
                 _matched
                 + _unmatched[:_idx]
@@ -115,6 +118,7 @@ class BaseFileSegment(BaseSegment):
         else:
             content = _matched + _unmatched
 
+        parse_context.increment_parse_nodes()
         return cls(
             segments[:_start_idx] + content + segments[_end_idx:],
             fname=fname,

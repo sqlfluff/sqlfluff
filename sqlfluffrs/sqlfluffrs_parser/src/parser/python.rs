@@ -481,18 +481,20 @@ pub struct PyParser {
     max_parser_iterations: usize,
     parser_warn_threshold: usize,
     max_parse_depth: usize,
+    max_parse_nodes: usize,
 }
 
 #[pymethods]
 impl PyParser {
     #[new]
-    #[pyo3(signature = (dialect=None, indent_config=None, max_parser_iterations=None, parser_warn_threshold=None, max_parse_depth=0))]
+    #[pyo3(signature = (dialect=None, indent_config=None, max_parser_iterations=None, parser_warn_threshold=None, max_parse_depth=0, max_parse_nodes=0))]
     pub fn new(
         dialect: Option<&str>,
         indent_config: Option<HashMap<String, bool>>,
         max_parser_iterations: Option<usize>,
         parser_warn_threshold: Option<usize>,
         max_parse_depth: usize,
+        max_parse_nodes: usize,
     ) -> PyResult<Self> {
         let dialect = dialect
             .and_then(|d| Dialect::from_str(d).ok())
@@ -518,6 +520,7 @@ impl PyParser {
             max_parser_iterations: max_parser_iterations.unwrap_or(3_000_000),
             parser_warn_threshold: parser_warn_threshold.unwrap_or(2_000_000),
             max_parse_depth,
+            max_parse_nodes,
         })
     }
 
@@ -552,6 +555,7 @@ impl PyParser {
 
         // Parse and get the MatchResult directly
         let match_result = parser.call_rule_as_root().map_err(parse_error_to_pyerr)?;
+        self.check_parse_node_limit(&match_result, rust_tokens.len())?;
 
         Ok(PyMatchResult(match_result))
     }
@@ -594,6 +598,7 @@ impl PyParser {
         let match_result = parser
             .call_rule_as_root()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
+        self.check_parse_node_limit(&match_result, rust_tokens.len())?;
 
         // Collect statistics
         let (cache_hits, cache_misses, _) = parser.table_cache.stats();
@@ -654,6 +659,7 @@ impl PyParser {
         let match_result = parser
             .call_rule_as_root()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
+        self.check_parse_node_limit(&match_result, rust_tokens.len())?;
 
         // Count calls per grammar by iterating cache entries
         let mut grammar_counts = HashMap::new();
@@ -672,6 +678,32 @@ impl PyParser {
         }
 
         Ok((PyMatchResult(match_result), grammar_counts))
+    }
+}
+
+impl PyParser {
+    fn check_parse_node_limit(
+        &self,
+        match_result: &MatchResult,
+        token_count: usize,
+    ) -> PyResult<()> {
+        if self.max_parse_nodes == 0 {
+            return Ok(());
+        }
+
+        let node_count = token_count + match_result.node_count();
+        if node_count > self.max_parse_nodes {
+            return Err(parse_error_to_pyerr(ParseError::with_context(
+                format!(
+                    "Maximum parse node count exceeded (limit {}). This may indicate unusually large SQL or a malicious input.",
+                    self.max_parse_nodes
+                ),
+                Some(match_result.start()),
+                None,
+            )));
+        }
+
+        Ok(())
     }
 }
 

@@ -90,6 +90,7 @@ def test__dialect__base_file_parse(dialect, file):
     assert parsed.tree.validate_segment_with_reparse(
         parsed.config.get("dialect_obj"),
         max_parse_depth=parsed.config.get("max_parse_depth"),
+        max_parse_nodes=parsed.config.get("max_parse_nodes"),
     )
 
 

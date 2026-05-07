@@ -10,6 +10,7 @@ from sqlfluff.core.config.validate import (
     _validate_indentation_config,
     _validate_layout_config,
     _validate_max_parse_depth_config,
+    _validate_max_parse_nodes_config,
 )
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
@@ -183,4 +184,43 @@ def test__validate_max_parse_depth_invalid(config_dict, config_warning):
     """Test invalid max_parse_depth values are rejected."""
     with pytest.raises(SQLFluffUserError) as excinfo:
         _validate_max_parse_depth_config(config_dict, "<test>")
+    assert config_warning in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "config_dict,expected",
+    [
+        ({"core": {"max_parse_nodes": None}}, 0),
+        ({"core": {"max_parse_nodes": ""}}, 0),
+        ({"core": {"max_parse_nodes": 0}}, 0),
+        ({"core": {"max_parse_nodes": 2500}}, 2500),
+    ],
+)
+def test__validate_max_parse_nodes_valid(config_dict, expected):
+    """Test valid and normalized max_parse_nodes values."""
+    _validate_max_parse_nodes_config(config_dict, "<test>")
+    assert config_dict["core"]["max_parse_nodes"] == expected
+
+
+@pytest.mark.parametrize(
+    "config_dict,config_warning",
+    [
+        (
+            {"core": {"max_parse_nodes": "invalid"}},
+            "set an invalid value for `max_parse_nodes`: 'invalid'",
+        ),
+        (
+            {"core": {"max_parse_nodes": True}},
+            "set an invalid value for `max_parse_nodes`: True",
+        ),
+        (
+            {"core": {"max_parse_nodes": -1}},
+            "set an invalid value for `max_parse_nodes`: -1",
+        ),
+    ],
+)
+def test__validate_max_parse_nodes_invalid(config_dict, config_warning):
+    """Test invalid max_parse_nodes values are rejected."""
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        _validate_max_parse_nodes_config(config_dict, "<test>")
     assert config_warning in str(excinfo.value)

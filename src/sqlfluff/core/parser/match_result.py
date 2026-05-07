@@ -12,6 +12,7 @@ from sqlfluff.core.helpers.slice import slice_length
 from sqlfluff.core.parser.markers import PositionMarker
 
 if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser.context import ParseContext
     from sqlfluff.core.parser.segments import BaseSegment, MetaSegment
 
 
@@ -190,7 +191,11 @@ class MatchResult:
             child_matches=child_matches,
         )
 
-    def apply(self, segments: tuple["BaseSegment", ...]) -> tuple["BaseSegment", ...]:
+    def apply(
+        self,
+        segments: tuple["BaseSegment", ...],
+        parse_context: Optional["ParseContext"] = None,
+    ) -> tuple["BaseSegment", ...]:
         """Actually this match to segments to instantiate.
 
         This turns a theoretical match into a nested structure of segments.
@@ -220,6 +225,8 @@ class MatchResult:
                         f"slice {self.matched_slice}"
                     )
                     _pos = _get_point_pos_at_idx(segments, idx)
+                    if parse_context:
+                        parse_context.increment_parse_nodes()
                     result_segments += (seg(pos_marker=_pos),)
             return result_segments
 
@@ -257,7 +264,9 @@ class MatchResult:
             for trigger in trigger_locs[idx]:
                 # If it's a match, apply it.
                 if isinstance(trigger, MatchResult):
-                    result_segments += trigger.apply(segments=segments)
+                    result_segments += trigger.apply(
+                        segments=segments, parse_context=parse_context
+                    )
                     # Update the end slice.
                     max_idx = trigger.matched_slice.stop
                     continue
@@ -279,4 +288,6 @@ class MatchResult:
         new_seg: "BaseSegment" = self.matched_class.from_result_segments(
             result_segments, self.segment_kwargs
         )
+        if parse_context:
+            parse_context.increment_parse_nodes()
         return (new_seg,)

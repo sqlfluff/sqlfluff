@@ -194,6 +194,7 @@ class RsParser:
         max_parser_iterations: Optional[int] = None,
         parser_warn_threshold: Optional[int] = None,
         max_parse_depth: int = 0,
+        max_parse_nodes: int = 0,
     ): ...
     def parse_match_result_from_tokens(
         self, tokens: List[RsToken]

@@ -580,6 +580,7 @@ class Linter:
                                 anchor_info,
                                 fix_even_unparsable=config.get("fix_even_unparsable"),
                                 max_parse_depth=config.get("max_parse_depth"),
+                                max_parse_nodes=config.get("max_parse_nodes"),
                             )
 
                             # Check for infinite loops. We use a combination of the

@@ -1251,9 +1251,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self,
         dialect: Dialect,
         max_parse_depth: int,
+        max_parse_nodes: int = 0,
     ) -> bool:
         """Checks correctness of new segment by re-parsing it."""
-        ctx = ParseContext(dialect=dialect, max_parse_depth=max_parse_depth)
+        ctx = ParseContext(
+            dialect=dialect,
+            max_parse_depth=max_parse_depth,
+            max_parse_nodes=max_parse_nodes,
+        )
         # We're going to check the rematch without any metas because the
         # matching routines will assume they haven't already been added.
         # We also strip any non-code from the ends which might have moved.
@@ -1262,17 +1267,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not trimmed_content and self.can_start_end_non_code:
             # Edge case for empty segments which are allowed to be empty.
             return True
+        ctx.seed_parse_nodes(len(trimmed_content))
         rematch = self.match(trimmed_content, 0, ctx)
         if not rematch.matched_slice == slice(0, len(trimmed_content)):
             linter_logger.debug(
                 f"Validation Check Fail for {self}.Incomplete Match. "
-                f"\nMatched: {rematch.apply(trimmed_content)}. "
+                f"\nMatched: {rematch.apply(trimmed_content, parse_context=ctx)}. "
                 f"\nUnmatched: {trimmed_content[rematch.matched_slice.stop :]}."
             )
             return False
         opening_unparsables = set(self.recursive_crawl("unparsable"))
         closing_unparsables: set[BaseSegment] = set()
-        new_segments = rematch.apply(trimmed_content)
+        new_segments = rematch.apply(trimmed_content, parse_context=ctx)
         for seg in new_segments:
             closing_unparsables.update(seg.recursive_crawl("unparsable"))
         # Check we don't introduce any _additional_ unparsables.

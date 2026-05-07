@@ -110,6 +110,7 @@ def apply_fixes(
     rule_code: str,
     fixes: dict[int, AnchorEditInfo],
     max_parse_depth: int,
+    max_parse_nodes: int = 0,
     fix_even_unparsable: bool = False,
 ) -> tuple["BaseSegment", list["BaseSegment"], list["BaseSegment"], bool]:
     """Apply a dictionary of fixes to this segment.
@@ -255,6 +256,7 @@ def apply_fixes(
             rule_code,
             fixes,
             max_parse_depth=max_parse_depth,
+            max_parse_nodes=max_parse_nodes,
         )
         # 'before' and 'after' will usually be empty. Only used when
         # lower-level fixes left 'seg' with non-code (usually
@@ -332,6 +334,7 @@ def apply_fixes(
             validated = new_seg.validate_segment_with_reparse(
                 dialect,
                 max_parse_depth=max_parse_depth,
+                max_parse_nodes=max_parse_nodes,
             )
     else:
         validated = not requires_validate

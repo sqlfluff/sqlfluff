@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLParseError
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments import (
     BaseFileSegment,
@@ -88,8 +89,11 @@ try:
 
             # Max parse depth (DoS mitigation); 0 disables the limit
             max_parse_depth = self.config.get("max_parse_depth")
+            max_parse_nodes = self.config.get("max_parse_nodes")
             assert isinstance(max_parse_depth, int)
+            assert isinstance(max_parse_nodes, int)
             assert max_parse_depth >= 0
+            assert max_parse_nodes >= 0
 
             # Create the Rust parser
             self._rs_parser = RsParser(
@@ -100,6 +104,7 @@ try:
                 parser_warn_threshold=self.config.get("rust_parser_warn_threshold")
                 or None,
                 max_parse_depth=max_parse_depth,
+                max_parse_nodes=max_parse_nodes,
             )
 
         def parse(
@@ -131,6 +136,9 @@ try:
             if not segments:  # pragma: no cover
                 return None
 
+            parse_context = ParseContext.from_config(config=self.config)
+            parse_context.seed_parse_nodes(len(segments))
+
             # PYTHON PARITY: Trim non-code from start (like root_parse)
             _start_idx = 0
             for _start_idx in range(len(segments)):
@@ -145,6 +153,7 @@ try:
 
             if _start_idx == _end_idx:
                 # No code segments - return FileSegment with just non-code
+                parse_context.increment_parse_nodes()
                 return self.RootSegment(segments=segments, fname=fname)
 
             # Extract the original RsToken objects from the RawSegments
@@ -174,7 +183,9 @@ try:
             # Apply the match result to construct the BaseSegment tree
             # PYTHON PARITY: Pass only the code portion (segments[_start_idx:_end_idx])
             # because match result indices are relative to this trimmed array
-            _matched = match.apply(segments[_start_idx:_end_idx])
+            _matched = match.apply(
+                segments[_start_idx:_end_idx], parse_context=parse_context
+            )
 
             # PYTHON PARITY: Add back any unmatched segments after the match
             # (relative to the _start_idx:_end_idx range)
@@ -185,6 +196,7 @@ try:
             # UnparsableSegment. This matches the logic in FileSegment.root_parse()
             content: tuple[BaseSegment, ...]
             if not match:
+                parse_context.increment_parse_nodes()
                 content = (
                     UnparsableSegment(
                         segments[_start_idx:_end_idx],
@@ -199,6 +211,7 @@ try:
                         break
                 else:  # pragma: no cover
                     _idx = len(_unmatched)
+                parse_context.increment_parse_nodes()
                 content = (
                     _matched
                     + _unmatched[:_idx]
@@ -211,6 +224,7 @@ try:
             else:
                 content = _matched + _unmatched
 
+            parse_context.increment_parse_nodes()
             result = self.RootSegment(
                 segments[:_start_idx] + content + segments[_end_idx:], fname=fname
             )
