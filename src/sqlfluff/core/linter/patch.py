@@ -356,6 +356,8 @@ def _patches_conflict(first: FixPatch, second: FixPatch) -> bool:
     second_stop = int(second.source_slice.stop)
 
     if first_start == first_stop == second_start == second_stop:
+        # NOTE: It's an edge case to hit this and not the initial clause,
+        # but possible.
         return first_start == second_start
 
     return max(first_start, second_start) < min(first_stop, second_stop)
