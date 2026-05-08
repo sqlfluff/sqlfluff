@@ -69,6 +69,14 @@ impl PyRawFileSlice {
     pub fn tag(&self) -> Option<String> {
         self.0.tag.clone()
     }
+
+    pub fn end_source_idx(&self) -> usize {
+        self.0.end_source_idx()
+    }
+
+    pub fn source_slice(&self) -> PySlice {
+        PySlice(self.0.source_slice())
+    }
 }
 
 impl From<PyRawFileSlice> for RawFileSlice {
