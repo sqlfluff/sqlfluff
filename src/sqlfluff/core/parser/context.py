@@ -152,10 +152,7 @@ class ParseContext:
         """
         assert count >= 0
         self.current_parse_nodes += count
-        if (
-            self.max_parse_nodes > 0
-            and self.current_parse_nodes > self.max_parse_nodes
-        ):
+        if self.max_parse_nodes > 0 and self.current_parse_nodes > self.max_parse_nodes:
             raise SQLParseError(
                 f"Maximum parse node count exceeded (limit {self.max_parse_nodes}). "
                 "This may indicate unusually large SQL or a malicious input."

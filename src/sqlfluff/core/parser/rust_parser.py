@@ -160,7 +160,9 @@ try:
                 # Extract the original RsToken objects from the RawSegments
                 # PYTHON PARITY: Only parse the code portion (segments[_start_idx:_end_idx])
                 # Just like Python's match(segments[:_end_idx], _start_idx, ...)
-                tokens = self._extract_tokens_from_segments(segments[_start_idx:_end_idx])
+                tokens = self._extract_tokens_from_segments(
+                    segments[_start_idx:_end_idx]
+                )
 
                 # Parse using Rust parser to get MatchResult
                 # The Rust parser may raise RsParseError for certain parse errors (e.g.,
@@ -266,7 +268,9 @@ try:
                     result._rs_node = None
 
                 if parse_statistics:  # pragma: no cover
-                    print("Warning: parse_statistics not yet implemented for Rust parser")
+                    print(
+                        "Warning: parse_statistics not yet implemented for Rust parser"
+                    )
 
                 return result
             except SQLParseError as err:

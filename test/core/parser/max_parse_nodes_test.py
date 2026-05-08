@@ -152,7 +152,9 @@ def test_parse_context_increment_parse_nodes_raises_on_limit():
             True,
             "sqlfluff.core.parser.rust_parser.RustParser.parse",
             marks=pytest.mark.skipif(
-                not __import__("sqlfluff.core.parser.rust_parser", fromlist=["_HAS_RUST_PARSER"])._HAS_RUST_PARSER,
+                not __import__(
+                    "sqlfluff.core.parser.rust_parser", fromlist=["_HAS_RUST_PARSER"]
+                )._HAS_RUST_PARSER,
                 reason="Rust parser not available",
             ),
         ),
