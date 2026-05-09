@@ -129,6 +129,7 @@ tsql_dialect.sets("date_format").update(
         "mdy",
         "dmy",
         "ymd",
+        "ydm",
         "myd",
         "dym",
     ]
@@ -4288,9 +4289,17 @@ class SetStatementSegment(BaseSegment):
                     ),
                 ),
                 Sequence(
+                    "DATEFORMAT",
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(
+                        Ref("DateFormatSegment"),
+                        Ref("QuotedLiteralSegmentOptWithN"),
+                        Ref("ParameterNameSegment"),
+                    ),
+                ),
+                Sequence(
                     Delimited(
                         "DATEFIRST",
-                        "DATEFORMAT",
                         "DEADLOCK_PRIORITY",
                         "LOCK_TIMEOUT",
                         "CONCAT_NULL_YIELDS_NULL",
