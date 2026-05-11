@@ -1,0 +1,88 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b805a53b7f3cb19848a5c5e083a891e9e9405796b276d0134edba6d1e26d5c6d
+file:
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Contact]'
+      - keyword: DISABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+          quoted_identifier: '[TRContactID]'
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Contact]'
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+          quoted_identifier: '[TRContactID]'
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Contact]'
+      - keyword: DISABLE
+      - keyword: TRIGGER
+      - keyword: ALL
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Contact]'
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - keyword: ALL
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Contact]'
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+          quoted_identifier: '[t1]'
+      - comma: ','
+      - trigger_reference:
+          quoted_identifier: '[t2]'
+    statement_terminator: ;
+    go_statement:
+      keyword: GO

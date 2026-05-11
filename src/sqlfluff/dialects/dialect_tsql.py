@@ -5427,6 +5427,16 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                 ),
             ),
+            # { ENABLE | DISABLE } TRIGGER { ALL | trigger_name [ ,...n ] }
+            # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql
+            Sequence(
+                OneOf("ENABLE", "DISABLE"),
+                "TRIGGER",
+                OneOf(
+                    "ALL",
+                    Delimited(Ref("TriggerReferenceSegment")),
+                ),
+            ),
         ),
     )
 
