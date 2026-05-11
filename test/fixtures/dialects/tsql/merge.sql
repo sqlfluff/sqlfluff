@@ -200,3 +200,13 @@ USING  (	SELECT 1 AS i	) AS source
 ON source.i = target.i
 WHEN MATCHED
 THEN  UPDATE SET target.i = source.i;
+
+-- Function in USING clause (issue #7801)
+MERGE INTO SomeTable t
+USING dbo.SomeFunction() s ON t.id = s.id
+WHEN MATCHED THEN UPDATE SET t.data = s.data;
+
+MERGE INTO SomeTable t
+USING dbo.SomeFunction() s ON t.id = s.id
+WHEN MATCHED THEN UPDATE SET t.data = s.data
+WHEN NOT MATCHED THEN INSERT (id, data) VALUES (s.id, s.data);

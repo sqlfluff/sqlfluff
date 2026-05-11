@@ -7142,6 +7142,10 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
             Ref("TableReferenceSegment"),
             Ref("AliasedTableReferenceGrammar"),
             Sequence(
+                Ref("FunctionSegment"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+            Sequence(
                 Bracketed(
                     Ref("SelectableGrammar"),
                 ),

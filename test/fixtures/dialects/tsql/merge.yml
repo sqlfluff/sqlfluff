@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b73b841e1fdc0085877091eeba8d959706be28ca620115b129928eb10f1b961
+_hash: e65c01e17355aed4804a99d7e3f738db7c28f151c8a95afc95dc185f91046274
 file:
 - batch:
     statement:
@@ -1445,7 +1445,7 @@ file:
     go_statement:
       keyword: GO
 - batch:
-    statement:
+  - statement:
       merge_statement:
       - keyword: MERGE
       - keyword: INTO
@@ -1504,4 +1504,144 @@ file:
                     - naked_identifier: source
                     - dot: .
                     - naked_identifier: i
-    statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: SomeTable
+      - alias_expression:
+          naked_identifier: t
+      - keyword: USING
+      - function:
+          function_name:
+            naked_identifier: dbo
+            dot: .
+            function_name_identifier: SomeFunction
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+      - alias_expression:
+          naked_identifier: s
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: data
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: data
+  - statement_terminator: ;
+  - statement:
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: SomeTable
+      - alias_expression:
+          naked_identifier: t
+      - keyword: USING
+      - function:
+          function_name:
+            naked_identifier: dbo
+            dot: .
+            function_name_identifier: SomeFunction
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+      - alias_expression:
+          naked_identifier: s
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: data
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: data
+          merge_when_not_matched_clause:
+          - keyword: WHEN
+          - keyword: NOT
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_insert_clause:
+            - keyword: INSERT
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: id
+              - comma: ','
+              - column_reference:
+                  naked_identifier: data
+              - end_bracket: )
+            - keyword: VALUES
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: id
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: data
+              - end_bracket: )
+  - statement_terminator: ;
