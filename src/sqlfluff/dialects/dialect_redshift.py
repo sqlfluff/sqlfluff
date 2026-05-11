@@ -3124,7 +3124,7 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
 
 
 class ExecuteStatementWithStoredProcedureSegment(BaseSegment):
-    """A `EXECUTE` statement that can only run within a stored procedure.
+    """An `EXECUTE` statement that can only run within a stored procedure.
 
     This is different from the `EXECUTE` statement commonly found within Postgres,
     and instead allows dynmiac SQL to be run.
