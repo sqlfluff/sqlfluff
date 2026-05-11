@@ -2314,6 +2314,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("DropRlsPolicyStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("GrantUsageDatashareStatementSegment"),
+            Ref("ExecuteStatementWithStoredProcedureSegment"),
         ],
         remove=[
             Ref("ShowStatementSegment"),
