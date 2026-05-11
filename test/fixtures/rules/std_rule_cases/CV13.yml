@@ -1,0 +1,54 @@
+rule: CV13
+
+test_pass_create_index_concurrently:
+  pass_str: |
+    CREATE INDEX CONCURRENTLY idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_create_index_concurrently_if_not_exists:
+  pass_str: |
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_unique_index_without_concurrently:
+  pass_str: |
+    CREATE UNIQUE INDEX idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_create_index_without_concurrently:
+  fail_str: |
+    CREATE INDEX idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_create_index_if_not_exists_without_concurrently:
+  fail_str: |
+    CREATE INDEX IF NOT EXISTS idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_create_index_on_jsonb_without_concurrently:
+  fail_str: |
+    CREATE INDEX idx_foo ON bar (tenant_id, (event ->> 'id'));
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_create_index_on_jsonb_with_concurrently:
+  pass_str: |
+    CREATE INDEX CONCURRENTLY idx_foo ON bar (tenant_id, (event ->> 'id'));
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_non_postgres_dialect_ignored:
+  pass_str: |
+    CREATE INDEX idx_foo ON bar (tenant_id);
