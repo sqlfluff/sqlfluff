@@ -433,6 +433,40 @@ class SetStatementSegment(BaseSegment):
     )
 
 
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement for FlinkSQL.
+
+    FlinkSQL syntax:
+        CREATE [OR REPLACE] [TEMPORARY|TEMPORARY SYSTEM] FUNCTION
+        [IF NOT EXISTS] function_name AS 'class_name'
+        [LANGUAGE language_name];
+    """
+
+    type = "create_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        OneOf(
+            Sequence("TEMPORARY", "SYSTEM"),
+            Ref.keyword("TEMPORARY"),
+            optional=True,
+        ),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        "AS",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "LANGUAGE",
+            Ref("NakedIdentifierSegment"),
+            optional=True,
+        ),
+    )
+
+
+
+
+
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
@@ -441,6 +475,7 @@ class StatementSegment(ansi.StatementSegment):
             # FlinkSQL-specific statements
             Ref("CreateCatalogStatementSegment"),
             Ref("CreateDatabaseStatementSegment"),
+            Ref("CreateFunctionStatementSegment"),
             Ref("DescribeStatementSegment"),
             Ref("ShowStatementsSegment"),
             Ref("SetStatementSegment"),
@@ -479,7 +514,7 @@ class RowDataTypeSegment(BaseSegment):
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref("NakedIdentifierSegment"),  # field name
+                        Ref("SingleIdentifierGrammar"),  # field name
                         Ref("DatatypeSegment"),  # field type
                         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
                     ),
@@ -491,7 +526,7 @@ class RowDataTypeSegment(BaseSegment):
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref("NakedIdentifierSegment"),  # field name
+                        Ref("SingleIdentifierGrammar"),  # field name
                         Ref("DatatypeSegment"),  # field type
                         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
                     ),
