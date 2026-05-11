@@ -4955,6 +4955,7 @@ class CreateStatisticsStatementSegment(BaseSegment):
                 "DEPENDENCIES",
                 "MCV",
                 "NDISTINCT",
+                "CORRELATION",
             ),
             optional=True,
         ),
@@ -4979,6 +4980,7 @@ class AlterStatisticsStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "STATISTICS",
+        Ref("IfExistsGrammar", optional=True),
         Ref("StatisticsReferenceSegment"),
         OneOf(
             Sequence(

@@ -174,6 +174,7 @@ postgres_docs_keywords = [
     ("CONDITION_NUMBER", "not-keyword"),
     ("CONFIGURATION", "non-reserved"),
     ("CONFLICT", "non-reserved"),
+    ("CORRELATION", "non-reserved"),
     ("CONNECT", "not-keyword"),
     ("CONNECTION", "non-reserved"),
     ("CONNECTION_NAME", "not-keyword"),
