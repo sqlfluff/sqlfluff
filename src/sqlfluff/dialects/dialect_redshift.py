@@ -3137,7 +3137,7 @@ class ExecuteStatementWithStoredProcedureSegment(BaseSegment):
         "CREATE",
         "PROCEDURE",
         "AS",
-        "$$",
+        Ref("QuotedLiteralSegment"),
         "BEGIN",
         Sequence(
             "EXECUTE",
