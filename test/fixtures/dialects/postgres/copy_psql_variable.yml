@@ -1,0 +1,47 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2552567d8ba88d29f964c9730cf4fc7fa99621129eb7dfb7840dafabb8550534
+file:
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - keyword: FROM
+    - psql_variable:
+        colon: ':'
+        parameter: source
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - keyword: FROM
+    - psql_variable:
+        colon: ':'
+        quoted_literal: "'filename'"
+    - keyword: WITH
+    - keyword: delimiter
+    - quoted_literal: "E'\\t'"
+    - keyword: csv
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - keyword: TO
+    - psql_variable:
+        colon: ':'
+        parameter: '"filename"'
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: FORMAT
+        naked_identifier: csv
+        end_bracket: )
+- statement_terminator: ;
