@@ -6,6 +6,7 @@ We should monitor in future and see if it should be rebased off of ANSI
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
     Anything,
     BaseSegment,
     Bracketed,
@@ -16,6 +17,7 @@ from sqlfluff.core.parser import (
     OneOf,
     Ref,
     Sequence,
+    StringParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_materialize_keywords import (
@@ -799,6 +801,21 @@ class CreateSourceWebhookStatementSegment(BaseSegment):
             Anything(),
             optional=True,
         ),
+    )
+
+
+class DatatypeSegment(postgres_dialect.get_segment("DatatypeSegment")):
+    """A data type segment for Materialize.
+
+    Extends the PostgreSQL data type to support the LIST type modifier.
+    In Materialize, `type LIST` creates a list type, e.g. `uuid LIST` or
+    `int LIST`.
+    """
+
+    type = "data_type"
+    match_grammar = Sequence(
+        postgres_dialect.get_segment("DatatypeSegment").match_grammar,
+        Ref.keyword("LIST", optional=True),
     )
 
 

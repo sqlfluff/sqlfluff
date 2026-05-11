@@ -1,0 +1,93 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1306efc12efc5047db1a65bc002da4e7fdb1196e5c77c7037616dadf879152b8
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: user_ids
+              casting_operator: '::'
+              data_type:
+              - keyword: uuid
+              - keyword: list
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: user_id_list
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: testtable
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              typed_array_literal:
+                array_type:
+                  keyword: ARRAY
+                array_literal:
+                - start_square_bracket: '['
+                - numeric_literal: '1'
+                - comma: ','
+                - numeric_literal: '2'
+                - comma: ','
+                - numeric_literal: '3'
+                - end_square_bracket: ']'
+              casting_operator: '::'
+              data_type:
+              - keyword: int
+              - keyword: list
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: int_list
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                keyword: AS
+                data_type:
+                - keyword: int
+                - keyword: list
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
