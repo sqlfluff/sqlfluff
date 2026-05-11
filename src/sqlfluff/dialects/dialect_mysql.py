@@ -614,7 +614,12 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                             Sequence(
                                                 "IN",
                                                 Bracketed(
-                                                    Ref("ObjectReferenceSegment")
+                                                    Delimited(
+                                                        OneOf(
+                                                            Ref("LiteralGrammar"),
+                                                            Ref("ObjectReferenceSegment"),
+                                                        ),
+                                                    ),
                                                 ),
                                             ),
                                         ),
