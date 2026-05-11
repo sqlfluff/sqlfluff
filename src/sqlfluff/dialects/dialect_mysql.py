@@ -2802,7 +2802,7 @@ class JsonValueFunctionContentsSegment(BaseSegment):
             Sequence(
                 "CHARACTER",
                 "SET",
-                Ref("ObjectReferenceSegment"),
+                Ref("NakedIdentifierSegment"),
                 optional=True,
             ),
             optional=True,
