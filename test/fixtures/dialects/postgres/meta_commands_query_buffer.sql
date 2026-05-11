@@ -21,3 +21,10 @@ SELECT :'my_psql_var';
 SELECT relname, relkind FROM pg_class LIMIT 1 \gset
 
 SELECT i FROM generate_series(1,2) i \gset prefix
+
+SELECT a, b, c
+FROM mytable
+ORDER BY 1
+\crosstabview
+
+SELECT a, b FROM t \crosstabview

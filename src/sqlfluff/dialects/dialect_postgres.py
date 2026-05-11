@@ -196,7 +196,8 @@ postgres_dialect.insert_lexer_matchers(
             # them. In future we may want to enhance this to actually parse them to
             # ensure they are valid meta commands.
             "meta_command",
-            r"\\(?!gset|gexec|copy\b|set\b)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
+            r"\\(?!gset|gexec|crosstabview\b|copy\b|set\b)"
+            r"([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
             CommentSegment,
         ),
         RegexLexer(
