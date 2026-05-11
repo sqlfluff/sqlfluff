@@ -1,0 +1,182 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b65a43e0c4e2401545dc7a3923835658c25190e78ff290c756b792e163522e78
+file:
+- batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[p]'
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                declare_segment:
+                  keyword: DECLARE
+                  naked_identifier: cur
+                  cursor_definition:
+                  - keyword: CURSOR
+                  - keyword: LOCAL
+                  - keyword: FAST_FORWARD
+                  - keyword: FOR
+                  - set_expression:
+                    - select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            integer_literal: '1'
+                            alias_expression:
+                              alias_operator:
+                                keyword: AS
+                              naked_identifier: Id
+                    - set_operator:
+                      - keyword: UNION
+                      - keyword: ALL
+                    - select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            integer_literal: '2'
+                            alias_expression:
+                              alias_operator:
+                                keyword: AS
+                              naked_identifier: Id
+            - statement:
+                open_cursor_statement:
+                  keyword: OPEN
+                  naked_identifier: cur
+            - keyword: END
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: c1
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: FOR
+        - set_expression:
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: a
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t1
+          - set_operator:
+              keyword: UNION
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: b
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t2
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: c2
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: FOR
+        - set_expression:
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: x
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t1
+          - set_operator:
+              keyword: INTERSECT
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: y
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t2
+          - set_operator:
+              keyword: EXCEPT
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: z
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t3
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: c3
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: LOCAL
+        - keyword: SCROLL
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: users
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+                naked_identifier: id
+    go_statement:
+      keyword: GO

@@ -1932,7 +1932,7 @@ class CursorDefinitionSegment(BaseSegment):
             Sequence("TYPE_WARNING", optional=True),
         ),
         "FOR",
-        Ref("SelectStatementSegment"),
+        Ref("NonWithSelectableGrammar"),
         Sequence(
             "FOR",
             "UPDATE",
@@ -3669,7 +3669,7 @@ class DeclareCursorStatementSegment(BaseSegment):
                 ),
                 "CURSOR",
                 "FOR",
-                Ref("SelectStatementSegment"),
+                Ref("NonWithSelectableGrammar"),
                 Sequence(
                     "FOR",
                     OneOf(
