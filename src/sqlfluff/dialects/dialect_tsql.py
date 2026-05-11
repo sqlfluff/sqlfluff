@@ -7131,8 +7131,20 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
         Dedent,
         "USING",
         Indent,
-        Ref("TableExpressionSegment"),
-        Ref("AliasExpressionSegment", optional=True),
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Ref("AliasedTableReferenceGrammar"),
+            Sequence(
+                Bracketed(
+                    Ref("SelectableGrammar"),
+                ),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+            Sequence(
+                Ref("TableExpressionSegment"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+        ),
         Dedent,
         Conditional(Indent, indented_using_on=True),
         Ref("JoinOnConditionSegment"),
