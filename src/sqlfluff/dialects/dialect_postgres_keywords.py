@@ -979,7 +979,7 @@ postgres_nondocs_keywords = [
     ("NOSUPERUSER", "non-reserved"),
     ("PLAIN", "non-reserved"),
     ("PROCESS_TOAST", "non-reserved"),
-    ("PROVIDER", "non-reserved"),
+    ("PROVIDER", "not-keyword"),
     ("PUBLIC", "non-reserved"),
     ("REMAINDER", "non-reserved"),
     ("REPLICATION", "non-reserved"),
