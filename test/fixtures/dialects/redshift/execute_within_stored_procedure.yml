@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8335247f22bd1e91647fa8a30718bef1d073868b000f0d4a9a3d85d07ba0ecb6
+_hash: 7537b594486a92fd3525fe86b2756b842147555a9df91247e903bd6ce8bde53b
 file:
 - statement:
     create_procedure_statement:
@@ -36,8 +36,8 @@ file:
           end_bracket: )
     - function_definition:
         keyword: AS
-        quoted_literal: "$$\nBEGIN\n    EXECUTE 'SELECT 1' INTO return_value;\nEND;\n\
-          $$"
+        quoted_literal: "$$\nDECLARE\n    return_value string;\nBEGIN\n    EXECUTE\
+          \ 'SELECT 1' INTO return_value;\nEND;\n$$"
         language_clause:
           keyword: LANGUAGE
           naked_identifier: plpgsql

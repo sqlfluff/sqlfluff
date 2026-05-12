@@ -12,6 +12,8 @@ $$ LANGUAGE plpgsql;
 
 CREATE PROCEDURE execute_into ()
 AS $$
+DECLARE
+    return_value string;
 BEGIN
     EXECUTE 'SELECT 1' INTO return_value;
 END;
