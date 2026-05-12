@@ -3145,7 +3145,7 @@ class ExecuteStatementWithStoredProcedureSegment(BaseSegment):
         Sequence(
             "EXECUTE",
             Ref("ExpressionSegment"),
-            Sequence("INTO", Ref("LocalVariableNameSegment"), optional=True),
+            Sequence("INTO", Ref("ObjectReferenceSegment"), optional=True),
         ),
         allow_gaps=True,
     )
