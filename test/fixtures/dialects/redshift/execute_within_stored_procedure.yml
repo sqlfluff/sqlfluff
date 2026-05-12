@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c2eb4f428dae2854867bae3fade72e1a058da9cd47e92dd0b6090e2e5b75afd7
+_hash: 8335247f22bd1e91647fa8a30718bef1d073868b000f0d4a9a3d85d07ba0ecb6
 file:
-  statement:
+- statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
     - function_name:
-        function_name_identifier: execute_within_stored_procedure_dummy
+        function_name_identifier: execute_concatenated_string_with_variables
     - procedure_parameter_list:
         bracketed:
           start_bracket: (
@@ -19,8 +19,42 @@ file:
         keyword: AS
         quoted_literal: "$$\nBEGIN\n    EXECUTE 'UPDATE tbl SET '\n    || quote_ident(colname)\n\
           \    || ' = '\n    || quote_literal(newvalue)\n    || ' WHERE key = '\n\
-          \    || quote_literal(keyvalue);\n\n    EXECUTE 'SELECT 1' INTO return_value;\n\
-          \n    -- Pulled from GitHub issue: https://github.com/sqlfluff/sqlfluff/issues/7798\n\
+          \    || quote_literal(keyvalue);\nEND;\n$$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: execute_into
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$\nBEGIN\n    EXECUTE 'SELECT 1' INTO return_value;\nEND;\n\
+          $$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: execute_concatenated_string
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$\nBEGIN\n    -- Pulled from GitHub issue: https://github.com/sqlfluff/sqlfluff/issues/7798\n\
           \    EXECUTE '\n        CREATE TEMP TABLE xxxxx AS ( \n        SELECT columns\n\
           \        FROM \"schema\".table this_table\n        WHERE this_table.column\
           \ IN ( \n            ' || concatenated_string || '\n        )\n    )';\n\
@@ -28,4 +62,4 @@ file:
         language_clause:
           keyword: LANGUAGE
           naked_identifier: plpgsql
-  statement_terminator: ;
+- statement_terminator: ;
