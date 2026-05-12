@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 81f1a1f5d14621376dbed561a1ce0cafe8ac849a3a662992cf09bc8df5bb2c18
+_hash: 38a479177fe73855159b371136868913e847d03c40319eeda5b5b62b8346122f
 file:
 - batch:
   - statement:
@@ -619,4 +619,67 @@ file:
             naked_identifier: public_data
       - keyword: FROM
       - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: USER
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: USER
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: USER
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: VIEW
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: VIEW
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: VIEW
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
   - statement_terminator: ;
