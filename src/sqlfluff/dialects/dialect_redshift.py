@@ -3134,15 +3134,18 @@ class ExecuteStatementWithStoredProcedureSegment(BaseSegment):
 
     type = "procedure_execute"
     match_grammar = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        "PROCEDURE",
-        Ref("FunctionNameSegment"),
-        Ref("ProcedureParameterListSegment"),
-        Ref.keyword("NONATOMIC", optional=True),
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            "PROCEDURE",
+            Ref("FunctionNameSegment"),
+            Ref("ProcedureParameterListSegment"),
+            Ref.keyword("NONATOMIC", optional=True),
+        ),
         Sequence(
             "EXECUTE",
             Ref("ExpressionSegment"),
             Sequence("INTO", Ref("LocalVariableNameSegment"), optional=True),
         ),
+        allow_gaps=True,
     )
