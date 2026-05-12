@@ -3132,17 +3132,17 @@ class ExecuteStatementWithStoredProcedureSegment(BaseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/c_PLpgSQL-statements.html#r_PLpgSQL-dynamic-sql
     """
 
-    type = "execute_statement_within_stored_procedure"
+    type = "procedure_execute"
     match_grammar = Sequence(
         "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
         "PROCEDURE",
-        "AS",
-        Ref("QuotedLiteralSegment"),
-        "BEGIN",
+        Ref("FunctionNameSegment"),
+        Ref("ProcedureParameterListSegment"),
+        Ref.keyword("NONATOMIC", optional=True),
         Sequence(
             "EXECUTE",
             Ref("ExpressionSegment"),
             Sequence("INTO", Ref("LocalVariableNameSegment"), optional=True),
         ),
-        allow_gaps=True,
     )
