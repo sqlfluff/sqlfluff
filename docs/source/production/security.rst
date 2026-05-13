@@ -18,6 +18,14 @@ tool functions in a secure environment.
    looking to further secure this situation, see below for ways to limit the
    ability of users to import other libraries.
 
+   Even without macro execution, malicious SQL can still attempt to consume
+   excessive parser resources through extremely deep or unusually expansive
+   query structures. To reduce that risk, we recommend keeping the
+   ``max_parse_depth`` and ``max_parse_nodes`` limits enabled. These settings
+   bound parser recursion and total parse tree size respectively, and can be
+   adjusted upward for trusted projects with legitimately complex queries.
+   See :ref:`defaultconfig` for their default values.
+
 #. *Users may have edit access to the SQLFluff :ref:`config-files`*. In some
    (perhaps, many) environments, the users who can edit SQL files may also
    be able to access and edit the :ref:`config-files`. It's important to note

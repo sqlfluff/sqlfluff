@@ -10,14 +10,146 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [4.2.0] - TBD
+## [4.2.0] - 2026-05-13
 
 ## Highlights
+
+This minor release contains four particular changes of note:
 
 * The default `render_variant_limit` is now `5` instead of `1`, so SQLFluff may
   report new linting violations from templated branches that were previously not
   inspected in Jinja and dbt projects. Documentation for the feature is now also
   available in [Template Variant Rendering](docsv/configuration/templating/variants.md).
+* This release drops support for Python 3.9, which [reached end of life](https://devguide.python.org/versions/)
+  at the end of October 2025.
+* Security improvements that protect against resource exhaustion through malicious queries
+  by limiting total parsed nodes. Users can configure the new `max_parse_nodes`
+  config setting to enable parsing of larger files in their project if necessary.
+* A new `AL10` rule requires aliases on `FROM` subqueries, because omitting them
+  causes parse errors in most major dialects.
+
+Beyond that, there are parser improvements for T-SQL, PostgreSQL, Snowflake,
+BigQuery, DuckDB, ClickHouse, Oracle, Hive/SparkSQL, Databricks, DB2, Athena,
+Trino, MariaDB/MySQL, StarRocks, Teradata, and Greenplum. There are also rule
+fixes for `ST06`, `ST11`, `LT02`, and `LT09`, better handling for placeholder
+and dbt/Jinja rendering edge cases, and a new option to fail when files are
+skipped for size.
+
+This release also includes first-time contributions from **twenty** new
+contributors. Thank you all for your contributions. 🏆
+
+## What’s Changed
+
+* fix(postgres): support CORRELATION in CREATE STATISTICS and IF EXISTS in ALTER STATISTICS [#7831](https://github.com/sqlfluff/sqlfluff/pull/7831) [@jonasboos](https://github.com/jonasboos)
+* TSQL: allow set expressions in `DECLARE ... CURSOR FOR` [#7812](https://github.com/sqlfluff/sqlfluff/pull/7812) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* fix: Ensure `pool.join()` is called in ParallelRunner [#7686](https://github.com/sqlfluff/sqlfluff/pull/7686) [@peterbud](https://github.com/peterbud)
+* fix(clickhouse): allow WHERE/PREWHERE after ARRAY JOIN [#7837](https://github.com/sqlfluff/sqlfluff/pull/7837) [@Cayan](https://github.com/Cayan)
+* fix(postgres): parse \\crosstabview as query buffer terminator [#7833](https://github.com/sqlfluff/sqlfluff/pull/7833) [@SAY-5](https://github.com/SAY-5)
+* Add max_parse_nodes parser limit [#7816](https://github.com/sqlfluff/sqlfluff/pull/7816) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix(athena): allow START as identifier (not reserved for SELECT) [#7834](https://github.com/sqlfluff/sqlfluff/pull/7834) [@SAY-5](https://github.com/SAY-5)
+* TSQL: parse `ALTER TABLE ... ENABLE|DISABLE TRIGGER` [#7811](https://github.com/sqlfluff/sqlfluff/pull/7811) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Support Teradata CAST character set phrases [#7766](https://github.com/sqlfluff/sqlfluff/pull/7766) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Oracle: add support for MULTISET operators [#7711](https://github.com/sqlfluff/sqlfluff/pull/7711) [@saulotoledo](https://github.com/saulotoledo)
+* TSQL: Parse issues DatatypeMethodSeg in TableRef and TableExp for Merge using [#7802](https://github.com/sqlfluff/sqlfluff/pull/7802) [@dpurfield](https://github.com/dpurfield)
+* Enable multi-branch linting by default [#7808](https://github.com/sqlfluff/sqlfluff/pull/7808) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix(tsql): parse SET DATEFORMAT canonical Microsoft syntax [#7819](https://github.com/sqlfluff/sqlfluff/pull/7819) [@Booyaka101](https://github.com/Booyaka101)
+* add regression test for issue 7543 [#7797](https://github.com/sqlfluff/sqlfluff/pull/7797) [@rotempasharel1](https://github.com/rotempasharel1)
+* fix: prevent placeholder templater from suppressing lint violations [#7818](https://github.com/sqlfluff/sqlfluff/pull/7818) [@ben-duivenvoorden](https://github.com/ben-duivenvoorden)
+* TSQL: Add CONTAINSTABLE support [#7814](https://github.com/sqlfluff/sqlfluff/pull/7814) [@peterbud](https://github.com/peterbud)
+* fix(duckdb): tokenize != as a single token to avoid factorial collision [#7742](https://github.com/sqlfluff/sqlfluff/pull/7742) [@barry3406](https://github.com/barry3406)
+* fix(tsql): allow Unicode letters in @parameter names [#7810](https://github.com/sqlfluff/sqlfluff/pull/7810) [@Booyaka101](https://github.com/Booyaka101)
+* Drop support for python 3.9 [#7341](https://github.com/sqlfluff/sqlfluff/pull/7341) [@annebelleo](https://github.com/annebelleo)
+* Add DB2 support for trailing read-only and isolation clauses on SELECT [#7768](https://github.com/sqlfluff/sqlfluff/pull/7768) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Handle shorthand-casted aggregates correctly in ST06 column ordering [#7792](https://github.com/sqlfluff/sqlfluff/pull/7792) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Hive: parse SET configs and `${...}` parameter references [#7767](https://github.com/sqlfluff/sqlfluff/pull/7767) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Preserve mocked dbt `var()` placeholders under Jinja subscripting [#7793](https://github.com/sqlfluff/sqlfluff/pull/7793) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* fix: ST11 false positive on struct/nested field access [#7795](https://github.com/sqlfluff/sqlfluff/pull/7795) [@sebastien-irco](https://github.com/sebastien-irco)
+* Snowflake: support CREATE OR ALTER for FILE FORMAT, FUNCTION, PROCEDURE, EXTERNAL FUNCTION, AUTHENTICATION POLICY, TAG [#7799](https://github.com/sqlfluff/sqlfluff/pull/7799) [@stevebeck89](https://github.com/stevebeck89)
+* Reject trailing commas after the final CTE in `WITH` clauses [#7761](https://github.com/sqlfluff/sqlfluff/pull/7761) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Support colon-delimited `json_object()` pairs in Trino and Athena [#7764](https://github.com/sqlfluff/sqlfluff/pull/7764) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* feat: Add BigLake syntax support for BigQuery dialect [#7794](https://github.com/sqlfluff/sqlfluff/pull/7794) [@sebastien-irco](https://github.com/sebastien-irco)
+* Fix typo: remove duplicate 'the' in documentation [#7782](https://github.com/sqlfluff/sqlfluff/pull/7782) [@Jah-yee](https://github.com/Jah-yee)
+* test: add LT02 autofix fixtures for MERGE INSERT VALUES indentation (ansi, bigquery, sparksql) [#7791](https://github.com/sqlfluff/sqlfluff/pull/7791) [@Scolliq](https://github.com/Scolliq)
+* Rust: Fix sequence terminators [#7787](https://github.com/sqlfluff/sqlfluff/pull/7787) [@keraion](https://github.com/keraion)
+* fix: Support compound statements in BigQuery WHILE body [#7789](https://github.com/sqlfluff/sqlfluff/pull/7789) [@sebastien-irco](https://github.com/sebastien-irco)
+* feat: Support function calls in MERGE USING clause [#7788](https://github.com/sqlfluff/sqlfluff/pull/7788) [@sebastien-irco](https://github.com/sebastien-irco)
+* build(deps): bump rustls-webpki from 0.103.10 to 0.103.13 in /sqlfluffrs [#7790](https://github.com/sqlfluff/sqlfluff/pull/7790) [@[dependabot[bot]](https://github.com/apps/dependabot)](https://github.com/[dependabot[bot]](https://github.com/apps/dependabot))
+* fix(7784): create table clone statement grammar for databricks dialect [#7786](https://github.com/sqlfluff/sqlfluff/pull/7786) [@pgrz](https://github.com/pgrz)
+* Relax ignore spec typing in discovery module [#7785](https://github.com/sqlfluff/sqlfluff/pull/7785) [@peterbud](https://github.com/peterbud)
+* BigQuery: parse `OPTIONS` in `CREATE TABLE FUNCTION` [#7776](https://github.com/sqlfluff/sqlfluff/pull/7776) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Allow MariaDB/MySQL `FROM DUAL` to parse as a table reference [#7763](https://github.com/sqlfluff/sqlfluff/pull/7763) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Support lateral column alias expressions in ClickHouse, Databricks, and Redshift [#7760](https://github.com/sqlfluff/sqlfluff/pull/7760) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* fix(tsql): keep required OPENROWSET BULK aliases [#7781](https://github.com/sqlfluff/sqlfluff/pull/7781) [@cloudyun888](https://github.com/cloudyun888)
+* feat: Add CREATE AGGREGATE FUNCTION support for BigQuery dialect [#7780](https://github.com/sqlfluff/sqlfluff/pull/7780) [@sebastien-irco](https://github.com/sebastien-irco)
+* fix(postgres): preserve begin atomic body indentation [#7777](https://github.com/sqlfluff/sqlfluff/pull/7777) [@cloudyun888](https://github.com/cloudyun888)
+* chore: make pytest as optional dependency [#7275](https://github.com/sqlfluff/sqlfluff/pull/7275) [@fatelei](https://github.com/fatelei)
+* feat: Add option for non-zero exit on large_file_skip [#7731](https://github.com/sqlfluff/sqlfluff/pull/7731) [@zozo123](https://github.com/zozo123)
+* fix: support trailing GROUPING SETS in Hive GROUP BY [#7651](https://github.com/sqlfluff/sqlfluff/pull/7651) [@saschabuehrle](https://github.com/saschabuehrle)
+* Snowflake: parse `WITH TAG` on dynamic table columns without a data type [#7754](https://github.com/sqlfluff/sqlfluff/pull/7754) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Support `COLLATE` in Databricks CREATE TABLE column properties [#7749](https://github.com/sqlfluff/sqlfluff/pull/7749) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Fix unparsable Databricks/SparkSQL function parameters with function call DEFAULT values [#7721](https://github.com/sqlfluff/sqlfluff/pull/7721) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Support `CHECK/NOCHECK CONSTRAINT ALL` in T-SQL `ALTER TABLE` [#7748](https://github.com/sqlfluff/sqlfluff/pull/7748) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* fix(databricks): RF03 should not flag STRUCT function aliases [#7735](https://github.com/sqlfluff/sqlfluff/pull/7735) [@zozo123](https://github.com/zozo123)
+* fix(LT09): Consistent single/multi target newline behavior [#7729](https://github.com/sqlfluff/sqlfluff/pull/7729) [@zozo123](https://github.com/zozo123)
+* Snowflake: Support `UPDATE ALL BY NAME` syntax for `MERGE` [#7756](https://github.com/sqlfluff/sqlfluff/pull/7756) [@ninazacharia-toast](https://github.com/ninazacharia-toast)
+* CI: add dhi.io login to workflow [#7757](https://github.com/sqlfluff/sqlfluff/pull/7757) [@keraion](https://github.com/keraion)
+* feat: move to dhi image [#7752](https://github.com/sqlfluff/sqlfluff/pull/7752) [@hoodadt](https://github.com/hoodadt)
+* fix: LT02 false positive when Jinja block contains same-line parentheses [#7744](https://github.com/sqlfluff/sqlfluff/pull/7744) [@galsakuri](https://github.com/galsakuri)
+* build(deps): bump rand from 0.9.2 to 0.9.4 in /sqlfluffrs [#7750](https://github.com/sqlfluff/sqlfluff/pull/7750) [@[dependabot[bot]](https://github.com/apps/dependabot)](https://github.com/[dependabot[bot]](https://github.com/apps/dependabot))
+* Add aliasing.required rule AL10: derived tables must have an alias [#7743](https://github.com/sqlfluff/sqlfluff/pull/7743) [@cherylschaefer](https://github.com/cherylschaefer)
+* Snowflake: handle ADD SCORING PROFILE in CORTEX SEARCH + fix typo [#7647](https://github.com/sqlfluff/sqlfluff/pull/7647) [@jakadam2](https://github.com/jakadam2)
+* refactor(oracle): Move keywords to separate file [#7726](https://github.com/sqlfluff/sqlfluff/pull/7726) [@zozo123](https://github.com/zozo123)
+* fix(databricks): Allow _metadata column references [#7732](https://github.com/sqlfluff/sqlfluff/pull/7732) [@zozo123](https://github.com/zozo123)
+* fix(LT02): Don't force FROM/VALUES separation when values are inline [#7738](https://github.com/sqlfluff/sqlfluff/pull/7738) [@zozo123](https://github.com/zozo123)
+* fix(sparksql): Add regression tests for struct field access alignment (#6913) [#7728](https://github.com/sqlfluff/sqlfluff/pull/7728) [@zozo123](https://github.com/zozo123)
+* fix: Apply warning-level fixes even when no errors present [#7727](https://github.com/sqlfluff/sqlfluff/pull/7727) [@zozo123](https://github.com/zozo123)
+* MySQL: Add support for role GRANT and SET DEFAULT ROLE statements [#7720](https://github.com/sqlfluff/sqlfluff/pull/7720) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* fix(greenplum): Add support for CREATE/DROP EXTERNAL TABLE [#7725](https://github.com/sqlfluff/sqlfluff/pull/7725) [@zozo123](https://github.com/zozo123)
+* fix(snowflake): Exclude NEXTVAL/CURRVAL sequences from references.from checks [#7724](https://github.com/sqlfluff/sqlfluff/pull/7724) [@zozo123](https://github.com/zozo123)
+* feat(starrocks): Add support for ARRAY, MAP, and STRUCT types [#7717](https://github.com/sqlfluff/sqlfluff/pull/7717) [@zozo123](https://github.com/zozo123)
+* fix(snowflake): Support multiple statements in EXCEPTION WHEN handlers [#7718](https://github.com/sqlfluff/sqlfluff/pull/7718) [@zozo123](https://github.com/zozo123)
+* TSQL: Add support for ALTER DATABASE SCOPED CONFIGURATION statements [#7688](https://github.com/sqlfluff/sqlfluff/pull/7688) [@peterbud](https://github.com/peterbud)
+* Support dotted option names in Postgres ALTER VIEW / ALTER MATERIALIZED VIEW [#7680](https://github.com/sqlfluff/sqlfluff/pull/7680) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Snowflake: parse structured OBJECT types in CAST and datatype contexts [#7681](https://github.com/sqlfluff/sqlfluff/pull/7681) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Allow SQLite FTS5 option assignments in CREATE VIRTUAL TABLE [#7683](https://github.com/sqlfluff/sqlfluff/pull/7683) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* TSQL:  use aggregate_order_by in WITHIN GROUP [#7687](https://github.com/sqlfluff/sqlfluff/pull/7687) [@peterbud](https://github.com/peterbud)
+* docs: Enhance rule generation [#7707](https://github.com/sqlfluff/sqlfluff/pull/7707) [@peterbud](https://github.com/peterbud)
+* T-SQL: parse ALTER / DROP FULLTEXT INDEX and improve CREATE [#7712](https://github.com/sqlfluff/sqlfluff/pull/7712) [@dreik](https://github.com/dreik)
+* fix: align following line position handling [#7702](https://github.com/sqlfluff/sqlfluff/pull/7702) [@mauro-lanza](https://github.com/mauro-lanza)
+* Oracle: prevent incorrect fix for bind and substitution variables [#7709](https://github.com/sqlfluff/sqlfluff/pull/7709) [@saulotoledo](https://github.com/saulotoledo)
+* Oracle: add support for DROP USER CASCADE / DROP PROFILE / DROP CLUSTER [#7706](https://github.com/sqlfluff/sqlfluff/pull/7706) [@saulotoledo](https://github.com/saulotoledo)
+* Oracle: add support for no-argument procedure calls [#7701](https://github.com/sqlfluff/sqlfluff/pull/7701) [@saulotoledo](https://github.com/saulotoledo)
+* Support macros-calling-macros in jinja templater [#7685](https://github.com/sqlfluff/sqlfluff/pull/7685) [@mrichards42](https://github.com/mrichards42)
+* fix: add --no-warn-unused-configs flag to mypyc commands in tox.ini [#7698](https://github.com/sqlfluff/sqlfluff/pull/7698) [@peterbud](https://github.com/peterbud)
+* StarRocks: add LOAD LABEL and INSERT OVERWRITE WITH LABEL support [#7682](https://github.com/sqlfluff/sqlfluff/pull/7682) [@andystenhe](https://github.com/andystenhe)
+* [codex] Fix DuckDB double-quoted struct keys [#7694](https://github.com/sqlfluff/sqlfluff/pull/7694) [@zozo123](https://github.com/zozo123)
+* fix(ST05): don't descend into subqueries when checking for value table functions [#7692](https://github.com/sqlfluff/sqlfluff/pull/7692) [@nadjichalal](https://github.com/nadjichalal)
+* fix: ST10 RHS constant expression redundancy check [#7690](https://github.com/sqlfluff/sqlfluff/pull/7690) [@aayushr7](https://github.com/aayushr7)
+* Add dbt 1.11 function() builtin to Jinja apply_dbt_builtins [#7637](https://github.com/sqlfluff/sqlfluff/pull/7637) [@ReinerBRO](https://github.com/ReinerBRO)
+* Add table_options to ALTER TABLE in mysql & mariadb [#7411](https://github.com/sqlfluff/sqlfluff/pull/7411) [@WittierDinosaur](https://github.com/WittierDinosaur)
+
+
+## New Contributors
+* [@nadjichalal](https://github.com/nadjichalal) made their first contribution in [#7692](https://github.com/sqlfluff/sqlfluff/pull/7692)
+* [@zozo123](https://github.com/zozo123) made their first contribution in [#7694](https://github.com/sqlfluff/sqlfluff/pull/7694)
+* [@mauro-lanza](https://github.com/mauro-lanza) made their first contribution in [#7702](https://github.com/sqlfluff/sqlfluff/pull/7702)
+* [@jakadam2](https://github.com/jakadam2) made their first contribution in [#7647](https://github.com/sqlfluff/sqlfluff/pull/7647)
+* [@cherylschaefer](https://github.com/cherylschaefer) made their first contribution in [#7743](https://github.com/sqlfluff/sqlfluff/pull/7743)
+* [@galsakuri](https://github.com/galsakuri) made their first contribution in [#7744](https://github.com/sqlfluff/sqlfluff/pull/7744)
+* [@hoodadt](https://github.com/hoodadt) made their first contribution in [#7752](https://github.com/sqlfluff/sqlfluff/pull/7752)
+* [@saschabuehrle](https://github.com/saschabuehrle) made their first contribution in [#7651](https://github.com/sqlfluff/sqlfluff/pull/7651)
+* [@cloudyun888](https://github.com/cloudyun888) made their first contribution in [#7777](https://github.com/sqlfluff/sqlfluff/pull/7777)
+* [@pgrz](https://github.com/pgrz) made their first contribution in [#7786](https://github.com/sqlfluff/sqlfluff/pull/7786)
+* [@Scolliq](https://github.com/Scolliq) made their first contribution in [#7791](https://github.com/sqlfluff/sqlfluff/pull/7791)
+* [@Jah-yee](https://github.com/Jah-yee) made their first contribution in [#7782](https://github.com/sqlfluff/sqlfluff/pull/7782)
+* [@stevebeck89](https://github.com/stevebeck89) made their first contribution in [#7799](https://github.com/sqlfluff/sqlfluff/pull/7799)
+* [@Booyaka101](https://github.com/Booyaka101) made their first contribution in [#7810](https://github.com/sqlfluff/sqlfluff/pull/7810)
+* [@barry3406](https://github.com/barry3406) made their first contribution in [#7742](https://github.com/sqlfluff/sqlfluff/pull/7742)
+* [@ben-duivenvoorden](https://github.com/ben-duivenvoorden) made their first contribution in [#7818](https://github.com/sqlfluff/sqlfluff/pull/7818)
+* [@rotempasharel1](https://github.com/rotempasharel1) made their first contribution in [#7797](https://github.com/sqlfluff/sqlfluff/pull/7797)
+* [@SAY-5](https://github.com/SAY-5) made their first contribution in [#7834](https://github.com/sqlfluff/sqlfluff/pull/7834)
+* [@Cayan](https://github.com/Cayan) made their first contribution in [#7837](https://github.com/sqlfluff/sqlfluff/pull/7837)
+* [@jonasboos](https://github.com/jonasboos) made their first contribution in [#7831](https://github.com/sqlfluff/sqlfluff/pull/7831)
 
 ## [4.1.0] - 2026-03-26
 
