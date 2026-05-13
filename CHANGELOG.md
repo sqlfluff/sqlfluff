@@ -14,13 +14,26 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This minor release contains three particular changes of note:
+
 * The default `render_variant_limit` is now `5` instead of `1`, so SQLFluff may
   report new linting violations from templated branches that were previously not
   inspected in Jinja and dbt projects. Documentation for the feature is now also
   available in [Template Variant Rendering](docsv/configuration/templating/variants.md).
+* This release drops support for python 3.9 which [reached end of life](https://devguide.python.org/versions/)
+  at the end of October 2025.
+* Security improvements that protect against resource exhaustion through malicious queries
+  by limiting total parsed nodes. Users can configure the new `max_parse_nodes`
+  config setting to enable parsing of larger files in their project if necessary.
+
+Beyond these two more significant changes, there are a host of other changes too.
 
 ## What’s Changed
 
+* fix(postgres): support CORRELATION in CREATE STATISTICS and IF EXISTS in ALTER STATISTICS [#7831](https://github.com/sqlfluff/sqlfluff/pull/7831) [@jonasboos](https://github.com/jonasboos)
+* TSQL: allow set expressions in `DECLARE ... CURSOR FOR` [#7812](https://github.com/sqlfluff/sqlfluff/pull/7812) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* fix: Ensure `pool.join()` is called in ParallelRunner [#7686](https://github.com/sqlfluff/sqlfluff/pull/7686) [@peterbud](https://github.com/peterbud)
+* fix(clickhouse): allow WHERE/PREWHERE after ARRAY JOIN [#7837](https://github.com/sqlfluff/sqlfluff/pull/7837) [@Cayan](https://github.com/Cayan)
 * fix(postgres): parse \\crosstabview as query buffer terminator [#7833](https://github.com/sqlfluff/sqlfluff/pull/7833) [@SAY-5](https://github.com/SAY-5)
 * Add max_parse_nodes parser limit [#7816](https://github.com/sqlfluff/sqlfluff/pull/7816) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * fix(athena): allow START as identifier (not reserved for SELECT) [#7834](https://github.com/sqlfluff/sqlfluff/pull/7834) [@SAY-5](https://github.com/SAY-5)
@@ -128,6 +141,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * [@ben-duivenvoorden](https://github.com/ben-duivenvoorden) made their first contribution in [#7818](https://github.com/sqlfluff/sqlfluff/pull/7818)
 * [@rotempasharel1](https://github.com/rotempasharel1) made their first contribution in [#7797](https://github.com/sqlfluff/sqlfluff/pull/7797)
 * [@SAY-5](https://github.com/SAY-5) made their first contribution in [#7834](https://github.com/sqlfluff/sqlfluff/pull/7834)
+* [@Cayan](https://github.com/Cayan) made their first contribution in [#7837](https://github.com/sqlfluff/sqlfluff/pull/7837)
+* [@jonasboos](https://github.com/jonasboos) made their first contribution in [#7831](https://github.com/sqlfluff/sqlfluff/pull/7831)
 
 ## [4.1.0] - 2026-03-26
 
