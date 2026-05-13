@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5eb9b8fdbd02c3c803bae3ea9de4f8c57a2f9907316a4848ff461dfa6ace58a0
+_hash: 113a1bf24aaee93ad88bbefe7e6ceedfb9e93a0ec8ade8d56e1bf93c9cbb64dc
 file:
 - statement:
     create_table_statement:
@@ -2300,6 +2300,30 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'<rest_catalog_table_name>'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: iceberg_pyformat
+    - iceberg_table_options:
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - pyformat_placeholder: '%(external_volume)s'
+      - keyword: CATALOG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'object_store_integration'"
+      - keyword: METADATA_FILE_PATH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - pyformat_placeholder: '%(metadata_file_path)s'
 - statement_terminator: ;
 - statement:
     create_table_statement:

@@ -314,6 +314,12 @@ CREATE OR REPLACE ICEBERG TABLE iceberg_object_snowflake_open_catalog
   CATALOG_TABLE_NAME = '<rest_catalog_table_name>'
 ;
 
+CREATE ICEBERG TABLE IF NOT EXISTS iceberg_pyformat
+EXTERNAL_VOLUME=%(external_volume)s
+CATALOG='object_store_integration'
+METADATA_FILE_PATH=%(metadata_file_path)s
+;
+
 
 -- Hybrid tables
 

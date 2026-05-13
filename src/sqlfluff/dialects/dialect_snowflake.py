@@ -82,6 +82,15 @@ snowflake_dialect.insert_lexer_matchers(
         StringLexer("parameter_assigner", "=>", CodeSegment),
         StringLexer("right_arrow", "->", CodeSegment),
         RegexLexer("stage_path", r"(?:@[^\s;)]+|'@[^']+')", CodeSegment),
+        # Python pyformat-style placeholder, e.g. %(external_volume)s.
+        # These are used as parameter substitutions by Python DB drivers; we
+        # tokenise them as a single segment so the parser can accept them
+        # alongside literal values.
+        RegexLexer(
+            "pyformat_placeholder",
+            r"%\([A-Za-z_][A-Za-z0-9_]*\)s",
+            CodeSegment,
+        ),
         # Column selector
         # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
         RegexLexer("column_selector", r"\$[0-9]+", CodeSegment),
@@ -288,6 +297,15 @@ snowflake_dialect.add(
         CodeSegment,
         type="variable",
         trim_chars=("$",),
+    ),
+    # Python pyformat-style placeholder, e.g. %(external_volume)s. Tokens of
+    # this shape are emitted by the dialect's ``pyformat_placeholder`` lexer
+    # matcher and are accepted as values in option clauses where DB drivers
+    # commonly substitute them prior to execution.
+    PyformatPlaceholderSegment=TypedParser(
+        "pyformat_placeholder",
+        CodeSegment,
+        type="pyformat_placeholder",
     ),
     # We use a RegexParser instead of keywords as some (those with dashes) require
     # quotes:
@@ -5188,25 +5206,37 @@ class IcebergTableOptionsSegment(BaseSegment):
         Sequence(
             "EXTERNAL_VOLUME",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("PyformatPlaceholderSegment"),
+            ),
             optional=True,
         ),
         Sequence(
             "CATALOG",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("PyformatPlaceholderSegment"),
+            ),
             optional=True,
         ),
         Sequence(
             "CATALOG_TABLE_NAME",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("PyformatPlaceholderSegment"),
+            ),
             optional=True,
         ),
         Sequence(
             "CATALOG_NAMESPACE",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("PyformatPlaceholderSegment"),
+            ),
             optional=True,
         ),
         Sequence(
@@ -5224,13 +5254,19 @@ class IcebergTableOptionsSegment(BaseSegment):
         Sequence(
             "METADATA_FILE_PATH",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("PyformatPlaceholderSegment"),
+            ),
             optional=True,
         ),
         Sequence(
             "BASE_LOCATION",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("PyformatPlaceholderSegment"),
+            ),
             optional=True,
         ),
     )
