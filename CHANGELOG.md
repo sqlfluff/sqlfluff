@@ -35,7 +35,7 @@ fixes for `ST06`, `ST11`, `LT02`, and `LT09`, better handling for placeholder
 and dbt/Jinja rendering edge cases, and a new option to fail when files are
 skipped for size.
 
-This release also includes first-time contributions from **twenty-four** new
+This release also includes first-time contributions from **twenty** new
 contributors. Thank you all for your contributions. 🏆
 
 ## What’s Changed
@@ -128,12 +128,10 @@ contributors. Thank you all for your contributions. 🏆
 * Add dbt 1.11 function() builtin to Jinja apply_dbt_builtins [#7637](https://github.com/sqlfluff/sqlfluff/pull/7637) [@ReinerBRO](https://github.com/ReinerBRO)
 * Add table_options to ALTER TABLE in mysql & mariadb [#7411](https://github.com/sqlfluff/sqlfluff/pull/7411) [@WittierDinosaur](https://github.com/WittierDinosaur)
 
+
 ## New Contributors
-* [@ReinerBRO](https://github.com/ReinerBRO) made their first contribution in [#7637](https://github.com/sqlfluff/sqlfluff/pull/7637)
 * [@nadjichalal](https://github.com/nadjichalal) made their first contribution in [#7692](https://github.com/sqlfluff/sqlfluff/pull/7692)
 * [@zozo123](https://github.com/zozo123) made their first contribution in [#7694](https://github.com/sqlfluff/sqlfluff/pull/7694)
-* [@andystenhe](https://github.com/andystenhe) made their first contribution in [#7682](https://github.com/sqlfluff/sqlfluff/pull/7682)
-* [@mrichards42](https://github.com/mrichards42) made their first contribution in [#7685](https://github.com/sqlfluff/sqlfluff/pull/7685)
 * [@mauro-lanza](https://github.com/mauro-lanza) made their first contribution in [#7702](https://github.com/sqlfluff/sqlfluff/pull/7702)
 * [@jakadam2](https://github.com/jakadam2) made their first contribution in [#7647](https://github.com/sqlfluff/sqlfluff/pull/7647)
 * [@cherylschaefer](https://github.com/cherylschaefer) made their first contribution in [#7743](https://github.com/sqlfluff/sqlfluff/pull/7743)
@@ -141,7 +139,6 @@ contributors. Thank you all for your contributions. 🏆
 * [@hoodadt](https://github.com/hoodadt) made their first contribution in [#7752](https://github.com/sqlfluff/sqlfluff/pull/7752)
 * [@saschabuehrle](https://github.com/saschabuehrle) made their first contribution in [#7651](https://github.com/sqlfluff/sqlfluff/pull/7651)
 * [@cloudyun888](https://github.com/cloudyun888) made their first contribution in [#7777](https://github.com/sqlfluff/sqlfluff/pull/7777)
-* [@sebastien-irco](https://github.com/sebastien-irco) made their first contribution in [#7780](https://github.com/sqlfluff/sqlfluff/pull/7780)
 * [@pgrz](https://github.com/pgrz) made their first contribution in [#7786](https://github.com/sqlfluff/sqlfluff/pull/7786)
 * [@Scolliq](https://github.com/Scolliq) made their first contribution in [#7791](https://github.com/sqlfluff/sqlfluff/pull/7791)
 * [@Jah-yee](https://github.com/Jah-yee) made their first contribution in [#7782](https://github.com/sqlfluff/sqlfluff/pull/7782)
