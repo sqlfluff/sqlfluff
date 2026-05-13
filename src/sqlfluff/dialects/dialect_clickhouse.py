@@ -209,7 +209,6 @@ clickhouse_dialect.replace(
             Ref("ArrayJoinClauseSegment"),
             min_times=1,
         ),
-        Ref("AliasExpressionSegment", optional=True),
     ),
     QuotedLiteralSegment=OneOf(
         TypedParser(
