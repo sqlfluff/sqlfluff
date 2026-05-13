@@ -26,7 +26,6 @@ def _extract_whats_changed_section(release_body: str) -> str:
     with manually curated highlights. In that case, rerunning the release
     script should refresh only the generated sections below Highlights.
     """
-
     for heading in ("## What's Changed", "## What’s Changed"):
         heading_index = release_body.find(heading)
         if heading_index != -1:
