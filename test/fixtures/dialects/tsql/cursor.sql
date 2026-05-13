@@ -68,3 +68,31 @@ SELECT Id, SomeColumn FROM @table FOR UPDATE OF SomeColumn;
 OPEN db_cursor;
 FETCH ABSOLUTE @Rows FROM db_cursor;
 GO
+
+DECLARE cur_union CURSOR LOCAL FAST_FORWARD FOR
+SELECT 1 AS Id
+UNION ALL
+SELECT 2 AS Id;
+OPEN cur_union;
+CLOSE cur_union;
+DEALLOCATE cur_union;
+GO
+
+DECLARE cur_union_legacy INSENSITIVE SCROLL CURSOR FOR
+SELECT 1 AS Id
+UNION ALL
+SELECT 2 AS Id;
+OPEN cur_union_legacy;
+CLOSE cur_union_legacy;
+DEALLOCATE cur_union_legacy;
+GO
+
+DECLARE cur_cte CURSOR LOCAL FAST_FORWARD FOR
+WITH cte AS (
+    SELECT 1 AS Id
+)
+SELECT Id FROM cte;
+OPEN cur_cte;
+CLOSE cur_cte;
+DEALLOCATE cur_cte;
+GO
