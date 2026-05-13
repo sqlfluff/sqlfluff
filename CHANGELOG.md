@@ -14,7 +14,12 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-This minor release contains three particular changes of note:
+This minor release contains four particular changes of note:
+
+This minor release expands SQLFluff in five meaningful ways: broader template
+branch analysis by default, new parser safety limits, a narrower supported
+Python baseline, broader dialect coverage, and another round of linting and
+templater correctness fixes.
 
 * The default `render_variant_limit` is now `5` instead of `1`, so SQLFluff may
   report new linting violations from templated branches that were previously not
@@ -25,8 +30,17 @@ This minor release contains three particular changes of note:
 * Security improvements that protect against resource exhaustion through malicious queries
   by limiting total parsed nodes. Users can configure the new `max_parse_nodes`
   config setting to enable parsing of larger files in their project if necessary.
+* A new `AL10` rule which requires aliases on FROM subqueries (as this would cause
+  a parse error in most major dialects).
 
-Beyond these two more significant changes, there are a host of other changes too.
+Beyond that there are parser improvements to TSQL, PostgreSQL, Snowflake,
+BigQuery, DuckDB, ClickHouse, Oracle, Hive/SparkSQL, Databricks, DB2, Athena, Trino,
+MariaDB/MySQL, StarRocks, Teradata, and Greenplum. Also rule fixes for `ST06`, `ST11`,
+`LT02`, and `LT09`, better handling for placeholder and dbt/Jinja rendering edge cases,
+and a new option to fail when files are skipped for size.
+
+This release also includes first-time contributions from **twenty-four** new
+contributors. Thank you all for your contributions. 🏆
 
 ## What’s Changed
 
