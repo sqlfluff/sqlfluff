@@ -77,6 +77,15 @@ jobs:
           architecture: ${{ matrix.platform.arch || null }}
 
       - name: Build wheels
+        if: matrix.platform.runner == 'ubuntu-22.04'
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release -i python3.10 --out dist --manifest-path sqlfluffrs/Cargo.toml
+          manylinux: ${{ matrix.platform.manylinux || '' }}
+
+      - name: Build wheels
+        if: matrix.platform.runner != 'ubuntu-22.04'
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
