@@ -14,9 +14,16 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+This is a bugfix release primarily to change the configuration of how
+rust wheels are distributed for sqlfluffrs. From this release onwards,
+rust wheels use ABI3 so that a single wheel can be re-used across multiple
+python versions, and the number of platforms which we distribute pre-compiled
+wheels for has been reduced. This is to ensure we remain with the storage
+limits set by pypi.
+
+In addition to this we see two TSQL fixes, including the first contribution
+by [@simondennis9](https://github.com/simondennis9) to the project. Thanks
+for your contributions! 🏆
 
 ## What’s Changed
 
