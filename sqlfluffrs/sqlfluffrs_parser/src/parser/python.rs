@@ -249,38 +249,6 @@ impl From<Node> for PyNode {
     }
 }
 
-/// Python-wrapped ParseError
-#[pyclass(name = "RsParseError", module = "sqlfluffrs", extends=PyException, from_py_object)]
-#[derive(Clone)]
-pub struct PyParseError {
-    #[pyo3(get)]
-    message: String,
-}
-
-#[pymethods]
-impl PyParseError {
-    #[new]
-    fn new(message: String) -> Self {
-        PyParseError { message }
-    }
-
-    fn __str__(&self) -> String {
-        self.message.clone()
-    }
-
-    fn __repr__(&self) -> String {
-        format!("RsParseError('{}')", self.message)
-    }
-}
-
-impl From<ParseError> for PyParseError {
-    fn from(err: ParseError) -> Self {
-        PyParseError {
-            message: err.message,
-        }
-    }
-}
-
 /// Python-wrapped MatchResult for deferred AST construction
 ///
 /// This allows Python code to receive match results and apply them using

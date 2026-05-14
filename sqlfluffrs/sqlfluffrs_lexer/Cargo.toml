@@ -15,7 +15,9 @@ uuid = { version = "1.22.0", features = ["v4"] }
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }
 sqlfluffrs_dialects = { path = "../sqlfluffrs_dialects" }
 sqlfluffrs_python = { path = "../sqlfluffrs_python", optional = true }
-pyo3 = { version = "0.28.2", optional = true, features = ["hashbrown", "extension-module", "uuid"] }
+# NOTE: Update the abi3 version as we deprecate old python versions.
+# It should match the oldest currently supported python version.
+pyo3 = { version = "0.28.2", optional = true, features = ["abi3-py310", "hashbrown", "extension-module", "uuid"] }
 pyo3-log = { version = "0.13.3", optional = true }
 
 [features]

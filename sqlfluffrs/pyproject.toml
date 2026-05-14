@@ -55,7 +55,9 @@ Source = "https://github.com/sqlfluff/sqlfluff"
 "Issue Tracker" = "https://github.com/sqlfluff/sqlfluff/issues"
 
 [tool.maturin]
-features = ["pyo3/extension-module", "python"]
+# NOTE: Update the abi3 version as we deprecate old python versions.
+# It should match the oldest currently supported python version.
+features = ["pyo3/abi3-py310", "pyo3/extension-module", "python"]
 
 [tool.uv.sources]
 sqlfluff = { workspace = true }

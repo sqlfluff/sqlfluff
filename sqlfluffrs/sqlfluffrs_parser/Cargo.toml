@@ -15,7 +15,9 @@ sqlfluffrs_python = { path = "../sqlfluffrs_python", optional = true }
 uuid = { version = "1.22.0", features = ["v4"] }
 serde_yaml_ng = "0.10.0"
 regex = { version = "1.12.3", features = ["perf"] }
-pyo3 = { version = "0.28.2", optional = true, features = ["hashbrown", "extension-module", "uuid"] }
+# NOTE: Update the abi3 version as we deprecate old python versions.
+# It should match the oldest currently supported python version.
+pyo3 = { version = "0.28.2", optional = true, features = ["abi3-py310", "hashbrown", "extension-module", "uuid"] }
 
 [features]
 python = ["pyo3", "sqlfluffrs_python", "sqlfluffrs_lexer/python"]

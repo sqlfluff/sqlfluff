@@ -44,7 +44,11 @@ hashbrown = "0.16.1"
 itertools = "0.14.0"
 log = "0.4.29"
 smallvec = "1.15.1"
+# NOTE: Update the abi3 version as we deprecate old python versions.
+# It should match the oldest currently supported python version.
+# This is also necessary in the child packages.
 pyo3 = { version = "0.28.2", optional = true, features = [
+    "abi3-py310",
     "hashbrown",
     "extension-module",
     "uuid",

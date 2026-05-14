@@ -35,4 +35,4 @@ pub(crate) use frame::{BracketedState, DelimitedState, FrameContext, FrameState}
 
 // Re-export Python bindings when feature is enabled
 #[cfg(feature = "python")]
-pub use python::{PyMatchResult, PyNode, PyParseError, PyParser, RsParseError};
+pub use python::{PyMatchResult, PyNode, PyParser, RsParseError};

@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use sqlfluffrs_lexer::{PyLexer, PySQLLexError};
-use sqlfluffrs_parser::{PyMatchResult, PyNode, PyParseError, PyParser, RsParseError};
+use sqlfluffrs_parser::{PyMatchResult, PyNode, PyParser, RsParseError};
 use sqlfluffrs_python::marker::PyPositionMarker;
 use sqlfluffrs_python::templater::{
     fileslice::{PyRawFileSlice, PyTemplatedFileSlice},
@@ -27,7 +27,6 @@ fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyNode>()?;
     m.add_class::<PyMatchResult>()?;
     m.add_class::<PyParser>()?;
-    m.add_class::<PyParseError>()?;
     // Add custom exception
     m.add("RsParseError", m.py().get_type::<RsParseError>())?;
     Ok(())

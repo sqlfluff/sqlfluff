@@ -4,7 +4,9 @@ version.workspace = true
 edition = "2021"
 
 [dependencies]
-pyo3 = { version = "0.28.2", features = ["hashbrown", "extension-module", "uuid"] }
+# NOTE: Update the abi3 version as we deprecate old python versions.
+# It should match the oldest currently supported python version.
+pyo3 = { version = "0.28.2", features = ["abi3-py310", "hashbrown", "extension-module", "uuid"] }
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }
 hashbrown = "0.16.1"
 uuid = { version = "1.22.0", features = ["v4"] }

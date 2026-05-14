@@ -120,7 +120,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: x86_64
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: auto
         env:
           # Use all 4 cores for parallel Rust compilation
@@ -170,7 +170,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: auto
 
       - name: Upload wheels
@@ -222,7 +222,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: musllinux_1_2
 
       - name: Upload wheels
@@ -270,7 +270,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -316,7 +316,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
