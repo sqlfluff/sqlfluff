@@ -25,10 +25,11 @@ This release is the first where the optional Rust routines are available.
 For most users, no difference will be visible, as currently the rust libraries
 are *opt-in*, and must be explicitly installed with `pip install sqlfluff[rs]`.
 
-Rust libraries are built for most major platforms, and we believe are ready for
-public beta testing, but they should be considered experimental until the 5.x
-release. Performance gains on initial release are not expected to be significant,
-but we do expect they will be significant once the routines are mature.
+Rust libraries are distributed as wheels for supported platforms, and installs
+without a matching wheel will fall back to a local source build. They should be
+considered experimental until the 5.x release. Performance gains on initial
+release are not expected to be significant, but we do expect they will be
+significant once the routines are mature.
 
 Additionally:
 

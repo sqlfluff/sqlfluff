@@ -57,6 +57,20 @@ Assuming that python and pip are already installed, then installing
 
     $ pip install sqlfluff
 
+If you want the optional Rust-backed parser and lexer, install the
+:code:`rs` extra:
+
+.. code-block:: text
+
+    $ pip install sqlfluff[rs]
+
+On supported CPython 3.10+ platforms this installs a prebuilt ABI3 wheel.
+If a wheel is not available for your platform, architecture, or Python
+implementation, :code:`pip` falls back to building :code:`sqlfluffrs` from
+source. In that case you will need a Rust toolchain and a working native build
+toolchain for your platform. The easiest way to install Rust is via
+`rustup <https://rustup.rs/>`_.
+
 You can confirm its installation by getting *SQLFluff* to show its
 version number.
 
