@@ -28,8 +28,8 @@ implementation, `pip` falls back to building from source. In that case you need:
 - a working C/C++ compiler toolchain for your platform
 - Python headers and normal build tooling for native extensions
 
-SQLFluff-rs is tested on more platform and architecture combinations than we
-currently publish python wheels for. PyPI project storage limits mean we only
+SQLFluff-rs is tested on more platforms and architecture combinations than we
+currently publish Python wheels for. PyPI project storage limits mean we only
 distribute wheels for the most common targets. Some platforms that are covered
 by CI should therefore still reliably install from source despite not receiving
 a prebuilt wheel.
