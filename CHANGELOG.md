@@ -16,7 +16,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 This is a bugfix release primarily to change the configuration of how
 rust wheels are distributed for sqlfluffrs. From this release onwards,
-rust wheels use ABI3 so that a single wheel can be re-used across multiple
+rust wheels use ABI3 so that a single wheel can be reused across multiple
 python versions, and the number of platforms which we distribute pre-compiled
 wheels for has been reduced. This is to ensure we remain with the storage
 limits set by pypi.
