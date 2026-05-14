@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce10bb5484b8bbd9a672ef2983dd6b3db6f37aae6800b37b1d6b95b930b8595f
+_hash: c1eed933b10d2613ceb4aa51f99e01832131bb17dfd04015e15ccc1dd9e07393
 file:
 - statement:
     select_statement:
@@ -103,9 +103,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        naked_identifier: row_with_price_decrease
-                        dot: .
-                        star: '*'
+                        wildcard_identifier:
+                          naked_identifier: row_with_price_decrease
+                          dot: .
+                          star: '*'
                       end_bracket: )
             - alias_expression:
                 alias_operator:
@@ -120,9 +121,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        naked_identifier: row_with_price_increase
-                        dot: .
-                        star: '*'
+                        wildcard_identifier:
+                          naked_identifier: row_with_price_increase
+                          dot: .
+                          star: '*'
                       end_bracket: )
             - alias_expression:
                 alias_operator:
@@ -773,9 +775,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        naked_identifier: row_with_price_decrease
-                        dot: .
-                        star: '*'
+                        wildcard_identifier:
+                          naked_identifier: row_with_price_decrease
+                          dot: .
+                          star: '*'
                       end_bracket: )
             - alias_expression:
                 alias_operator:
@@ -790,9 +793,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        naked_identifier: row_with_price_increase
-                        dot: .
-                        star: '*'
+                        wildcard_identifier:
+                          naked_identifier: row_with_price_increase
+                          dot: .
+                          star: '*'
                       end_bracket: )
             - alias_expression:
                 alias_operator:
@@ -988,9 +992,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        naked_identifier: row_with_price_decrease
-                        dot: .
-                        star: '*'
+                        wildcard_identifier:
+                          naked_identifier: row_with_price_decrease
+                          dot: .
+                          star: '*'
                       end_bracket: )
             - alias_expression:
                 alias_operator:
@@ -1005,9 +1010,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        naked_identifier: row_with_price_increase
-                        dot: .
-                        star: '*'
+                        wildcard_identifier:
+                          naked_identifier: row_with_price_increase
+                          dot: .
+                          star: '*'
                       end_bracket: )
             - alias_expression:
                 alias_operator:
@@ -1199,9 +1205,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        naked_identifier: row_with_price_decrease
-                        dot: .
-                        star: '*'
+                        wildcard_identifier:
+                          naked_identifier: row_with_price_decrease
+                          dot: .
+                          star: '*'
                       end_bracket: )
             - alias_expression:
                 alias_operator:
@@ -1216,9 +1223,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        naked_identifier: row_with_price_increase
-                        dot: .
-                        star: '*'
+                        wildcard_identifier:
+                          naked_identifier: row_with_price_increase
+                          dot: .
+                          star: '*'
                       end_bracket: )
             - alias_expression:
                 alias_operator:
@@ -1396,9 +1404,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        naked_identifier: row_with_price_decrease
-                        dot: .
-                        star: '*'
+                        wildcard_identifier:
+                          naked_identifier: row_with_price_decrease
+                          dot: .
+                          star: '*'
                       end_bracket: )
             - alias_expression:
                 alias_operator:
@@ -1413,9 +1422,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        naked_identifier: row_with_price_increase
-                        dot: .
-                        star: '*'
+                        wildcard_identifier:
+                          naked_identifier: row_with_price_increase
+                          dot: .
+                          star: '*'
                       end_bracket: )
             - alias_expression:
                 alias_operator:

@@ -1851,6 +1851,29 @@ class WildcardExpressionSegment(BaseSegment):
     )
 
 
+class SingleIdentifierWildcardSegment(WildcardIdentifierSegment):
+    """A wildcard identifier qualified by a single name, e.g. ``a.*``.
+
+    Unlike :class:`WildcardIdentifierSegment`, this does not allow a bare
+    ``*`` (which would be ambiguous with multiplication in an expression
+    context) or a multi-part reference such as ``a.b.*``. It is used inside
+    general expressions, for example ``NEW.*`` in a trigger condition or
+    ``my_table.*`` when a whole row is passed to a function such as
+    ``to_jsonb(my_table.*)``.
+
+    It keeps the ``wildcard_identifier`` segment type (and the reference
+    helpers inherited from :class:`ObjectReferenceSegment`) so that reference
+    analysis -- and the rules built on it, such as AL05 and ST11 -- treat the
+    qualifier as a used table reference rather than as orphaned raw segments.
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("ObjectReferenceDelimiterGrammar"),
+        Ref("StarSegment"),
+    )
+
+
 class SelectClauseElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
 
@@ -2377,13 +2400,13 @@ ansi_dialect.add(
             ),
             # Allow potential select statement without brackets
             Ref("Expression_D_Potential_Select_Statement_Without_Brackets"),
-            # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
-            # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                Ref("ObjectReferenceDelimiterGrammar"),
-                Ref("StarSegment"),
-            ),
+            # For triggers we allow "NEW.*", and for expressions which pass a
+            # whole row to a function we allow "my_table.*". A dedicated segment
+            # is used (rather than a bare Sequence) so reference analysis sees
+            # the qualifier as a used table reference. We can't reuse
+            # WildcardIdentifierSegment / WildcardExpressionSegment here because
+            # they also permit a bare "*" and multi-part "a.b.*".
+            Ref("SingleIdentifierWildcardSegment"),
             Sequence(
                 OneOf(Ref("StructTypeSegment"), Ref("MapTypeSegment")),
                 Bracketed(Delimited(Ref("ExpressionSegment"))),
