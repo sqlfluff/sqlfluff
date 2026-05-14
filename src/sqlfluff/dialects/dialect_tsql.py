@@ -8608,6 +8608,16 @@ class ContainstableSegment(BaseSegment):
         Ref("StarSegment"),
     )
 
+    _search_condition = OneOf(
+        Ref("QuotedLiteralSegmentOptWithN"),
+        Ref("ParameterNameSegment"),
+    )
+
+    _top_n_by_rank_term = OneOf(
+        Ref("NumericLiteralSegment"),
+        Ref("ParameterNameSegment"),
+    )
+
     match_grammar = Sequence(
         "CONTAINSTABLE",
         Bracketed(
@@ -8615,7 +8625,7 @@ class ContainstableSegment(BaseSegment):
             Ref("CommaSegment"),
             _column_specification,
             Ref("CommaSegment"),
-            Ref("QuotedLiteralSegmentOptWithN"),
+            _search_condition,
             Sequence(
                 Ref("CommaSegment"),
                 "LANGUAGE",
@@ -8624,7 +8634,7 @@ class ContainstableSegment(BaseSegment):
             ),
             Sequence(
                 Ref("CommaSegment"),
-                Ref("NumericLiteralSegment"),
+                _top_n_by_rank_term,
                 optional=True,
             ),
         ),

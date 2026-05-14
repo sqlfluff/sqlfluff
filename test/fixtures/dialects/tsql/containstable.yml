@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f142f8944ed6dd987eb9ebf6e3813dce9a7ced06c05c349707584592b4f892e5
+_hash: fee386820ed9a731e30968feef48c2e499fbc9d0e822974186be9ad5d9ada6b0
 file:
   batch:
   - statement:
@@ -44,6 +44,37 @@ file:
           - naked_identifier: RANK
         - keyword: DESC
   - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                containstable_segment:
+                  keyword: CONTAINSTABLE
+                  bracketed:
+                  - start_bracket: (
+                  - table_reference:
+                      naked_identifier: Flags
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: FlagColors
+                  - comma: ','
+                  - parameter: '@contains_query'
+                  - comma: ','
+                  - parameter: '@candidate_cap'
+                  - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: KEY_TBL
   - statement:
       select_statement:
         select_clause:

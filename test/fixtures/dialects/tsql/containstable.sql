@@ -4,6 +4,9 @@ SELECT *
 FROM CONTAINSTABLE(Flags, FlagColors, 'Green') AS KEY_TBL
 ORDER BY KEY_TBL.RANK DESC;
 
+SELECT *
+FROM CONTAINSTABLE(Flags, FlagColors, @contains_query, @candidate_cap) AS KEY_TBL
+
 SELECT FT_TBL.Name,
        KEY_TBL.RANK
 FROM Production.Product AS FT_TBL
