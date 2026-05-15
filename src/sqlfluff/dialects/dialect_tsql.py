@@ -3478,6 +3478,17 @@ class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
     )
 
 
+class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
+    """A `DROP SEQUENCE` statement."""
+
+    match_grammar = Sequence(
+        "DROP",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+    )
+
+
 class DropStatisticsStatementSegment(BaseSegment):
     """A `DROP STATISTICS` statement."""
 
