@@ -3485,7 +3485,7 @@ class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
         "DROP",
         "SEQUENCE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("SequenceReferenceSegment"),
+        Delimited(Ref("SequenceReferenceSegment")),
     )
 
 

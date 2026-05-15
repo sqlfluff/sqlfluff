@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d4d54745dcabac2a9aa5a279330803cf10cc4248779388d5208dce62095955ec
+_hash: 687a3c3886104397b5811aedb9926fb5a818cbfe6fb710488eacf1cc81745a59
 file:
   batch:
   - statement:
@@ -30,6 +30,18 @@ file:
       - keyword: EXISTS
       - sequence_reference:
           naked_identifier: my_seq
+  - statement_terminator: ;
+  - statement:
+      drop_sequence_statement:
+      - keyword: DROP
+      - keyword: SEQUENCE
+      - keyword: IF
+      - keyword: EXISTS
+      - sequence_reference:
+          naked_identifier: my_seq
+      - comma: ','
+      - sequence_reference:
+          naked_identifier: my_other_seq
   - statement_terminator: ;
   - statement:
       drop_sequence_statement:
