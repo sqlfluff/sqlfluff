@@ -157,3 +157,24 @@ def test_get_keywords() -> None:
     expected_result_3 = ["B"]
 
     assert sorted(get_keywords(kw_list, "reserved")) == sorted(expected_result_3)
+
+
+def test_begin_atomic_function_with_union_all_parses() -> None:
+    """Test postgres BEGIN ATOMIC functions allow set expressions."""
+    sql = """create or replace function union_things()
+returns table (num integer)
+language sql
+stable
+begin atomic
+  select 1
+
+  union all
+
+  select 2;
+end;"""
+
+    parsed = Linter(dialect="postgres").parse_string(sql)
+
+    assert parsed.tree is not None
+    assert not parsed.violations
+    assert "unparsable" not in parsed.tree.type_set()
