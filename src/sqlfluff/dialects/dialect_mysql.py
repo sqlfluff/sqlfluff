@@ -1813,6 +1813,25 @@ class TableOptionsSegment(BaseSegment):
     )
 
 
+class AlterTableOnlineDDLOptionSegment(BaseSegment):
+    """MySQL online DDL options for ALTER TABLE statements."""
+
+    type = "alter_table_online_ddl_option"
+
+    match_grammar = OneOf(
+        Sequence(
+            "ALGORITHM",
+            Ref("EqualsSegment", optional=True),
+            OneOf("DEFAULT", "INPLACE", "COPY", "INSTANT"),
+        ),
+        Sequence(
+            "LOCK",
+            Ref("EqualsSegment", optional=True),
+            OneOf("DEFAULT", "NONE", "SHARED", "EXCLUSIVE"),
+        ),
+    )
+
+
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE .. ALTER COLUMN` statement.
 
@@ -1832,6 +1851,8 @@ class AlterTableStatementSegment(BaseSegment):
             OneOf(
                 # Table options
                 Ref("TableOptionsSegment"),
+                # Online DDL options
+                Ref("AlterTableOnlineDDLOptionSegment"),
                 # Add column
                 Sequence(
                     "ADD",
