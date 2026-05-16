@@ -50,7 +50,15 @@ KEY_BLOCK_SIZE 8;
 ALTER TABLE `foo`.`bar` ADD INDEX `index_name`(`col_1`, `col_2`, `col_3`)
 KEY_BLOCK_SIZE 8 COMMENT 'index for col_1, col_2, col_3';
 
+ALTER TABLE my_table
+ADD INDEX idx_timestamp (`timestamp`),
+ALGORITHM = INPLACE, LOCK = NONE;
+
 ALTER TABLE `foo`.`bar` DROP INDEX `index_name`;
+
+ALTER TABLE my_table
+DROP INDEX idx_timestamp,
+ALGORITHM = INPLACE, LOCK = NONE;
 
 ALTER TABLE `foo`.`bar` RENAME INDEX `index_name` to `new_index_name`;
 
@@ -63,6 +71,10 @@ ALTER TABLE `users`
 
 ALTER TABLE `users`
     ADD COLUMN IF NOT EXISTS `active` tinyint(1) DEFAULT '0';
+
+ALTER TABLE my_table
+ADD COLUMN created_at TIMESTAMP,
+ALGORITHM = INPLACE, LOCK = NONE;
 
 ALTER TABLE `foo` ADD `bar` INT FIRST;
 

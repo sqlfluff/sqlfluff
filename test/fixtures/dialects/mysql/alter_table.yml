@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 58b78cce5b8979d036330220bbca8fbd5934bc641e4da86a65186e7a41f11176
+_hash: 23a2e19183755f32759d022d7e56863c90016a037fe176f5b72ba110e6c30626
 file:
 - statement:
     alter_table_statement:
@@ -423,6 +423,35 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
+        naked_identifier: my_table
+    - keyword: ADD
+    - table_constraint:
+        keyword: INDEX
+        index_reference:
+          naked_identifier: idx_timestamp
+        bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`timestamp`'
+          end_bracket: )
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: ALGORITHM
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: INPLACE
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: LOCK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
       - quoted_identifier: '`foo`'
       - dot: .
       - quoted_identifier: '`bar`'
@@ -430,6 +459,29 @@ file:
     - keyword: INDEX
     - index_reference:
         quoted_identifier: '`index_name`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx_timestamp
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: ALGORITHM
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: INPLACE
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: LOCK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -532,6 +584,30 @@ file:
         column_constraint_segment:
           keyword: DEFAULT
           quoted_literal: "'0'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: created_at
+        keyword: TIMESTAMP
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: ALGORITHM
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: INPLACE
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: LOCK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
 - statement_terminator: ;
 - statement:
     alter_table_statement:
