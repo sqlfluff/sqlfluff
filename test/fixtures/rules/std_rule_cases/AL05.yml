@@ -1257,3 +1257,16 @@ test_pass_redshift_array_value:
   configs:
     core:
       dialect: redshift
+
+test_pass_postgres_wildcard_row_passed_to_function:
+  # https://github.com/sqlfluff/sqlfluff/issues/7235
+  # `mot.*` passes the whole row of the aliased table to a function, so the
+  # alias *is* used and should not be flagged.
+  pass_str: |
+    SELECT
+      to_jsonb(mot.*)
+    FROM my_table
+    JOIN my_other_table AS mot ON (TRUE)
+  configs:
+    core:
+      dialect: postgres

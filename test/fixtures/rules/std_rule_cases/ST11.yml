@@ -159,6 +159,15 @@ test_pass_wildcard_6511:
     core:
       dialect: snowflake
 
+test_pass_bare_select_wildcard:
+  # A bare select-clause wildcard (`*`) should not be treated as an
+  # unqualified table reference while ST11 scans references.
+  pass_str: |
+    SELECT *
+    FROM a
+    LEFT JOIN b
+        ON a.id = b.id
+
 test_pass_cross_join_6511:
   pass_str: |
     select
@@ -275,3 +284,28 @@ test_fail_placeholder_templater_unused_join:
       placeholder:
         param_style: dollar
         CATALOG: my_catalog
+
+test_pass_wildcard_row_passed_to_function:
+  # https://github.com/sqlfluff/sqlfluff/issues/7234
+  # `other_table.*` passes the whole row of the joined table to a function,
+  # which counts as a reference to that table.
+  pass_str: |
+    SELECT
+        to_jsonb(other_table.*) AS other_table_jsonb
+    FROM my_table
+    LEFT JOIN other_table ON (other_table.my_table_id = my_table.id)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_wildcard_row_from_unrelated_table:
+  # A qualified wildcard for a *different* table should still leave the
+  # joined table flagged as unused.
+  fail_str: |
+    SELECT
+        to_jsonb(my_table.*) AS my_table_jsonb
+    FROM my_table
+    LEFT JOIN other_table ON (other_table.my_table_id = my_table.id)
+  configs:
+    core:
+      dialect: postgres
