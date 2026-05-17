@@ -228,7 +228,14 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
                                             Sequence(
                                                 "IN",
                                                 Bracketed(
-                                                    Ref("ObjectReferenceSegment")
+                                                    Delimited(
+                                                        OneOf(
+                                                            Ref("LiteralGrammar"),
+                                                            Ref(
+                                                                "ObjectReferenceSegment"
+                                                            ),
+                                                        ),
+                                                    ),
                                                 ),
                                             ),
                                         ),
