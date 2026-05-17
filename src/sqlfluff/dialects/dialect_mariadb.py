@@ -231,7 +231,9 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
                                                     Delimited(
                                                         OneOf(
                                                             Ref("LiteralGrammar"),
-                                                            Ref("ObjectReferenceSegment"),
+                                                            Ref(
+                                                                "ObjectReferenceSegment"
+                                                            ),
                                                         ),
                                                     ),
                                                 ),

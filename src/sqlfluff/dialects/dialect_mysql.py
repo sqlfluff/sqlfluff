@@ -617,7 +617,9 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                                     Delimited(
                                                         OneOf(
                                                             Ref("LiteralGrammar"),
-                                                            Ref("ObjectReferenceSegment"),
+                                                            Ref(
+                                                                "ObjectReferenceSegment"
+                                                            ),
                                                         ),
                                                     ),
                                                 ),
