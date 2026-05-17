@@ -2058,7 +2058,13 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         ),
         Sequence(
             Ref("BaseExpressionElementGrammar"),
-            Ref("AliasExpressionSegment", optional=True),
+            # Exclude label patterns (identifier immediately followed by colon)
+            # so that `SELECT 1\nlabel:` doesn't consume `label` as a column alias.
+            Ref(
+                "AliasExpressionSegment",
+                optional=True,
+                exclude=Ref("LabelStatementSegment"),
+            ),
         ),
     )
 
