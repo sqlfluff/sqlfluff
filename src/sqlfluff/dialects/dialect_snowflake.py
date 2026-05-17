@@ -2062,11 +2062,29 @@ class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
 
     match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
         insert=[
-            # Optional Exclude or Rename clause
-            Ref("ExcludeClauseSegment", optional=True),
+            # Optional ILIKE, EXCLUDE, REPLACE or RENAME clause.
+            # ILIKE and EXCLUDE are mutually exclusive.
+            OneOf(
+                Ref("IlikeClauseSegment"),
+                Ref("ExcludeClauseSegment"),
+                optional=True,
+            ),
             Ref("ReplaceClauseSegment", optional=True),
             Ref("RenameClauseSegment", optional=True),
         ]
+    )
+
+
+class IlikeClauseSegment(BaseSegment):
+    """A snowflake SELECT ILIKE clause.
+
+    https://docs.snowflake.com/en/sql-reference/sql/select.html
+    """
+
+    type = "select_ilike_clause"
+    match_grammar = Sequence(
+        "ILIKE",
+        Ref("QuotedLiteralSegment"),
     )
 
 
