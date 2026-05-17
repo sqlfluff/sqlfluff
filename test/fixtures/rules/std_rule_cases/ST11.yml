@@ -159,6 +159,15 @@ test_pass_wildcard_6511:
     core:
       dialect: snowflake
 
+test_pass_bare_select_wildcard:
+  # A bare select-clause wildcard (`*`) should not be treated as an
+  # unqualified table reference while ST11 scans references.
+  pass_str: |
+    SELECT *
+    FROM a
+    LEFT JOIN b
+        ON a.id = b.id
+
 test_pass_cross_join_6511:
   pass_str: |
     select
