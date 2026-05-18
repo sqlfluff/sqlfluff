@@ -11,7 +11,6 @@ def _has_keyword(segments, keyword: str) -> bool:
     return any(seg.is_type("keyword") and seg.raw_upper == keyword for seg in segments)
 
 
-
 class Rule_CV13(BaseRule):
     """Avoid excessive locks in PostgreSQL DDL statements.
 
