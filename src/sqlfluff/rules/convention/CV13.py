@@ -8,17 +8,8 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 def _has_keyword(segments, keyword: str) -> bool:
     """Check if a keyword exists among direct child segments."""
-    return any(
-        seg.is_type("keyword") and seg.raw_upper == keyword for seg in segments
-    )
+    return any(seg.is_type("keyword") and seg.raw_upper == keyword for seg in segments)
 
-
-def _has_keyword_recursive(segment, keyword: str) -> bool:
-    """Check if a keyword exists anywhere in the segment tree."""
-    for seg in segment.recursive_crawl("keyword"):
-        if seg.raw_upper == keyword:
-            return True
-    return False
 
 
 class Rule_CV13(BaseRule):
@@ -127,8 +118,7 @@ class Rule_CV13(BaseRule):
         return LintResult(
             anchor=segment,
             description=(
-                f"{stmt} statement should use CONCURRENTLY "
-                "to avoid locking the table."
+                f"{stmt} statement should use CONCURRENTLY to avoid locking the table."
             ),
         )
 
