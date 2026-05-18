@@ -86,16 +86,15 @@ class Rule_CV13(BaseRule):
 
         if seg_type == "create_index_statement":
             return self._check_create_index(segment)
-        elif seg_type in (
+        if seg_type in (
             "drop_index_statement",
             "reindex_statement_segment",
             "refresh_materialized_view_statement",
         ):
             return self._check_concurrently(segment)
-        elif seg_type == "alter_table_statement":
+        if seg_type == "alter_table_statement":
             return self._check_add_foreign_key(segment)
-
-        return None
+        return None  # pragma: no cover
 
     def _check_create_index(self, segment) -> Optional[LintResult]:
         if _has_keyword(segment.segments, "CONCURRENTLY"):

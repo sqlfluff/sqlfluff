@@ -115,6 +115,20 @@ test_fail_refresh_materialized_view_without_concurrently:
 
 # ---- ADD CONSTRAINT FOREIGN KEY ----
 
+test_pass_alter_table_add_column:
+  pass_str: |
+    ALTER TABLE foo ADD COLUMN bar TEXT;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_alter_table_drop_column:
+  pass_str: |
+    ALTER TABLE foo DROP COLUMN bar;
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_add_foreign_key_not_valid:
   pass_str: |
     ALTER TABLE foo ADD CONSTRAINT fk_bar
