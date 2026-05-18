@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     IdentifierSegment,
     ImplicitIndent,
     Indent,
+    KeywordSegment,
     LiteralKeywordSegment,
     LiteralSegment,
     Matchable,
@@ -499,6 +500,7 @@ postgres_dialect.add(
     CreateForeignTableGrammar=Sequence("CREATE", "FOREIGN", "TABLE"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
+    ProviderKeywordSegment=StringParser("provider", KeywordSegment),
     MetaCommandQueryBufferSegment=TypedParser(
         "meta_command_query_buffer", SymbolSegment, type="meta_command"
     ),
