@@ -1137,7 +1137,10 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 ),
             ),
             # user defined data types
-            Ref("DatatypeIdentifierSegment"),
+            Sequence(
+                Ref("DatatypeIdentifierSegment"),
+                Ref("BracketedArguments", optional=True),
+            ),
         ),
         # array types
         OneOf(
