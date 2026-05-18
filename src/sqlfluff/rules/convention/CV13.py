@@ -122,7 +122,7 @@ class Rule_CV13(BaseRule):
 
     def _check_add_foreign_key(self, segment) -> Optional[LintResult]:
         action = segment.get_child("alter_table_action_segment")
-        if not action:
+        if not action:  # pragma: no cover
             return None
         constraint = action.get_child("table_constraint")
         if not constraint:
