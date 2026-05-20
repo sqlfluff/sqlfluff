@@ -70,6 +70,33 @@ def test__cli__helpers__colorize(tmpdir):
     assert formatter.colorize("foo", Color.red) == "\u001b[31mfoo\u001b[0m"
 
 
+@pytest.mark.parametrize(
+    "nocolor,isatty,no_color_env,expected_plain_output",
+    [
+        (None, True, None, False),
+        (None, False, None, True),
+        (True, True, None, True),
+        (False, False, None, False),
+        (False, False, "1", False),
+        (None, True, "1", True),
+    ],
+)
+def test__cli__helpers__plain_output_color_decision(
+    monkeypatch, nocolor, isatty, no_color_env, expected_plain_output
+):
+    """Test when output should be plain rather than colored."""
+    monkeypatch.setattr("sys.stdout.isatty", lambda: isatty)
+    if no_color_env is None:
+        monkeypatch.delenv("NO_COLOR", raising=False)
+    else:
+        monkeypatch.setenv("NO_COLOR", no_color_env)
+
+    assert (
+        OutputStreamFormatter.should_produce_plain_output(nocolor)
+        is expected_plain_output
+    )
+
+
 def test__cli__helpers__cli_table(tmpdir):
     """Test making tables."""
     vals = [("a", 3), ("b", "c"), ("d", 4.7654), ("e", 9)]
