@@ -28,6 +28,7 @@ class _RebreakSpan:
     end_idx: int
     line_position: str
     strict: bool
+    attached: bool = False
 
 
 @dataclass(frozen=True)
@@ -75,6 +76,7 @@ class _RebreakLocation:
     next: _RebreakIndices
     line_position: str
     strict: bool
+    attached: bool = False
 
     @classmethod
     def from_span(
@@ -87,6 +89,7 @@ class _RebreakLocation:
             _RebreakIndices.from_elements(elements, span.end_idx, 1),
             span.line_position,
             span.strict,
+            span.attached,
         )
 
     def pretty_target_name(self) -> str:
@@ -133,6 +136,12 @@ class _RebreakLocation:
         n_next_newlines = elements[self.next.newline_pt_idx].num_newlines()
         newlines_on_neither_side = n_prev_newlines + n_next_newlines == 0
         newlines_on_both_sides = n_prev_newlines > 0 and n_next_newlines > 0
+
+        # For trailing:attached, newlines on both sides means the operator
+        # is on its own line and must be moved to be truly trailing.
+        # We must NOT skip this case.
+        if newlines_on_both_sides and self.attached:
+            return False
 
         return (
             # If there isn't a newline on either side then carry
@@ -210,6 +219,7 @@ def identify_rebreak_spans(
                     # complex, this works.
                     elem.line_position.split(":")[0],
                     elem.line_position.endswith("strict"),
+                    "attached" in elem.line_position,
                 )
             )
         # Do any of its parents have config, and are we at the start
@@ -253,6 +263,7 @@ def identify_rebreak_spans(
                             # complex, this works.
                             elem.line_position_configs[key].split(":")[0],
                             elem.line_position_configs[key].endswith("strict"),
+                            "attached" in elem.line_position_configs[key],
                         )
                     )
                     break
@@ -351,6 +362,7 @@ def identify_keyword_rebreak_spans(
                             # complex, this works.
                             elem.keyword_line_position_configs[key].split(":")[0],
                             elem.keyword_line_position_configs[key].endswith("strict"),
+                            "attached" in elem.keyword_line_position_configs[key],
                         )
                     )
                     break
@@ -433,14 +445,28 @@ def rebreak_sequence(
         # So we know we have a preference, is it ok?
         if loc.line_position == "leading":
             if elem_buff[loc.prev.newline_pt_idx].num_newlines():
-                # We're good. It's already leading.
-                continue
+                # For leading:attached, also check there's no newline after.
+                # An operator on its own line (newlines on both sides) must be
+                # moved to be attached to the following token.
+                if (
+                    not loc.attached
+                    or not elem_buff[loc.next.newline_pt_idx].num_newlines()
+                ):
+                    # We're good. It's already leading.
+                    continue
 
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
             if loc.strict:  # pragma: no cover
                 # TODO: The 'strict' option isn't widely tested yet.
                 desc = f"{pretty_name.capitalize()} should always start a new line."
+            elif loc.attached and elem_buff[loc.prev.newline_pt_idx].num_newlines():
+                # Standalone + leading:attached: operator is on its own line but
+                # must be directly attached to the following token.
+                desc = (
+                    f"Found standalone {pretty_name}. Expected leading and "
+                    "attached to the following token."
+                )
             else:
                 desc = (
                     f"Found trailing {pretty_name}. Expected only leading "
@@ -533,8 +559,15 @@ def rebreak_sequence(
 
         elif loc.line_position == "trailing":
             if elem_buff[loc.next.newline_pt_idx].num_newlines():
-                # We're good, it's already trailing.
-                continue
+                # For trailing:attached, also check there's no newline before.
+                # An operator on its own line (newlines on both sides) must be
+                # moved to the end of the previous line.
+                if (
+                    not loc.attached
+                    or not elem_buff[loc.prev.newline_pt_idx].num_newlines()
+                ):
+                    # We're good, it's already trailing.
+                    continue
 
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
@@ -542,6 +575,13 @@ def rebreak_sequence(
                 # TODO: The 'strict' option isn't widely tested yet.
                 desc = (
                     f"{pretty_name.capitalize()} should always be at the end of a line."
+                )
+            elif loc.attached and elem_buff[loc.next.newline_pt_idx].num_newlines():
+                # Standalone + trailing:attached: operator is on its own line but
+                # must be directly attached to the preceding token.
+                desc = (
+                    f"Found standalone {pretty_name}. Expected trailing and "
+                    "attached to the preceding token."
                 )
             else:
                 desc = (
@@ -782,8 +822,13 @@ def rebreak_keywords_sequence(
         # So we know we have a preference, is it ok?
         if loc.line_position == "leading":
             if elem_buff[loc.prev.newline_pt_idx].num_newlines():
-                # We're good. It's already leading.
-                continue
+                # For leading:attached, also check there's no newline after.
+                if (
+                    not loc.attached
+                    or not elem_buff[loc.next.newline_pt_idx].num_newlines()
+                ):
+                    # We're good. It's already leading.
+                    continue
 
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
@@ -815,8 +860,13 @@ def rebreak_keywords_sequence(
 
         elif loc.line_position == "trailing":
             if elem_buff[loc.next.newline_pt_idx].num_newlines():
-                # We're good, it's already trailing.
-                continue
+                # For trailing:attached, also check there's no newline before.
+                if (
+                    not loc.attached
+                    or not elem_buff[loc.prev.newline_pt_idx].num_newlines()
+                ):
+                    # We're good, it's already trailing.
+                    continue
 
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
