@@ -31,6 +31,12 @@ LABEL org.opencontainers.image.title="sqlfluff" \
       org.opencontainers.image.source="https://github.com/sqlfluff/sqlfluff" \
       org.opencontainers.image.documentation="https://docs.sqlfluff.com/en/stable/"
 
+# Install bash for CI/CD compatibility.
+# GitLab CI and other CI platforms require /bin/sh to be available
+# in the container to execute provided scripts.
+RUN apt-get update && apt-get install -y --no-install-recommends bash \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/.venv /app/.venv
 ENV VIRTUAL_ENV=/app/.venv PATH=/app/.venv/bin:$PATH
 
