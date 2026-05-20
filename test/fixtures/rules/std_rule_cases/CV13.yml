@@ -1,0 +1,162 @@
+rule: CV13
+
+# ---- CREATE INDEX ----
+
+test_pass_create_index_concurrently:
+  pass_str: |
+    CREATE INDEX CONCURRENTLY idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_create_index_concurrently_if_not_exists:
+  pass_str: |
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_unique_index_without_concurrently:
+  pass_str: |
+    CREATE UNIQUE INDEX idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_create_index_without_concurrently:
+  fail_str: |
+    CREATE INDEX idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_create_index_if_not_exists_without_concurrently:
+  fail_str: |
+    CREATE INDEX IF NOT EXISTS idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_create_index_on_jsonb_without_concurrently:
+  fail_str: |
+    CREATE INDEX idx_foo ON bar (tenant_id, (event ->> 'id'));
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_create_index_on_jsonb_with_concurrently:
+  pass_str: |
+    CREATE INDEX CONCURRENTLY idx_foo ON bar (tenant_id, (event ->> 'id'));
+  configs:
+    core:
+      dialect: postgres
+
+# ---- DROP INDEX ----
+
+test_pass_drop_index_concurrently:
+  pass_str: |
+    DROP INDEX CONCURRENTLY idx_foo;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_drop_index_without_concurrently:
+  fail_str: |
+    DROP INDEX idx_foo;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_drop_index_if_exists_without_concurrently:
+  fail_str: |
+    DROP INDEX IF EXISTS idx_foo;
+  configs:
+    core:
+      dialect: postgres
+
+# ---- REINDEX ----
+
+test_pass_reindex_concurrently:
+  pass_str: |
+    REINDEX INDEX CONCURRENTLY idx_foo;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_reindex_without_concurrently:
+  fail_str: |
+    REINDEX INDEX idx_foo;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_reindex_table_without_concurrently:
+  fail_str: |
+    REINDEX TABLE my_table;
+  configs:
+    core:
+      dialect: postgres
+
+# ---- REFRESH MATERIALIZED VIEW ----
+
+test_pass_refresh_materialized_view_concurrently:
+  pass_str: |
+    REFRESH MATERIALIZED VIEW CONCURRENTLY my_view;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_refresh_materialized_view_without_concurrently:
+  fail_str: |
+    REFRESH MATERIALIZED VIEW my_view;
+  configs:
+    core:
+      dialect: postgres
+
+# ---- ADD CONSTRAINT FOREIGN KEY ----
+
+test_pass_alter_table_add_column:
+  pass_str: |
+    ALTER TABLE foo ADD COLUMN bar TEXT;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_alter_table_drop_column:
+  pass_str: |
+    ALTER TABLE foo DROP COLUMN bar;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_add_foreign_key_not_valid:
+  pass_str: |
+    ALTER TABLE foo ADD CONSTRAINT fk_bar
+        FOREIGN KEY (bar_id) REFERENCES bar (id) NOT VALID;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_add_foreign_key_without_not_valid:
+  fail_str: |
+    ALTER TABLE foo ADD CONSTRAINT fk_bar
+        FOREIGN KEY (bar_id) REFERENCES bar (id);
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_add_non_fk_constraint_without_not_valid:
+  pass_str: |
+    ALTER TABLE foo ADD CONSTRAINT uq_bar UNIQUE (bar_id);
+  configs:
+    core:
+      dialect: postgres
+
+# ---- Dialect scoping ----
+
+test_pass_non_postgres_dialect_ignored:
+  pass_str: |
+    CREATE INDEX idx_foo ON bar (tenant_id);
+  configs:
+    core:
+      dialect: ansi
