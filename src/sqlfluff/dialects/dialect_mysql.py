@@ -2810,6 +2810,75 @@ class DropProcedureStatementSegment(BaseSegment):
     )
 
 
+class JsonValueFunctionContentsSegment(BaseSegment):
+    """JSON_VALUE function contents for MySQL.
+
+    https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-value
+
+    JSON_VALUE(json_doc, path [RETURNING type])
+    """
+
+    type = "function_contents"
+
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),  # JSON expression
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),  # JSON path
+        Sequence(
+            "RETURNING",
+            Ref("DatatypeSegment"),
+            Sequence(
+                "CHARACTER",
+                "SET",
+                Ref("NakedIdentifierSegment"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
+class JsonValueFunctionNameSegment(ansi.FunctionNameSegment):
+    """JSON_VALUE function name segment for MySQL."""
+
+    type = "function_name"
+    match_grammar = Sequence(
+        "JSON_VALUE",
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function for MySQL."""
+
+    type = "function"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Ref("DatePartFunctionNameSegment"),
+            Ref("DateTimeFunctionContentsSegment"),
+        ),
+        Ref("ColumnsExpressionGrammar"),
+        Sequence(
+            Ref("JsonValueFunctionNameSegment"),
+            Ref("JsonValueFunctionContentsSegment"),
+        ),
+        Sequence(
+            Sequence(
+                Ref(
+                    "FunctionNameSegment",
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ColumnsExpressionFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                        Ref("JsonValueFunctionNameSegment"),
+                    ),
+                ),
+                Ref("FunctionContentsSegment"),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
+    )
+
+
 class DropFunctionStatementSegment(BaseSegment):
     """A `DROP` statement that addresses loadable functions.
 
