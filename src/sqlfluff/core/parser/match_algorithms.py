@@ -568,7 +568,9 @@ def greedy_match(
     child_matches: tuple[MatchResult, ...] = ()
 
     while True:
-        with parse_context.deeper_match(name="GreedyUntil") as ctx:
+        with parse_context.deeper_match(
+            name="GreedyUntil", track_parse_depth=False
+        ) as ctx:
             match, matcher, inner_matches = next_ex_bracket_match(
                 segments,
                 idx=working_idx,
@@ -683,7 +685,9 @@ def trim_to_terminator(
     # match will appear to not match (because there's "nothing" before
     # the terminator). To resolve that case, we first match immediately
     # on the terminators and handle that case explicitly if it occurs.
-    with parse_context.deeper_match(name="Trim-GreedyA-@0") as ctx:
+    with parse_context.deeper_match(
+        name="Trim-GreedyA-@0", track_parse_depth=False
+    ) as ctx:
         pruned_terms = prune_options(
             terminators, segments, start_idx=idx, parse_context=ctx
         )
@@ -694,7 +698,7 @@ def trim_to_terminator(
 
     # If the above case didn't match then we proceed as expected.
     with parse_context.deeper_match(
-        name="Trim-GreedyB-@0", track_progress=False
+        name="Trim-GreedyB-@0", track_progress=False, track_parse_depth=False
     ) as ctx:
         term_match = greedy_match(
             segments,

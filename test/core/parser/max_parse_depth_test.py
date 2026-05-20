@@ -1,5 +1,7 @@
 """Tests for max_parse_depth limit (DoS mitigation)."""
 
+from contextlib import nullcontext
+
 import pytest
 
 from sqlfluff.core import FluffConfig
@@ -97,3 +99,22 @@ def test_parse_context_max_parse_depth_zero_disables_limit():
     config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 0})
     ctx = ParseContext.from_config(config)
     assert ctx.max_parse_depth == 0
+
+
+@pytest.mark.parametrize(
+    ("track_parse_depth", "raises"),
+    [(True, True), (False, False)],
+)
+def test_parse_context_deeper_match_can_skip_depth_budget(
+    track_parse_depth: bool, raises: bool
+):
+    """Helper-only match contexts can avoid consuming parse-depth budget."""
+    from sqlfluff.core.parser.context import ParseContext
+
+    ctx = ParseContext(dialect=None, max_parse_depth=1)
+    expectation = pytest.raises(SQLParseError) if raises else nullcontext()
+
+    with ctx.deeper_match(name="outer"):
+        with expectation:
+            with ctx.deeper_match(name="inner", track_parse_depth=track_parse_depth):
+                pass

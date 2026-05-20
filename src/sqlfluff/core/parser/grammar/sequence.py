@@ -232,7 +232,9 @@ class Sequence(BaseGrammar):
                 )
 
             # Match the current element against the current position.
-            with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
+            with parse_context.deeper_match(
+                name=f"Sequence-@{idx}", track_parse_depth=False
+            ) as ctx:
                 # HACK: Segment slicing hack to limit
                 elem_match = elem.match(segments[:max_idx], _idx, ctx)
 
@@ -489,7 +491,9 @@ class Bracketed(Sequence):
         end_bracket = self.end_bracket or end_bracket
 
         # Try to match the first bracket
-        with parse_context.deeper_match(name="Bracketed-StartBracket") as ctx:
+        with parse_context.deeper_match(
+            name="Bracketed-StartBracket", track_parse_depth=False
+        ) as ctx:
             start_match = start_bracket.match(segments, idx, ctx)
 
         if not start_match:
@@ -509,6 +513,7 @@ class Bracketed(Sequence):
             name="Bracketed-Content",
             clear_terminators=True,
             push_terminators=[end_bracket],
+            track_parse_depth=False,
         ) as ctx:
             content_match = super().match(segments, content_start_idx, ctx)
 
@@ -549,7 +554,9 @@ class Bracketed(Sequence):
             )
 
         # Try to match the end bracket
-        with parse_context.deeper_match(name="Bracketed-EndBracket") as ctx:
+        with parse_context.deeper_match(
+            name="Bracketed-EndBracket", track_parse_depth=False
+        ) as ctx:
             end_match = end_bracket.match(segments, end_bracket_idx, ctx)
 
         if not end_match:
