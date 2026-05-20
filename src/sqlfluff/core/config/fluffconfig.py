@@ -126,8 +126,9 @@ class FluffConfig:
             defaults, configs or empty_config, overrides or empty_overrides
         )
         # Some configs require special treatment
+        nocolor = self._configs["core"].get("nocolor", None)
         self._configs["core"]["color"] = (
-            False if self._configs["core"].get("nocolor", False) else None
+            False if nocolor is True else True if nocolor is False else None
         )
         # Handle inputs which are potentially comma separated strings
         self._handle_comma_separated_values()

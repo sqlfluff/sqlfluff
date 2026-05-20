@@ -178,8 +178,9 @@ def set_logging_level(
     # Don't propagate logging
     fluff_logger.propagate = False
 
-    # Enable colorama
-    colorama.init()
+    # Enable colorama. Respect explicit --color/--nocolor decisions so
+    # colorama does not strip forced ANSI output from piped stdout.
+    colorama.init(strip=formatter.plain_output)
 
     # Set up the log handler which is able to print messages without overlapping
     # with progressbars.

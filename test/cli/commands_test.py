@@ -1787,34 +1787,35 @@ def test__cli__command_invalid_pyproject_toml_user_error(monkeypatch):
 @patch("click.utils.should_strip_ansi")
 @patch("sys.stdout.isatty")
 @pytest.mark.parametrize(
-    "flag, env_var, has_color",
+    "flag, env_var, is_tty, has_color",
     [
-        (None, None, True),
-        ("--nocolor", None, False),
-        ("--color", None, True),
-        (None, "1", False),
-        (None, "true", False),
-        (None, "True", False),
-        (None, "False", False),
-        (None, "anything", False),
-        (None, "", True),
-        ("--color", "1", True),
+        (None, None, True, True),
+        (None, None, False, False),
+        ("--nocolor", None, True, False),
+        ("--color", None, True, True),
+        ("--color", None, False, True),
+        (None, "1", True, False),
+        (None, "true", True, False),
+        (None, "True", True, False),
+        (None, "False", True, False),
+        (None, "anything", True, False),
+        (None, "", True, True),
+        ("--color", "1", True, True),
+        ("--color", "1", False, True),
     ],
 )
 def test__cli__command_lint_nocolor(
-    isatty, should_strip_ansi, capsys, tmpdir, flag, env_var, has_color
+    isatty, should_strip_ansi, capsys, tmpdir, flag, env_var, is_tty, has_color
 ):
     """Test the --nocolor option prevents color output."""
-    # Patch these two functions to make it think every output stream is a TTY.
-    # In spite of this, the output should not contain ANSI color codes because
-    # we specify "--nocolor" below.
+    # Patch these two functions to control whether output behaves like a TTY.
     no_color_flag = [flag] if flag else []
     if env_var is not None:
         os.environ["NO_COLOR"] = env_var
     elif "NO_COLOR" in os.environ:
         os.environ.pop("NO_COLOR")
 
-    isatty.return_value = True
+    isatty.return_value = is_tty
     should_strip_ansi.return_value = False
     fpath = "test/fixtures/linter/indentation_errors.sql"
     output_file = str(tmpdir / "result.txt")
@@ -2320,6 +2321,15 @@ def test_cli_get_default_config():
     )
     assert config.get("nocolor") is True
     assert config.get("verbose") == 2
+
+
+def test_cli_get_config_color_override():
+    """`--color` and `--nocolor` set click's output color behavior explicitly."""
+    color_config = get_config(None, True, nocolor=False, require_dialect=False)
+    no_color_config = get_config(None, True, nocolor=True, require_dialect=False)
+
+    assert color_config.get("color") is True
+    assert no_color_config.get("color") is False
 
 
 @patch(
