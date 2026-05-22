@@ -66,7 +66,7 @@ athena_dialect.bracket_sets("angle_bracket_pairs").update(
     ]
 )
 
-_CTAS_PROPERTY_NAMES = (
+_CTAS_COMMON_PROPERTY_NAMES = (
     "format",
     "partitioned_by",
     "bucketed_by",
@@ -78,21 +78,15 @@ _CTAS_PROPERTY_NAMES = (
     "field_delimiter",
     "is_external",
     "table_type",
+)
+
+_CTAS_PROPERTY_NAMES = (
+    *_CTAS_COMMON_PROPERTY_NAMES,
     "external_location",
 )
 
 _CTAS_ICEBERG_PROPERTY_NAMES = (
-    "format",
-    "partitioned_by",
-    "bucketed_by",
-    "bucket_count",
-    "write_compression",
-    "orc_compression",
-    "parquet_compression",
-    "compression_level",
-    "field_delimiter",
-    "is_external",
-    "table_type",
+    *_CTAS_COMMON_PROPERTY_NAMES,
     "location",
     "partitioning",
     "vacuum_max_snapshot_age_seconds",
