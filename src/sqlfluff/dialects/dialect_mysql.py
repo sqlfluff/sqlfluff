@@ -166,6 +166,14 @@ mysql_dialect.sets("date_part_function_name").update(
     ]
 )
 
+mysql_dialect.sets("bare_functions").update(
+    [
+        "NOW",
+        "LOCALTIME",
+        "LOCALTIMESTAMP",
+    ]
+)
+
 mysql_dialect.replace(
     QuotedIdentifierSegment=TypedParser(
         "back_quote",
@@ -403,10 +411,10 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     )
 
 
-class BareCurrentTimestampLikeFunctionSegment(BaseSegment):
-    """MySQL bare timestamp function forms."""
+class CurrentTimestampLikeFunctionNameSegment(BaseSegment):
+    """MySQL timestamp function names used in column defaults."""
 
-    type = "bare_function"
+    type = "function_name"
     match_grammar = OneOf(
         Ref.keyword("CURRENT_TIMESTAMP"),
         Ref.keyword("NOW"),
@@ -415,18 +423,20 @@ class BareCurrentTimestampLikeFunctionSegment(BaseSegment):
     )
 
 
+class CurrentTimestampLikeFunctionContentsSegment(BaseSegment):
+    """MySQL timestamp function contents used in column defaults."""
+
+    type = "function_contents"
+    match_grammar = Bracketed(Ref("NumericLiteralSegment", optional=True))
+
+
 class CurrentTimestampLikeFunctionSegment(BaseSegment):
     """MySQL parenthesized timestamp function forms."""
 
     type = "function"
     match_grammar = Sequence(
-        OneOf(
-            Ref.keyword("CURRENT_TIMESTAMP"),
-            Ref.keyword("NOW"),
-            Ref.keyword("LOCALTIME"),
-            Ref.keyword("LOCALTIMESTAMP"),
-        ),
-        Bracketed(Ref("NumericLiteralSegment", optional=True)),
+        Ref("CurrentTimestampLikeFunctionNameSegment"),
+        Ref("CurrentTimestampLikeFunctionContentsSegment"),
     )
 
 
@@ -452,7 +462,7 @@ class ColumnDefinitionSegment(BaseSegment):
                         "DEFAULT",
                         OneOf(
                             Ref("CurrentTimestampLikeFunctionSegment"),
-                            Ref("BareCurrentTimestampLikeFunctionSegment"),
+                            Ref("BareFunctionSegment"),
                             Ref("NumericLiteralSegment"),
                             Ref("QuotedLiteralSegment"),
                             "NULL",
@@ -464,7 +474,7 @@ class ColumnDefinitionSegment(BaseSegment):
                         "UPDATE",
                         OneOf(
                             Ref("CurrentTimestampLikeFunctionSegment"),
-                            Ref("BareCurrentTimestampLikeFunctionSegment"),
+                            Ref("BareFunctionSegment"),
                         ),
                         optional=True,
                     ),

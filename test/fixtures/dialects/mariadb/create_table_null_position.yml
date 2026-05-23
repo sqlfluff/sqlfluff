@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce2b3076718cc8f6e0d3e01b937a19687f7d70cf24f56fc3dc3be627bb4a3738
+_hash: c09d2fd204488b6e2d222ab2a42a3d5b0486131e6af9135ce9971bc3f588b50a
 file:
   statement:
     create_table_statement:
@@ -22,14 +22,12 @@ file:
         - naked_identifier: updated_at1
         - keyword: timestamp
         - keyword: default
-        - bare_function:
-            keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
         - keyword: not
         - keyword: 'null'
         - keyword: 'on'
         - keyword: update
-        - bare_function:
-            keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: updated_at2
@@ -37,23 +35,19 @@ file:
         - keyword: not
         - keyword: 'null'
         - keyword: default
-        - bare_function:
-            keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
         - keyword: 'on'
         - keyword: update
-        - bare_function:
-            keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: updated_at3
         - keyword: timestamp
         - keyword: default
-        - bare_function:
-            keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
         - keyword: 'on'
         - keyword: update
-        - bare_function:
-            keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
         - keyword: not
         - keyword: 'null'
       - comma: ','

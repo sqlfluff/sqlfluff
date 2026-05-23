@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d588eceffe432f96f6fe07bc8c3e9476e1b5daae278609177a424c616a412074
+_hash: df8a42fc85ecff13b46990c670c67d1e556e4910eca549a220059dad24c33d52
 file:
 - statement:
     alter_table_statement:
@@ -964,17 +964,21 @@ file:
       - keyword: 'NULL'
       - keyword: DEFAULT
       - function:
-          keyword: current_timestamp
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_name:
+            keyword: current_timestamp
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
       - keyword: 'ON'
       - keyword: UPDATE
       - function:
-          keyword: current_timestamp
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_name:
+            keyword: current_timestamp
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -989,15 +993,16 @@ file:
       - keyword: NOT
       - keyword: 'NULL'
       - keyword: DEFAULT
-      - bare_function:
-          keyword: localtime
+      - bare_function: localtime
       - keyword: 'ON'
       - keyword: UPDATE
       - function:
-          keyword: localtime
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_name:
+            keyword: localtime
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1012,15 +1017,16 @@ file:
       - keyword: NOT
       - keyword: 'NULL'
       - keyword: DEFAULT
-      - bare_function:
-          keyword: localtimestamp
+      - bare_function: localtimestamp
       - keyword: 'ON'
       - keyword: UPDATE
       - function:
-          keyword: localtimestamp
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_name:
+            keyword: localtimestamp
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
