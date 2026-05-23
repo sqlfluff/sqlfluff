@@ -358,6 +358,7 @@ mysql_dialect.add(
     DualIdentifierSegment=StringParser(
         "DUAL", IdentifierSegment, type="naked_identifier"
     ),
+    CharsetGrammar=OneOf(Sequence("CHARACTER", "SET"), "CHARSET"),
 )
 
 
@@ -490,12 +491,12 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                         ),
                     )
                 ),
+                Ref("CommentClauseSegment", optional=True),
                 Sequence(
                     Ref.keyword("AS", optional=True),
                     OptionallyBracketed(Ref("SelectableGrammar")),
                     optional=True,
                 ),
-                Ref("CommentClauseSegment", optional=True),
             ),
             # Create AS syntax:
             Sequence(
@@ -511,7 +512,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Ref.keyword("DEFAULT", optional=True),
                 OneOf(
                     Ref("ParameterNameSegment"),
-                    Sequence("CHARACTER", "SET"),
+                    Ref("CharsetGrammar"),
                     Sequence(OneOf("DATA", "INDEX"), "DIRECTORY"),
                     Sequence("WITH", "SYSTEM"),
                 ),
@@ -522,6 +523,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     Ref("QuotedLiteralSegment"),
                     Ref("SingleQuotedIdentifierSegment"),
                     Ref("NumericLiteralSegment"),
+                    "DEFAULT",
                     # Union option
                     Bracketed(
                         Delimited(Ref("TableReferenceSegment")),
@@ -629,7 +631,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                     Sequence(
                                         OneOf(
                                             Ref("ParameterNameSegment"),
-                                            Sequence("CHARACTER", "SET"),
+                                            Ref("CharsetGrammar"),
                                             Sequence(
                                                 OneOf("DATA", "INDEX"),
                                                 "DIRECTORY",
@@ -643,6 +645,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                             Ref("QuotedLiteralSegment"),
                                             Ref("SingleQuotedIdentifierSegment"),
                                             Ref("NumericLiteralSegment"),
+                                            "DEFAULT",
                                             # Union option
                                             Bracketed(
                                                 Delimited(Ref("TableReferenceSegment")),
@@ -675,7 +678,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                             Sequence(
                                                 OneOf(
                                                     Ref("ParameterNameSegment"),
-                                                    Sequence("CHARACTER", "SET"),
+                                                    Ref("CharsetGrammar"),
                                                     Sequence(
                                                         OneOf("DATA", "INDEX"),
                                                         "DIRECTORY",
@@ -692,6 +695,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                                     Ref("QuotedLiteralSegment"),
                                                     SQIS,
                                                     Ref("NumericLiteralSegment"),
+                                                    "DEFAULT",
                                                     # Union option
                                                     Bracketed(
                                                         Delimited(TRS),
@@ -1020,12 +1024,12 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     match_grammar: Matchable = OneOf(
         ansi.ColumnConstraintSegment.match_grammar,
         Sequence(
-            "CHARACTER",
-            "SET",
+            Ref("CharsetGrammar"),
             OneOf(
                 Ref("SingleIdentifierGrammar"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedIdentifierSegment"),
+                "DEFAULT",
             ),
         ),
         Ref("CollateGrammar"),
@@ -1658,10 +1662,13 @@ class TableOptionsSegment(BaseSegment):
             # [DEFAULT] CHARACTER SET [=] charset_name
             Sequence(
                 Ref.keyword("DEFAULT", optional=True),
-                "CHARACTER",
-                "SET",
+                Ref("CharsetGrammar"),
                 Ref("EqualsSegment", optional=True),
-                OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NakedIdentifierSegment"),
+                    "DEFAULT",
+                ),
             ),
             # CHECKSUM [=] {0 | 1}
             Sequence(
@@ -1674,7 +1681,11 @@ class TableOptionsSegment(BaseSegment):
                 Ref.keyword("DEFAULT", optional=True),
                 "COLLATE",
                 Ref("EqualsSegment", optional=True),
-                OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NakedIdentifierSegment"),
+                    "DEFAULT",
+                ),
             ),
             # COMMENT [=] 'string'
             Sequence(
@@ -3325,13 +3336,13 @@ class AlterOptionSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref.keyword("DEFAULT", optional=True),
-                "CHARACTER",
-                "SET",
+                Ref("CharsetGrammar"),
                 Ref("EqualsSegment", optional=True),
                 OneOf(
                     Ref("SingleIdentifierGrammar"),
                     Ref("SingleQuotedIdentifierSegment"),
                     Ref("DoubleQuotedIdentifierSegment"),
+                    "DEFAULT",
                 ),
             ),
             Sequence(

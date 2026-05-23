@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4d86372fa8b793433cdd8e27997908e7be15b0993e8978fe0ad3dd3c909de3a1
+_hash: 2c854b00b8b8b7fccca3eb8be2f873aacc73ac2d06b8c545a35f5f9b379e2acf
 file:
 - statement:
     create_table_statement:
@@ -687,4 +687,113 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - parameter: InnoDB
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foo_min_1
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+        end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - keyword: CHARACTER
+    - keyword: SET
+    - parameter: utf8mb4
+    - parameter: COLLATE
+    - parameter: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foo_min_2
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+        end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - parameter: CHARSET
+    - parameter: utf8mb4
+    - parameter: COLLATE
+    - parameter: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foo_min_3
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+        end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - keyword: CHARACTER
+    - keyword: SET
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: utf8mb4
+    - parameter: COLLATE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foo_min_4
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+        end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - parameter: CHARSET
+    - parameter: DEFAULT
+    - parameter: COLLATE
+    - parameter: DEFAULT
 - statement_terminator: ;
