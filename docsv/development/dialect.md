@@ -201,7 +201,7 @@ to deal with that whole comment as one lexed block and so we don't need to
 define how to parse it (we even give that a parsing segment name here -
 `CommentSegment`).
 
-For simple grammar addition, you won't need to to touch the lexing definitions
+For simple grammar addition, you won't need to touch the lexing definitions
 as they usually cover most common ones already. But for slightly more
 complicated ones, you may have to add to this. So if you see lexing errors
 then you may have to add something here.

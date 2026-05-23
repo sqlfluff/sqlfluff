@@ -178,7 +178,7 @@ def load_config_string(
 
     Args:
         config_string (str): The raw config file as a string. The content
-            is assumed to be in the the ``.ini`` format of a ``.sqlfluff``
+            is assumed to be in the ``.ini`` format of a ``.sqlfluff``
             file (i.e. not in ``.toml`` format).
         configs (ConfigMappingType, optional): A base set of configs to
             merge the loaded configs onto. If not provided, the result

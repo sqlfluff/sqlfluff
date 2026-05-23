@@ -379,7 +379,7 @@ class Bracketed(Sequence):
 
     Changelog:
     - Post 0.3.2: Bracketed inherits from Sequence and anything within
-      the the `Bracketed()` expression is treated as a sequence. For the
+      the `Bracketed()` expression is treated as a sequence. For the
       content of the Brackets, we call the `match()` method of the sequence
       grammar.
     - Post 0.1.0: Bracketed was separate from sequence, and the content
