@@ -706,6 +706,12 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
                 Ref("EqualsSegment", optional=True),
                 Bracketed(Delimited(Ref("TableReferenceSegment"))),
             ),
+            # ADD|DROP SYSTEM VERSIONING
+            Sequence(
+                OneOf("ADD", "DROP"),
+                "SYSTEM",
+                "VERSIONING",
+            ),
             # WITH SYSTEM VERSIONING
             Sequence(
                 "WITH",
