@@ -78,6 +78,32 @@ test_pass_inner_unreferenced:
     from a
     inner join b using(x)
 
+test_pass_left_semi_unreferenced:
+  # LEFT SEMI joins filter rows from the left side, so they do not need
+  # to project columns from the joined table.
+  pass_str: |
+    SELECT
+        employee.id
+    FROM employee
+    LEFT SEMI JOIN department
+        ON employee.deptno = department.deptno
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_left_anti_unreferenced:
+  # LEFT ANTI joins filter rows from the left side, so they do not need
+  # to project columns from the joined table.
+  pass_str: |
+    SELECT
+        employee.id
+    FROM employee
+    LEFT ANTI JOIN department
+        ON employee.deptno = department.deptno
+  configs:
+    core:
+      dialect: sparksql
+
 test_pass_unqualified_unreferenced:
   # Same as above, but an implicit INNER (unqualified joins are usually
   # interpreted as inner joins).

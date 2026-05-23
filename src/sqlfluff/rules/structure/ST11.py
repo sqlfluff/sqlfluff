@@ -178,8 +178,14 @@ class Rule_ST11(BaseRule):
                 ):
                     ref = self._extract_references_from_expression(from_expression_elem)
                     # Only mark it as a possible issue if it's an explicit LEFT, RIGHT
-                    # or FULL join.
-                    if ref and join_keywords.intersection({"FULL", "LEFT", "RIGHT"}):
+                    # or FULL join. Exclude SEMI and ANTI joins because they are
+                    # expected to filter rows without projecting columns from the
+                    # joined table.
+                    if (
+                        ref
+                        and join_keywords.intersection({"FULL", "LEFT", "RIGHT"})
+                        and not join_keywords.intersection({"ANTI", "SEMI"})
+                    ):
                         joined_tables.append((ref, from_expression_elem))
                         _this_clause_refs.append(ref)
                     # If we have functions in the table_expression, we referenced them,
