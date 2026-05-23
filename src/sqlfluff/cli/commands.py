@@ -170,7 +170,7 @@ def set_logging_level(
 
     Implementation: If `logger` is not specified, the handler
     is attached to the `sqlfluff` logger. If it is specified
-    then it attaches the the logger in question. In addition
+    then it attaches the logger in question. In addition
     if `logger` is specified, then that logger will also
     not propagate.
     """

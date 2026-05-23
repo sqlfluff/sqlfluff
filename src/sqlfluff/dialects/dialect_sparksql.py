@@ -3503,7 +3503,7 @@ class RestoreTableStatementSegment(BaseSegment):
 
 
 class ConstraintStatementSegment(BaseSegment):
-    """A `CONSTRAINT` statement to to define data quality on data contents.
+    """A `CONSTRAINT` statement to define data quality on data contents.
 
     https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-expectations.html#manage-data-quality-with-delta-live-tables
     """
