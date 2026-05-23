@@ -403,6 +403,33 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     )
 
 
+class BareCurrentTimestampLikeFunctionSegment(BaseSegment):
+    """MySQL bare timestamp function forms."""
+
+    type = "bare_function"
+    match_grammar = OneOf(
+        Ref.keyword("CURRENT_TIMESTAMP"),
+        Ref.keyword("NOW"),
+        Ref.keyword("LOCALTIME"),
+        Ref.keyword("LOCALTIMESTAMP"),
+    )
+
+
+class CurrentTimestampLikeFunctionSegment(BaseSegment):
+    """MySQL parenthesized timestamp function forms."""
+
+    type = "function"
+    match_grammar = Sequence(
+        OneOf(
+            Ref.keyword("CURRENT_TIMESTAMP"),
+            Ref.keyword("NOW"),
+            Ref.keyword("LOCALTIME"),
+            Ref.keyword("LOCALTIMESTAMP"),
+        ),
+        Bracketed(Ref("NumericLiteralSegment", optional=True)),
+    )
+
+
 class ColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
 
@@ -424,13 +451,8 @@ class ColumnDefinitionSegment(BaseSegment):
                     Sequence(
                         "DEFAULT",
                         OneOf(
-                            Sequence(
-                                OneOf("CURRENT_TIMESTAMP", "NOW"),
-                                Bracketed(
-                                    Ref("NumericLiteralSegment", optional=True),
-                                    optional=True,
-                                ),
-                            ),
+                            Ref("CurrentTimestampLikeFunctionSegment"),
+                            Ref("BareCurrentTimestampLikeFunctionSegment"),
                             Ref("NumericLiteralSegment"),
                             Ref("QuotedLiteralSegment"),
                             "NULL",
@@ -441,12 +463,8 @@ class ColumnDefinitionSegment(BaseSegment):
                         "ON",
                         "UPDATE",
                         OneOf(
-                            "CURRENT_TIMESTAMP",
-                            "NOW",
-                            Bracketed(
-                                Ref("NumericLiteralSegment", optional=True),
-                                optional=True,
-                            ),
+                            Ref("CurrentTimestampLikeFunctionSegment"),
+                            Ref("BareCurrentTimestampLikeFunctionSegment"),
                         ),
                         optional=True,
                     ),

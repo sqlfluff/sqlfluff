@@ -86,6 +86,18 @@ ALTER TABLE `foo` CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci
 
 ALTER TABLE `foo` CONVERT TO CHARACTER SET "utf8mb4" COLLATE "utf8mb4_unicode_ci";
 
+ALTER TABLE t MODIFY time_updated timestamp NOT NULL
+DEFAULT current_timestamp()
+ON UPDATE current_timestamp();
+
+ALTER TABLE t MODIFY time_updated timestamp NOT NULL
+DEFAULT localtime
+ON UPDATE localtime();
+
+ALTER TABLE t MODIFY time_updated timestamp NOT NULL
+DEFAULT localtimestamp
+ON UPDATE localtimestamp();
+
 ALTER TABLE `foo`
 ENGINE = 'InnoDB'
 AUTO_INCREMENT = 1

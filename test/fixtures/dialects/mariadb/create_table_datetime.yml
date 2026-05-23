@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 04711fd76a3d8efbe053513b9a50ce0e2aaf4af87a96e105f521c58ca30810c6
+_hash: 0081f1d35223a72ab130763009bc76ec88ce9353a4fb0a93d2391c7471e4cac1
 file:
   statement:
     create_table_statement:
@@ -17,7 +17,8 @@ file:
         - naked_identifier: created_date
         - keyword: DATETIME
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
         - keyword: NOT
         - keyword: 'NULL'
       - comma: ','
@@ -25,31 +26,37 @@ file:
         - naked_identifier: ts1
         - keyword: TIMESTAMP
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: dt1
         - keyword: DATETIME
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: ts2
         - keyword: TIMESTAMP
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: dt2
         - keyword: DATETIME
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: ts3
@@ -70,7 +77,8 @@ file:
         - numeric_literal: '0'
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: dt4
@@ -79,14 +87,16 @@ file:
         - numeric_literal: '0'
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: ts5
         - keyword: TIMESTAMP
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: ts6
@@ -94,14 +104,16 @@ file:
         - keyword: 'NULL'
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: dt5
         - keyword: DATETIME
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: dt6
@@ -110,7 +122,8 @@ file:
         - keyword: 'NULL'
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: ts7
@@ -121,18 +134,20 @@ file:
               numeric_literal: '6'
               end_bracket: )
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
-        - bracketed:
-            start_bracket: (
-            numeric_literal: '6'
-            end_bracket: )
+        - function:
+            keyword: CURRENT_TIMESTAMP
+            bracketed:
+              start_bracket: (
+              numeric_literal: '6'
+              end_bracket: )
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
-        - bracketed:
-            start_bracket: (
-            numeric_literal: '6'
-            end_bracket: )
+        - function:
+            keyword: CURRENT_TIMESTAMP
+            bracketed:
+              start_bracket: (
+              numeric_literal: '6'
+              end_bracket: )
       - comma: ','
       - column_definition:
         - naked_identifier: ts8
@@ -153,17 +168,19 @@ file:
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: ts11
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
-        - bracketed:
-            start_bracket: (
-            end_bracket: )
+        - function:
+            keyword: CURRENT_TIMESTAMP
+            bracketed:
+              start_bracket: (
+              end_bracket: )
       - comma: ','
       - column_definition:
         - naked_identifier: ts12
@@ -177,26 +194,30 @@ file:
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
-        - keyword: NOW
+        - bare_function:
+            keyword: NOW
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: NOW
+        - bare_function:
+            keyword: NOW
       - comma: ','
       - column_definition:
         - naked_identifier: ts14
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
-        - keyword: NOW
-        - bracketed:
-            start_bracket: (
-            end_bracket: )
+        - function:
+            keyword: NOW
+            bracketed:
+              start_bracket: (
+              end_bracket: )
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: NOW
-        - bracketed:
-            start_bracket: (
-            end_bracket: )
+        - function:
+            keyword: NOW
+            bracketed:
+              start_bracket: (
+              end_bracket: )
       - comma: ','
       - column_definition:
         - naked_identifier: ts15
@@ -204,10 +225,12 @@ file:
         - keyword: NOT
         - keyword: 'NULL'
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: ts16
@@ -217,5 +240,6 @@ file:
         - keyword: 'NULL'
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function:
+            keyword: CURRENT_TIMESTAMP
       - end_bracket: )
