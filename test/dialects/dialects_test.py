@@ -197,3 +197,26 @@ def test_tsql_cursor_rejects_disallowed_select_clauses(sql: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    ("dialect", "sql"),
+    [
+        (
+            "mysql",
+            "CREATE OR REPLACE TRIGGER trig1 BEFORE INSERT ON t1 FOR EACH ROW SET x = 1;",
+        ),
+        (
+            "mariadb",
+            "CREATE OR REPLACE TRIGGER IF NOT EXISTS trig1 BEFORE INSERT ON t1 FOR EACH ROW SET x = 1;",
+        ),
+    ],
+)
+def test_mysql_family_rejects_invalid_create_trigger_forms(
+    dialect: str, sql: str
+) -> None:
+    """MySQL-family dialects should reject invalid CREATE TRIGGER forms."""
+    parsed = Linter(dialect=dialect).parse_string(sql)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors

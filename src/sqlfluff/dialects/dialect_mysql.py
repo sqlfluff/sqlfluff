@@ -3232,7 +3232,6 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
     # "DEFINED = user", optional
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
         Ref("DefinerSegment", optional=True),
         "TRIGGER",
         Ref("IfNotExistsGrammar", optional=True),

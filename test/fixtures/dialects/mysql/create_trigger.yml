@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b5e91fda9d9f6dc3d66d7a65c4eff5185289f5939528c23508d53ce34b53708
+_hash: 12dee21fcf99ef3e3f088755a81789325e2979c98c98d67269233660a7c700b5
 file:
 - statement:
     create_trigger:
@@ -471,28 +471,4 @@ file:
 - statement:
     transaction_statement:
       keyword: END
-- statement_terminator: ;
-- statement:
-    create_trigger:
-    - keyword: CREATE
-    - keyword: OR
-    - keyword: REPLACE
-    - keyword: TRIGGER
-    - trigger_reference:
-        naked_identifier: trig1
-    - keyword: BEFORE
-    - keyword: INSERT
-    - keyword: 'ON'
-    - table_reference:
-        naked_identifier: t1
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: ROW
-    - statement:
-        set_statement:
-          keyword: SET
-          variable: x
-          comparison_operator:
-            raw_comparison_operator: '='
-          numeric_literal: '1'
 - statement_terminator: ;

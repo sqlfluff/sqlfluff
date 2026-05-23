@@ -72,6 +72,42 @@ class CreateUserStatementSegment(mysql.CreateUserStatementSegment):
     )
 
 
+class CreateTriggerStatementSegment(mysql.CreateTriggerStatementSegment):
+    """Create Trigger Statement.
+
+    https://mariadb.com/docs/server/server-usage/triggers-events/triggers/create-trigger
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence(
+                Ref("OrReplaceGrammar"),
+                Ref("DefinerSegment", optional=True),
+                "TRIGGER",
+            ),
+            Sequence(
+                Ref("DefinerSegment", optional=True),
+                "TRIGGER",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+        ),
+        Ref("TriggerReferenceSegment"),
+        OneOf("BEFORE", "AFTER"),
+        OneOf("INSERT", "UPDATE", "DELETE"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence("FOR", "EACH", "ROW"),
+        Sequence(
+            OneOf("FOLLOWS", "PRECEDES"), Ref("SingleIdentifierGrammar"), optional=True
+        ),
+        OneOf(
+            Ref("StatementSegment"),
+            Sequence("BEGIN", Ref("StatementSegment"), "END"),
+        ),
+    )
+
+
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
