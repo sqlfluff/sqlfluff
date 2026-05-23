@@ -828,3 +828,37 @@ test_fail_databricks_non_metadata_reference:
     rules:
       references.from:
         force_enable: true
+
+test_pass_tsql_containstable_arguments:
+  # CONTAINSTABLE() arguments are function inputs, not FROM-clause references.
+  pass_str: |
+    SELECT
+        [author_id],
+        [rank]
+    FROM CONTAINSTABLE (
+        [dbo].[author_search_documents],
+        [search_text],
+        @contains_query,
+        @candidate_cap
+    );
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_containstable_join_arguments:
+  # Joined CONTAINSTABLE() calls should also ignore their internal table input.
+  pass_str: |
+    SELECT FT_TBL.Name,
+           KEY_TBL.RANK
+    FROM Production.Product AS FT_TBL
+         INNER JOIN CONTAINSTABLE(
+             Production.Product,
+             (Name, ProductNumber),
+             'ISABOUT (frame WEIGHT (.8), wheel WEIGHT (.4), tire WEIGHT (.2))',
+             LANGUAGE N'English',
+             5
+         ) AS KEY_TBL
+             ON FT_TBL.ProductID = KEY_TBL.[KEY];
+  configs:
+    core:
+      dialect: tsql
