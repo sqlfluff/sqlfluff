@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e635dc705d8e0d9c973324b7f274aa5bcb852819fb38eefc2b5f214bb9569144
+_hash: e99d4983802a42751de1ec91051f3b2ea3e93165d2ea79328eb57c0190a896dc
 file:
 - statement:
     alter_table_statement:
@@ -1221,10 +1221,9 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: foo
-    - table_options:
-      - keyword: ADD
-      - keyword: SYSTEM
-      - keyword: VERSIONING
+    - keyword: ADD
+    - keyword: SYSTEM
+    - keyword: VERSIONING
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1232,8 +1231,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: foo
-    - table_options:
-      - keyword: DROP
-      - keyword: SYSTEM
-      - keyword: VERSIONING
+    - keyword: DROP
+    - keyword: SYSTEM
+    - keyword: VERSIONING
 - statement_terminator: ;

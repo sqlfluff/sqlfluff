@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     LiteralSegment,
     Matchable,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     OptionallyDelimited,
@@ -1230,6 +1231,7 @@ class IntervalExpressionSegment(BaseSegment):
 
 
 mysql_dialect.add(
+    AddDropSystemVersioningGrammar=Nothing(),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, type="parameter_direction"
     ),
@@ -1871,6 +1873,8 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("TableOptionsSegment"),
                 # Online DDL options
                 Ref("AlterTableOnlineDDLOptionSegment"),
+                # Dialect-specific ALTER TABLE actions.
+                Ref("AddDropSystemVersioningGrammar"),
                 # Add column
                 Sequence(
                     "ADD",

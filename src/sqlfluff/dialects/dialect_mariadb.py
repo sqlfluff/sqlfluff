@@ -44,6 +44,13 @@ mariadb_dialect.sets("reserved_keywords").clear()
 mariadb_dialect.update_keywords_set_from_multiline_string(
     "reserved_keywords", mariadb_reserved_keywords
 )
+mariadb_dialect.replace(
+    AddDropSystemVersioningGrammar=Sequence(
+        OneOf("ADD", "DROP"),
+        "SYSTEM",
+        "VERSIONING",
+    )
+)
 
 
 class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
@@ -705,12 +712,6 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
                 "UNION",
                 Ref("EqualsSegment", optional=True),
                 Bracketed(Delimited(Ref("TableReferenceSegment"))),
-            ),
-            # ADD|DROP SYSTEM VERSIONING
-            Sequence(
-                OneOf("ADD", "DROP"),
-                "SYSTEM",
-                "VERSIONING",
             ),
             # WITH SYSTEM VERSIONING
             Sequence(
