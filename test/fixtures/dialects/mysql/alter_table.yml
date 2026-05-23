@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 23a2e19183755f32759d022d7e56863c90016a037fe176f5b72ba110e6c30626
+_hash: 873319102364c0d27163ec2048ed6f4476bb90317363960365987d1f1339127b
 file:
 - statement:
     alter_table_statement:
@@ -1124,4 +1124,234 @@ file:
         - table_reference:
             quoted_identifier: '`tbl2`'
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: CHARSET
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: CHARSET
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: DEFAULT
+      - keyword: CHARSET
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: DEFAULT
+      - keyword: CHARSET
+      - keyword: DEFAULT
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: CHARSET
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: CHARACTER
+      - keyword: SET
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: CHARACTER
+      - keyword: SET
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - keyword: DEFAULT
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: CHARACTER
+      - keyword: SET
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+        keyword: CHARSET
+        naked_identifier: utf8mb4
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: CHARACTER
+      - keyword: SET
+      - naked_identifier: utf8mb4
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: CHARSET
+      - naked_identifier: utf8mb4
+      - keyword: COLLATE
+      - naked_identifier: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - naked_identifier: utf8mb4
+      - keyword: COLLATE
+      - naked_identifier: utf8mb4_general_ci
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+        keyword: CHARSET
+        comparison_operator:
+          raw_comparison_operator: '='
+        naked_identifier: utf8mb4
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: CHARACTER
+      - keyword: SET
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: utf8mb4
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: DEFAULT
+      - keyword: CHARSET
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: utf8mb4
+      - keyword: COLLATE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: user
+    - table_options:
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: utf8mb4
 - statement_terminator: ;
