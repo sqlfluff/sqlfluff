@@ -1843,6 +1843,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     Sequence(
                         OneOf(
                             Ref("WithCompoundStatementSegment"),
+                            Ref("SetExpressionSegment"),
                             Ref("SelectStatementSegment"),
                         ),
                         Ref("SemicolonSegment"),
