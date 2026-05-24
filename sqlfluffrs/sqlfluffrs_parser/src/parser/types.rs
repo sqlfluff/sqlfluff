@@ -377,34 +377,7 @@ impl Node {
     pub fn is_code(&self) -> bool {
         match self {
             Node::Meta { .. } | Node::Empty => false,
-            Node::Raw {
-                segment_type,
-                instance_types,
-                class_types,
-                ..
-            } => {
-                // A node is non-code if any of its instance types or its
-                // segment_type indicates whitespace or comment content.
-                let non_code_by_instance = instance_types.iter().any(|t| {
-                    matches!(
-                        t.as_str(),
-                        "whitespace"
-                            | "newline"
-                            | "comment"
-                            | "inline_comment"
-                            | "block_comment"
-                            | "trailing_newline"
-                    )
-                });
-                let non_code_by_type = segment_type.contains("comment")
-                    || matches!(segment_type.as_str(), "whitespace" | "newline");
-                // Also check class_types for "comment" — this covers non-standard
-                // comment types like obevo_annotation, prompt_command, notebook_start
-                // whose segment_type doesn't literally contain "comment" but whose
-                // class_types hierarchy includes "comment" (from CommentSegment parent).
-                let non_code_by_class = class_types.iter().any(|t| t == "comment");
-                !(non_code_by_instance || non_code_by_type || non_code_by_class)
-            }
+            Node::Raw { .. } => !self.is_whitespace() && !self.is_comment(),
             Node::Segment { children, .. } => children.iter().any(|c| c.is_code()),
             Node::Unparsable { .. } => true,
         }
@@ -416,6 +389,28 @@ impl Node {
             Node::Raw { instance_types, .. } => instance_types
                 .iter()
                 .any(|t| matches!(t.as_str(), "whitespace" | "newline")),
+            _ => false,
+        }
+    }
+
+    /// Check if this node is a comment.
+    pub fn is_comment(&self) -> bool {
+        match self {
+            Node::Raw {
+                segment_type,
+                instance_types,
+                class_types,
+                ..
+            } => {
+                let comment_by_instance = instance_types.iter().any(|t| {
+                    matches!(t.as_str(), "comment" | "inline_comment" | "block_comment")
+                });
+                let comment_by_type = segment_type.contains("comment");
+                // Covers non-standard comment-like segment types that inherit
+                // from CommentSegment in Python.
+                let comment_by_class = class_types.iter().any(|t| t == "comment");
+                comment_by_instance || comment_by_type || comment_by_class
+            }
             _ => false,
         }
     }

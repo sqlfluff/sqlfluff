@@ -9,6 +9,7 @@ use super::match_result::MatchResult;
 use super::types::NodeTupleValue;
 use super::{Node, ParseError, Parser};
 use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_python::marker::PyPositionMarker;
 use sqlfluffrs_python::token::PyToken;
 use sqlfluffrs_types::Token;
 use std::str::FromStr;
@@ -43,6 +44,44 @@ pub struct PyNode(pub Node);
 
 #[pymethods]
 impl PyNode {
+    /// Get this node's position marker, if available.
+    #[getter]
+    fn pos_marker(&self) -> Option<PyPositionMarker> {
+        match &self.0 {
+            Node::Raw { pos_marker, .. }
+            | Node::Segment { pos_marker, .. }
+            | Node::Meta { pos_marker, .. }
+            | Node::Unparsable { pos_marker, .. } => pos_marker.clone().map(PyPositionMarker),
+            Node::Empty => None,
+        }
+    }
+
+    /// Return the source start location as (line_no, line_pos), if available.
+    fn get_start_loc(&self) -> Option<(usize, usize)> {
+        match &self.0 {
+            Node::Raw { pos_marker, .. }
+            | Node::Segment { pos_marker, .. }
+            | Node::Meta { pos_marker, .. }
+            | Node::Unparsable { pos_marker, .. } => {
+                pos_marker.as_ref().map(|pm| pm.source_position())
+            }
+            Node::Empty => None,
+        }
+    }
+
+    /// Return the source end location as (line_no, line_pos), if available.
+    fn get_end_loc(&self) -> Option<(usize, usize)> {
+        match &self.0 {
+            Node::Raw { pos_marker, .. }
+            | Node::Segment { pos_marker, .. }
+            | Node::Meta { pos_marker, .. }
+            | Node::Unparsable { pos_marker, .. } => pos_marker
+                .as_ref()
+                .map(|pm| pm.end_point_marker().source_position()),
+            Node::Empty => None,
+        }
+    }
+
     /// Get the node type as a string
     #[getter]
     fn node_type(&self) -> String {
@@ -78,6 +117,12 @@ impl PyNode {
         self.0.raw()
     }
 
+    /// Upper-cased raw text (parity with BaseSegment.raw_upper).
+    #[getter]
+    fn raw_upper(&self) -> String {
+        self.0.raw().to_uppercase()
+    }
+
     /// Check if node is empty
     fn is_empty(&self) -> bool {
         self.0.is_empty()
@@ -86,6 +131,36 @@ impl PyNode {
     /// Check if node is code (not whitespace/meta)
     fn is_code(&self) -> bool {
         self.0.is_code()
+    }
+
+    /// Check if node is whitespace.
+    fn is_whitespace(&self) -> bool {
+        self.0.is_whitespace()
+    }
+
+    /// Check if node is meta.
+    fn is_meta(&self) -> bool {
+        self.0.is_meta()
+    }
+
+    /// Check if node is comment.
+    fn is_comment(&self) -> bool {
+        self.0.is_comment()
+    }
+
+    /// Check if this is a raw (leaf-like) node.
+    fn is_raw(&self) -> bool {
+        matches!(&self.0, Node::Raw { .. } | Node::Meta { .. } | Node::Empty)
+    }
+
+    /// Get the semantic type string for this node.
+    fn get_type(&self) -> String {
+        self.0.get_type()
+    }
+
+    /// Type check helper (parity with BaseSegment.is_type).
+    fn is_type(&self, seg_type: &str) -> bool {
+        self.0.is_type(seg_type)
     }
 
     /// Get children nodes (for Segment and Unparsable nodes)
