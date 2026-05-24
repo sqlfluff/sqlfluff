@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     LiteralSegment,
     Matchable,
+    MultiStringParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -105,20 +106,6 @@ _UNLOAD_PROPERTY_NAMES = (
 )
 
 
-def _property_name_segments(*property_names: str) -> Matchable:
-    """Match Athena property keys without treating them as SQL keywords."""
-    return OneOf(
-        *(
-            StringParser(
-                property_name,
-                IdentifierSegment,
-                type="property_name_identifier",
-            )
-            for property_name in property_names
-        )
-    )
-
-
 athena_dialect.add(
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, type="start_angle_bracket"
@@ -144,14 +131,20 @@ athena_dialect.add(
     ),
     LocationGrammar=Sequence("LOCATION", Ref("QuotedLiteralSegment")),
     BracketedPropertyListGrammar=Bracketed(Delimited(Ref("PropertyGrammar"))),
-    CTASPropertyNameGrammar=_property_name_segments(*_CTAS_PROPERTY_NAMES),
+    CTASPropertyNameGrammar=MultiStringParser(
+        _CTAS_PROPERTY_NAMES,
+        IdentifierSegment,
+        type="property_name_identifier",
+    ),
     CTASPropertyGrammar=Sequence(
         Ref("CTASPropertyNameGrammar"),
         Ref("EqualsSegment"),
         Ref("LiteralGrammar"),
     ),
-    CTASIcebergPropertyNameGrammar=_property_name_segments(
-        *_CTAS_ICEBERG_PROPERTY_NAMES
+    CTASIcebergPropertyNameGrammar=MultiStringParser(
+        _CTAS_ICEBERG_PROPERTY_NAMES,
+        IdentifierSegment,
+        type="property_name_identifier",
     ),
     CTASIcebergPropertyGrammar=Sequence(
         Ref("CTASIcebergPropertyNameGrammar"),
@@ -168,7 +161,11 @@ athena_dialect.add(
             ),
         ),
     ),
-    UnloadPropertyNameGrammar=_property_name_segments(*_UNLOAD_PROPERTY_NAMES),
+    UnloadPropertyNameGrammar=MultiStringParser(
+        _UNLOAD_PROPERTY_NAMES,
+        IdentifierSegment,
+        type="property_name_identifier",
+    ),
     UnloadPropertyGrammar=Sequence(
         Ref("UnloadPropertyNameGrammar"),
         Ref("EqualsSegment"),
