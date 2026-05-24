@@ -1,4 +1,4 @@
-"""Implementation of Rule CV13."""
+"""Implementation of Rule PG01."""
 
 from typing import Optional
 
@@ -11,7 +11,7 @@ def _has_keyword(segments, keyword: str) -> bool:
     return any(seg.is_type("keyword") and seg.raw_upper == keyword for seg in segments)
 
 
-class Rule_CV13(BaseRule):
+class Rule_PG01(BaseRule):
     """Avoid excessive locks in PostgreSQL DDL statements.
 
     Several PostgreSQL DDL operations acquire locks that block reads or writes
@@ -62,9 +62,9 @@ class Rule_CV13(BaseRule):
 
     """
 
-    name = "convention.excessive_locks"
+    name = "postgres.excessive_locks"
     aliases = ()
-    groups = ("all", "convention")
+    groups = ("all", "postgres")
     crawl_behaviour = SegmentSeekerCrawler(
         {
             "create_index_statement",
