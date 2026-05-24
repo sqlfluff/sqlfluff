@@ -184,7 +184,7 @@ At the bottom of the Conversation tab you will see the following:
 This shows on this PR that all checks have passed and this is ready to merge.
 Clicking the big green "Squash and Merge" button will copy (the "Merge" part)
 all this code into :code:`main` branch with one single commit (the "Squash"
-part). Usually you don't need to have all the 100s of commits you have have
+part). Usually you don't need to have all the 100s of commits you have
 done while developing this code change so "Squash" is what you want but you
 can change it if you want.
 
@@ -734,7 +734,7 @@ aware that it is meant with the best possible intention to provide feedback
 to you for this and future commits, and to keep our codebase to a high
 standard. It is not a personal sleight upon you or your code, and if you
 are getting annoyed with feedback I suggest you take a break and step away
-and read it again later, in a fresh light. Of course if if you feel that a
+and read it again later, in a fresh light. Of course if you feel that a
 reviewer is acting inappropriately then please raise it - we have a
 `Code of Conduct`_ and want all contributors to feel welcome. Feel free to
 also reach out to a maintainer if you would like to discuss something
