@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3498f71e1d7ea6840645cc414479dd2074b58164fe31a46fb3df6e9470d7c02d
+_hash: 2db21cff5deef3ca4a18aab416d79de9350100cac38fe08bcd4014181c1740b0
 file:
 - statement:
     create_table_statement:
@@ -14,7 +14,7 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        keyword: partitioned_by
+        property_name_identifier: partitioned_by
         comparison_operator:
           raw_comparison_operator: '='
         typed_array_literal:
@@ -137,27 +137,27 @@ file:
     - keyword: WITH
     - bracketed:
       - start_bracket: (
-      - keyword: table_type
+      - property_name_identifier: table_type
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'ICEBERG'"
       - comma: ','
-      - keyword: format
+      - property_name_identifier: format
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'PARQUET'"
       - comma: ','
-      - keyword: location
+      - property_name_identifier: location
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'s3://my_athena_results/ctas_iceberg_parquet/'"
       - comma: ','
-      - keyword: is_external
+      - property_name_identifier: is_external
       - comparison_operator:
           raw_comparison_operator: '='
       - boolean_literal: 'false'
       - comma: ','
-      - keyword: partitioning
+      - property_name_identifier: partitioning
       - comparison_operator:
           raw_comparison_operator: '='
       - typed_array_literal:
@@ -168,12 +168,12 @@ file:
             quoted_literal: "'month(dt)'"
             end_square_bracket: ']'
       - comma: ','
-      - keyword: vacuum_min_snapshots_to_keep
+      - property_name_identifier: vacuum_min_snapshots_to_keep
       - comparison_operator:
           raw_comparison_operator: '='
       - numeric_literal: '10'
       - comma: ','
-      - keyword: vacuum_max_snapshot_age_seconds
+      - property_name_identifier: vacuum_max_snapshot_age_seconds
       - comparison_operator:
           raw_comparison_operator: '='
       - numeric_literal: '259200'
