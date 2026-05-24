@@ -544,6 +544,12 @@ tsql_dialect.add(
     CursorBracketedSetExpressionGrammar=Bracketed(
         Ref("CursorUnorderedSetExpressionGrammar")
     ),
+    # AliasExpressionSegment that excludes label patterns (identifier followed by
+    # colon). Used wherever an alias can trail a statement-final expression so
+    # that a next-line label is not swallowed as an alias.
+    LabelSafeAliasExpressionGrammar=Ref(
+        "AliasExpressionSegment", exclude=Ref("LabelStatementSegment")
+    ),
 )
 
 tsql_dialect.replace(
@@ -2058,13 +2064,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         ),
         Sequence(
             Ref("BaseExpressionElementGrammar"),
-            # Exclude label patterns (identifier immediately followed by colon)
-            # so that `SELECT 1\nlabel:` doesn't consume `label` as a column alias.
-            Ref(
-                "AliasExpressionSegment",
-                optional=True,
-                exclude=Ref("LabelStatementSegment"),
-            ),
+            Ref("LabelSafeAliasExpressionGrammar", optional=True),
         ),
     )
 
@@ -7492,7 +7492,7 @@ class OutputClauseSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                 ),
                 # [ [ AS ] column_alias_identifier ]
-                Ref("AliasExpressionSegment", optional=True),
+                Ref("LabelSafeAliasExpressionGrammar", optional=True),
             ),
             terminators=[Ref.keyword("INTO"), Ref.keyword("FROM")],
         ),

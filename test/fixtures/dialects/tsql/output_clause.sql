@@ -163,3 +163,20 @@ OUTPUT INSERTED.ProductID,
        SYSTEM_USER AS UpdatedBy
 WHERE ProductID = 680;
 GO
+
+-- Example 15: DELETE with OUTPUT followed by a label on the next line (no semicolon)
+BEGIN
+    DELETE Sales.ShoppingCartItem
+    OUTPUT DELETED.ProductID
+    next_step:
+END
+GO
+
+-- Example 16: UPDATE with OUTPUT followed by a label on the next line (no semicolon)
+BEGIN
+    UPDATE HumanResources.Employee
+    SET VacationHours = VacationHours + 8
+    OUTPUT INSERTED.BusinessEntityID, INSERTED.VacationHours
+    next_step:
+END
+GO

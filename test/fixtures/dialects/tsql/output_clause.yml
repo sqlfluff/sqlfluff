@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8b2ed0cb4bac89e058a421e58baa8496f76b7c599ee31012b38cb1163fd19e0
+_hash: 32aaf947839da38aae5f95caca33cccefa1c52e611a3321b1ff6aa0e0405d60a
 file:
 - batch:
     statement:
@@ -938,5 +938,67 @@ file:
               raw_comparison_operator: '='
             integer_literal: '680'
     statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          delete_statement:
+            keyword: DELETE
+            table_reference:
+            - naked_identifier: Sales
+            - dot: .
+            - naked_identifier: ShoppingCartItem
+            output_clause:
+            - keyword: OUTPUT
+            - keyword: DELETED
+            - dot: .
+            - naked_identifier: ProductID
+      - statement:
+          label_segment:
+            naked_identifier: next_step
+            colon: ':'
+      - keyword: END
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          update_statement:
+            keyword: UPDATE
+            table_reference:
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: Employee
+            set_clause_list:
+              keyword: SET
+              set_clause:
+                column_reference:
+                  naked_identifier: VacationHours
+                assignment_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                    naked_identifier: VacationHours
+                  binary_operator: +
+                  integer_literal: '8'
+            output_clause:
+            - keyword: OUTPUT
+            - keyword: INSERTED
+            - dot: .
+            - naked_identifier: BusinessEntityID
+            - comma: ','
+            - keyword: INSERTED
+            - dot: .
+            - naked_identifier: VacationHours
+      - statement:
+          label_segment:
+            naked_identifier: next_step
+            colon: ':'
+      - keyword: END
     go_statement:
       keyword: GO
