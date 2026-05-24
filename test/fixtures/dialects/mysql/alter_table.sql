@@ -108,6 +108,18 @@ ALTER TABLE my_table MODIFY num INT UNSIGNED ZEROFILL NOT NULL;
 
 ALTER TABLE my_table MODIFY num INT ZEROFILL UNSIGNED NOT NULL;
 
+ALTER TABLE t MODIFY time_updated timestamp NOT NULL
+DEFAULT current_timestamp()
+ON UPDATE current_timestamp();
+
+ALTER TABLE t MODIFY time_updated timestamp NOT NULL
+DEFAULT localtime
+ON UPDATE localtime();
+
+ALTER TABLE t MODIFY time_updated timestamp NOT NULL
+DEFAULT localtimestamp
+ON UPDATE localtimestamp();
+
 ALTER TABLE T ALTER C DROP DEFAULT;
 
 ALTER TABLE T ALTER C SET DEFAULT 'some default';

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e99d4983802a42751de1ec91051f3b2ea3e93165d2ea79328eb57c0190a896dc
+_hash: 240c31e6518c25cc685ad9949dd5a53309cd62388a669d82f44944e564ee71fb
 file:
 - statement:
     alter_table_statement:
@@ -844,6 +844,84 @@ file:
         keyword: COLLATE
         collation_reference:
           quoted_literal: '"utf8mb4_unicode_ci"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: MODIFY
+    - column_definition:
+      - naked_identifier: time_updated
+      - keyword: timestamp
+      - keyword: NOT
+      - keyword: 'NULL'
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            keyword: current_timestamp
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+      - keyword: 'ON'
+      - keyword: UPDATE
+      - function:
+          function_name:
+            keyword: current_timestamp
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: MODIFY
+    - column_definition:
+      - naked_identifier: time_updated
+      - keyword: timestamp
+      - keyword: NOT
+      - keyword: 'NULL'
+      - keyword: DEFAULT
+      - bare_function: localtime
+      - keyword: 'ON'
+      - keyword: UPDATE
+      - function:
+          function_name:
+            keyword: localtime
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: MODIFY
+    - column_definition:
+      - naked_identifier: time_updated
+      - keyword: timestamp
+      - keyword: NOT
+      - keyword: 'NULL'
+      - keyword: DEFAULT
+      - bare_function: localtimestamp
+      - keyword: 'ON'
+      - keyword: UPDATE
+      - function:
+          function_name:
+            keyword: localtimestamp
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
