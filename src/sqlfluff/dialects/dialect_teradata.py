@@ -33,6 +33,7 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
+from sqlfluff.core.parser.segments import NewlineSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -179,6 +180,11 @@ teradata_dialect.add(
         CodeSegment,
         type="equals",
     ),
+    BteqCommandNewlineSegment=TypedParser(
+        "newline",
+        NewlineSegment,
+        type="newline",
+    ),
 )
 
 
@@ -243,6 +249,10 @@ class BteqStatementSegment(BaseSegment):
             Sequence(
                 Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar"), optional=True
             ),
+            terminators=[
+                Ref("BteqCommandNewlineSegment"),
+                Ref("SemicolonSegment"),
+            ],
             optional=True,
         ),
         AnyNumberOf(
@@ -250,9 +260,15 @@ class BteqStatementSegment(BaseSegment):
                 Ref("BteqCommandArgumentSegment"),
                 Ref("BteqCommandEqualsSegment"),
                 Ref("LiteralGrammar"),
+                Ref("DotSegment"),
+                Ref("CommaSegment"),
+                Ref("ColonSegment"),
+                Ref("MinusSegment"),
+                Ref("DivideSegment"),
             ),
             terminators=[
-                Ref("DelimiterGrammar"),
+                Ref("BteqCommandNewlineSegment"),
+                Ref("SemicolonSegment"),
             ],
             optional=True,
         ),

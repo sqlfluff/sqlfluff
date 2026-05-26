@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 328c0611f27b0b6a06ece5b28e9d0e5e7b13b658f8be22279089ca68a409fa07
+_hash: f992f83e6acc7c9019ae682c59ba26defbb6fd554386893338194e65b401ea66
 file:
 - statement:
     bteq_statement:
@@ -30,3 +30,46 @@ file:
     - word: FILE
     - equals: '='
     - word: POSTING
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: RUN
+    - word: FILE
+    - equals: '='
+    - word: POSTING
+    - dot: .
+    - word: SQL
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: RUN
+    - word: FILE
+    - equals: '='
+    - dot: .
+    - dot: .
+    - binary_operator: /
+    - word: posting
+    - binary_operator: '-'
+    - word: file
+    - dot: .
+    - word: sql
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: EXPORT
+    - word: REPORT
+    - word: FILE
+    - equals: '='
+    - word: reports
+    - binary_operator: /
+    - word: out
+    - comma: ','
+    - word: summary
+    - dot: .
+    - word: txt
