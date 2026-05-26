@@ -54,6 +54,13 @@ teradata_dialect.patch_lexer_matchers(
     ]
 )
 
+teradata_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("backslash", r"\\", CodeSegment),
+    ],
+    before="word",
+)
+
 # Remove unused keywords from the dialect.
 teradata_dialect.sets("unreserved_keywords").difference_update(
     [
@@ -180,6 +187,16 @@ teradata_dialect.add(
         CodeSegment,
         type="equals",
     ),
+    BteqCommandBackslashSegment=TypedParser(
+        "backslash",
+        CodeSegment,
+        type="backslash",
+    ),
+    BteqCommandQuotedArgumentSegment=TypedParser(
+        "double_quote",
+        CodeSegment,
+        type="quoted_argument",
+    ),
     BteqCommandNewlineSegment=TypedParser(
         "newline",
         NewlineSegment,
@@ -259,6 +276,8 @@ class BteqStatementSegment(BaseSegment):
             OneOf(
                 Ref("BteqCommandArgumentSegment"),
                 Ref("BteqCommandEqualsSegment"),
+                Ref("BteqCommandBackslashSegment"),
+                Ref("BteqCommandQuotedArgumentSegment"),
                 Ref("LiteralGrammar"),
                 Ref("DotSegment"),
                 Ref("CommaSegment"),

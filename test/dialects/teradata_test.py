@@ -10,6 +10,8 @@ from sqlfluff.core import Linter
     [
         ".RUN FILE=POSTING.SQL\n",
         ".RUN FILE=../posting-file.sql\n",
+        '.RUN FILE="reports/out summary.txt"\n',
+        ".RUN FILE=C:\\reports\\out-summary.txt\n",
         ".EXPORT REPORT FILE=reports/out,summary.txt\n",
     ],
 )
