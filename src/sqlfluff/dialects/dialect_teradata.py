@@ -24,7 +24,6 @@ from sqlfluff.core.parser import (
     ImplicitIndent,
     Indent,
     Matchable,
-    NewlineSegment,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -32,6 +31,7 @@ from sqlfluff.core.parser import (
     Sequence,
     StringParser,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -169,10 +169,15 @@ teradata_dialect.add(
     NotEqualToSegment_a=StringParser("NE", ComparisonOperatorSegment),
     NotEqualToSegment_b=StringParser("NOT=", ComparisonOperatorSegment),
     NotEqualToSegment_c=StringParser("^=", ComparisonOperatorSegment),
-    BteqCommandTerminatorNewline=TypedParser(
-        "newline",
-        NewlineSegment,
-        type="newline",
+    BteqCommandArgumentSegment=TypedParser(
+        "word",
+        WordSegment,
+        type="word",
+    ),
+    BteqCommandEqualsSegment=TypedParser(
+        "equals",
+        CodeSegment,
+        type="equals",
     ),
 )
 
@@ -240,10 +245,14 @@ class BteqStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Anything(
+        AnyNumberOf(
+            OneOf(
+                Ref("BteqCommandArgumentSegment"),
+                Ref("BteqCommandEqualsSegment"),
+                Ref("LiteralGrammar"),
+            ),
             terminators=[
                 Ref("DelimiterGrammar"),
-                Ref("BteqCommandTerminatorNewline"),
             ],
             optional=True,
         ),
