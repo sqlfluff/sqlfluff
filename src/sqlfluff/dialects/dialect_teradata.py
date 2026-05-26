@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     ImplicitIndent,
     Indent,
     Matchable,
+    NewlineSegment,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -168,6 +169,11 @@ teradata_dialect.add(
     NotEqualToSegment_a=StringParser("NE", ComparisonOperatorSegment),
     NotEqualToSegment_b=StringParser("NOT=", ComparisonOperatorSegment),
     NotEqualToSegment_c=StringParser("^=", ComparisonOperatorSegment),
+    BteqCommandTerminatorNewline=TypedParser(
+        "newline",
+        NewlineSegment,
+        type="newline",
+    ),
 )
 
 
@@ -232,6 +238,13 @@ class BteqStatementSegment(BaseSegment):
             Sequence(
                 Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar"), optional=True
             ),
+            optional=True,
+        ),
+        Anything(
+            terminators=[
+                Ref("DelimiterGrammar"),
+                Ref("BteqCommandTerminatorNewline"),
+            ],
             optional=True,
         ),
     )

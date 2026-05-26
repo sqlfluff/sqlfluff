@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5c9454897c6fb0804ca61cd756db50740fc13aabf09a5232ea602068cc2fa713
+_hash: 328c0611f27b0b6a06ece5b28e9d0e5e7b13b658f8be22279089ca68a409fa07
 file:
-  statement:
+- statement:
     bteq_statement:
     - dot: .
     - bteq_key_word_segment:
@@ -21,4 +21,12 @@ file:
         dot: .
         keyword: quit
         numeric_literal: '4'
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: RUN
+    - word: FILE
+    - equals: '='
+    - word: POSTING
