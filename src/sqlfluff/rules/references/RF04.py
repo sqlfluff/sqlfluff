@@ -12,10 +12,11 @@ from sqlfluff.utils.identifers import identifiers_policy_applicable
 class Rule_RF04(BaseRule):
     """Keywords should not be used as identifiers.
 
-    Although `unreserved` keywords `can` be used as identifiers,
-    and `reserved words` can be used as quoted identifiers,
-    best practice is to avoid where possible, to avoid any
-    misunderstandings as to what the alias represents.
+    This rule flags `reserved` keywords and `future reserved` keywords
+    when used as quoted identifiers, as these words are reserved for
+    SQL syntax use. Unreserved (non-reserved) keywords are explicitly
+    allowed as identifiers by the SQL standard and are therefore not
+    flagged by this rule.
 
     .. note::
        Note that `reserved` keywords cannot be used as unquoted identifiers
@@ -23,17 +24,17 @@ class Rule_RF04(BaseRule):
 
     **Anti-pattern**
 
-    In this example, ``SUM`` (built-in function) is used as an alias.
+    In this example, ``CASE`` (a reserved keyword) is used as an alias.
 
     .. code-block:: sql
 
         SELECT
-            sum.a
-        FROM foo AS sum
+            "case".a
+        FROM foo AS "case"
 
     **Best practice**
 
-    Avoid keywords as the name of an alias.
+    Avoid reserved keywords as the name of an alias.
 
     .. code-block:: sql
 
@@ -64,6 +65,13 @@ class Rule_RF04(BaseRule):
         if len(context.segment.raw) == 1:
             return LintResult(memory=context.memory)
 
+        # Get the identifier text, stripping quotes for quoted identifiers
+        is_quoted = context.segment.is_type("quoted_identifier")
+        if is_quoted:
+            identifier_text = context.segment.raw[1:-1]
+        else:
+            identifier_text = context.segment.raw
+
         # Get the ignore list configuration and cache it
         try:
             ignore_words_list = self.ignore_words_list
@@ -73,41 +81,26 @@ class Rule_RF04(BaseRule):
             ignore_words_list = self._init_ignore_string()
 
         # Skip if in ignore list
-        if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
+        if ignore_words_list and identifier_text.upper() in ignore_words_list:
             return LintResult(memory=context.memory)
 
         # Skip if matches ignore regex
         if self.ignore_words_regex and regex.search(
-            self.ignore_words_regex, context.segment.raw
+            self.ignore_words_regex, identifier_text
         ):
             return LintResult(memory=context.memory)
 
         if (
-            (
-                context.segment.is_type("naked_identifier")
-                and identifiers_policy_applicable(
-                    self.unquoted_identifiers_policy,  # type: ignore
-                    context.parent_stack,
-                )
-                and (
-                    context.segment.raw.upper()
-                    in context.dialect.sets("unreserved_keywords")
-                )
+            is_quoted
+            and identifiers_policy_applicable(
+                self.quoted_identifiers_policy,  # type: ignore
+                context.parent_stack,
             )
-            or (
-                context.segment.is_type("quoted_identifier")
-                and identifiers_policy_applicable(
-                    self.quoted_identifiers_policy,  # type: ignore
-                    context.parent_stack,
-                )
-                and (
-                    context.segment.raw.upper()[1:-1]
-                    in context.dialect.sets("unreserved_keywords")
-                    or context.segment.raw.upper()[1:-1]
-                    in context.dialect.sets("reserved_keywords")
-                    or context.segment.raw.upper()[1:-1]
-                    in context.dialect.sets("future_reserved_keywords")
-                )
+            and (
+                identifier_text.upper()
+                in context.dialect.sets("reserved_keywords")
+                or identifier_text.upper()
+                in context.dialect.sets("future_reserved_keywords")
             )
         ):
             return LintResult(anchor=context.segment)
@@ -120,7 +113,7 @@ class Rule_RF04(BaseRule):
         ignore_words_config = str(getattr(self, "ignore_words"))
         if ignore_words_config and ignore_words_config != "None":
             self.ignore_words_list = self.split_comma_separated_string(
-                ignore_words_config.lower()
+                ignore_words_config.upper()
             )
         else:
             self.ignore_words_list = []
