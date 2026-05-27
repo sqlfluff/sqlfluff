@@ -6973,10 +6973,7 @@ class MetaCommandQueryBufferStatement(BaseSegment):
     match_grammar = Sequence(
         AnyNumberOf(
             Sequence(
-                OneOf(
-                    Ref("WithCompoundStatementSegment"),
-                    Ref("SelectStatementSegment"),
-                ),
+                Ref("SelectableGrammar"),
                 Ref("MetaCommandQueryBufferSegment", optional=True),
             )
         )

@@ -45,3 +45,13 @@ SELECT
 FROM entries
 ORDER BY 1
 \crosstabview
+
+SELECT 1, 2, 3
+UNION ALL
+SELECT 4, 5, 6
+\crosstabview
+
+INSERT INTO x
+VALUES (1, 2, 3), (4, 5, 6)
+RETURNING a, b, c
+\crosstabview
