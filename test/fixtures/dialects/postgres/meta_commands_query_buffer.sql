@@ -28,3 +28,30 @@ ORDER BY 1
 \crosstabview
 
 SELECT a, b FROM t \crosstabview
+
+SELECT
+    a,
+    b,
+    c
+FROM mytable
+ORDER BY 1
+\crosstabview
+
+WITH entries AS (SELECT 1, 2, 3)
+SELECT
+    a,
+    b,
+    c
+FROM entries
+ORDER BY 1
+\crosstabview
+
+SELECT 1, 2, 3
+UNION ALL
+SELECT 4, 5, 6
+\crosstabview
+
+INSERT INTO x
+VALUES (1, 2, 3), (4, 5, 6)
+RETURNING a, b, c
+\crosstabview
