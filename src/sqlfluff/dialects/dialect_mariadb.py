@@ -49,7 +49,8 @@ mariadb_dialect.replace(
         OneOf("ADD", "DROP"),
         "SYSTEM",
         "VERSIONING",
-    )
+    ),
+    TriggerOrReplaceGrammar=Sequence("OR", "REPLACE"),
 )
 
 

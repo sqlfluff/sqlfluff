@@ -1260,6 +1260,7 @@ class IntervalExpressionSegment(BaseSegment):
 
 mysql_dialect.add(
     AddDropSystemVersioningGrammar=Nothing(),
+    TriggerOrReplaceGrammar=Nothing(),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, type="parameter_direction"
     ),
@@ -3264,6 +3265,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
     # "DEFINED = user", optional
     match_grammar = Sequence(
         "CREATE",
+        Ref("TriggerOrReplaceGrammar", optional=True),
         Ref("DefinerSegment", optional=True),
         "TRIGGER",
         Ref("IfNotExistsGrammar", optional=True),
