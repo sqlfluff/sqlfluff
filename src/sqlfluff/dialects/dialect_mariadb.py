@@ -49,7 +49,8 @@ mariadb_dialect.replace(
         OneOf("ADD", "DROP"),
         "SYSTEM",
         "VERSIONING",
-    )
+    ),
+    TriggerOrReplaceGrammar=Sequence("OR", "REPLACE"),
 )
 
 
@@ -485,18 +486,6 @@ class CreateFunctionStatementSegment(mysql.CreateFunctionStatementSegment):
     match_grammar = mysql.CreateFunctionStatementSegment.match_grammar.copy(
         insert=[Ref("OrReplaceGrammar", optional=True)],
         before=Ref("FunctionKeywordSegment"),
-    )
-
-
-class CreateTriggerStatementSegment(mysql.CreateTriggerStatementSegment):
-    """A `CREATE TRIGGER` statement.
-
-    https://mariadb.com/kb/en/create-trigger/
-    """
-
-    match_grammar = mysql.CreateTriggerStatementSegment.match_grammar.copy(
-        insert=[Ref("OrReplaceGrammar", optional=True)],
-        at=1,
     )
 
 
