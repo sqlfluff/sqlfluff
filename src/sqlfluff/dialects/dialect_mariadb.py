@@ -488,6 +488,18 @@ class CreateFunctionStatementSegment(mysql.CreateFunctionStatementSegment):
     )
 
 
+class CreateTriggerStatementSegment(mysql.CreateTriggerStatementSegment):
+    """A `CREATE TRIGGER` statement.
+
+    https://mariadb.com/kb/en/create-trigger/
+    """
+
+    match_grammar = mysql.CreateTriggerStatementSegment.match_grammar.copy(
+        insert=[Ref("OrReplaceGrammar", optional=True)],
+        at=1,
+    )
+
+
 class TableOptionsSegment(mysql.TableOptionsSegment):
     """MariaDB table options for CREATE/ALTER TABLE statements.
 
