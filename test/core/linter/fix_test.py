@@ -285,9 +285,9 @@ def test__fix__jinja_dbt_config_allows_start_of_file_fix(caplog):
     """Regression test for LT13 before an empty-rendering dbt config block."""
     sql = (
         "\n{{\n"
-        '    config(\n'
+        "    config(\n"
         '        materialized = "ephemeral",\n'
-        '    )\n'
+        "    )\n"
         "}}\n\n"
         "SELECT 1\n"
     )
