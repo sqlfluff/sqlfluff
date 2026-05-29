@@ -420,14 +420,20 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_target(self):
         """Get a dbt target name from the configuration."""
-        return self.sqlfluff_config.get_section(
-            (self.templater_selector, self.name, "target")
+        return (
+            self.sqlfluff_config.get_section(
+                (self.templater_selector, self.name, "target")
+            )
+            or os.getenv("DBT_TARGET")
         )
 
     def _get_target_path(self):
         """Get a dbt target path from the configuration."""
-        return self.sqlfluff_config.get_section(
-            (self.templater_selector, self.name, "target_path")
+        return (
+            self.sqlfluff_config.get_section(
+                (self.templater_selector, self.name, "target_path")
+            )
+            or os.getenv("DBT_TARGET_PATH")
         )
 
     def _get_threads(self) -> Optional[int]:
