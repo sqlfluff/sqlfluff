@@ -2921,6 +2921,24 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """An element in the targets of a select statement."""
+
+    type = "select_clause_element"
+
+    match_grammar = OneOf(
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref(
+                "AliasExpressionSegment",
+                optional=True,
+                exclude=Ref("ExcludeClauseSegment"),
+            ),
+        ),
+    )
+
+
 class SelectClauseSegment(postgres.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
@@ -2954,17 +2972,6 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
     )
 
 
-class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
-    """An extension of the star expression for Redshift."""
-
-    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
-        insert=[
-            # Optional Exclude
-            Ref("ExcludeClauseSegment", optional=True),
-        ]
-    )
-
-
 class ExcludeClauseSegment(BaseSegment):
     """A Redshift SELECT EXCLUDE clause.
 
@@ -2976,7 +2983,7 @@ class ExcludeClauseSegment(BaseSegment):
         "EXCLUDE",
         OneOf(
             Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
-            Ref("SingleIdentifierGrammar"),
+            Delimited(Ref("SingleIdentifierGrammar")),
         ),
     )
 
