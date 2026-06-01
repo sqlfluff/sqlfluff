@@ -944,6 +944,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LabelStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
+            Ref("DropCredentialStatementSegment"),
             Ref("CreateExternalDataSourceStatementSegment"),
             Ref("SqlcmdCommandSegment"),
             Ref("CreateExternalFileFormat"),
@@ -8258,6 +8259,20 @@ class CreateDatabaseScopedCredentialStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "WITH",
         Ref("CredentialGrammar"),
+    )
+
+
+class DropCredentialStatementSegment(BaseSegment):
+    """A `DROP CREDENTIAL` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-credential-transact-sql
+    """
+
+    type = "drop_credential_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CREDENTIAL",
+        Ref("ObjectReferenceSegment"),
     )
 
 
