@@ -899,6 +899,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSecurityPolicySegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
+            Ref("DropCredentialStatementSegment"),
             Ref("CreateServerRoleStatementSegment"),
             Ref("CreateXmlSchemaCollectionStatementSegment"),
             Ref("AlterXmlSchemaCollectionStatementSegment"),
@@ -8154,6 +8155,18 @@ class DropSynonymStatementSegment(BaseSegment):
         "SYNONYM",
         Ref("IfExistsGrammar", optional=True),
         Ref("SynonymReferenceSegment"),
+    )
+
+
+class DropCredentialStatementSegment(BaseSegment):
+    """A `DROP CREDENTIAL` statement."""
+
+    type = "drop_credential_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-credential-transact-sql
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CREDENTIAL",
+        Ref("SingleIdentifierGrammar"),
     )
 
 
