@@ -18,6 +18,9 @@ within the codebase, for example the [Rules Reference](/reference/rules/index), 
 [Dialect Reference](/reference/dialects/index). To understand more about how the custom integrations
 we use to generate these docs, see the [generate-auto-docs.py](https://github.com/sqlfluff/sqlfluff/blob/main/docs/generate-auto-docs.py) file.
 
+For the active beta-docs migration and deployment work, see the
+[Versioned Beta Docs Hosting Plan](/development/versioned-docs-hosting).
+
 
 ## Docstrings
 

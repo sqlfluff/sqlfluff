@@ -27,6 +27,46 @@ workflow run rebuilds only the version which changed, merges that output into
 the assembled site tree, updates the manifest, and republishes the assembled
 site.
 
+## Current Implementation Snapshot
+
+The sections below still describe the target architecture, but the repository
+ now contains a first working slice of that design.
+
+Implemented in the repo so far:
+
+- VitePress can now build against a configurable docs base using
+  `SQLFLUFF_DOCS_BASE`, with `SQLFLUFF_DOCS_NOINDEX` adding a beta-friendly
+  robots tag.
+- Shared path handling for base-aware assets and redirects now lives in
+  `docsv/.vitepress/path-utils.ts`, keeping the VitePress config, main theme,
+  and 404 redirect handling aligned.
+- The generated docs scripts now write UTF-8 explicitly so Windows builds do
+  not fail on non-ASCII content.
+- `docsv/package.json` now runs the Python prebuild step directly in
+  `docs:build`, avoiding recursive `pnpm` invocation problems.
+- `docsv/scripts/assemble-site.py` assembles a minimal published site tree for
+  Stage 1 with `/en/latest/`, `/en/versions.json`, Netlify `_redirects`, and
+  Netlify `_headers`.
+- `.github/workflows/publish-docs.yaml` now implements a latest-only beta
+  publish workflow that builds VitePress, assembles the site, uploads an
+  artifact, syncs the snapshot to R2, and deploys the same snapshot to
+  Netlify.
+- The workflow currently triggers on pushes to `main`, pushes to
+  `ac/docsdeploy`, and `workflow_dispatch`.
+
+Validated locally so far:
+
+- A Windows build of `corepack pnpm run docs:build` succeeded with
+  `SQLFLUFF_DOCS_BASE=/en/latest/` and `SQLFLUFF_DOCS_NOINDEX=1`.
+- The assembled site helper produced the expected `site/en/latest/`,
+  `site/en/versions.json`, `_redirects`, and `_headers` outputs.
+
+Still not confirmed from this repository alone:
+
+- A successful GitHub Actions publish using the real repository secrets.
+- A live verification that `betadocs.sqlfluff.com/` redirects to `/en/latest/`
+  and serves the assembled snapshot correctly.
+
 ## Architecture
 
 ### Responsibilities
@@ -313,6 +353,10 @@ sufficient.
 
 ### Stage 0: Infrastructure Bootstrap
 
+Status: mostly complete outside the repo. The R2 bucket and Netlify project
+have been created, but the repository-side secret wiring should still be
+verified when continuing on a new machine.
+
 Deliverables:
 
 - Create the R2 bucket
@@ -328,6 +372,9 @@ Stopping point:
 - No code deployed yet, but infrastructure and policies are ready
 
 ### Stage 1: `latest` Only On Beta
+
+Status: implemented in the repository and validated locally, but still pending
+the first successful secrets-backed GitHub Actions publish.
 
 Deliverables:
 
@@ -491,6 +538,18 @@ The following can be revisited after the initial beta proof:
 
 1. How much historical Sphinx backfill should be added beyond the first older
   hosted version?
+
+## Immediate Next Steps
+
+When resuming this work on another machine, the next high-value checks are:
+
+1. Confirm the repository secrets are present for R2 and Netlify.
+2. Run `.github/workflows/publish-docs.yaml` via `workflow_dispatch` or by
+  pushing to `ac/docsdeploy`.
+3. Verify that the published beta site redirects `/` to `/en/latest/` and that
+  `/en/latest/` serves the assembled snapshot correctly.
+4. Once that path is stable, move on to release-driven `/en/<version>/`,
+  `/en/stable/`, and the first historical Sphinx-hosted version.
 
 ## Success Criteria
 
