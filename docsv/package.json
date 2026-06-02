@@ -6,7 +6,7 @@
     "scripts": {
         "docs:prebuild": "python scripts/generate-all-docs.py",
         "docs:dev": "vitepress dev",
-        "docs:build": "pnpm run docs:prebuild && vitepress build",
+        "docs:build": "python scripts/generate-all-docs.py && vitepress build",
         "docs:preview": "vitepress preview"
     },
     "devDependencies": {

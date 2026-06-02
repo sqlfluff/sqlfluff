@@ -1,24 +1,29 @@
 name: Deploy Docs
 
 on:
+  push:
+    branches:
+      - main
+      - ac/docsdeploy
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
+  group: "docs-beta-latest"
   cancel-in-progress: false
 
+env:
+  DOCS_SITE_DIR: site
+  DOCS_R2_PREFIX: site
+  SQLFLUFF_DOCS_BASE: /en/latest/
+  SQLFLUFF_DOCS_NOINDEX: "1"
+
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
-    name: Build Docs
+    name: Publish latest docs
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -26,8 +31,7 @@ jobs:
           fetch-depth: 0
 
       - name: 📦 Enable corepack
-        run: |
-          corepack enable
+        run: corepack enable
 
       - name: 💾 Setup Node
         uses: actions/setup-node@v6
@@ -36,43 +40,62 @@ jobs:
           cache: pnpm
           cache-dependency-path: docsv/pnpm-lock.yaml
 
-      - name: 📄 Setup Pages
-        uses: actions/configure-pages@v5
-        if: ${{ !env.ACT }}
-
       - name: 🐍 Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
-          cache: 'pip'
+          python-version: "3.14"
+          cache: pip
 
       - name: 📦 Install SQLFluff
         run: pip install -e .
 
-      - name: 📦 Install dependencies
+      - name: 📦 Install docs dependencies
         working-directory: docsv
-        run: pnpm install --frozen-lockfile
+        run: corepack pnpm install --frozen-lockfile
 
-      - name: ⚒️ Build with VitePress
+      - name: ⚒️ Build VitePress latest docs
         working-directory: docsv
-        run: pnpm run docs:build
+        run: corepack pnpm run docs:build
 
-      - name: ⬆️ Upload artifact
-        uses: actions/upload-pages-artifact@v4
-        if: ${{ !env.ACT }}
+      - name: Assemble latest site
+        run: >-
+          python docsv/scripts/assemble-site.py
+          --vitepress-dist docsv/.vitepress/dist
+          --output-dir ${{ env.DOCS_SITE_DIR }}
+
+      - name: ⬆️ Upload assembled site artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: docsv/.vitepress/dist
+          name: latest-docs-site
+          path: ${{ env.DOCS_SITE_DIR }}
 
-  # Deployment job
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    name: ✅ Deploy Docs
-    steps:
-      - name: ✅ Deploy to GitHub Pages
+      - name: Configure R2 credentials
         if: ${{ !env.ACT }}
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Sync assembled site to R2
+        if: ${{ !env.ACT }}
+        env:
+          AWS_EC2_METADATA_DISABLED: "true"
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: >-
+          aws s3 sync ${{ env.DOCS_SITE_DIR }} s3://${{ secrets.R2_BUCKET }}/${{ env.DOCS_R2_PREFIX }}
+          --delete
+          --only-show-errors
+          --endpoint-url https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - name: Deploy assembled site to Netlify
+        if: ${{ !env.ACT }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: >-
+          npx --yes netlify-cli deploy
+          --dir=${{ env.DOCS_SITE_DIR }}
+          --prod
+          --message "latest docs ${GITHUB_SHA}"

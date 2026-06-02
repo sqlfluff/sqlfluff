@@ -1,25 +1,21 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useRouter } from 'vitepress'
+import { useData, useRouter } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import redirects from '../redirects.json'
+import { normalizeBase, normalizePath, toRedirectPath } from '../path-utils'
 
 const router = useRouter()
+const { site } = useData()
 
 onMounted(() => {
   // Check if the current path matches any redirect
-  const currentPath = window.location.pathname.replace(/^\//, '').replace(/\/$/, '')
+  const docsBase = normalizeBase(site.value.base)
+  const currentPath = normalizePath(window.location.pathname, docsBase)
   const redirectMap = redirects as Record<string, string>
 
   if (redirectMap[currentPath]) {
-    const target = redirectMap[currentPath]
-
-    // Redirect to the target page
-    if (target.includes('#')) {
-      window.location.href = `/${target}`
-    } else {
-      router.go(`/${target}`)
-    }
+    router.go(toRedirectPath(redirectMap[currentPath], docsBase))
   }
 })
 </script>
