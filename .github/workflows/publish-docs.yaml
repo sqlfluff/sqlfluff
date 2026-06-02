@@ -69,17 +69,12 @@ jobs:
           name: latest-docs-site
           path: ${{ env.DOCS_SITE_DIR }}
 
-      - name: Configure R2 credentials
-        if: ${{ !env.ACT }}
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
       - name: Sync assembled site to R2
         if: ${{ !env.ACT }}
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
           AWS_EC2_METADATA_DISABLED: "true"
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
