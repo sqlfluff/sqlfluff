@@ -6,8 +6,12 @@ import VersionPicker from './VersionPicker.vue'
 
 <template>
   <DefaultTheme.Layout>
-    <template #layout-top>
-      <VersionPicker />
+    <template #nav-bar-content-after>
+      <VersionPicker :show-label="false" :inline="true" />
+    </template>
+
+    <template #nav-screen-content-after>
+      <VersionPicker class="version-picker--mobile" />
     </template>
 
     <template #not-found>
@@ -15,3 +19,9 @@ import VersionPicker from './VersionPicker.vue'
     </template>
   </DefaultTheme.Layout>
 </template>
+
+<style scoped>
+.version-picker--mobile {
+  padding: 0.75rem 0 0;
+}
+</style>

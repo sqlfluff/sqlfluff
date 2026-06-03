@@ -3,6 +3,17 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vitepress'
 import { normalizeBase, withDocsBase } from '../path-utils'
 
+const props = withDefaults(
+    defineProps<{
+        inline?: boolean
+        showLabel?: boolean
+    }>(),
+    {
+        inline: false,
+        showLabel: true,
+    }
+)
+
 interface VersionEntry {
     key: string
     label: string
@@ -100,8 +111,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="versions.length" class="version-picker">
-    <label class="version-picker__label" for="version-picker-select">Version</label>
+    <div v-if="versions.length" :class="['version-picker', { 'version-picker--inline': props.inline }]">
+        <label v-if="props.showLabel" class="version-picker__label" for="version-picker-select">Version</label>
     <select
       id="version-picker-select"
       class="version-picker__select"
@@ -127,6 +138,10 @@ onMounted(async () => {
     padding: 0.5rem 0;
 }
 
+.version-picker--inline {
+    padding: 0;
+}
+
 .version-picker__label {
     font-size: 0.875rem;
     font-weight: 600;
@@ -141,6 +156,12 @@ onMounted(async () => {
     background: var(--vp-c-bg-soft);
     color: var(--vp-c-text-1);
     font-size: 0.875rem;
+}
+
+.version-picker--inline .version-picker__select {
+    min-width: 5.5rem;
+    padding-right: 1.5rem;
+    background: transparent;
 }
 
 .version-picker__select:focus {
