@@ -14,7 +14,7 @@ There are two way to utilize SQLFluff to annotate Github PRs.
 At present (December 2023), limitations put in place by Github mean that only the
 first 10 annotations will be displayed if the first option (using
 `github-annotation-native`) is used. This is a not something that SQLFluff
-can control itself and so we currently recommend using the the second option
+can control itself and so we currently recommend using the second option
 above and the [action from yuzutech](https://github.com/yuzutech/annotations-action).
 
 There is an [open feature request](https://github.com/orgs/community/discussions/68471)

@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Sequence,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.dialects.dialect_materialize_keywords import (
     materialize_reserved_keywords,
     materialize_unreserved_keywords,
@@ -799,6 +800,21 @@ class CreateSourceWebhookStatementSegment(BaseSegment):
             Anything(),
             optional=True,
         ),
+    )
+
+
+class DatatypeSegment(postgres.DatatypeSegment):
+    """A data type segment for Materialize.
+
+    Extends the PostgreSQL data type to support the LIST type modifier.
+    In Materialize, `type LIST` creates a list type, e.g. `uuid LIST` or
+    `int LIST`.
+    """
+
+    type = "data_type"
+    match_grammar = Sequence(
+        postgres.DatatypeSegment.match_grammar,
+        Ref.keyword("LIST", optional=True),
     )
 
 

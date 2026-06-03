@@ -154,6 +154,18 @@ BEGIN ATOMIC
   FROM data;
 END;
 
+create or replace function union_things()
+returns table (num integer)
+language sql
+stable
+begin atomic
+  select 1
+
+  union all
+
+  select 2;
+end;
+
 create or replace function tz_date(timestamp with time zone, text) returns date
     language sql
     immutable strict

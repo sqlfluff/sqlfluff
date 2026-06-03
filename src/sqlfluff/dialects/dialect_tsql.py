@@ -544,6 +544,12 @@ tsql_dialect.add(
     CursorBracketedSetExpressionGrammar=Bracketed(
         Ref("CursorUnorderedSetExpressionGrammar")
     ),
+    # AliasExpressionSegment that excludes label patterns (identifier followed by
+    # colon). Used wherever an alias can trail a statement-final expression so
+    # that a next-line label is not swallowed as an alias.
+    LabelSafeAliasExpressionGrammar=Ref(
+        "AliasExpressionSegment", exclude=Ref("LabelStatementSegment")
+    ),
 )
 
 tsql_dialect.replace(
@@ -938,6 +944,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LabelStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
+            Ref("DropCredentialStatementSegment"),
             Ref("CreateExternalDataSourceStatementSegment"),
             Ref("SqlcmdCommandSegment"),
             Ref("CreateExternalFileFormat"),
@@ -2058,7 +2065,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         ),
         Sequence(
             Ref("BaseExpressionElementGrammar"),
-            Ref("AliasExpressionSegment", optional=True),
+            Ref("LabelSafeAliasExpressionGrammar", optional=True),
         ),
     )
 
@@ -3475,6 +3482,17 @@ class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
         Ref("IndexReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
+    )
+
+
+class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
+    """A `DROP SEQUENCE` statement."""
+
+    match_grammar = Sequence(
+        "DROP",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("SequenceReferenceSegment")),
     )
 
 
@@ -7486,7 +7504,7 @@ class OutputClauseSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                 ),
                 # [ [ AS ] column_alias_identifier ]
-                Ref("AliasExpressionSegment", optional=True),
+                Ref("LabelSafeAliasExpressionGrammar", optional=True),
             ),
             terminators=[Ref.keyword("INTO"), Ref.keyword("FROM")],
         ),
@@ -8241,6 +8259,20 @@ class CreateDatabaseScopedCredentialStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "WITH",
         Ref("CredentialGrammar"),
+    )
+
+
+class DropCredentialStatementSegment(BaseSegment):
+    """A `DROP CREDENTIAL` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-credential-transact-sql
+    """
+
+    type = "drop_credential_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CREDENTIAL",
+        Ref("ObjectReferenceSegment"),
     )
 
 

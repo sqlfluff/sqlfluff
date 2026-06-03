@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     LiteralSegment,
     Matchable,
+    MultiStringParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -66,6 +67,45 @@ athena_dialect.bracket_sets("angle_bracket_pairs").update(
     ]
 )
 
+_CTAS_COMMON_PROPERTY_NAMES = (
+    "format",
+    "partitioned_by",
+    "bucketed_by",
+    "bucket_count",
+    "write_compression",
+    "orc_compression",
+    "parquet_compression",
+    "compression_level",
+    "field_delimiter",
+    "is_external",
+    "table_type",
+)
+
+_CTAS_PROPERTY_NAMES = (
+    *_CTAS_COMMON_PROPERTY_NAMES,
+    "external_location",
+)
+
+_CTAS_ICEBERG_PROPERTY_NAMES = (
+    *_CTAS_COMMON_PROPERTY_NAMES,
+    "location",
+    "partitioning",
+    "vacuum_max_snapshot_age_seconds",
+    "vacuum_min_snapshots_to_keep",
+    "optimize_rewrite_min_data_file_size_bytes",
+    "optimize_rewrite_max_data_file_size_bytes",
+    "optimize_rewrite_data_file_threshold",
+    "optimize_rewrite_delete_file_threshold",
+)
+
+_UNLOAD_PROPERTY_NAMES = (
+    "format",
+    "partitioned_by",
+    "compression",
+    "field_delimiter",
+)
+
+
 athena_dialect.add(
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, type="start_angle_bracket"
@@ -91,47 +131,23 @@ athena_dialect.add(
     ),
     LocationGrammar=Sequence("LOCATION", Ref("QuotedLiteralSegment")),
     BracketedPropertyListGrammar=Bracketed(Delimited(Ref("PropertyGrammar"))),
+    CTASPropertyNameGrammar=MultiStringParser(
+        _CTAS_PROPERTY_NAMES,
+        IdentifierSegment,
+        type="property_name_identifier",
+    ),
     CTASPropertyGrammar=Sequence(
-        OneOf(
-            "format",
-            "partitioned_by",
-            "bucketed_by",
-            "bucket_count",
-            "write_compression",
-            "orc_compression",
-            "parquet_compression",
-            "compression_level",
-            "field_delimiter",
-            "is_external",
-            "table_type",
-            "external_location",
-        ),
+        Ref("CTASPropertyNameGrammar"),
         Ref("EqualsSegment"),
         Ref("LiteralGrammar"),
     ),
+    CTASIcebergPropertyNameGrammar=MultiStringParser(
+        _CTAS_ICEBERG_PROPERTY_NAMES,
+        IdentifierSegment,
+        type="property_name_identifier",
+    ),
     CTASIcebergPropertyGrammar=Sequence(
-        OneOf(
-            "format",
-            "partitioned_by",
-            "bucketed_by",
-            "bucket_count",
-            "write_compression",
-            "orc_compression",
-            "parquet_compression",
-            "compression_level",
-            "field_delimiter",
-            "is_external",
-            "table_type",
-            # Iceberg-specific properties
-            "location",
-            "partitioning",
-            "vacuum_max_snapshot_age_seconds",
-            "vacuum_min_snapshots_to_keep",
-            "optimize_rewrite_min_data_file_size_bytes",
-            "optimize_rewrite_max_data_file_size_bytes",
-            "optimize_rewrite_data_file_threshold",
-            "optimize_rewrite_delete_file_threshold",
-        ),
+        Ref("CTASIcebergPropertyNameGrammar"),
         Ref("EqualsSegment"),
         Ref("LiteralGrammar"),
     ),
@@ -145,13 +161,13 @@ athena_dialect.add(
             ),
         ),
     ),
+    UnloadPropertyNameGrammar=MultiStringParser(
+        _UNLOAD_PROPERTY_NAMES,
+        IdentifierSegment,
+        type="property_name_identifier",
+    ),
     UnloadPropertyGrammar=Sequence(
-        OneOf(
-            "format",
-            "partitioned_by",
-            "compression",
-            "field_delimiter",
-        ),
+        Ref("UnloadPropertyNameGrammar"),
         Ref("EqualsSegment"),
         Ref("LiteralGrammar"),
     ),

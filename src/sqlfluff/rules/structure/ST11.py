@@ -111,10 +111,19 @@ class Rule_ST11(BaseRule):
         self, segment: BaseSegment, allow_unqualified: bool = False
     ) -> Iterator[str]:
         # NOTE: Here we _may_ recurse into subqueries to find references.
-        for ref in segment.recursive_crawl("column_reference"):
+        # We also pick up qualified wildcards (e.g. ``my_table.*``), which
+        # reference their qualifying table just like a column reference does.
+        # This matters when a whole row is passed to a function, such as
+        # ``to_jsonb(my_table.*)``.
+        for ref in segment.recursive_crawl("column_reference", "wildcard_identifier"):
             obj_ref = cast(ObjectReferenceSegment, ref)
             parts = list(obj_ref.iter_raw_references())
             if len(parts) < 2:
+                # A bare wildcard (``*``) doesn't identify a table on its own;
+                # select-clause wildcards are resolved separately via
+                # ``get_wildcard_info()``, so just skip it here.
+                if ref.is_type("wildcard_identifier"):
+                    continue
                 if allow_unqualified:
                     continue
                 else:
@@ -169,8 +178,14 @@ class Rule_ST11(BaseRule):
                 ):
                     ref = self._extract_references_from_expression(from_expression_elem)
                     # Only mark it as a possible issue if it's an explicit LEFT, RIGHT
-                    # or FULL join.
-                    if ref and join_keywords.intersection({"FULL", "LEFT", "RIGHT"}):
+                    # or FULL join. Exclude SEMI and ANTI joins because they are
+                    # expected to filter rows without projecting columns from the
+                    # joined table.
+                    if (
+                        ref
+                        and join_keywords.intersection({"FULL", "LEFT", "RIGHT"})
+                        and not join_keywords.intersection({"ANTI", "SEMI"})
+                    ):
                         joined_tables.append((ref, from_expression_elem))
                         _this_clause_refs.append(ref)
                     # If we have functions in the table_expression, we referenced them,

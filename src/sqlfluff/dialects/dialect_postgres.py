@@ -1137,7 +1137,10 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 ),
             ),
             # user defined data types
-            Ref("DatatypeIdentifierSegment"),
+            Sequence(
+                Ref("DatatypeIdentifierSegment"),
+                Ref("BracketedArguments", optional=True),
+            ),
         ),
         # array types
         OneOf(
@@ -1840,6 +1843,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     Sequence(
                         OneOf(
                             Ref("WithCompoundStatementSegment"),
+                            Ref("SetExpressionSegment"),
                             Ref("SelectStatementSegment"),
                         ),
                         Ref("SemicolonSegment"),
@@ -6969,7 +6973,7 @@ class MetaCommandQueryBufferStatement(BaseSegment):
     match_grammar = Sequence(
         AnyNumberOf(
             Sequence(
-                Ref("SelectStatementSegment"),
+                Ref("SelectableGrammar"),
                 Ref("MetaCommandQueryBufferSegment", optional=True),
             )
         )

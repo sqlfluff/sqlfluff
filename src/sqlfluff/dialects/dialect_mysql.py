@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     LiteralSegment,
     Matchable,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     OptionallyDelimited,
@@ -162,6 +163,14 @@ mysql_dialect.sets("date_part_function_name").update(
         "EXTRACT",
         "TIMESTAMPADD",
         "TIMESTAMPDIFF",
+    ]
+)
+
+mysql_dialect.sets("bare_functions").update(
+    [
+        "NOW",
+        "LOCALTIME",
+        "LOCALTIMESTAMP",
     ]
 )
 
@@ -358,6 +367,7 @@ mysql_dialect.add(
     DualIdentifierSegment=StringParser(
         "DUAL", IdentifierSegment, type="naked_identifier"
     ),
+    CharsetGrammar=OneOf(Sequence("CHARACTER", "SET"), "CHARSET"),
 )
 
 
@@ -401,6 +411,35 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     )
 
 
+class CurrentTimestampLikeFunctionNameSegment(BaseSegment):
+    """MySQL timestamp function names used in column defaults."""
+
+    type = "function_name"
+    match_grammar = OneOf(
+        Ref.keyword("CURRENT_TIMESTAMP"),
+        Ref.keyword("NOW"),
+        Ref.keyword("LOCALTIME"),
+        Ref.keyword("LOCALTIMESTAMP"),
+    )
+
+
+class CurrentTimestampLikeFunctionContentsSegment(BaseSegment):
+    """MySQL timestamp function contents used in column defaults."""
+
+    type = "function_contents"
+    match_grammar = Bracketed(Ref("NumericLiteralSegment", optional=True))
+
+
+class CurrentTimestampLikeFunctionSegment(BaseSegment):
+    """MySQL parenthesized timestamp function forms."""
+
+    type = "function"
+    match_grammar = Sequence(
+        Ref("CurrentTimestampLikeFunctionNameSegment"),
+        Ref("CurrentTimestampLikeFunctionContentsSegment"),
+    )
+
+
 class ColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
 
@@ -422,13 +461,8 @@ class ColumnDefinitionSegment(BaseSegment):
                     Sequence(
                         "DEFAULT",
                         OneOf(
-                            Sequence(
-                                OneOf("CURRENT_TIMESTAMP", "NOW"),
-                                Bracketed(
-                                    Ref("NumericLiteralSegment", optional=True),
-                                    optional=True,
-                                ),
-                            ),
+                            Ref("CurrentTimestampLikeFunctionSegment"),
+                            Ref("BareFunctionSegment"),
                             Ref("NumericLiteralSegment"),
                             Ref("QuotedLiteralSegment"),
                             "NULL",
@@ -439,12 +473,8 @@ class ColumnDefinitionSegment(BaseSegment):
                         "ON",
                         "UPDATE",
                         OneOf(
-                            "CURRENT_TIMESTAMP",
-                            "NOW",
-                            Bracketed(
-                                Ref("NumericLiteralSegment", optional=True),
-                                optional=True,
-                            ),
+                            Ref("CurrentTimestampLikeFunctionSegment"),
+                            Ref("BareFunctionSegment"),
                         ),
                         optional=True,
                     ),
@@ -490,12 +520,12 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                         ),
                     )
                 ),
+                Ref("CommentClauseSegment", optional=True),
                 Sequence(
                     Ref.keyword("AS", optional=True),
                     OptionallyBracketed(Ref("SelectableGrammar")),
                     optional=True,
                 ),
-                Ref("CommentClauseSegment", optional=True),
             ),
             # Create AS syntax:
             Sequence(
@@ -511,7 +541,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Ref.keyword("DEFAULT", optional=True),
                 OneOf(
                     Ref("ParameterNameSegment"),
-                    Sequence("CHARACTER", "SET"),
+                    Ref("CharsetGrammar"),
                     Sequence(OneOf("DATA", "INDEX"), "DIRECTORY"),
                     Sequence("WITH", "SYSTEM"),
                 ),
@@ -522,6 +552,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     Ref("QuotedLiteralSegment"),
                     Ref("SingleQuotedIdentifierSegment"),
                     Ref("NumericLiteralSegment"),
+                    "DEFAULT",
                     # Union option
                     Bracketed(
                         Delimited(Ref("TableReferenceSegment")),
@@ -614,7 +645,14 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                             Sequence(
                                                 "IN",
                                                 Bracketed(
-                                                    Ref("ObjectReferenceSegment")
+                                                    Delimited(
+                                                        OneOf(
+                                                            Ref("LiteralGrammar"),
+                                                            Ref(
+                                                                "ObjectReferenceSegment"
+                                                            ),
+                                                        ),
+                                                    ),
                                                 ),
                                             ),
                                         ),
@@ -622,7 +660,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                     Sequence(
                                         OneOf(
                                             Ref("ParameterNameSegment"),
-                                            Sequence("CHARACTER", "SET"),
+                                            Ref("CharsetGrammar"),
                                             Sequence(
                                                 OneOf("DATA", "INDEX"),
                                                 "DIRECTORY",
@@ -636,6 +674,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                             Ref("QuotedLiteralSegment"),
                                             Ref("SingleQuotedIdentifierSegment"),
                                             Ref("NumericLiteralSegment"),
+                                            "DEFAULT",
                                             # Union option
                                             Bracketed(
                                                 Delimited(Ref("TableReferenceSegment")),
@@ -668,7 +707,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                             Sequence(
                                                 OneOf(
                                                     Ref("ParameterNameSegment"),
-                                                    Sequence("CHARACTER", "SET"),
+                                                    Ref("CharsetGrammar"),
                                                     Sequence(
                                                         OneOf("DATA", "INDEX"),
                                                         "DIRECTORY",
@@ -685,6 +724,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                                     Ref("QuotedLiteralSegment"),
                                                     SQIS,
                                                     Ref("NumericLiteralSegment"),
+                                                    "DEFAULT",
                                                     # Union option
                                                     Bracketed(
                                                         Delimited(TRS),
@@ -1013,12 +1053,12 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     match_grammar: Matchable = OneOf(
         ansi.ColumnConstraintSegment.match_grammar,
         Sequence(
-            "CHARACTER",
-            "SET",
+            Ref("CharsetGrammar"),
             OneOf(
                 Ref("SingleIdentifierGrammar"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedIdentifierSegment"),
+                "DEFAULT",
             ),
         ),
         Ref("CollateGrammar"),
@@ -1219,6 +1259,8 @@ class IntervalExpressionSegment(BaseSegment):
 
 
 mysql_dialect.add(
+    AddDropSystemVersioningGrammar=Nothing(),
+    TriggerOrReplaceGrammar=Nothing(),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, type="parameter_direction"
     ),
@@ -1651,10 +1693,13 @@ class TableOptionsSegment(BaseSegment):
             # [DEFAULT] CHARACTER SET [=] charset_name
             Sequence(
                 Ref.keyword("DEFAULT", optional=True),
-                "CHARACTER",
-                "SET",
+                Ref("CharsetGrammar"),
                 Ref("EqualsSegment", optional=True),
-                OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NakedIdentifierSegment"),
+                    "DEFAULT",
+                ),
             ),
             # CHECKSUM [=] {0 | 1}
             Sequence(
@@ -1667,7 +1712,11 @@ class TableOptionsSegment(BaseSegment):
                 Ref.keyword("DEFAULT", optional=True),
                 "COLLATE",
                 Ref("EqualsSegment", optional=True),
-                OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NakedIdentifierSegment"),
+                    "DEFAULT",
+                ),
             ),
             # COMMENT [=] 'string'
             Sequence(
@@ -1813,6 +1862,25 @@ class TableOptionsSegment(BaseSegment):
     )
 
 
+class AlterTableOnlineDDLOptionSegment(BaseSegment):
+    """MySQL online DDL options for ALTER TABLE statements."""
+
+    type = "alter_table_online_ddl_option"
+
+    match_grammar = OneOf(
+        Sequence(
+            "ALGORITHM",
+            Ref("EqualsSegment", optional=True),
+            OneOf("DEFAULT", "INPLACE", "COPY", "INSTANT"),
+        ),
+        Sequence(
+            "LOCK",
+            Ref("EqualsSegment", optional=True),
+            OneOf("DEFAULT", "NONE", "SHARED", "EXCLUSIVE"),
+        ),
+    )
+
+
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE .. ALTER COLUMN` statement.
 
@@ -1832,6 +1900,10 @@ class AlterTableStatementSegment(BaseSegment):
             OneOf(
                 # Table options
                 Ref("TableOptionsSegment"),
+                # Online DDL options
+                Ref("AlterTableOnlineDDLOptionSegment"),
+                # Dialect-specific ALTER TABLE actions.
+                Ref("AddDropSystemVersioningGrammar"),
                 # Add column
                 Sequence(
                     "ADD",
@@ -3193,6 +3265,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
     # "DEFINED = user", optional
     match_grammar = Sequence(
         "CREATE",
+        Ref("TriggerOrReplaceGrammar", optional=True),
         Ref("DefinerSegment", optional=True),
         "TRIGGER",
         Ref("IfNotExistsGrammar", optional=True),
@@ -3297,13 +3370,13 @@ class AlterOptionSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref.keyword("DEFAULT", optional=True),
-                "CHARACTER",
-                "SET",
+                Ref("CharsetGrammar"),
                 Ref("EqualsSegment", optional=True),
                 OneOf(
                     Ref("SingleIdentifierGrammar"),
                     Ref("SingleQuotedIdentifierSegment"),
                     Ref("DoubleQuotedIdentifierSegment"),
+                    "DEFAULT",
                 ),
             ),
             Sequence(

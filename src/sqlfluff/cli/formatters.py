@@ -88,7 +88,7 @@ class OutputStreamFormatter(FormatterInterface):
     def __init__(
         self,
         output_stream: OutputStream,
-        nocolor: bool,
+        nocolor: Optional[bool],
         verbosity: int = 0,
         filter_empty: bool = True,
         output_line_length: int = 80,
@@ -102,11 +102,13 @@ class OutputStreamFormatter(FormatterInterface):
         self.show_lint_violations = show_lint_violations
 
     @staticmethod
-    def should_produce_plain_output(nocolor: bool) -> bool:
+    def should_produce_plain_output(nocolor: Optional[bool]) -> bool:
         """Returns True if text output should be plain (not colored)."""
-        # If `--color` is specified (nocolor is False), we ignore `NO_COLOR`
-        env_nocolor = bool(os.getenv("NO_COLOR")) and nocolor is not False
-        return nocolor or not sys.stdout.isatty() or env_nocolor
+        if nocolor is False:
+            return False
+        if nocolor is True:
+            return True
+        return not sys.stdout.isatty() or bool(os.getenv("NO_COLOR"))
 
     def _dispatch(self, s: str) -> None:
         """Dispatch a string to the callback.

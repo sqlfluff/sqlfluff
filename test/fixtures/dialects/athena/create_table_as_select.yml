@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 22fa674be23f5ccea3ac46cf23b246375654df63fa579095b1378e0b931438aa
+_hash: 631250f36abb20c7f0026ffca873349e31948d9f95dc29c72e3dada53fdf26d9
 file:
   statement:
     create_table_statement:
@@ -14,17 +14,17 @@ file:
     - keyword: WITH
     - bracketed:
       - start_bracket: (
-      - keyword: format
+      - property_name_identifier: format
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'Parquet'"
       - comma: ','
-      - keyword: external_location
+      - property_name_identifier: external_location
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'s3://my-bucket/my-path-level-1/my-path-level-2'"
       - comma: ','
-      - keyword: partitioned_by
+      - property_name_identifier: partitioned_by
       - comparison_operator:
           raw_comparison_operator: '='
       - typed_array_literal:

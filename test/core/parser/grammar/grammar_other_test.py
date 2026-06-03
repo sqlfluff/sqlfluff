@@ -100,7 +100,7 @@ def test__parser__grammar_delimited(
             ["a"],
             (),
         ),
-        # NOTE: the the  "c" terminator won't match because "c" is
+        # NOTE: the "c" terminator won't match because "c" is
         # a keyword and therefore is required to have whitespace
         # before it.
         # See `greedy_match()` for details.

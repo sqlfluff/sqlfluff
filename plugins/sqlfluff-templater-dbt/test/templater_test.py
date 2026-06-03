@@ -693,6 +693,32 @@ def test__project_dir_from_env(dbt_templater, project_dir, monkeypatch):
     assert dbt_templater._get_project_dir() == os.path.abspath(project_dir)
 
 
+def test__target_from_env(dbt_templater, monkeypatch):
+    """Test possibility to set target from DBT_TARGET env variable."""
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"target": None}},
+        }
+    )
+    assert dbt_templater._get_target() is None
+    monkeypatch.setenv("DBT_TARGET", "dev")
+    assert dbt_templater._get_target() == "dev"
+
+
+def test__target_path_from_env(dbt_templater, monkeypatch):
+    """Test possibility to set target_path from DBT_TARGET_PATH env variable."""
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"target_path": None}},
+        }
+    )
+    assert dbt_templater._get_target_path() is None
+    monkeypatch.setenv("DBT_TARGET_PATH", "custom_target")
+    assert dbt_templater._get_target_path() == "custom_target"
+
+
 def test__project_dir_does_not_exist_error(dbt_templater):
     """Test an error is logged if the given dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(

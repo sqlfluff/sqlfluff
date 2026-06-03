@@ -22,6 +22,7 @@ const TEMPLATING: DefaultTheme.SidebarItem = {
     collapsed: true,
     items: [
         { text: 'Overview', link: '/configuration/templating/' },
+        { text: 'Variants Rendering', link: '/configuration/templating/variants/' },
         { text: 'Jinja', link: '/configuration/templating/jinja' },
         { text: 'Placeholder', link: '/configuration/templating/placeholder' },
         { text: 'Python', link: '/configuration/templating/python' },

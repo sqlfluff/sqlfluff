@@ -81,6 +81,30 @@ test_pass_bigquery_date:
       capitalisation.keywords:
         capitalisation_policy: upper
 
+test_fail_athena_ctas_property_names_preserve_case:
+  fail_str: |
+    create table example
+    with (
+        format = 'PARQUET',
+        write_compression = 'ZSTD',
+        external_location = 's3://bucket/athena-results/run/example'
+    ) as
+    select * from example_table;
+  fix_str: |
+    CREATE TABLE example
+    WITH (
+        format = 'PARQUET',
+        write_compression = 'ZSTD',
+        external_location = 's3://bucket/athena-results/run/example'
+    ) AS
+    SELECT * FROM example_table;
+  configs:
+    core:
+      dialect: athena
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+
 test_pass_ignore_word:
   pass_str: SeleCT 1
   configs:

@@ -1,4 +1,3 @@
-# Allow build scripts required by the docs toolchain in CI.
 allowBuilds:
   esbuild: true
-  keytar: true
+  keytar: false

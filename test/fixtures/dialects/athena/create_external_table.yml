@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ff2a7e34890b9b31fa6b988a66eb82060240c1259c3c6fcfe2d012fd7d579f3
+_hash: a5b8aee0b1db8336786bf573d07bdf97b469d8666401a3f503adb253f66244cf
 file:
 - statement:
     create_table_statement:
@@ -71,7 +71,7 @@ file:
     - keyword: WITH
     - bracketed:
       - start_bracket: (
-      - keyword: bucketed_by
+      - property_name_identifier: bucketed_by
       - comparison_operator:
           raw_comparison_operator: '='
       - typed_array_literal:
@@ -83,17 +83,17 @@ file:
               naked_identifier: column_name
             end_square_bracket: ']'
       - comma: ','
-      - keyword: bucket_count
+      - property_name_identifier: bucket_count
       - comparison_operator:
           raw_comparison_operator: '='
       - numeric_literal: '30'
       - comma: ','
-      - keyword: format
+      - property_name_identifier: format
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'PARQUET'"
       - comma: ','
-      - keyword: external_location
+      - property_name_identifier: external_location
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'s3://DOC-EXAMPLE-BUCKET/tables/parquet_table/'"

@@ -60,7 +60,9 @@ class Rule_LT03(BaseRule):
     name = "layout.operators"
     aliases = ("L007",)
     groups = ("all", "layout")
-    crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
+    crawl_behaviour = SegmentSeekerCrawler(
+        {"binary_operator", "comparison_operator", "assignment_operator"}
+    )
     is_fix_compatible = True
 
     def _seek_newline(
@@ -98,26 +100,31 @@ class Rule_LT03(BaseRule):
             line_position: The `line_position` config for the segment.
         """
         idx = parent.segments.index(segment)
-        # Strip any modifier suffix (e.g. ":align-following") to get the
-        # base position for the shortcut check.
         base_position = line_position.split(":")[0]
+        attached = "attached" in line_position
+        has_newline_before = self._seek_newline(parent.segments, idx, dir=-1)
+        has_newline_after = self._seek_newline(parent.segments, idx, dir=1)
+
         # Shortcut #1: Leading.
         if base_position == "leading":
-            if self._seek_newline(parent.segments, idx, dir=-1):
-                return True
-            # If we didn't find a newline before, if there's _also_ not a newline
-            # after, then we can also shortcut. i.e. it's a comma "mid line".
-            if not self._seek_newline(parent.segments, idx, dir=1):
-                return True
+            if attached:
+                # leading:attached: shortcut when mid-line or truly leading.
+                # Must reflow when trailing or on its own line (no newline after
+                # means it cannot be standalone or trailing).
+                return not has_newline_after
+            # Standard: OK unless trailing (no newline before, but newline after).
+            return has_newline_before or not has_newline_after
 
         # Shortcut #2: Trailing.
         elif base_position == "trailing":
-            if self._seek_newline(parent.segments, idx, dir=1):
-                return True
-            # If we didn't find a newline after, if there's _also_ not a newline
-            # before, then we can also shortcut. i.e. it's a comma "mid line".
-            if not self._seek_newline(parent.segments, idx, dir=-1):
-                return True
+            if attached:
+                # trailing:attached: shortcut when mid-line or truly trailing.
+                # Must reflow when leading or on its own line (no newline before
+                # means it cannot be standalone or leading).
+                return not has_newline_before
+            # Standard: OK unless leading (no newline after, but newline before).
+            return has_newline_after or not has_newline_before
+
         return False
 
     def _eval(self, context: RuleContext) -> list[LintResult]:
@@ -146,6 +153,14 @@ class Rule_LT03(BaseRule):
             )
             if self._check_trail_lead_shortcut(
                 context.segment, context.parent_stack[-1], binary_positioning
+            ):
+                return [LintResult()]
+        elif context.segment.is_type("assignment_operator"):
+            assignment_positioning = context.config.get(
+                "line_position", ["layout", "type", "assignment_operator"]
+            )
+            if self._check_trail_lead_shortcut(
+                context.segment, context.parent_stack[-1], assignment_positioning
             ):
                 return [LintResult()]
 

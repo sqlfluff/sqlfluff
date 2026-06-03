@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4672198550270b7d4506c0a3189b92c6a115ac3fa72247a53943c986fd45dc80
+_hash: 80a7090d2af26482bca6a25f2e3e27a01e40365b631bc9ff9b87c7b0deaa6eef
 file:
 - statement:
     create_index_statement:
@@ -488,5 +488,77 @@ file:
         index_element:
           column_reference:
             naked_identifier: my_column
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: table_a_idx_a
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: schema_a
+      - dot: .
+      - naked_identifier: table_a
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: bm25
+    - bracketed:
+      - start_bracket: (
+      - index_element:
+          column_reference:
+            naked_identifier: col_a
+      - comma: ','
+      - index_element:
+          bracketed:
+            start_bracket: (
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: col_a
+                casting_operator: '::'
+                data_type:
+                  naked_identifier: pdb
+                  dot: .
+                  data_type_identifier: unicode_words
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      quoted_literal: "'alias=col_a_alias'"
+                      end_bracket: )
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx_expr
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - bracketed:
+        start_bracket: (
+        index_element:
+          bracketed:
+            start_bracket: (
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: col
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: my_type
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '10'
+                      end_bracket: )
+            end_bracket: )
         end_bracket: )
 - statement_terminator: ;
