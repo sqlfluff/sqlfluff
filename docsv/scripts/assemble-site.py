@@ -146,9 +146,10 @@ def upsert_manifest_entry(
     return manifest
 
 
-def build_redirects(language: str, channel: str) -> str:
-    """Build the initial Netlify redirects file."""
-    target = f"/{language}/{channel}/"
+def build_redirects(language: str, manifest: dict[str, Any]) -> str:
+    """Build the Netlify redirects file from the assembled manifest."""
+    default_channel = str(manifest.get("default") or manifest.get("latest") or "latest")
+    target = f"/{language}/{default_channel}/"
     return dedent(
         f"""
         / {target} 302
@@ -158,54 +159,31 @@ def build_redirects(language: str, channel: str) -> str:
     )
 
 
-def build_headers(language: str, channel: str) -> str:
-    """Build cache-control headers for the assembled site."""
-    channel_root = f"/{language}/{channel}"
-    return dedent(
-        f"""
-        {channel_root}/
-          Cache-Control: public, max-age=0, must-revalidate
-
-        {channel_root}/*
-          Cache-Control: public, max-age=0, must-revalidate
-
-        {channel_root}/assets/*
-          Cache-Control: public, max-age=31536000, immutable
-
-        {channel_root}/vp-icons.css
-          Cache-Control: public, max-age=31536000, immutable
-
-        /{language}/versions.json
-          Cache-Control: public, max-age=0, must-revalidate
-        """
-    )
-
-
 def build_global_headers(language: str) -> str:
     """Build generic cache-control headers for mutable channels and version assets."""
     return dedent(
         f"""
-                /{language}/latest/
-                    Cache-Control: public, max-age=0, must-revalidate
+        /{language}/latest/
+            Cache-Control: public, max-age=0, must-revalidate
 
-                /{language}/latest/*
-                    Cache-Control: public, max-age=0, must-revalidate
+        /{language}/latest/*
+            Cache-Control: public, max-age=0, must-revalidate
 
-                /{language}/stable/
-                    Cache-Control: public, max-age=0, must-revalidate
+        /{language}/stable/
+            Cache-Control: public, max-age=0, must-revalidate
 
-                /{language}/stable/*
-                    Cache-Control: public, max-age=0, must-revalidate
+        /{language}/stable/*
+            Cache-Control: public, max-age=0, must-revalidate
 
-                /{language}/*/assets/*
-                    Cache-Control: public, max-age=31536000, immutable
+        /{language}/*/assets/*
+            Cache-Control: public, max-age=31536000, immutable
 
-                /{language}/*/vp-icons.css
-                    Cache-Control: public, max-age=31536000, immutable
+        /{language}/*/vp-icons.css
+            Cache-Control: public, max-age=31536000, immutable
 
-                /{language}/versions.json
-                    Cache-Control: public, max-age=0, must-revalidate
-                """
+        /{language}/versions.json
+            Cache-Control: public, max-age=0, must-revalidate
+        """
     )
 
 
@@ -245,7 +223,7 @@ def assemble_site(
         stable_release=stable_release,
     )
     write_text(manifest_path, json.dumps(manifest, indent=2))
-    write_text(output_dir / "_redirects", build_redirects(language, channel))
+    write_text(output_dir / "_redirects", build_redirects(language, manifest))
     write_text(output_dir / "_headers", build_global_headers(language))
 
 
