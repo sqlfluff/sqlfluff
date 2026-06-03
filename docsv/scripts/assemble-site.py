@@ -7,8 +7,8 @@ import argparse
 import json
 import shutil
 from pathlib import Path
-from typing import Any
 from textwrap import dedent
+from typing import Any
 
 
 def parse_args() -> argparse.Namespace:
@@ -182,9 +182,9 @@ def build_headers(language: str, channel: str) -> str:
 
 
 def build_global_headers(language: str) -> str:
-        """Build generic cache-control headers for mutable channels and version assets."""
-        return dedent(
-                f"""
+    """Build generic cache-control headers for mutable channels and version assets."""
+    return dedent(
+        f"""
                 /{language}/latest/
                     Cache-Control: public, max-age=0, must-revalidate
 
@@ -206,7 +206,7 @@ def build_global_headers(language: str) -> str:
                 /{language}/versions.json
                     Cache-Control: public, max-age=0, must-revalidate
                 """
-        )
+    )
 
 
 def assemble_site(
@@ -257,7 +257,8 @@ def main() -> int:
         output_dir=args.output_dir,
         language=args.language.strip("/"),
         channel=args.channel.strip("/"),
-        title=args.title or ("Development" if args.channel == "latest" else args.channel),
+        title=args.title
+        or ("Development" if args.channel == "latest" else args.channel),
         kind=args.kind,
         prerelease=args.prerelease,
         published_at=args.published_at,
