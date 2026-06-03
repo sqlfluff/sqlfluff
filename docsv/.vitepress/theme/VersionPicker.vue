@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vitepress'
-import { normalizeBase, withDocsBase } from '../path-utils'
+import { useData, useRoute } from 'vitepress'
+import { manifestPath, normalizeBase } from '../path-utils'
 
 const props = withDefaults(
     defineProps<{
@@ -26,16 +26,24 @@ interface VersionManifest {
 
 const manifest = ref<VersionManifest | null>(null)
 const route = useRoute()
+const { site } = useData()
 const currentPath = ref('/')
 
+const docsBase = computed(() => normalizeBase(site.value.base, '/'))
+
 const fallbackVersion = computed<VersionEntry[]>(() => {
-    const segments = normalizeBase(currentPath.value, '/').split('/').filter(Boolean)
-    const versionKey = segments[1] || 'latest'
+    const segments = docsBase.value.split('/').filter(Boolean)
+
+    if (segments.length < 2) {
+        return []
+    }
+
+    const [language, versionKey] = segments
 
     return [{
         key: versionKey,
         label: versionKey,
-        path: `/en/${versionKey}/`
+        path: `/${language}/${versionKey}/`
     }]
 })
 
@@ -54,38 +62,23 @@ const selectedVersion = computed(() => {
     })
 })
 
-function manifestCandidates(pathname: string): string[] {
-    const normalizedPath = normalizeBase(pathname, '/')
-    const segments = normalizedPath.split('/').filter(Boolean)
-
-    if (segments.length === 0) {
-        return ['/versions.json', '/en/versions.json']
-    }
-
-    const candidates = [withDocsBase(`/${segments[0]}/`, 'versions.json')]
-
-    if (!candidates.includes('/en/versions.json')) {
-        candidates.push('/en/versions.json')
-    }
-
-    return candidates
-}
-
 async function loadManifest(): Promise<void> {
-    for (const path of manifestCandidates(currentPath.value)) {
-        const response = await fetch(path, {
-            headers: {
-                Accept: 'application/json'
-            }
-        })
-
-        if (response.ok) {
-            manifest.value = await response.json() as VersionManifest
-            return
-        }
+    if (!fallbackVersion.value.length) {
+        return
     }
 
-    throw new Error('Failed to load versions manifest from any known path')
+    const response = await fetch(manifestPath(docsBase.value), {
+        headers: {
+            Accept: 'application/json'
+        }
+    })
+
+    if (response.ok) {
+        manifest.value = await response.json() as VersionManifest
+        return
+    }
+
+    throw new Error(`Failed to load versions manifest from ${manifestPath(docsBase.value)}`)
 }
 
 function onChange(event: Event): void {
@@ -111,23 +104,23 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div v-if="versions.length" :class="['version-picker', { 'version-picker--inline': props.inline }]">
+        <div v-if="versions.length" :class="['version-picker', { 'version-picker--inline': props.inline }]">
         <label v-if="props.showLabel" class="version-picker__label" for="version-picker-select">Version</label>
-    <select
-      id="version-picker-select"
-      class="version-picker__select"
-      :value="selectedVersion?.key"
-      @change="onChange"
-    >
-      <option
-        v-for="version in versions"
-        :key="version.key"
-        :value="version.key"
-      >
-        {{ version.label }}
-      </option>
-    </select>
-  </div>
+                <select
+                        id="version-picker-select"
+                        class="version-picker__select"
+                        :value="selectedVersion?.key"
+                        @change="onChange"
+                >
+                        <option
+                                v-for="version in versions"
+                                :key="version.key"
+                                :value="version.key"
+                        >
+                                {{ version.label }}
+                        </option>
+                </select>
+        </div>
 </template>
 
 <style scoped>
