@@ -1,17 +1,12 @@
-import { h } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
 import redirects from '../redirects.json'
 import { normalizeBase, normalizePath, toRedirectPath } from '../path-utils'
-import NotFound from './NotFound.vue'
+import ThemeLayout from './ThemeLayout.vue'
 
 export default {
     extends: DefaultTheme,
-    Layout: () => {
-        return h(DefaultTheme.Layout, null, {
-            'not-found': () => h(NotFound)
-        })
-    },
+    Layout: ThemeLayout,
     enhanceApp({ app, router, siteData }) {
         // Only run in browser
         if (typeof window === 'undefined') return

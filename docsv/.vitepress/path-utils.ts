@@ -29,6 +29,23 @@ export function withDocsBase(base: string, path: string): string {
     return `${base}${path.replace(/^\//, '')}`
 }
 
+/** Return the language root for a versioned docs base such as /en/latest/. */
+export function languageRoot(base: string): string {
+    const normalizedBase = normalizeBase(base)
+    const segments = normalizedBase.split('/').filter(Boolean)
+
+    if (segments.length === 0) {
+        return normalizedBase
+    }
+
+    return `/${segments[0]}/`
+}
+
+/** Return the shared manifest path for the current language root. */
+export function manifestPath(base: string): string {
+    return withDocsBase(languageRoot(base), 'versions.json')
+}
+
 /**
  * Strip the docs base from a URL path so redirect keys can be matched against
  * the generated redirects map.

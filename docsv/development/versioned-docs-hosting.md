@@ -1,14 +1,14 @@
 # Versioned Beta Docs Hosting Plan
 
 This document captures the proposed implementation for hosting the VitePress
-documentation at `betadocs.sqlfluff.com` using Netlify for serving and
+documentation at `docs.beta.sqlfluff.com` using Netlify for serving and
 Cloudflare R2 as the persistent store for versioned builds.
 
 The goal is to mirror the useful parts of the current Read the Docs model:
 
-- `betadocs.sqlfluff.com/en/latest/` built from `main`
-- `betadocs.sqlfluff.com/en/stable/` built from the newest non-prerelease release
-- `betadocs.sqlfluff.com/en/<version>/` built from release tags
+- `docs.beta.sqlfluff.com/en/latest/` built from `main`
+- `docs.beta.sqlfluff.com/en/stable/` built from the newest non-prerelease release
+- `docs.beta.sqlfluff.com/en/<version>/` built from release tags
 - A version picker which works across all published versions
 
 ## Summary
@@ -51,6 +51,9 @@ Implemented in the repo so far:
   publish workflow that builds VitePress, assembles the site, uploads an
   artifact, syncs the snapshot to R2, and deploys the same snapshot to
   Netlify.
+- The workflow now passes R2 S3-compatible credentials directly to the `aws`
+  CLI sync step rather than using the AWS-only
+  `aws-actions/configure-aws-credentials` action.
 - The workflow currently triggers on pushes to `main`, pushes to
   `ac/docsdeploy`, and `workflow_dispatch`.
 
@@ -61,11 +64,21 @@ Validated locally so far:
 - The assembled site helper produced the expected `site/en/latest/`,
   `site/en/versions.json`, `_redirects`, and `_headers` outputs.
 
+Validated live so far:
+
+- A successful GitHub Actions publish using the repository secrets deployed the
+  Stage 1 latest-only snapshot.
+- `https://docs.beta.sqlfluff.com/` responds with an HTTP 302 redirect to
+  `/en/latest/`.
+- `https://docs.beta.sqlfluff.com/en/latest/` serves the assembled VitePress
+  snapshot with a `noindex,nofollow` robots tag.
+- `https://docs.beta.sqlfluff.com/en/versions.json` serves the expected minimal
+  manifest with a single `latest` entry.
+
 Still not confirmed from this repository alone:
 
-- A successful GitHub Actions publish using the real repository secrets.
-- A live verification that `betadocs.sqlfluff.com/` redirects to `/en/latest/`
-  and serves the assembled snapshot correctly.
+- Release-driven `/en/<version>/` and `/en/stable/` publishing.
+- A live rollback or rebuild flow using the assembled snapshot in R2.
 
 ## Architecture
 
@@ -73,7 +86,7 @@ Still not confirmed from this repository alone:
 
 - GitHub Actions: Build docs, update the assembled site, and trigger deploys.
 - Cloudflare R2: Durable store for the published multi-version site tree.
-- Netlify: Serve the assembled snapshot at `betadocs.sqlfluff.com`.
+- Netlify: Serve the assembled snapshot at `docs.beta.sqlfluff.com`.
 - VitePress: Render `latest`, `stable`, and future release docs.
 - Sphinx: Later fallback for versions older than the VitePress cutover.
 
@@ -353,16 +366,16 @@ sufficient.
 
 ### Stage 0: Infrastructure Bootstrap
 
-Status: mostly complete outside the repo. The R2 bucket and Netlify project
-have been created, but the repository-side secret wiring should still be
-verified when continuing on a new machine.
+Status: complete for the current Stage 1 slice. The R2 bucket, Netlify site,
+custom domain, and repository secrets are now wired well enough to publish the
+live beta docs site.
 
 Deliverables:
 
 - Create the R2 bucket
 - Create an R2 API token for GitHub Actions
 - Create or reuse the Netlify site for beta docs
-- Wire `betadocs.sqlfluff.com`
+- Wire `docs.beta.sqlfluff.com`
 - Add repository secrets
 - Set the first VitePress-native release tag to `4.2.0`
 - Decide whether prereleases appear in the picker
@@ -373,8 +386,8 @@ Stopping point:
 
 ### Stage 1: `latest` Only On Beta
 
-Status: implemented in the repository and validated locally, but still pending
-the first successful secrets-backed GitHub Actions publish.
+Status: complete for the initial beta rollout. The repository workflow now
+publishes `latest` successfully and the beta site is live.
 
 Deliverables:
 
@@ -386,11 +399,14 @@ Deliverables:
 
 Stopping point:
 
-- `betadocs.sqlfluff.com/en/latest/` is live
+- `docs.beta.sqlfluff.com/en/latest/` is live
 - R2 is storing the canonical assembled tree
 - Netlify is serving the assembled tree
 
 ### Stage 2: Manifest And Initial Version Picker
+
+Status: partially complete. The minimal shared manifest is now live, but the
+runtime version picker UI has not been added yet.
 
 Deliverables:
 
@@ -543,13 +559,13 @@ The following can be revisited after the initial beta proof:
 
 When resuming this work on another machine, the next high-value checks are:
 
-1. Confirm the repository secrets are present for R2 and Netlify.
-2. Run `.github/workflows/publish-docs.yaml` via `workflow_dispatch` or by
-  pushing to `ac/docsdeploy`.
-3. Verify that the published beta site redirects `/` to `/en/latest/` and that
-  `/en/latest/` serves the assembled snapshot correctly.
-4. Once that path is stable, move on to release-driven `/en/<version>/`,
-  `/en/stable/`, and the first historical Sphinx-hosted version.
+1. Add the initial runtime version picker in VitePress, backed by the live
+  `/en/versions.json` manifest.
+2. Add the release-triggered publish path for `/en/<version>/` and `/en/stable/`.
+3. Teach the assembly flow to merge an existing R2 snapshot instead of always
+  rebuilding a latest-only tree.
+4. Prove one historical rebuild path, either from a VitePress-native release or
+  from a controlled Sphinx-hosted version.
 
 ## Success Criteria
 
