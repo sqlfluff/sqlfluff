@@ -275,6 +275,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: ({self.pos_marker})>"
 
+    def __str__(self) -> str:
+        return self.stringify()
+
     def __getstate__(self) -> dict[str, Any]:
         """Get the current state to allow pickling."""
         s = self.__dict__.copy()
