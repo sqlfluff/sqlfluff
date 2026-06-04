@@ -10,16 +10,32 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [4.2.2] - 2026-06-02
+## [4.2.2] - 2026-06-04
 
 ## Highlights
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+This patch release brings a broad set of parser fixes and dialect enhancements
+across T-SQL, PostgreSQL, MariaDB/MySQL, Snowflake, Athena, Materialize, and
+other dialects. T-SQL receives several improvements around privileges, labels,
+`DROP CREDENTIAL`, `DROP SEQUENCE IF EXISTS`, and reference handling for
+`CONTAINSTABLE`, while MariaDB/MySQL support is expanded for trigger,
+partitioning, system versioning, charset/collation, and `ALTER TABLE` syntax.
+
+There are also rule and templater fixes, including a new Postgres-specific
+`CV13` rule to prefer `CREATE INDEX CONCURRENTLY`, fewer `ST11` false positives
+for `LEFT SEMI` and `LEFT ANTI` joins, and dbt templater support for the
+`DBT_TARGET` and `DBT_TARGET_PATH` environment variables. Performance is also
+improved by deferring parse-tree serialisation in logging calls.
+
+Alongside the user-facing fixes, this release adds beta docs deployment,
+versioned documentation publishing, and support for building multiple Docker
+images. It also includes first-time contributions from **twelve** new
+contributors. Thank you all for your contributions. 🏆
 
 ## What’s Changed
 
+* Add beta docs deployment and versioned publishing [#7912](https://github.com/sqlfluff/sqlfluff/pull/7912) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* perf: defer parse-tree serialisation in logging calls [#7911](https://github.com/sqlfluff/sqlfluff/pull/7911) [@rubytobi](https://github.com/rubytobi)
 * Fix typo: 'the the' -> 'the' in test comment [#7908](https://github.com/sqlfluff/sqlfluff/pull/7908) [@drori12](https://github.com/drori12)
 * Support T-SQL DROP CREDENTIAL [#7904](https://github.com/sqlfluff/sqlfluff/pull/7904) [@koriyoshi2041](https://github.com/koriyoshi2041)
 * fix(dbt-templater): honor DBT_TARGET / DBT_TARGET_PATH env vars [#7900](https://github.com/sqlfluff/sqlfluff/pull/7900) [@dtaniwaki](https://github.com/dtaniwaki)
@@ -50,8 +66,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * fix(snowflake): support SELECT * ILIKE '<pattern>' syntax [#7866](https://github.com/sqlfluff/sqlfluff/pull/7866) [@pif](https://github.com/pif)
 * Fix MySQL ALTER TABLE parsing with ALGORITHM and LOCK options [#7864](https://github.com/sqlfluff/sqlfluff/pull/7864) [@Vreyesm](https://github.com/Vreyesm)
 
-## New Contributors
 
+## New Contributors
 * [@Vreyesm](https://github.com/Vreyesm) made their first contribution in [#7864](https://github.com/sqlfluff/sqlfluff/pull/7864)
 * [@pif](https://github.com/pif) made their first contribution in [#7866](https://github.com/sqlfluff/sqlfluff/pull/7866)
 * [@mokashang](https://github.com/mokashang) made their first contribution in [#7845](https://github.com/sqlfluff/sqlfluff/pull/7845)
@@ -63,6 +79,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * [@dtaniwaki](https://github.com/dtaniwaki) made their first contribution in [#7900](https://github.com/sqlfluff/sqlfluff/pull/7900)
 * [@koriyoshi2041](https://github.com/koriyoshi2041) made their first contribution in [#7904](https://github.com/sqlfluff/sqlfluff/pull/7904)
 * [@drori12](https://github.com/drori12) made their first contribution in [#7908](https://github.com/sqlfluff/sqlfluff/pull/7908)
+* [@rubytobi](https://github.com/rubytobi) made their first contribution in [#7911](https://github.com/sqlfluff/sqlfluff/pull/7911)
 
 ## [4.2.1] - 2026-05-14
 
