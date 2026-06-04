@@ -14,7 +14,7 @@ onMounted(() => {
   const redirectMap = redirects as Record<string, string>
 
   if (redirectMap[currentPath]) {
-    window.location.href = toRedirectPath(redirectMap[currentPath], docsBase)
+    window.location.replace(toRedirectPath(redirectMap[currentPath], docsBase))
   }
 })
 </script>

@@ -148,7 +148,16 @@ def upsert_manifest_entry(
 
 def build_redirects(language: str, manifest: dict[str, Any]) -> str:
     """Build the Netlify redirects file from the assembled manifest."""
+    versions = [
+        str(version["key"])
+        for version in manifest.get("versions", [])
+        if version.get("key")
+    ]
     default_channel = str(manifest.get("default") or manifest.get("latest") or "latest")
+
+    if default_channel not in versions and versions:
+        default_channel = "latest" if "latest" in versions else versions[0]
+
     target = f"/{language}/{default_channel}/"
     return dedent(
         f"""
