@@ -10,6 +10,77 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [4.2.2] - 2026-06-04
+
+## Highlights
+
+This patch release brings a broad set of parser fixes and dialect enhancements
+across T-SQL, PostgreSQL, MariaDB/MySQL, Snowflake, Athena, Materialize, and
+other dialects. T-SQL receives several improvements around privileges, labels,
+`DROP CREDENTIAL`, `DROP SEQUENCE IF EXISTS`, and reference handling for
+`CONTAINSTABLE`, while MariaDB/MySQL support is expanded for trigger,
+partitioning, system versioning, charset/collation, and `ALTER TABLE` syntax.
+
+There are also rule and templater fixes, including a new Postgres-specific
+`CV13` rule to prefer `CREATE INDEX CONCURRENTLY`, fewer `ST11` false positives
+for `LEFT SEMI` and `LEFT ANTI` joins, and dbt templater support for the
+`DBT_TARGET` and `DBT_TARGET_PATH` environment variables. Performance is also
+improved by deferring parse-tree serialisation in logging calls.
+
+Alongside the user-facing fixes, this release adds beta docs deployment,
+versioned documentation publishing, and support for building multiple Docker
+images. It also includes first-time contributions from **twelve** new
+contributors. Thank you all for your contributions. 🏆
+
+## What’s Changed
+
+* Add beta docs deployment and versioned publishing [#7912](https://github.com/sqlfluff/sqlfluff/pull/7912) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* perf: defer parse-tree serialisation in logging calls [#7911](https://github.com/sqlfluff/sqlfluff/pull/7911) [@rubytobi](https://github.com/rubytobi)
+* Fix typo: 'the the' -> 'the' in test comment [#7908](https://github.com/sqlfluff/sqlfluff/pull/7908) [@drori12](https://github.com/drori12)
+* Support T-SQL DROP CREDENTIAL [#7904](https://github.com/sqlfluff/sqlfluff/pull/7904) [@koriyoshi2041](https://github.com/koriyoshi2041)
+* fix(dbt-templater): honor DBT_TARGET / DBT_TARGET_PATH env vars [#7900](https://github.com/sqlfluff/sqlfluff/pull/7900) [@dtaniwaki](https://github.com/dtaniwaki)
+* fix(mariadb): support CREATE OR REPLACE TRIGGER syntax [#7897](https://github.com/sqlfluff/sqlfluff/pull/7897) [@IdanGonen](https://github.com/IdanGonen)
+* fix(postgres): parse \crosstabview after WITH compound statement (CTE) [#7895](https://github.com/sqlfluff/sqlfluff/pull/7895) [@IdanGonen](https://github.com/IdanGonen)
+* Add support for various T-SQL privileges [#7894](https://github.com/sqlfluff/sqlfluff/pull/7894) [@grv87](https://github.com/grv87)
+* fix(tsql): parse label following SELECT without semicolon [#7867](https://github.com/sqlfluff/sqlfluff/pull/7867) [@IdanGonen](https://github.com/IdanGonen)
+* Add Rule CV13: CREATE INDEX should use CONCURRENTLY (Postgres) [#7832](https://github.com/sqlfluff/sqlfluff/pull/7832) [@OmerDital](https://github.com/OmerDital)
+* Fix more duplicate-word typos in documentation [#7889](https://github.com/sqlfluff/sqlfluff/pull/7889) [@RonGamzu](https://github.com/RonGamzu)
+* Fix Athena property name capitalisation [#7875](https://github.com/sqlfluff/sqlfluff/pull/7875) [@puneetdixit200](https://github.com/puneetdixit200)
+* feat(mysql): add support for CURRENT_TIMESTAMP in ALTER TABLE statements [#7885](https://github.com/sqlfluff/sqlfluff/pull/7885) [@peterbud](https://github.com/peterbud)
+* Fix duplicate-word typos in docstrings and documentation [#7888](https://github.com/sqlfluff/sqlfluff/pull/7888) [@RonGamzu](https://github.com/RonGamzu)
+* fix(RF01): ignore T-SQL CONTAINSTABLE argument references [#7860](https://github.com/sqlfluff/sqlfluff/pull/7860) [@peterbud](https://github.com/peterbud)
+* Fix ST11 false positives for LEFT SEMI and LEFT ANTI joins [#7887](https://github.com/sqlfluff/sqlfluff/pull/7887) [@cyphercodes](https://github.com/cyphercodes)
+* Support MariaDB `ALTER TABLE ... ADD|DROP SYSTEM VERSIONING` [#7883](https://github.com/sqlfluff/sqlfluff/pull/7883) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* mysql/mariadb: Support ALTER/CREATE TABLE CHARSET/COLLATE DEFAULT [#7882](https://github.com/sqlfluff/sqlfluff/pull/7882) [@keraion](https://github.com/keraion)
+* tsql: parse `DROP SEQUENCE IF EXISTS` [#7858](https://github.com/sqlfluff/sqlfluff/pull/7858) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* Allow PostgreSQL `BEGIN ATOMIC` function bodies to parse `UNION ALL` [#7861](https://github.com/sqlfluff/sqlfluff/pull/7861) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* ci: build multiple docker images [#7872](https://github.com/sqlfluff/sqlfluff/pull/7872) [@keraion](https://github.com/keraion)
+* build(docs): Deploy Docs CI with pnpm build approvals [#7874](https://github.com/sqlfluff/sqlfluff/pull/7874) [@peterbud](https://github.com/peterbud)
+* Force color output when --color is requested [#7873](https://github.com/sqlfluff/sqlfluff/pull/7873) [@puneetdixit200](https://github.com/puneetdixit200)
+* LT03: add :attached modifier for leading/trailing line_position [#7704](https://github.com/sqlfluff/sqlfluff/pull/7704) [@saulotoledo](https://github.com/saulotoledo)
+* chore(docs): Update dependencies [#7865](https://github.com/sqlfluff/sqlfluff/pull/7865) [@peterbud](https://github.com/peterbud)
+* fix(postgres): support bracketed arguments on user-defined types in casts [#7824](https://github.com/sqlfluff/sqlfluff/pull/7824) [@jonasboos](https://github.com/jonasboos)
+* fix(mysql,mariadb): support VALUES IN with literals in PARTITION BY LIST [#7826](https://github.com/sqlfluff/sqlfluff/pull/7826) [@jonasboos](https://github.com/jonasboos)
+* fix(materialize): support LIST type modifier in shorthand casts [#7829](https://github.com/sqlfluff/sqlfluff/pull/7829) [@jonasboos](https://github.com/jonasboos)
+* fix: parse `table.*` in expressions as a wildcard identifier [#7845](https://github.com/sqlfluff/sqlfluff/pull/7845) [@mokashang](https://github.com/mokashang)
+* fix(snowflake): support SELECT * ILIKE '<pattern>' syntax [#7866](https://github.com/sqlfluff/sqlfluff/pull/7866) [@pif](https://github.com/pif)
+* Fix MySQL ALTER TABLE parsing with ALGORITHM and LOCK options [#7864](https://github.com/sqlfluff/sqlfluff/pull/7864) [@Vreyesm](https://github.com/Vreyesm)
+
+
+## New Contributors
+* [@Vreyesm](https://github.com/Vreyesm) made their first contribution in [#7864](https://github.com/sqlfluff/sqlfluff/pull/7864)
+* [@pif](https://github.com/pif) made their first contribution in [#7866](https://github.com/sqlfluff/sqlfluff/pull/7866)
+* [@mokashang](https://github.com/mokashang) made their first contribution in [#7845](https://github.com/sqlfluff/sqlfluff/pull/7845)
+* [@puneetdixit200](https://github.com/puneetdixit200) made their first contribution in [#7873](https://github.com/sqlfluff/sqlfluff/pull/7873)
+* [@cyphercodes](https://github.com/cyphercodes) made their first contribution in [#7887](https://github.com/sqlfluff/sqlfluff/pull/7887)
+* [@RonGamzu](https://github.com/RonGamzu) made their first contribution in [#7888](https://github.com/sqlfluff/sqlfluff/pull/7888)
+* [@OmerDital](https://github.com/OmerDital) made their first contribution in [#7832](https://github.com/sqlfluff/sqlfluff/pull/7832)
+* [@IdanGonen](https://github.com/IdanGonen) made their first contribution in [#7867](https://github.com/sqlfluff/sqlfluff/pull/7867)
+* [@dtaniwaki](https://github.com/dtaniwaki) made their first contribution in [#7900](https://github.com/sqlfluff/sqlfluff/pull/7900)
+* [@koriyoshi2041](https://github.com/koriyoshi2041) made their first contribution in [#7904](https://github.com/sqlfluff/sqlfluff/pull/7904)
+* [@drori12](https://github.com/drori12) made their first contribution in [#7908](https://github.com/sqlfluff/sqlfluff/pull/7908)
+* [@rubytobi](https://github.com/rubytobi) made their first contribution in [#7911](https://github.com/sqlfluff/sqlfluff/pull/7911)
+
 ## [4.2.1] - 2026-05-14
 
 ## Highlights
