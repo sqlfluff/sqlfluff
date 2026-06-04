@@ -181,7 +181,7 @@ try:
                 match = self._convert_rs_match_result(
                     rs_match, segments[_start_idx:_end_idx]
                 )
-                parser_logger.info("Root Match:\n%s", match.stringify())
+                parser_logger.info("Root Match:\n%s", match)
 
                 # Apply the match result to construct the BaseSegment tree
                 # PYTHON PARITY: Pass only the code portion (segments[_start_idx:_end_idx])

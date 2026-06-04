@@ -90,6 +90,9 @@ class MatchResult:
         """A MatchResult is truthy if it has length or inserts."""
         return len(self) > 0 or bool(self.insert_segments)
 
+    def __str__(self) -> str:
+        return self.stringify()
+
     def stringify(self, indent: str = "") -> str:
         """Pretty print a match for debugging."""
         prefix = f"Match ({self.matched_class}): {self.matched_slice}"

@@ -1292,7 +1292,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             f"{closing_unparsables - opening_unparsables}"
         )
         for unparsable in closing_unparsables - opening_unparsables:
-            linter_logger.debug(f"Unparsable:\n{unparsable.stringify()}\n")
+            linter_logger.debug("Unparsable:\n%s\n", unparsable)
         return False
 
     @staticmethod
