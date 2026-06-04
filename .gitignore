@@ -51,6 +51,9 @@ test-reports
 /*.csv
 bench_*.json
 
+# Ignore locally assembled beta docs output
+/site
+
 # Ignore conda environment.yml contributors might be using and direnv config
 environment.yml
 .envrc

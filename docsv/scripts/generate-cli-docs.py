@@ -341,21 +341,21 @@ def main():
 
         # Write to file
         output_file = output_dir / f"{cmd_name}.md"
-        output_file.write_text(md_content)
+        output_file.write_text(md_content, encoding="utf-8")
 
     # Generate index page
     print("  Generating index page...")
     index_content = generate_index_markdown(commands)
     index_file = output_dir / "index.md"
-    index_file.write_text(index_content)
+    index_file.write_text(index_content, encoding="utf-8")
 
     # Generate sidebar configuration
     print("  Generating sidebar configuration...")
     sidebar_config = generate_sidebar_config(commands)
     sidebar_file = docs_dir / ".vitepress" / "sidebar-cli.json"
-    sidebar_file.write_text(json.dumps(sidebar_config, indent=2))
+    sidebar_file.write_text(json.dumps(sidebar_config, indent=2), encoding="utf-8")
     # Add newline at end
-    with open(sidebar_file, "a") as f:
+    with open(sidebar_file, "a", encoding="utf-8") as f:
         f.write("\n")
 
     print(f"✓ Generated documentation for {len(commands)} commands")
