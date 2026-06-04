@@ -384,6 +384,13 @@ impl Lexer {
         let mut bracket_stack: Vec<(usize, char)> = Vec::new();
 
         for idx in 0..tokens.len() {
+            // Only code tokens can be brackets. Skipping non-code tokens (notably
+            // comments) prevents bracket characters inside a block/inline comment -
+            // e.g. `min(` / `)` - from being paired with real brackets in the SQL.
+            if !tokens[idx].is_code() {
+                continue;
+            }
+
             let raw = tokens[idx].raw();
 
             // Check if this is an opening bracket
