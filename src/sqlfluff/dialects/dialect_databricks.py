@@ -1677,7 +1677,7 @@ class NamedArgumentSegment(BaseSegment):
 
     type = "named_argument"
     match_grammar = Sequence(
-        Ref("NakedIdentifierSegment"),
+        Ref("VariableNameIdentifierSegment"),
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
     )

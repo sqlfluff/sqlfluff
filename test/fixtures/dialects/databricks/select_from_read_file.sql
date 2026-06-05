@@ -35,3 +35,14 @@ SELECT * FROM read_files(
 
 -- Reads a streaming table
 SELECT * FROM STREAM read_files('gs://my-bucket/avroData', includeExistingFiles => false);
+
+-- Reads files from a path using a back quoted identifier.
+-- Example: https://docs.databricks.com/aws/en/ingestion/sharepoint#read-sharepoint-files-using-spark-sql
+CREATE TABLE my_table AS
+SELECT * FROM read_files(
+  "https://mytenant.sharepoint.com/sites/Marketing/Shared%20Documents",
+  `databricks.connection` => "my_sharepoint_conn",
+  format => "binaryFile",
+  pathGlobFilter => "*.pdf", -- optional. Example: only ingest PDFs
+  schemaEvolutionMode => "none"
+);
