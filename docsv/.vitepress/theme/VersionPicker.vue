@@ -26,6 +26,7 @@ const manifest = ref<VersionManifest | null>(null)
 const isOpen = ref(false)
 const menuRef = ref<HTMLElement | null>(null)
 const rootRef = ref<HTMLElement | null>(null)
+const triggerRef = ref<HTMLButtonElement | null>(null)
 const route = useRoute()
 const { site } = useData()
 const currentPath = ref(normalizeBase(route.path, '/'))
@@ -87,22 +88,59 @@ function navigateToVersion(version: VersionEntry): void {
     window.location.href = version.path
 }
 
-function toggleMenu(): void {
-    isOpen.value = !isOpen.value
+function menuOptions(): HTMLButtonElement[] {
+    return Array.from(menuRef.value?.querySelectorAll<HTMLButtonElement>('.version-picker__option') || [])
+}
 
-    if (!isOpen.value) {
+function focusMenuOption(index: number): void {
+    const options = menuOptions()
+
+    if (!options.length) {
         return
     }
 
+    const nextIndex = (index + options.length) % options.length
+    options[nextIndex]?.focus()
+}
+
+function focusSelectedOrFallback(fallbackIndex = 0): void {
+    const options = menuOptions()
+
+    if (!options.length) {
+        return
+    }
+
+    const selectedIndex = options.findIndex((option) => option.getAttribute('aria-checked') === 'true')
+    focusMenuOption(selectedIndex >= 0 ? selectedIndex : fallbackIndex)
+}
+
+function openMenu(fallbackIndex = 0): void {
+    if (isOpen.value) {
+        return
+    }
+
+    isOpen.value = true
+
     void nextTick(() => {
-        menuRef.value
-            ?.querySelector<HTMLButtonElement>('.version-picker__option[aria-checked="true"]')
-            ?.focus()
+        focusSelectedOrFallback(fallbackIndex)
     })
 }
 
-function closeMenu(): void {
+function toggleMenu(): void {
+    if (isOpen.value) {
+        closeMenu()
+        return
+    }
+
+    openMenu()
+}
+
+function closeMenu(focusTrigger = false): void {
     isOpen.value = false
+
+    if (focusTrigger) {
+        triggerRef.value?.focus()
+    }
 }
 
 function onDocumentPointerDown(event: PointerEvent): void {
@@ -113,7 +151,51 @@ function onDocumentPointerDown(event: PointerEvent): void {
 
 function onDocumentKeyDown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
-        closeMenu()
+        closeMenu(true)
+    }
+}
+
+function onTriggerKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        openMenu(0)
+        return
+    }
+
+    if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        openMenu(versions.value.length - 1)
+    }
+}
+
+function onOptionKeyDown(event: KeyboardEvent, index: number): void {
+    if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        focusMenuOption(index + 1)
+        return
+    }
+
+    if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        focusMenuOption(index - 1)
+        return
+    }
+
+    if (event.key === 'Home') {
+        event.preventDefault()
+        focusMenuOption(0)
+        return
+    }
+
+    if (event.key === 'End') {
+        event.preventDefault()
+        focusMenuOption(versions.value.length - 1)
+        return
+    }
+
+    if (event.key === 'Escape') {
+        event.preventDefault()
+        closeMenu(true)
     }
 }
 
@@ -158,13 +240,14 @@ onBeforeUnmount(() => {
         <span v-if="props.showLabel" class="version-picker__label">Version</span>
         <div class="version-picker__control">
             <button
+                ref="triggerRef"
                 class="version-picker__trigger"
                 type="button"
                 aria-haspopup="menu"
                 :aria-expanded="isOpen"
                 :aria-label="props.showLabel ? undefined : 'Version'"
                 @click="toggleMenu"
-                @keydown.down.prevent="toggleMenu"
+                @keydown="onTriggerKeyDown"
             >
                 <span class="version-picker__current">{{ currentLabel }}</span>
                 <span class="version-picker__chevron" :class="{ 'version-picker__chevron--open': isOpen }" aria-hidden="true"></span>
@@ -178,13 +261,14 @@ onBeforeUnmount(() => {
                 aria-label="Available versions"
             >
                 <button
-                    v-for="version in versions"
+                    v-for="(version, index) in versions"
                     :key="version.key"
                     class="version-picker__option"
                     type="button"
                     role="menuitemradio"
                     :aria-checked="selectedVersion?.key === version.key"
                     @click="onSelect(version)"
+                    @keydown="onOptionKeyDown($event, index)"
                 >
                     <span>{{ version.label }}</span>
                 </button>
