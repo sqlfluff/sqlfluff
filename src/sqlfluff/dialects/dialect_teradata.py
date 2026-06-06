@@ -468,7 +468,14 @@ class TeradataCastSegment(BaseSegment):
     """
 
     type = "cast_expression"
-    match_grammar = Bracketed(Ref("DatatypeSegment"))
+    match_grammar = Bracketed(
+        Ref("DatatypeSegment"),
+        Sequence(
+            Ref("CommaSegment"),
+            Ref("CharCharacterSetGrammar"),
+            optional=True,
+        ),
+    )
 
 
 class ExpressionSegment(BaseSegment):
