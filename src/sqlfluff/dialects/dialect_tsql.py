@@ -401,12 +401,12 @@ tsql_dialect.add(
     CredentialGrammar=Sequence(
         "IDENTITY",
         Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegment"),
+        Ref("QuotedLiteralSegmentOptWithN"),
         Sequence(
             Ref("CommaSegment"),
             "SECRET",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            Ref("QuotedLiteralSegmentOptWithN"),
             optional=True,
         ),
     ),
@@ -944,6 +944,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LabelStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
+            Ref("CreateCredentialStatementSegment"),
             Ref("DropCredentialStatementSegment"),
             Ref("CreateExternalDataSourceStatementSegment"),
             Ref("SqlcmdCommandSegment"),
@@ -8259,6 +8260,29 @@ class CreateDatabaseScopedCredentialStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "WITH",
         Ref("CredentialGrammar"),
+    )
+
+
+class CreateCredentialStatementSegment(BaseSegment):
+    """A `CREATE CREDENTIAL` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-credential-transact-sql
+    """
+
+    type = "create_credential_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "CREDENTIAL",
+        Ref("ObjectReferenceSegment"),
+        "WITH",
+        Ref("CredentialGrammar"),
+        Sequence(
+            "FOR",
+            "CRYPTOGRAPHIC",
+            "PROVIDER",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
     )
 
 
