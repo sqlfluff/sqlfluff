@@ -193,6 +193,13 @@ def _check_references(
         # are not real column references and should not be qualified or flagged.
         if this_ref_type == "unqualified" and ref.is_templated:
             continue
+        # Skip whole-row references: a bare reference matching the single table's
+        # own alias/name (e.g. ``tbl ->> 'k'`` in postgres, or ``SELECT tbl FROM
+        # tbl``) refers to the whole row, not a column. It neither needs
+        # qualification nor counts towards single-table consistency, so qualifying
+        # it as ``tbl.tbl`` would be invalid.
+        if this_ref_type == "unqualified" and ref.raw == table_ref_str:
+            continue
         if this_ref_type == "qualified" and is_struct_dialect:
             # If this col appears "qualified" check if it is more logically a struct.
             if next(ref.iter_raw_references()).part != table_ref_str:

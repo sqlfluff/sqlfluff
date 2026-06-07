@@ -648,3 +648,25 @@ test_pass_placeholder_colon_double_colon_cast:
     templater:
       placeholder:
         param_style: colon
+
+test_pass_postgres_whole_row_json_operator:
+  # A bare reference matching the table's own alias is a whole-row reference
+  # (here the left operand of the `->>` JSON operator), not a column, so RF03
+  # must not flag it or "qualify" it as the invalid `pattern_obj.pattern_obj`.
+  # https://github.com/sqlfluff/sqlfluff/issues/6904
+  pass_str: |
+    SELECT pattern_obj ->> 'col' AS c
+    FROM jsonb_array_elements('[]'::jsonb) AS pattern_obj
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_pass_whole_row_reference_mixed_qualification:
+  # `tbl` is a whole-row reference matching the single table's name, so even when
+  # it appears before the qualified `tbl.a` it must not count as an unqualified
+  # column reference (and so must not be "fixed" to `tbl.tbl`).
+  # https://github.com/sqlfluff/sqlfluff/issues/6904
+  pass_str: SELECT tbl, tbl.a FROM tbl
