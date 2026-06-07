@@ -401,12 +401,12 @@ tsql_dialect.add(
     CredentialGrammar=Sequence(
         "IDENTITY",
         Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegment"),
+        Ref("QuotedLiteralSegmentOptWithN"),
         Sequence(
             Ref("CommaSegment"),
             "SECRET",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            Ref("QuotedLiteralSegmentOptWithN"),
             optional=True,
         ),
     ),

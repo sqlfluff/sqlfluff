@@ -5,3 +5,5 @@ CREATE CREDENTIAL AlterEgo WITH IDENTITY = 'Mary5', SECRET = 'P@ssw0rd';
 CREATE CREDENTIAL AssemblyCredential
     WITH IDENTITY = 'Account', SECRET = 'P@ssw0rd'
     FOR CRYPTOGRAPHIC PROVIDER MyProvider;
+
+CREATE CREDENTIAL UnicodeCred WITH IDENTITY = N'Mary5', SECRET = N'P@ssw0rd';
