@@ -166,23 +166,25 @@ def test__templater_dbt_templating_result(
 
 
 def test_dbt_profiles_dir_env_var_uppercase(
+    project_dir,
     dbt_templater,
     tmpdir,
     monkeypatch,
+    dbt_fluff_config,
+    dbt_project_folder,
     profiles_dir,
 ):
     """Tests specifying the dbt profile dir with env var."""
     sub_profiles_dir = tmpdir.mkdir("SUBDIR")  # Use uppercase to test issue 2253
     monkeypatch.setenv("DBT_PROFILES_DIR", str(sub_profiles_dir))
     shutil.copy(os.path.join(profiles_dir, "profiles.yml"), str(sub_profiles_dir))
-    dbt_templater.sqlfluff_config = FluffConfig(
-        configs={
-            "core": {"dialect": "ansi"},
-            "templater": {"dbt": {"profiles_dir": None}},
-        },
+    _run_templater_and_verify_result(
+        dbt_templater,
+        project_dir,
+        "use_dbt_utils.sql",
+        dbt_fluff_config,
+        dbt_project_folder,
     )
-
-    assert dbt_templater._get_profiles_dir() == os.path.abspath(str(sub_profiles_dir))
 
 
 def _run_templater_and_verify_result(
