@@ -313,55 +313,10 @@ impl Parser<'_> {
                     consumed
                 );
 
-                // Python parity: Check for early termination with terminators
-                // If we have a match and there's a terminator at the next position,
-                // we can stop trying other options (significant performance improvement)
-                let next_pos_after_match = child_end_pos_val;
-
-                // Skip to next code position to check for terminators
                 let next_code_pos =
-                    self.skip_start_index_forward_to_code(next_pos_after_match, *max_idx);
-
-                // If we've reached the end, consider it terminated
-                if next_code_pos >= self.tokens.len() {
-                    vdebug!("OneOf[table]: Early termination - reached end of tokens");
-                    should_early_terminate = true;
-                } else if !frame.table_terminators.is_empty() {
-                    // Check if any terminator matches at this position
-                    for terminator_id in &frame.table_terminators {
-                        // Skip NONCODE sentinel value - it's handled separately in is_terminated
-                        if *terminator_id == sqlfluffrs_types::GrammarId::NONCODE {
-                            // Check if there's a non-code token at the current position
-                            if next_code_pos < self.tokens.len() {
-                                let tok = &self.tokens[next_code_pos];
-                                if !tok.is_code() {
-                                    vdebug!(
-                                        "OneOf[table]: Early termination - NONCODE terminator matched non-code token at pos {}",
-                                        next_code_pos
-                                    );
-                                    should_early_terminate = true;
-                                    break;
-                                }
-                            }
-                            continue;
-                        }
-
-                        self.pos = next_code_pos;
-                        if let Ok(term_result) =
-                            self.parse_table_iterative_match_result(*terminator_id, &[])
-                        {
-                            if !term_result.is_empty() {
-                                vdebug!(
-                                    "OneOf[table]: Early termination - terminator {} matched at pos {}",
-                                    terminator_id.0,
-                                    next_code_pos
-                                );
-                                should_early_terminate = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+                    self.skip_start_index_forward_to_code(child_end_pos_val, *max_idx);
+                self.pos = next_code_pos;
+                should_early_terminate = self.is_terminated_table_driven(&frame.table_terminators);
             }
         }
 
