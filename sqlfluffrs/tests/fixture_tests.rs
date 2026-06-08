@@ -510,7 +510,7 @@ impl FixtureTest {
         }
 
         // Use a generous depth limit so stress-test fixtures like
-        // expression_recursion don't hit the DoS guard (default 255).
+        // expression_recursion don't hit the DoS guard (default 600).
         let mut parser = Parser::new_with_max_parse_depth(
             &tokens,
             dialect,

@@ -109,10 +109,10 @@ pub struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     /// Default max parse depth when not specified (DoS mitigation; matches Python config default).
-    pub const DEFAULT_MAX_PARSE_DEPTH: usize = 255;
+    pub const DEFAULT_MAX_PARSE_DEPTH: usize = 600;
 
     /// Create a new Parser instance with table-driven grammar support.
-    /// Uses DEFAULT_MAX_PARSE_DEPTH (255) unless overridden via new_with_max_parse_depth.
+    /// Uses DEFAULT_MAX_PARSE_DEPTH (600) unless overridden via new_with_max_parse_depth.
     pub fn new(
         tokens: &'a [Token],
         dialect: Dialect,
