@@ -66,6 +66,18 @@ databricks_dialect.insert_lexer_matchers(
 
 
 databricks_dialect.insert_lexer_matchers(
+    # ?:: is the try_cast shorthand (an error-tolerating cast). It must be matched
+    # before the "?" (question) matcher so that "?::" lexes as a single token
+    # rather than as "?" followed by "::".
+    # https://docs.databricks.com/aws/en/sql/language-manual/functions/questiondoublecolonsign
+    [
+        StringLexer("try_casting_operator", "?::", CodeSegment),
+    ],
+    before="question",
+)
+
+
+databricks_dialect.insert_lexer_matchers(
     # Databricks Pipeline Parameters:
     # https://docs.databricks.com/en/delta-live-tables/parameters.html
     # Must come before dollar_quote since both start with $
@@ -136,6 +148,9 @@ databricks_dialect.add(
         type="pipeline_parameter",
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    TryCastOperatorSegment=StringParser(
+        "?::", SymbolSegment, type="try_casting_operator"
+    ),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
     PrincipalIdentifierSegment=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -490,6 +505,30 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment")),
+    )
+
+
+class ShorthandCastSegment(ansi.ShorthandCastSegment):
+    """A casting operation using '::' or '?::'.
+
+    '?::' is shorthand for try_cast (an error-tolerating cast).
+    https://docs.databricks.com/aws/en/sql/language-manual/functions/questiondoublecolonsign
+    """
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Ref("Expression_D_Grammar"),
+            Ref("CaseExpressionSegment"),
+        ),
+        AnyNumberOf(
+            Sequence(
+                OneOf(Ref("CastOperatorSegment"), Ref("TryCastOperatorSegment")),
+                Ref("DatatypeSegment"),
+                Ref("TimeZoneGrammar", optional=True),
+                allow_gaps=True,
+            ),
+            min_times=1,
+        ),
     )
 
 
