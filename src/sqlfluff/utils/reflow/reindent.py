@@ -631,6 +631,47 @@ def _revise_templated_lines(
             lines.remove(line)
 
 
+def _revise_loop_repeated_lines(
+    lines: list[_IndentLine], elements: ReflowSequenceType
+) -> None:
+    """Align repeated loop renderings of the same source line.
+
+    When loop-conditional content is suppressed (e.g. a trailing comma on
+    its final iteration), that rendering can resolve to a different indent
+    balance, making the fix oscillate. Trust the renderings which carry
+    content and align the suppressed ones to them.
+    """
+    # Group lines by the source slice of their first block. Repeated loop
+    # renderings of one source line share an identical slice.
+    groups: DefaultDict[tuple[int, int], list[int]] = defaultdict(list)
+    for idx, line in enumerate(lines):
+        first_block = next(line.iter_blocks(elements), None)
+        if first_block is None:
+            continue
+        pos_marker = first_block.segments[0].pos_marker
+        if not pos_marker:  # pragma: no cover
+            continue
+        source_slice = pos_marker.source_slice
+        groups[(source_slice.start, source_slice.stop)].append(idx)
+
+    for group in groups.values():
+        if len(group) < 2:
+            continue
+        rendered = [idx for idx in group if not lines[idx].is_all_templates(elements)]
+        unrendered = [idx for idx in group if lines[idx].is_all_templates(elements)]
+        # Only act on suppressed content; leave all-rendered groups alone.
+        if not rendered or not unrendered:
+            continue
+        rendered_balances = [lines[idx].initial_indent_balance for idx in rendered]
+        target = max(set(rendered_balances), key=rendered_balances.count)
+        for idx in unrendered:
+            if lines[idx].initial_indent_balance != target:
+                reflow_logger.debug(
+                    "    Reconciling repeated line %s to balance %s", idx, target
+                )
+                lines[idx].initial_indent_balance = target
+
+
 def _revise_skipped_source_lines(
     lines: list[_IndentLine],
     elements: ReflowSequenceType,
@@ -1817,6 +1858,7 @@ def lint_indent_points(
     # off the detection algorithm.
     _revise_skipped_source_lines(lines, elements)
     _revise_templated_lines(lines, elements)
+    _revise_loop_repeated_lines(lines, elements)
     # Revise comment indents
     _revise_comment_lines(lines, elements, ignore_comment_lines=ignore_comment_lines)
 
