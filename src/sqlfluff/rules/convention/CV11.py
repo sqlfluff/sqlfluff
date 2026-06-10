@@ -236,6 +236,13 @@ class Rule_CV11(BaseRule):
             else:
                 current_type_casting_style = None
         elif context.segment.is_type("cast_expression"):
+            # CV11 can only rewrite the standard `::` shorthand. Dialect-specific
+            # variants such as Databricks `?::` (try_cast) and Vertica `::!`
+            # (null cast) are not interchangeable with CAST/CONVERT, so rewriting
+            # them would change semantics (and may even be unparsable). Only treat
+            # the expression as a shorthand cast when it uses the `::` operator.
+            if not context.segment.get_child("casting_operator"):
+                return None
             current_type_casting_style = "shorthand"
         else:  # pragma: no cover
             current_type_casting_style = None
