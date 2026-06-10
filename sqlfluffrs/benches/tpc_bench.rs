@@ -56,9 +56,10 @@ fn bench_tpch_lex(c: &mut Criterion) {
     group.bench_function("lex_tpch_22", |b| {
         b.iter(|| {
             for sql in &sqls {
-                lex_sql(sql);
+                std::hint::black_box(lex_sql(sql));
             }
         })
+    });
     });
     group.finish();
 }
