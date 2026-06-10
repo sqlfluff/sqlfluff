@@ -57,9 +57,8 @@ fn bench_tpch_lex(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("tpch");
     group
-        .sample_size(10)
-        .warm_up_time(Duration::from_secs(3))
-        .measurement_time(Duration::from_secs(15));
+        .sample_size(100)
+        .warm_up_time(Duration::from_secs(3));
     group.bench_function("lex_tpch_22", |b| {
         b.iter(|| {
             for sql in &sqls {
@@ -77,9 +76,9 @@ fn bench_tpch_parse(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("tpch");
     group
-        .sample_size(10)
+        .sample_size(100)
         .warm_up_time(Duration::from_secs(3))
-        .measurement_time(Duration::from_secs(10));
+        .measurement_time(Duration::from_secs(20));
     group.bench_function("parse_tpch_22", |b| {
         b.iter(|| {
             for tokens in &token_sets {
@@ -97,9 +96,9 @@ fn bench_tpcds_lex(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("tpcds");
     group
-        .sample_size(10)
+        .sample_size(100)
         .warm_up_time(Duration::from_secs(3))
-        .measurement_time(Duration::from_secs(25));
+        .measurement_time(Duration::from_secs(20));
     group.bench_function("lex_tpcds_99", |b| {
         b.iter(|| {
             for sql in &sqls {
@@ -117,9 +116,9 @@ fn bench_tpcds_parse(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("tpcds");
     group
-        .sample_size(10)
+        .sample_size(100)
         .warm_up_time(Duration::from_secs(3))
-        .measurement_time(Duration::from_secs(60));
+        .measurement_time(Duration::from_secs(200));
     group.bench_function("parse_tpcds_99", |b| {
         b.iter(|| {
             for tokens in &token_sets {
