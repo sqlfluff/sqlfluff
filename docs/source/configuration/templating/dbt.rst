@@ -75,11 +75,21 @@ You can set the dbt project directory, profiles directory and profile with:
 .. code-block:: cfg
 
     [sqlfluff:templater:dbt]
-    project_dir = <relative or absolute path to dbt_project directory, can be overridden by env var DBT_PROJECT_DIR>
-    profiles_dir = <relative or absolute path to the directory that contains the profiles.yml file, can be overridden by env var DBT_PROFILES_DIR>
+    project_dir = <relative or absolute path to dbt_project directory>
+    profiles_dir = <relative or absolute path to the directory that contains the profiles.yml file>
     profile = <dbt profile>
     target = <dbt target>
     dbt_skip_compilation_error = <True or False, default is True>
+
+.. note::
+
+    If any of the settings above are omitted, SQLFluff also supports some dbt
+    equivalent environment variables. The ``DBT_ENGINE_*`` variables introduced
+    in dbt Core 1.11.8 take precedence over the legacy ``DBT_*`` variables, while
+    explicit SQLFluff configuration still takes precedence over both. For example,
+    ``profiles_dir`` can be set by ``DBT_ENGINE_PROFILES_DIR`` or
+    ``DBT_PROFILES_DIR``, and ``profile`` can be set by ``DBT_ENGINE_PROFILE``
+    or ``DBT_PROFILE``.
 
 .. note::
 
