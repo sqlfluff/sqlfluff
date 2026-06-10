@@ -56,9 +56,7 @@ fn bench_tpch_lex(c: &mut Criterion) {
         .collect();
 
     let mut group = c.benchmark_group("tpch");
-    group
-        .sample_size(100)
-        .warm_up_time(Duration::from_secs(3));
+    group.sample_size(100).warm_up_time(Duration::from_secs(3));
     group.bench_function("lex_tpch_22", |b| {
         b.iter(|| {
             for sql in &sqls {
