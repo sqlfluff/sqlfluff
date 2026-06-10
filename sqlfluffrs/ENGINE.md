@@ -52,6 +52,8 @@ Dispatch is a static `match` on `GrammarVariant` — a jump table — at `*_init
 `*_waiting_for_child`, and `*_combining`, with one handler module per variant under
 [`table_driven/`](sqlfluffrs_parser/src/parser/table_driven/). Keep it static: a trait
 object here costs a vtable load per transition on the hottest path (see [`PERF.md`](PERF.md)).
+Bracketed and Delimited additionally dispatch their `WaitingForChild` resume on the
+sub-state enum (`BracketedPhase` / `DelimitedPhase`) to one method per phase.
 
 **Results hand-off.** A frame doesn't return to its parent directly. When a child reaches
 `Complete`, the loop writes `(Arc<MatchResult>, end_pos, element_key)` into

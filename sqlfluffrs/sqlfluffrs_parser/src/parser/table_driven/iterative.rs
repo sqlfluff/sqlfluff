@@ -767,7 +767,11 @@ impl Parser<'_> {
                 )?
             }
         };
-        Ok(Some(TableCacheKey::new(frame.pos, frame.grammar_id, max_idx)))
+        Ok(Some(TableCacheKey::new(
+            frame.pos,
+            frame.grammar_id,
+            max_idx,
+        )))
     }
 
     /// Checks the cache for a frame and handles cache hits. Returns FrameResult indicating what to do next.
