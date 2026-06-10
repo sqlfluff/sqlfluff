@@ -1,60 +1,45 @@
---------------------------------------
--- TPC-H 12
---------------------------------------
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+
 select
-        l_shipmode,
-        sum(case
-                when o_orderpriority = '1-URGENT'
-                        or o_orderpriority = '2-HIGH'
-                        then 1
-                else 0
-        end) as high_line_count,
-        sum(case
-                when o_orderpriority <> '1-URGENT'
-                        and o_orderpriority <> '2-HIGH'
-                        then 1
-                else 0
-        end) as low_line_count
+    l_shipmode,
+    sum(case
+        when o_orderpriority = '1-URGENT'
+            or o_orderpriority = '2-HIGH'
+            then 1
+        else 0
+    end) as high_line_count,
+    sum(case
+        when o_orderpriority <> '1-URGENT'
+            and o_orderpriority <> '2-HIGH'
+            then 1
+        else 0
+    end) as low_line_count
 from
-        orders,
-        lineitem
+    orders,
+    lineitem
 where
-        o_orderkey = l_orderkey
-        and l_shipmode in ('MAIL', 'SHIP')
-        and l_commitdate < l_receiptdate
-        and l_shipdate < l_commitdate
-        and CAST(l_receiptdate AS DATE) >= date '1994-01-01'
-        and CAST(l_receiptdate AS DATE) < date '1994-01-01' + interval '1' year
+    o_orderkey = l_orderkey
+    and l_shipmode in ('MAIL', 'SHIP')
+    and l_commitdate < l_receiptdate
+    and l_shipdate < l_commitdate
+    and l_receiptdate >= date '1994-01-01'
+    and l_receiptdate < date '1994-01-01' + interval '1' year
 group by
-        l_shipmode
+    l_shipmode
 order by
-        l_shipmode;
-SELECT
-  "lineitem"."l_shipmode" AS "l_shipmode",
-  SUM(
-    CASE
-      WHEN "orders"."o_orderpriority" = '1-URGENT' OR "orders"."o_orderpriority" = '2-HIGH'
-      THEN 1
-      ELSE 0
-    END
-  ) AS "high_line_count",
-  SUM(
-    CASE
-      WHEN "orders"."o_orderpriority" <> '1-URGENT'
-      AND "orders"."o_orderpriority" <> '2-HIGH'
-      THEN 1
-      ELSE 0
-    END
-  ) AS "low_line_count"
-FROM "orders" AS "orders"
-JOIN "lineitem" AS "lineitem"
-  ON "lineitem"."l_commitdate" < "lineitem"."l_receiptdate"
-  AND "lineitem"."l_commitdate" > "lineitem"."l_shipdate"
-  AND "lineitem"."l_orderkey" = "orders"."o_orderkey"
-  AND "lineitem"."l_shipmode" IN ('MAIL', 'SHIP')
-  AND CAST("lineitem"."l_receiptdate" AS DATE) < CAST('1995-01-01' AS DATE)
-  AND CAST("lineitem"."l_receiptdate" AS DATE) >= CAST('1994-01-01' AS DATE)
-GROUP BY
-  "lineitem"."l_shipmode"
-ORDER BY
-  "l_shipmode";
+    l_shipmode;

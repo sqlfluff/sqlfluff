@@ -1,52 +1,38 @@
---------------------------------------
--- TPC-H 1
---------------------------------------
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+
 select
-        l_returnflag,
-        l_linestatus,
-        sum(l_quantity) as sum_qty,
-        sum(l_extendedprice) as sum_base_price,
-        sum(l_extendedprice * (1 - l_discount)) as sum_disc_price,
-        sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge,
-        avg(l_quantity) as avg_qty,
-        avg(l_extendedprice) as avg_price,
-        avg(l_discount) as avg_disc,
-        count(*) as count_order
+    l_returnflag,
+    l_linestatus,
+    sum(l_quantity) as sum_qty,
+    sum(l_extendedprice) as sum_base_price,
+    sum(l_extendedprice * (1 - l_discount)) as sum_disc_price,
+    sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge,
+    avg(l_quantity) as avg_qty,
+    avg(l_extendedprice) as avg_price,
+    avg(l_discount) as avg_disc,
+    count(*) as count_order
 from
-        lineitem
+    lineitem
 where
-        CAST(l_shipdate AS DATE) <= date '1998-12-01' - interval '90' day
+    l_shipdate <= date '1998-12-01' - interval '90' day
 group by
-        l_returnflag,
-        l_linestatus
+    l_returnflag,
+    l_linestatus
 order by
-        l_returnflag,
-        l_linestatus;
-SELECT
-  "lineitem"."l_returnflag" AS "l_returnflag",
-  "lineitem"."l_linestatus" AS "l_linestatus",
-  SUM("lineitem"."l_quantity") AS "sum_qty",
-  SUM("lineitem"."l_extendedprice") AS "sum_base_price",
-  SUM("lineitem"."l_extendedprice" * (
-    1 - "lineitem"."l_discount"
-  )) AS "sum_disc_price",
-  SUM(
-    "lineitem"."l_extendedprice" * (
-      1 - "lineitem"."l_discount"
-    ) * (
-      1 + "lineitem"."l_tax"
-    )
-  ) AS "sum_charge",
-  AVG("lineitem"."l_quantity") AS "avg_qty",
-  AVG("lineitem"."l_extendedprice") AS "avg_price",
-  AVG("lineitem"."l_discount") AS "avg_disc",
-  COUNT(*) AS "count_order"
-FROM "lineitem" AS "lineitem"
-WHERE
-  CAST("lineitem"."l_shipdate" AS DATE) <= CAST('1998-09-02' AS DATE)
-GROUP BY
-  "lineitem"."l_returnflag",
-  "lineitem"."l_linestatus"
-ORDER BY
-  "l_returnflag",
-  "l_linestatus";
+    l_returnflag,
+    l_linestatus;

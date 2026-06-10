@@ -1,51 +1,40 @@
---------------------------------------
--- TPC-H 3
---------------------------------------
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+
 select
-        l_orderkey,
-        sum(l_extendedprice * (1 - l_discount)) as revenue,
-        CAST(o_orderdate AS STRING) AS o_orderdate,
-        o_shippriority
+    l_orderkey,
+    sum(l_extendedprice * (1 - l_discount)) as revenue,
+    o_orderdate,
+    o_shippriority
 from
-        customer,
-        orders,
-        lineitem
+    customer,
+    orders,
+    lineitem
 where
-        c_mktsegment = 'BUILDING'
-        and c_custkey = o_custkey
-        and l_orderkey = o_orderkey
-        and o_orderdate < '1995-03-15'
-        and l_shipdate > '1995-03-15'
+    c_mktsegment = 'BUILDING'
+    and c_custkey = o_custkey
+    and l_orderkey = o_orderkey
+    and o_orderdate < date '1995-03-15'
+    and l_shipdate > date '1995-03-15'
 group by
-        l_orderkey,
-        o_orderdate,
-        o_shippriority
+    l_orderkey,
+    o_orderdate,
+    o_shippriority
 order by
-        revenue desc,
-        o_orderdate
-limit
-        10;
-SELECT
-  "lineitem"."l_orderkey" AS "l_orderkey",
-  SUM("lineitem"."l_extendedprice" * (
-    1 - "lineitem"."l_discount"
-  )) AS "revenue",
-  "orders"."o_orderdate" AS "o_orderdate",
-  "orders"."o_shippriority" AS "o_shippriority"
-FROM "customer" AS "customer"
-JOIN "orders" AS "orders"
-  ON "customer"."c_custkey" = "orders"."o_custkey"
-  AND "orders"."o_orderdate" < '1995-03-15'
-JOIN "lineitem" AS "lineitem"
-  ON "lineitem"."l_orderkey" = "orders"."o_orderkey"
-  AND "lineitem"."l_shipdate" > '1995-03-15'
-WHERE
-  "customer"."c_mktsegment" = 'BUILDING'
-GROUP BY
-  "lineitem"."l_orderkey",
-  "orders"."o_orderdate",
-  "orders"."o_shippriority"
-ORDER BY
-  "revenue" DESC,
-  "o_orderdate"
-LIMIT 10;
+    revenue desc,
+    o_orderdate
+limit 10;

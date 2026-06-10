@@ -1,63 +1,36 @@
---------------------------------------
--- TPC-H 15
---------------------------------------
-with revenue (supplier_no, total_revenue) as (
-        select
-                l_suppkey,
-                sum(l_extendedprice * (1 - l_discount))
-        from
-                lineitem
-        where
-                CAST(l_shipdate AS DATE) >= date '1996-01-01'
-                and CAST(l_shipdate AS DATE) < date '1996-01-01' + interval '3' month
-        group by
-                l_suppkey)
+-- Licensed to the Apache Software Foundation (ASF) under one
+-- or more contributor license agreements.  See the NOTICE file
+-- distributed with this work for additional information
+-- regarding copyright ownership.  The ASF licenses this file
+-- to you under the Apache License, Version 2.0 (the
+-- "License"); you may not use this file except in compliance
+-- with the License.  You may obtain a copy of the License at
+--
+--   http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing,
+-- software distributed under the License is distributed on an
+-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-- KIND, either express or implied.  See the License for the
+-- specific language governing permissions and limitations
+-- under the License.
+
 select
-        s_suppkey,
-        s_name,
-        s_address,
-        s_phone,
-        total_revenue
+    s_suppkey,
+    s_name,
+    s_address,
+    s_phone,
+    total_revenue
 from
-        supplier,
-        revenue
+    supplier,
+    revenue0
 where
-        s_suppkey = supplier_no
-        and total_revenue = (
-                select
-                        max(total_revenue)
-                from
-                        revenue
-        )
+    s_suppkey = supplier_no
+    and total_revenue = (
+        select
+            max(total_revenue)
+        from
+            revenue0
+    )
 order by
-        s_suppkey;
-WITH "revenue" AS (
-  SELECT
-    "lineitem"."l_suppkey" AS "supplier_no",
-    SUM("lineitem"."l_extendedprice" * (
-      1 - "lineitem"."l_discount"
-    )) AS "total_revenue"
-  FROM "lineitem" AS "lineitem"
-  WHERE
-    CAST("lineitem"."l_shipdate" AS DATE) < CAST('1996-04-01' AS DATE)
-    AND CAST("lineitem"."l_shipdate" AS DATE) >= CAST('1996-01-01' AS DATE)
-  GROUP BY
-    "lineitem"."l_suppkey"
-), "_u_0" AS (
-  SELECT
-    MAX("revenue"."total_revenue") AS "_col_0"
-  FROM "revenue" AS "revenue"
-)
-SELECT
-  "supplier"."s_suppkey" AS "s_suppkey",
-  "supplier"."s_name" AS "s_name",
-  "supplier"."s_address" AS "s_address",
-  "supplier"."s_phone" AS "s_phone",
-  "revenue"."total_revenue" AS "total_revenue"
-FROM "supplier" AS "supplier"
-JOIN "revenue" AS "revenue"
-  ON "revenue"."supplier_no" = "supplier"."s_suppkey"
-JOIN "_u_0" AS "_u_0"
-  ON "_u_0"."_col_0" = "revenue"."total_revenue"
-ORDER BY
-  "s_suppkey";
+    s_suppkey;

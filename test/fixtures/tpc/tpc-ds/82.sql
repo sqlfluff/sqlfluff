@@ -1,50 +1,14 @@
---------------------------------------
--- TPC-DS 82
---------------------------------------
-SELECT
-         i_item_id ,
-         i_item_desc ,
-         i_current_price
-FROM     item,
-         inventory,
-         date_dim,
-         store_sales
-WHERE    i_current_price BETWEEN 63 AND      63+30
-AND      inv_item_sk = i_item_sk
-AND      d_date_sk=inv_date_sk
-AND      d_date BETWEEN Cast('1998-04-27' AS DATE) AND      (
-                  Cast('1998-04-27' AS DATE) + INTERVAL '60' day)
-AND      i_manufact_id IN (57,293,427,320)
-AND      inv_quantity_on_hand BETWEEN 100 AND      500
-AND      ss_item_sk = i_item_sk
-GROUP BY i_item_id,
-         i_item_desc,
-         i_current_price
-ORDER BY i_item_id
-LIMIT 100;
-SELECT
-  "item"."i_item_id" AS "i_item_id",
-  "item"."i_item_desc" AS "i_item_desc",
-  "item"."i_current_price" AS "i_current_price"
-FROM "item" AS "item"
-JOIN "inventory" AS "inventory"
-  ON "inventory"."inv_item_sk" = "item"."i_item_sk"
-  AND "inventory"."inv_quantity_on_hand" <= 500
-  AND "inventory"."inv_quantity_on_hand" >= 100
-JOIN "store_sales" AS "store_sales"
-  ON "item"."i_item_sk" = "store_sales"."ss_item_sk"
-JOIN "date_dim" AS "date_dim"
-  ON "date_dim"."d_date_sk" = "inventory"."inv_date_sk"
-  AND CAST("date_dim"."d_date" AS DATE) <= CAST('1998-06-26' AS DATE)
-  AND CAST("date_dim"."d_date" AS DATE) >= CAST('1998-04-27' AS DATE)
-WHERE
-  "item"."i_current_price" <= 93
-  AND "item"."i_current_price" >= 63
-  AND "item"."i_manufact_id" IN (57, 293, 427, 320)
-GROUP BY
-  "item"."i_item_id",
-  "item"."i_item_desc",
-  "item"."i_current_price"
-ORDER BY
-  "i_item_id"
-LIMIT 100;
+select  i_item_id
+       ,i_item_desc
+       ,i_current_price
+ from item, inventory, date_dim, store_sales
+ where i_current_price between 49 and 49+30
+ and inv_item_sk = i_item_sk
+ and d_date_sk=inv_date_sk
+ and d_date between cast('2001-01-28' as date) and (cast('2001-01-28' as date) +  interval 60 day)
+ and i_manufact_id in (80,675,292,17)
+ and inv_quantity_on_hand between 100 and 500
+ and ss_item_sk = i_item_sk
+ group by i_item_id,i_item_desc,i_current_price
+ order by i_item_id
+ limit 100;
