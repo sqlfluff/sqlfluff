@@ -20,6 +20,7 @@ const N_TIMED: usize = 5;
 const TPCH_N: u32 = 22;
 const TPCDS_N: u32 = 99;
 
+#[derive(Default)]
 struct RunStats {
     duration_secs: f64,
     cache_hits: usize,
@@ -36,22 +37,26 @@ struct RunStats {
 }
 
 impl RunStats {
-    fn capture(duration: Duration, parser: &Parser) -> Self {
+    fn add_parser_stats(&mut self, parser: &Parser) {
         let (hits, misses, _) = parser.table_cache.stats();
-        RunStats {
-            duration_secs: duration.as_secs_f64(),
-            cache_hits: hits,
-            cache_misses: misses,
-            cache_entries: parser.table_cache.len(),
-            pruning_calls: parser.pruning_calls.get(),
-            pruning_total: parser.pruning_total.get(),
-            pruning_kept: parser.pruning_kept.get(),
-            match_attempts: parser.match_attempts.get(),
-            match_successes: parser.match_successes.get(),
-            complete_match_early_exits: parser.complete_match_early_exits.get(),
-            terminator_checks: parser.terminator_checks.get(),
-            terminator_hits: parser.terminator_hits.get(),
-        }
+        self.cache_hits += hits;
+        self.cache_misses += misses;
+        self.cache_entries += parser.table_cache.len();
+        self.pruning_calls += parser.pruning_calls.get();
+        self.pruning_total += parser.pruning_total.get();
+        self.pruning_kept += parser.pruning_kept.get();
+        self.match_attempts += parser.match_attempts.get();
+        self.match_successes += parser.match_successes.get();
+        self.complete_match_early_exits += parser.complete_match_early_exits.get();
+        self.terminator_checks += parser.terminator_checks.get();
+        self.terminator_hits += parser.terminator_hits.get();
+    }
+
+    fn capture(duration: Duration, parser: &Parser) -> Self {
+        let mut s = Self::default();
+        s.add_parser_stats(parser);
+        s.duration_secs = duration.as_secs_f64();
+        s
     }
 }
 
@@ -179,47 +184,14 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
     (0..N_TIMED)
         .map(|_| {
             let t0 = Instant::now();
-            let mut cache_hits = 0;
-            let mut cache_misses = 0;
-            let mut cache_entries = 0;
-            let mut pruning_calls = 0;
-            let mut pruning_total = 0;
-            let mut pruning_kept = 0;
-            let mut match_attempts = 0;
-            let mut match_successes = 0;
-            let mut early_exits = 0;
-            let mut term_checks = 0;
-            let mut term_hits = 0;
+            let mut acc = RunStats::default();
             for tokens in all_tokens {
                 let mut p = Parser::new(tokens, Dialect::Ansi, hashbrown::HashMap::new());
                 p.call_rule_as_root().expect("Parse failed");
-                let (h, m, _) = p.table_cache.stats();
-                cache_hits += h;
-                cache_misses += m;
-                cache_entries += p.table_cache.len();
-                pruning_calls += p.pruning_calls.get();
-                pruning_total += p.pruning_total.get();
-                pruning_kept += p.pruning_kept.get();
-                match_attempts += p.match_attempts.get();
-                match_successes += p.match_successes.get();
-                early_exits += p.complete_match_early_exits.get();
-                term_checks += p.terminator_checks.get();
-                term_hits += p.terminator_hits.get();
+                acc.add_parser_stats(&p);
             }
-            RunStats {
-                duration_secs: t0.elapsed().as_secs_f64(),
-                cache_hits,
-                cache_misses,
-                cache_entries,
-                pruning_calls,
-                pruning_total,
-                pruning_kept,
-                match_attempts,
-                match_successes,
-                complete_match_early_exits: early_exits,
-                terminator_checks: term_checks,
-                terminator_hits: term_hits,
-            }
+            acc.duration_secs = t0.elapsed().as_secs_f64();
+            acc
         })
         .collect()
 }
