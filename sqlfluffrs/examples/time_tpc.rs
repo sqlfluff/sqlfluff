@@ -6,7 +6,7 @@
 ///
 /// Prints a per-query table for TPC-H and TPC-DS, then full-suite summaries.
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
@@ -232,68 +232,49 @@ fn print_query_table_header() {
     println!("  {}", "-".repeat(72));
 }
 
+fn run_suite(name: &str, count: u32, path_prefix: &Path) {
+    println!("=== {name}: Per-Query ===");
+    println!();
+    print_query_table_header();
+
+    let mut suite_tokens: Vec<Vec<Token>> = Vec::new();
+    for n in 1..=count {
+        let path = path_prefix.join(format!("{n}.sql"));
+        let (tokens, bytes) = lex(&path);
+        let tok_count = tokens.len();
+        let runs = timed_runs(&tokens);
+        let a = avg(&runs);
+        println!(
+            "  Q{:<7} {:>8} {:>8} {:>10.2} {:>9.1}% {:>9.1}% {:>9.1}%",
+            n,
+            bytes,
+            tok_count,
+            a.mean * 1000.0,
+            a.cache_hit_rate_pct,
+            a.pruned_pct,
+            a.term_hit_pct,
+        );
+        suite_tokens.push(tokens);
+    }
+
+    println!();
+    println!("=== {name}: Full Suite ({count} queries) ===");
+    let suite_avg = avg(&timed_suite_runs(&suite_tokens));
+    print_avg("suite pass", &suite_avg);
+}
+
 fn main() {
     println!("TPC-H and TPC-DS Parser Baseline");
     println!("Warm-up runs: {N_WARMUP}  |  Timed runs: {N_TIMED}");
     println!("Dialect: ANSI");
     println!();
 
-    println!("=== TPC-H: Per-Query ===");
-    println!();
-    print_query_table_header();
+    let tpc_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("CARGO_MANIFEST_DIR has no parent")
+        .join("test/fixtures/tpc");
 
-    let mut tpch_suite_tokens: Vec<Vec<Token>> = Vec::new();
-    for n in 1..=TPCH_N {
-        let path_str = format!("../test/fixtures/tpc/tpc-h/{}.sql", n);
-        let (tokens, bytes) = lex(Path::new(&path_str));
-        let tok_count = tokens.len();
-        let runs = timed_runs(&tokens);
-        let a = avg(&runs);
-        println!(
-            "  Q{:<7} {:>8} {:>8} {:>10.2} {:>9.1}% {:>9.1}% {:>9.1}%",
-            n,
-            bytes,
-            tok_count,
-            a.mean * 1000.0,
-            a.cache_hit_rate_pct,
-            a.pruned_pct,
-            a.term_hit_pct,
-        );
-        tpch_suite_tokens.push(tokens);
-    }
-
+    run_suite("TPC-H", TPCH_N, &tpc_root.join("tpc-h"));
     println!();
-    println!("=== TPC-H: Full Suite ({} queries) ===", TPCH_N);
-    let tpch_suite_avg = avg(&timed_suite_runs(&tpch_suite_tokens));
-    print_avg("suite pass", &tpch_suite_avg);
-
-    println!();
-    println!("=== TPC-DS: Per-Query ===");
-    println!();
-    print_query_table_header();
-
-    let mut tpcds_suite_tokens: Vec<Vec<Token>> = Vec::new();
-    for n in 1..=TPCDS_N {
-        let path_str = format!("../test/fixtures/tpc/tpc-ds/{}.sql", n);
-        let (tokens, bytes) = lex(Path::new(&path_str));
-        let tok_count = tokens.len();
-        let runs = timed_runs(&tokens);
-        let a = avg(&runs);
-        println!(
-            "  Q{:<7} {:>8} {:>8} {:>10.2} {:>9.1}% {:>9.1}% {:>9.1}%",
-            n,
-            bytes,
-            tok_count,
-            a.mean * 1000.0,
-            a.cache_hit_rate_pct,
-            a.pruned_pct,
-            a.term_hit_pct,
-        );
-        tpcds_suite_tokens.push(tokens);
-    }
-
-    println!();
-    println!("=== TPC-DS: Full Suite ({} queries) ===", TPCDS_N);
-    let tpcds_suite_avg = avg(&timed_suite_runs(&tpcds_suite_tokens));
-    print_avg("suite pass", &tpcds_suite_avg);
+    run_suite("TPC-DS", TPCDS_N, &tpc_root.join("tpc-ds"));
 }
