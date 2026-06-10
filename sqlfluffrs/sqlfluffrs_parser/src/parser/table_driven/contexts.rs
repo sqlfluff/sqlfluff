@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use sqlfluffrs_types::GrammarId;
 
-use crate::parser::{FrameContext, MatchResult, MetaSegment};
+use crate::parser::{table_driven::parity, FrameContext, MatchResult, MetaSegment};
 
 impl FrameContext {
     /// The frame id of the child this frame is currently waiting on, if any.
@@ -82,10 +82,10 @@ impl FrameContext {
 impl crate::parser::AnyNumberOfState {
     /// Keep the candidate with the greatest end position (longest wins).
     ///
-    /// This is AnyNumberOf's match-quality policy: end-position only, with NO
-    /// clean-vs-unclean tiebreak. OneOf uses a different rule (see
-    /// `OneOfState::longest_match`). Piece 8 of the engine
-    /// refactor unifies both behind one policy-tagged helper.
+    /// This is AnyNumberOf's match-quality policy
+    /// ([`parity::MatchQualityPolicy::LongestEnd`]): end-position only, with NO
+    /// clean-vs-unclean tiebreak. OneOf uses `LongestClean` instead — both rules
+    /// live in [`parity::is_better_candidate`].
     #[inline]
     pub(crate) fn update_longest_match(
         &mut self,
@@ -93,7 +93,14 @@ impl crate::parser::AnyNumberOfState {
         end_pos: usize,
         grammar_id: GrammarId,
     ) {
-        let is_better = end_pos > self.longest_match.0.end();
+        // Cleanliness flags are not consulted by the LongestEnd policy.
+        let is_better = parity::is_better_candidate(
+            parity::MatchQualityPolicy::LongestEnd,
+            end_pos,
+            true,
+            self.longest_match.0.end(),
+            true,
+        );
 
         if is_better {
             self.longest_match = (child_match, Some(grammar_id));

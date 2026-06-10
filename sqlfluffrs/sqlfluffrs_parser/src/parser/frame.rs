@@ -93,12 +93,12 @@ pub struct AnyNumberOfState {
     /// Best candidate for the current repetition, as `(result, matched_grammar_id)`.
     /// AnyNumberOf compares candidates by absolute end position only
     /// (longest wins) and does NOT apply OneOf's clean-vs-unclean tiebreak —
-    /// see `contexts.rs::AnyNumberOfState::update_longest_match`.
+    /// `parity::MatchQualityPolicy::LongestEnd`, applied in
+    /// `contexts.rs::AnyNumberOfState::update_longest_match`.
     ///
     /// NOTE: deliberately different shape/semantics from
-    /// `OneOfState::longest_match`. Piece 8 of the engine refactor
-    /// unifies both behind one policy-tagged helper (`LongestEnd` here,
-    /// `LongestClean` for OneOf).
+    /// `OneOfState::longest_match` (`LongestClean`). Both rules live in
+    /// `parity::is_better_candidate`.
     pub longest_match: (Arc<MatchResult>, Option<GrammarId>),
     /// Number of elements tried for current repetition
     pub tried_elements: usize,
@@ -198,12 +198,12 @@ pub struct OneOfState {
     /// Best candidate seen so far, as `(result, consumed, child_grammar_id)`
     /// where `consumed = child_end_pos - post_skip_pos` (token count, NOT an
     /// absolute position). OneOf keeps the *longest clean* match: a clean
-    /// (no-unparsable) candidate beats an unclean one of equal length — see
-    /// the comparison in `oneof.rs`.
+    /// (no-unparsable) candidate beats an unclean one of equal length
+    /// (`parity::MatchQualityPolicy::LongestClean`).
     ///
     /// NOTE: deliberately different from `AnyNumberOfState::longest_match`,
-    /// which compares absolute end position and ignores cleanliness. Piece 8
-    /// of the engine refactor unifies these behind one policy-tagged helper.
+    /// which compares absolute end position and ignores cleanliness
+    /// (`LongestEnd`). Both rules live in `parity::is_better_candidate`.
     pub longest_match: Option<(Arc<MatchResult>, usize, GrammarId)>,
     pub tried_elements: usize,
     pub max_idx: usize,

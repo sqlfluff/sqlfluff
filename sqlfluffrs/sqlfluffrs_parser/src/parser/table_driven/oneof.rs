@@ -1,5 +1,6 @@
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
+    table_driven::parity,
     FrameContext, FrameState, MatchResult, OneOfState, ParseError, Parser,
 };
 #[cfg(feature = "verbose-debug")]
@@ -284,18 +285,13 @@ impl Parser<'_> {
             let is_better = if let Some((ref current_best, current_consumed, _)) = longest_match {
                 // Use MatchResult's contains_unparsable instead of is_node_clean
                 let current_is_clean = !current_best.contains_unparsable();
-
-                if child_is_clean && !current_is_clean {
-                    // Clean beats unclean only if it consumed at least as much.
-                    // A shorter clean match that leaves content unparsed is worse
-                    // than a longer unclean match that covers everything.
-                    consumed >= *current_consumed
-                } else if !child_is_clean && current_is_clean {
-                    // Unclean only beats clean if strictly longer (same length: prefer clean).
-                    consumed > *current_consumed
-                } else {
-                    consumed > *current_consumed
-                }
+                parity::is_better_candidate(
+                    parity::MatchQualityPolicy::LongestClean,
+                    consumed,
+                    child_is_clean,
+                    *current_consumed,
+                    current_is_clean,
+                )
             } else {
                 true
             };

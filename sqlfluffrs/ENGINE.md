@@ -165,8 +165,8 @@ Position indices recur across the variant handlers with consistent meaning (defi
 
 Two `longest_match` shapes exist deliberately: `OneOf` keeps the *longest clean* match
 (clean beats unclean at equal length), `AnyNumberOf` keeps the *longest by end position*
-only. Both are documented at their fields; a future refactor unifies them behind one
-policy-tagged helper.
+only. Both rules live in one policy-tagged helper, `parity::is_better_candidate`
+(`LongestClean` vs `LongestEnd`); the fields document which policy applies.
 
 ## See also
 
