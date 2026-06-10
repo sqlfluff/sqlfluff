@@ -663,7 +663,10 @@ def _revise_loop_repeated_lines(
         if not rendered or not unrendered:
             continue
         rendered_balances = [lines[idx].initial_indent_balance for idx in rendered]
-        target = max(set(rendered_balances), key=rendered_balances.count)
+        # Most common balance, breaking ties on the larger balance for determinism.
+        target = max(
+            set(rendered_balances), key=lambda b: (rendered_balances.count(b), b)
+        )
         for idx in unrendered:
             if lines[idx].initial_indent_balance != target:
                 reflow_logger.debug(
