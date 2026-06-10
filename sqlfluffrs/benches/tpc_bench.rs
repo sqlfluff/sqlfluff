@@ -18,11 +18,18 @@ use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_parser::parser::Parser;
 use sqlfluffrs_types::Token;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 const TPCH_N: u32 = 22;
 const TPCDS_N: u32 = 99;
+
+fn tpc_fixture(sub_dir: &str, n: u32) -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("CARGO_MANIFEST_DIR has no parent")
+        .join(format!("test/fixtures/tpc/{sub_dir}/{n}.sql"))
+}
 
 fn read_file(path: &Path) -> String {
     fs::read_to_string(path).unwrap_or_else(|e| panic!("Failed to read {}: {}", path.display(), e))
@@ -45,7 +52,7 @@ fn parse_tokens(tokens: &[Token]) {
 
 fn bench_tpch_lex(c: &mut Criterion) {
     let sqls: Vec<String> = (1..=TPCH_N)
-        .map(|n| read_file(Path::new(&format!("../test/fixtures/tpc/tpc-h/{}.sql", n))))
+        .map(|n| read_file(&tpc_fixture("tpc-h", n)))
         .collect();
 
     let mut group = c.benchmark_group("tpch");
@@ -60,18 +67,12 @@ fn bench_tpch_lex(c: &mut Criterion) {
             }
         })
     });
-    });
     group.finish();
 }
 
 fn bench_tpch_parse(c: &mut Criterion) {
     let token_sets: Vec<Vec<Token>> = (1..=TPCH_N)
-        .map(|n| {
-            lex_sql(&read_file(Path::new(&format!(
-                "../test/fixtures/tpc/tpc-h/{}.sql",
-                n
-            ))))
-        })
+        .map(|n| lex_sql(&read_file(&tpc_fixture("tpc-h", n))))
         .collect();
 
     let mut group = c.benchmark_group("tpch");
@@ -91,7 +92,7 @@ fn bench_tpch_parse(c: &mut Criterion) {
 
 fn bench_tpcds_lex(c: &mut Criterion) {
     let sqls: Vec<String> = (1..=TPCDS_N)
-        .map(|n| read_file(Path::new(&format!("../test/fixtures/tpc/tpc-ds/{}.sql", n))))
+        .map(|n| read_file(&tpc_fixture("tpc-ds", n)))
         .collect();
 
     let mut group = c.benchmark_group("tpcds");
@@ -102,7 +103,7 @@ fn bench_tpcds_lex(c: &mut Criterion) {
     group.bench_function("lex_tpcds_99", |b| {
         b.iter(|| {
             for sql in &sqls {
-                lex_sql(sql);
+                std::hint::black_box(lex_sql(sql));
             }
         })
     });
@@ -111,12 +112,7 @@ fn bench_tpcds_lex(c: &mut Criterion) {
 
 fn bench_tpcds_parse(c: &mut Criterion) {
     let token_sets: Vec<Vec<Token>> = (1..=TPCDS_N)
-        .map(|n| {
-            lex_sql(&read_file(Path::new(&format!(
-                "../test/fixtures/tpc/tpc-ds/{}.sql",
-                n
-            ))))
-        })
+        .map(|n| lex_sql(&read_file(&tpc_fixture("tpc-ds", n))))
         .collect();
 
     let mut group = c.benchmark_group("tpcds");
