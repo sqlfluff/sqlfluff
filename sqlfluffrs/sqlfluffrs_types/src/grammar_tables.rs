@@ -617,6 +617,8 @@ mod tests {
             CASEFOLD_SPARSE,
             TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
+            &[], // segment_class_types_sparse
+            &[], // segment_class_types_data
         );
 
         assert_eq!(tables.instructions.len(), 3);
@@ -684,6 +686,8 @@ mod tests {
             CASEFOLD_SPARSE,
             TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
+            &[], // segment_class_types_sparse
+            &[], // segment_class_types_data
         );
 
         let stats = tables.memory_stats();
