@@ -664,7 +664,6 @@ fn create_table_driven_child_frame(
         parent_max_idx, // Propagate parent's limit!
         calculated_max_idx: None,
         end_pos: None,
-        transparent_positions: None,
         element_key: None,
         parse_mode_override, // Propagate parse mode override!
     }

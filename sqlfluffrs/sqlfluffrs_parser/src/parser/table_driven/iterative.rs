@@ -106,7 +106,6 @@ impl Parser<'_> {
             parent_max_idx: None, // No parent constraint at top level - let handler calculate
             calculated_max_idx: None, // Will be set by handler after calculation
             end_pos: None,
-            transparent_positions: None,
             element_key: None,
             parse_mode_override: None, // No override for top-level frame
         });
