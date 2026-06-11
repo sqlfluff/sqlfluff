@@ -44,8 +44,40 @@ def test_max_parse_depth_simple_sql_parses():
     assert not parsed.violations
 
 
+def test_max_parse_depth_default_allows_nested_function_calls():
+    """Modestly nested function calls parse under the default limit (issue #7805).
+
+    Uses the shipped default, since dialect fixtures parse at a depth of 1024 and
+    wouldn't catch the default being too low.
+    """
+    sql = """CREATE FUNCTION [dbo].[fn_StringWithoutSpace]
+(
+    @string NVARCHAR(MAX)
+)
+RETURNS NVARCHAR(MAX)
+WITH INLINE = OFF
+AS
+BEGIN
+    RETURN (
+        SELECT LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(
+            @string,
+            CHAR(160), CHAR(32)),
+            CHAR(32),  '()'),
+            ')(',      ''),
+            '()',      CHAR(32))))
+    )
+END
+"""
+    linter = Linter(config=FluffConfig(overrides={"dialect": "tsql"}))
+    parsed = linter.parse_string(sql)
+    assert not any(
+        isinstance(v, SQLParseError) and MESSAGE_PREFIX in v.desc()
+        for v in parsed.violations
+    )
+
+
 def test_max_parse_depth_default_allows_simple_sql():
-    """With default limit (255), simple SQL parses."""
+    """With default limit (600), simple SQL parses."""
     linter = Linter(config=FluffConfig(overrides={"dialect": "ansi"}))
     parsed = linter.parse_string("SELECT 1 FROM t")
     assert not parsed.violations
@@ -54,7 +86,7 @@ def test_max_parse_depth_default_allows_simple_sql():
 def test_default_max_parse_depth_matches_config_default():
     """FluffConfig exposes the shipped default config value."""
     config = FluffConfig(overrides={"dialect": "ansi"})
-    assert config.get("max_parse_depth") == 255
+    assert config.get("max_parse_depth") == 600
 
 
 def test_max_parse_depth_rust_parser_exceeds_limit():

@@ -74,15 +74,15 @@ class Rule_ST10(BaseRule):
                     (None, None),
                 )
 
-                rhs = next(
+                rhs_idx, rhs = next(
                     (
-                        subsegments[i]
+                        (i, subsegments[i])
                         for i in range(idx + 1, count_subsegments, 1)
                         if not subsegments[i].is_whitespace
                     ),
-                    None,
+                    (None, None),
                 )
-                if lhs is None or rhs is None or lhs_idx is None:
+                if lhs is None or rhs is None or lhs_idx is None or rhs_idx is None:
                     # Should be unreachable with correctly parsed tree
                     continue  # pragma: no cover
 
@@ -102,13 +102,29 @@ class Rule_ST10(BaseRule):
                     else None
                 )
 
+                next_after_rhs = next(
+                    (
+                        subsegments[i]
+                        for i in range(rhs_idx + 1, count_subsegments, 1)
+                        if not subsegments[i].is_whitespace
+                    ),
+                    None,
+                )
+
                 # We treat the pieces immediately left and right of `=` as its operands.
                 # After AND or OR, that is correct (e.g. `... OR 1 = 2`).
-                # After other binary operators, it is not correct (e.g. `num % 2 = 0`).
+                # After other binary operators, it is not correct (e.g. `num % 2 = 0`
+                # on the left, or `flags = flags & @mask` on the right).
                 if (
                     prev_before_lhs is not None
                     and prev_before_lhs.is_type("binary_operator")
                     and prev_before_lhs.raw_normalized().upper() not in ("AND", "OR")
+                ):
+                    continue
+                if (
+                    next_after_rhs is not None
+                    and next_after_rhs.is_type("binary_operator")
+                    and next_after_rhs.raw_normalized().upper() not in ("AND", "OR")
                 ):
                     continue
 

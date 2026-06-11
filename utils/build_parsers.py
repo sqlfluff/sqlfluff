@@ -1328,6 +1328,21 @@ class TableBuilder:
         """Run sanity checks on generated tables."""
         errors = []
 
+        # Unknown grammar classes fall back to a "Missing" instruction
+        # (see _handle_missing) so that a single run can report every
+        # unsupported class at once. Any Missing instruction in the final
+        # tables means the Rust parser cannot match that grammar — fail
+        # loudly here, at codegen time, rather than as a silent wrong
+        # parse later. The comment carries the offending class name.
+        missing = [
+            f"Inst {i}: unsupported grammar class {inst.comment}"
+            f" — add a handler in build_parsers.py and a matching"
+            f" GrammarVariant handler in sqlfluffrs_parser"
+            for i, inst in enumerate(self.instructions)
+            if inst.variant == "Missing"
+        ]
+        errors.extend(missing)
+
         for i, inst in enumerate(self.instructions):
             # Check children bounds
             if inst.first_child_idx + inst.child_count > len(self.child_ids):

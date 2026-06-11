@@ -184,6 +184,10 @@ def _iter_templated_patches(
                 # first raw, not the pos marker of the whole thing. That accounts
                 # better for loops.
                 first_segment_pos = first_segment_pos or seg.pos_marker
+                templated_slice = slice(
+                    templated_idx,
+                    max(first_segment_pos.templated_slice.start, templated_idx),
+                )
                 yield FixPatch(
                     # Whether the source slice is zero depends on the start_diff.
                     # A non-zero start diff implies a deletion, or more likely
@@ -192,14 +196,15 @@ def _iter_templated_patches(
                     # should be inserted in both source and template.
                     # The slices must never go backwards so the end of the slice must
                     # be greater than or equal to the start.
-                    source_slice=slice(
-                        source_idx,
-                        max(first_segment_pos.source_slice.start, source_idx),
+                    source_slice=(
+                        templated_file.templated_slice_to_source_slice(templated_slice)
+                        if start_diff > 0 and not insert_buff
+                        else slice(
+                            source_idx,
+                            max(first_segment_pos.source_slice.start, source_idx),
+                        )
                     ),
-                    templated_slice=slice(
-                        templated_idx,
-                        max(first_segment_pos.templated_slice.start, templated_idx),
-                    ),
+                    templated_slice=templated_slice,
                     patch_category="mid_point",
                     fixed_raw=insert_buff,
                     templated_str="",

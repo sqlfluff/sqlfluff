@@ -281,6 +281,35 @@ def test__fix__jinja_dbt_var_subscript_allows_layout_fix():
     assert fixed_sql == "select {{ var('123')['123'] }}, 1 / 2 as d from d\n"
 
 
+def test__fix__jinja_dbt_config_allows_start_of_file_fix(caplog):
+    """Regression test for LT13 before an empty-rendering dbt config block."""
+    sql = (
+        "\n{{\n"
+        "    config(\n"
+        '        materialized = "ephemeral",\n'
+        "    )\n"
+        "}}\n\n"
+        "SELECT 1\n"
+    )
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = databricks\n"
+        "rules = LT13\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "apply_dbt_builtins = True\n"
+    )
+    linter = Linter(config=config)
+
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
+        linted_file = linter.lint_string(sql, fname="test.sql", fix=True)
+        fixed_sql, changed = linted_file.fix_string()
+
+    assert changed
+    assert fixed_sql == sql[1:]
+    assert "Skipping edit patch on uncertain templated section" not in caplog.text
+
+
 def test__fix__warning_only_violations_are_still_fixed(tmp_path):
     """Test that warning-level violations are fixed even without errors.
 
