@@ -1030,9 +1030,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Ref("QuotedIdentifierSegment"),
-                Ref("BracketedIdentifierSegment"),
-                Ref("NakedIdentifierSegment"),
+                Ref("NakedOrQuotedIdentifierGrammar"),
             ),
         ),
         Sequence(
@@ -1040,9 +1038,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Ref("QuotedIdentifierSegment"),
-                Ref("BracketedIdentifierSegment"),
-                Ref("NakedIdentifierSegment"),
+                Ref("NakedOrQuotedIdentifierGrammar"),
             ),
         ),
         Sequence(
@@ -6686,9 +6682,7 @@ class SetLanguageStatementSegment(BaseSegment):
         "LANGUAGE",
         OneOf(
             Ref("QuotedLiteralSegmentOptWithN"),
-            Ref("QuotedIdentifierSegment"),
-            Ref("BracketedIdentifierSegment"),
-            Ref("NakedIdentifierSegment"),
+            Ref("NakedOrQuotedIdentifierGrammar"),
         ),
     )
 
@@ -8998,8 +8992,7 @@ class CreateLoginStatementSegment(BaseSegment):
         Ref("EqualsSegment"),
         OneOf(
             Ref("NumericLiteralSegment"),
-            Ref("QuotedLiteralSegment"),
-            Ref("NakedIdentifierSegment"),
+            Ref("NakedOrQuotedIdentifierGrammar"),
         ),
     )
 
@@ -9230,9 +9223,7 @@ class AlterUserStatementSegment(BaseSegment):
             OneOf(
                 "NONE",
                 Ref("NumericLiteralSegment"),
-                Ref("QuotedIdentifierSegment"),
-                Ref("BracketedIdentifierSegment"),
-                Ref("NakedIdentifierSegment"),
+                Ref("NakedOrQuotedIdentifierGrammar"),
             ),
         ),
         Sequence(
@@ -9271,9 +9262,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         OneOf(
             "NONE",
             Ref("NumericLiteralSegment"),
-            Ref("QuotedIdentifierSegment"),
-            Ref("BracketedIdentifierSegment"),
-            Ref("NakedIdentifierSegment"),
+            Ref("NakedOrQuotedIdentifierGrammar"),
         ),
     )
 
