@@ -157,7 +157,7 @@ fn lex(path: &Path) -> (Vec<Token>, usize) {
 fn timed_runs(tokens: &[Token]) -> Vec<RunStats> {
     for _ in 0..N_WARMUP {
         let mut p = Parser::new(tokens, Dialect::Ansi, hashbrown::HashMap::new());
-        p.call_rule_as_root().expect("Parse failed");
+        std::hint::black_box(p.call_rule_as_root().expect("Parse failed"));
     }
     (0..N_TIMED)
         .map(|_| {
@@ -173,7 +173,7 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
     for _ in 0..N_WARMUP {
         for tokens in all_tokens {
             let mut p = Parser::new(tokens, Dialect::Ansi, hashbrown::HashMap::new());
-            p.call_rule_as_root().expect("Parse failed");
+            std::hint::black_box(p.call_rule_as_root().expect("Parse failed"));
         }
     }
     (0..N_TIMED)

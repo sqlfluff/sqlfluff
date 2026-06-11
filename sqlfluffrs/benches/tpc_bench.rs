@@ -47,7 +47,7 @@ fn parse_tokens(tokens: &[Token]) {
         Dialect::Ansi,
         hashbrown::HashMap::new(),
     );
-    parser.call_rule_as_root().expect("Parse failed");
+    std::hint::black_box(parser.call_rule_as_root().expect("Parse failed"));
 }
 
 fn bench_tpch_lex(c: &mut Criterion) {
@@ -56,9 +56,7 @@ fn bench_tpch_lex(c: &mut Criterion) {
         .collect();
 
     let mut group = c.benchmark_group("tpch");
-    group
-        .sample_size(100)
-        .warm_up_time(Duration::from_secs(3));
+    group.sample_size(30).warm_up_time(Duration::from_secs(3));
     group.bench_function("lex_tpch_22", |b| {
         b.iter(|| {
             for sql in &sqls {
@@ -75,10 +73,7 @@ fn bench_tpch_parse(c: &mut Criterion) {
         .collect();
 
     let mut group = c.benchmark_group("tpch");
-    group
-        .sample_size(100)
-        .warm_up_time(Duration::from_secs(3))
-        .measurement_time(Duration::from_secs(20));
+    group.sample_size(30).warm_up_time(Duration::from_secs(3));
     group.bench_function("parse_tpch_22", |b| {
         b.iter(|| {
             for tokens in &token_sets {
@@ -95,10 +90,7 @@ fn bench_tpcds_lex(c: &mut Criterion) {
         .collect();
 
     let mut group = c.benchmark_group("tpcds");
-    group
-        .sample_size(100)
-        .warm_up_time(Duration::from_secs(3))
-        .measurement_time(Duration::from_secs(20));
+    group.sample_size(30).warm_up_time(Duration::from_secs(3));
     group.bench_function("lex_tpcds_99", |b| {
         b.iter(|| {
             for sql in &sqls {
@@ -115,10 +107,7 @@ fn bench_tpcds_parse(c: &mut Criterion) {
         .collect();
 
     let mut group = c.benchmark_group("tpcds");
-    group
-        .sample_size(100)
-        .warm_up_time(Duration::from_secs(3))
-        .measurement_time(Duration::from_secs(200));
+    group.sample_size(30).warm_up_time(Duration::from_secs(3));
     group.bench_function("parse_tpcds_99", |b| {
         b.iter(|| {
             for tokens in &token_sets {
