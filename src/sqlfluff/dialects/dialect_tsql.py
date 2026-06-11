@@ -1030,7 +1030,8 @@ class CreateDatabaseStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Ref("QuotedLiteralSegment"),
+                Ref("QuotedIdentifierSegment"),
+                Ref("BracketedIdentifierSegment"),
                 Ref("NakedIdentifierSegment"),
             ),
         ),
@@ -1039,7 +1040,8 @@ class CreateDatabaseStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Ref("QuotedLiteralSegment"),
+                Ref("QuotedIdentifierSegment"),
+                Ref("BracketedIdentifierSegment"),
                 Ref("NakedIdentifierSegment"),
             ),
         ),
@@ -6683,7 +6685,8 @@ class SetLanguageStatementSegment(BaseSegment):
         "SET",
         "LANGUAGE",
         OneOf(
-            Ref("QuotedLiteralSegment"),
+            Ref("QuotedLiteralSegmentOptWithN"),
+            Ref("QuotedIdentifierSegment"),
             Ref("BracketedIdentifierSegment"),
             Ref("NakedIdentifierSegment"),
         ),
@@ -9227,7 +9230,8 @@ class AlterUserStatementSegment(BaseSegment):
             OneOf(
                 "NONE",
                 Ref("NumericLiteralSegment"),
-                Ref("QuotedLiteralSegment"),
+                Ref("QuotedIdentifierSegment"),
+                Ref("BracketedIdentifierSegment"),
                 Ref("NakedIdentifierSegment"),
             ),
         ),
@@ -9264,7 +9268,13 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     _default_language = Sequence(
         "DEFAULT_LANGUAGE",
         Ref("EqualsSegment"),
-        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "NONE",
+            Ref("NumericLiteralSegment"),
+            Ref("QuotedIdentifierSegment"),
+            Ref("BracketedIdentifierSegment"),
+            Ref("NakedIdentifierSegment"),
+        ),
     )
 
     _external_provider = Sequence(
