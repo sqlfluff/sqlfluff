@@ -81,6 +81,23 @@ test_casting_operator_pass:
     core:
       dialect: postgres
 
+test_try_casting_operator_fix:
+  # Databricks ?:: (try_cast shorthand) is spaced like :: (touch)
+  fail_str: |
+    SELECT '1' ?:: INT;
+  fix_str: |
+    SELECT '1'?::INT;
+  configs:
+    core:
+      dialect: databricks
+
+test_try_casting_operator_pass:
+  pass_str: |
+    SELECT '1'?::INT;
+  configs:
+    core:
+      dialect: databricks
+
 test_fix_tsql_spaced_chars:
   fail_str: |
     SELECT col1 FROM table1 WHERE 1 > = 1
