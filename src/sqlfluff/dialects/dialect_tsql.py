@@ -2496,57 +2496,59 @@ class CreateColumnstoreIndexStatementSegment(BaseSegment):
         Sequence(
             "WITH",
             Bracketed(
-                OneOf(
-                    Sequence(
-                        "DROP_EXISTING",
-                        Ref("EqualsSegment", optional=True),
-                        OneOf(
-                            "ON",
-                            "OFF",
-                        ),
-                    ),
-                    Sequence(
-                        "MAXDOP",
-                        Ref("EqualsSegment", optional=True),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    Sequence(
-                        "ONLINE",
-                        Ref("EqualsSegment", optional=True),
-                        OneOf(
-                            "ON",
-                            "OFF",
-                        ),
-                    ),
-                    Sequence(
-                        "COMPRESSION_DELAY",
-                        Ref("EqualsSegment", optional=True),
-                        Ref("NumericLiteralSegment"),
-                        "MINUTES",
-                    ),
-                    Sequence(
-                        "DATA_COMPRESSION",
-                        Ref("EqualsSegment", optional=True),
-                        OneOf(
-                            "COLUMNSTORE",
-                            "COLUMNSTORE_ARCHIVE",
+                Delimited(
+                    OneOf(
+                        Sequence(
+                            "DROP_EXISTING",
+                            Ref("EqualsSegment", optional=True),
+                            OneOf(
+                                "ON",
+                                "OFF",
+                            ),
                         ),
                         Sequence(
-                            Sequence(
+                            "MAXDOP",
+                            Ref("EqualsSegment", optional=True),
+                            Ref("NumericLiteralSegment"),
+                        ),
+                        Sequence(
+                            "ONLINE",
+                            Ref("EqualsSegment", optional=True),
+                            OneOf(
                                 "ON",
-                                "PARTITIONS",
+                                "OFF",
                             ),
-                            Bracketed(
-                                Delimited(
-                                    Ref("NumericLiteralSegment"),
-                                ),
+                        ),
+                        Sequence(
+                            "COMPRESSION_DELAY",
+                            Ref("EqualsSegment", optional=True),
+                            Ref("NumericLiteralSegment"),
+                            Ref.keyword("MINUTES", optional=True),
+                        ),
+                        Sequence(
+                            "DATA_COMPRESSION",
+                            Ref("EqualsSegment", optional=True),
+                            OneOf(
+                                "COLUMNSTORE",
+                                "COLUMNSTORE_ARCHIVE",
+                            ),
+                            Sequence(
                                 Sequence(
-                                    "TO",
-                                    Ref("NumericLiteralSegment"),
-                                    optional=True,
+                                    "ON",
+                                    "PARTITIONS",
                                 ),
+                                Bracketed(
+                                    Delimited(
+                                        Ref("NumericLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "TO",
+                                        Ref("NumericLiteralSegment"),
+                                        optional=True,
+                                    ),
+                                ),
+                                optional=True,
                             ),
-                            optional=True,
                         ),
                     ),
                 ),
@@ -3459,10 +3461,7 @@ class RelationalIndexOptionsSegment(BaseSegment):
                         "COMPRESSION_DELAY",
                         Ref("EqualsSegment"),
                         Ref("NumericLiteralSegment"),
-                        Sequence(
-                            "MINUTES",
-                            optional=True,
-                        ),
+                        Ref.keyword("MINUTES", optional=True),
                     ),
                     Sequence(
                         "DATA_COMPRESSION",
@@ -3494,10 +3493,7 @@ class MaxDurationSegment(BaseSegment):
         "MAX_DURATION",
         Ref("EqualsSegment"),
         Ref("NumericLiteralSegment"),
-        Sequence(
-            "MINUTES",
-            optional=True,
-        ),
+        Ref.keyword("MINUTES", optional=True),
     )
 
 
