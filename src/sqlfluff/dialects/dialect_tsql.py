@@ -8990,10 +8990,7 @@ class CreateLoginStatementSegment(BaseSegment):
     _default_language = Sequence(
         "DEFAULT_LANGUAGE",
         Ref("EqualsSegment"),
-        OneOf(
-            Ref("NumericLiteralSegment"),
-            Ref("NakedOrQuotedIdentifierGrammar"),
-        ),
+        Ref("NakedOrQuotedIdentifierGrammar"),
     )
 
     _option_list_2 = AnyNumberOf(
