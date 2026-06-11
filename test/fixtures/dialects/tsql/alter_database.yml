@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02aa8b2f3ad66da187151aa8f32207d32a6783b523df4c1bda354cf4012c8265
+_hash: 63742147593d10a60fd3602f2999c58acaac24b7c64e6090dfeae829ad93449c
 file:
 - batch:
     statement:
@@ -585,4 +585,37 @@ file:
       - keyword: ROLLBACK
       - keyword: AFTER
       - numeric_literal: '60'
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[$(DatabaseName)]'
+      - keyword: ADD
+      - keyword: FILEGROUP
+      - quoted_identifier: '[MEM_OPT_DB_FILEGROUP]'
+      - keyword: CONTAINS
+      - keyword: MEMORY_OPTIMIZED_DATA
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: AdventureWorks2022
+      - keyword: MODIFY
+      - keyword: FILEGROUP
+      - naked_identifier: xtp_fg
+      - keyword: AUTOGROW_ALL_FILES
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[dbname]'
+      - keyword: REMOVE
+      - keyword: FILEGROUP
+      - quoted_identifier: '[PRIMARY]'
   - statement_terminator: ;

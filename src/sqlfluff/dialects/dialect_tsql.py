@@ -1421,12 +1421,43 @@ class AlterDatabaseStatementSegment(BaseSegment):
         ),
     )
 
-    _add_or_modify_filegroups = Sequence(
-        OneOf(
+    _add_or_modify_filegroups = OneOf(
+        Sequence(
             "ADD",
-            "REMOVE",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+            Sequence("CONTAINS",
+                OneOf(
+                    "FILESTREAM",
+                    "MEMORY_OPTIMIZED_DATA"
+                ),
+                optional=True,
+            ),
         ),
-        "FILEGROUP",
+        Sequence(
+            "REMOVE",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+        ),
+        Sequence(
+            "MODIFY",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+            OneOf(
+                "READONLY",
+                "READWRITE",
+                "READ_ONLY",
+                "READ_WRITE",
+                "DEFAULT",
+                Sequence(
+                    "NAME",
+                    Ref("EqualsSegment"),
+                    Ref("NakedOrQuotedIdentifierGrammar"),
+                ),
+                "AUTOGROW_SINGLE_FILE",
+                "AUTOGROW_ALL_FILES",
+            ),
+        ),
     )
 
     _accelerated_database_recovery = Sequence(
