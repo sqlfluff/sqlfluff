@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4e0508f9f5cf5774f0e80700de25b87366f6c2cddc77a309e1a0f29b429fdfb8
+_hash: fa12f6b6d6885aea6b3bbd297e9a2b888f8f857f72da4926aeb9755a27718e99
 file:
   batch:
   - statement:
@@ -198,4 +198,36 @@ file:
           - keyword: IS
           - keyword: NOT
           - null_literal: 'NULL'
+  - statement_terminator: ;
+  - statement:
+      create_columnstore_index_statement:
+      - keyword: CREATE
+      - keyword: CLUSTERED
+      - keyword: COLUMNSTORE
+      - keyword: INDEX
+      - index_reference:
+          naked_identifier: CCI_MultipleWith
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: sf
+        - dot: .
+        - naked_identifier: MultipleWith
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DROP_EXISTING
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'OFF'
+        - comma: ','
+        - keyword: COMPRESSION_DELAY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '0'
+        - end_bracket: )
+      - on_partition_or_filegroup_statement:
+          filegroup_clause:
+            keyword: 'ON'
+            filegroup_name:
+              quoted_identifier: '[PRIMARY]'
   - statement_terminator: ;

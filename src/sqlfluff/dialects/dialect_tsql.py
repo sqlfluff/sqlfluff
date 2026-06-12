@@ -1030,8 +1030,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Ref("QuotedLiteralSegment"),
-                Ref("NakedIdentifierSegment"),
+                Ref("NakedOrQuotedIdentifierGrammar"),
             ),
         ),
         Sequence(
@@ -1039,8 +1038,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Ref("QuotedLiteralSegment"),
-                Ref("NakedIdentifierSegment"),
+                Ref("NakedOrQuotedIdentifierGrammar"),
             ),
         ),
         Sequence(
@@ -1421,12 +1419,43 @@ class AlterDatabaseStatementSegment(BaseSegment):
         ),
     )
 
-    _add_or_modify_filegroups = Sequence(
-        OneOf(
+    _add_or_modify_filegroups = OneOf(
+        Sequence(
             "ADD",
-            "REMOVE",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+            Sequence("CONTAINS",
+                OneOf(
+                    "FILESTREAM",
+                    "MEMORY_OPTIMIZED_DATA"
+                ),
+                optional=True,
+            ),
         ),
-        "FILEGROUP",
+        Sequence(
+            "REMOVE",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+        ),
+        Sequence(
+            "MODIFY",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+            OneOf(
+                "READONLY",
+                "READWRITE",
+                "READ_ONLY",
+                "READ_WRITE",
+                "DEFAULT",
+                Sequence(
+                    "NAME",
+                    Ref("EqualsSegment"),
+                    Ref("NakedOrQuotedIdentifierGrammar"),
+                ),
+                "AUTOGROW_SINGLE_FILE",
+                "AUTOGROW_ALL_FILES",
+            ),
+        ),
     )
 
     _accelerated_database_recovery = Sequence(
@@ -2465,57 +2494,59 @@ class CreateColumnstoreIndexStatementSegment(BaseSegment):
         Sequence(
             "WITH",
             Bracketed(
-                OneOf(
-                    Sequence(
-                        "DROP_EXISTING",
-                        Ref("EqualsSegment", optional=True),
-                        OneOf(
-                            "ON",
-                            "OFF",
-                        ),
-                    ),
-                    Sequence(
-                        "MAXDOP",
-                        Ref("EqualsSegment", optional=True),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    Sequence(
-                        "ONLINE",
-                        Ref("EqualsSegment", optional=True),
-                        OneOf(
-                            "ON",
-                            "OFF",
-                        ),
-                    ),
-                    Sequence(
-                        "COMPRESSION_DELAY",
-                        Ref("EqualsSegment", optional=True),
-                        Ref("NumericLiteralSegment"),
-                        "MINUTES",
-                    ),
-                    Sequence(
-                        "DATA_COMPRESSION",
-                        Ref("EqualsSegment", optional=True),
-                        OneOf(
-                            "COLUMNSTORE",
-                            "COLUMNSTORE_ARCHIVE",
+                Delimited(
+                    OneOf(
+                        Sequence(
+                            "DROP_EXISTING",
+                            Ref("EqualsSegment", optional=True),
+                            OneOf(
+                                "ON",
+                                "OFF",
+                            ),
                         ),
                         Sequence(
-                            Sequence(
+                            "MAXDOP",
+                            Ref("EqualsSegment", optional=True),
+                            Ref("NumericLiteralSegment"),
+                        ),
+                        Sequence(
+                            "ONLINE",
+                            Ref("EqualsSegment", optional=True),
+                            OneOf(
                                 "ON",
-                                "PARTITIONS",
+                                "OFF",
                             ),
-                            Bracketed(
-                                Delimited(
-                                    Ref("NumericLiteralSegment"),
-                                ),
+                        ),
+                        Sequence(
+                            "COMPRESSION_DELAY",
+                            Ref("EqualsSegment", optional=True),
+                            Ref("NumericLiteralSegment"),
+                            Ref.keyword("MINUTES", optional=True),
+                        ),
+                        Sequence(
+                            "DATA_COMPRESSION",
+                            Ref("EqualsSegment", optional=True),
+                            OneOf(
+                                "COLUMNSTORE",
+                                "COLUMNSTORE_ARCHIVE",
+                            ),
+                            Sequence(
                                 Sequence(
-                                    "TO",
-                                    Ref("NumericLiteralSegment"),
-                                    optional=True,
+                                    "ON",
+                                    "PARTITIONS",
                                 ),
+                                Bracketed(
+                                    Delimited(
+                                        Ref("NumericLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "TO",
+                                        Ref("NumericLiteralSegment"),
+                                        optional=True,
+                                    ),
+                                ),
+                                optional=True,
                             ),
-                            optional=True,
                         ),
                     ),
                 ),
@@ -3428,10 +3459,7 @@ class RelationalIndexOptionsSegment(BaseSegment):
                         "COMPRESSION_DELAY",
                         Ref("EqualsSegment"),
                         Ref("NumericLiteralSegment"),
-                        Sequence(
-                            "MINUTES",
-                            optional=True,
-                        ),
+                        Ref.keyword("MINUTES", optional=True),
                     ),
                     Sequence(
                         "DATA_COMPRESSION",
@@ -3463,10 +3491,7 @@ class MaxDurationSegment(BaseSegment):
         "MAX_DURATION",
         Ref("EqualsSegment"),
         Ref("NumericLiteralSegment"),
-        Sequence(
-            "MINUTES",
-            optional=True,
-        ),
+        Ref.keyword("MINUTES", optional=True),
     )
 
 
@@ -6656,9 +6681,8 @@ class SetLanguageStatementSegment(BaseSegment):
         "SET",
         "LANGUAGE",
         OneOf(
-            Ref("QuotedLiteralSegment"),
-            Ref("BracketedIdentifierSegment"),
-            Ref("NakedIdentifierSegment"),
+            Ref("QuotedLiteralSegmentOptWithN"),
+            Ref("NakedOrQuotedIdentifierGrammar"),
         ),
     )
 
@@ -8966,11 +8990,7 @@ class CreateLoginStatementSegment(BaseSegment):
     _default_language = Sequence(
         "DEFAULT_LANGUAGE",
         Ref("EqualsSegment"),
-        OneOf(
-            Ref("NumericLiteralSegment"),
-            Ref("QuotedLiteralSegment"),
-            Ref("NakedIdentifierSegment"),
-        ),
+        Ref("NakedOrQuotedIdentifierGrammar"),
     )
 
     _option_list_2 = AnyNumberOf(
@@ -9200,8 +9220,7 @@ class AlterUserStatementSegment(BaseSegment):
             OneOf(
                 "NONE",
                 Ref("NumericLiteralSegment"),
-                Ref("QuotedLiteralSegment"),
-                Ref("NakedIdentifierSegment"),
+                Ref("NakedOrQuotedIdentifierGrammar"),
             ),
         ),
         Sequence(
@@ -9237,7 +9256,11 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     _default_language = Sequence(
         "DEFAULT_LANGUAGE",
         Ref("EqualsSegment"),
-        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "NONE",
+            Ref("NumericLiteralSegment"),
+            Ref("NakedOrQuotedIdentifierGrammar"),
+        ),
     )
 
     _external_provider = Sequence(
