@@ -2670,8 +2670,19 @@ class CreateFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         OneOf("IS", "AS", optional=True),
-        AnyNumberOf(Ref("DeclareSegment"), optional=True),
-        Ref("BeginEndSegment", optional=True),
+        OneOf(
+            Sequence(
+                "LANGUAGE",
+                "JAVA",
+                "NAME",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                AnyNumberOf(Ref("DeclareSegment"), optional=True),
+                Ref("BeginEndSegment", optional=True),
+            ),
+            optional=True,
+        ),
         Ref("DelimiterGrammar", optional=True),
     )
 

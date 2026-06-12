@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 230b371ef56f7f00f959006d83d10674ef97d677c7a1e8be8ebad27162afed9a
+_hash: 679a6c9e0fccf2a6664fe43c91d3a7d7548f1dc843176fb77ecbdc40bc2e3c51
 file:
 - batch:
     statement:
@@ -502,3 +502,26 @@ file:
     statement_terminator: ;
     slash_buffer_executor:
       slash: /
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: ex_func
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: some_string
+            keyword: IN
+            data_type:
+              data_type_identifier: VARCHAR2
+            end_bracket: )
+      - keyword: RETURN
+      - data_type:
+          data_type_identifier: RAW
+      - keyword: AS
+      - keyword: LANGUAGE
+      - keyword: JAVA
+      - keyword: NAME
+      - quoted_literal: "'exClass.someMethod(java.lang.String) return byte[]'"
+      - statement_terminator: ;
