@@ -1,0 +1,7 @@
+CREATE FUNCTION ARRAY_AGGR AS 'my.udf.ArrayAggr';
+
+CREATE OR REPLACE TEMPORARY FUNCTION my_func AS 'com.example.MyFunc' LANGUAGE JAVA;
+
+CREATE TEMPORARY SYSTEM FUNCTION my_func AS 'com.example.MyFunc';
+
+CREATE FUNCTION IF NOT EXISTS my_func AS 'com.example.MyFunc';

@@ -1,0 +1,53 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8489b4ff4a8ac8342e88754e8365d906e0c9f52b96060dbe8151928c4cf95584
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: ARRAY_AGGR
+    - keyword: AS
+    - quoted_literal: "'my.udf.ArrayAggr'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_func
+    - keyword: AS
+    - quoted_literal: "'com.example.MyFunc'"
+    - keyword: LANGUAGE
+    - naked_identifier: JAVA
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: SYSTEM
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_func
+    - keyword: AS
+    - quoted_literal: "'com.example.MyFunc'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: my_func
+    - keyword: AS
+    - quoted_literal: "'com.example.MyFunc'"
+- statement_terminator: ;
