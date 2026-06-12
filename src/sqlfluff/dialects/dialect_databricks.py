@@ -167,6 +167,7 @@ databricks_dialect.replace(
             Ref("ParameterizedSegment"),
         ]
     ),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
 )
 
 databricks_dialect.add(
