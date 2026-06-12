@@ -632,6 +632,7 @@ oracle_dialect.replace(
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),
+        Ref("KeepClauseSegment"),
         Ref("FilterClauseGrammar"),
         Ref("OverClauseSegment", optional=True),
     ),
@@ -1424,6 +1425,25 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=False)),
+    )
+
+
+class KeepClauseSegment(BaseSegment):
+    """A KEEP clause for aggregate functions.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/FIRST.html
+    """
+
+    type = "keep_clause"
+    match_grammar = Sequence(
+        "KEEP",
+        Bracketed(
+            Sequence(
+                "DENSE_RANK",
+                OneOf("FIRST", "LAST"),
+                Ref("OrderByClauseSegment"),
+            )
+        ),
     )
 
 
