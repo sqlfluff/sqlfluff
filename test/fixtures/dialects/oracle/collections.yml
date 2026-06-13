@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db85c171633dd113466faa2967db83a2092957beb77a9faf7956335b8fef56a3
+_hash: e5ab5335dffbb28f013bacd3b11906004a8152f6de4fad4148cd51ceae393dde
 file:
 - batch:
     statement:
@@ -233,12 +233,12 @@ file:
           - data_type:
               data_type_identifier: sum_multiples
           - keyword: IS
-          - declare_segment:
-              naked_identifier: s
-              data_type:
-                data_type_identifier: sum_multiples
-              statement_terminator: ;
           - begin_end_block:
+            - declare_segment:
+                naked_identifier: s
+                data_type:
+                  data_type_identifier: sum_multiples
+                statement_terminator: ;
             - keyword: BEGIN
             - statement:
                 for_loop_statement:

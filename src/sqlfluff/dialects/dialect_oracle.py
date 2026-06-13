@@ -2677,10 +2677,7 @@ class CreateFunctionStatementSegment(BaseSegment):
                 "NAME",
                 Ref("QuotedLiteralSegment"),
             ),
-            Sequence(
-                AnyNumberOf(Ref("DeclareSegment"), optional=True),
-                Ref("BeginEndSegment", optional=True),
-            ),
+            Ref("BeginEndSegment"),
             optional=True,
         ),
         Ref("DelimiterGrammar", optional=True),
