@@ -855,7 +855,7 @@ class CreateViewStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        Ref.keyword("TEMPORARY", optional=True),
+        Ref("TemporaryGrammar", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
