@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a6f228b8ba181084afd530dc7e9fecb235e923bbf02ac445162da00345043d11
+_hash: a49075281a63bf5771627f5fcd4511135014998598777840aafd3d0bcfff031e
 file:
 - statement:
     create_view_statement:
@@ -84,6 +84,24 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: short_temp_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: x
 - statement_terminator: ;
 - statement:
     create_view_statement:
