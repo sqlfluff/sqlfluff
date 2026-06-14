@@ -8,6 +8,7 @@ It also has some extensions.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseSegment,
     Bracketed,
@@ -210,8 +211,10 @@ databricks_dialect.add(
     ),
     ForeignKeyOptionGrammar=Sequence(
         Sequence("MATCH", "FULL", optional=True),
-        Sequence("ON", "UPDATE", "NO", "ACTION", optional=True),
-        Sequence("ON", "DELETE", "NO", "ACTION", optional=True),
+        AnySetOf(
+            Sequence("ON", "UPDATE", "NO", "ACTION"),
+            Sequence("ON", "DELETE", "NO", "ACTION"),
+        ),
     ),
     DropConstraintGrammar=Sequence(
         "DROP",
