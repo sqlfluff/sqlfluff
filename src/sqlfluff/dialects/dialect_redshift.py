@@ -21,6 +21,7 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -2920,14 +2921,54 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
-class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
-    """An extension of the star expression for Redshift."""
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """An element in the targets of a select statement."""
 
-    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
-        insert=[
-            # Optional Exclude
-            Ref("ExcludeClauseSegment", optional=True),
-        ]
+    type = "select_clause_element"
+
+    match_grammar = OneOf(
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref(
+                "AliasExpressionSegment",
+                optional=True,
+                exclude=Ref("ExcludeClauseSegment"),
+            ),
+        ),
+    )
+
+
+class SelectClauseSegment(postgres.SelectClauseSegment):
+    """A group of elements in a select target statement."""
+
+    match_grammar = Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            # In Postgres you don't need an element so make it optional
+            optional=True,
+            allow_trailing=True,
+        ),
+        Ref("ExcludeClauseSegment", optional=True),
+        Dedent,
+        terminators=[
+            "INTO",
+            "FROM",
+            "WHERE",
+            Sequence("ORDER", "BY"),
+            Sequence("ON", "CONFLICT"),
+            "LIMIT",
+            "RETURNING",
+            "OVERLAPS",
+            Ref("SetOperatorSegment"),
+            Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
+            Ref("WithCheckOptionSegment"),
+            Ref("MetaCommandQueryBufferSegment"),
+        ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 
 
@@ -2942,7 +2983,7 @@ class ExcludeClauseSegment(BaseSegment):
         "EXCLUDE",
         OneOf(
             Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
-            Ref("SingleIdentifierGrammar"),
+            Delimited(Ref("SingleIdentifierGrammar")),
         ),
     )
 
