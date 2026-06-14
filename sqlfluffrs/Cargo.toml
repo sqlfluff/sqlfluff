@@ -75,6 +75,14 @@ flamegraph = "0.6.11"
 name = "parser_bench"
 harness = false
 
+
+[[bench]]
+name = "tpc_bench"
+harness = false
+
+[[example]]
+name = "time_tpc"
+
 [profile.bench]
 debug = true
 [profile.release]
