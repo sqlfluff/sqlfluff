@@ -167,6 +167,7 @@ databricks_dialect.replace(
             Ref("ParameterizedSegment"),
         ]
     ),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
 )
 
 databricks_dialect.add(
@@ -1951,7 +1952,7 @@ class ColumnPropertiesSegment(BaseSegment):
             "DEFAULT",
             Ref("ColumnConstraintDefaultGrammar"),
         ),
-        Sequence("COLLATE", Ref("CollationReferenceSegment")),
+        Ref("CollateGrammar"),
         Ref("CommentGrammar"),
         Ref("ColumnConstraintSegment"),
         Ref("MaskStatementSegment"),
