@@ -31,7 +31,9 @@ from sqlfluff.core.parser import (
     Sequence,
     StringParser,
     TypedParser,
+    WordSegment,
 )
+from sqlfluff.core.parser.segments import NewlineSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -50,6 +52,13 @@ teradata_dialect.patch_lexer_matchers(
             CodeSegment,
         ),
     ]
+)
+
+teradata_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("backslash", r"\\", CodeSegment),
+    ],
+    before="word",
 )
 
 # Remove unused keywords from the dialect.
@@ -168,6 +177,31 @@ teradata_dialect.add(
     NotEqualToSegment_a=StringParser("NE", ComparisonOperatorSegment),
     NotEqualToSegment_b=StringParser("NOT=", ComparisonOperatorSegment),
     NotEqualToSegment_c=StringParser("^=", ComparisonOperatorSegment),
+    BteqCommandArgumentSegment=TypedParser(
+        "word",
+        WordSegment,
+        type="word",
+    ),
+    BteqCommandEqualsSegment=TypedParser(
+        "equals",
+        CodeSegment,
+        type="equals",
+    ),
+    BteqCommandBackslashSegment=TypedParser(
+        "backslash",
+        CodeSegment,
+        type="backslash",
+    ),
+    BteqCommandQuotedArgumentSegment=TypedParser(
+        "double_quote",
+        CodeSegment,
+        type="quoted_argument",
+    ),
+    BteqCommandNewlineSegment=TypedParser(
+        "newline",
+        NewlineSegment,
+        type="newline",
+    ),
 )
 
 
@@ -232,6 +266,29 @@ class BteqStatementSegment(BaseSegment):
             Sequence(
                 Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar"), optional=True
             ),
+            terminators=[
+                Ref("BteqCommandNewlineSegment"),
+                Ref("SemicolonSegment"),
+            ],
+            optional=True,
+        ),
+        AnyNumberOf(
+            OneOf(
+                Ref("BteqCommandArgumentSegment"),
+                Ref("BteqCommandEqualsSegment"),
+                Ref("BteqCommandBackslashSegment"),
+                Ref("BteqCommandQuotedArgumentSegment"),
+                Ref("LiteralGrammar"),
+                Ref("DotSegment"),
+                Ref("CommaSegment"),
+                Ref("ColonSegment"),
+                Ref("MinusSegment"),
+                Ref("DivideSegment"),
+            ),
+            terminators=[
+                Ref("BteqCommandNewlineSegment"),
+                Ref("SemicolonSegment"),
+            ],
             optional=True,
         ),
     )

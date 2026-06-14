@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5c9454897c6fb0804ca61cd756db50740fc13aabf09a5232ea602068cc2fa713
+_hash: 202b402a4fa09ffe23460a5d56a9544644bb4660653c84c76eb28c5e723e7dc6
 file:
-  statement:
+- statement:
     bteq_statement:
     - dot: .
     - bteq_key_word_segment:
@@ -21,4 +21,82 @@ file:
         dot: .
         keyword: quit
         numeric_literal: '4'
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: RUN
+    - word: FILE
+    - equals: '='
+    - word: POSTING
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: RUN
+    - word: FILE
+    - equals: '='
+    - word: POSTING
+    - dot: .
+    - word: SQL
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: RUN
+    - word: FILE
+    - equals: '='
+    - dot: .
+    - dot: .
+    - binary_operator: /
+    - word: posting
+    - binary_operator: '-'
+    - word: file
+    - dot: .
+    - word: sql
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment:
+        keyword: RUN
+      word: FILE
+      equals: '='
+      quoted_argument: '"reports/out summary.txt"'
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: RUN
+    - word: FILE
+    - equals: '='
+    - word: C
+    - colon: ':'
+    - backslash: \
+    - word: reports
+    - backslash: \
+    - word: out
+    - binary_operator: '-'
+    - word: summary
+    - dot: .
+    - word: txt
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: EXPORT
+    - word: REPORT
+    - word: FILE
+    - equals: '='
+    - word: reports
+    - binary_operator: /
+    - word: out
+    - comma: ','
+    - word: summary
+    - dot: .
+    - word: txt
