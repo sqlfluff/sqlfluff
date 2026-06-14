@@ -1,0 +1,66 @@
+[project]
+name = "sqlfluff-templater-sqlmesh"
+version = "3.5.0"
+description = "Lint your SQLMesh project SQL"
+readme = {file = "README.md", content-type = "text/markdown"}
+authors = [
+  {name = "Alan Cruickshank", email = "alan@designingoverload.com"},
+  {name = "Danny Jones", email = "danny.jones1994@live.com"}
+]
+license = {file = "LICENSE.md"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Unix",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Utilities",
+    "Topic :: Software Development :: Quality Assurance",
+]
+keywords = [
+    "sqlfluff",
+    "sql",
+    "linter",
+    "formatter",
+    "bigquery",
+    "clickhouse",
+    "databricks",
+    "duckdb",
+    "mysql",
+    "postgres",
+    "redshift",
+    "snowflake",
+    "sparksql",
+    "sqlite",
+    "sqlmesh",
+]
+dependencies = [
+    "sqlfluff==3.5.0",
+    "sqlmesh>=0.80.0",
+]
+
+[project.urls]
+Homepage = "https://www.sqlfluff.com"
+Documentation = "https://docs.sqlfluff.com"
+Source = "https://github.com/sqlfluff/sqlfluff"
+Changes = "https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md"
+"Issue Tracker" = "https://github.com/sqlfluff/sqlfluff/issues"
+Twitter = "https://twitter.com/SQLFluff"
+Chat = "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack"
+
+[project.entry-points.sqlfluff]
+sqlfluff_templater_sqlmesh = "sqlfluff_templater_sqlmesh"
+
+[tool.setuptools.packages.find]
+include = ["sqlfluff_templater_sqlmesh"]
