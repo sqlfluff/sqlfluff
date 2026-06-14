@@ -1411,7 +1411,9 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        OptionallyBracketed(Ref("SelectableGrammar")),
+        OptionallyBracketed(
+            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
+        ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
