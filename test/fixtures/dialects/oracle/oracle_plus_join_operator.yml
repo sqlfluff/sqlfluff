@@ -1,0 +1,62 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ecbe77aa430b8c433b0fe899b7f8c8dd0b5ae553ded3287a21472723f5f89e6a
+file:
+  batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+            - naked_identifier: e1
+            - dot: .
+            - naked_identifier: abc
+        from_clause:
+        - keyword: from
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: exp1
+              alias_expression:
+                naked_identifier: e1
+        - comma: ','
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: exp2
+              alias_expression:
+                naked_identifier: e2
+        where_clause:
+          keyword: where
+          expression:
+          - column_reference:
+            - naked_identifier: e1
+            - dot: .
+            - naked_identifier: key
+          - start_bracket: (
+          - plus_join_symbol: +
+          - end_bracket: )
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: e2
+            - dot: .
+            - naked_identifier: key
+          - binary_operator: and
+          - column_reference:
+            - naked_identifier: e1
+            - dot: .
+            - naked_identifier: str
+          - start_bracket: (
+          - plus_join_symbol: +
+          - end_bracket: )
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'smth'"
+    statement_terminator: ;
