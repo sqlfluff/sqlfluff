@@ -4,8 +4,9 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
+import functools
+import os
 from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
-from uuid import uuid4
 
 import regex as re
 
@@ -74,14 +75,18 @@ class RawSegment(BaseSegment):
         # Keep track of any source fixes
         self._source_fixes = source_fixes
         # UUID for matching (the int attribute of it)
-        self.uuid = uuid or uuid4().int
-        self.representation = "<{}: ({}) {!r}>".format(
-            self.__class__.__name__, self.pos_marker, self.raw
-        )
+        self.uuid = uuid or int.from_bytes(os.urandom(16), "big")
         self.quoted_value = quoted_value
         self.escape_replacements = escape_replacements
         self.casefold = casefold
         self._raw_value: str = self.normalize()
+
+    @functools.cached_property
+    def representation(self) -> str:
+        """Lazy string representation, computed once on first access."""
+        return "<{}: ({}) {!r}>".format(
+            self.__class__.__name__, self.pos_marker, self.raw
+        )
 
     def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
