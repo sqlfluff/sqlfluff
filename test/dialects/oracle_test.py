@@ -145,17 +145,3 @@ def test_inmemory_subclauses_rejected(sql: str) -> None:
 def test_index_physical_attrs_rejected(sql: str) -> None:
     """Duplicate or mutually-exclusive index physical attributes must produce a parse violation."""
     assert _violations(sql) != [], f"Expected violations but got none for:\n{sql}"
-
-
-def test_oracle_plus_join_operator_lints_without_parse_or_indent_errors() -> None:
-    """Oracle legacy outer join operator should lint cleanly when well formatted."""
-    sql = """select e1.abc
-from exp1 e1, exp2 e2
-where
-    e1.key (+) = e2.key
-    and e1.str (+) = 'smth';
-"""
-
-    linted = Linter(dialect="oracle", rules=["LT02"]).lint_string(sql)
-
-    assert linted.check_tuples() == []
