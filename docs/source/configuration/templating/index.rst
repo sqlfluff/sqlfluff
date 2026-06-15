@@ -44,15 +44,19 @@ Also, SQLFluff has an integration to use :code:`dbt` as a templater.
     provided configuration for the templater), but not both.
 
     In this case, because SQLFluff linting can only operate on the output
-    of the templater, some areas of the raw SQL will never be seen by the
+    of the templater, some areas of the raw SQL may never be seen by the
     linter and will not be covered by lint rules.
 
-    This is functionality we hope to support in future.
+    SQLFluff can now render multiple template variants for templaters which
+    support it, including :ref:`jinja_templater` and :ref:`dbt_templater`.
+    See :ref:`templater_variant_rendering` for details, limitations and
+    configuration.
 
 .. toctree::
    :maxdepth: 2
    :caption: Templater Specific Configuration:
 
+   variants
    jinja
    placeholder
    python

@@ -38,7 +38,10 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
-from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
+from sqlfluff.core.parser.grammar.lookbehind import (
+    PrecededByMatcher,
+    is_distinct_from_lookbehind,
+)
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
     oracle_reserved_keywords,
@@ -602,6 +605,7 @@ oracle_dialect.replace(
     ),
     IsClauseGrammar=OneOf(
         ansi_dialect.get_grammar("IsClauseGrammar"),
+        "EMPTY",
         Sequence(
             "OF",
             Ref.keyword("TYPE", optional=True),
@@ -628,6 +632,7 @@ oracle_dialect.replace(
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),
+        Ref("KeepClauseSegment"),
         Ref("FilterClauseGrammar"),
         Ref("OverClauseSegment", optional=True),
     ),
@@ -801,6 +806,9 @@ oracle_dialect.replace(
             Ref("PowerOperatorSegment"),
         ]
     ),
+    BinaryOperatorGrammar=ansi_dialect.get_grammar("BinaryOperatorGrammar").copy(
+        insert=[Ref("MultisetOperatorSegment")]
+    ),
     SelectClauseTerminatorGrammar=OneOf(
         "BULK",
         "INTO",
@@ -812,10 +820,34 @@ oracle_dialect.replace(
         Sequence("ORDER", "BY"),
         "LIMIT",
         "OVERLAPS",
-        Ref("SetOperatorSegment"),
+        # In Oracle, MULTISET EXCEPT/INTERSECT/UNION are binary operators
+        # on nested table collections, so we must not treat the UNION/EXCEPT/
+        # INTERSECT keyword as a set-operator terminator when it is preceded
+        # by MULTISET.
+        Ref(
+            "SetOperatorSegment",
+            exclude=PrecededByMatcher(
+                preceding_sequences=(("MULTISET",),),
+            ),
+        ),
         "FETCH",
     ),
 )
+
+
+class MultisetOperatorSegment(BaseSegment):
+    """A MULTISET operator (MULTISET EXCEPT/INTERSECT/UNION [ALL|DISTINCT]).
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Multiset-Operators.html
+    """
+
+    type = "binary_operator"
+
+    match_grammar = Sequence(
+        "MULTISET",
+        OneOf("EXCEPT", "INTERSECT", "UNION"),
+        OneOf("ALL", "DISTINCT", optional=True),
+    )
 
 
 class AlterIndexStatementSegment(BaseSegment):
@@ -1380,7 +1412,9 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        OptionallyBracketed(Ref("SelectableGrammar")),
+        OptionallyBracketed(
+            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
+        ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
@@ -1393,6 +1427,25 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=False)),
+    )
+
+
+class KeepClauseSegment(BaseSegment):
+    """A KEEP clause for aggregate functions.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/FIRST.html
+    """
+
+    type = "keep_clause"
+    match_grammar = Sequence(
+        "KEEP",
+        Bracketed(
+            Sequence(
+                "DENSE_RANK",
+                OneOf("FIRST", "LAST"),
+                Ref("OrderByClauseSegment"),
+            )
+        ),
     )
 
 
@@ -2639,8 +2692,16 @@ class CreateFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         OneOf("IS", "AS", optional=True),
-        AnyNumberOf(Ref("DeclareSegment"), optional=True),
-        Ref("BeginEndSegment", optional=True),
+        OneOf(
+            Sequence(
+                "LANGUAGE",
+                "JAVA",
+                "NAME",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Ref("BeginEndSegment"),
+            optional=True,
+        ),
         Ref("DelimiterGrammar", optional=True),
     )
 

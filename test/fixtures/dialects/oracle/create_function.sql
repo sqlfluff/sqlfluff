@@ -87,3 +87,6 @@ BEGIN
   END LOOP;
 END;
 /
+
+FUNCTION ex_func(some_string IN VARCHAR2) RETURN RAW
+AS LANGUAGE JAVA NAME 'exClass.someMethod(java.lang.String) return byte[]';

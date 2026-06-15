@@ -1,0 +1,74 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5e235690b3493030a964b41bae6a80441d5f3309ccab2c92ea36393b7f78f961
+file:
+  batch:
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Contact]'
+      - keyword: DISABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+          quoted_identifier: '[TRContactID]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Contact]'
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+          quoted_identifier: '[TRContactID]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Contact]'
+      - keyword: DISABLE
+      - keyword: TRIGGER
+      - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Contact]'
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Contact]'
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+          quoted_identifier: '[t1]'
+      - comma: ','
+      - trigger_reference:
+          quoted_identifier: '[t2]'
+  - statement_terminator: ;

@@ -1,0 +1,5 @@
+ALTER TABLE [dbo].[Contact] DISABLE TRIGGER [TRContactID];
+ALTER TABLE [dbo].[Contact] ENABLE TRIGGER [TRContactID];
+ALTER TABLE [dbo].[Contact] DISABLE TRIGGER ALL;
+ALTER TABLE [dbo].[Contact] ENABLE TRIGGER ALL;
+ALTER TABLE [dbo].[Contact] ENABLE TRIGGER [t1], [t2];

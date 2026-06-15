@@ -1,4 +1,7 @@
-FROM dhi.io/python:3.14-debian13-dev AS build
+ARG BUILDER_BASE=python:3.14-slim-trixie
+ARG FINAL_BASE=python:3.14-slim-trixie
+
+FROM ${BUILDER_BASE} AS build
 
 WORKDIR /app
 
@@ -23,11 +26,12 @@ COPY src ./src
 # Install sqlfluff package.
 RUN pip install --no-cache-dir --no-dependencies .
 
-FROM dhi.io/python:3.14-debian13
+FROM ${FINAL_BASE}
 # OCI annotations
+ARG DESC_SUFFIX
 LABEL org.opencontainers.image.title="sqlfluff" \
       org.opencontainers.image.authors="sqlfluff Community" \
-      org.opencontainers.image.description="A modular SQL linter and auto-formatter with support for multiple dialects and templated code" \
+      org.opencontainers.image.description="A modular SQL linter and auto-formatter with support for multiple dialects and templated code${DESC_SUFFIX}" \
       org.opencontainers.image.source="https://github.com/sqlfluff/sqlfluff" \
       org.opencontainers.image.documentation="https://docs.sqlfluff.com/en/stable/"
 

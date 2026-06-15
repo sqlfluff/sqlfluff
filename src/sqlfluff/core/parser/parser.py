@@ -44,6 +44,7 @@ class Parser:
         # context of a context manager. That's because it's the initial
         # instantiation.
         ctx = ParseContext.from_config(config=self.config)
+        ctx.seed_parse_nodes(len(segments))
         # Kick off parsing with the root segment. The BaseFileSegment has
         # a unique entry point to facilitate exactly this. All other segments
         # will use the standard .match() route.

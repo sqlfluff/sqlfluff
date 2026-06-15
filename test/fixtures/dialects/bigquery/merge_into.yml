@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a5d58da0b69423ce75e2e066d6be1d1339f7b2a87233182e627984d9e0895979
+_hash: d398050ce407c4dee61a7a3d315238cb2269905b092a99b4c804be8fb97723f5
 file:
 - statement:
     merge_statement:
@@ -808,3 +808,90 @@ file:
         - keyword: THEN
         - merge_delete_clause:
             keyword: DELETE
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - table_reference:
+      - naked_identifier: dataset
+      - dot: .
+      - naked_identifier: inventory
+    - alias_expression:
+        naked_identifier: t
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: UNNEST
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: arr
+            end_bracket: )
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: product
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: product
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+              - column_reference:
+                  naked_identifier: quantity
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: s
+                - dot: .
+                - naked_identifier: quantity
+        not_matched_by_target_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: product
+            - comma: ','
+            - column_reference:
+                naked_identifier: quantity
+            - end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: product
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: quantity
+              - end_bracket: )

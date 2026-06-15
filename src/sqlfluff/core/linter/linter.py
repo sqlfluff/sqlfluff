@@ -36,6 +36,7 @@ from sqlfluff.core.linter.linted_file import (
     LintedFile,
 )
 from sqlfluff.core.linter.linting_result import LintingResult
+from sqlfluff.core.linter.patch import generate_source_patches, merge_source_patches
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
@@ -230,6 +231,20 @@ class Linter:
         fname: Optional[str] = None,
         parse_statistics: bool = False,
     ) -> tuple[Optional[BaseSegment], list[SQLParseError]]:
+        max_parse_nodes = config.get("max_parse_nodes")
+        assert isinstance(max_parse_nodes, int)
+        if max_parse_nodes > 0 and len(tokens) > max_parse_nodes:
+            anchor = next((seg for seg in tokens if seg.is_code), None)
+            err = SQLParseError(
+                description=(
+                    f"Maximum parse node count exceeded (limit {max_parse_nodes}). "
+                    "This may indicate unusually large SQL or a malicious input."
+                ),
+                segment=anchor,
+            )
+            linter_logger.info("PARSING SKIPPED! : %s", err)
+            return None, [err]
+
         # Use Rust parser if configured (experimental)
         use_rust = config.get_section(["core", "use_rust_parser"])
 
@@ -333,6 +348,9 @@ class Linter:
                 if (
                     # Is it in a literal section?
                     e.segment.pos_marker.is_literal()
+                    # Is it in placeholder-tagged template slices that are
+                    # semantically literal SQL (e.g. ${catalog})?
+                    or Linter._is_semantically_literal_templated(e)
                     # Is it a rule that is designed to work on templated sections?
                     or e.rule.targets_templated
                 ):
@@ -342,6 +360,23 @@ class Linter:
                 # malformed "noqa" comment).
                 result.append(e)
         return result
+
+    @staticmethod
+    def _is_semantically_literal_templated(error: SQLLintError) -> bool:
+        """Whether all non-literal raw slices in the anchor are semantically literal."""
+        assert error.segment.pos_marker
+        source_slice = error.segment.pos_marker.source_slice
+        non_literal_slices = []
+        for raw_slice in error.segment.pos_marker.templated_file.raw_sliced:
+            if raw_slice.end_source_idx() <= source_slice.start:
+                continue
+            if raw_slice.source_idx >= source_slice.stop:
+                break
+            if raw_slice.slice_type != "literal":
+                non_literal_slices.append(raw_slice)
+        return bool(non_literal_slices) and all(
+            raw_slice.tag == "literal" for raw_slice in non_literal_slices
+        )
 
     @staticmethod
     def _report_conflicting_fixes_same_anchor(message: str) -> None:  # pragma: no cover
@@ -580,6 +615,7 @@ class Linter:
                                 anchor_info,
                                 fix_even_unparsable=config.get("fix_even_unparsable"),
                                 max_parse_depth=config.get("max_parse_depth"),
+                                max_parse_nodes=config.get("max_parse_nodes"),
                             )
 
                             # Check for infinite loops. We use a combination of the
@@ -678,28 +714,37 @@ class Linter:
         encoding: str = "utf8",
     ) -> LintedFile:
         """Lint a ParsedString and return a LintedFile."""
-        violations = parsed.violations
         time_dict = parsed.time_dict
         tree: Optional[BaseSegment] = None
         templated_file: Optional[TemplatedFile] = None
+        merged_source_patches = None
         t0 = time.monotonic()
 
-        # First identify the root variant. That's the first variant
-        # that successfully parsed.
-        root_variant: Optional[ParsedVariant] = None
-        for variant in parsed.parsed_variants:
-            if variant.tree:
-                root_variant = variant
-                break
-        else:
+        root_variant = parsed.root_variant()
+        if not root_variant:
             linter_logger.info(
                 "lint_parsed found no valid root variant for %s", parsed.fname
             )
+
+        # Always surface templating violations. If we found a valid root variant,
+        # only seed parse/lex violations from that root variant; alternate variants
+        # are used to discover extra linting errors, but parse failures in them
+        # should not make an otherwise valid file fail linting/fixing.
+        violations: list[SQLBaseError] = list(parsed.templating_violations)
+        if root_variant:
+            violations += root_variant.violations()
+        else:
+            violations += [
+                violation
+                for variant in parsed.parsed_variants
+                for violation in variant.violations()
+            ]
 
         # If there is a root variant, handle that first.
         if root_variant:
             linter_logger.info("lint_parsed - linting root variant (%s)", parsed.fname)
             assert root_variant.tree  # We just checked this.
+            variant_source_patches = []
             (
                 fixed_tree,
                 initial_linting_errors,
@@ -711,27 +756,30 @@ class Linter:
                 rule_pack=rule_pack,
                 fix=fix,
                 fname=parsed.fname,
-                templated_file=variant.templated_file,
+                templated_file=root_variant.templated_file,
                 formatter=formatter,
             )
 
-            # Set legacy variables for now
-            # TODO: Revise this
-            templated_file = variant.templated_file
+            # Set legacy variables for the return payload.
+            templated_file = root_variant.templated_file
             tree = fixed_tree
+            if fix:
+                variant_source_patches.append(
+                    generate_source_patches(fixed_tree, root_variant.templated_file)
+                )
 
             # We're only going to return the *initial* errors, rather
             # than any generated during the fixing cycle.
             violations += initial_linting_errors
 
-            # Attempt to lint other variants if they exist.
-            # TODO: Revise whether this is sensible...
+            # Lint alternate variants (if they exist) so branch-specific violations from
+            # templated code are surfaced in the final deduplicated result set.
             for idx, alternate_variant in enumerate(parsed.parsed_variants):
-                if alternate_variant is variant or not alternate_variant.tree:
+                if alternate_variant is root_variant or not alternate_variant.tree:
                     continue
                 linter_logger.info("lint_parsed - linting alt variant (%s)", idx)
                 (
-                    _,  # Fixed Tree
+                    alt_fixed_tree,
                     alt_linting_errors,
                     _,  # Ignore Mask
                     _,  # Timings
@@ -745,6 +793,16 @@ class Linter:
                     formatter=formatter,
                 )
                 violations += alt_linting_errors
+                if fix:
+                    variant_source_patches.append(
+                        generate_source_patches(
+                            alt_fixed_tree,
+                            alternate_variant.templated_file,
+                        )
+                    )
+
+            if fix:
+                merged_source_patches = merge_source_patches(variant_source_patches)
 
         # If no root variant, we should still apply ignores to any parsing
         # or templating fails.
@@ -790,6 +848,7 @@ class Linter:
             ignore_mask=ignore_mask,
             templated_file=templated_file,
             encoding=encoding,
+            source_patches=merged_source_patches,
         )
 
         # This is the main command line output from linting.
@@ -889,12 +948,9 @@ class Linter:
             ):
                 if variant:
                     templated_variants.append(variant)
-                # NOTE: We could very easily end up with duplicate errors between
-                # different variants and this code doesn't currently do any
-                # deduplication between them. That will be resolved in further
-                # testing.
-                # TODO: Resolve potential duplicate templater violations between
-                # variants before we enable jinja variant linting by default.
+                # Duplicate templater errors can arise across variants. Final
+                # linted output deduplicates these in source space, but the
+                # intermediate ParsedString still preserves the per-variant list.
                 templater_violations += templater_errs
                 if len(templated_variants) >= variant_limit:
                     # Stop if we hit the limit.
@@ -1175,6 +1231,8 @@ class Linter:
             if runner_close:
                 runner_close()
 
+        # Transfer skipped file count from the runner to the result.
+        result.files_skipped = runner.skipped_file_count
         result.stop_timer()
         return result
 

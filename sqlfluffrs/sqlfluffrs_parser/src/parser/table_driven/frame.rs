@@ -374,8 +374,6 @@ pub struct TableParseFrame {
     pub calculated_max_idx: Option<usize>,
     /// End position for this parse (used when transitioning to Complete state)
     pub end_pos: Option<usize>,
-    /// Transparent token positions collected during this parse
-    pub transparent_positions: Option<Vec<usize>>,
     /// Element key for this match (used by AnyNumberOf to track per-element counts)
     /// Set by OneOf when storing its result, propagated to parent via results map
     pub element_key: Option<u64>,
@@ -392,20 +390,19 @@ impl TableParseFrame {
         frame_id: usize,
         grammar_id: GrammarId,
         pos: usize,
-        table_terminators: Vec<GrammarId>,
+        table_terminators: &[GrammarId],
         parent_max_idx: Option<usize>,
     ) -> Self {
         TableParseFrame {
             frame_id,
             grammar_id,
             pos,
-            table_terminators: SmallVec::from_vec(table_terminators),
+            table_terminators: SmallVec::from_slice(table_terminators),
             state: FrameState::Initial,
             context: FrameContext::None,
             parent_max_idx,
             calculated_max_idx: None,
             end_pos: None,
-            transparent_positions: None,
             element_key: None,
             parse_mode_override: None,
         }

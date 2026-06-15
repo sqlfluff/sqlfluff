@@ -10,7 +10,7 @@ of unrelated quality issues.
 
 To support this use case, SQLFluff integrates with a quality checking tool
 called ``diff-quality``. By running SQLFluff using ``diff-quality`` (rather
-than running it directly), you can limit the the output to the new or modified
+than running it directly), you can limit the output to the new or modified
 SQL in the branch (aka pull request or PR) containing the proposed changes.
 
 Currently, ``diff-quality`` requires that you are using ``git`` for version

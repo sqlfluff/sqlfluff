@@ -109,6 +109,9 @@ class ParsedString(NamedTuple):
 
         NOTE: This is implemented as a property for backward compatibility.
         """
+        root_variant = self.root_variant()
+        if root_variant:
+            return [*self.templating_violations, *root_variant.violations()]
         return [
             *self.templating_violations,
             *(v for variant in self.parsed_variants for v in variant.violations()),

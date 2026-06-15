@@ -2,13 +2,13 @@
 SELECT
     col_a AS foo
 {%- else %}
-select
-    col_b as foo
+SELECT
+    col_b AS foo
 {%- endif %}
 FROM demo_table
 {% if True %}
 WHERE col_a BETWEEN 1 AND 2
 {% else %}
-where col_a between 2 and 3
+WHERE col_a BETWEEN 2 AND 3
 {% endif %}
 ;

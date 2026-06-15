@@ -61,6 +61,12 @@ impl Parser<'_> {
         }
 
         // combine parent and local terminators (read parent from frame directly)
+        // PYTHON PARITY: Save the parent terminators BEFORE combining with local.
+        // In Python, the Sequence does NOT push its own terminators into
+        // parse_context.terminators — children only see parent-level terminators.
+        // The Sequence uses the combined set (own + parent) only for its own
+        // trim_to_terminator / max_idx computation.
+        let child_terminators = frame.table_terminators.to_vec();
         let all_terminators = self.combine_table_terminators(
             &local_terminators,
             &frame.table_terminators,
@@ -115,6 +121,7 @@ impl Parser<'_> {
             meta_buffer: Vec::new(),     // Buffer for meta elements to flush
             insert_segments: Vec::new(), // (position, segments) to insert
             child_matches: Vec::new(),   // Store child matches here until sequence is complete
+            child_terminators,           // Parent terminators (without Sequence's own) for children
         };
         frame.table_terminators = SmallVec::from_vec(all_terminators);
 
@@ -134,11 +141,13 @@ impl Parser<'_> {
         }
 
         // Create child frame with potentially new element after meta buffering
+        // PYTHON PARITY: Pass only parent terminators to children (not Sequence's own).
+        let child_terms = Self::sequence_child_terminators(&mut frame);
         let child_frame = TableParseFrame::new_child(
             child_frame_id,
             elements[current_element_idx],
             child_start_pos,
-            frame.table_terminators.to_vec(),
+            child_terms,
             Some(max_idx),
         );
 
@@ -378,14 +387,15 @@ impl Parser<'_> {
             }
 
             let child_frame_id = stack.frame_id_counter;
+            let child_terms = Self::sequence_child_terminators(&mut frame);
             let child_frame = self.match_sequence_next_element(
-                &frame,
                 next_element_idx,
                 matched_idx,
                 max_idx,
                 allow_gaps,
                 elements,
                 child_frame_id,
+                child_terms,
             );
             stack.push(frame);
             // continue to next element
@@ -508,6 +518,22 @@ impl Parser<'_> {
             ctx.mark_first_match_done();
 
             let matched_idx = ctx.matched_idx_value();
+
+            #[cfg(feature = "verbose-debug")]
+            {
+                let term_names: Vec<String> = frame
+                    .table_terminators
+                    .iter()
+                    .map(|t| format!("{}:{}", t.0, self.grammar_ctx.grammar_id_name(*t)))
+                    .collect();
+                vdebug!(
+                    "Sequence[table] GREEDY_ONCE_STARTED trim: frame_id={}, matched_idx={}, terminators={:?}",
+                    frame.frame_id,
+                    matched_idx,
+                    term_names
+                );
+            }
+
             let new_max_idx =
                 self.trim_to_terminator_table_driven(matched_idx, &frame.table_terminators)?;
 
@@ -575,12 +601,14 @@ impl Parser<'_> {
         if child_start_pos >= max_idx {
             // Check if next element is optional - if so, create child frame for it
             if self.grammar_ctx.is_optional(next_element) {
+                // PYTHON PARITY: Use parent terminators (without Sequence's own) for children
+                let child_terms = Self::sequence_child_terminators(&mut frame);
                 let child_frame_id = stack.frame_id_counter;
                 let child_frame = TableParseFrame::new_child(
                     child_frame_id,
                     next_element,
                     matched_idx,
-                    frame.table_terminators.to_vec(),
+                    child_terms,
                     Some(max_idx),
                 );
                 stack.push(frame);
@@ -636,12 +664,14 @@ impl Parser<'_> {
         }
 
         // Create child frame for next element
+        // PYTHON PARITY: Use parent terminators (without Sequence's own) for children
+        let child_terms = Self::sequence_child_terminators(&mut frame);
         let child_frame_id = stack.frame_id_counter;
         let child_frame = TableParseFrame::new_child(
             child_frame_id,
             next_element,
             child_start_pos,
-            frame.table_terminators.to_vec(),
+            child_terms,
             Some(max_idx),
         );
 
@@ -653,13 +683,13 @@ impl Parser<'_> {
     #[inline]
     fn match_sequence_next_element(
         &self,
-        frame: &TableParseFrame,
         next_element_idx: usize,
         matched_idx: usize,
         max_idx: usize,
         allow_gaps: bool,
         elements: &[GrammarId],
         child_frame_id: usize,
+        child_terminators: &[GrammarId],
     ) -> TableParseFrame {
         let child_start_pos = self.calculate_sequence_child_start_position(
             matched_idx,
@@ -667,13 +697,25 @@ impl Parser<'_> {
             elements[next_element_idx],
             max_idx,
         );
+        // PYTHON PARITY: Use parent terminators (without Sequence's own) for children.
+        // In Python, Sequence._match() does NOT call deeper_match(push_terminators=self.terminators),
+        // so child elements never see the Sequence's own terminators.
         TableParseFrame::new_child(
             child_frame_id,
             elements[next_element_idx],
             child_start_pos,
-            frame.table_terminators.to_vec(),
+            child_terminators,
             Some(max_idx),
         )
+    }
+
+    #[inline]
+    fn sequence_child_terminators(frame: &mut TableParseFrame) -> &[GrammarId] {
+        frame
+            .context
+            .as_sequence_mut()
+            .expect("sequence_child_terminators called on non-Sequence frame")
+            .child_terminators
     }
 
     /// Handle Sequence Combining state using table-driven approach

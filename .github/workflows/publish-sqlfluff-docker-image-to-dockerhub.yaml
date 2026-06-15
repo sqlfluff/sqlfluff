@@ -6,13 +6,34 @@ on:
       - published
   workflow_dispatch:
 
-# Create tag for integration test.
-env:
-  TEST_TAG: ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:test
-
 jobs:
   docker:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: standard
+            cache_tag: latest
+            suffix: ""
+            test_label: standard
+            builder_base: python:3.14-slim-trixie
+            final_base: python:3.14-slim-trixie
+            desc_suffix: ""
+          - name: dhi
+            cache_tag: latest-dhi
+            suffix: -dhi
+            test_label: DHI
+            builder_base: dhi.io/python:3.14-debian13-dev
+            final_base: dhi.io/python:3.14-debian13
+            desc_suffix: " (DHI image)"
+          - name: dhi-dev
+            cache_tag: latest-dhi-dev
+            suffix: -dhi-dev
+            test_label: DHI-dev
+            builder_base: dhi.io/python:3.14-debian13-dev
+            final_base: dhi.io/python:3.14-debian13-dev
+            desc_suffix: " (DHI image with shell)"
     permissions:
       contents: read
       packages: write
@@ -60,40 +81,52 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # Build amd64 image to use in the integration test.
-      - name: Build and export to Docker
-        id: docker_build
+      - name: Build and export ${{ matrix.name }} image to Docker
+        id: docker_build_test
         uses: docker/build-push-action@v6
         with:
           load: true
-          tags: ${{ env.TEST_TAG }}
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
+          file: Dockerfile
+          build-args: |
+            BUILDER_BASE=${{ matrix.builder_base }}
+            FINAL_BASE=${{ matrix.final_base }}
+            DESC_SUFFIX=${{ matrix.desc_suffix }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:test${{ matrix.suffix }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:${{ matrix.cache_tag }}
           cache-to: type=inline
 
-      # Integration test to validate newly created image is working.
-      - name: Test Docker image
+      # Integration test to validate the image is working.
+      - name: Test ${{ matrix.test_label }} Docker image
         id: docker_test
+        env:
+          TEST_TAG: ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:test${{ matrix.suffix }}
         run: |
           echo "SELECT 1" > test.sql
-          docker run --rm -i -v $PWD:/sql ${{ env.TEST_TAG }} lint --dialect ansi /sql/test.sql
+          docker run --rm -i -v $PWD:/sql "$TEST_TAG" lint --dialect ansi /sql/test.sql
 
-      # Build arm64 image (amd64 is cached from docker_build step) and export to DockerHub and GHCR.
-      # N.B. We tag this image as both latest and with its version number.
-      - name: Build and push
+      # Build and push image to DockerHub and GHCR.
+      # N.B. We tag each image as both latest and with its version number.
+      - name: Build and push (${{ matrix.name }} image)
         id: docker_build_push
         uses: docker/build-push-action@v6
         with:
           push: true
           platforms: linux/amd64,linux/arm64
+          file: Dockerfile
+          build-args: |
+            BUILDER_BASE=${{ matrix.builder_base }}
+            FINAL_BASE=${{ matrix.final_base }}
+            DESC_SUFFIX=${{ matrix.desc_suffix }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:${{ steps.latest_release.outputs.release }}
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.latest_release.outputs.release }}
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest${{ matrix.suffix }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:${{ steps.latest_release.outputs.release }}${{ matrix.suffix }}
+            ghcr.io/${{ github.repository }}:latest${{ matrix.suffix }}
+            ghcr.io/${{ github.repository }}:${{ steps.latest_release.outputs.release }}${{ matrix.suffix }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:${{ matrix.cache_tag }}
           cache-to: type=inline
 
-      # Add artifact attestation for GHCR
-      - name: Generate artifact attestation
+      # Add artifact attestation for GHCR image.
+      - name: Generate artifact attestation (${{ matrix.name }})
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: ghcr.io/${{ github.repository }}

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 825cbeca8cc53fd1ed3f6a7bb81b242abb9d2b6c42ab3848b10306ba8119c8f2
+_hash: 01080dc0de2134424e169a92ba18294a0643b0a4b88f46b3459b6f907d21735e
 file:
 - statement:
     set_statement:
@@ -20,14 +20,16 @@ file:
       keyword: set
       parameter: foo
       raw_comparison_operator: '='
-      numeric_literal: '2'
+      expression:
+        numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     set_statement:
       keyword: set
       parameter: foo
       raw_comparison_operator: '='
-      quoted_literal: "'bar'"
+      expression:
+        quoted_literal: "'bar'"
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -36,7 +38,8 @@ file:
     - colon_delimiter: ':'
     - parameter: cat
     - raw_comparison_operator: '='
-    - quoted_literal: '"Chloe"'
+    - expression:
+        quoted_literal: '"Chloe"'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -49,5 +52,134 @@ file:
     - dot: .
     - parameter: mb
     - raw_comparison_operator: '='
-    - numeric_literal: '12000'
+    - expression:
+        numeric_literal: '12000'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: set
+    - parameter: hive
+    - dot: .
+    - parameter: execution
+    - dot: .
+    - parameter: engine
+    - raw_comparison_operator: '='
+    - expression:
+        column_reference:
+          naked_identifier: tez
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: set
+    - parameter: tez
+    - dot: .
+    - parameter: runtime
+    - dot: .
+    - parameter: enable
+    - dot: .
+    - parameter: final
+    - binary_operator: '-'
+    - parameter: merge
+    - dot: .
+    - parameter: in
+    - dot: .
+    - parameter: output
+    - raw_comparison_operator: '='
+    - expression:
+        boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: set
+    - parameter: mapreduce
+    - dot: .
+    - parameter: map
+    - dot: .
+    - parameter: java
+    - dot: .
+    - parameter: opts
+    - raw_comparison_operator: '='
+    - expression:
+        sign_indicator: '-'
+        column_reference:
+          naked_identifier: Xmx13107m
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: set
+    - parameter: hivevar
+    - colon_delimiter: ':'
+    - parameter: schema
+    - raw_comparison_operator: '='
+    - expression:
+        column_reference:
+          naked_identifier: schema_test
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: set
+    - parameter: hivevar
+    - colon_delimiter: ':'
+    - parameter: tbl
+    - raw_comparison_operator: '='
+    - expression:
+        column_reference:
+          naked_identifier: tbl_test
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      parameter: datafilter
+      raw_comparison_operator: '='
+      expression:
+      - numeric_literal: '2021'
+      - binary_operator: AND
+      - numeric_literal: '2022'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      parameter: list
+      raw_comparison_operator: '='
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - comma: ','
+      - expression:
+          numeric_literal: '3'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - hive_variable: ${hivevar:schema}
+              - dot: .
+              - hive_variable: ${hivevar:tbl}
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: year
+        - keyword: BETWEEN
+        - hive_variable: ${datafilter}
+        - keyword: AND
+        - column_reference:
+            naked_identifier: col1
+        - keyword: IN
+        - hive_variable: ${list}
 - statement_terminator: ;

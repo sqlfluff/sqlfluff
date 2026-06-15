@@ -1518,7 +1518,7 @@ test_fail_fix_beside_templated:
     {% endif %}
   fix_str: |
     {% if False %}
-    SELECT 1
+        SELECT 1
     {% else %}
         SELECT c
         FROM t
@@ -1671,7 +1671,7 @@ test_pass_combined_comment_impulses:
                 NOT bool_column AND NOT bool_column
                 AND some_column >= 1  -- This is a comment
         )
-    ),
+    )
 
     SELECT *
     FROM cte
@@ -2172,8 +2172,6 @@ test_bigquery_merge_statement_values_clause:
       dialect: bigquery
 
 test_fail_issue_4680:
-  # NOTE: It doesn't reindent the second clause, but the important
-  # thing is that we don't get an exception.
   fail_str: |
     SELECT col1
     FROM table
@@ -2190,8 +2188,8 @@ test_fail_issue_4680:
         {% if true %}
             col1 > 1
         {% else %}
-        col1 > 0
-      {% endif %}
+            col1 > 0
+        {% endif %}
 
 test_implicit_indent_when:
   fail_str: |
@@ -2241,23 +2239,23 @@ test_implicit_indent_nested_when:
 test_fail_issue_4745:
   fail_str: |
     with
-    {% for a in [1, 2, 3] %}{% for b in ['C'] %}
+    {% for a in [1, 2, 3] %}{% set outer_loop = loop %}{% for b in ['C'] %}
 
     {{ b }}_fill_{{ a }} as (
         select *
         from data
-    ),
+    ){% if not (outer_loop.last and loop.last) %},{% endif %}
     {% endfor %}{% endfor %}
 
     select 1
   fix_str: |
     with
-    {% for a in [1, 2, 3] %}{% for b in ['C'] %}
+    {% for a in [1, 2, 3] %}{% set outer_loop = loop %}{% for b in ['C'] %}
 
         {{ b }}_fill_{{ a }} as (
             select *
             from data
-        ),
+        ){% if not (outer_loop.last and loop.last) %},{% endif %}
     {% endfor %}{% endfor %}
 
     select 1
@@ -2506,6 +2504,60 @@ test_pass_loop_indent_6:
         {% endfor %}
     from foo
 
+test_pass_loop_indent_trailing_comma_own_line:
+  # A trailing comma guarded by `loop.last` on its own line. The final
+  # iteration renders the comma empty, which previously shifted the indent
+  # balance and made the fix flip-flop between runs. See issue #7870.
+  pass_str: |
+    select
+    {%- for i in range(1, 3) %}
+            a
+                as {{ "col" ~ i }}
+            {{- "," if not loop.last }}
+    {%- endfor %}
+    from foo
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_loop_indent_trailing_comma_own_line:
+  # The under-indented variant of the case above. It should settle on a
+  # single, stable indent rather than oscillating (issue #7870).
+  fail_str: |
+    select
+    {%- for i in range(1, 3) %}
+            a
+                as {{ "col" ~ i }}
+        {{- "," if not loop.last }}
+    {%- endfor %}
+    from foo
+  fix_str: |
+    select
+    {%- for i in range(1, 3) %}
+            a
+                as {{ "col" ~ i }}
+            {{- "," if not loop.last }}
+    {%- endfor %}
+    from foo
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_loop_indent_trailing_comma_single_iteration:
+  # Single-iteration loop: the comma is always suppressed, so there's only
+  # one rendering to reconcile against.
+  pass_str: |
+    select
+    {%- for i in range(1, 2) %}
+            a
+                as {{ "col" ~ i }}
+        {{- "," if not loop.last }}
+    {%- endfor %}
+    from foo
+  configs:
+    core:
+      dialect: bigquery
+
 test_fail_sqlite_update_returning:
   fail_str: |
     UPDATE
@@ -2528,6 +2580,25 @@ test_fail_sqlite_update_returning:
   configs:
     core:
       dialect: sqlite
+
+test_fail_postgres_begin_atomic_function_body_indent:
+  fail_str: |
+    create or replace function batch_delete_cron_job_runs()
+    returns void
+    language sql
+    begin atomic
+      select 8;
+    end;
+  fix_str: |
+    create or replace function batch_delete_cron_job_runs()
+    returns void
+    language sql
+    begin atomic
+        select 8;
+    end;
+  configs:
+    core:
+      dialect: postgres
 
 test_fail_postgres_update_returning:
   fail_str: |
@@ -2865,3 +2936,27 @@ test_pass_jinja_if_with_in_clause_multi_value:
       templater: jinja
     indentation:
       template_blocks_indent: false
+
+test_pass_issue_7543_indentation:
+  # Issue 7543: VALUES clause indentation inside FROM
+  pass_str: |
+    WITH cte_example (col1, col2) AS (
+      SELECT
+        $1,
+        $2
+      FROM (
+        VALUES ('value1', 'value2')
+      )
+    )
+    SELECT * FROM cte_example;
+  configs:
+    core:
+      dialect: snowflake
+    indentation:
+      tab_space_size: 2
+      indent_unit: space
+      indented_joins: false
+      indented_ctes: false
+      indented_using_on: true
+      template_blocks_indent: true
+      implicit_indents: require

@@ -81,6 +81,66 @@ jobs:
     - name: Run the tests
       run: tox -e ${{ matrix.job }}
 
+  rust-lint:
+    # Rust formatting, lints and unit tests for the sqlfluffrs workspace.
+    # Integration tests (sqlfluffrs/tests/*.rs) are not run here; parity is
+    # covered by the python -rust suites below.
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            constraints/*.txt
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "sqlfluffrs"
+          cache-on-failure: true
+
+      # Clippy and the unit tests compile the whole workspace, which
+      # includes the generated dialect tables (not in VCS).
+      - name: Generate Rust dialect files
+        run: |
+          uv pip install --system -e .
+          python utils/rustify.py build
+
+      - name: Check formatting
+        working-directory: sqlfluffrs
+        run: cargo fmt --all --check
+
+      - name: Clippy (informational)
+        # Advisory for now: surfaces lints in the log without failing the
+        # build. Flip to `-- -D warnings` once the existing warning
+        # surface is cleaned up.
+        working-directory: sqlfluffrs
+        continue-on-error: true
+        run: cargo clippy --workspace --all-targets
+
+      - name: Run unit tests
+        working-directory: sqlfluffrs
+        run: cargo test --workspace --lib
+
   rs-build-linux-x86_64:
     # Fast build for CI testing (always runs)
     runs-on: ubuntu-latest
@@ -120,7 +180,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: x86_64
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: auto
         env:
           # Use all 4 cores for parallel Rust compilation
@@ -170,7 +230,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: auto
 
       - name: Upload wheels
@@ -222,7 +282,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: musllinux_1_2
 
       - name: Upload wheels
@@ -270,7 +330,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -316,7 +376,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -369,7 +429,7 @@ jobs:
     needs: rs-build-linux-x86_64
     strategy:
       matrix:
-        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
         include:
           # Default to test without coverage tracking on older python versions.
           # This saves time, as testing without coverage tracking is faster.

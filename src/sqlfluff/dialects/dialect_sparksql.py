@@ -275,6 +275,10 @@ sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
 
 # Real Segments
 sparksql_dialect.replace(
+    LateralColumnAliasExpressionGrammar=Sequence(
+        Ref("ExpressionSegment"),
+        Ref("AliasExpressionSegment"),
+    ),
     DateTimeLiteralGrammar=Sequence(
         OneOf(
             "DATE", "TIME", "TIMESTAMP", "INTERVAL", "TIMESTAMP_LTZ", "TIMESTAMP_NTZ"
@@ -1647,7 +1651,11 @@ class FunctionParameterListGrammarWithComments(BaseSegment):
             Sequence(
                 Ref("FunctionParameterGrammar"),
                 AnyNumberOf(
-                    Sequence("DEFAULT", Ref("LiteralGrammar"), optional=True),
+                    Sequence(
+                        "DEFAULT",
+                        OneOf(Ref("LiteralGrammar"), Ref("FunctionSegment")),
+                        optional=True,
+                    ),
                     Ref("CommentClauseSegment", optional=True),
                 ),
             ),
@@ -3495,7 +3503,7 @@ class RestoreTableStatementSegment(BaseSegment):
 
 
 class ConstraintStatementSegment(BaseSegment):
-    """A `CONSTRAINT` statement to to define data quality on data contents.
+    """A `CONSTRAINT` statement to define data quality on data contents.
 
     https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-expectations.html#manage-data-quality-with-delta-live-tables
     """

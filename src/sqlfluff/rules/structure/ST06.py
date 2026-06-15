@@ -95,6 +95,39 @@ class Rule_ST06(BaseRule):
         self.current_element_band: Optional[int] = i
         self.seen_band_elements[i].append(segment)
 
+    @classmethod
+    def _is_simple_function(cls, segment: BaseSegment) -> bool:
+        """Return whether a function segment is considered simple."""
+        function_name = segment.get_child("function_name")
+        return bool(function_name and function_name.raw_upper == "CAST")
+
+    @classmethod
+    def _is_simple_cast_expression(cls, segment: BaseSegment) -> bool:
+        """Return whether a cast expression wraps a simple expression."""
+        if not segment.is_type("cast_expression"):
+            return False
+        return cls._is_simple_expression_segment(segment.segments[0])
+
+    @classmethod
+    def _is_simple_expression_segment(cls, segment: BaseSegment) -> bool:
+        """Return whether a segment should be treated as a simple expression."""
+        if segment.is_type("column_reference", "object_reference", "literal"):
+            return True
+        if segment.is_type("function"):
+            return cls._is_simple_function(segment)
+        if segment.is_type("cast_expression"):
+            return cls._is_simple_cast_expression(segment)
+        return False
+
+    @classmethod
+    def _is_simple_expression(cls, segment: BaseSegment, child_type: str) -> bool:
+        """Return whether an expression child should be treated as simple."""
+        if not segment.is_type("expression") or not segment.get_child(child_type):
+            return False
+        if len(segment.segments) not in (1, 2):
+            return False
+        return cls._is_simple_expression_segment(segment.segments[0])
+
     def _eval(self, context: RuleContext) -> EvalResultType:
         self.violation_exists = False
         # Bands of select targets in order to be enforced
@@ -181,16 +214,19 @@ class Rule_ST06(BaseRule):
                 for e in band:
                     # Identify simple select target
                     if isinstance(e, str) and segment.get_child(e):
-                        self._validate(i, segment)
+                        child = segment.get_child(e)
+                        assert child
+                        if e != "cast_expression" or self._is_simple_cast_expression(
+                            child
+                        ):
+                            self._validate(i, segment)
 
                     # Identify function
                     elif isinstance(e, tuple) and e[0] == "function":
                         try:
                             _function = segment.get_child("function")
                             assert _function
-                            _function_name = _function.get_child("function_name")
-                            assert _function_name
-                            if _function_name.raw == e[1]:
+                            if self._is_simple_function(_function):
                                 self._validate(i, segment)
                         except (AttributeError, AssertionError):
                             # If the segment doesn't match
@@ -202,22 +238,7 @@ class Rule_ST06(BaseRule):
                             _expression = segment.get_child("expression")
                             assert _expression
 
-                            if (
-                                _expression.get_child(e[1])
-                                and _expression.segments[0].type
-                                in (
-                                    "column_reference",
-                                    "object_reference",
-                                    "literal",
-                                    "cast_expression",
-                                )
-                                # len == 2 to ensure the expression is 'simple'
-                                and (
-                                    len(_expression.segments) == 2
-                                    # cast_expression is one length
-                                    or len(_expression.segments) == 1
-                                )
-                            ):
+                            if self._is_simple_expression(_expression, e[1]):
                                 self._validate(i, segment)
                         except (AttributeError, AssertionError):
                             # If the segment doesn't match

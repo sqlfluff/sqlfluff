@@ -311,6 +311,19 @@ impl MatchResult {
         self.child_matches.iter().any(|c| c.contains_unparsable())
     }
 
+    /// Count the number of materialized nodes implied by this match tree.
+    pub fn node_count(&self) -> usize {
+        let class_count = usize::from(self.matched_class.is_some());
+        let insert_count = self.insert_segments.len();
+        class_count
+            + insert_count
+            + self
+                .child_matches
+                .iter()
+                .map(|child| child.node_count())
+                .sum::<usize>()
+    }
+
     /// Combine another sequential match onto this one.
     ///
     /// If either match is empty, returns the other.

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ddd8d4a809b4797dc39ce84830624d2a8217c8f68b7b7400b4b42b454901060
+_hash: 2b1d579230e45aed04b9aec551f33fbb43d494f18bca1ab94b7b7a0102570fa2
 file:
 - statement:
     create_external_function_statement:
@@ -269,4 +269,30 @@ file:
         function_name_identifier: SOME_FUNCTION
     - keyword: AS
     - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+- statement_terminator: ;
+- statement:
+    create_external_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_or_alter_ext_fn
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: s
+          data_type:
+            data_type_identifier: STRING
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARIANT
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: my_int
+    - keyword: AS
+    - quoted_identifier: "'https://example.com'"
 - statement_terminator: ;

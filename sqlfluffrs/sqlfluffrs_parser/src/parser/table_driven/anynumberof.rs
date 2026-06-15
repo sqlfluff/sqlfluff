@@ -4,7 +4,6 @@ use crate::parser::{
 };
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
-use smallvec::SmallVec;
 use sqlfluffrs_types::GrammarId;
 use std::sync::Arc;
 
@@ -188,7 +187,7 @@ impl Parser<'_> {
         };
 
         // Move terminators into frame (no clone)
-        frame.table_terminators = SmallVec::from_vec(all_terminators);
+        frame.table_terminators = all_terminators;
 
         // Create initial child frame for the first element candidate and
         // let the WaitingForChild handler iterate remaining candidates.
@@ -196,7 +195,7 @@ impl Parser<'_> {
             stack.frame_id_counter,
             first_element,
             start_pos,
-            frame.table_terminators.to_vec(),
+            &frame.table_terminators,
             Some(max_idx),
         );
 
@@ -311,7 +310,7 @@ impl Parser<'_> {
             stack.frame_id_counter,
             next_candidate,
             *ctx.working_idx,
-            frame.table_terminators.to_vec(),
+            &frame.table_terminators,
             Some(*ctx.max_idx),
         );
 
@@ -477,7 +476,7 @@ impl Parser<'_> {
             stack.frame_id_counter,
             next_element,
             *ctx.working_idx,
-            frame.table_terminators.to_vec(),
+            &frame.table_terminators,
             Some(*ctx.max_idx),
         );
 

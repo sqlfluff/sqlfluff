@@ -13,3 +13,8 @@ select
     json_array(1, 2, 3 null on null returning json format json),
     json_array(1, 2, 3 null on null returning varchar format json encoding utf8)
 ;
+
+select
+    json_object('key1' : 1, 'key2' : true),
+    json_object('key1' : 1, 'key2' : true null on null returning varchar format json encoding utf8)
+;

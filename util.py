@@ -18,6 +18,21 @@ from fastcore.net import HTTPError
 from ghapi.all import GhApi
 
 
+def _extract_whats_changed_section(release_body: str) -> str:
+    """Return the draft release content starting at the What's Changed heading.
+
+    GitHub draft releases include a boilerplate Highlights section. When a
+    changelog entry already exists, maintainers may have replaced that content
+    with manually curated highlights. In that case, rerunning the release
+    script should refresh only the generated sections below Highlights.
+    """
+    for heading in ("## What's Changed", "## What’s Changed"):
+        heading_index = release_body.find(heading)
+        if heading_index != -1:
+            return release_body[heading_index:]
+    return release_body
+
+
 @click.group()
 def cli():
     """Launch the utility cli."""
@@ -158,7 +173,8 @@ def release(new_version_num):
             potential_new_contributors.append(
                 {"name": new_contrib_name, "line": new_contrib_string}
             )
-    whats_changed_text = "\n".join(draft_body_parts)
+    draft_release_text = "\n".join(draft_body_parts)
+    whats_changed_text = _extract_whats_changed_section(draft_release_text)
 
     # Find the first commit for each contributor in this release
     potential_new_contributors.reverse()
@@ -236,7 +252,7 @@ def release(new_version_num):
             else:
                 click.echo(f"...creating new entry for {new_version_num}")
                 write_changelog.write(f"\n{new_heading}\n")
-                write_changelog.write(whats_changed_text)
+                write_changelog.write(draft_release_text)
                 write_changelog.write("\n## New Contributors\n\n")
                 # Ensure contributor names don't appear in input_changelog list
                 new_contributor_lines = []

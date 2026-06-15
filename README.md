@@ -127,6 +127,17 @@ L:   1 | P:  27 | LT12 | Files must end with a single trailing newline.
 All Finished 📜 🎉!
 ```
 
+If you want the optional Rust-backed parser and lexer, install the `rs` extra:
+
+```shell
+$ pip install sqlfluff[rs]
+```
+
+On supported CPython 3.10+ platforms this installs a prebuilt ABI3 wheel. If no
+wheel is published for your platform, `pip` falls back to building `sqlfluffrs`
+from source, which requires a Rust toolchain and a working C/C++ build setup.
+The easiest way to install Rust is with [rustup](https://rustup.rs/).
+
 Alternatively, you can use the [**Official SQLFluff Docker Image**](https://hub.docker.com/r/sqlfluff/sqlfluff)
 or have a play using [**SQLFluff online**](https://online.sqlfluff.com/).
 

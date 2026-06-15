@@ -13,7 +13,7 @@ import tempfile
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import NamedTuple, Optional, Union
+from typing import NamedTuple, Optional
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -73,6 +73,7 @@ class LintedFile(NamedTuple):
     ignore_mask: Optional[IgnoreMask]
     templated_file: Optional[TemplatedFile]
     encoding: str
+    source_patches: Optional[list[FixPatch]] = None
 
     def check_tuples(
         self, raise_on_non_linting_violations: bool = True
@@ -120,12 +121,12 @@ class LintedFile(NamedTuple):
 
     def get_violations(
         self,
-        rules: Optional[Union[str, tuple[str, ...]]] = None,
-        types: Optional[Union[type[SQLBaseError], Iterable[type[SQLBaseError]]]] = None,
+        rules: str | tuple[str, ...] | None = None,
+        types: type[SQLBaseError] | Iterable[type[SQLBaseError]] | None = None,
         filter_ignore: bool = True,
         filter_warning: bool = True,
         warn_unused_ignores: bool = False,
-        fixable: Optional[bool] = None,
+        fixable: bool | None = None,
     ) -> list[SQLBaseError]:
         """Get a list of violations, respecting filters and ignore options.
 
@@ -170,10 +171,10 @@ class LintedFile(NamedTuple):
 
     def num_violations(
         self,
-        types: Optional[Union[type[SQLBaseError], Iterable[type[SQLBaseError]]]] = None,
+        types: type[SQLBaseError] | Iterable[type[SQLBaseError]] | None = None,
         filter_ignore: bool = True,
         filter_warning: bool = True,
-        fixable: Optional[bool] = None,
+        fixable: bool | None = None,
     ) -> int:
         """Count the number of violations.
 
@@ -231,12 +232,16 @@ class LintedFile(NamedTuple):
 
         original_source = self.templated_file.source_str
 
-        # Generate patches from the fixed tree. In the process we sort
-        # and deduplicate them so that the resultant list is in the
-        # the right order for the source file without any duplicates.
-        filtered_source_patches = generate_source_patches(
-            self.tree, self.templated_file
-        )
+        # Generate patches from the fixed tree, unless a merged set of source
+        # patches was already prepared across multiple variants.
+        filtered_source_patches = self.source_patches
+        if filtered_source_patches is None:
+            # NOTE: In normal usage, this clause is not hit, but has been kept
+            # for python API users who may rely on it. Consider deprecating
+            # this clause in the future if it isn't being used.
+            filtered_source_patches = generate_source_patches(
+                self.tree, self.templated_file
+            )
         linter_logger.debug("Filtered source patches:")
         for idx, patch in enumerate(filtered_source_patches):
             linter_logger.debug("    %s: %s", idx, patch)

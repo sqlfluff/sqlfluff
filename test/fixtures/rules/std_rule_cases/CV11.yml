@@ -470,3 +470,45 @@ test_fail_cast_preferred_boolean_shorthand_cast:
     rules:
       convention.casting_style:
         preferred_type_casting_style: cast
+
+test_pass_databricks_try_cast_shorthand_preferred_cast:
+  # https://github.com/sqlfluff/sqlfluff/pull/7927
+  # `?::` is Databricks try_cast (NULL on failure), not interchangeable with
+  # CAST, so CV11 must leave it alone rather than emit an unparsable fix.
+  pass_str: SELECT CAST('20' AS INTEGER), '20'?::INTEGER
+  configs:
+    core:
+      dialect: databricks
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_pass_databricks_try_cast_shorthand_consistent:
+  # try_cast must not establish or be measured against the consistent style.
+  pass_str: SELECT CAST('20' AS INTEGER), '20'?::INTEGER
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_vertica_null_cast_shorthand_preferred_cast:
+  # Vertica `::!` (null cast) is likewise not interchangeable with CAST. Before
+  # this guard CV11 silently rewrote it to `cast('20'::! as INTEGER)`.
+  pass_str: SELECT CAST('20' AS INTEGER), '20'::!INTEGER
+  configs:
+    core:
+      dialect: vertica
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_databricks_plain_shorthand_preferred_cast:
+  # The plain `::` shorthand is still rewritten; only the dialect-specific
+  # operators (`?::`, `::!`) are skipped.
+  fail_str: SELECT '20'::INTEGER
+  fix_str: SELECT cast('20' as INTEGER)
+  configs:
+    core:
+      dialect: databricks
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast

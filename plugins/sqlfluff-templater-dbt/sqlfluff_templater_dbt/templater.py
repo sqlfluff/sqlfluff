@@ -356,9 +356,7 @@ class DbtTemplater(JinjaTemplater):
 
         The default is `~/.dbt` but we use the
         default_profiles_dir from the dbt library to
-        support a change of default in the future, as well
-        as to support the same overwriting mechanism as
-        dbt (currently an environment variable).
+        support a change of default in the future.
         """
         # Where default_profiles_dir is available, use it. For dbt 1.2 and
         # earlier, it is not, so fall back to the flags option which should
@@ -375,10 +373,7 @@ class DbtTemplater(JinjaTemplater):
 
         dbt_profiles_dir = os.path.abspath(
             os.path.expanduser(
-                self.sqlfluff_config.get_section(
-                    (self.templater_selector, self.name, "profiles_dir")
-                )
-                or (os.getenv("DBT_PROFILES_DIR") or default_dir)
+                self._get_dbt_config_value("profiles_dir", "PROFILES_DIR", default_dir)
             )
         )
 
@@ -390,6 +385,25 @@ class DbtTemplater(JinjaTemplater):
 
         return dbt_profiles_dir
 
+    def _get_dbt_config_value(
+        self, config_key: str, env_var_suffix: str, default: Optional[str] = None
+    ) -> Optional[str]:
+        """Get a dbt config value from SQLFluff config or dbt env vars.
+
+        SQLFluff config acts like an explicit dbt CLI value, so it takes
+        precedence over environment variables. dbt 1.11 introduced the
+        DBT_ENGINE_* prefix as the preferred env var namespace, while keeping
+        the legacy DBT_* variables for compatibility.
+        """
+        return (
+            self.sqlfluff_config.get_section(
+                (self.templater_selector, self.name, config_key)
+            )
+            or os.getenv(f"DBT_ENGINE_{env_var_suffix}")
+            or os.getenv(f"DBT_{env_var_suffix}")
+            or default
+        )
+
     def _get_project_dir(self):
         """Get the dbt project directory from the configuration.
 
@@ -397,11 +411,7 @@ class DbtTemplater(JinjaTemplater):
         """
         dbt_project_dir = os.path.abspath(
             os.path.expanduser(
-                self.sqlfluff_config.get_section(
-                    (self.templater_selector, self.name, "project_dir")
-                )
-                or os.getenv("DBT_PROJECT_DIR")
-                or os.getcwd()
+                self._get_dbt_config_value("project_dir", "PROJECT_DIR", os.getcwd())
             )
         )
         if not os.path.exists(dbt_project_dir):
@@ -414,21 +424,15 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_profile(self):
         """Get a dbt profile name from the configuration."""
-        return self.sqlfluff_config.get_section(
-            (self.templater_selector, self.name, "profile")
-        )
+        return self._get_dbt_config_value("profile", "PROFILE")
 
     def _get_target(self):
         """Get a dbt target name from the configuration."""
-        return self.sqlfluff_config.get_section(
-            (self.templater_selector, self.name, "target")
-        )
+        return self._get_dbt_config_value("target", "TARGET")
 
     def _get_target_path(self):
         """Get a dbt target path from the configuration."""
-        return self.sqlfluff_config.get_section(
-            (self.templater_selector, self.name, "target_path")
-        )
+        return self._get_dbt_config_value("target_path", "TARGET_PATH")
 
     def _get_threads(self) -> Optional[int]:
         """Get the dbt threads value from the configuration.

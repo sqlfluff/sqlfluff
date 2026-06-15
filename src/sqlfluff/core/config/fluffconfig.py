@@ -6,7 +6,7 @@ import logging
 from collections.abc import Iterable
 from copy import copy, deepcopy
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional
 
 import pluggy
 
@@ -126,8 +126,9 @@ class FluffConfig:
             defaults, configs or empty_config, overrides or empty_overrides
         )
         # Some configs require special treatment
+        nocolor = self._configs["core"].get("nocolor", None)
         self._configs["core"]["color"] = (
-            False if self._configs["core"].get("nocolor", False) else None
+            False if nocolor is True else True if nocolor is False else None
         )
         # Handle inputs which are potentially comma separated strings
         self._handle_comma_separated_values()
@@ -519,7 +520,7 @@ class FluffConfig:
         return dict_diff(self._configs, other._configs, ignore=["dialect_obj"])
 
     def get(
-        self, val: str, section: Union[str, Iterable[str]] = "core", default: Any = None
+        self, val: str, section: str | Iterable[str] = "core", default: Any = None
     ) -> Any:
         """Get a particular value from the config.
 
@@ -554,7 +555,7 @@ class FluffConfig:
 
         return section_dict.get(val, default)
 
-    def get_section(self, section: Union[str, Iterable[str]]) -> Any:
+    def get_section(self, section: str | Iterable[str]) -> Any:
         """Return a whole section of config as a dict.
 
         If the element found at the address is a value and not

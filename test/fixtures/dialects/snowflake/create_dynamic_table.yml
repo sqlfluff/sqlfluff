@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36e84c56307423aadd979e6ca128b318d0de317b9146a1161463bad90bbccd04
+_hash: 9e2e00be7f5e9d2f2cb18b390da3b61fd754972121145891d84cdb1af1f84c9a
 file:
 - statement:
     create_table_statement:
@@ -448,6 +448,53 @@ file:
         - select_clause_element:
             column_reference:
               naked_identifier: product_stock
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: staging_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tagged_product
+    - bracketed:
+        start_bracket: (
+        naked_identifier: product_id
+        tag_bracketed_equals:
+        - keyword: WITH
+        - keyword: TAG
+        - bracketed:
+            start_bracket: (
+            tag_reference:
+              naked_identifier: cost_center
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'engineering'"
+            end_bracket: )
+        end_bracket: )
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'20 minutes'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: product_id
         from_clause:
           keyword: FROM
           from_expression:

@@ -8,6 +8,7 @@ It also has some extensions.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseSegment,
     Bracketed,
@@ -62,6 +63,18 @@ databricks_dialect.insert_lexer_matchers(
         StringLexer("right_arrow", "=>", CodeSegment),
     ],
     before="equals",
+)
+
+
+databricks_dialect.insert_lexer_matchers(
+    # ?:: is the try_cast shorthand (an error-tolerating cast). It must be matched
+    # before the "?" (question) matcher so that "?::" lexes as a single token
+    # rather than as "?" followed by "::".
+    # https://docs.databricks.com/aws/en/sql/language-manual/functions/questiondoublecolonsign
+    [
+        StringLexer("try_casting_operator", "?::", CodeSegment),
+    ],
+    before="question",
 )
 
 
@@ -136,6 +149,9 @@ databricks_dialect.add(
         type="pipeline_parameter",
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    TryCastOperatorSegment=StringParser(
+        "?::", SymbolSegment, type="try_casting_operator"
+    ),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
     PrincipalIdentifierSegment=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -152,6 +168,7 @@ databricks_dialect.replace(
             Ref("ParameterizedSegment"),
         ]
     ),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
 )
 
 databricks_dialect.add(
@@ -194,8 +211,10 @@ databricks_dialect.add(
     ),
     ForeignKeyOptionGrammar=Sequence(
         Sequence("MATCH", "FULL", optional=True),
-        Sequence("ON", "UPDATE", "NO", "ACTION", optional=True),
-        Sequence("ON", "DELETE", "NO", "ACTION", optional=True),
+        AnySetOf(
+            Sequence("ON", "UPDATE", "NO", "ACTION"),
+            Sequence("ON", "DELETE", "NO", "ACTION"),
+        ),
     ),
     DropConstraintGrammar=Sequence(
         "DROP",
@@ -490,6 +509,30 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment")),
+    )
+
+
+class ShorthandCastSegment(ansi.ShorthandCastSegment):
+    """A casting operation using '::' or '?::'.
+
+    '?::' is shorthand for try_cast (an error-tolerating cast).
+    https://docs.databricks.com/aws/en/sql/language-manual/functions/questiondoublecolonsign
+    """
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Ref("Expression_D_Grammar"),
+            Ref("CaseExpressionSegment"),
+        ),
+        AnyNumberOf(
+            Sequence(
+                OneOf(Ref("CastOperatorSegment"), Ref("TryCastOperatorSegment")),
+                Ref("DatatypeSegment"),
+                Ref("TimeZoneGrammar", optional=True),
+                allow_gaps=True,
+            ),
+            min_times=1,
+        ),
     )
 
 
@@ -816,7 +859,7 @@ class CreateViewStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        Ref.keyword("TEMPORARY", optional=True),
+        Ref("TemporaryGrammar", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -1538,6 +1581,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("SetTimeZoneStatementSegment"),
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
+            Ref("CreateTableCloneStatementSegment"),
             Ref("FunctionParameterListGrammarWithComments"),
             Ref("DeclareOrReplaceVariableStatementSegment"),
             Ref("CommentOnStatementSegment"),
@@ -1563,7 +1607,11 @@ class FunctionParameterListGrammarWithComments(BaseSegment):
             Sequence(
                 Ref("FunctionParameterGrammar"),
                 AnyNumberOf(
-                    Sequence("DEFAULT", Ref("LiteralGrammar"), optional=True),
+                    Sequence(
+                        "DEFAULT",
+                        OneOf(Ref("LiteralGrammar"), Ref("FunctionSegment")),
+                        optional=True,
+                    ),
                     Ref("CommentClauseSegment", optional=True),
                 ),
             ),
@@ -1672,7 +1720,7 @@ class NamedArgumentSegment(BaseSegment):
 
     type = "named_argument"
     match_grammar = Sequence(
-        Ref("NakedIdentifierSegment"),
+        Ref("VariableNameIdentifierSegment"),
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
     )
@@ -1837,6 +1885,40 @@ class CreateTableUsingStatementSegment(sparksql.CreateTableStatementSegment):
     )
 
 
+class CreateTableCloneStatementSegment(BaseSegment):
+    """A create table clone statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/delta-clone
+    """
+
+    type = "create_table_clone_statement"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                Sequence(
+                    "CREATE",
+                    "OR",
+                    optional=True,
+                ),
+                "REPLACE",
+                "TABLE",
+            ),
+            Sequence(
+                "CREATE",
+                "TABLE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+        ),
+        Ref("TableReferenceSegment"),
+        OneOf("SHALLOW", "DEEP", optional=True),
+        "CLONE",
+        Ref("TableReferenceSegment"),
+        Ref("TablePropertiesGrammar", optional=True),
+        Ref("LocationGrammar", optional=True),
+    )
+
+
 class TableSpecificationSegment(BaseSegment):
     """A table specification, e.g. for CREATE TABLE or ALTER TABLE.
 
@@ -1873,6 +1955,7 @@ class ColumnPropertiesSegment(BaseSegment):
             "DEFAULT",
             Ref("ColumnConstraintDefaultGrammar"),
         ),
+        Ref("CollateGrammar"),
         Ref("CommentGrammar"),
         Ref("ColumnConstraintSegment"),
         Ref("MaskStatementSegment"),

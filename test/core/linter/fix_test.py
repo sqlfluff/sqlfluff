@@ -7,7 +7,11 @@ import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter.fix import compute_anchor_edit_info
-from sqlfluff.core.linter.patch import FixPatch, generate_source_patches
+from sqlfluff.core.linter.patch import (
+    FixPatch,
+    generate_source_patches,
+    merge_source_patches,
+)
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
@@ -256,6 +260,56 @@ def test__fix__jinja_non_empty_context_adjacent_to_quotes(caplog):
     assert "Skipping edit patch on uncertain templated section" not in caplog.text
 
 
+def test__fix__jinja_dbt_var_subscript_allows_layout_fix():
+    """Regression test for dbt `var()` placeholders used with subscripts."""
+    sql = "select {{ var('123')['123'] }} ,1/2 as d from d\n"
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = snowflake\n"
+        "rules = LT01\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "apply_dbt_builtins = True\n"
+    )
+    linter = Linter(config=config)
+
+    linted_file = linter.lint_string(sql, fname="test.sql", fix=True)
+    fixed_sql, changed = linted_file.fix_string()
+
+    assert changed
+    assert not any(v.rule_code() == "PRS" for v in linted_file.get_violations())
+    assert fixed_sql == "select {{ var('123')['123'] }}, 1 / 2 as d from d\n"
+
+
+def test__fix__jinja_dbt_config_allows_start_of_file_fix(caplog):
+    """Regression test for LT13 before an empty-rendering dbt config block."""
+    sql = (
+        "\n{{\n"
+        "    config(\n"
+        '        materialized = "ephemeral",\n'
+        "    )\n"
+        "}}\n\n"
+        "SELECT 1\n"
+    )
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = databricks\n"
+        "rules = LT13\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "apply_dbt_builtins = True\n"
+    )
+    linter = Linter(config=config)
+
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
+        linted_file = linter.lint_string(sql, fname="test.sql", fix=True)
+        fixed_sql, changed = linted_file.fix_string()
+
+    assert changed
+    assert fixed_sql == sql[1:]
+    assert "Skipping edit patch on uncertain templated section" not in caplog.text
+
+
 def test__fix__warning_only_violations_are_still_fixed(tmp_path):
     """Test that warning-level violations are fixed even without errors.
 
@@ -321,3 +375,40 @@ def test__fix__warning_and_error_violations_both_fixed(tmp_path):
     success = linted_file.persist_tree()
     assert success
     assert sql_file.read_text() == expected_fixed
+
+
+def test__fix__merge_source_patches_dedupes_and_skips_conflicts():
+    """Cross-variant patch merging should keep only safe source edits."""
+    patch_a = FixPatch(slice(1, 2), "A", "literal", slice(1, 2), "b", "b")
+    patch_a_dup = FixPatch(slice(1, 2), "A", "literal", slice(1, 2), "b", "b")
+    patch_b = FixPatch(slice(3, 4), "B", "literal", slice(3, 4), "d", "d")
+    conflicting_patch = FixPatch(slice(3, 4), "C", "literal", slice(3, 4), "d", "d")
+
+    assert merge_source_patches(
+        [[patch_a, patch_b], [patch_a_dup, conflicting_patch]]
+    ) == [patch_a, patch_b]
+
+
+def test__fix__merge_source_patches_skips_conflicting_insertions_at_same_point():
+    """Insert-only patches at the same source point should conflict."""
+    first_insertion = FixPatch(
+        slice(2, 2),
+        "A",
+        "mid_point",
+        slice(2, 2),
+        "",
+        "",
+    )
+    conflicting_insertion = FixPatch(
+        slice(5, 5),
+        "B",
+        "mid_point",
+        # NOTE: This slices compares unequal, but is effectively equal.
+        slice(2, 2, 1),
+        "",
+        "",
+    )
+
+    assert merge_source_patches([[first_insertion], [conflicting_insertion]]) == [
+        first_insertion
+    ]

@@ -196,7 +196,8 @@ postgres_dialect.insert_lexer_matchers(
             # them. In future we may want to enhance this to actually parse them to
             # ensure they are valid meta commands.
             "meta_command",
-            r"\\(?!gset|gexec|copy\b|set\b)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
+            r"\\(?!gset|gexec|crosstabview\b|copy\b|set\b)"
+            r"([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
             CommentSegment,
         ),
         RegexLexer(
@@ -1136,7 +1137,10 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 ),
             ),
             # user defined data types
-            Ref("DatatypeIdentifierSegment"),
+            Sequence(
+                Ref("DatatypeIdentifierSegment"),
+                Ref("BracketedArguments", optional=True),
+            ),
         ),
         # array types
         OneOf(
@@ -1826,6 +1830,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
             Sequence(
                 "BEGIN",
                 "ATOMIC",
+                Indent,
                 AnyNumberOf(
                     Sequence(
                         Ref("InsertStatementSegment"),
@@ -1838,6 +1843,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     Sequence(
                         OneOf(
                             Ref("WithCompoundStatementSegment"),
+                            Ref("SetExpressionSegment"),
                             Ref("SelectStatementSegment"),
                         ),
                         Ref("SemicolonSegment"),
@@ -1848,6 +1854,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                         Ref("SemicolonSegment"),
                     ),
                 ),
+                Dedent,
                 "END",
             ),
         ),
@@ -4953,6 +4960,7 @@ class CreateStatisticsStatementSegment(BaseSegment):
                 "DEPENDENCIES",
                 "MCV",
                 "NDISTINCT",
+                "CORRELATION",
             ),
             optional=True,
         ),
@@ -4977,6 +4985,7 @@ class AlterStatisticsStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "STATISTICS",
+        Ref("IfExistsGrammar", optional=True),
         Ref("StatisticsReferenceSegment"),
         OneOf(
             Sequence(
@@ -6964,7 +6973,7 @@ class MetaCommandQueryBufferStatement(BaseSegment):
     match_grammar = Sequence(
         AnyNumberOf(
             Sequence(
-                Ref("SelectStatementSegment"),
+                Ref("SelectableGrammar"),
                 Ref("MetaCommandQueryBufferSegment", optional=True),
             )
         )

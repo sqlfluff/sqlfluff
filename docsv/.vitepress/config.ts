@@ -6,6 +6,7 @@ import sidebarRules from './sidebar-rules.json'
 import sidebarCli from './sidebar-cli.json'
 import sidebarApi from './sidebar-api.json'
 import sidebarDialects from './sidebar-dialects.json'
+import { normalizeBase, withDocsBase } from './path-utils'
 
 const GUIDE: DefaultTheme.NavItemWithLink[] = [
     { text: 'Introduction', link: '/guide/' },
@@ -21,6 +22,7 @@ const TEMPLATING: DefaultTheme.SidebarItem = {
     collapsed: true,
     items: [
         { text: 'Overview', link: '/configuration/templating/' },
+        { text: 'Variants Rendering', link: '/configuration/templating/variants/' },
         { text: 'Jinja', link: '/configuration/templating/jinja' },
         { text: 'Placeholder', link: '/configuration/templating/placeholder' },
         { text: 'Python', link: '/configuration/templating/python' },
@@ -70,16 +72,25 @@ const REFERENCES: DefaultTheme.NavItemWithLink[] = [
     { text: 'Release Notes', link: '/reference/release-notes' },
 ]
 
+const docsBase = normalizeBase(process.env.SQLFLUFF_DOCS_BASE, '/sqlfluff/')
+const noIndex = process.env.SQLFLUFF_DOCS_NOINDEX === '1'
+
+const head: [string, Record<string, string>][] = [
+    ['link', { rel: 'icon', href: withDocsBase(docsBase, 'favicon.ico') }],
+]
+
+if (noIndex) {
+    head.push(['meta', { name: 'robots', content: 'noindex,nofollow' }])
+}
+
 export default defineConfig({
     title: 'SQLFluff',
     description: 'The SQL Linter for Humans',
     srcExclude: ['**/README.md',],
 
-    base: '/sqlfluff/',
+    base: docsBase,
 
-    head: [
-        ['link', { rel: 'icon', href: '/sqlfluff/favicon.ico' }]
-    ],
+    head,
 
     themeConfig: {
         logo: '/logo.svg',

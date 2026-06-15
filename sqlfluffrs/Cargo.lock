@@ -1565,9 +1565,9 @@ dependencies = [
 
 [[package]]
 name = "pyo3"
-version = "0.28.2"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf85e27e86080aafd5a22eae58a162e133a589551542b3e5cee4beb27e54f8e1"
+checksum = "cd274650b21d4bfc26a0a47587962c1edb425f69287324355cd040c3ea66071c"
 dependencies = [
  "hashbrown 0.16.1",
  "libc",
@@ -1581,18 +1581,18 @@ dependencies = [
 
 [[package]]
 name = "pyo3-build-config"
-version = "0.28.2"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8bf94ee265674bf76c09fa430b0e99c26e319c945d96ca0d5a8215f31bf81cf7"
+checksum = "c5e2a7d2f0d013342f295c048ad19237add5154a55b1c5a254c0ec93d4109078"
 dependencies = [
  "target-lexicon",
 ]
 
 [[package]]
 name = "pyo3-ffi"
-version = "0.28.2"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "491aa5fc66d8059dd44a75f4580a2962c1862a1c2945359db36f6c2818b748dc"
+checksum = "ca85c467da1bbc8d866eea5deff9cf29ea5f7785054a17da36e65bda9c05845b"
 dependencies = [
  "libc",
  "pyo3-build-config",
@@ -1600,9 +1600,9 @@ dependencies = [
 
 [[package]]
 name = "pyo3-log"
-version = "0.13.3"
+version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26c2ec80932c5c3b2d4fbc578c9b56b2d4502098587edb8bef5b6bfcad43682e"
+checksum = "f64083bd3a16a353d9d62335808e8e13d0552d2a2b83fdb084496192dcfa9fcd"
 dependencies = [
  "arc-swap",
  "log",
@@ -1611,9 +1611,9 @@ dependencies = [
 
 [[package]]
 name = "pyo3-macros"
-version = "0.28.2"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5d671734e9d7a43449f8480f8b38115df67bef8d21f76837fa75ee7aaa5e52e"
+checksum = "9ac53762fd065daa3194dd09337a38bd793a188100fd1a9304c4ab312d901771"
 dependencies = [
  "proc-macro2",
  "pyo3-macros-backend",
@@ -1623,13 +1623,12 @@ dependencies = [
 
 [[package]]
 name = "pyo3-macros-backend"
-version = "0.28.2"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22faaa1ce6c430a1f71658760497291065e6450d7b5dc2bcf254d49f66ee700a"
+checksum = "4ca3a1557399783172dc5bf39cfca835157732532cba56b71d2292161e53b362"
 dependencies = [
  "heck",
  "proc-macro2",
- "pyo3-build-config",
  "quote",
  "syn",
 ]
@@ -1964,9 +1963,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-webpki"
-version = "0.103.10"
+version = "0.103.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df33b2b81ac578cabaf06b89b0631153a3f416b0a886e8a7a1707fb51abbd1ef"
+checksum = "61c429a8649f110dddef65e2a5ad240f747e85f7758a6bccc7e5777bd33f756e"
 dependencies = [
  "ring",
  "rustls-pki-types",
@@ -2149,7 +2148,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs"
-version = "4.1.0"
+version = "4.2.2"
 dependencies = [
  "bincode",
  "blake2",
@@ -2177,7 +2176,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_dialects"
-version = "4.1.0"
+version = "4.2.2"
 dependencies = [
  "fancy-regex",
  "hashbrown 0.16.1",
@@ -2188,7 +2187,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_lexer"
-version = "4.1.0"
+version = "4.2.2"
 dependencies = [
  "env_logger",
  "fancy-regex",
@@ -2207,7 +2206,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_parser"
-version = "4.1.0"
+version = "4.2.2"
 dependencies = [
  "env_logger",
  "hashbrown 0.16.1",
@@ -2225,7 +2224,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_python"
-version = "4.1.0"
+version = "4.2.2"
 dependencies = [
  "bincode",
  "hashbrown 0.16.1",
@@ -2239,7 +2238,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_types"
-version = "4.1.0"
+version = "4.2.2"
 dependencies = [
  "bincode",
  "fancy-regex",

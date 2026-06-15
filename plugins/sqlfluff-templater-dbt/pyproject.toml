@@ -1,6 +1,6 @@
 [project]
 name = "sqlfluff-templater-dbt"
-version = "4.1.0"
+version = "4.2.2"
 description = "Lint your dbt project SQL"
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
@@ -18,7 +18,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -54,7 +53,7 @@ keywords = [
     "dbt",
 ]
 dependencies = [
-    "sqlfluff==4.1.0",
+    "sqlfluff==4.2.2",
     "dbt-core>=1.4.1",
     "jinja2-simple-tags>=0.3.1",
 ]

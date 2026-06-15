@@ -27,9 +27,12 @@ class FixPatch:
     templated_str: str
     source_str: str
 
-    def dedupe_tuple(self) -> tuple[slice, str]:
+    def dedupe_tuple(self) -> tuple[tuple[int, int], str]:
         """Generate a tuple of this fix for deduping."""
-        return (self.source_slice, self.fixed_raw)
+        return (
+            (self.source_slice.start, self.source_slice.stop),
+            self.fixed_raw,
+        )
 
 
 def _iter_source_fix_patches(
@@ -181,6 +184,10 @@ def _iter_templated_patches(
                 # first raw, not the pos marker of the whole thing. That accounts
                 # better for loops.
                 first_segment_pos = first_segment_pos or seg.pos_marker
+                templated_slice = slice(
+                    templated_idx,
+                    max(first_segment_pos.templated_slice.start, templated_idx),
+                )
                 yield FixPatch(
                     # Whether the source slice is zero depends on the start_diff.
                     # A non-zero start diff implies a deletion, or more likely
@@ -189,14 +196,15 @@ def _iter_templated_patches(
                     # should be inserted in both source and template.
                     # The slices must never go backwards so the end of the slice must
                     # be greater than or equal to the start.
-                    source_slice=slice(
-                        source_idx,
-                        max(first_segment_pos.source_slice.start, source_idx),
+                    source_slice=(
+                        templated_file.templated_slice_to_source_slice(templated_slice)
+                        if start_diff > 0 and not insert_buff
+                        else slice(
+                            source_idx,
+                            max(first_segment_pos.source_slice.start, source_idx),
+                        )
                     ),
-                    templated_slice=slice(
-                        templated_idx,
-                        max(first_segment_pos.templated_slice.start, templated_idx),
-                    ),
+                    templated_slice=templated_slice,
                     patch_category="mid_point",
                     fixed_raw=insert_buff,
                     templated_str="",
@@ -340,3 +348,51 @@ def generate_source_patches(
 
     # Sort the patches before building up the file.
     return sorted(filtered_source_patches, key=lambda x: x.source_slice.start)
+
+
+def _patches_conflict(first: FixPatch, second: FixPatch) -> bool:
+    """Return whether two source patches cannot be safely applied together."""
+    if first.source_slice == second.source_slice:
+        return first.fixed_raw != second.fixed_raw
+
+    first_start = int(first.source_slice.start)
+    first_stop = int(first.source_slice.stop)
+    second_start = int(second.source_slice.start)
+    second_stop = int(second.source_slice.stop)
+
+    if first_start == first_stop == second_start == second_stop:
+        # NOTE: It's an edge case to hit this and not the initial clause,
+        # but possible.
+        return first_start == second_start
+
+    return max(first_start, second_start) < min(first_stop, second_stop)
+
+
+def merge_source_patches(patch_buffers: list[list[FixPatch]]) -> list[FixPatch]:
+    """Merge source patches from multiple variants.
+
+    Patches are deduplicated in source space. Conflicting patches are skipped so
+    that the non-conflicting subset can still be applied safely.
+    """
+    merged_patches: list[FixPatch] = []
+    dedupe_buffer: set[tuple[tuple[int, int], str]] = set()
+
+    for patch in sorted(
+        (patch for patches in patch_buffers for patch in patches),
+        key=lambda patch: (patch.source_slice.start, patch.source_slice.stop),
+    ):
+        dedupe_tuple = patch.dedupe_tuple()
+        if dedupe_tuple in dedupe_buffer:
+            continue
+
+        if any(_patches_conflict(existing, patch) for existing in merged_patches):
+            linter_logger.info(
+                "Skipping conflicting cross-variant patch: %s",
+                patch,
+            )
+            continue
+
+        merged_patches.append(patch)
+        dedupe_buffer.add(dedupe_tuple)
+
+    return merged_patches

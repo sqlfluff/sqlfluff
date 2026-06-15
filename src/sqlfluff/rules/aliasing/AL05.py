@@ -230,6 +230,13 @@ class Rule_AL05(BaseRule):
         # is actually *required* in order for SQL Server to parse it.
         for segment in from_expression_element.iter_segments(expanding=("bracketed",)):
             if segment.is_type("table_expression"):
+                if dialect_name == "tsql":
+                    openrowset = segment.get_child("openrowset_segment")
+                    if openrowset and any(
+                        seg.raw_upper == "BULK"
+                        for seg in openrowset.recursive_crawl("keyword")
+                    ):
+                        return True
                 # Found a table expression. Does it have a VALUES clause?
                 if segment.get_child("values_clause"):
                     # Found a VALUES clause. Is this a dialect that requires

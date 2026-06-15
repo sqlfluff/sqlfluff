@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 80bb12f52440a5a21237531e1a15693f0f0684ce77bfb4473b045f6243b208a6
+_hash: a8b9c0056260613462ef7724c5c034613f4a93801789f2b97ce298d406bc3d7d
 file:
 - statement:
     export_statement:
@@ -501,4 +501,15 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: thetable
+- statement_terminator: ;
+- statement:
+    export_table_metadata_statement:
+    - keyword: EXPORT
+    - keyword: TABLE
+    - keyword: METADATA
+    - keyword: FROM
+    - table_reference:
+      - naked_identifier: my_dataset
+      - dot: .
+      - naked_identifier: my_table
 - statement_terminator: ;

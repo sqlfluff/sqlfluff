@@ -63,6 +63,65 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):
     assert dbt_templater._get_target_path() == "target"
 
 
+def test__templater_dbt_profiles_dir_from_dbt_engine_env_var(
+    dbt_templater, tmp_path, monkeypatch
+):
+    """Check that the profiles_dir can be set by DBT_ENGINE_PROFILES_DIR."""
+    profiles_dir = tmp_path / "engine_profiles"
+    profiles_dir.mkdir()
+    monkeypatch.setenv("DBT_ENGINE_PROFILES_DIR", str(profiles_dir))
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"profiles_dir": None}},
+        },
+    )
+
+    assert dbt_templater._get_profiles_dir() == os.path.abspath(profiles_dir)
+
+
+def test__templater_dbt_profiles_dir_dbt_engine_env_var_precedence(
+    dbt_templater, tmp_path, monkeypatch
+):
+    """Check DBT_ENGINE_PROFILES_DIR takes precedence over DBT_PROFILES_DIR."""
+    engine_profiles_dir = tmp_path / "engine_profiles"
+    legacy_profiles_dir = tmp_path / "legacy_profiles"
+    engine_profiles_dir.mkdir()
+    legacy_profiles_dir.mkdir()
+    monkeypatch.setenv("DBT_ENGINE_PROFILES_DIR", str(engine_profiles_dir))
+    monkeypatch.setenv("DBT_PROFILES_DIR", str(legacy_profiles_dir))
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"profiles_dir": None}},
+        },
+    )
+
+    assert dbt_templater._get_profiles_dir() == os.path.abspath(engine_profiles_dir)
+
+
+def test__templater_dbt_profiles_dir_config_precedence(
+    dbt_templater, tmp_path, monkeypatch
+):
+    """Check SQLFluff profiles_dir config takes precedence over dbt env vars."""
+    config_profiles_dir = tmp_path / "config_profiles"
+    engine_profiles_dir = tmp_path / "engine_profiles"
+    legacy_profiles_dir = tmp_path / "legacy_profiles"
+    config_profiles_dir.mkdir()
+    engine_profiles_dir.mkdir()
+    legacy_profiles_dir.mkdir()
+    monkeypatch.setenv("DBT_ENGINE_PROFILES_DIR", str(engine_profiles_dir))
+    monkeypatch.setenv("DBT_PROFILES_DIR", str(legacy_profiles_dir))
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"profiles_dir": str(config_profiles_dir)}},
+        },
+    )
+
+    assert dbt_templater._get_profiles_dir() == os.path.abspath(config_profiles_dir)
+
+
 @pytest.mark.parametrize(
     "fname",
     [
@@ -691,6 +750,67 @@ def test__project_dir_from_env(dbt_templater, project_dir, monkeypatch):
     assert dbt_templater._get_project_dir() == os.path.abspath(os.getcwd())
     monkeypatch.setenv("DBT_PROJECT_DIR", project_dir)
     assert dbt_templater._get_project_dir() == os.path.abspath(project_dir)
+    monkeypatch.setenv("DBT_ENGINE_PROJECT_DIR", os.getcwd())
+    assert dbt_templater._get_project_dir() == os.path.abspath(os.getcwd())
+
+
+def test__profile_from_env(dbt_templater, monkeypatch):
+    """Test possibility to set profile from dbt profile env variables."""
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"profile": None}},
+        }
+    )
+    assert dbt_templater._get_profile() is None
+    monkeypatch.setenv("DBT_PROFILE", "legacy_profile")
+    assert dbt_templater._get_profile() == "legacy_profile"
+    monkeypatch.setenv("DBT_ENGINE_PROFILE", "engine_profile")
+    assert dbt_templater._get_profile() == "engine_profile"
+
+
+def test__profile_config_precedence(dbt_templater, monkeypatch):
+    """Test SQLFluff profile config takes precedence over dbt profile env vars."""
+    monkeypatch.setenv("DBT_ENGINE_PROFILE", "engine_profile")
+    monkeypatch.setenv("DBT_PROFILE", "legacy_profile")
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"profile": "config_profile"}},
+        }
+    )
+
+    assert dbt_templater._get_profile() == "config_profile"
+
+
+def test__target_from_env(dbt_templater, monkeypatch):
+    """Test possibility to set target from dbt target env variables."""
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"target": None}},
+        }
+    )
+    assert dbt_templater._get_target() is None
+    monkeypatch.setenv("DBT_TARGET", "dev")
+    assert dbt_templater._get_target() == "dev"
+    monkeypatch.setenv("DBT_ENGINE_TARGET", "prod")
+    assert dbt_templater._get_target() == "prod"
+
+
+def test__target_path_from_env(dbt_templater, monkeypatch):
+    """Test possibility to set target_path from dbt target path env variables."""
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"target_path": None}},
+        }
+    )
+    assert dbt_templater._get_target_path() is None
+    monkeypatch.setenv("DBT_TARGET_PATH", "custom_target")
+    assert dbt_templater._get_target_path() == "custom_target"
+    monkeypatch.setenv("DBT_ENGINE_TARGET_PATH", "engine_target")
+    assert dbt_templater._get_target_path() == "engine_target"
 
 
 def test__project_dir_does_not_exist_error(dbt_templater):

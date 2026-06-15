@@ -259,6 +259,29 @@ trino_dialect.replace(
                 optional=True,
             ),
         ),
+        # For JSON_OBJECT function: key : value [, ...]
+        # https://trino.io/docs/current/functions/json.html#json-object
+        Sequence(
+            Delimited(
+                Sequence(
+                    Ref("ExpressionSegment"),
+                    Ref("ColonDelimiterSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Sequence(
+                OneOf("NULL", "ABSENT"),
+                "ON",
+                "NULL",
+                optional=True,
+            ),
+            Sequence(
+                "RETURNING",
+                Ref("DatatypeSegment"),
+                Ref("FormatJsonEncodingGrammar", optional=True),
+                optional=True,
+            ),
+        ),
         # For JSON_ARRAY / JSON_OBJECT functions: { NULL | ABSENT } ON NULL
         # https://trino.io/docs/current/functions/json.html#json-array
         # https://trino.io/docs/current/functions/json.html#json-object

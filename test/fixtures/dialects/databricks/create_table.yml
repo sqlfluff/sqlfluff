@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2710c0f3e3d4284addf4e7760f481a5d52141010ee8142171d5a70b540b51ff3
+_hash: 3901f10cb7b46483f262fb84994c722d7b9673457ccacccaed6789649dcd4440
 file:
 - statement:
     create_table_statement:
@@ -826,4 +826,152 @@ file:
       - keyword: CLUSTER
       - keyword: BY
       - keyword: NONE
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: collated_student
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - column_reference:
+            naked_identifier: id
+        - data_type:
+            primitive_type:
+              keyword: STRING
+        - column_properties_segment:
+            keyword: COLLATE
+            collation_reference:
+              naked_identifier: UTF8_BINARY
+        - column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_properties_segment:
+            keyword: COMMENT
+            quoted_literal: "'Required ID field'"
+        end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: silver
+      - dot: .
+      - naked_identifier: child
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: parent_key
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+          column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        comma: ','
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: fk_child_parent
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_key
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: catalog
+          - dot: .
+          - naked_identifier: silver
+          - dot: .
+          - naked_identifier: parent
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_key
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: 'NO'
+        - keyword: ACTION
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: 'NO'
+        - keyword: ACTION
+        end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: silver
+      - dot: .
+      - naked_identifier: child2
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: parent_key
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+          column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        comma: ','
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: fk_child_parent
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_key
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: catalog
+          - dot: .
+          - naked_identifier: silver
+          - dot: .
+          - naked_identifier: parent
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_key
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: 'NO'
+        - keyword: ACTION
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: 'NO'
+        - keyword: ACTION
+        end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
 - statement_terminator: ;

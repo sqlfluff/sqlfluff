@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "4.1.0"
+version = "4.2.2"
 description = "The SQL Linter for Humans"
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [{ name = "Alan Cruickshank", email = "alan@designingoverload.com" }]
 license = { file = "LICENSE.md" }
 classifiers = [
@@ -22,7 +22,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -80,8 +79,6 @@ dependencies = [
     "Jinja2",
     # Used for .sqlfluffignore
     "pathspec",
-    # We provide a testing library for plugins in sqlfluff.utils.testing
-    "pytest",
     # We require pyyaml >= 5.1 so that we can preserve the ordering of keys.
     "pyyaml>=5.1",
     # The new regex module to allow for more complex pattern matching,
@@ -99,7 +96,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-rs = ["sqlfluffrs==4.1.0"]
+rs = ["sqlfluffrs==4.2.2"]
+# Testing utilities for plugin developers
+testutils = ["pytest"]
 
 [project.urls]
 Homepage = "https://www.sqlfluff.com"
@@ -131,12 +130,13 @@ sqlfluff_rules_structure = "sqlfluff.rules.structure"
 sqlfluff_rules_convention = "sqlfluff.rules.convention"
 sqlfluff_rules_jinja = "sqlfluff.rules.jinja"
 sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
+sqlfluff_rules_postgres = "sqlfluff.rules.postgres"
 sqlfluff_rules_oracle = "sqlfluff.rules.oracle"
 
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "4.1.0"
+stable_version = "4.2.2"
 
 
 [tool.setuptools.package-data]

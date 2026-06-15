@@ -642,7 +642,7 @@ def generate_rules_documentation(output_dir: Path) -> dict[str, Any]:
 
         # Write to file
         output_file = output_dir / f"{bundle_key}.md"
-        output_file.write_text(md_content)
+        output_file.write_text(md_content, encoding="utf-8")
         print(f"Generated: {output_file}")
 
         # Add to sidebar
@@ -676,7 +676,7 @@ def generate_rules_documentation(output_dir: Path) -> dict[str, Any]:
         index_content += descriptions.get(bundle_key, "SQL linting rules")
         index_content += "\n\n"
 
-    (output_dir / "index.md").write_text(index_content)
+    (output_dir / "index.md").write_text(index_content, encoding="utf-8")
     print(f"Generated: {output_dir / 'index.md'}")
 
     # Return sidebar configuration
@@ -710,7 +710,7 @@ def main():
 
     # Write sidebar configuration
     sidebar_file = docs_dir / ".vitepress" / "sidebar-rules.json"
-    sidebar_file.write_text(json.dumps(sidebar_config, indent=2))
+    sidebar_file.write_text(json.dumps(sidebar_config, indent=2), encoding="utf-8")
     print(f"Generated sidebar config: {sidebar_file}")
 
     print("\n✅ Rule documentation generation complete!")

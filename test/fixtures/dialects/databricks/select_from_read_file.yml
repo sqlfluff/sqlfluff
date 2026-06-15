@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 174100b63d83fe671aa54d8162a534325ffad2cbbbcc12cbf31e20122e995016
+_hash: ca15af693067e1762cb4bb7006e8896aabf2430bc2bfb9a5f71361af684bc8ba
 file:
 - statement:
     select_statement:
@@ -260,4 +260,57 @@ file:
                       expression:
                         boolean_literal: 'false'
                     end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: read_files
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: '"https://mytenant.sharepoint.com/sites/Marketing/Shared%20Documents"'
+                    - comma: ','
+                    - named_argument:
+                        quoted_identifier: '`databricks.connection`'
+                        right_arrow: =>
+                        expression:
+                          quoted_literal: '"my_sharepoint_conn"'
+                    - comma: ','
+                    - named_argument:
+                        naked_identifier: format
+                        right_arrow: =>
+                        expression:
+                          quoted_literal: '"binaryFile"'
+                    - comma: ','
+                    - named_argument:
+                        naked_identifier: pathGlobFilter
+                        right_arrow: =>
+                        expression:
+                          quoted_literal: '"*.pdf"'
+                    - comma: ','
+                    - named_argument:
+                        naked_identifier: schemaEvolutionMode
+                        right_arrow: =>
+                        expression:
+                          quoted_literal: '"none"'
+                    - end_bracket: )
 - statement_terminator: ;

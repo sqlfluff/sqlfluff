@@ -10,6 +10,9 @@ SELECT id, name FROM my_table;
 CREATE TEMPORARY VIEW temp_view AS
 SELECT * FROM my_table WHERE active = true;
 
+CREATE TEMP VIEW short_temp_view AS
+SELECT 1 AS x;
+
 CREATE VIEW IF NOT EXISTS my_view AS
 SELECT * FROM my_table;
 

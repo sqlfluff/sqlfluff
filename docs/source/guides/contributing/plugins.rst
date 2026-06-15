@@ -82,7 +82,14 @@ while "Rule_PluginName_L000" will have code "PluginName_L000".
 Codes are used to display errors, they are also used as configuration keys.
 
 We make it easy for plugin developers to test their rules by
-exposing a testing library in *sqlfluff.utils.testing*.
+exposing a testing library in *sqlfluff.utils.testing*. This testing
+library depends on ``pytest``, which is not installed as part of the
+core SQLFluff package. To use it, install SQLFluff with the
+``testutils`` extra:
+
+.. code-block:: bash
+
+    pip install sqlfluff[testutils]
 
 .. _`sqlfluff/plugins/sqlfluff-plugin-example`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-plugin-example
 .. _`sqlfluff/plugins/sqlfluff-templater-dbt`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-templater-dbt

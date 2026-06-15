@@ -103,9 +103,39 @@ def test__iteration_limit__rs_parser_constructor_accepts_limits():
         indent_config={},
         max_parser_iterations=500_000,
         parser_warn_threshold=250_000,
+        max_parse_nodes=100_000,
     )
     # The dialect getter confirms the object was created successfully.
     assert p.dialect == "ansi"
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__max_parse_nodes_exceeded_in_rs_binding():
+    """RsParser should reject oversized match trees via max_parse_nodes."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lexer = Lexer(config=config)
+    expr = "x" + "=x" * 6
+    sql = "SELECT " + ",".join(expr for _ in range(80))
+    segments, _ = lexer.lex(sql)
+    tokens = [
+        s._rstoken
+        for s in segments
+        if hasattr(s, "_rstoken") and s._rstoken is not None and s.is_code
+    ]
+
+    p = RsParser(
+        dialect="ansi",
+        indent_config={},
+        max_parse_nodes=300,
+    )
+
+    with pytest.raises(Exception) as exc_info:
+        p.parse_match_result_from_tokens(tokens)
+
+    assert "Maximum parse node count exceeded" in str(exc_info.value)
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")

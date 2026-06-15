@@ -1,0 +1,70 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0d308ab24307277d8b68f87399bba8c4d17b7d3173604bc18103907104b02774
+file:
+  batch:
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: mdy
+  - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: dmy
+  - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: ymd
+  - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: ydm
+  - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: myd
+  - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: dym
+  - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - quoted_literal: "'dmy'"
+  - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - quoted_literal: "N'dmy'"
+  - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - parameter: '@fmt'
+  - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - date_format: dmy
+  - statement_terminator: ;

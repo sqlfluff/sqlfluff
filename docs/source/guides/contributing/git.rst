@@ -184,7 +184,7 @@ At the bottom of the Conversation tab you will see the following:
 This shows on this PR that all checks have passed and this is ready to merge.
 Clicking the big green "Squash and Merge" button will copy (the "Merge" part)
 all this code into :code:`main` branch with one single commit (the "Squash"
-part). Usually you don't need to have all the 100s of commits you have have
+part). Usually you don't need to have all the 100s of commits you have
 done while developing this code change so "Squash" is what you want but you
 can change it if you want.
 
@@ -207,8 +207,8 @@ GitHub Forks
 As well as branches, GitHub has the concept of *forks*, which basically
 means taking a complete copy of the repo (and all its branches at that
 time) into your own GitHub account. You can then create a branch in that
-fork, and then open a pull request to to merge code from your branch on
-your fork, all the way back to the the original repo (called the *upstream*
+fork, and then open a pull request to merge code from your branch on
+your fork, all the way back to the original repo (called the *upstream*
 repo). It may sound like an Inception level of abstraction and confusion
 but it actually works quite well once you get your head around it.
 
@@ -476,7 +476,7 @@ So, when you're ready to make your first changes, do the following:
 
 5. If making code changes to the website then test them - follow instructions
    in `CONTRIBUTING.md`_ to set up the environment and then use
-   :code:`tox -e generate-fixture-yml,cov-init,py39,cov-report,linting` to
+   :code:`tox -e generate-fixture-yml,cov-init,py310,cov-report,linting` to
    run most of the tests.
 
 6. Add any new files you added in this change that you want tracked in
@@ -678,7 +678,7 @@ to open a pull request back to the original repo to accept your code into
 SQLFluff:
 
 1. Merge in any changes that happened to SQLFluff code since you branches (see above).
-2. Run all the automated tests :code:`tox -e generate-fixture-yml,cov-init,py39,cov-report,linting`.
+2. Run all the automated tests :code:`tox -e generate-fixture-yml,cov-init,py310,cov-report,linting`.
 3. Make sure all your changes are pushed to GitHub.
 4. Open a pull request in GitHub.
 5. If the pull request closes an issue then you can add "Closes #123" or
@@ -734,7 +734,7 @@ aware that it is meant with the best possible intention to provide feedback
 to you for this and future commits, and to keep our codebase to a high
 standard. It is not a personal sleight upon you or your code, and if you
 are getting annoyed with feedback I suggest you take a break and step away
-and read it again later, in a fresh light. Of course if if you feel that a
+and read it again later, in a fresh light. Of course if you feel that a
 reviewer is acting inappropriately then please raise it - we have a
 `Code of Conduct`_ and want all contributors to feel welcome. Feel free to
 also reach out to a maintainer if you would like to discuss something

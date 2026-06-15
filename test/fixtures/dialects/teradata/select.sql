@@ -2,12 +2,14 @@ SELECT DATE;
 
 CREATE TABLE t1 (f1 DATE);
 
-SELECT DATE (FORMAT 'MMMbdd,bYYYY'); -- (CHAR(12), UC);  -- https://docs.teradata.com/r/S0Fw2AVH8ff3MDA0wDOHlQ/ryoeKJsEr22NqKahaktP5g
--- Disabled CHAR(12, UC) for now, see #1665
+-- https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Data-Type-Formats-and-Format-Phrases/FORMAT-Phrase-and-DateTime-Formats/Examples-Querying-Using-Date-Formats
+SELECT DATE (FORMAT 'MMMbdd,bYYYY');
+SELECT DATE (FORMAT 'MMMbdd,bYYYY') (CHAR(12), UC);
 
 SELECT
     ADD_MONTHS(abandono.FEC_CIERRE_EST, -12) AS FEC_CIERRE_EST_ULT12,
-    CAST('200010' AS DATE FORMAT 'YYYYMM') AS CAST_STATEMENT_EXAMPLE
+    CAST('200010' AS DATE FORMAT 'YYYYMM') AS CAST_STATEMENT_EXAMPLE,
+    CAST(NULL AS VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC) AS CAST_CHARACTER_SET_EXAMPLE
 FROM EXAMPLE_TABLE;
 
 SEL * FROM CUSTOMERS;

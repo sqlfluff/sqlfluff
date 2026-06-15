@@ -1,0 +1,9 @@
+DROP SEQUENCE my_seq;
+
+DROP SEQUENCE dbo.my_seq;
+
+DROP SEQUENCE IF EXISTS my_seq;
+
+DROP SEQUENCE IF EXISTS my_seq, my_other_seq;
+
+DROP SEQUENCE IF EXISTS dbo.my_seq;

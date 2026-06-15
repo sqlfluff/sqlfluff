@@ -630,3 +630,50 @@ test_pass_sparksql_values_clause:
   configs:
     core:
       dialect: sparksql
+
+test_fail_placeholder_templater_qualified_wildcard:
+  # Regression: placeholder templater should not suppress AM04.
+  # When a placeholder substitution exists in the FROM clause (e.g. ${CATALOG}),
+  # the violation on table.* should still be reported.
+  fail_str: |
+    SELECT
+        contact.*
+    FROM
+        ${CATALOG}.dbo.contact
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: dollar
+        CATALOG: my_catalog
+
+test_fail_placeholder_templater_unqualified_wildcard:
+  # Regression: placeholder templater should not suppress AM04 for SELECT *.
+  fail_str: |
+    SELECT *
+    FROM ${CATALOG}.dbo.contact
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: dollar
+        CATALOG: my_catalog
+
+test_pass_placeholder_templater_explicit_columns:
+  # Placeholder templater should still pass when columns are explicit.
+  pass_str: |
+    SELECT
+        a,
+        b,
+        c
+    FROM
+        ${CATALOG}.dbo.contact
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: dollar
+        CATALOG: my_catalog

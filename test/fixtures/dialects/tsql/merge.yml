@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b73b841e1fdc0085877091eeba8d959706be28ca620115b129928eb10f1b961
+_hash: f91f474bfec6523b98ddd6be79b122aaab65c0456c9f9534712f7e281c42d982
 file:
 - batch:
     statement:
@@ -1445,7 +1445,7 @@ file:
     go_statement:
       keyword: GO
 - batch:
-    statement:
+  - statement:
       merge_statement:
       - keyword: MERGE
       - keyword: INTO
@@ -1504,4 +1504,61 @@ file:
                     - naked_identifier: source
                     - dot: .
                     - naked_identifier: i
-    statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: SomeTable
+      - alias_expression:
+          naked_identifier: t
+      - keyword: USING
+      - table_expression:
+          table_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeFunction
+          post_table_expression:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+      - alias_expression:
+          naked_identifier: s
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: Id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: Id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: data
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: data
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO

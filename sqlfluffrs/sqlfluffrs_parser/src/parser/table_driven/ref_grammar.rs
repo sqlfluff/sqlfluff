@@ -147,7 +147,7 @@ impl Parser<'_> {
             stack.frame_id_counter,
             child_grammar_id,
             child_start_pos,
-            child_terminators,
+            &child_terminators,
             frame.parent_max_idx,
         );
 

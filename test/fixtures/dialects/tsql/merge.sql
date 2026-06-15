@@ -200,3 +200,8 @@ USING  (	SELECT 1 AS i	) AS source
 ON source.i = target.i
 WHEN MATCHED
 THEN  UPDATE SET target.i = source.i;
+
+MERGE INTO SomeTable t
+USING dbo.SomeFunction() s ON s.Id = t.Id
+WHEN MATCHED THEN UPDATE SET t.data = s.data;
+GO

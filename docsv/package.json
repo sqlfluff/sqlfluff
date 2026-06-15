@@ -6,13 +6,13 @@
     "scripts": {
         "docs:prebuild": "python scripts/generate-all-docs.py",
         "docs:dev": "vitepress dev",
-        "docs:build": "pnpm run docs:prebuild && vitepress build",
+        "docs:build": "python scripts/generate-all-docs.py && vitepress build",
         "docs:preview": "vitepress preview"
     },
     "devDependencies": {
-        "@azure/static-web-apps-cli": "^2.0.8",
+        "@azure/static-web-apps-cli": "^2.0.9",
         "vitepress": "^1.6.4",
-        "vue": "^3.5.30"
+        "vue": "^3.5.34"
     },
     "keywords": [
         "sqlfluff",

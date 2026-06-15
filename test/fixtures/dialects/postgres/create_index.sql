@@ -41,3 +41,8 @@ CREATE INDEX nulls_not_distinct_index ON documents_table USING GIN (locations)
 CREATE INDEX code_idx ON films (code) TABLESPACE indexspace;
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS user_my_column_idx ON my_schema.user (my_column);
+
+-- Schema-qualified type cast in index expression (issue #7820)
+CREATE INDEX table_a_idx_a ON schema_a.table_a USING bm25 (col_a, (col_a::pdb.unicode_words('alias=col_a_alias')));
+
+CREATE INDEX idx_expr ON t USING btree ((col::my_type(10)));

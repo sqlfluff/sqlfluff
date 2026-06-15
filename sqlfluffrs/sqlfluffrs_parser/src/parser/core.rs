@@ -103,14 +103,16 @@ pub struct Parser<'a> {
     pub parser_warn_threshold: usize,
     /// Maximum parse depth (frame stack). 0 = no limit. Used for DoS mitigation.
     pub max_parse_depth: usize,
+    /// Maximum parse nodes in the accepted parse tree. 0 = no limit.
+    pub max_parse_nodes: usize,
 }
 
 impl<'a> Parser<'a> {
     /// Default max parse depth when not specified (DoS mitigation; matches Python config default).
-    pub const DEFAULT_MAX_PARSE_DEPTH: usize = 255;
+    pub const DEFAULT_MAX_PARSE_DEPTH: usize = 600;
 
     /// Create a new Parser instance with table-driven grammar support.
-    /// Uses DEFAULT_MAX_PARSE_DEPTH (255) unless overridden via new_with_max_parse_depth.
+    /// Uses DEFAULT_MAX_PARSE_DEPTH (600) unless overridden via new_with_max_parse_depth.
     pub fn new(
         tokens: &'a [Token],
         dialect: Dialect,
@@ -162,6 +164,7 @@ impl<'a> Parser<'a> {
             max_parser_iterations: 3_000_000,
             parser_warn_threshold: 2_000_000,
             max_parse_depth,
+            max_parse_nodes: 0,
         }
     }
 
@@ -174,6 +177,59 @@ impl<'a> Parser<'a> {
         self.max_parser_iterations = max_parser_iterations;
         self.parser_warn_threshold = parser_warn_threshold;
         self
+    }
+
+    /// Override the parse tree node limit for this parser (builder pattern).
+    pub fn with_node_limit(mut self, max_parse_nodes: usize) -> Self {
+        self.max_parse_nodes = max_parse_nodes;
+        self
+    }
+
+    fn check_parse_node_limit(
+        &self,
+        match_result: &MatchResult,
+        base_node_count: usize,
+    ) -> Result<(), ParseError> {
+        if self.max_parse_nodes == 0 {
+            return Ok(());
+        }
+
+        let node_count = base_node_count + match_result.node_count();
+        if node_count > self.max_parse_nodes {
+            return Err(ParseError::with_context(
+                format!(
+                    "Maximum parse node count exceeded (limit {}). This may indicate unusually large SQL or a malicious input.",
+                    self.max_parse_nodes
+                ),
+                Some(match_result.start()),
+                None,
+            ));
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn check_parse_subtree_limit(
+        &self,
+        match_result: &MatchResult,
+    ) -> Result<(), ParseError> {
+        if self.max_parse_nodes == 0 {
+            return Ok(());
+        }
+
+        let node_count = match_result.node_count();
+        if node_count > self.max_parse_nodes {
+            return Err(ParseError::with_context(
+                format!(
+                    "Maximum parse node count exceeded (limit {}). This may indicate unusually large SQL or a malicious input.",
+                    self.max_parse_nodes
+                ),
+                Some(match_result.start()),
+                None,
+            ));
+        }
+
+        Ok(())
     }
 
     /// Enable or disable the parse cache (for debugging)
@@ -214,7 +270,13 @@ impl<'a> Parser<'a> {
         let result = self.parse_table_iterative_match_result(grammar_id, &[]);
         self.tokens = token_slice_orig;
 
-        result
+        match result {
+            Ok(match_result) => {
+                self.check_parse_node_limit(&match_result, token_slice.len())?;
+                Ok(match_result)
+            }
+            Err(err) => Err(err),
+        }
     }
 
     pub fn root_parse(&mut self) -> Result<Node, ParseError> {
@@ -248,6 +310,7 @@ impl<'a> Parser<'a> {
                 insert_segments: vec![],
                 child_matches: vec![],
             };
+            self.check_parse_node_limit(&file_mr, self.tokens.len())?;
             let nodes = file_mr.apply(self.tokens);
             return Ok(nodes.into_iter().next().unwrap_or_default());
         }
@@ -319,6 +382,7 @@ impl<'a> Parser<'a> {
             insert_segments: vec![],
             child_matches: vec![content_child],
         };
+        self.check_parse_node_limit(&file_mr, token_slice_orig.len())?;
         let root_nodes = file_mr.apply(token_slice_orig);
         Ok(root_nodes.into_iter().next().unwrap_or_default())
     }
@@ -1508,8 +1572,7 @@ impl<'a> Parser<'a> {
         parent_max_idx: Option<usize>,
     ) -> Result<MatchResult, ParseError> {
         // Create a temporary table-driven frame to use the initial handler and then extract MatchResult
-        let frame =
-            TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators.to_vec(), None);
+        let frame = TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators, None);
 
         match self.handle_anything_table_initial(
             frame,

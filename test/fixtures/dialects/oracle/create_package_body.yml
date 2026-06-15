@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 14ee570b92ab80717d7b1b81cbbe87069329ea9f6f9d7cd77aa51c9ac3c5f44c
+_hash: 0c26399034de07c8c1df551ba8c6670411aea124f1686bd20e087c87439f43e9
 file:
 - batch:
     statement:
@@ -215,12 +215,12 @@ file:
           - data_type:
               data_type_identifier: NUMBER
           - keyword: IS
-          - declare_segment:
-              naked_identifier: new_empno
-              data_type:
-                data_type_identifier: NUMBER
-              statement_terminator: ;
           - begin_end_block:
+            - declare_segment:
+                naked_identifier: new_empno
+                data_type:
+                  data_type_identifier: NUMBER
+                statement_terminator: ;
             - keyword: BEGIN
             - statement:
                 select_statement:
@@ -335,12 +335,12 @@ file:
           - data_type:
               data_type_identifier: NUMBER
           - keyword: IS
-          - declare_segment:
-              naked_identifier: new_deptno
-              data_type:
-                data_type_identifier: NUMBER
-              statement_terminator: ;
           - begin_end_block:
+            - declare_segment:
+                naked_identifier: new_deptno
+                data_type:
+                  data_type_identifier: NUMBER
+                statement_terminator: ;
             - keyword: BEGIN
             - statement:
                 select_statement:
@@ -767,15 +767,15 @@ file:
           - data_type:
               data_type_identifier: VARCHAR2
           - keyword: IS
-          - declare_segment:
-              naked_identifier: var_1
-              data_type:
-                data_type_identifier: NUMBER
-              assignment_operator: :=
-              expression:
-                numeric_literal: '0'
-              statement_terminator: ;
           - begin_end_block:
+            - declare_segment:
+                naked_identifier: var_1
+                data_type:
+                  data_type_identifier: NUMBER
+                assignment_operator: :=
+                expression:
+                  numeric_literal: '0'
+                statement_terminator: ;
             - keyword: BEGIN
             - statement:
                 begin_end_block:

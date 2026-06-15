@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eafef005a33efa153aad7ff59d412b3810dc381bfffcf22dd08ca5ca9ddc6cd8
+_hash: fb48356f393f558f980c027b815b5bbb065d7f7bd9fb74ba8ef01b8c9d0bee09
 file:
 - statement:
     create_type_statement:
@@ -12,15 +12,17 @@ file:
     - data_type:
         data_type_identifier: mood
     - keyword: AS
-    - keyword: ENUM
-    - bracketed:
-      - start_bracket: (
-      - quoted_literal: "'happy'"
-      - comma: ','
-      - quoted_literal: "'sad'"
-      - comma: ','
-      - quoted_literal: "'curious'"
-      - end_bracket: )
+    - data_type:
+        data_type_identifier: ENUM
+        bracketed_arguments:
+          bracketed:
+          - start_bracket: (
+          - quoted_literal: "'happy'"
+          - comma: ','
+          - quoted_literal: "'sad'"
+          - comma: ','
+          - quoted_literal: "'curious'"
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_type_statement:

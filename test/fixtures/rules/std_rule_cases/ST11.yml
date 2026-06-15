@@ -78,6 +78,32 @@ test_pass_inner_unreferenced:
     from a
     inner join b using(x)
 
+test_pass_left_semi_unreferenced:
+  # LEFT SEMI joins filter rows from the left side, so they do not need
+  # to project columns from the joined table.
+  pass_str: |
+    SELECT
+        employee.id
+    FROM employee
+    LEFT SEMI JOIN department
+        ON employee.deptno = department.deptno
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_left_anti_unreferenced:
+  # LEFT ANTI joins filter rows from the left side, so they do not need
+  # to project columns from the joined table.
+  pass_str: |
+    SELECT
+        employee.id
+    FROM employee
+    LEFT ANTI JOIN department
+        ON employee.deptno = department.deptno
+  configs:
+    core:
+      dialect: sparksql
+
 test_pass_unqualified_unreferenced:
   # Same as above, but an implicit INNER (unqualified joins are usually
   # interpreted as inner joins).
@@ -159,6 +185,15 @@ test_pass_wildcard_6511:
     core:
       dialect: snowflake
 
+test_pass_bare_select_wildcard:
+  # A bare select-clause wildcard (`*`) should not be treated as an
+  # unqualified table reference while ST11 scans references.
+  pass_str: |
+    SELECT *
+    FROM a
+    LEFT JOIN b
+        ON a.id = b.id
+
 test_pass_cross_join_6511:
   pass_str: |
     select
@@ -208,3 +243,95 @@ test_pass_quoted_brackets_table_name:
   configs:
     core:
       dialect: tsql
+
+test_pass_struct_field_access:
+  # Struct field access (e.g. alias.struct.field) should count as
+  # a reference to the alias, even when no direct columns are used.
+  pass_str: |
+    SELECT
+        a.id,
+        b.my_struct.field1,
+        b.my_struct.field2
+    FROM a
+    LEFT JOIN b
+        ON a.id = b.id
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_deeply_nested_struct_field_access:
+  # Deeply nested struct field access should also count as a reference.
+  pass_str: |
+    SELECT
+        a.id,
+        b.struct1.struct2.field
+    FROM a
+    LEFT JOIN b
+        ON a.id = b.id
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_struct_field_access_unused:
+  # Struct field access on an unrelated alias should still flag the
+  # joined table as unused.
+  fail_str: |
+    SELECT
+        a.id,
+        a.my_struct.field
+    FROM a
+    LEFT JOIN b
+        ON a.id = b.id
+
+test_pass_unaliased_schema_table_column:
+  # Unaliased qualified references (`schema.table.column`) should count
+  # as a reference to the joined table (whose name resolves to the last
+  # part of the table reference).
+  pass_str: |
+    SELECT
+        my_schema.a.id,
+        my_schema.b.name
+    FROM my_schema.a
+    LEFT JOIN my_schema.b
+        ON my_schema.a.id = my_schema.b.id
+
+test_fail_placeholder_templater_unused_join:
+  # Regression: placeholder templater should not suppress ST11 violations.
+  fail_str: |
+    SELECT
+        foo.a
+    FROM ${CATALOG}.foo
+    LEFT JOIN ${CATALOG}.bar
+        ON foo.a = bar.a
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: dollar
+        CATALOG: my_catalog
+
+test_pass_wildcard_row_passed_to_function:
+  # https://github.com/sqlfluff/sqlfluff/issues/7234
+  # `other_table.*` passes the whole row of the joined table to a function,
+  # which counts as a reference to that table.
+  pass_str: |
+    SELECT
+        to_jsonb(other_table.*) AS other_table_jsonb
+    FROM my_table
+    LEFT JOIN other_table ON (other_table.my_table_id = my_table.id)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_wildcard_row_from_unrelated_table:
+  # A qualified wildcard for a *different* table should still leave the
+  # joined table flagged as unused.
+  fail_str: |
+    SELECT
+        to_jsonb(my_table.*) AS my_table_jsonb
+    FROM my_table
+    LEFT JOIN other_table ON (other_table.my_table_id = my_table.id)
+  configs:
+    core:
+      dialect: postgres

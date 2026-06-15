@@ -183,7 +183,7 @@ def generate_dialects_documentation(output_dir: Path) -> dict[str, Any]:
 
         # Write to file
         output_file = output_dir / f"{dialect.label}.md"
-        output_file.write_text(md_content)
+        output_file.write_text(md_content, encoding="utf-8")
         print(f"Generated: {output_file}")
 
         # Add to sidebar
@@ -193,7 +193,7 @@ def generate_dialects_documentation(output_dir: Path) -> dict[str, Any]:
 
     # Write index file
     index_file = output_dir / "index.md"
-    index_file.write_text(index_content)
+    index_file.write_text(index_content, encoding="utf-8")
     print(f"Generated: {index_file}")
 
     # Generate sidebar configuration
@@ -204,10 +204,10 @@ def generate_dialects_documentation(output_dir: Path) -> dict[str, Any]:
     }
 
     sidebar_file = output_dir.parent.parent / ".vitepress" / "sidebar-dialects.json"
-    sidebar_file.write_text(json.dumps(sidebar_config, indent=2))
+    sidebar_file.write_text(json.dumps(sidebar_config, indent=2), encoding="utf-8")
 
     # add a new line at the end of the file
-    with open(sidebar_file, "a") as f:
+    with open(sidebar_file, "a", encoding="utf-8") as f:
         f.write("\n")
 
     print(f"Generated sidebar config: {sidebar_file}")

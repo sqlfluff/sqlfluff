@@ -528,3 +528,19 @@ test_pass_duckdb_from_first_syntax:
   configs:
     core:
       dialect: duckdb
+
+test_fail_placeholder_templater_set_columns:
+  # Regression: placeholder templater should not suppress AM07 violations.
+  fail_str: |
+    SELECT a
+    FROM ${CATALOG}.foo
+    UNION
+    SELECT a, b
+    FROM ${CATALOG}.bar
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: dollar
+        CATALOG: my_catalog

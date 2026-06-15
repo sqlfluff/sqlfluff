@@ -4,7 +4,7 @@ WITH cte AS (
     FROM source
     WHERE col1 = 0
     DISTRIBUTE BY col1
-),
+)
 
 SELECT *
 FROM cte

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 81f1a1f5d14621376dbed561a1ce0cafe8ac849a3a662992cf09bc8df5bb2c18
+_hash: 60c1265ea27778829d5c7cb44b626bf5cfddd6649a759a56e4a625ecef2390fb
 file:
 - batch:
   - statement:
@@ -619,4 +619,1900 @@ file:
             naked_identifier: public_data
       - keyword: FROM
       - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: USER
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: USER
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: USER
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: VIEW
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: VIEW
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: VIEW
+      - keyword: TO
+      - role_reference:
+          naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ADMINISTER
+        - keyword: BULK
+        - keyword: OPERATIONS
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: AVAILABILITY
+        - keyword: GROUP
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: CONNECTION
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: CREDENTIAL
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: DATABASE
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: ENDPOINT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: EVENT
+        - keyword: NOTIFICATION
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: EVENT
+        - keyword: SESSION
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: LINKED
+        - keyword: SERVER
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: LOGIN
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: SERVER
+        - keyword: AUDIT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: SERVER
+        - keyword: ROLE
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: RESOURCES
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: SERVER
+        - keyword: STATE
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: SETTINGS
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: TRACE
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: AUTHENTICATE
+        - keyword: SERVER
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CONNECT
+        - keyword: ANY
+        - keyword: DATABASE
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CONNECT
+        - keyword: SQL
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CONTROL
+        - keyword: SERVER
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: ANY
+        - keyword: DATABASE
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: AVAILABILITY
+        - keyword: GROUP
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: DDL
+        - keyword: EVENT
+        - keyword: NOTIFICATION
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: ENDPOINT
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: LOGIN
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: SERVER
+        - keyword: ROLE
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: TRACE
+        - keyword: EVENT
+        - keyword: NOTIFICATION
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: EXTERNAL
+        - keyword: ACCESS
+        - keyword: ASSEMBLY
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: IMPERSONATE
+        - keyword: ANY
+        - keyword: LOGIN
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: SELECT
+        - keyword: ALL
+        - keyword: USER
+        - keyword: SECURABLES
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: SHUTDOWN
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: UNSAFE
+        - keyword: ASSEMBLY
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: ANY
+        - keyword: DATABASE
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: ANY
+        - keyword: DEFINITION
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: SERVER
+        - keyword: STATE
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ADMINISTER
+        - keyword: DATABASE
+        - keyword: BULK
+        - keyword: OPERATIONS
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: ALTER
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: APPLICATION
+        - keyword: ROLE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: ASSEMBLY
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: ASYMMETRIC
+        - keyword: KEY
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: CERTIFICATE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: COLUMN
+        - keyword: ENCRYPTION
+        - keyword: KEY
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: COLUMN
+        - keyword: MASTER
+        - keyword: KEY
+        - keyword: DEFINITION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: CONTRACT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: DATABASE
+        - keyword: AUDIT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: DATABASE
+        - keyword: DDL
+        - keyword: TRIGGER
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: DATABASE
+        - keyword: EVENT
+        - keyword: NOTIFICATION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: DATABASE
+        - keyword: EVENT
+        - keyword: SESSION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: DATABASE
+        - keyword: SCOPED
+        - keyword: CONFIGURATION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: DATASPACE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: EXTERNAL
+        - keyword: DATA
+        - keyword: SOURCE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: EXTERNAL
+        - keyword: FILE
+        - keyword: FORMAT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: EXTERNAL
+        - keyword: LIBRARY
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: FULLTEXT
+        - keyword: CATALOG
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: MASK
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: MESSAGE
+        - keyword: TYPE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: REMOTE
+        - keyword: SERVICE
+        - keyword: BINDING
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: ROLE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: ROUTE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: SCHEMA
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: SECURITY
+        - keyword: POLICY
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: SENSITIVITY
+        - keyword: CLASSIFICATION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: SERVICE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: SYMMETRIC
+        - keyword: KEY
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: USER
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: AUTHENTICATE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: BACKUP
+        - keyword: DATABASE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: BACKUP
+        - keyword: LOG
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: CHECKPOINT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: CONNECT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CONNECT
+        - keyword: REPLICATION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: CONTROL
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: AGGREGATE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: ANY
+        - keyword: EXTERNAL
+        - keyword: LIBRARY
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: ASSEMBLY
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: ASYMMETRIC
+        - keyword: KEY
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: CERTIFICATE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: CONTRACT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: DATABASE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: DATABASE
+        - keyword: DDL
+        - keyword: EVENT
+        - keyword: NOTIFICATION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: DEFAULT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: FULLTEXT
+        - keyword: CATALOG
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: FUNCTION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: MESSAGE
+        - keyword: TYPE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: PROCEDURE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: QUEUE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: REMOTE
+        - keyword: SERVICE
+        - keyword: BINDING
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: ROLE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: ROUTE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: RULE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: SCHEMA
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: SERVICE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: SYMMETRIC
+        - keyword: KEY
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: SYNONYM
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: TABLE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: TYPE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: VIEW
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: XML
+        - keyword: SCHEMA
+        - keyword: COLLECTION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: DELETE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: EXECUTE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: EXECUTE
+        - keyword: ANY
+        - keyword: EXTERNAL
+        - keyword: ENDPOINT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: EXECUTE
+        - keyword: ANY
+        - keyword: EXTERNAL
+        - keyword: SCRIPT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: EXECUTE
+        - keyword: EXTERNAL
+        - keyword: SCRIPT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: INSERT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: KILL
+        - keyword: DATABASE
+        - keyword: CONNECTION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: REFERENCES
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: SELECT
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: SHOWPLAN
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: SUBSCRIBE
+        - keyword: QUERY
+        - keyword: NOTIFICATIONS
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: TAKE
+        - keyword: OWNERSHIP
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: UNMASK
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: UPDATE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: ANY
+        - keyword: COLUMN
+        - keyword: ENCRYPTION
+        - keyword: KEY
+        - keyword: DEFINITION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: ANY
+        - keyword: COLUMN
+        - keyword: MASTER
+        - keyword: KEY
+        - keyword: DEFINITION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: DATABASE
+        - keyword: STATE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: DEFINITION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: db1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: SEQUENCE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: SCHEMA
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: some_schema
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+          keyword: RECEIVE
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: OBJECT
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: something
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: TAKE
+        - keyword: OWNERSHIP
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: OBJECT
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: something
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: DEFINITION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: OBJECT
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: something
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: CHANGE
+        - keyword: TRACKING
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: OBJECT
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: something
+      - keyword: TO
+      - role_reference:
+          naked_identifier: someone
   - statement_terminator: ;

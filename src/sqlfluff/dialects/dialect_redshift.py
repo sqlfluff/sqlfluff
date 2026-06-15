@@ -189,6 +189,10 @@ redshift_dialect.sets("datetime_units").update(
 )
 
 redshift_dialect.replace(
+    LateralColumnAliasExpressionGrammar=Sequence(
+        Ref("ExpressionSegment"),
+        Ref("AliasExpressionSegment"),
+    ),
     WellKnownTextGeometrySegment=Nothing(),
     JoinLikeClauseGrammar=Sequence(
         AnySetOf(

@@ -10,6 +10,22 @@ use crate::parser::{
 };
 
 impl Parser<'_> {
+    fn store_sync_match_result(
+        &self,
+        stack: &mut TableParseFrameStack,
+        frame: &TableParseFrame,
+        match_result: MatchResult,
+    ) -> Result<TableFrameResult, ParseError> {
+        self.check_parse_subtree_limit(&match_result)?;
+        vdebug!(
+            "[SYNC INSERT] frame_id={} result at pos {} -> MatchResult",
+            frame.frame_id,
+            self.pos
+        );
+        stack.insert_result(frame.frame_id, match_result, self.pos);
+        Ok(TableFrameResult::Done)
+    }
+
     // ========================================================================
     // Main Iterative Parser
     // ========================================================================
@@ -90,7 +106,6 @@ impl Parser<'_> {
             parent_max_idx: None, // No parent constraint at top level - let handler calculate
             calculated_max_idx: None, // Will be set by handler after calculation
             end_pos: None,
-            transparent_positions: None,
             element_key: None,
             parse_mode_override: None, // No override for top-level frame
         });
@@ -206,7 +221,7 @@ impl Parser<'_> {
                     // The main loop then stores the result in stack.results for parent frames to access.
                     // This separation keeps handlers focused on producing results, while the main
                     // loop coordinates result storage.
-                    self.commit_table_frame_result(&mut stack, &frame, match_result);
+                    self.commit_table_frame_result(&mut stack, &frame, match_result)?;
                 }
             }
         }
@@ -371,17 +386,7 @@ impl Parser<'_> {
                 // Synchronous match: call the table-driven string parser and store result for parent
                 let res = self.handle_string_parser_table_driven(grammar_id);
                 match res {
-                    Ok(match_result) => {
-                        // Insert result directly so parent frames can pick it up
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} StringParser result at pos {} -> match={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            match_result
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
@@ -389,106 +394,49 @@ impl Parser<'_> {
             GrammarVariant::MultiStringParser => {
                 let res = self.handle_multi_string_parser_table_driven(grammar_id);
                 match res {
-                    Ok(match_result) => {
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} MultiStringParser result at pos {}",
-                            frame.frame_id,
-                            self.pos
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
             GrammarVariant::RegexParser => {
                 let res = self.handle_regex_parser_table_driven(grammar_id);
                 match res {
-                    Ok(match_result) => {
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} RegexParser result at pos {} -> match={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            match_result
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
             GrammarVariant::Nothing => {
                 let res = self.handle_nothing_table_driven();
                 match res {
-                    Ok(match_result) => {
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} Nothing result at pos {} -> MatchResult",
-                            frame.frame_id,
-                            self.pos
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
             GrammarVariant::Empty => {
                 let res = self.handle_empty_table_driven();
                 match res {
-                    Ok(match_result) => {
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} Empty result at pos {} -> MatchResult",
-                            frame.frame_id,
-                            self.pos
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
             GrammarVariant::Missing => {
                 let res = self.handle_missing_table_driven();
                 match res {
-                    Ok(match_result) => {
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} Missing result at pos {} -> MatchResult",
-                            frame.frame_id,
-                            self.pos
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
             GrammarVariant::Token => {
                 let res = self.handle_token_table_driven(grammar_id);
                 match res {
-                    Ok(match_result) => {
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} Token result at pos {} -> MatchResult",
-                            frame.frame_id,
-                            self.pos
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
             GrammarVariant::PrecededBy => {
                 let res = self.handle_preceded_by_table_driven(grammar_id);
                 match res {
-                    Ok(match_result) => {
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} PrecededBy result at pos {} -> MatchResult",
-                            frame.frame_id,
-                            self.pos
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
@@ -504,30 +452,14 @@ impl Parser<'_> {
 
                 );
                 match res {
-                    Ok(match_result) => {
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} Meta result at pos {} -> MatchResult",
-                            frame.frame_id,
-                            self.pos
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
             GrammarVariant::NonCodeMatcher => {
                 let res = self.handle_noncode_matcher_table_driven();
                 match res {
-                    Ok(match_result) => {
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} NonCodeMatcher result at pos {} -> MatchResult",
-                            frame.frame_id,
-                            self.pos
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
@@ -538,15 +470,7 @@ impl Parser<'_> {
                     frame.parent_max_idx,
                 );
                 match res {
-                    Ok(match_result) => {
-                        vdebug!(
-                            "[SYNC INSERT] frame_id={} Anything result at pos {} -> MatchResult",
-                            frame.frame_id,
-                            self.pos
-                        );
-                        stack.insert_result(frame.frame_id, match_result, self.pos);
-                        Ok(TableFrameResult::Done)
-                    }
+                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
                     Err(e) => Err(e),
                 }
             }
@@ -813,7 +737,9 @@ impl Parser<'_> {
         stack: &mut TableParseFrameStack,
         frame: &TableParseFrame,
         match_result: &Arc<MatchResult>,
-    ) {
+    ) -> Result<(), ParseError> {
+        self.check_parse_subtree_limit(match_result)?;
+
         // Log grammar path - different indicator for Empty vs matched nodes
         #[cfg(feature = "verbose-debug")]
         let end_pos = frame.end_pos.unwrap_or(self.pos);
@@ -896,7 +822,7 @@ impl Parser<'_> {
                             Ok(idx) => idx,
                             Err(_) => {
                                 // If max_idx calculation fails, skip caching
-                                return;
+                                return Ok(());
                             }
                         }
                     };
@@ -908,6 +834,8 @@ impl Parser<'_> {
                 }
             }
         }
+
+        Ok(())
     }
 
     /// Checks the cache for a frame and handles cache hits. Returns FrameResult indicating what to do next.

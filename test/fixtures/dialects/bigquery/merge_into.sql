@@ -84,4 +84,13 @@ MERGE dataset.NewArrivals
 USING (SELECT * FROM dataset.NewArrivals WHERE warehouse <> 'warehouse #2')
 ON FALSE
 WHEN MATCHED THEN
-  DELETE
+  DELETE;
+
+-- Merge using UNNEST
+MERGE dataset.inventory t
+USING UNNEST(arr) AS s
+ON t.product = s.product
+WHEN MATCHED THEN
+  UPDATE SET quantity = s.quantity
+WHEN NOT MATCHED THEN
+  INSERT (product, quantity) VALUES (s.product, s.quantity)

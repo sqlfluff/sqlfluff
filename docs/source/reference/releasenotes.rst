@@ -10,6 +10,21 @@ of each individual release, see the detailed changelog_.
 
 .. _changelog: https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md
 
+.. _upgrading_4_2:
+
+Upgrading to 4.2
+----------------
+
+The default value of :code:`render_variant_limit` is now :code:`5` rather than
+:code:`1`. For Jinja and dbt projects with conditional branches, SQLFluff will
+therefore lint more rendered variants by default.
+
+In practice, this means SQLFluff may now surface linting violations in templated
+branches that were previously not inspected.
+
+For details on how template variant rendering works, along with guidance on
+performance and tuning, see :ref:`templater_variant_rendering`.
+
 .. _upgrading_4_0:
 
 Upgrading to 4.x
@@ -19,10 +34,11 @@ This release is the first where the optional Rust routines are available.
 For most users, no difference will be visible, as currently the rust libraries
 are *opt-in*, and must be explicitly installed with :code:`pip install sqlfluff[rs]`.
 
-Rust libraries are built for most major platforms, and we believe are ready for
-public beta testing, but they should be considered experimental until the 5.x
-release. Performance gains on initial release are not expected to be significant,
-but we do expect they will be significant once the routines are mature.
+Rust libraries are distributed as wheels for supported platforms, and installs
+without a matching wheel will fall back to a local source build. They should be
+considered experimental until the 5.x release. Performance gains on initial
+release are not expected to be significant, but we do expect they will be
+significant once the routines are mature.
 
 Additionally:
 

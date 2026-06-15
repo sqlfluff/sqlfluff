@@ -241,6 +241,39 @@ test_pass_snowflake_values:
     core:
       dialect: snowflake
 
+test_pass_tsql_openrowset_bulk_requires_correlation_name_1:
+  pass_str: |
+    SELECT jsoncontent
+    FROM
+        OPENROWSET (
+            BULK (
+                '/lake-raw/activity*.json'
+                ,'/lake-raw/this_file_doesnt_exist.json'
+            ),
+            DATA_SOURCE = 'datasource_lake'
+        )
+        WITH (
+            jsoncontent varchar(MAX)
+        ) AS result
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_openrowset_bulk_requires_correlation_name_2:
+  pass_str: |
+    SELECT jsoncontent
+    FROM
+        OPENROWSET (
+            BULK (
+                '/lake-raw/activity*.json'
+                ,'/lake-raw/this_file_doesnt_exist.json'
+            )
+            ,DATA_SOURCE = 'datasource_lake'
+        ) AS name
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_tsql_values_clause_in_parentheses:
   # Tests a fix for issue 3522. In tsql, the parentheses surrounding "values" are
   # required (otherwise syntax error). SQLFluff was incorrectly complaining that
@@ -1224,3 +1257,16 @@ test_pass_redshift_array_value:
   configs:
     core:
       dialect: redshift
+
+test_pass_postgres_wildcard_row_passed_to_function:
+  # https://github.com/sqlfluff/sqlfluff/issues/7235
+  # `mot.*` passes the whole row of the aliased table to a function, so the
+  # alias *is* used and should not be flagged.
+  pass_str: |
+    SELECT
+      to_jsonb(mot.*)
+    FROM my_table
+    JOIN my_other_table AS mot ON (TRUE)
+  configs:
+    core:
+      dialect: postgres

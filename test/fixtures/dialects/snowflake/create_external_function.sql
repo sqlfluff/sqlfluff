@@ -55,3 +55,9 @@ CREATE OR REPLACE EXTERNAL FUNCTION MY_SCHEMA.LOCAL_ECHO(OBJ OBJECT)
     RESPONSE_TRANSLATOR = UTILITY.SOME_FUNCTION
     AS 'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'
 ;
+
+CREATE OR ALTER EXTERNAL FUNCTION my_or_alter_ext_fn(s STRING)
+RETURNS VARIANT
+API_INTEGRATION = my_int
+AS 'https://example.com'
+;

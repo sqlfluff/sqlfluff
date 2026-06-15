@@ -48,8 +48,6 @@ jobs:
           - {runner: ubuntu-22.04, target: x86, manylinux: auto, artifact: linux-x86}
           - {runner: ubuntu-22.04, target: aarch64, manylinux: auto, artifact: linux-aarch64}
           - {runner: ubuntu-22.04, target: armv7, manylinux: auto, artifact: linux-armv7}
-          - {runner: ubuntu-22.04, target: s390x, manylinux: auto, artifact: linux-s390x}
-          - {runner: ubuntu-22.04, target: ppc64le, manylinux: auto, artifact: linux-ppc64le}
           # Linux (musllinux)
           - {runner: ubuntu-22.04, target: x86_64, manylinux: musllinux_1_2, artifact: musllinux-x86_64}
           - {runner: ubuntu-22.04, target: x86, manylinux: musllinux_1_2, artifact: musllinux-x86}
@@ -57,7 +55,6 @@ jobs:
           - {runner: ubuntu-22.04, target: armv7, manylinux: musllinux_1_2, artifact: musllinux-armv7}
           # Windows
           - {runner: windows-latest, target: x64, manylinux: "", artifact: windows-x64, arch: x64}
-          - {runner: windows-latest, target: x86, manylinux: "", artifact: windows-x86, arch: x86}
           # macOS
           - {runner: macos-15-intel, target: x86_64, manylinux: "", artifact: macos-x86_64}
           - {runner: macos-15, target: aarch64, manylinux: "", artifact: macos-aarch64}
@@ -80,10 +77,19 @@ jobs:
           architecture: ${{ matrix.platform.arch || null }}
 
       - name: Build wheels
+        if: matrix.platform.runner == 'ubuntu-22.04'
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          args: --release -i python3.10 --out dist --manifest-path sqlfluffrs/Cargo.toml
+          manylinux: ${{ matrix.platform.manylinux || '' }}
+
+      - name: Build wheels
+        if: matrix.platform.runner != 'ubuntu-22.04'
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: ${{ matrix.platform.manylinux || '' }}
 
       - name: Upload wheels

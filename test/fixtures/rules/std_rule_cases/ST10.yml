@@ -131,6 +131,20 @@ test_other_operators_with_bracketed_precedence:
         end as test
     from cte
 
+test_other_operators_on_rhs:
+  # The right-hand operand is part of a larger expression, so the comparison
+  # is not redundant even though the same column appears on both sides.
+  # https://github.com/sqlfluff/sqlfluff/issues/7910
+  pass_str: |
+    SELECT flags FROM t WHERE flags = flags & 4
+
+test_bitwise_operator_on_rhs_tsql:
+  pass_str: |
+    SELECT BitFlagValue FROM Dbo.BitFlags WHERE BitFlagValue = BitFlagValue & @Mask
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_templated_queries:
   pass_str: |
     SELECT a, col FROM t WHERE a = :a

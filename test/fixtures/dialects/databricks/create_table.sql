@@ -101,3 +101,24 @@ CREATE TABLE cluster_by_table_none (
 )
 USING DELTA
 CLUSTER BY NONE;
+
+CREATE TABLE collated_student (
+    id STRING COLLATE UTF8_BINARY NOT NULL COMMENT 'Required ID field'
+)
+USING DELTA;
+
+-- Create table with foreign key constraint ON DELETE first then ON UPDATE
+CREATE TABLE catalog.silver.child (
+    parent_key BIGINT NOT NULL,
+    CONSTRAINT fk_child_parent FOREIGN KEY (parent_key)
+    REFERENCES catalog.silver.parent (parent_key)
+    ON DELETE NO ACTION ON UPDATE NO ACTION
+) USING DELTA;
+
+-- Create table with foreign key constraint ON UPDATE first then ON DELETE
+CREATE TABLE catalog.silver.child2 (
+    parent_key BIGINT NOT NULL,
+    CONSTRAINT fk_child_parent FOREIGN KEY (parent_key)
+    REFERENCES catalog.silver.parent (parent_key)
+    ON UPDATE NO ACTION ON DELETE NO ACTION
+) USING DELTA;

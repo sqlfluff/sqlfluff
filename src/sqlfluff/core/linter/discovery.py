@@ -10,7 +10,7 @@ import logging
 import os
 from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Protocol
 
 import pathspec
 
@@ -22,7 +22,17 @@ from sqlfluff.core.helpers.file import iter_intermediate_paths
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 WalkableType = Iterable[tuple[str, Optional[list[str]], list[str]]]
-IgnoreSpecRecord = tuple[str, str, pathspec.PathSpec]
+
+
+class IgnoreSpec(Protocol):
+    """Protocol for ignore spec implementations used by this module."""
+
+    def match_file(self, file: str) -> object:
+        """Return a truthy match result if the file is ignored."""
+        ...  # pragma: no cover
+
+
+IgnoreSpecRecord = tuple[str, str, IgnoreSpec]
 IgnoreSpecRecords = list[IgnoreSpecRecord]
 
 
@@ -40,9 +50,7 @@ def _check_ignore_specs(
     return None
 
 
-def _load_specs_from_lines(
-    lines: Iterable[str], logging_reference: str
-) -> pathspec.PathSpec:
+def _load_specs_from_lines(lines: Iterable[str], logging_reference: str) -> IgnoreSpec:
     """Load the ignore spec from an iterable of lines.
 
     Raises SQLFluffUserError if unparsable for any reason.

@@ -583,7 +583,7 @@ class PythonTemplater(RawTemplater):
         """Split a sliced file on its invariant literals.
 
         We prioritise the _longest_ invariants first as they
-        are more likely to the the anchors.
+        are more likely to be the anchors.
         """
         # Calculate invariants
         invariants = [

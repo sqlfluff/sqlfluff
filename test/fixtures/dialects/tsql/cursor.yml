@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a6baab6ecf06d0af14e4891cdb8f533def310260e7ac96a2484fe4cfc2bc6534
+_hash: 2258614970ac45aef12c73b9f5ae8ad3664c7f6c88ba7cd0380a0859bc94a5d9
 file:
 - batch:
   - statement:
@@ -539,6 +539,163 @@ file:
       - parameter: '@Rows'
       - keyword: FROM
       - naked_identifier: db_cursor
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: cur_union
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: LOCAL
+        - keyword: FAST_FORWARD
+        - keyword: FOR
+        - set_expression:
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  integer_literal: '1'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: Id
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  integer_literal: '2'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: Id
+  - statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        naked_identifier: cur_union
+  - statement_terminator: ;
+  - statement:
+      close_cursor_statement:
+        keyword: CLOSE
+        naked_identifier: cur_union
+  - statement_terminator: ;
+  - statement:
+      deallocate_cursor_statement:
+        keyword: DEALLOCATE
+        naked_identifier: cur_union
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: cur_union_legacy
+      - keyword: INSENSITIVE
+      - keyword: SCROLL
+      - keyword: CURSOR
+      - keyword: FOR
+      - set_expression:
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                integer_literal: '1'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: Id
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                integer_literal: '2'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: Id
+  - statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        naked_identifier: cur_union_legacy
+  - statement_terminator: ;
+  - statement:
+      close_cursor_statement:
+        keyword: CLOSE
+        naked_identifier: cur_union_legacy
+  - statement_terminator: ;
+  - statement:
+      deallocate_cursor_statement:
+        keyword: DEALLOCATE
+        naked_identifier: cur_union_legacy
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: cur_cte
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: LOCAL
+        - keyword: FAST_FORWARD
+        - keyword: FOR
+        - with_compound_statement:
+            keyword: WITH
+            common_table_expression:
+              naked_identifier: cte
+              keyword: AS
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      integer_literal: '1'
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: Id
+                end_bracket: )
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: Id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: cte
+  - statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        naked_identifier: cur_cte
+  - statement_terminator: ;
+  - statement:
+      close_cursor_statement:
+        keyword: CLOSE
+        naked_identifier: cur_cte
+  - statement_terminator: ;
+  - statement:
+      deallocate_cursor_statement:
+        keyword: DEALLOCATE
+        naked_identifier: cur_cte
   - statement_terminator: ;
   - go_statement:
       keyword: GO

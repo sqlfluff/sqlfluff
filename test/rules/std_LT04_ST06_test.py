@@ -3,6 +3,8 @@
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.errors import SQLLintError, SQLParseError
+from sqlfluff.rules.structure.ST06 import Rule_ST06
 
 
 @pytest.mark.parametrize(
@@ -56,7 +58,7 @@ select "col1"
       ,"col4"
       ,"col5"
 from cte1
-),
+)
 
 select * from cte2""",
             """with cte1 as (
@@ -82,7 +84,7 @@ select "col1",
       'start: ' + "col2" as "new_col2",
       'start2: ' + "col3" as "new_col3"
 from cte1
-),
+)
 
 select * from cte2""",
         ),
@@ -103,8 +105,44 @@ rules = LT04, ST06
     # Return linted/fixed file.
     linted_file = linter.lint_string(in_sql, fix=True)
 
+    parse_errors = linted_file.get_violations(types=SQLParseError)
+    assert not parse_errors
+
     # Check expected lint errors are raised.
-    assert set([v.rule.code for v in linted_file.violations]) == {"LT04", "ST06"}
+    assert {v.rule_code() for v in linted_file.get_violations(types=SQLLintError)} == {
+        "LT04",
+        "ST06",
+    }
 
     # Check file is fixed.
     assert linted_file.fix_string()[0] == out_sql
+
+
+@pytest.mark.parametrize("dialect", ["postgres", "redshift", "snowflake"])
+def test_rule_st06_shorthand_casted_aggregates_are_complex(dialect: str) -> None:
+    """Test shorthand-casted aggregates remain in the complex target band."""
+    cfg = FluffConfig.from_string(
+        f"""[sqlfluff]
+dialect = {dialect}
+rules = ST06
+"""
+    )
+    linter = Linter(config=cfg)
+
+    pass_sql = "SELECT a, MIN(c)::DATE AS d FROM foo"
+    fail_sql = "SELECT MIN(c)::DATE AS d, a FROM foo"
+
+    assert not linter.lint_string(pass_sql).violations
+
+    linted_file = linter.lint_string(fail_sql, fix=True)
+    assert [v.rule.code for v in linted_file.violations] == ["ST06"]
+    assert linted_file.fix_string()[0] == pass_sql
+
+
+def test_rule_st06_simple_expression_helpers_reject_non_simple_segments() -> None:
+    """Test ST06 helper methods reject non-simple expression segments."""
+    parsed = Linter(dialect="ansi").parse_string("SELECT a + 1 AS sum FROM foo")
+    expression = next(parsed.tree.recursive_crawl("expression"))
+
+    assert not Rule_ST06._is_simple_cast_expression(expression)
+    assert not Rule_ST06._is_simple_expression_segment(expression)

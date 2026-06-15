@@ -1,0 +1,393 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 94684a85012b1a02a604166f41ddf4b8b356cf22f494ac33716056618cbf96d8
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      read_only_clause:
+      - keyword: for
+      - keyword: read
+      - keyword: only
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: test
+      read_only_clause:
+      - keyword: for
+      - keyword: read
+      - keyword: only
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      isolation_clause:
+      - keyword: with
+      - keyword: ur
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: test
+      isolation_clause:
+      - keyword: with
+      - keyword: ur
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      read_only_clause:
+      - keyword: for
+      - keyword: read
+      - keyword: only
+      isolation_clause:
+      - keyword: with
+      - keyword: ur
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: test
+      read_only_clause:
+      - keyword: for
+      - keyword: read
+      - keyword: only
+      isolation_clause:
+      - keyword: with
+      - keyword: ur
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      read_only_clause:
+      - keyword: for
+      - keyword: fetch
+      - keyword: only
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      isolation_clause:
+      - keyword: with
+      - keyword: cs
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      isolation_clause:
+      - keyword: with
+      - keyword: rs
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      isolation_clause:
+      - keyword: with
+      - keyword: rr
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sysibm
+              - dot: .
+              - naked_identifier: sysdummy1
+      read_only_clause:
+      - keyword: for
+      - keyword: read
+      - keyword: only
+      isolation_clause:
+      - keyword: with
+      - keyword: rr
+      - lock_clause:
+        - keyword: use
+        - keyword: and
+        - keyword: keep
+        - keyword: share
+        - keyword: locks
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: test
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: sysibm
+                - dot: .
+                - naked_identifier: sysdummy1
+    - set_operator:
+        keyword: union
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '2'
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: test
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: sysibm
+                - dot: .
+                - naked_identifier: sysdummy1
+    - isolation_clause:
+      - keyword: with
+      - keyword: ur
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: test
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: sysibm
+                - dot: .
+                - naked_identifier: sysdummy1
+    - set_operator:
+        keyword: union
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '2'
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: test
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: sysibm
+                - dot: .
+                - naked_identifier: sysdummy1
+    - orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: test
+    - read_only_clause:
+      - keyword: for
+      - keyword: read
+      - keyword: only
+    - isolation_clause:
+      - keyword: with
+      - keyword: ur
+- statement_terminator: ;

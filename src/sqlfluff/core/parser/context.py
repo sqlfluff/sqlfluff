@@ -56,6 +56,7 @@ class ParseContext:
         self,
         dialect: "Dialect",
         max_parse_depth: int,
+        max_parse_nodes: int = 0,
         indentation_config: Optional[dict[str, Any]] = None,
     ) -> None:
         """Initialize a new instance of the class.
@@ -63,6 +64,8 @@ class ParseContext:
         Args:
             dialect (Dialect): The dialect used for parsing.
             max_parse_depth (int): Maximum match depth; ``0`` to disable.
+            max_parse_nodes (int): Maximum number of parse tree nodes; ``0`` to
+                disable.
             indentation_config (Optional[dict[str, Any]], optional): The indentation
                 configuration used by Indent and Dedent to control the intended
                 indentation of certain features. Defaults to None.
@@ -73,6 +76,8 @@ class ParseContext:
         # used in the Conditional grammar.
         self.indentation_config = indentation_config or {}
         self.max_parse_depth = max_parse_depth
+        self.max_parse_nodes = max_parse_nodes
+        self.current_parse_nodes = 0
         # This is the logger that child objects will latch onto.
         self.logger = parser_logger
         # A uuid for this parse context to enable cache invalidation
@@ -129,12 +134,33 @@ class ParseContext:
                 "True or False: {!r}".format(indentation_config)
             )
         max_parse_depth = config.get("max_parse_depth")
+        max_parse_nodes = config.get("max_parse_nodes")
         assert isinstance(max_parse_depth, int)
+        assert isinstance(max_parse_nodes, int)
         return cls(
             dialect=config.get("dialect_obj"),
             indentation_config=indentation_config,
             max_parse_depth=max_parse_depth,
+            max_parse_nodes=max_parse_nodes,
         )
+
+    def increment_parse_nodes(self, count: int = 1) -> None:
+        """Increment the number of materialized parse nodes.
+
+        Args:
+            count (int): Number of nodes to add to the current budget.
+        """
+        assert count >= 0
+        self.current_parse_nodes += count
+        if self.max_parse_nodes > 0 and self.current_parse_nodes > self.max_parse_nodes:
+            raise SQLParseError(
+                f"Maximum parse node count exceeded (limit {self.max_parse_nodes}). "
+                "This may indicate unusually large SQL or a malicious input."
+            )
+
+    def seed_parse_nodes(self, count: int) -> None:
+        """Seed the current node budget from an existing segment count."""
+        self.increment_parse_nodes(count)
 
     def _set_terminators(
         self,

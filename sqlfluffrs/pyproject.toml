@@ -22,7 +22,7 @@ name = "sqlfluffrs"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE.md" }
 description = "The SQL Linter for Humans"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
@@ -35,7 +35,6 @@ classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -56,7 +55,9 @@ Source = "https://github.com/sqlfluff/sqlfluff"
 "Issue Tracker" = "https://github.com/sqlfluff/sqlfluff/issues"
 
 [tool.maturin]
-features = ["pyo3/extension-module", "python"]
+# NOTE: Update the abi3 version as we deprecate old python versions.
+# It should match the oldest currently supported python version.
+features = ["pyo3/abi3-py310", "pyo3/extension-module", "python"]
 
 [tool.uv.sources]
 sqlfluff = { workspace = true }

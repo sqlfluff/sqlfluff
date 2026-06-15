@@ -75,6 +75,12 @@ ALTER TABLE [dbo].[Attachment]
 WITH NOCHECK
 CHECK CONSTRAINT [FK_Attachment_EmailMessage];
 
+ALTER TABLE [dbo].[Attachment]
+NOCHECK CONSTRAINT ALL;
+
+ALTER TABLE [dbo].[Attachment]
+CHECK CONSTRAINT ALL;
+
 ALTER TABLE my_table
 ADD my_col_1 INT
   , my_col_2 INT

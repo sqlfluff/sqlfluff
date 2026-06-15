@@ -19,3 +19,10 @@ CREATE OR REPLACE TABLE FUNCTION analytics_sandbox.test_tvf(
   WHERE item = item_name
   GROUP BY item
 );
+
+CREATE OR REPLACE TABLE FUNCTION my_dataset.my_function (
+  start_date DATE
+)
+OPTIONS (description = "My description")
+AS
+SELECT 1 AS x;

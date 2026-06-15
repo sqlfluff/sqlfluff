@@ -51,6 +51,7 @@ impl FrameContext {
                 meta_buffer,
                 insert_segments,
                 child_matches,
+                child_terminators,
                 ..
             } => Some(SequenceContextMut {
                 seq_grammar_id,
@@ -63,6 +64,7 @@ impl FrameContext {
                 meta_buffer,
                 insert_segments,
                 child_matches,
+                child_terminators,
             }),
             _ => None,
         }
@@ -142,6 +144,7 @@ pub struct SequenceContextMut<'a> {
     pub meta_buffer: &'a mut Vec<MetaSegment>, // Buffer for meta elements to be flushed after matching content
     pub insert_segments: &'a mut Vec<(usize, MetaSegment)>, // (position, segments) to insert
     pub child_matches: &'a mut Vec<Arc<MatchResult>>, // Store child matches here until sequence is complete
+    pub child_terminators: &'a [GrammarId],           // Parent terminators to pass to child frames
 }
 
 impl<'a> SequenceContextMut<'a> {

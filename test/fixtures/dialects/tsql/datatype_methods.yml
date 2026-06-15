@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6460a8172bf65721979ac308a716a5996261c90b1bbdc29ca98b9576290be7c5
+_hash: 11c659de66b99a66717b06502719fc73d6298c843a998e3ccd226c7ec38e7330
 file:
   batch:
   - statement:
@@ -338,3 +338,98 @@ file:
             alias_expression:
               naked_identifier: dist
   - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+            - naked_identifier: na
+            - dot: .
+            - naked_identifier: Loc
+            - datatype_method:
+                dot: .
+                datatype_method_name_identifier: query
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'.'"
+                    end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: SomeTable
+            join_clause:
+            - keyword: CROSS
+            - keyword: APPLY
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      naked_identifier: SomeXMLColumn
+                      dot: .
+                      function_name_identifier: nodex
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'/root/Location'"
+                        end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: na
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                      naked_identifier: Loc
+                    end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+            - naked_identifier: T
+            - dot: .
+            - naked_identifier: c
+            - datatype_method:
+                dot: .
+                datatype_method_name_identifier: query
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'.'"
+                    end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  parameter: '@x'
+                  datatype_method:
+                    dot: .
+                    datatype_method_name_identifier: nodes
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'/Root/row'"
+                        end_bracket: )
+              alias_expression:
+                naked_identifier: T
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                    naked_identifier: c
+                  end_bracket: )
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO

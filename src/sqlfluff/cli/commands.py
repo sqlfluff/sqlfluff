@@ -170,7 +170,7 @@ def set_logging_level(
 
     Implementation: If `logger` is not specified, the handler
     is attached to the `sqlfluff` logger. If it is specified
-    then it attaches the the logger in question. In addition
+    then it attaches the logger in question. In addition
     if `logger` is specified, then that logger will also
     not propagate.
     """
@@ -178,8 +178,9 @@ def set_logging_level(
     # Don't propagate logging
     fluff_logger.propagate = False
 
-    # Enable colorama
-    colorama.init()
+    # Enable colorama. Respect explicit --color/--nocolor decisions so
+    # colorama does not strip forced ANSI output from piped stdout.
+    colorama.init(strip=formatter.plain_output)
 
     # Set up the log handler which is able to print messages without overlapping
     # with progressbars.
@@ -988,6 +989,9 @@ def lint(
             formatter.completion_message()
         exit_code = result.stats(EXIT_FAIL, EXIT_SUCCESS)["exit code"]
         assert isinstance(exit_code, int), "result.stats error code must be integer."
+        # If large_file_skip_fail is set and files were skipped, fail.
+        if result.files_skipped and config.get("large_file_skip_fail"):
+            exit_code = max(exit_code, EXIT_FAIL)
         sys.exit(exit_code)
     else:
         sys.exit(EXIT_SUCCESS)
@@ -1250,6 +1254,10 @@ def _paths_fix(
 
     if persist_timing:
         result.persist_timing_records(persist_timing)
+
+    # If large_file_skip_fail is set and files were skipped, fail.
+    if result.files_skipped and linter.config.get("large_file_skip_fail"):
+        exit_code = max(exit_code, EXIT_FAIL)
 
     sys.exit(exit_code)
 
