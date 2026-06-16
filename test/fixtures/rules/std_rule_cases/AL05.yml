@@ -55,6 +55,46 @@ test_ignore_postgres_value_table_functions_generate_series:
     core:
       dialect: postgres
 
+test_postgres_row_reference_in_function:
+  # AL05 false positive with https://github.com/sqlfluff/sqlfluff/issues/7039
+  # Passing a table alias as a whole-row value to a function is a real use of
+  # the alias in Postgres, so it must not be reported as unused.
+  pass_str: |
+    SELECT each(hstore(t)) AS x FROM member_plan AS t
+  configs:
+    core:
+      dialect: postgres
+
+test_postgres_whole_row_reference:
+  # A bare whole-row reference to the alias is also a use of it.
+  pass_str: |
+    SELECT t FROM foo AS t
+  configs:
+    core:
+      dialect: postgres
+
+test_postgres_row_reference_in_subquery:
+  # Closer reproduction of issue #7039: the row reference is inside a
+  # subquery, and the outer query reads the generated record value.
+  pass_str: |
+    SELECT
+        (x).key
+    FROM (
+        SELECT EACH(HSTORE(t)) AS x
+        FROM member_plan AS t
+    ) AS q
+  configs:
+    core:
+      dialect: postgres
+
+test_redshift_whole_row_reference:
+  # Redshift is also opted into the whole-row alias reference behaviour.
+  pass_str: |
+    SELECT t FROM foo AS t
+  configs:
+    core:
+      dialect: redshift
+
 test_fail_table_alias_not_referenced_2:
   # Similar to test_1, but with implicit alias.
   fail_str: SELECT * FROM my_tbl foo
