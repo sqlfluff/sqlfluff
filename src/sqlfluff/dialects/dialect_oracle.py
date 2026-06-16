@@ -181,12 +181,18 @@ oracle_dialect.add(
         ),
     ),
     ConnectByRootGrammar=Sequence("CONNECT_BY_ROOT", Ref("NakedIdentifierSegment")),
-    PlusJoinSegment=Bracketed(
-        StringParser("+", SymbolSegment, type="plus_join_symbol")
+    PlusJoinSegment=Sequence(
+        Ref("StartBracketSegment"),
+        StringParser("+", SymbolSegment, type="plus_join_symbol"),
+        Ref("EndBracketSegment"),
     ),
     PlusJoinGrammar=OneOf(
         Sequence(
-            OneOf(Ref("ColumnReferenceSegment"), Ref("FunctionSegment")),
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                Ref("FunctionSegment"),
+                Ref("LiteralGrammar"),
+            ),
             Ref("EqualsSegment"),
             Ref("ColumnReferenceSegment"),
             Ref("PlusJoinSegment"),
@@ -195,7 +201,11 @@ oracle_dialect.add(
             Ref("ColumnReferenceSegment"),
             Ref("PlusJoinSegment"),
             Ref("EqualsSegment"),
-            OneOf(Ref("ColumnReferenceSegment"), Ref("FunctionSegment")),
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                Ref("FunctionSegment"),
+                Ref("LiteralGrammar"),
+            ),
         ),
     ),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),

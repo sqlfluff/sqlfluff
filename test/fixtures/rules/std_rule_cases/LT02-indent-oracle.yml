@@ -431,6 +431,17 @@ test_fail_oracle_exception_block_nested:
     core:
       dialect: oracle
 
+test_pass_oracle_legacy_plus_join_against_literal:
+  # Regression test for issue #7940.
+  pass_str: |
+    select e1.abc from exp1 e1, exp2 e2
+    where
+        e1.key (+) = e2.key
+        and e1.str (+) = 'smth';
+  configs:
+    core:
+      dialect: oracle
+
 test_fail_oracle_exception_block_multiple_handlers:
   # Test exception block with multiple handlers
   fail_str: |

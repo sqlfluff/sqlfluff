@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6fd56cd4666545063e7cb8b6df096813d245e31bd65f33adee4463aa6944961
+_hash: 0befcaa9adfccdd59af03fd2c634e1191a6f46da2ac362b7babdc11fff652c90
 file:
   batch:
   - statement:
@@ -47,10 +47,9 @@ file:
             - naked_identifier: suppliers
             - dot: .
             - naked_identifier: supplier_id
-          - bracketed:
-              start_bracket: (
-              plus_join_symbol: +
-              end_bracket: )
+          - start_bracket: (
+          - plus_join_symbol: +
+          - end_bracket: )
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
@@ -105,10 +104,9 @@ file:
             - naked_identifier: orders
             - dot: .
             - naked_identifier: supplier_id
-          - bracketed:
-              start_bracket: (
-              plus_join_symbol: +
-              end_bracket: )
+          - start_bracket: (
+          - plus_join_symbol: +
+          - end_bracket: )
   - statement_terminator: ;
   - statement:
       select_statement:
@@ -174,10 +172,9 @@ file:
             - naked_identifier: customers
             - dot: .
             - naked_identifier: customer_id
-          - bracketed:
-              start_bracket: (
-              plus_join_symbol: +
-              end_bracket: )
+          - start_bracket: (
+          - plus_join_symbol: +
+          - end_bracket: )
   - statement_terminator: ;
   - statement:
       select_statement:
@@ -205,10 +202,9 @@ file:
           expression:
             column_reference:
               naked_identifier: column_a
-            bracketed:
-              start_bracket: (
-              plus_join_symbol: +
-              end_bracket: )
+            start_bracket: (
+            plus_join_symbol: +
+            end_bracket: )
             comparison_operator:
               raw_comparison_operator: '='
             function:
@@ -266,8 +262,7 @@ file:
               raw_comparison_operator: '='
             column_reference:
               naked_identifier: column_a
-            bracketed:
-              start_bracket: (
-              plus_join_symbol: +
-              end_bracket: )
+            start_bracket: (
+            plus_join_symbol: +
+            end_bracket: )
   - statement_terminator: ;
