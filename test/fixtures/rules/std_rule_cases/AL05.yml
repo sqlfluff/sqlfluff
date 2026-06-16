@@ -1310,3 +1310,14 @@ test_pass_postgres_wildcard_row_passed_to_function:
   configs:
     core:
       dialect: postgres
+
+test_pass_tsql_nodes_method_requires_alias:
+  # https://github.com/sqlfluff/sqlfluff/issues/6733
+  # A table-valued XML method (`.nodes()`) must be given a correlation name in
+  # T-SQL. The alias is syntactically required, so it must not be flagged as
+  # unused -- removing it (as the autofix did) produces invalid SQL.
+  pass_str: |
+    SELECT 1 FROM @Xml.nodes('a') AS FN;
+  configs:
+    core:
+      dialect: tsql

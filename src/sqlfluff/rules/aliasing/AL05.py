@@ -251,6 +251,12 @@ class Rule_AL05(BaseRule):
                         for seg in openrowset.recursive_crawl("keyword")
                     ):
                         return True
+                    # A table-valued XML method such as `@x.nodes('...')` must be
+                    # given a correlation name in T-SQL; removing the alias
+                    # produces invalid syntax, so the alias is required even when
+                    # it is not otherwise referenced (issue #6733).
+                    if next(segment.recursive_crawl("datatype_method"), None):
+                        return True
                 # Found a table expression. Does it have a VALUES clause?
                 if segment.get_child("values_clause"):
                     # Found a VALUES clause. Is this a dialect that requires
