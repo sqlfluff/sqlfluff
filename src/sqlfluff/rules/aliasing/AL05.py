@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import cast
 
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.core.parser.segments import BaseSegment, RawSegment
+from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import (
     BaseRule,
     EvalResultType,
@@ -318,7 +318,7 @@ class Rule_AL05(BaseRule):
                 cast(AL05Query, child), allow_row_references=allow_row_references
             )
 
-    def _resolve_and_mark_reference(self, query: AL05Query, ref: RawSegment) -> None:
+    def _resolve_and_mark_reference(self, query: AL05Query, ref: BaseSegment) -> None:
         # Does this query define the referenced alias?
         _ref = self._cs_str_id(ref)
         if any(_ref == self._cs_str_id(a.segment) for a in query.aliases if a.segment):

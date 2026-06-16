@@ -73,6 +73,28 @@ test_postgres_whole_row_reference:
     core:
       dialect: postgres
 
+test_postgres_row_reference_in_subquery:
+  # Closer reproduction of issue #7039: the row reference is inside a
+  # subquery, and the outer query reads the generated record value.
+  pass_str: |
+    SELECT
+        (x).key
+    FROM (
+        SELECT EACH(HSTORE(t)) AS x
+        FROM member_plan AS t
+    ) AS q
+  configs:
+    core:
+      dialect: postgres
+
+test_redshift_whole_row_reference:
+  # Redshift is also opted into the whole-row alias reference behaviour.
+  pass_str: |
+    SELECT t FROM foo AS t
+  configs:
+    core:
+      dialect: redshift
+
 test_fail_table_alias_not_referenced_2:
   # Similar to test_1, but with implicit alias.
   fail_str: SELECT * FROM my_tbl foo
