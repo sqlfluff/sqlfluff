@@ -2314,7 +2314,6 @@ class StatementSegment(postgres.StatementSegment):
             Ref("DropRlsPolicyStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("GrantUsageDatashareStatementSegment"),
-            Ref("ExecuteStatementWithStoredProcedureSegment"),
         ],
         remove=[
             Ref("ShowStatementSegment"),
@@ -3120,32 +3119,4 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
             ),
             optional=True,
         ),
-    )
-
-
-class ExecuteStatementWithStoredProcedureSegment(BaseSegment):
-    """An `EXECUTE` statement that can only run within a stored procedure.
-
-    This is different from the `EXECUTE` statement commonly found within Postgres,
-    and instead allows dynmiac SQL to be run.
-
-    https://docs.aws.amazon.com/redshift/latest/dg/c_PLpgSQL-statements.html#r_PLpgSQL-dynamic-sql
-    """
-
-    type = "procedure_execute"
-    match_grammar = Sequence(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            "PROCEDURE",
-            Ref("FunctionNameSegment"),
-            Ref("ProcedureParameterListSegment"),
-            Ref.keyword("NONATOMIC", optional=True),
-        ),
-        Sequence(
-            "EXECUTE",
-            Ref("ExpressionSegment"),
-            Sequence("INTO", Ref("ObjectReferenceSegment"), optional=True),
-        ),
-        allow_gaps=True,
     )
