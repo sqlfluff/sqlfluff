@@ -48,6 +48,19 @@ SELECT
 name, address, id
 WHERE qualified = TRUE;
 
+-- Insert By Name
+INSERT INTO students BY NAME
+SELECT address, name FROM persons;
+
+INSERT OVERWRITE students BY NAME
+SELECT address, name FROM persons;
+
+INSERT INTO students PARTITION (student_id = 222222) BY NAME
+SELECT address, name FROM persons;
+
+INSERT OVERWRITE students PARTITION (student_id = 222222) BY NAME
+SELECT address, name FROM persons;
+
 -- Insert Using a Typed Date Literal for a Partition Column Value
 INSERT INTO students PARTITION (birthday = DATE '2019-01-02')
 VALUES ('Amy Smith', '123 Park Ave, San Jose');
