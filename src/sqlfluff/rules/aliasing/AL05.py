@@ -4,7 +4,11 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import cast
 
-from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.dialects.common import (
+    AliasInfo,
+    ObjectReferenceLevel,
+    extract_possible_references,
+)
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import (
     BaseRule,
@@ -293,8 +297,10 @@ class Rule_AL05(BaseRule):
                 for r in (
                     select_info.reference_buffer + select_info.table_reference_buffer
                 ):
-                    table_refs = r.extract_possible_references(
-                        level=r.ObjectReferenceLevel.TABLE
+                    table_refs = extract_possible_references(
+                        r,
+                        level=ObjectReferenceLevel.TABLE,
+                        dialect_name=query.dialect.name,
                     )
                     for tr in table_refs:
                         # This function walks up the query's parent stack if necessary.

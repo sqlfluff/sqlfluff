@@ -3,7 +3,13 @@
 from typing import NamedTuple, Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
+from sqlfluff.core.dialects.common import (
+    AliasInfo,
+    ColumnAliasInfo,
+    get_from_clause_aliases,
+    get_join_clause_aliases,
+    is_qualified,
+)
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.dialects.dialect_ansi import (
     FromClauseSegment,
@@ -147,7 +153,7 @@ def get_select_statement_info(
                 # in functions such as LATERAL FLATTEN.
                 if not seg.is_type("table_reference"):
                     reference_buffer += _get_object_references(seg)
-                elif cast(ObjectReferenceSegment, seg).is_qualified():
+                elif is_qualified(seg, dialect.name if dialect else None):
                     table_reference_buffer += _get_object_references(seg)
         for join_clause in fc.recursive_crawl(
             "join_clause", no_recursive_seg_type="select_statement"
@@ -193,7 +199,11 @@ def get_aliases_from_select(
         # If there's no from clause then just abort.
         return None, None
     assert isinstance(fc, (FromClauseSegment, JoinClauseSegment))
-    aliases = fc.get_eventual_aliases()
+    dialect_name = dialect.name if dialect else None
+    if fc.is_type("join_clause"):
+        aliases = get_join_clause_aliases(fc, dialect_name)
+    else:
+        aliases = get_from_clause_aliases(fc, dialect_name)
 
     # We only want table aliases, so filter out aliases for value table
     # functions, lambda parameters, pivot columns and unpivot output aliases.

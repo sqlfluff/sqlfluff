@@ -4,7 +4,7 @@ from typing import Optional
 
 import regex
 
-from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
+from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo, qualification
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.rules.aliasing.AL04 import Rule_AL04
@@ -112,7 +112,7 @@ class Rule_RF02(Rule_AL04):
             if self.ignore_words_regex and regex.search(self.ignore_words_regex, r.raw):
                 continue
 
-            this_ref_type = r.qualification()
+            this_ref_type = qualification(r, rule_context.dialect.name)
             # Discard column aliases that
             # refer to the current column reference.
             col_alias_names = [

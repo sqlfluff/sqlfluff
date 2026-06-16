@@ -5,7 +5,11 @@ from functools import partial
 from typing import NamedTuple, Optional, TypeVar, cast
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.dialects.common import (
+    AliasInfo,
+    ObjectReferenceLevel,
+    extract_possible_references,
+)
 from sqlfluff.core.parser import (
     BaseSegment,
     CodeSegment,
@@ -364,7 +368,9 @@ def _is_correlated_subquery(
     nested_select_info = get_select_statement_info(select_statement, dialect)
     if nested_select_info:
         for r in nested_select_info.reference_buffer:
-            for tr in r.extract_possible_references(level=r.ObjectReferenceLevel.TABLE):
+            for tr in extract_possible_references(
+                r, level=ObjectReferenceLevel.TABLE, dialect_name=dialect.name
+            ):
                 # Check for correlated subquery, as indicated by use of a
                 # parent reference.
                 if tr.part in select_source_names:

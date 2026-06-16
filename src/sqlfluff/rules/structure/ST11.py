@@ -3,6 +3,7 @@
 from collections.abc import Iterator
 from typing import cast
 
+from sqlfluff.core.dialects.common import iter_raw_references
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -108,7 +109,7 @@ class Rule_ST11(BaseRule):
         return ""
 
     def _extract_referenced_tables(
-        self, segment: BaseSegment, allow_unqualified: bool = False
+        self, segment: BaseSegment, dialect_name: str, allow_unqualified: bool = False
     ) -> Iterator[str]:
         # NOTE: Here we _may_ recurse into subqueries to find references.
         # We also pick up qualified wildcards (e.g. ``my_table.*``), which
@@ -117,7 +118,7 @@ class Rule_ST11(BaseRule):
         # ``to_jsonb(my_table.*)``.
         for ref in segment.recursive_crawl("column_reference", "wildcard_identifier"):
             obj_ref = cast(ObjectReferenceSegment, ref)
-            parts = list(obj_ref.iter_raw_references())
+            parts = list(iter_raw_references(obj_ref, dialect_name))
             if len(parts) < 2:
                 # A bare wildcard (``*``) doesn't identify a table on its own;
                 # select-clause wildcards are resolved separately via
@@ -138,7 +139,7 @@ class Rule_ST11(BaseRule):
                 yield parts[0].part.upper().strip("\"'`[]")
 
     def _extract_references_from_select(
-        self, segment: BaseSegment
+        self, segment: BaseSegment, dialect_name: str
     ) -> list[tuple[str, BaseSegment]]:
         assert segment.is_type("select_statement")
         # Tables which exist in the query
@@ -191,7 +192,7 @@ class Rule_ST11(BaseRule):
                     # If we have functions in the table_expression, we referenced them,
                     # add them to the list.
                     for tbl_ref in self._extract_referenced_tables(
-                        from_expression_elem, allow_unqualified=True
+                        from_expression_elem, dialect_name, allow_unqualified=True
                     ):
                         if tbl_ref not in _this_clause_refs:
                             referenced_tables.append(tbl_ref)
@@ -201,7 +202,7 @@ class Rule_ST11(BaseRule):
                     # We can tolerate some unqualified references here, so no need
                     # to raise exceptions.
                     for tbl_ref in self._extract_referenced_tables(
-                        join_on_condition, allow_unqualified=True
+                        join_on_condition, dialect_name, allow_unqualified=True
                     ):
                         if tbl_ref not in _this_clause_refs:
                             referenced_tables.append(tbl_ref)
@@ -246,7 +247,9 @@ class Rule_ST11(BaseRule):
             "qualify_clause",
         ]
 
-        joined_tables = self._extract_references_from_select(context.segment)
+        joined_tables = self._extract_references_from_select(
+            context.segment, context.dialect.name
+        )
         if not joined_tables:  # No from, no joins, no worries
             self.logger.debug("No tables found in scope.")
             return []
@@ -257,7 +260,7 @@ class Rule_ST11(BaseRule):
         for other_clause in context.segment.get_children(*reference_clause_types):
             try:
                 for tbl_ref in self._extract_referenced_tables(
-                    other_clause, allow_unqualified=False
+                    other_clause, context.dialect.name, allow_unqualified=False
                 ):
                     self.logger.debug(f"    {tbl_ref!r} referenced in {other_clause}")
                     table_references.add(tbl_ref)
