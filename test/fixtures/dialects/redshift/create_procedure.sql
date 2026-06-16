@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE test_sp1(f1 int, f2 varchar(20))
+CREATE OR REPLACE PROCEDURE test_sp1 (f1 int, f2 varchar(20))
 AS $$
 DECLARE
   min_val int;
@@ -12,7 +12,9 @@ END;
 $$ LANGUAGE plpgsql
 SECURITY INVOKER;
 
-CREATE OR REPLACE PROCEDURE test_sp2(f1 IN int, f2 INOUT varchar(256), out_var OUT varchar(256))
+CREATE OR REPLACE PROCEDURE test_sp2 (
+    f1 IN int, f2 INOUT varchar(256), out_var OUT varchar(256)
+)
 AS $$
 DECLARE
   loop_var int;
@@ -49,10 +51,46 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE PROCEDURE test_set_config()
+CREATE PROCEDURE test_set_config ()
 AS $$
 BEGIN
     SELECT 1;
 END;
 $$ LANGUAGE plpgsql
 SET work_mem = '256MB';
+
+CREATE PROCEDURE execute_concatenated_string_with_variables ()
+AS $$
+BEGIN
+    EXECUTE 'UPDATE tbl SET '
+    || quote_ident(colname)
+    || ' = '
+    || quote_literal(newvalue)
+    || ' WHERE key = '
+    || quote_literal(keyvalue);
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE PROCEDURE execute_into ()
+AS $$
+DECLARE
+    return_value string;
+BEGIN
+    EXECUTE 'SELECT 1' INTO return_value;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE PROCEDURE execute_concatenated_string ()
+AS $$
+BEGIN
+    -- Pulled from GitHub issue: https://github.com/sqlfluff/sqlfluff/issues/7798
+    EXECUTE '
+        CREATE TEMP TABLE xxxxx AS ( 
+        SELECT columns
+        FROM "schema".table this_table
+        WHERE this_table.column IN ( 
+            ' || concatenated_string || '
+        )
+    )';
+END;
+$$ LANGUAGE plpgsql;
