@@ -649,6 +649,7 @@ oracle_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
+        Ref.keyword("DEFAULT"),
     ),
     FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
         insert=[Ref("ListaggOverflowClauseSegment"), Ref("JSONObjectContentSegment")]
