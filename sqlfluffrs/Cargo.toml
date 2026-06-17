@@ -77,6 +77,8 @@ harness = false
 
 [profile.bench]
 debug = true
+strip = false
+
 [profile.release]
 debug = false
 strip = true
