@@ -46,9 +46,7 @@ class _SupportsIterRawReferences(Protocol):
     circular import and a forbidden ``core -> dialects`` dependency.
     """
 
-    def iter_raw_references(self) -> Generator["ObjectReferencePart", None, None]:
-        """Yield the reference parts of this object reference."""
-        ...
+    def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]: ...
 
 
 class ObjectReferenceLevel(Enum):
