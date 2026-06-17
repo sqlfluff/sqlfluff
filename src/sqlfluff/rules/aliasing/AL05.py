@@ -69,6 +69,12 @@ class Rule_AL05(BaseRule):
         "postgres",
         "mariadb",
     ]
+    # T-SQL datatype methods that produce a rowset and therefore require a
+    # correlation name in the FROM clause. This is deliberately an allowlist:
+    # most datatype methods (`query`, `value`, spatial and `hierarchyid`
+    # methods, ...) are scalar-valued and are not table expressions, so only
+    # the rowset-producing `nodes` belongs here (issue #6733).
+    _tsql_rowset_datatype_methods = frozenset({"nodes"})
     # Dialects where a bare table alias can be used as a whole-row/composite
     # value (e.g. `SELECT to_json(t) FROM tbl AS t`). In these dialects such a
     # reference is a legitimate use of the alias, so AL05 must not flag it as
@@ -251,12 +257,18 @@ class Rule_AL05(BaseRule):
                         for seg in openrowset.recursive_crawl("keyword")
                     ):
                         return True
-                    # A table-valued XML method such as `@x.nodes('...')` must be
-                    # given a correlation name in T-SQL; removing the alias
-                    # produces invalid syntax, so the alias is required even when
-                    # it is not otherwise referenced (issue #6733).
-                    if next(segment.recursive_crawl("datatype_method"), None):
-                        return True
+                    # A rowset-producing datatype method such as
+                    # `@x.nodes('...')` must be given a correlation name in
+                    # T-SQL; removing the alias produces invalid syntax, so the
+                    # alias is required even when it is not otherwise referenced
+                    # (issue #6733).
+                    for method in segment.recursive_crawl("datatype_method"):
+                        name = method.get_child("datatype_method_name_identifier")
+                        if (
+                            name is not None
+                            and name.raw.lower() in self._tsql_rowset_datatype_methods
+                        ):
+                            return True
                 # Found a table expression. Does it have a VALUES clause?
                 if segment.get_child("values_clause"):
                     # Found a VALUES clause. Is this a dialect that requires

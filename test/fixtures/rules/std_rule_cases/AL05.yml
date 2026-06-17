@@ -1314,10 +1314,22 @@ test_pass_postgres_wildcard_row_passed_to_function:
 test_pass_tsql_nodes_method_requires_alias:
   # https://github.com/sqlfluff/sqlfluff/issues/6733
   # A table-valued XML method (`.nodes()`) must be given a correlation name in
-  # T-SQL. The alias is syntactically required, so it must not be flagged as
-  # unused -- removing it (as the autofix did) produces invalid SQL.
+  # T-SQL, whose official syntax names both the table and its column:
+  # `nodes(XQuery) AS Table(Column)`. The alias is syntactically required, so it
+  # must not be flagged as unused -- removing it (as the autofix did) produces
+  # invalid SQL.
   pass_str: |
-    SELECT 1 FROM @Xml.nodes('a') AS FN;
+    SELECT Col.value('.', 'NVARCHAR(MAX)') AS V
+    FROM @Xml.nodes('/a') AS Tbl(Col);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_nodes_method_requires_alias_unreferenced:
+  # The alias is still required even when neither the table nor its column is
+  # referenced in the select list (the case AL05's autofix used to corrupt).
+  pass_str: |
+    SELECT 1 FROM @Xml.nodes('a') AS Tbl(Col);
   configs:
     core:
       dialect: tsql
