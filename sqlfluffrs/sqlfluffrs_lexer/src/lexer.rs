@@ -281,6 +281,10 @@ impl Lexer {
         elements: &[LexedElement],
         template: &TemplatedFile,
     ) -> Vec<TemplateElement> {
+        // Silence "unused variable" in release builds where the debug_assertions
+        // validation block below is compiled out.
+        #[cfg(not(debug_assertions))]
+        let _ = template;
         let mut idx = 0;
         let mut templated_buff = Vec::new();
 
@@ -293,19 +297,24 @@ impl Lexer {
             let templated_element = TemplateElement::from_element(element, template_slice);
             templated_buff.push(templated_element);
 
-            // // Validate that the slice matches the element's raw content
-            let templated_substr: String = template
-                .templated_str
-                .chars()
-                .skip(template_slice.start)
-                .take(template_slice.len())
-                .collect();
+            // Validate that the slice matches the element's raw content.
+            // Gated to debug builds: chars().skip(start) restarts from 0 each call,
+            // making this O(n²) in file size for release runs.
+            #[cfg(debug_assertions)]
+            {
+                let templated_substr: String = template
+                    .templated_str
+                    .chars()
+                    .skip(template_slice.start)
+                    .take(template_slice.len())
+                    .collect();
 
-            if *templated_substr != *element.raw {
-                panic!(
-                    "Template and lexed elements do not match. This should never happen  {:?} != {:?}",
-                    &element.raw, &templated_substr
-                )
+                if *templated_substr != *element.raw {
+                    panic!(
+                        "Template and lexed elements do not match. This should never happen  {:?} != {:?}",
+                        &element.raw, &templated_substr
+                    )
+                }
             }
         }
 
