@@ -35,7 +35,10 @@ fn main() {
 
     // Always export the location so the crate compiles whether or not fixtures
     // have been fetched.
-    println!("cargo:rustc-env=TPC_FIXTURES_DIR={}", fixtures_dir.display());
+    println!(
+        "cargo:rustc-env=TPC_FIXTURES_DIR={}",
+        fixtures_dir.display()
+    );
 
     // Only hit the network when explicitly asked to.
     if std::env::var_os("CARGO_FEATURE_FETCH").is_none() {
@@ -50,7 +53,10 @@ fn main() {
 fn fetch_fixtures(fixtures_dir: &Path) -> Result<(), String> {
     // Skip if a previous run already populated the cache for this exact commit.
     let marker = fixtures_dir.join(".doris-sha");
-    if fs::read_to_string(&marker).map(|s| s.trim() == DORIS_SHA).unwrap_or(false) {
+    if fs::read_to_string(&marker)
+        .map(|s| s.trim() == DORIS_SHA)
+        .unwrap_or(false)
+    {
         return Ok(());
     }
 

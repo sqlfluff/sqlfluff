@@ -20,7 +20,9 @@ pub const TPCDS_N: u32 = 99;
 /// Panics with actionable guidance if the fixtures have not been downloaded,
 /// which happens when the crate is built without the `fetch` feature.
 pub fn tpc_fixture(sub_dir: &str, n: u32) -> PathBuf {
-    let path = Path::new(FIXTURES_DIR).join(sub_dir).join(format!("{n}.sql"));
+    let path = Path::new(FIXTURES_DIR)
+        .join(sub_dir)
+        .join(format!("{n}.sql"));
     if !path.exists() {
         panic!(
             "TPC benchmark fixture not found: {}\n\n\
