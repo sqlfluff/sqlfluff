@@ -20,6 +20,7 @@ members = [
     "sqlfluffrs_parser",
     "sqlfluffrs_types",
     "sqlfluffrs_python",
+    "sqlfluffrs_benchmarks",
 ]
 
 [workspace.package]
@@ -74,14 +75,6 @@ flamegraph = "0.6.11"
 [[bench]]
 name = "parser_bench"
 harness = false
-
-
-[[bench]]
-name = "tpc_bench"
-harness = false
-
-[[example]]
-name = "time_tpc"
 
 [profile.bench]
 debug = true
