@@ -283,30 +283,25 @@ impl Lexer {
     ) -> Vec<TemplateElement> {
         let mut idx = 0;
         let mut templated_buff = Vec::new();
+        // Advance once per element rather than restarting from 0 each time,
+        // keeping the validation O(n) in total file size.
+        let mut template_chars = template.templated_str.chars();
 
         for element in elements {
             let element_len = element.raw.chars().count();
             let template_slice = Slice::from(idx..idx + element_len);
             idx += element_len;
 
-            // Create a TemplateElement from the LexedElement and the template slice
-            let templated_element = TemplateElement::from_element(element, template_slice);
-            templated_buff.push(templated_element);
-
-            // // Validate that the slice matches the element's raw content
-            let templated_substr: String = template
-                .templated_str
-                .chars()
-                .skip(template_slice.start)
-                .take(template_slice.len())
-                .collect();
-
+            let templated_substr: String = template_chars.by_ref().take(element_len).collect();
             if *templated_substr != *element.raw {
                 panic!(
                     "Template and lexed elements do not match. This should never happen  {:?} != {:?}",
                     &element.raw, &templated_substr
                 )
             }
+
+            let templated_element = TemplateElement::from_element(element, template_slice);
+            templated_buff.push(templated_element);
         }
 
         templated_buff
