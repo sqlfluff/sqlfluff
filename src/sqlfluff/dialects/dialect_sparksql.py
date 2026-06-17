@@ -1882,7 +1882,11 @@ class InsertStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref("PartitionSpecGrammar", optional=True),
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                OneOf(
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Sequence("BY", "NAME"),
+                    optional=True,
+                ),
                 Ref("InsertSourceGrammar"),
             ),
             Sequence(
