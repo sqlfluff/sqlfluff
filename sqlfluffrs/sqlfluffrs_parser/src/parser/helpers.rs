@@ -382,6 +382,7 @@ impl<'a> Parser<'a> {
     ///
     /// This is the table-driven equivalent of is_terminated_with_elements().
     pub(crate) fn is_terminated_table_driven(&mut self, terminators: &[GrammarId]) -> bool {
+        self.terminator_checks.set(self.terminator_checks.get() + 1);
         let init_pos = self.pos;
 
         // CRITICAL: Check for GrammarId::NONCODE BEFORE skipping transparent tokens!

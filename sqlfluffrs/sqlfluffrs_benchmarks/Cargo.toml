@@ -1,0 +1,39 @@
+[package]
+name = "sqlfluffrs_benchmarks"
+version.workspace = true
+edition = "2021"
+publish = false
+autobenches = false
+
+# Benchmark fixtures (TPC-H / TPC-DS queries) are NOT committed to this repo.
+# `build.rs` downloads them from the Apache Doris project at a pinned commit
+# when the `fetch` feature is enabled, and caches them under OUT_DIR. Normal
+# workspace builds (`cargo build --workspace`, CI) leave `fetch` off and never
+# touch the network. See README.md for details.
+[features]
+fetch = []
+
+[lib]
+bench = false
+
+[dependencies]
+hashbrown = "0.16.1"
+sqlfluffrs_types = { path = "../sqlfluffrs_types" }
+sqlfluffrs_lexer = { path = "../sqlfluffrs_lexer" }
+sqlfluffrs_dialects = { path = "../sqlfluffrs_dialects" }
+sqlfluffrs_parser = { path = "../sqlfluffrs_parser" }
+
+[dev-dependencies]
+criterion = "0.8.2"
+
+[build-dependencies]
+# Lightweight, blocking HTTP client (rustls, no OpenSSL) used only to fetch
+# benchmark fixtures at build time when the `fetch` feature is enabled.
+ureq = "3"
+
+[[bench]]
+name = "tpc_bench"
+harness = false
+
+[[example]]
+name = "time_tpc"
