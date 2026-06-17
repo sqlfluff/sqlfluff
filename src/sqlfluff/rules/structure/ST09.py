@@ -1,15 +1,15 @@
 """Implementation of Rule ST09."""
 
-from typing import Optional, cast
+from typing import Optional
 
-from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.dialects.common import (
+    AliasInfo,
+    get_from_expression_element_alias,
+    get_join_clause_aliases,
+)
 from sqlfluff.core.parser import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.dialects.dialect_ansi import (
-    FromExpressionElementSegment,
-    JoinClauseSegment,
-)
 from sqlfluff.utils.functional import FunctionalContext, Segments
 
 
@@ -118,10 +118,10 @@ class Rule_ST09(BaseRule):
 
         # the first alias comes from the from clause
         from_expression_alias_info = next(
-            cast(
-                FromExpressionElementSegment,
+            get_from_expression_element_alias(
                 children.recursive_crawl("from_expression_element")[0],
-            ).get_eventual_alias()
+                context.dialect.name,
+            )
         )
         from_expression_alias: str = (
             from_expression_alias_info.segment.raw_normalized(False)
@@ -133,7 +133,7 @@ class Rule_ST09(BaseRule):
 
         # the rest of the aliases come from the different join clauses
         join_clause_alias_infos: list[AliasInfo] = [
-            cast(JoinClauseSegment, join_clause).get_eventual_aliases()[0][1]
+            get_join_clause_aliases(join_clause, context.dialect.name)[0][1]
             for join_clause in [clause for clause in join_clauses]
         ]
 

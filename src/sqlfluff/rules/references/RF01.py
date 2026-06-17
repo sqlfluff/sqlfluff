@@ -4,7 +4,14 @@ from dataclasses import dataclass, field
 from typing import Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.dialects.common import (
+    AliasInfo,
+    ObjectReferenceLevel,
+    ObjectReferencePart,
+    extract_possible_multipart_references,
+    extract_possible_references,
+    iter_raw_references,
+)
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -81,7 +88,7 @@ class Rule_RF01(BaseRule):
             )
             if table_reference:
                 dml_target_table = self._table_ref_as_tuple(
-                    cast(ObjectReferenceSegment, table_reference)
+                    cast(ObjectReferenceSegment, table_reference), context.dialect
                 )
 
         self.logger.debug("DML Reference Table: %s", dml_target_table)
@@ -94,26 +101,27 @@ class Rule_RF01(BaseRule):
         )
         return violations
 
-    def _alias_info_as_tuples(self, alias_info: AliasInfo) -> list[tuple[str, ...]]:
+    def _alias_info_as_tuples(
+        self, alias_info: AliasInfo, dialect: Dialect
+    ) -> list[tuple[str, ...]]:
         result: list[tuple[str, ...]] = []
         if alias_info.aliased:
             result.append((alias_info.ref_str,))
         if alias_info.object_reference:
             result += self._table_ref_as_tuple(
-                cast(ObjectReferenceSegment, alias_info.object_reference)
+                cast(ObjectReferenceSegment, alias_info.object_reference), dialect
             )
         return result
 
     def _table_ref_as_tuple(
         self,
         table_reference: ObjectReferenceSegment,
+        dialect: Dialect,
     ) -> list[tuple[str, ...]]:
+        raw_references = list(iter_raw_references(table_reference, dialect.name))
         return [
-            tuple(ref.part for ref in table_reference.iter_raw_references()),
-            tuple(
-                ref.segments[0].normalize(ref.part)
-                for ref in table_reference.iter_raw_references()
-            ),
+            tuple(ref.part for ref in raw_references),
+            tuple(ref.segments[0].normalize(ref.part) for ref in raw_references),
         ]
 
     def _analyze_table_references(
@@ -192,7 +200,7 @@ class Rule_RF01(BaseRule):
         """
         dialect_name = selectable.dialect.name
 
-        reference_parts = list(reference.iter_raw_references())
+        reference_parts = list(iter_raw_references(reference, dialect_name))
         if len(reference_parts) < 2:
             return False
 
@@ -217,17 +225,17 @@ class Rule_RF01(BaseRule):
 
     def _get_table_refs(
         self, ref: ObjectReferenceSegment, dialect: Dialect
-    ) -> list[tuple[ObjectReferenceSegment.ObjectReferencePart, tuple[str, ...]]]:
+    ) -> list[tuple[ObjectReferencePart, tuple[str, ...]]]:
         """Given ObjectReferenceSegment, determine possible table references."""
-        tbl_refs: list[
-            tuple[ObjectReferenceSegment.ObjectReferencePart, tuple[str, ...]]
-        ] = []
+        tbl_refs: list[tuple[ObjectReferencePart, tuple[str, ...]]] = []
         # First, handle any schema.table references.
-        for sr, tr in ref.extract_possible_multipart_references(
+        for sr, tr in extract_possible_multipart_references(
+            ref,
             levels=[
-                ref.ObjectReferenceLevel.SCHEMA,
-                ref.ObjectReferenceLevel.TABLE,
-            ]
+                ObjectReferenceLevel.SCHEMA,
+                ObjectReferenceLevel.TABLE,
+            ],
+            dialect_name=dialect.name,
         ):
             tbl_refs.append((tr, (sr.part, tr.part)))
             tbl_refs.append(
@@ -251,8 +259,8 @@ class Rule_RF01(BaseRule):
         #   whether the dialect overrides
         #   ObjectReferenceSegment.extract_possible_references().
         if not tbl_refs or dialect.name in ["bigquery"]:
-            for tr in ref.extract_possible_references(
-                level=ref.ObjectReferenceLevel.TABLE
+            for tr in extract_possible_references(
+                ref, level=ObjectReferenceLevel.TABLE, dialect_name=dialect.name
             ):
                 tbl_refs.append((tr, (tr.part,)))
                 tbl_refs.append((tr, (tr.segments[0].normalize(tr.part),)))
@@ -261,9 +269,7 @@ class Rule_RF01(BaseRule):
     def _resolve_reference(
         self,
         r: ObjectReferenceSegment,
-        tbl_refs: list[
-            tuple[ObjectReferenceSegment.ObjectReferencePart, tuple[str, ...]]
-        ],
+        tbl_refs: list[tuple[ObjectReferencePart, tuple[str, ...]]],
         dml_target_table: Optional[list[tuple[str, ...]]],
         query: RF01Query,
     ) -> Optional[LintResult]:
@@ -271,7 +277,7 @@ class Rule_RF01(BaseRule):
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
         targets: list[tuple[str, ...]] = []
         for alias in query.aliases:
-            targets += self._alias_info_as_tuples(alias)
+            targets += self._alias_info_as_tuples(alias, query.dialect)
         for standalone_alias in query.standalone_aliases:
             targets.append((standalone_alias.raw,))
             targets.append((standalone_alias.raw_normalized(False),))
@@ -346,7 +352,8 @@ class Rule_RF01(BaseRule):
                     table_reference = next(seg.recursive_crawl("table_reference"), None)
                     if table_reference:
                         return self._table_ref_as_tuple(
-                            cast(ObjectReferenceSegment, table_reference)
+                            cast(ObjectReferenceSegment, table_reference),
+                            query.dialect,
                         )
 
         return []

@@ -8,7 +8,7 @@ from functools import cached_property
 from typing import Generic, NamedTuple, Optional, TypeVar, Union, cast
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.dialects.common import AliasInfo, is_qualified
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.select import (
@@ -246,7 +246,7 @@ class Query(Generic[T]):
             #    or to an external table.
             if seg.is_type("table_reference"):
                 _seg = cast(ObjectReferenceSegment, seg)
-                if not _seg.is_qualified() and lookup_cte:
+                if not is_qualified(_seg, self.dialect.name) and lookup_cte:
                     cte = self.lookup_cte(_seg.raw, pop=pop)
                     if cte:
                         # It's a CTE.

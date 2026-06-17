@@ -6,8 +6,7 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
-from collections.abc import Generator
-
+from sqlfluff.core.dialects import common as dialect_common
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -29,7 +28,6 @@ from sqlfluff.core.parser import (
     OneOf,
     OptionallyBracketed,
     ParseMode,
-    RawSegment,
     Ref,
     RegexLexer,
     RegexParser,
@@ -1758,14 +1756,20 @@ class SplittableObjectReferenceGrammar(ansi.ObjectReferenceSegment):
     identifiers that contain keywords or special characters.
     """
 
-    @classmethod
-    def _iter_reference_parts(
-        cls, elem: RawSegment
-    ) -> Generator[ansi.ObjectReferenceSegment.ObjectReferencePart, None, None]:
-        """Extract the elements of a reference and yield."""
-        # trim on quotes and split out any dots.
-        for part in elem.raw_trimmed().split("."):
-            yield cls.ObjectReferencePart(part, [elem])
+    def iter_raw_references(self):
+        """Generate a list of reference strings and elements.
+
+        Splits each identifier on embedded dots, since BigQuery object
+        references can be multi-part within a single quoted identifier.
+
+        .. deprecated::
+            Use :func:`sqlfluff.core.dialects.common.iter_raw_references`.
+        """
+        dialect_common.deprecated_segment_method(
+            "SplittableObjectReferenceGrammar.iter_raw_references()",
+            "iter_raw_references()",
+        )
+        yield from dialect_common._iter_raw_references_default(self, split_on_dots=True)
 
 
 class ColumnReferenceSegment(SplittableObjectReferenceGrammar):
@@ -1821,38 +1825,32 @@ class ColumnReferenceSegment(SplittableObjectReferenceGrammar):
 
         means that, without schema information (which SQLFluff does not have),
         references to data are often ambiguous.
+
+        .. deprecated::
+            Use :func:`sqlfluff.core.dialects.common.extract_possible_references`.
         """
-        level = self._level_to_int(level)
-        refs = list(self.iter_raw_references())
-        if level == self.ObjectReferenceLevel.SCHEMA.value and len(refs) >= 3:
-            return [refs[0]]  # pragma: no cover
-        if level == self.ObjectReferenceLevel.TABLE.value:
-            # One part: Could be a table, e.g. TO_JSON_STRING(t)
-            # Two parts: Could be dataset.table or table.column.
-            # Three parts: Could be table.column.struct or dataset.table.column.
-            # Four parts: dataset.table.column.struct
-            # Five parts: project.dataset.table.column.struct
-            # So... return the first 3 parts.
-            return refs[:3]
-        if (
-            level == self.ObjectReferenceLevel.OBJECT.value and len(refs) >= 3
-        ):  # pragma: no cover
-            # Ambiguous case: The object (i.e. column) could be the first or
-            # second part, so return both.
-            return [refs[1], refs[2]]
-        return super().extract_possible_references(level)  # pragma: no cover
+        dialect_common.deprecated_segment_method(
+            "ColumnReferenceSegment.extract_possible_references()",
+            "extract_possible_references()",
+        )
+        return dialect_common._extract_possible_references_bigquery_column(
+            self, level, "bigquery"
+        )
 
     def extract_possible_multipart_references(self, levels):
-        """Extract possible multipart references, e.g. schema.table."""
-        levels_tmp = [self._level_to_int(level) for level in levels]
-        min_level = min(levels_tmp)
-        max_level = max(levels_tmp)
-        refs = list(self.iter_raw_references())
-        if max_level == self.ObjectReferenceLevel.SCHEMA.value and len(refs) >= 3:
-            return [tuple(refs[0 : max_level - min_level + 1])]
-        # Note we aren't handling other possible cases. We'll add these as
-        # needed.
-        return super().extract_possible_multipart_references(levels)
+        """Extract possible multipart references, e.g. schema.table.
+
+        .. deprecated::
+            Use
+            :func:`sqlfluff.core.dialects.common.extract_possible_multipart_references`.
+        """
+        dialect_common.deprecated_segment_method(
+            "ColumnReferenceSegment.extract_possible_multipart_references()",
+            "extract_possible_multipart_references()",
+        )
+        return dialect_common._extract_possible_multipart_references_bigquery_column(
+            self, levels, "bigquery"
+        )
 
 
 class TableReferenceSegment(SplittableObjectReferenceGrammar):
@@ -1897,45 +1895,14 @@ class TableReferenceSegment(SplittableObjectReferenceGrammar):
         because hyphens (DashSegment) causes one logical part of the name to
         be split across multiple elements, e.g. "table-a" is parsed as three
         segments.
+
+        .. deprecated::
+            Use :func:`sqlfluff.core.dialects.common.iter_raw_references`.
         """
-        # For each descendant element, group them, using "dot" elements as a
-        # delimiter.
-        parts = []
-        elems_for_parts = []
-
-        def flush():
-            nonlocal parts, elems_for_parts
-            result = self.ObjectReferencePart("".join(parts), elems_for_parts)
-            parts = []
-            elems_for_parts = []
-            return result
-
-        for elem in self.recursive_crawl(
-            "identifier", "literal", "dash", "dot", "star"
-        ):
-            if not elem.is_type("dot"):
-                if elem.is_type("identifier"):
-                    # Found an identifier (potentially with embedded dots).
-                    elem_subparts = elem.raw_trimmed().split(".")
-                    for idx, part in enumerate(elem_subparts):
-                        # Save each part of the segment.
-                        parts.append(part)
-                        elems_for_parts.append(elem)
-
-                        if idx != len(elem_subparts) - 1:
-                            # For each part except the last, flush.
-                            yield flush()
-
-                else:
-                    # For non-identifier segments, save the whole segment.
-                    parts.append(elem.raw_trimmed())
-                    elems_for_parts.append(elem)
-            else:
-                yield flush()
-
-        # Flush any leftovers.
-        if parts:
-            yield flush()
+        dialect_common.deprecated_segment_method(
+            "TableReferenceSegment.iter_raw_references()", "iter_raw_references()"
+        )
+        yield from dialect_common._iter_raw_references_bigquery_table(self)
 
 
 class SystemVariableSegment(BaseSegment):
