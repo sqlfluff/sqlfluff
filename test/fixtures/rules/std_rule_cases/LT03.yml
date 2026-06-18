@@ -552,3 +552,141 @@ assignment_operator_snowflake_leading_attached_fails_standalone:
     LET MY_VAR
     := SOME_VALUE;
   configs: *snowflake_leading_attached
+
+test_pass_bigquery_pipe_operator_leading:
+  # `|>` already starts the line - this is correct.
+  pass_str: |
+    FROM my_database.my_table
+    |> WHERE some_condition
+    |> ORDER BY my_column
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_pipe_operator_trailing:
+  # `|>` should start a new line, not trail the previous one.
+  fail_str: |
+    FROM my_database.my_table |>
+    WHERE some_condition
+  fix_str: |
+    FROM my_database.my_table
+    |> WHERE some_condition
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_pipe_operator_inline:
+  # The default `leading:attached:strict` config moves a mid-line `|>` (no
+  # newline on either side) onto its own line.
+  fail_str: |
+    FROM my_database.my_table |> WHERE some_condition |> ORDER BY my_column
+  fix_str: |
+    FROM my_database.my_table
+    |> WHERE some_condition
+    |> ORDER BY my_column
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_pipe_operator_standalone:
+  # The `attached` part of the default config joins a `|>` floating alone on
+  # its own line back onto the following clause keyword.
+  fail_str: |
+    FROM my_database.my_table
+    |>
+    WHERE some_condition
+  fix_str: |
+    FROM my_database.my_table
+    |> WHERE some_condition
+  configs:
+    core:
+      dialect: bigquery
+
+# --- leading:strict / trailing:strict (insert a newline for mid-line operators)
+
+test_fail_binary_operator_leading_strict_inline:
+  # leading:strict moves a mid-line operator onto the start of a new line.
+  fail_str: |
+    SELECT a + b
+  fix_str: |
+    SELECT a
+    + b
+  configs: &binary_leading_strict
+    layout:
+      type:
+        binary_operator:
+          line_position: "leading:strict"
+
+test_pass_binary_operator_leading_strict_already_leading:
+  pass_str: |
+    SELECT a
+    + b
+  configs: *binary_leading_strict
+
+test_fail_binary_operator_trailing_strict_inline:
+  # trailing:strict moves a mid-line operator onto the end of the line.
+  fail_str: |
+    SELECT a + b
+  fix_str: |
+    SELECT a +
+    b
+  configs: &binary_trailing_strict
+    layout:
+      type:
+        binary_operator:
+          line_position: "trailing:strict"
+
+test_pass_binary_operator_trailing_strict_already_trailing:
+  pass_str: |
+    SELECT a +
+    b
+  configs: *binary_trailing_strict
+
+test_fail_binary_operator_leading_attached_strict_inline:
+  # leading:attached:strict on a mid-line operator inserts a newline before it
+  # while keeping it attached to the following token.
+  fail_str: |
+    SELECT a + b
+  fix_str: |
+    SELECT a
+    + b
+  configs:
+    layout:
+      type:
+        binary_operator:
+          line_position: "leading:attached:strict"
+
+test_fail_binary_operator_trailing_attached_strict_inline:
+  # trailing:attached:strict on a mid-line operator inserts a newline after it
+  # while keeping it attached to the preceding token.
+  fail_str: |
+    SELECT a + b
+  fix_str: |
+    SELECT a +
+    b
+  configs:
+    layout:
+      type:
+        binary_operator:
+          line_position: "trailing:attached:strict"
+
+test_fail_binary_operator_leading_strict_inline_block_comment:
+  # A mid-line operator with inline block comments only inserts a newline next
+  # to the operator - the comments are not reordered.
+  fail_str: |
+    SELECT a /* c1 */ + /* c2 */ b
+  fix_str: |
+    SELECT a /* c1 */
+    + /* c2 */ b
+  configs: *binary_leading_strict
+
+test_fail_bigquery_pipe_operator_inline_block_comment:
+  # The default `leading:strict` pipe handling is comment-safe.
+  fail_str: |
+    FROM t /* c */ |> WHERE x
+  fix_str: |
+    FROM t /* c */
+    |> WHERE x
+  configs:
+    core:
+      dialect: bigquery

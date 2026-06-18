@@ -457,8 +457,8 @@ def rebreak_sequence(
 
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
-            if loc.strict:  # pragma: no cover
-                # TODO: The 'strict' option isn't widely tested yet.
+            if loc.strict and not elem_buff[loc.next.newline_pt_idx].num_newlines():
+                # Strict and mid-line (no newline on either side).
                 desc = f"{pretty_name.capitalize()} should always start a new line."
             elif loc.attached and elem_buff[loc.prev.newline_pt_idx].num_newlines():
                 # Standalone + leading:attached: operator is on its own line but
@@ -473,10 +473,22 @@ def rebreak_sequence(
                     "near line breaks."
                 )
 
+            # Strict mid-line case: the target has no newline on either side
+            # (only reachable when `strict` is set). There's nothing to "move"
+            # past, so we simply insert a newline _before_ the target so it
+            # leads the following line.
+            if not elem_buff[loc.next.newline_pt_idx].num_newlines():
+                reflow_logger.debug("  Leading Strict Insert Case")
+                new_results, prev_point = prev_point.indent_to(
+                    deduce_line_indent(loc.target.raw_segments[0], root_segment),
+                    before=loc.target,
+                )
+                # Update the point in the buffer
+                elem_buff[loc.prev.adj_pt_idx] = prev_point
             # Is it the simple case with no comments between the
             # old and new desired locations and only a single following
             # whitespace?
-            if (
+            elif (
                 loc.next.adj_pt_idx == loc.next.pre_code_pt_idx
                 and elem_buff[loc.next.newline_pt_idx].num_newlines() == 1
             ):
@@ -571,8 +583,8 @@ def rebreak_sequence(
 
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
-            if loc.strict:  # pragma: no cover
-                # TODO: The 'strict' option isn't widely tested yet.
+            if loc.strict and not elem_buff[loc.prev.newline_pt_idx].num_newlines():
+                # Strict and mid-line (no newline on either side).
                 desc = (
                     f"{pretty_name.capitalize()} should always be at the end of a line."
                 )
@@ -589,9 +601,21 @@ def rebreak_sequence(
                     "near line breaks."
                 )
 
+            # Strict mid-line case: the target has no newline on either side
+            # (only reachable when `strict` is set). There's nothing to "move"
+            # past, so we simply insert a newline _after_ the target so it
+            # trails the current line.
+            if not elem_buff[loc.prev.newline_pt_idx].num_newlines():
+                reflow_logger.debug("  Trailing Strict Insert Case")
+                new_results, next_point = next_point.indent_to(
+                    deduce_line_indent(loc.target.raw_segments[-1], root_segment),
+                    after=loc.target,
+                )
+                # Update the point in the buffer
+                elem_buff[loc.next.adj_pt_idx] = next_point
             # Is it the simple case with no comments between the
             # old and new desired locations and only one previous newline?
-            if (
+            elif (
                 loc.prev.adj_pt_idx == loc.prev.pre_code_pt_idx
                 and elem_buff[loc.prev.newline_pt_idx].num_newlines() == 1
             ):
