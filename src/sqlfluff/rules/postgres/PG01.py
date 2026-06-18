@@ -16,13 +16,19 @@ class Rule_PG01(BaseRule):
 
     Several PostgreSQL DDL operations acquire locks that block reads or writes
     for the duration of the operation. On large tables this can cause significant
-    downtime. This rule flags statements that should use safer alternatives:
+    downtime. This rule flags statements that should use ``CONCURRENTLY``:
 
     * ``CREATE INDEX`` → use ``CONCURRENTLY`` (``CREATE UNIQUE INDEX`` excluded)
     * ``DROP INDEX`` → use ``CONCURRENTLY``
     * ``REINDEX`` → use ``CONCURRENTLY``
     * ``REFRESH MATERIALIZED VIEW`` → use ``CONCURRENTLY``
-    * ``ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY`` → use ``NOT VALID``
+
+    .. note::
+
+       The ``ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY`` check was moved
+       to :class:`Rule_PG02 <sqlfluff.rules.postgres.PG02.Rule_PG02>` because
+       ``NOT VALID`` alone is insufficient — it must be followed by
+       ``VALIDATE CONSTRAINT``.
 
     This rule only applies to the ``postgres`` dialect.
 
@@ -40,12 +46,9 @@ class Rule_PG01(BaseRule):
 
         REFRESH MATERIALIZED VIEW my_view;
 
-        ALTER TABLE foo ADD CONSTRAINT fk_bar
-            FOREIGN KEY (bar_id) REFERENCES bar (id);
-
     **Best practice**
 
-    Use non-blocking alternatives.
+    Use ``CONCURRENTLY``.
 
     .. code-block:: sql
 
@@ -56,9 +59,6 @@ class Rule_PG01(BaseRule):
         REINDEX INDEX CONCURRENTLY idx_foo;
 
         REFRESH MATERIALIZED VIEW CONCURRENTLY my_view;
-
-        ALTER TABLE foo ADD CONSTRAINT fk_bar
-            FOREIGN KEY (bar_id) REFERENCES bar (id) NOT VALID;
 
     """
 
@@ -71,7 +71,6 @@ class Rule_PG01(BaseRule):
             "drop_index_statement",
             "reindex_statement_segment",
             "refresh_materialized_view_statement",
-            "alter_table_statement",
         }
     )
 
@@ -92,8 +91,6 @@ class Rule_PG01(BaseRule):
             "refresh_materialized_view_statement",
         ):
             return self._check_concurrently(segment)
-        if seg_type == "alter_table_statement":
-            return self._check_add_foreign_key(segment)
         return None  # pragma: no cover
 
     def _check_create_index(self, segment) -> Optional[LintResult]:
@@ -120,21 +117,3 @@ class Rule_PG01(BaseRule):
             ),
         )
 
-    def _check_add_foreign_key(self, segment) -> Optional[LintResult]:
-        action = segment.get_child("alter_table_action_segment")
-        if not action:  # pragma: no cover
-            return None
-        constraint = action.get_child("table_constraint")
-        if not constraint:
-            return None
-        if not _has_keyword(constraint.segments, "FOREIGN"):
-            return None
-        if _has_keyword(constraint.segments, "VALID"):
-            return None
-        return LintResult(
-            anchor=segment,
-            description=(
-                "ADD CONSTRAINT ... FOREIGN KEY should use NOT VALID "
-                "to avoid locking the table while validating existing rows."
-            ),
-        )
