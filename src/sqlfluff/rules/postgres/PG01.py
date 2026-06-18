@@ -116,4 +116,3 @@ class Rule_PG01(BaseRule):
                 f"{stmt} statement should use CONCURRENTLY to avoid locking the table."
             ),
         )
-
