@@ -2448,29 +2448,33 @@ def _fix_long_line_with_integer_targets(
 def _is_templated_safe_break(elements: ReflowSequenceType, e_idx: int) -> bool:
     """Check if inserting a line break at e_idx is safe for templated files.
 
-    A break point is unsafe if BOTH adjacent content segments are non-literal
-    (i.e., the break is within a template expansion). Inserting a line break
-    within rendered template content cannot be mapped back to the source file
-    correctly, which can lead to content duplication or corruption.
+    A break point is unsafe if EITHER adjacent content segment is non-literal
+    (i.e., at least one side is within a template expansion). Inserting a line
+    break at a boundary involving rendered template content cannot always be
+    mapped back to the source file correctly, which can lead to content
+    duplication or corruption.
+
+    The original guard (#7640) only blocked breaks where BOTH sides were
+    non-literal. However, breaks at literal/non-literal boundaries can also
+    corrupt dbt models with mixed SQL + Jinja (e.g. a long SELECT with
+    inline macro calls).
 
     See: https://github.com/sqlfluff/sqlfluff/issues/7639
+    See: https://github.com/sqlfluff/sqlfluff/issues/7971
     """
     # Check the segment before the break point.
-    before_literal = True
     if e_idx > 0 and elements[e_idx - 1].segments:
         seg_before = elements[e_idx - 1].segments[-1]
         if seg_before.pos_marker and not seg_before.pos_marker.is_literal():
-            before_literal = False
+            return False
 
     # Check the segment after the break point.
-    after_literal = True
     if e_idx + 1 < len(elements) and elements[e_idx + 1].segments:
         seg_after = elements[e_idx + 1].segments[0]
         if seg_after.pos_marker and not seg_after.pos_marker.is_literal():
-            after_literal = False
+            return False
 
-    # Unsafe only if BOTH sides are non-literal (within template expansion).
-    return before_literal or after_literal
+    return True
 
 
 def lint_line_length(

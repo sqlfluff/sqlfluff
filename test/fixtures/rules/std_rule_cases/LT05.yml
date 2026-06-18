@@ -814,3 +814,12 @@ test_fail_no_fix_jinja_macro_with_brackets:
             {{ cast_tz("cast(source.order_arrived_date || ' ' || source.order_arrived_time as timestamp)") }}
         )
     FROM source
+
+test_fail_no_fix_mixed_literal_jinja:
+  # Test that LT05 doesn't attempt to fix lines with a mix of literal SQL
+  # and Jinja template content. Breaking at a literal/non-literal boundary
+  # can corrupt the source file (duplication, truncation).
+  # https://github.com/sqlfluff/sqlfluff/issues/7971
+  fail_str: |
+    SELECT message.identifier AS entity_uri, message.entity_type, {{ dbt_utils.generate_surrogate_key(['message.identifier', 'message.event_type']) }} AS surrogate_key, TIMESTAMP_MILLIS(context.time) AS event_timestamp
+    FROM source
