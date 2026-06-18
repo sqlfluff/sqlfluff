@@ -61,7 +61,12 @@ class Rule_LT03(BaseRule):
     aliases = ("L007",)
     groups = ("all", "layout")
     crawl_behaviour = SegmentSeekerCrawler(
-        {"binary_operator", "comparison_operator", "assignment_operator"}
+        {
+            "binary_operator",
+            "comparison_operator",
+            "assignment_operator",
+            "pipe_operator",
+        }
     )
     is_fix_compatible = True
 
@@ -99,33 +104,29 @@ class Rule_LT03(BaseRule):
             parent: The parent segment (must contain `segment`).
             line_position: The `line_position` config for the segment.
         """
-        idx = parent.segments.index(segment)
         base_position = line_position.split(":")[0]
+        if base_position not in ("leading", "trailing"):
+            return False
         attached = "attached" in line_position
+        strict = line_position.endswith("strict")
+
+        # `leading`/`trailing` are mirror images, so resolve the sides relative
+        # to the desired position and share the logic.
+        idx = parent.segments.index(segment)
         has_newline_before = self._seek_newline(parent.segments, idx, dir=-1)
         has_newline_after = self._seek_newline(parent.segments, idx, dir=1)
-
-        # Shortcut #1: Leading.
         if base_position == "leading":
-            if attached:
-                # leading:attached: shortcut when mid-line or truly leading.
-                # Must reflow when trailing or on its own line (no newline after
-                # means it cannot be standalone or trailing).
-                return not has_newline_after
-            # Standard: OK unless trailing (no newline before, but newline after).
-            return has_newline_before or not has_newline_after
+            in_position, opposite = has_newline_before, has_newline_after
+        else:
+            in_position, opposite = has_newline_after, has_newline_before
 
-        # Shortcut #2: Trailing.
-        elif base_position == "trailing":
-            if attached:
-                # trailing:attached: shortcut when mid-line or truly trailing.
-                # Must reflow when leading or on its own line (no newline before
-                # means it cannot be standalone or leading).
-                return not has_newline_before
-            # Standard: OK unless leading (no newline after, but newline before).
-            return has_newline_after or not has_newline_before
-
-        return False
+        if attached:
+            # `attached` also forbids floating alone on its own line.
+            if opposite:
+                return False
+            return in_position or not strict
+        # OK unless mispositioned; `strict` also rejects mid-line.
+        return in_position or (not strict and not opposite)
 
     def _eval(self, context: RuleContext) -> list[LintResult]:
         """Operators should follow a standard for being before/after newlines.
@@ -138,31 +139,21 @@ class Rule_LT03(BaseRule):
         # NOTE: These shortcuts assume that any newlines will be direct
         # siblings of the operator in question. This isn't _always_ the case
         # but is true often enough to have meaningful upside from early
-        # detection.
-        if context.segment.is_type("comparison_operator"):
-            comparison_positioning = context.config.get(
-                "line_position", ["layout", "type", "comparison_operator"]
-            )
-            if self._check_trail_lead_shortcut(
-                context.segment, context.parent_stack[-1], comparison_positioning
-            ):
-                return [LintResult()]
-        elif context.segment.is_type("binary_operator"):
-            binary_positioning = context.config.get(
-                "line_position", ["layout", "type", "binary_operator"]
-            )
-            if self._check_trail_lead_shortcut(
-                context.segment, context.parent_stack[-1], binary_positioning
-            ):
-                return [LintResult()]
-        elif context.segment.is_type("assignment_operator"):
-            assignment_positioning = context.config.get(
-                "line_position", ["layout", "type", "assignment_operator"]
-            )
-            if self._check_trail_lead_shortcut(
-                context.segment, context.parent_stack[-1], assignment_positioning
-            ):
-                return [LintResult()]
+        # detection. `pipe_operator` has no shortcut and falls through to reflow.
+        for operator_type in (
+            "comparison_operator",
+            "binary_operator",
+            "assignment_operator",
+        ):
+            if context.segment.is_type(operator_type):
+                positioning = context.config.get(
+                    "line_position", ["layout", "type", operator_type]
+                )
+                if self._check_trail_lead_shortcut(
+                    context.segment, context.parent_stack[-1], positioning
+                ):
+                    return [LintResult()]
+                break
 
         return (
             ReflowSequence.from_around_target(
