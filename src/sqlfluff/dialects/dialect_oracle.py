@@ -210,9 +210,11 @@ oracle_dialect.add(
     ),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     TriggerCorrelationReferenceSegment=Ref("TriggerCorrelationReferenceSegment"),
-    PivotForInGrammar=Sequence(
+    PivotForGrammar=Sequence(
         "FOR",
         OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
+    ),
+    PivotInGrammar=Sequence(
         "IN",
         Bracketed(
             Delimited(
@@ -220,6 +222,36 @@ oracle_dialect.add(
                     Ref("Expression_D_Grammar"),
                     Ref("AliasExpressionSegment", optional=True),
                 )
+            )
+        ),
+    ),
+    UnpivotAsCharacterLiteralGrammar=Delimited(
+        Sequence(
+            OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Sequence(
+                "AS",
+                OptionallyBracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+        ),
+    ),
+    UnpivotAsNumericLiteralGrammar=Delimited(
+        Sequence(
+            OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Sequence(
+                "AS",
+                OptionallyBracketed(Delimited(Ref("NumericLiteralSegment"))),
+                optional=True,
+            ),
+        ),
+    ),
+    UnpivotInGrammar=Sequence(
+        "IN",
+        Bracketed(
+            # Literals have to be either all characters or all numeric
+            OneOf(
+                Ref("UnpivotAsCharacterLiteralGrammar"),
+                Ref("UnpivotAsNumericLiteralGrammar"),
             )
         ),
     ),
@@ -661,6 +693,14 @@ oracle_dialect.replace(
     ),
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
+    ),
+    JoinLikeClauseGrammar=Sequence(
+        AnyNumberOf(
+            Ref("PivotSegment"),
+            Ref("UnpivotSegment"),
+            min_times=1,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -1688,14 +1728,10 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("HierarchicalQueryClauseSegment", optional=True),
-            Ref("PivotSegment", optional=True),
-            Ref("UnpivotSegment", optional=True),
         ],
         before=Ref("GroupByClauseSegment", optional=True),
         terminators=[
             Ref("HierarchicalQueryClauseSegment"),
-            Ref("PivotSegment", optional=True),
-            Ref("UnpivotSegment", optional=True),
             "LOG",
         ],
     ).copy(
@@ -1789,7 +1825,8 @@ class PivotSegment(BaseSegment):
                     Ref("FunctionSegment"), Ref("AliasExpressionSegment", optional=True)
                 )
             ),
-            Ref("PivotForInGrammar"),
+            Ref("PivotForGrammar"),
+            Ref("PivotInGrammar"),
         ),
     )
 
@@ -1831,7 +1868,8 @@ class UnpivotSegment(BaseSegment):
         Ref("UnpivotNullsGrammar", optional=True),
         Bracketed(
             OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
-            Ref("PivotForInGrammar"),
+            Ref("PivotForGrammar"),
+            Ref("UnpivotInGrammar"),
         ),
     )
 
