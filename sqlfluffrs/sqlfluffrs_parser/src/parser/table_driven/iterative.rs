@@ -511,7 +511,7 @@ impl Parser<'_> {
             // in the final committed AST.
 
             match &mut frame.context {
-                FrameContext::OneOfTableDriven { .. } => {
+                FrameContext::OneOf(_) => {
                     match self.handle_oneof_table_driven_waiting_for_child(
                         frame,
                         child_node,
@@ -525,7 +525,7 @@ impl Parser<'_> {
                     }
                     Ok(TableFrameResult::Done)
                 }
-                FrameContext::SequenceTableDriven { .. } => {
+                FrameContext::Sequence(_) => {
                     match self.handle_sequence_table_driven_waiting_for_child(
                         frame,
                         child_node,
@@ -539,7 +539,7 @@ impl Parser<'_> {
                     }
                     Ok(TableFrameResult::Done)
                 }
-                FrameContext::RefTableDriven { .. } => {
+                FrameContext::Ref(_) => {
                     match self.handle_ref_table_driven_waiting_for_child(
                         frame,
                         child_node,
@@ -552,7 +552,7 @@ impl Parser<'_> {
                     }
                     Ok(TableFrameResult::Done)
                 }
-                FrameContext::DelimitedTableDriven { .. } => {
+                FrameContext::Delimited(_) => {
                     match self.handle_delimited_table_driven_waiting_for_child(
                         frame,
                         child_node,
@@ -566,7 +566,7 @@ impl Parser<'_> {
                     }
                     Ok(TableFrameResult::Done)
                 }
-                FrameContext::BracketedTableDriven { .. } => {
+                FrameContext::Bracketed(_) => {
                     match self.handle_bracketed_table_driven_waiting_for_child(
                         frame,
                         child_node,
@@ -580,7 +580,7 @@ impl Parser<'_> {
                     }
                     Ok(TableFrameResult::Done)
                 }
-                FrameContext::AnyNumberOfTableDriven { .. } => {
+                FrameContext::AnyNumberOf(_) => {
                     match self.handle_anynumberof_table_driven_waiting_for_child(
                         frame,
                         child_node,

@@ -1,6 +1,6 @@
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, MatchResult, ParseError, Parser,
+    FrameContext, FrameState, MatchResult, OneOfState, ParseError, Parser,
 };
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
@@ -56,12 +56,7 @@ impl Parser<'_> {
         }
 
         // Collect leading transparent tokens if allow_gaps
-        // self.skip_start_index_forward_to_code(start_pos, frame)
-        let post_skip_pos = if allow_gaps {
-            self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
-        } else {
-            start_pos
-        };
+        let post_skip_pos = self.skip_to_code_if_gaps(start_pos, self.tokens.len(), allow_gaps);
 
         // Combine terminators (read parent terminators from frame directly)
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
@@ -150,7 +145,7 @@ impl Parser<'_> {
         );
 
         // Store context for WaitingForChild state (move pruned_children, no clone)
-        frame.context = FrameContext::OneOfTableDriven {
+        frame.context = FrameContext::OneOf(OneOfState {
             grammar_id,
             pruned_children,
             post_skip_pos,
@@ -159,7 +154,7 @@ impl Parser<'_> {
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
             current_child_id: Some(first_child),
-        };
+        });
 
         // Move terminators into frame (no clone)
         frame.table_terminators = all_terminators;
@@ -192,7 +187,7 @@ impl Parser<'_> {
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::OneOfTableDriven {
+        let FrameContext::OneOf(OneOfState {
             pruned_children,
             post_skip_pos,
             longest_match,
@@ -200,9 +195,9 @@ impl Parser<'_> {
             max_idx,
             current_child_id,
             ..
-        } = &mut frame.context
+        }) = &mut frame.context
         else {
-            unreachable!("Expected OneOfTableDriven context");
+            unreachable!("Expected OneOf context");
         };
 
         let consumed = *child_end_pos - *post_skip_pos;
@@ -378,17 +373,13 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         // Extract values from context by moving them out
         let (post_skip_pos, longest_match) = match &mut frame.context {
-            FrameContext::OneOfTableDriven {
-                post_skip_pos,
-                longest_match,
-                ..
-            } => {
+            FrameContext::OneOf(state) => {
                 // Take ownership to avoid clones
-                (*post_skip_pos, longest_match.take())
+                (state.post_skip_pos, state.longest_match.take())
             }
             _ => {
                 return Err(ParseError::new(
-                    "Expected OneOfTableDriven context in combining".to_string(),
+                    "Expected OneOf context in combining".to_string(),
                 ));
             }
         };

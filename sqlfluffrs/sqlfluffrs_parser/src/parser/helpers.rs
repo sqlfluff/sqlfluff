@@ -121,6 +121,22 @@ impl<'a> Parser<'a> {
         max_idx
     }
 
+    /// Skip forward to the next code token, but only when `allow_gaps` is set;
+    /// otherwise return `pos` unchanged.
+    ///
+    /// Folds the `if allow_gaps { skip_start_index_forward_to_code(..) } else { pos }`
+    /// idiom that every compound handler repeats at child boundaries. `bound` is
+    /// the exclusive ceiling for the scan (callers pass either `max_idx` or
+    /// `self.tokens.len()` depending on whether their window is known yet).
+    #[inline]
+    pub(crate) fn skip_to_code_if_gaps(&self, pos: usize, bound: usize, allow_gaps: bool) -> usize {
+        if allow_gaps {
+            self.skip_start_index_forward_to_code(pos, bound)
+        } else {
+            pos
+        }
+    }
+
     /// Move an index backward through tokens until tokens[index - 1] is code or comment.
     /// Returns the index after the last code/comment token, or min_idx if none found.
     /// IMPORTANT: Comments are NOT skipped - they should be collected like code tokens!

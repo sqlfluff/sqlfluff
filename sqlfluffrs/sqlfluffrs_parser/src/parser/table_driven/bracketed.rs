@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    BracketedState, FrameContext, FrameState, MatchResult, ParseError, Parser,
+    BracketedPhase, BracketedState, FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 
 impl Parser<'_> {
@@ -82,18 +82,18 @@ impl Parser<'_> {
         let child_is_empty = child_match.is_empty();
 
         // Extract needed fields from frame.context
-        let FrameContext::BracketedTableDriven {
+        let FrameContext::Bracketed(BracketedState {
             grammar_id,
-            state: bracket_state,
+            phase: bracket_state,
             bracket_max_idx,
             last_child_frame_id,
             content_ids,
             content_idx,
             parse_mode_override,
             child_matches,
-        } = &mut frame.context
+        }) = &mut frame.context
         else {
-            unreachable!("Expected BracketedTableDriven context");
+            unreachable!("Expected Bracketed context");
         };
 
         let all_children: Vec<GrammarId> = self.grammar_ctx.children(*grammar_id).collect();
@@ -120,7 +120,7 @@ impl Parser<'_> {
         );
 
         match bracket_state {
-            BracketedState::MatchingOpen => {
+            BracketedPhase::MatchingOpen => {
                 if child_is_empty {
                     self.pos = frame.pos;
                     vdebug!("Bracketed[table] returning Empty (no opening bracket)",);
@@ -179,14 +179,11 @@ impl Parser<'_> {
                 }
 
                 // Skip whitespace/newlines after opening bracket if allow_gaps
-                self.pos = if allow_gaps {
-                    self.skip_start_index_forward_to_code(content_start_idx, self.tokens.len())
-                } else {
-                    content_start_idx
-                };
+                self.pos =
+                    self.skip_to_code_if_gaps(content_start_idx, self.tokens.len(), allow_gaps);
 
                 // Transition to MatchingContent state
-                *bracket_state = BracketedState::MatchingContent;
+                *bracket_state = BracketedPhase::MatchingContent;
 
                 // CRITICAL: If Bracketed is GREEDY, set parse_mode_override so content inherits it.
                 // This matches Python behavior where Bracketed(parse_mode=GREEDY) inherits from
@@ -235,7 +232,7 @@ impl Parser<'_> {
                     // No (remaining) elements - skip to closing bracket
                     // update the state in the frame context to MatchingClose
                     vdebug!("DEBUG: Transitioning to MatchingClose!");
-                    *bracket_state = BracketedState::MatchingClose;
+                    *bracket_state = BracketedPhase::MatchingClose;
                     let parent_limit = frame.parent_max_idx;
                     vdebug!(
                         "DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}",
@@ -284,7 +281,7 @@ impl Parser<'_> {
                 *last_child_frame_id = Some(stack.frame_id_counter);
                 Ok(stack.push_child_and_wait(frame, child_frame, 0))
             }
-            BracketedState::MatchingContent => {
+            BracketedPhase::MatchingContent => {
                 // Python reference: sequence.py Bracketed.match() lines ~530-570
                 // In Python, Bracketed doesn't pre-compute the closing bracket position.
                 // Instead, it lets Sequence.match() handle the content (which may return
@@ -316,11 +313,7 @@ impl Parser<'_> {
                     }
                 }
 
-                self.pos = if allow_gaps {
-                    self.skip_start_index_forward_to_code(*child_end_pos, self.tokens.len())
-                } else {
-                    *child_end_pos
-                };
+                self.pos = self.skip_to_code_if_gaps(*child_end_pos, self.tokens.len(), allow_gaps);
                 vdebug!(
                     "DEBUG: Checking for more content or closing bracket - self.pos={}, content_idx={}, content_ids.len()={}, tokens.len={}",
                     self.pos,
@@ -462,7 +455,7 @@ impl Parser<'_> {
                     }
 
                     vdebug!("DEBUG: All content elements parsed, transitioning to MatchingClose!");
-                    *bracket_state = BracketedState::MatchingClose;
+                    *bracket_state = BracketedPhase::MatchingClose;
                     let parent_limit = frame.parent_max_idx;
                     vdebug!(
                         "DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}",
@@ -482,7 +475,7 @@ impl Parser<'_> {
                     Ok(stack.push_child_and_wait(frame, child_frame, 0))
                 }
             }
-            BracketedState::MatchingClose => {
+            BracketedPhase::MatchingClose => {
                 vdebug!(
                     "DEBUG: Bracketed[table] MatchingClose - child_is_empty={}, child_end_pos={}",
                     child_is_empty,
@@ -531,7 +524,7 @@ impl Parser<'_> {
                         frame.frame_id
                     );
                     // Mark as Complete so the combining handler knows this is a successful match
-                    *bracket_state = BracketedState::Complete;
+                    *bracket_state = BracketedPhase::Complete;
                     frame.end_pos = Some(*child_end_pos);
                 }
                 // Transition to Combining to finalize result
@@ -539,9 +532,9 @@ impl Parser<'_> {
                 stack.push(frame);
                 Ok(TableFrameResult::Done)
             }
-            BracketedState::Complete => {
+            BracketedPhase::Complete => {
                 unreachable!(
-                    "BracketedState::Complete should not occur in WaitingForChild handler"
+                    "BracketedPhase::Complete should not occur in WaitingForChild handler"
                 );
             }
         }
@@ -558,21 +551,15 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         // Extract the bracketed state and grammar from the frame context
         let (is_complete, bracket_persists, child_matches) =
-            if let FrameContext::BracketedTableDriven {
-                state,
-                grammar_id,
-                child_matches,
-                ..
-            } = &mut frame.context
-            {
-                let complete = matches!(state, BracketedState::Complete);
+            if let FrameContext::Bracketed(state) = &mut frame.context {
+                let complete = matches!(state.phase, BracketedPhase::Complete);
 
                 // Determine bracket_persists using the GrammarInst for this GrammarId
-                let persists = self.grammar_ctx.bracketed_persists(*grammar_id);
+                let persists = self.grammar_ctx.bracketed_persists(state.grammar_id);
 
-                (complete, persists, std::mem::take(child_matches))
+                (complete, persists, std::mem::take(&mut state.child_matches))
             } else {
-                panic!("Expected BracketedTableDriven context in combining state");
+                panic!("Expected Bracketed context in combining state");
             };
 
         #[cfg(feature = "verbose-debug")]
@@ -600,9 +587,8 @@ impl Parser<'_> {
         } else {
             // Log the actual state for debugging
             #[cfg(feature = "verbose-debug")]
-            let state_str = if let FrameContext::BracketedTableDriven { state, .. } = &frame.context
-            {
-                format!("{:?}", state)
+            let state_str = if let FrameContext::Bracketed(state) = &frame.context {
+                format!("{:?}", state.phase)
             } else {
                 "Unknown".to_string()
             };
@@ -631,16 +617,16 @@ fn initialize_table_driven_bracketed_frame(
 ) {
     // Update frame with Bracketed context
     frame.state = FrameState::WaitingForChild { child_index: 0 };
-    frame.context = FrameContext::BracketedTableDriven {
+    frame.context = FrameContext::Bracketed(BracketedState {
         grammar_id,
-        state: BracketedState::MatchingOpen,
+        phase: BracketedPhase::MatchingOpen,
         last_child_frame_id: None,
         bracket_max_idx: None,
         content_ids: Vec::new(), // Will be populated later
         content_idx: 0,
         parse_mode_override: None, // Will be set when creating content frames
         child_matches: Vec::new(),
-    };
+    });
     frame.table_terminators = SmallVec::from_slice(all_terminators);
     stack.push(frame);
 }

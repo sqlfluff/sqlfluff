@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    DelimitedState, FrameContext, FrameState, MatchResult, ParseError, Parser,
+    DelimitedPhase, DelimitedState, FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 
 impl Parser<'_> {
@@ -158,20 +158,20 @@ impl Parser<'_> {
 
         // Store context - element_children now just contains the single elements_id
         // (which may be a OneOf internally)
-        frame.context = FrameContext::DelimitedTableDriven {
+        frame.context = FrameContext::Delimited(DelimitedState {
             grammar_id,
             delimiter_count: 0,
             matched_idx: start_pos,
             working_idx: start_pos,
             max_idx,
-            state: DelimitedState::MatchingElement,
+            phase: DelimitedPhase::MatchingElement,
             last_child_frame_id: Some(stack.frame_id_counter),
             delimiter_match: None,
             pos_before_delimiter: None,
             element_children: vec![elements_id], // Single entry: the OneOf or single element
             child_terminators,                   // Move, no clone
             working_match: Arc::new(MatchResult::empty_at(start_pos)),
-        };
+        });
 
         // Push child to match element(s).
         Ok(stack.push_child_and_wait(frame, child_frame, 0))
@@ -189,22 +189,22 @@ impl Parser<'_> {
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::DelimitedTableDriven {
+        let FrameContext::Delimited(DelimitedState {
             grammar_id,
             delimiter_count,
             matched_idx,
             working_idx,
             max_idx,
-            state: delim_state,
+            phase: delim_state,
             element_children: _, // No longer used - OneOf handles element selection
             delimiter_match,
             pos_before_delimiter,
             child_terminators,
             working_match,
             ..
-        } = &mut frame.context
+        }) = &mut frame.context
         else {
-            unreachable!("Expected DelimitedTableDriven context");
+            unreachable!("Expected Delimited context");
         };
 
         // Clone child_terminators before mutable borrow to use in child frame creation.
@@ -243,11 +243,9 @@ impl Parser<'_> {
         );
 
         match delim_state {
-            DelimitedState::MatchingElement => {
+            DelimitedPhase::MatchingElement => {
                 // If allow_gaps, skip non-code tokens before processing
-                if allow_gaps {
-                    *working_idx = self.skip_start_index_forward_to_code(*working_idx, *max_idx);
-                }
+                *working_idx = self.skip_to_code_if_gaps(*working_idx, *max_idx, allow_gaps);
                 self.pos = *working_idx;
 
                 // Check for terminators BEFORE processing the child match result.
@@ -367,13 +365,11 @@ impl Parser<'_> {
                 }
 
                 // Skip to next code position if allow_gaps
-                if allow_gaps {
-                    *working_idx = self.skip_start_index_forward_to_code(*working_idx, *max_idx);
-                }
+                *working_idx = self.skip_to_code_if_gaps(*working_idx, *max_idx, allow_gaps);
                 self.pos = *working_idx;
 
                 // Transition to MatchingDelimiter
-                *delim_state = DelimitedState::MatchingDelimiter;
+                *delim_state = DelimitedPhase::MatchingDelimiter;
 
                 // IMPORTANT: Don't pass max_idx to delimiter frame!
                 // The delimiter should be matchable at the current position even if
@@ -397,7 +393,7 @@ impl Parser<'_> {
                 Ok(TableFrameResult::Done)
             }
 
-            DelimitedState::MatchingDelimiter => {
+            DelimitedPhase::MatchingDelimiter => {
                 if child_match.is_empty() {
                     // Delimiter failed to match
                     if optional_delimiter {
@@ -406,7 +402,7 @@ impl Parser<'_> {
                         vdebug!(
                             "Delimited[table]: optional delimiter failed, trying another element"
                         );
-                        *delim_state = DelimitedState::MatchingElement;
+                        *delim_state = DelimitedPhase::MatchingElement;
 
                         // With new structure, elements_id (child 0) is the element grammar
                         // Just push it to try matching elements again
@@ -522,17 +518,14 @@ impl Parser<'_> {
                 }
 
                 // Transition to MatchingElement
-                *delim_state = DelimitedState::MatchingElement;
+                *delim_state = DelimitedPhase::MatchingElement;
 
                 // DON'T push the delimiter yet - we need to check for termination first.
                 // The delimiter will be pushed only if we're NOT terminated.
 
                 // Skip transparent tokens (whitespace, newlines, comments) after delimiter if allow_gaps.
                 // NOTE: Don't constrain by max_idx
-                if allow_gaps {
-                    *working_idx =
-                        self.skip_start_index_forward_to_code(*working_idx, self.tokens.len());
-                }
+                *working_idx = self.skip_to_code_if_gaps(*working_idx, self.tokens.len(), allow_gaps);
                 self.pos = *working_idx;
 
                 // Delimiter matched and not a terminator: keep it in `delimiter_match`
@@ -634,15 +627,15 @@ impl Parser<'_> {
         frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::DelimitedTableDriven {
+        let FrameContext::Delimited(DelimitedState {
             grammar_id,
             delimiter_count,
             working_match,
             ..
-        } = &frame.context
+        }) = &frame.context
         else {
             return Err(ParseError::new(
-                "Expected DelimitedTableDriven context in combining".to_string(),
+                "Expected Delimited context in combining".to_string(),
             ));
         };
 

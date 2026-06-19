@@ -42,15 +42,32 @@ a stack of `TableParseFrame`. Two enums in
 | `Complete(Arc<MatchResult>)` | Result ready to return to the parent. |
 
 **`FrameContext`** — per-variant scratch carried across resumes; one variant per compound
-grammar (`SequenceTableDriven`, `OneOfTableDriven`, `DelimitedTableDriven`,
-`BracketedTableDriven`, `AnyNumberOfTableDriven`, `RefTableDriven`), plus `None` for terminal
-parsers. Each holds what its handler needs between resumes (e.g.
-`OneOfTableDriven.longest_match`).
+grammar (`Sequence(SequenceState)`, `OneOf(OneOfState)`, `Delimited(DelimitedState)`,
+`Bracketed(BracketedState)`, `AnyNumberOf(AnyNumberOfState)`, `Ref(RefState)`), plus `None`
+for terminal parsers. Each named state struct holds what its handler needs between resumes
+(e.g. `OneOfState::longest_match`); `as_*_mut()` accessors on `FrameContext` return the
+typed `&mut *State` for one variant.
 
 Dispatch is a static `match` on `GrammarVariant` — a jump table — at `*_initial`,
 `*_waiting_for_child`, and `*_combining`, with one handler module per variant under
 [`table_driven/`](sqlfluffrs_parser/src/parser/table_driven/). Keep it static: a trait
 object here costs a vtable load per transition on the hottest path (see [`PERF.md`](PERF.md)).
+
+**Results hand-off.** A frame doesn't return to its parent directly. When a child reaches
+`Complete`, the loop writes `(Arc<MatchResult>, end_pos, element_key)` into
+`TableParseFrameStack.results` keyed by the child's `frame_id`. The parent — parked in
+`WaitingForChild` — reclaims it on resume via its own `last_child_frame_id`. The `Arc` keeps
+the hand-off clone-free; `element_key` carries OneOf's per-element identity to AnyNumberOf
+(for `max_times_per_element`) and is `None` otherwise.
+
+**MatchResult.** A match is described, not materialised: a `MatchResult` carries the matched
+token span, optional `matched_class` (the segment type to create), `insert_segments` (meta
+Indent/Dedent to splice in), and `child_matches`. `Combining` assembles a parent's
+`MatchResult` from its `child_matches`; Python later calls `apply()` to turn the tree into
+real segments. The output pipeline is: engine → `Arc<MatchResult>` → `apply_as_root()` →
+`Node` tree → (linter facade) arena → Python. The engine's job ends at a correct
+`MatchResult`; everything downstream depends on its shape staying stable, so a refactor must
+never change *what* gets recorded in `matched_class` / `insert_segments` / `child_matches`.
 
 Entry points (`parser/core.rs`): `call_rule_as_root()` returns a `MatchResult` (Python then
 calls `apply()`); `root_parse()` returns a materialised `Node`. Build with `Parser::new(...)`
@@ -130,6 +147,26 @@ to the Python-generated `*.yml` under `test/fixtures/dialects/<dialect>/`. When 
 5. **Lock it in:** add a minimal reproducer as a dialect fixture
    (`test/fixtures/dialects/<dialect>/<name>.sql`), generate its tree with
    `tox -e generate-fixture-yml`, and commit both. The `pyXXX-rust` suite then guards it.
+
+## 8. Glossary
+
+Position indices recur across the variant handlers with consistent meaning (defined on
+`FrameContext` in [`parser/frame.rs`](sqlfluffrs_parser/src/parser/frame.rs)):
+
+| Name | Meaning |
+|------|---------|
+| `start_idx` | Fixed token position where this grammar began matching. Never mutated; the backtrack origin. |
+| `matched_idx` | The *committed* frontier — position reached by everything matched and accepted so far. Advances only when a child match is folded in. |
+| `working_idx` | An *in-progress probe* position while trying the next child/delimiter. May run ahead of `matched_idx` and roll back if the probe fails. |
+| `max_idx` | The *ceiling* — largest position this grammar may consume, derived from terminators + the parent's ceiling. Matching never crosses it. |
+| `parent_max_idx` | The ceiling inherited from the parent (input bound). |
+| `calculated_max_idx` | The frame's own effective ceiling, computed in `Initial`. Authoritative for matching and the cache key — not `parent_max_idx`. |
+| `child_index` | The resume cursor stored in `WaitingForChild`; variant-specific (element index for Sequence, candidates-tried count for OneOf). |
+
+Two `longest_match` shapes exist deliberately: `OneOf` keeps the *longest clean* match
+(clean beats unclean at equal length), `AnyNumberOf` keeps the *longest by end position*
+only. Both are documented at their fields; a future refactor unifies them behind one
+policy-tagged helper.
 
 ## See also
 
