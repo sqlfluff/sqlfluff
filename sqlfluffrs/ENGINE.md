@@ -11,7 +11,7 @@ Table-layout mechanics and the grammar-variant catalogue live in
 
 - **Grammar is data.** Each rule is a 20-byte `GrammarInst` in a flat `&'static` array,
   addressed by a `GrammarId` (`u32` index); rules reference each other by index. The tables
-  are generated from the Python dialects (§6).
+  are generated from the Python dialects (see the codegen pipeline section).
 - **Parsing is iterative.** The engine drives an explicit stack of frames, so nesting depth
   is bounded by `DEFAULT_MAX_PARSE_DEPTH` (600) rather than the call stack.
 
@@ -51,7 +51,7 @@ typed `&mut *State` for one variant.
 Dispatch is a static `match` on `GrammarVariant` — a jump table — at `*_initial`,
 `*_waiting_for_child`, and `*_combining`, with one handler module per variant under
 [`table_driven/`](sqlfluffrs_parser/src/parser/table_driven/). Keep it static: a trait
-object here costs a vtable load per transition on the hottest path (see [`PERF.md`](PERF.md)).
+object here costs a vtable load per transition on the hottest path.
 Bracketed and Delimited additionally dispatch their `WaitingForChild` resume on the
 sub-state enum (`BracketedPhase` / `DelimitedPhase`) to one method per phase.
 
@@ -143,7 +143,7 @@ to the Python-generated `*.yml` under `test/fixtures/dialects/<dialect>/`. When 
    differing subtree on each side.
 3. **Trace deep cases:** rebuild with `--features verbose-debug` for the `vdebug!` frame
    trace, and use `Parser::dump_table_driven_grammar_info(...)` to inspect resolved tables.
-4. **Map symptom → invariant (§4):** wrong alternative → #1 (longest match / hints); trailing
+4. **Map symptom → invariant (see the Python-parity contract):** wrong alternative → #1 (longest match / hints); trailing
    tokens dropped or an unexpected error → #2/#3 (parse mode / terminators); right tokens but
    wrong nesting or missing meta → #4.
 5. **Lock it in:** add a minimal reproducer as a dialect fixture
@@ -174,4 +174,3 @@ only. Both rules live in one policy-tagged helper, `parity::is_better_candidate`
 
 - [`sqlfluffrs_parser/README.md`](sqlfluffrs_parser/README.md) — table layout, variants, optimizations.
 - [`AGENTS.md`](AGENTS.md) — workspace map and build/test commands.
-- [`PERF.md`](PERF.md) — the no-regression benchmark gate every engine change must pass.

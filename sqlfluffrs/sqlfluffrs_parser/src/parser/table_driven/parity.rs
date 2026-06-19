@@ -7,7 +7,7 @@
 //! every item names the Python concept it mirrors. Grep for `MIRRORS` to enumerate the
 //! whole parity surface.
 //!
-//! See [`ENGINE.md`](../../../../ENGINE.md) §4 for the contract these helpers encode.
+//! See the Python-parity contract in [`ENGINE.md`](../../../../ENGINE.md) for the rules these helpers encode.
 //!
 //! | Invariant | Python concept | Owner |
 //! |-----------|----------------|-------|

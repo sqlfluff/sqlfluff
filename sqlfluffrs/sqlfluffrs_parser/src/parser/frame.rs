@@ -23,7 +23,7 @@
 //!   to consume, derived from terminators and the parent's own ceiling
 //!   (see [`crate::parser::helpers`]). Matching never crosses `max_idx`.
 //!
-//! See `ENGINE.md` §9 for the full glossary.
+//! See the glossary in `ENGINE.md` for the full list.
 
 use hashbrown::HashMap;
 use std::sync::Arc;

@@ -743,7 +743,7 @@ impl Parser<'_> {
     /// cache), `Ok(Some(key))` otherwise, and `Err` only if `max_idx` calculation fails.
     /// The cacheable-set and the `max_idx` formula both live in `parity.rs` and are reached
     /// only through this one method, so the store key and the lookup key cannot drift —
-    /// see `ENGINE.md` §5 (a drift here would silently corrupt the cache).
+    /// see the optimization preconditions in `ENGINE.md` (a drift here would silently corrupt the cache).
     #[inline]
     fn frame_cache_key(
         &mut self,
