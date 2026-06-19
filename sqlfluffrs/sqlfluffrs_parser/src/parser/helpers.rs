@@ -13,31 +13,6 @@ use sqlfluffrs_types::{GrammarId, ParseMode, Token};
 use crate::vdebug;
 
 impl<'a> Parser<'a> {
-    /// Combine parent and local terminators based on reset_terminators flag.
-    ///
-    /// This is a common pattern used by all handlers (AnySetOf, AnyNumberOf, OneOf, Sequence, etc.)
-    /// to determine which terminators to use for child parsing.
-    ///
-    /// If reset_terminators is true, only local_terminators are used.
-    /// If reset_terminators is false, both local and parent terminators are combined.
-    #[inline]
-    pub(crate) fn combine_table_terminators(
-        &self,
-        local_terminators: &[GrammarId],
-        parent_terminators: &[GrammarId],
-        reset_terminators: bool,
-    ) -> Vec<GrammarId> {
-        if reset_terminators {
-            local_terminators.to_vec()
-        } else {
-            local_terminators
-                .iter()
-                .cloned()
-                .chain(parent_terminators.iter().cloned())
-                .collect()
-        }
-    }
-
     /// Print cache statistics
     pub fn print_cache_stats(&self) {
         // Print table cache stats
@@ -218,8 +193,10 @@ impl<'a> Parser<'a> {
 
     /// Combine parent and local terminators for table-driven parsing.
     ///
-    /// If reset_terminators is true, only local_terminators are used.
-    /// Otherwise, both local and parent terminators are combined.
+    /// The single source of truth for the reset-vs-combine rule, used by every compound
+    /// handler (Sequence, OneOf, Delimited, Bracketed, AnyNumberOf, Ref). If
+    /// `reset_terminators` is true only `local_terminators` are used; otherwise the local
+    /// and parent terminators are combined. Mirrors Python's terminator handling.
     #[inline]
     pub(crate) fn combine_terminators_table_driven(
         local_terminators: &[GrammarId],

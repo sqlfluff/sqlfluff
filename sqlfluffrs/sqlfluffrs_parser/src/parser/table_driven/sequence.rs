@@ -1,7 +1,6 @@
 use crate::parser::{match_result::MatchedClass, MetaSegment};
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
-use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
 
@@ -67,7 +66,7 @@ impl Parser<'_> {
         // The Sequence uses the combined set (own + parent) only for its own
         // trim_to_terminator / max_idx computation.
         let child_terminators = frame.table_terminators.to_vec();
-        let all_terminators = self.combine_table_terminators(
+        let all_terminators = Self::combine_terminators_table_driven(
             &local_terminators,
             &frame.table_terminators,
             reset_terminators,
@@ -123,7 +122,7 @@ impl Parser<'_> {
             child_matches: Vec::new(),   // Store child matches here until sequence is complete
             child_terminators,           // Parent terminators (without Sequence's own) for children
         };
-        frame.table_terminators = SmallVec::from_vec(all_terminators);
+        frame.table_terminators = all_terminators;
 
         // Buffer any leading meta elements before creating first child
         self.buffer_trailing_meta_elements(&mut frame, &elements);

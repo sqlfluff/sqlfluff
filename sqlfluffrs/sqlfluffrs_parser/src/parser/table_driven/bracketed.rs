@@ -29,7 +29,7 @@ impl Parser<'_> {
             .terminators(grammar_id)
             .collect::<Vec<GrammarId>>();
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
-        let all_terminators = self.combine_table_terminators(
+        let all_terminators = Self::combine_terminators_table_driven(
             &local_terminators,
             &frame.table_terminators,
             reset_terminators,

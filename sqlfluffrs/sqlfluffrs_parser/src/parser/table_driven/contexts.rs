@@ -5,6 +5,43 @@ use sqlfluffrs_types::GrammarId;
 use crate::parser::{FrameContext, MatchResult, MetaSegment};
 
 impl FrameContext {
+    /// The frame id of the child this frame is currently waiting on, if any.
+    ///
+    /// Every compound context (`OneOf`/`Sequence`/`Ref`/`Bracketed`/`Delimited`/
+    /// `AnyNumberOf`) records the id of the child frame it pushed so its result can be
+    /// reclaimed on resume. Returns `None` for `FrameContext::None` and the terminal
+    /// variants, which never wait on a child.
+    #[inline]
+    pub(crate) fn last_child_frame_id(&self) -> Option<usize> {
+        match self {
+            FrameContext::OneOfTableDriven {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::SequenceTableDriven {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::RefTableDriven {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::BracketedTableDriven {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::DelimitedTableDriven {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::AnyNumberOfTableDriven {
+                last_child_frame_id,
+                ..
+            } => *last_child_frame_id,
+            _ => None,
+        }
+    }
+
     #[inline]
     pub(crate) fn as_anynumberof_mut(&mut self) -> Option<AnyNumberOfContextMut<'_>> {
         match self {

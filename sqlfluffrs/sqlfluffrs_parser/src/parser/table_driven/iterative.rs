@@ -1,6 +1,11 @@
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
 use sqlfluffrs_types::GrammarId;
+// Only the verbose-debug tracing blocks in this module reference GrammarVariant directly;
+// the default build's uses live behind function-local imports. cfg-gating avoids an
+// unused-import warning in non-verbose builds.
+#[cfg(feature = "verbose-debug")]
+use sqlfluffrs_types::GrammarVariant;
 use std::sync::Arc;
 
 use crate::parser::{
@@ -25,6 +30,21 @@ impl Parser<'_> {
         );
         stack.insert_result(frame.frame_id, match_result, self.pos);
         Ok(TableFrameResult::Done)
+    }
+
+    /// Store a terminal handler's result synchronously, propagating any error.
+    ///
+    /// The terminal/simple grammar variants (StringParser, Token, Meta, …) all match
+    /// synchronously and then hand their `MatchResult` to the parent frame. This wraps the
+    /// `Ok => store, Err => propagate` plumbing so each dispatch arm is a single line.
+    #[inline]
+    fn store_sync(
+        &self,
+        stack: &mut TableParseFrameStack,
+        frame: &TableParseFrame,
+        res: Result<MatchResult, ParseError>,
+    ) -> Result<TableFrameResult, ParseError> {
+        self.store_sync_match_result(stack, frame, res?)
     }
 
     // ========================================================================
@@ -386,60 +406,36 @@ impl Parser<'_> {
             GrammarVariant::StringParser => {
                 // Synchronous match: call the table-driven string parser and store result for parent
                 let res = self.handle_string_parser_table_driven(grammar_id);
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
             GrammarVariant::TypedParser => self.handle_typed_parser_table_driven(frame),
             GrammarVariant::MultiStringParser => {
                 let res = self.handle_multi_string_parser_table_driven(grammar_id);
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
             GrammarVariant::RegexParser => {
                 let res = self.handle_regex_parser_table_driven(grammar_id);
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Nothing => {
                 let res = self.handle_nothing_table_driven();
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Empty => {
                 let res = self.handle_empty_table_driven();
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Missing => {
                 let res = self.handle_missing_table_driven();
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Token => {
                 let res = self.handle_token_table_driven(grammar_id);
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
             GrammarVariant::PrecededBy => {
                 let res = self.handle_preceded_by_table_driven(grammar_id);
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Meta => {
                 let res = self.handle_meta_table_driven(grammar_id);
@@ -452,17 +448,11 @@ impl Parser<'_> {
                     frame.grammar_id.0
 
                 );
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
             GrammarVariant::NonCodeMatcher => {
                 let res = self.handle_noncode_matcher_table_driven();
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Anything => {
                 let res = self.handle_anything_table_driven(
@@ -470,10 +460,7 @@ impl Parser<'_> {
                     &frame.table_terminators,
                     frame.parent_max_idx,
                 );
-                match res {
-                    Ok(match_result) => self.store_sync_match_result(stack, &frame, match_result),
-                    Err(e) => Err(e),
-                }
+                self.store_sync(stack, &frame, res)
             }
         }
     }
@@ -485,33 +472,12 @@ impl Parser<'_> {
         stack: &mut TableParseFrameStack,
         iteration_count: usize,
     ) -> Result<TableFrameResult, ParseError> {
-        // A child parse just completed - get its result
-        let child_frame_id = match &frame.context {
-            FrameContext::OneOfTableDriven {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::SequenceTableDriven {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::RefTableDriven {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::BracketedTableDriven {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::DelimitedTableDriven {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::AnyNumberOfTableDriven {
-                last_child_frame_id,
-                ..
-            } => last_child_frame_id.expect("WaitingForChild should have last_child_frame_id set"),
-            _ => {
+        // A child parse just completed - get its result. In WaitingForChild a compound
+        // frame always recorded the child it pushed, so this is Some; a missing id means
+        // a frame reached this state without tracking a child (should never happen).
+        let child_frame_id = match frame.context.last_child_frame_id() {
+            Some(id) => id,
+            None => {
                 log::error!("WaitingForChild state without child frame ID tracking");
                 return Ok(TableFrameResult::Done);
             }
@@ -635,33 +601,7 @@ impl Parser<'_> {
             }
         } else {
             // Child result not found yet - push frame back onto stack and continue
-            let last_child_frame_id = match &frame.context {
-                FrameContext::OneOfTableDriven {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::SequenceTableDriven {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::RefTableDriven {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::DelimitedTableDriven {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::BracketedTableDriven {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::AnyNumberOfTableDriven {
-                    last_child_frame_id,
-                    ..
-                } => *last_child_frame_id,
-                _ => None,
-            };
+            let last_child_frame_id = frame.context.last_child_frame_id();
             vdebug!(
                 "Child result not found for frame_id={}, last_child_frame_id={:?}, pushing frame back onto stack",
                 frame.frame_id,
@@ -975,31 +915,5 @@ impl Parser<'_> {
 }
 #[cfg(feature = "verbose-debug")]
 fn get_waiting_for_frame_id(frame: &TableParseFrame) -> String {
-    match &frame.context {
-        FrameContext::OneOfTableDriven {
-            last_child_frame_id,
-            ..
-        }
-        | FrameContext::SequenceTableDriven {
-            last_child_frame_id,
-            ..
-        }
-        | FrameContext::RefTableDriven {
-            last_child_frame_id,
-            ..
-        }
-        | FrameContext::DelimitedTableDriven {
-            last_child_frame_id,
-            ..
-        }
-        | FrameContext::BracketedTableDriven {
-            last_child_frame_id,
-            ..
-        }
-        | FrameContext::AnyNumberOfTableDriven {
-            last_child_frame_id,
-            ..
-        } => format!("{:?}", last_child_frame_id),
-        _ => "None".to_string(),
-    }
+    format!("{:?}", frame.context.last_child_frame_id())
 }
