@@ -1,11 +1,12 @@
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
-use sqlfluffrs_types::{GrammarId, GrammarVariant};
+use sqlfluffrs_types::GrammarId;
 use std::sync::Arc;
 
 use crate::parser::{
     cache::TableCacheKey,
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
+    table_driven::parity,
     FrameContext, FrameState, MatchResult, Node, ParseError, Parser,
 };
 
@@ -781,53 +782,11 @@ impl Parser<'_> {
             let should_cache_success = !match_result.is_empty();
 
             if should_cache_empty || should_cache_success {
-                let variant = self.grammar_ctx.variant(frame.grammar_id);
-
-                // Cache strategy to match Python behavior:
-                // - Ref: Always cache (deterministic pointer)
-                // - OneOf: Safe to cache (picks best of alternatives, no partial matches)
-                // - Bracketed: Safe to cache (deterministic open/close)
-                // - Delimited: Safe to cache (deterministic delimiter pattern)
-                // - Sequence: NEVER cache (partial GREEDY matches pollute cache)
-                // - AnyNumberOf: NEVER cache (can match N items, then later match N+M)
-                // - AnySetOf: NEVER cache (similar to AnyNumberOf)
-                //
-                // Python avoids these issues by caching at element level (inside longest_match),
-                // not at complete grammar level.
-                let should_cache = matches!(
-                    variant,
-                    GrammarVariant::Ref
-                        | GrammarVariant::OneOf
-                        | GrammarVariant::Delimited
-                        | GrammarVariant::Bracketed
-                );
-
-                if should_cache {
-                    // Use handler-calculated max_idx if available, otherwise calculate it
-                    // This should match what was used in check_and_handle_table_frame_cache
-                    let max_idx = if let Some(calc_max) = frame.calculated_max_idx {
-                        calc_max
-                    } else {
-                        // Fallback: calculate max_idx ourselves
-                        // CRITICAL: Must use parse_mode_override if present (Bracketed inheritance)
-                        let parse_mode = frame
-                            .parse_mode_override
-                            .unwrap_or_else(|| self.grammar_ctx.inst(frame.grammar_id).parse_mode);
-                        match self.calculate_max_idx_table_driven(
-                            frame.pos,
-                            &frame.table_terminators,
-                            parse_mode,
-                            frame.parent_max_idx,
-                        ) {
-                            Ok(idx) => idx,
-                            Err(_) => {
-                                // If max_idx calculation fails, skip caching
-                                return Ok(());
-                            }
-                        }
-                    };
-
-                    let cache_key = TableCacheKey::new(frame.pos, frame.grammar_id, max_idx);
+                // The cacheable-variant check and max_idx derivation live in frame_cache_key
+                // (shared with the lookup site). `Ok(None)` = not cacheable and `Err` =
+                // max_idx calculation failed; in both cases we simply skip caching (caching
+                // is best-effort and must never fail the parse).
+                if let Ok(Some(cache_key)) = self.frame_cache_key(frame) {
                     // Cache as Arc<MatchResult> (cheap to clone later)
                     self.table_cache
                         .put(cache_key, (Arc::clone(match_result), end_pos));
@@ -836,6 +795,39 @@ impl Parser<'_> {
         }
 
         Ok(())
+    }
+
+    /// Compute the frame cache key for `frame`, identically at store and lookup time.
+    ///
+    /// Returns `Ok(None)` when the grammar is not frame-cacheable (the caller skips the
+    /// cache), `Ok(Some(key))` otherwise, and `Err` only if `max_idx` calculation fails.
+    /// The cacheable-set and the `max_idx` formula both live in `parity.rs` and are reached
+    /// only through this one method, so the store key and the lookup key cannot drift —
+    /// see `ENGINE.md` §5 (a drift here would silently corrupt the cache).
+    #[inline]
+    fn frame_cache_key(
+        &mut self,
+        frame: &TableParseFrame,
+    ) -> Result<Option<TableCacheKey>, ParseError> {
+        if !parity::is_frame_cacheable(self.grammar_ctx.variant(frame.grammar_id)) {
+            return Ok(None);
+        }
+        // Prefer the handler-calculated max_idx; fall back to computing it the same way the
+        // handler would (CRITICAL: honour parse_mode_override for Bracketed inheritance).
+        let max_idx = match frame.calculated_max_idx {
+            Some(calc_max) => calc_max,
+            None => {
+                let parse_mode =
+                    parity::effective_parse_mode(frame, self.grammar_ctx.inst(frame.grammar_id));
+                self.calculate_max_idx_table_driven(
+                    frame.pos,
+                    &frame.table_terminators,
+                    parse_mode,
+                    frame.parent_max_idx,
+                )?
+            }
+        };
+        Ok(Some(TableCacheKey::new(frame.pos, frame.grammar_id, max_idx)))
     }
 
     /// Checks the cache for a frame and handles cache hits. Returns FrameResult indicating what to do next.
@@ -852,37 +844,10 @@ impl Parser<'_> {
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         if self.cache_enabled {
-            // Only check cache for grammar types we actually cache
-            // This matches the caching strategy in handle_table_frame_complete
-            let variant = self.grammar_ctx.variant(frame.grammar_id);
-            let is_cacheable = matches!(
-                variant,
-                GrammarVariant::Ref
-                    | GrammarVariant::OneOf
-                    | GrammarVariant::Delimited
-                    | GrammarVariant::Bracketed
-            );
-
-            if is_cacheable {
-                // Use handler-calculated max_idx if available (set by handler after calculating)
-                // Otherwise calculate it ourselves (for frames that haven't been processed yet)
-                let max_idx = if let Some(calc_max) = frame.calculated_max_idx {
-                    calc_max
-                } else {
-                    // Calculate max_idx the same way the grammar handler would
-                    // CRITICAL: Must use parse_mode_override if present (Bracketed inheritance)
-                    let parse_mode = frame
-                        .parse_mode_override
-                        .unwrap_or_else(|| self.grammar_ctx.inst(frame.grammar_id).parse_mode);
-                    self.calculate_max_idx_table_driven(
-                        frame.pos,
-                        &frame.table_terminators,
-                        parse_mode,
-                        frame.parent_max_idx,
-                    )?
-                };
-
-                let cache_key = TableCacheKey::new(frame.pos, frame.grammar_id, max_idx);
+            // The cacheable-variant check and max_idx derivation live in frame_cache_key
+            // (shared with the store site in commit_table_frame_result, so the keys cannot
+            // drift). `None` means this grammar isn't cached.
+            if let Some(cache_key) = self.frame_cache_key(&frame)? {
                 if let Some((match_result, end_pos)) = self.table_cache.get(&cache_key) {
                     vdebug!(
                         "[LOOP] TableCache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",

@@ -1,439 +1,82 @@
-# Rust Components - AI Assistant Instructions
+# Rust Components — AI Assistant Instructions
 
-This file provides guidance for SQLFluff's Rust components.
+Guidance for SQLFluff's Rust components (`sqlfluffrs/`). This file orients and routes; it
+does not embed long code samples (those rot). For anything detailed, follow the links.
 
-## Overview
+## What this is
 
-The `sqlfluffrs/` directory contains an **experimental Rust implementation** of performance-critical SQLFluff components. This is an ongoing effort to accelerate lexing and parsing operations while maintaining compatibility with the Python implementation.
+An optional, experimental Rust acceleration of SQLFluff's lexing and parsing, shipped as a
+PyO3 extension. It is a **table-driven, iterative** lexer + parser whose output must match
+the Python parser exactly (Python is the source of truth). It accelerates Python; it does
+not replace it. Python selects it via the `use_rust_parser = auto|true|false` config key.
 
-## Project Status
+## Workspace map
 
-**Current state**: Experimental and under development
+A Cargo workspace (see [`Cargo.toml`](Cargo.toml) `[workspace].members`):
 
-**Goals:**
-- Accelerate lexing performance (tokenization)
-- Speed up parsing for large SQL files
-- Maintain API compatibility with Python components
-- Provide optional Rust-based acceleration for production users
+| Crate | Purpose |
+|-------|---------|
+| `sqlfluffrs_types` | Shared types: `GrammarId`, `GrammarInst`, `GrammarTables`, `Token`, `ParseMode`, `MatchResult`. |
+| `sqlfluffrs_lexer` | Text → tokens. → [`sqlfluffrs_lexer/README.md`](sqlfluffrs_lexer/README.md) |
+| `sqlfluffrs_dialects` | **Generated** grammar tables + lexer matchers per dialect. `build.rs` runs the codegen. |
+| `sqlfluffrs_parser` | The parser engine. → [`sqlfluffrs_parser/README.md`](sqlfluffrs_parser/README.md) + [`ENGINE.md`](ENGINE.md) |
+| `sqlfluffrs_python` / root `src/` | PyO3 bindings + `sqlfluffrs.pyi` type stubs. |
 
-**Not a replacement**: The Rust components are designed to work alongside Python, not replace the entire codebase.
+## ⚠️ Golden rule: don't edit generated dialect files
 
-## Structure
+Files under `sqlfluffrs_dialects/src/dialect/**` are **generated** from the Python dialect
+definitions and are **not** in version control. Editing them is pointless — the next
+`cargo build` overwrites them. To change a dialect:
 
-```
-sqlfluffrs/
-├── Cargo.toml              # Rust package manifest
-├── pyproject.toml          # Python packaging for Rust extension
-├── LICENSE.md              # License
-├── README.md               # Rust component README
-├── py.typed                # Type stub marker
-├── sqlfluffrs.pyi          # Python type stubs for Rust extension
-└── src/                    # Rust source code
-    ├── lib.rs              # Library root
-    ├── python.rs           # Python bindings (PyO3)
-    ├── lexer.rs            # Lexer implementation
-    ├── marker.rs           # Position markers
-    ├── matcher.rs          # Pattern matching
-    ├── regex.rs            # Regex utilities
-    ├── slice.rs            # String slicing
-    ├── config/             # Configuration handling
-    ├── dialect/            # Dialect definitions
-    ├── templater/          # Template handling
-    └── token/              # Token types
-```
+1. Edit the Python in `src/sqlfluff/dialects/dialect_*.py`.
+2. Regenerate: `python utils/rustify.py build` (or `tox -e generate-rs`).
 
-## Rust Development Setup
+The full pipeline is documented in [`ENGINE.md` §6](ENGINE.md).
 
-### Requirements
-
-- **Rust**: Install via [rustup](https://rustup.rs/)
-  ```bash
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-  ```
-- **Cargo**: Comes with Rust installation
-- **Python development headers**: Required for PyO3 bindings
-
-### Building Rust Components
+## Build & test
 
 ```bash
-# Navigate to Rust directory
 cd sqlfluffrs
-
-# Build Rust library
-cargo build
-
-# Build release (optimized)
-cargo build --release
-
-# Run Rust tests
-cargo test
-
-# Run with output
-cargo test -- --nocapture
-
-# Check code without building
-cargo check
-
-# Format code
-cargo fmt
-
-# Lint code
-cargo clippy
+cargo build                 # debug; build.rs regenerates dialects if Python sources changed
+cargo build --release       # optimized
+cargo test                  # Rust unit + integration tests (incl. parity fixtures)
+cargo clippy                # lint
+cargo fmt                   # format
 ```
 
-### Python Integration
-
-The Rust components are exposed to Python via **PyO3**:
+From the repo root:
 
 ```bash
-# Build and install Python extension
-cd sqlfluffrs
-pip install -e .
-
-# Or from repository root
-pip install -e ./sqlfluffrs/
+tox -e generate-rs          # regenerate the dialect tables
+tox -e build-rs             # build the Python wheel via maturin
+tox -e py311-rust -- -n 6   # full Python test suite against the Rust parser
 ```
 
-## Rust Coding Standards
+## Parity contract
 
-### Style
+Rust output must match the Python parser's YAML fixtures under
+`test/fixtures/dialects/<dialect>/`, verified by `sqlfluffrs/tests/fixture_tests.rs` and
+`yaml_compare.rs`. The invariants the engine must hold, and a step-by-step **runbook for
+debugging a fixture mismatch**, are in [`ENGINE.md` §4 and §7](ENGINE.md). To localise a
+divergence, use `python utils/parity_diff.py --dialect <d> --fixture <name>`.
 
-- **Follow Rust conventions**: Use `rustfmt` for formatting
-- **Naming**:
-  - `snake_case` for functions, variables, modules
-  - `PascalCase` for types, structs, enums, traits
-  - `SCREAMING_SNAKE_CASE` for constants
-- **Idiomatic Rust**: Prefer iterators, pattern matching, and ownership patterns
+## Performance contract
 
-### Error Handling
+Engine changes are under a **hard no-regression benchmark gate**. Before/after any change to
+`sqlfluffrs_parser`, capture a baseline and run the gate — see [`PERF.md`](PERF.md)
+(`tox -e perf-baseline-rust`, then `tox -e perf-gate-rust`).
 
-**Prefer `Result` and `?` operator:**
-```rust
-fn parse_token(input: &str) -> Result<Token, ParseError> {
-    let trimmed = input.trim();
-    if trimmed.is_empty() {
-        return Err(ParseError::EmptyInput);
-    }
-    Ok(Token::new(trimmed))
-}
+## Coding standards
 
-fn process() -> Result<(), ParseError> {
-    let token = parse_token("  SELECT  ")?;  // Use ? operator
-    // ... use token
-    Ok(())
-}
-```
+- Idiomatic Rust: prefer iterators, pattern matching, and ownership over cloning.
+- Error handling: return `Result` and use `?`. Avoid `unwrap()`/`expect()` outside tests.
+- Naming: `snake_case` items, `PascalCase` types, `SCREAMING_SNAKE_CASE` consts.
+- Run `cargo fmt` and `cargo clippy` before committing.
+- Keep the engine's hot loop free of `dyn` dispatch and avoidable allocations (see
+  [`PERF.md`](PERF.md) and [`ENGINE.md` §3](ENGINE.md)).
 
-**Avoid `unwrap()` and `expect()` in production code:**
-```rust
-// ❌ Bad: Can panic
-let value = some_option.unwrap();
+## See also
 
-// ✅ Good: Handle None case
-let value = match some_option {
-    Some(v) => v,
-    None => return Err(Error::MissingValue),
-};
-
-// ✅ Also good: Use ? with Option
-let value = some_option.ok_or(Error::MissingValue)?;
-```
-
-**Exception**: `unwrap()` and `expect()` are acceptable in tests.
-
-### Testing
-
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_token_parsing() {
-        let result = parse_token("SELECT");
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().value, "SELECT");
-    }
-
-    #[test]
-    fn test_empty_input_fails() {
-        let result = parse_token("");
-        assert!(result.is_err());
-    }
-}
-```
-
-Run tests:
-```bash
-cargo test
-cargo test --lib          # Library tests only
-cargo test --release      # Optimized build
-```
-
-## Python-Rust Interface (PyO3)
-
-### Exposing Rust to Python
-
-**Basic example** in `src/python.rs`:
-
-```rust
-use pyo3::prelude::*;
-
-#[pyfunction]
-fn tokenize(sql: &str) -> PyResult<Vec<String>> {
-    let tokens = internal_tokenize(sql)
-        .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
-    Ok(tokens)
-}
-
-#[pymodule]
-fn sqlfluffrs(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(tokenize, m)?)?;
-    Ok(())
-}
-```
-
-**Python usage:**
-```python
-import sqlfluffrs
-
-tokens = sqlfluffrs.tokenize("SELECT * FROM users")
-print(tokens)  # ['SELECT', '*', 'FROM', 'users']
-```
-
-### Type Stubs
-
-Provide Python type hints in `sqlfluffrs.pyi`:
-
-```python
-from typing import List
-
-def tokenize(sql: str) -> List[str]: ...
-```
-
-## Architecture
-
-### Lexer
-
-The Rust lexer (`src/lexer.rs`) tokenizes SQL strings:
-
-```rust
-pub struct Lexer {
-    config: LexerConfig,
-}
-
-impl Lexer {
-    pub fn new(config: LexerConfig) -> Self {
-        Lexer { config }
-    }
-
-    pub fn lex(&self, sql: &str) -> Result<Vec<Token>, LexError> {
-        // Tokenization logic
-    }
-}
-```
-
-### Matcher
-
-Pattern matching for grammar rules (`src/matcher.rs`):
-
-```rust
-pub trait Matcher {
-    fn matches(&self, tokens: &[Token]) -> bool;
-}
-
-pub struct SequenceMatcher {
-    matchers: Vec<Box<dyn Matcher>>,
-}
-```
-
-### Dialect Support
-
-Rust dialects mirror Python dialects (`src/dialect/`):
-
-```rust
-pub struct Dialect {
-    name: String,
-    reserved_keywords: HashSet<String>,
-    unreserved_keywords: HashSet<String>,
-}
-```
-
-## Performance Considerations
-
-### Benchmarking
-
-Use Criterion for benchmarks:
-
-```rust
-// benches/lexer_bench.rs
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
-
-fn lexer_benchmark(c: &mut Criterion) {
-    c.bench_function("lex_simple_select", |b| {
-        b.iter(|| {
-            let sql = black_box("SELECT * FROM users WHERE id = 1");
-            lex(sql)
-        });
-    });
-}
-
-criterion_group!(benches, lexer_benchmark);
-criterion_main!(benches);
-```
-
-Run benchmarks:
-```bash
-cargo bench
-```
-
-### Optimization
-
-- Use `cargo build --release` for production builds
-- Profile with `cargo flamegraph` or `perf`
-- Prefer zero-copy operations where possible
-- Use `&str` over `String` when ownership not needed
-
-## Development Workflow
-
-### Making Changes
-
-1. **Edit Rust code** in `src/`
-2. **Run tests:**
-   ```bash
-   cargo test
-   ```
-3. **Format code:**
-   ```bash
-   cargo fmt
-   ```
-4. **Lint:**
-   ```bash
-   cargo clippy
-   ```
-5. **Build Python extension:**
-   ```bash
-   pip install -e .
-   ```
-6. **Test Python integration:**
-   ```python
-   import sqlfluffrs
-   # Test Rust functions from Python
-   ```
-
-### Syncing with Python
-
-After changing Rust lexer/parser:
-
-1. **Regenerate dialect bindings:**
-   ```bash
-   # From repository root
-   source .venv/bin/activate
-   python utils/rustify.py build
-   ```
-
-2. **Test against Python test suite:**
-   ```bash
-   tox -e py312
-   ```
-
-## Common Tasks
-
-### Adding New Lexer Pattern
-
-1. Edit `src/lexer.rs`
-2. Add pattern matching logic
-3. Write tests
-4. Run `cargo test`
-5. Update Python bindings if needed
-
-### Updating Dialect
-
-1. Edit `src/dialect/<dialect>.rs`
-2. Update keyword lists or grammar
-3. Sync with Python via `utils/rustify.py build`
-4. Test with `cargo test`
-
-### Exposing New Function to Python
-
-1. Add function in appropriate Rust module
-2. Add Python binding in `src/python.rs`:
-   ```rust
-   #[pyfunction]
-   fn my_new_function(input: &str) -> PyResult<String> {
-       // Implementation
-   }
-   ```
-3. Register in module:
-   ```rust
-   #[pymodule]
-   fn sqlfluffrs(_py: Python, m: &PyModule) -> PyResult<()> {
-       m.add_function(wrap_pyfunction!(my_new_function, m)?)?;
-       Ok(())
-   }
-   ```
-4. Add type stub to `sqlfluffrs.pyi`:
-   ```python
-   def my_new_function(input: str) -> str: ...
-   ```
-5. Rebuild and test
-
-## Testing
-
-### Rust Unit Tests
-
-```bash
-# All tests
-cargo test
-
-# Specific test
-cargo test test_lexer_keywords
-
-# Show output
-cargo test -- --nocapture
-
-# With release optimizations
-cargo test --release
-```
-
-### Integration with Python Tests
-
-Rust components are tested via Python test suite:
-
-```bash
-# Ensure Rust extension is built
-cd sqlfluffrs && pip install -e . && cd ..
-
-# Run Python tests
-tox -e py312
-```
-
-## Resources
-
-- **Rust Book**: https://doc.rust-lang.org/book/
-- **PyO3 Guide**: https://pyo3.rs/
-- **Cargo Book**: https://doc.rust-lang.org/cargo/
-- **Rust by Example**: https://doc.rust-lang.org/rust-by-example/
-
-## Current Limitations
-
-- Experimental and incomplete
-- Not all Python features implemented
-- Performance gains vary by use case
-- May have compatibility issues with some dialects
-
-## Contributing to Rust Components
-
-Rust contributions are welcome but should:
-- Maintain API compatibility with Python
-- Include tests
-- Follow Rust conventions
-- Update Python type stubs
-- Sync with Python implementation via `rustify.py`
-
----
-
-**See also:**
-- Root `AGENTS.md` for general project overview
-- `src/sqlfluff/AGENTS.md` for Python coding standards
-- `sqlfluffrs/README.md` for Rust-specific README
+- [`ENGINE.md`](ENGINE.md) — engine architecture, parity invariants, codegen pipeline, debugging.
+- [`PERF.md`](PERF.md) — the benchmark gate.
+- Root `AGENTS.md` — general project overview. `src/sqlfluff/AGENTS.md` — Python standards.
