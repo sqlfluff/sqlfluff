@@ -156,8 +156,7 @@ impl Parser<'_> {
             Some(max_idx),
         );
 
-        // Store context - element_children now just contains the single elements_id
-        // (which may be a OneOf internally)
+        // Store context for the element/delimiter phase loop.
         frame.context = FrameContext::Delimited(DelimitedState {
             grammar_id,
             delimiter_count: 0,
@@ -168,8 +167,7 @@ impl Parser<'_> {
             last_child_frame_id: Some(stack.frame_id_counter),
             delimiter_match: None,
             pos_before_delimiter: None,
-            element_children: vec![elements_id], // Single entry: the OneOf or single element
-            child_terminators,                   // Move, no clone
+            child_terminators, // Move, no clone
             working_match: Arc::new(MatchResult::empty_at(start_pos)),
         });
 

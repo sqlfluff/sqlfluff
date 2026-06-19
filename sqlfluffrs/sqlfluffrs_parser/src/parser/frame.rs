@@ -125,7 +125,6 @@ pub struct DelimitedState {
     /// Backtrack point captured before consuming a delimiter, so the
     /// delimiter can be un-consumed if it turns out to terminate the list.
     pub pos_before_delimiter: Option<usize>,
-    pub element_children: Vec<GrammarId>,
     /// Terminators to pass to child element frames (excludes local terminators)
     /// Python parity: local terminators (e.g., ObjectReferenceTerminatorGrammar)
     /// are checked at Delimited level, not passed to longest_match

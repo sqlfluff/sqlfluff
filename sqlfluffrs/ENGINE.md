@@ -102,8 +102,8 @@ Each optimization holds only while its precondition does:
   lex time.
 - **Frame cache** (`parser/cache.rs`, key `TableCacheKey { pos, grammar_id, max_idx }`)
   memoises complete results for cacheable variants. The cacheable-set and the `max_idx`
-  formula run through one helper, `frame_cache_key`, so the store key and lookup key are
-  computed identically.
+  formula run through one helper, `frame_cache_key` (in `table_driven/iterative.rs`), so
+  the store key and lookup key are computed identically.
 
 > **Pitfall:** if the store and lookup `max_idx` ever diverge, a result caches under one key
 > and reads under another — silent corruption. That single shared `frame_cache_key` is what

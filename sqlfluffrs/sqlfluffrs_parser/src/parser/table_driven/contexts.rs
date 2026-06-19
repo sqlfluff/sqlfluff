@@ -58,6 +58,10 @@ impl FrameContext {
                 state.last_child_frame_id = Some(child_frame_id);
                 true
             }
+            (FrameContext::AnyNumberOf(state), GrammarVariant::AnyNumberOf) => {
+                state.last_child_frame_id = Some(child_frame_id);
+                true
+            }
             _ => false,
         }
     }
