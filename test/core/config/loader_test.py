@@ -119,6 +119,33 @@ def test__config__load_extra_config_dir(tmp_path):
         )
 
 
+def test__config__load_extra_config_tilde(tmp_path, monkeypatch):
+    """Test that an extra config path containing ``~`` is expanded.
+
+    ``Path.resolve()`` does not expand ``~``, so a quoted path such as
+    ``--config "~/.sqlfluff"`` used to be reported as not existing even when a
+    valid config file was present in the home directory. The path should be
+    expanded before the directory check and before loading.
+    """
+    # Point the home directory at tmp_path so that `~` expands here.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n", encoding="utf-8"
+    )
+
+    try:
+        cfg = load_config_up_to_path(
+            str(tmp_path),
+            extra_config_path="~/.sqlfluff",
+            ignore_local_config=True,
+        )
+    finally:
+        clear_config_caches()
+
+    assert cfg == {"core": {"dialect": "ansi"}}
+
+
 def test__config__load_nested():
     """Test nested overwrite and order of precedence of config files."""
     cfg = load_config_up_to_path(
