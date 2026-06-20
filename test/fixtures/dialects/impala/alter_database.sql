@@ -1,0 +1,1 @@
+ALTER DATABASE mydb SET OWNER USER admin_user;

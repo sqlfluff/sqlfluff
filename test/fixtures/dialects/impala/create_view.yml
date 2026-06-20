@@ -1,0 +1,57 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6b2aaada354b8dc153f61aac7575a6c6a1caf3dc3c676522847dbc676d5e8cdf
+file:
+  statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: my_view
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: col1
+      - keyword: COMMENT
+      - quoted_literal: "'c1'"
+      - comma: ','
+      - naked_identifier: col2
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'view comment'"
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'key1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val1'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: src
+  statement_terminator: ;

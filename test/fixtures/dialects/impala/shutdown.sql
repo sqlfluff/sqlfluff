@@ -1,0 +1,5 @@
+:SHUTDOWN();
+
+:SHUTDOWN(node1:22000);
+
+:SHUTDOWN(myhost, 60);

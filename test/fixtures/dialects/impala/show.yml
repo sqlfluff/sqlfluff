@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7f7619adff77bbaadf2bc18768eeacaa38fc1efd5c57282ac40cef5ea7808d66
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+    - keyword: LIKE
+    - quoted_literal: "'prod*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: IN
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: IN
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLE
+    - keyword: STATS
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ROLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANT
+    - keyword: USER
+    - naked_identifier: alice
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: t1
+- statement_terminator: ;

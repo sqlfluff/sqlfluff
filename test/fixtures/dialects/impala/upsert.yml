@@ -3,40 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7ee3e27886841e18865d35350f6c4ef90e9dab647688df6f8994a9f2458265d2
+_hash: efb1a94d16dbed310e57fbc0b7ef980bb1d832156c445c945133592dd9c832a0
 file:
-  statement:
-    create_table_as_select_statement:
-    - keyword: CREATE
+- statement:
+    upsert_statement:
+    - keyword: UPSERT
+    - start_square_bracket: '['
+    - keyword: SHUFFLE
+    - end_square_bracket: ']'
+    - keyword: INTO
     - keyword: TABLE
     - table_reference:
       - naked_identifier: db
       - dot: .
-      - naked_identifier: ctas_table
-    - keyword: PARTITIONED
-    - keyword: BY
+      - naked_identifier: t1
     - bracketed:
         start_bracket: (
-        column_definition:
-          naked_identifier: year
-          data_type:
-            primitive_type:
-              keyword: INT
+        column_reference:
+          naked_identifier: col1
         end_bracket: )
-    - keyword: STORED
-    - keyword: AS
-    - keyword: PARQUET
-    - keyword: CACHED
-    - keyword: IN
-    - quoted_literal: "'default_pool'"
-    - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
+            column_reference:
+              naked_identifier: col1
         from_clause:
           keyword: FROM
           from_expression:
@@ -46,4 +37,21 @@ file:
                 - naked_identifier: db
                 - dot: .
                 - naked_identifier: src
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    upsert_statement:
+    - keyword: UPSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: t1
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          comma: ','
+          quoted_literal: "'a'"
+          end_bracket: )
+- statement_terminator: ;
