@@ -241,7 +241,12 @@ def load_config_at_path(path: str) -> ConfigMappingType:
     # iterate this way round to make sure things overwrite is the right direction.
     # NOTE: The `configs` variable is passed back in at each stage.
     for fname in filename_options:
-        if fname in d:
+        # Ignore any entries which aren't files. In particular this guards
+        # against a *directory* sharing the name of a config file (e.g. a
+        # directory named `.sqlfluff`), which would otherwise be opened as a
+        # file and raise an `IsADirectoryError`.
+        # https://github.com/sqlfluff/sqlfluff/issues/6617
+        if fname in d and os.path.isfile(os.path.join(os.path.expanduser(p), fname)):
             configs = load_config_file(p, fname, configs=configs)
 
     return configs
@@ -319,6 +324,15 @@ def load_config_up_to_path(
     # is more efficient.
     extra_config = {}
     if extra_config_path:
+        # A directory (e.g. one named `.sqlfluff`) is not a valid config file
+        # and would otherwise raise an `IsADirectoryError` when opened. Surface
+        # a clean user error instead, consistent with the not-found case.
+        # https://github.com/sqlfluff/sqlfluff/issues/6617
+        if os.path.isdir(extra_config_path):
+            raise SQLFluffUserError(
+                f"Extra config path '{extra_config_path}' is a directory, "
+                "not a config file."
+            )
         try:
             extra_config = load_config_file_as_dict(
                 str(Path(extra_config_path).resolve())
