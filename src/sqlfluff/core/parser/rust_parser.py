@@ -91,11 +91,6 @@ def set_native_ast(enabled: bool) -> None:
     _NATIVE_AST_ENABLED = enabled
 
 
-def native_ast_enabled() -> bool:
-    """Whether the fused BaseSegment builder is currently enabled."""
-    return _NATIVE_AST_ENABLED
-
-
 try:
     from sqlfluffrs import RsMatchResult, RsParseError, RsParser, RsToken
 
@@ -553,15 +548,19 @@ try:
             # Zero-length match: only meta inserts are valid (mirrors apply()).
             if start == stop:
                 for idx, seg in insert_segments:
+                    assert idx == start, (
+                        f"Tried to insert @{idx} outside of matched "
+                        f"slice {(start, stop)}"
+                    )
                     _pos = _get_point_pos_at_idx(segments, idx)
                     parse_context.increment_parse_nodes()
                     result_segments += (seg(pos_marker=_pos),)
                 return result_segments
 
             # Merge inserts (added first) and child matches into trigger locations.
-            trigger_locs: defaultdict[
-                int, list[Union["RsMatchResult", type]]
-            ] = defaultdict(list)
+            trigger_locs: defaultdict[int, list[Union["RsMatchResult", type]]] = (
+                defaultdict(list)
+            )
             for idx, seg in insert_segments:
                 trigger_locs[idx].append(seg)
             for child in rs_match.child_matches:
@@ -573,6 +572,14 @@ try:
                 if idx > max_idx:
                     result_segments += tuple(segments[max_idx:idx])
                     max_idx = idx
+                elif idx < max_idx:  # pragma: no cover
+                    # An outer match contains overlapping child matches: the
+                    # Rust parser emitted inconsistent ranges (mirrors apply()).
+                    raise ValueError(
+                        "Segment skip ahead error. An outer match contains "
+                        "overlapping child matches. This MatchResult was "
+                        "wrongly constructed."
+                    )
                 for trigger in trigger_locs[idx]:
                     if isinstance(trigger, type):
                         # A meta segment class (Indent/Dedent/ImplicitIndent).
