@@ -131,11 +131,15 @@ def parse_with_sqlfluff(
             parsing_times.append(parsing_time)
 
             # Pull the per-stage breakdown of the parse we just timed.
+            # Record every stage on every timed iteration (0.0 when a stage is
+            # absent) so each stage's samples share the same denominator as
+            # parsing_times. Appending only present stages would average a
+            # sometimes-missing stage over fewer iterations, biasing its mean
+            # upward relative to the per-iteration parse time it is compared to.
             if profile and use_rust:
                 stage_profile = get_parse_profile()
                 for stage in _PROFILE_STAGES:
-                    if stage in stage_profile:
-                        stage_times[stage].append(stage_profile[stage])
+                    stage_times[stage].append(stage_profile.get(stage, 0.0))
 
             # Check for parse violations
             if not result.parsed_variants or not result.parsed_variants[0].tree:
