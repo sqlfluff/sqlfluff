@@ -138,9 +138,9 @@ Parity fixtures (`sqlfluffrs/tests/fixture_tests.rs` / `yaml_compare.rs`) compar
 to the Python-generated `*.yml` under `test/fixtures/dialects/<dialect>/`. When one fails:
 
 1. **Reproduce narrowly:** `cargo test --test yaml_compare <name>` (or `fixture_tests`).
-2. **Localise the divergence:** `python utils/parity_diff.py --dialect <d> --fixture <name>`
-   (or `--sql "<snippet>"`) prints the first divergent node — grammar path, kind, and the
-   differing subtree on each side.
+2. **Localise the divergence:** the failing `yaml_compare` test prints a line-by-line
+   comparison of the expected (Python) vs generated (Rust) YAML tree — scan it for the first
+   line where the node kind or nesting differs.
 3. **Trace deep cases:** rebuild with `--features verbose-debug` for the `vdebug!` frame
    trace, and use `Parser::dump_table_driven_grammar_info(...)` to inspect resolved tables.
 4. **Map symptom → invariant (see the Python-parity contract):** wrong alternative → #1 (longest match / hints); trailing
