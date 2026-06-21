@@ -430,8 +430,19 @@ impl<'a> Parser<'a> {
         //                class_types_count, class_type_ids...]
         // aux_data_offsets maps instruction -> aux_data start for variable-length aux.
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
+        // The next grammar's offset is only a valid upper bound for this aux
+        // block when it sits *after* this block's start. aux_data blocks are not
+        // stored in grammar-id order, so the next grammar may have a smaller
+        // offset (e.g. 0 when it has no aux_data). In that case fall back to the
+        // full length: the inst/class_types reads here are count-prefixed and
+        // self-delimiting, so aux_end is only a safety bound, never a delimiter.
+        let next_aux_off = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
             tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
+        } else {
+            tables.aux_data.len()
+        };
+        let aux_end = if next_aux_off > aux_start {
+            next_aux_off
         } else {
             tables.aux_data.len()
         };
@@ -557,8 +568,19 @@ impl<'a> Parser<'a> {
         //                class_types_count, class_type_ids...]
         // aux_data_offsets maps instruction -> aux_data start for variable-length aux.
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
+        // The next grammar's offset is only a valid upper bound for this aux
+        // block when it sits *after* this block's start. aux_data blocks are not
+        // stored in grammar-id order, so the next grammar may have a smaller
+        // offset (e.g. 0 when it has no aux_data). In that case fall back to the
+        // full length: the inst/class_types reads here are count-prefixed and
+        // self-delimiting, so aux_end is only a safety bound, never a delimiter.
+        let next_aux_off = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
             tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
+        } else {
+            tables.aux_data.len()
+        };
+        let aux_end = if next_aux_off > aux_start {
+            next_aux_off
         } else {
             tables.aux_data.len()
         };
@@ -808,8 +830,19 @@ impl<'a> Parser<'a> {
         //                inst_count, inst_type_ids..., class_types_count, class_type_ids...]
         // The aux_data offset is stored in the separate AUX_DATA_OFFSETS table, NOT in first_child_idx
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
+        // The next grammar's offset is only a valid upper bound for this aux
+        // block when it sits *after* this block's start. aux_data blocks are not
+        // stored in grammar-id order, so the next grammar may have a smaller
+        // offset (e.g. 0 when it has no aux_data). In that case fall back to the
+        // full length: the inst/class_types reads here are count-prefixed and
+        // self-delimiting, so aux_end is only a safety bound, never a delimiter.
+        let next_aux_off = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
             tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
+        } else {
+            tables.aux_data.len()
+        };
+        let aux_end = if next_aux_off > aux_start {
+            next_aux_off
         } else {
             tables.aux_data.len()
         };
@@ -1093,8 +1126,19 @@ impl<'a> Parser<'a> {
         //                inst_count, inst_type_ids..., class_types_count, class_type_ids...]
         let tables = self.grammar_ctx.tables();
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
+        // The next grammar's offset is only a valid upper bound for this aux
+        // block when it sits *after* this block's start. aux_data blocks are not
+        // stored in grammar-id order, so the next grammar may have a smaller
+        // offset (e.g. 0 when it has no aux_data). In that case fall back to the
+        // full length: the inst/class_types reads here are count-prefixed and
+        // self-delimiting, so aux_end is only a safety bound, never a delimiter.
+        let next_aux_off = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
             tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
+        } else {
+            tables.aux_data.len()
+        };
+        let aux_end = if next_aux_off > aux_start {
+            next_aux_off
         } else {
             tables.aux_data.len()
         };
