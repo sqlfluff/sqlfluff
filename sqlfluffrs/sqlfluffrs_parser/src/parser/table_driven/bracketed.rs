@@ -185,23 +185,7 @@ impl Parser<'_> {
         // CRITICAL: Update the frame context's bracket_max_idx field!
         *bracket_max_idx = computed_bracket_max_idx;
 
-        // If allow_gaps is false and there's whitespace after opening bracket, fail in STRICT mode
-        if !allow_gaps && parse_mode == ParseMode::Strict {
-            if let Some(_ws_pos) =
-                (content_start_idx..self.tokens.len()).find(|&pos| !self.tokens[pos].is_code())
-            {
-                vdebug!("Bracketed: allow_gaps=false, found whitespace/newline at {}, failing in STRICT mode", _ws_pos);
-                self.pos = frame.pos;
-
-                // Transition to Combining to finalize Empty result
-                frame.end_pos = Some(frame.pos);
-                frame.state = FrameState::Combining;
-                stack.push(frame);
-                return Ok(TableFrameResult::Done);
-            }
-        }
-
-        // Skip whitespace/newlines after opening bracket if allow_gaps
+        // Skip whitespace if allowed
         self.pos = self.skip_to_code_if_gaps(content_start_idx, self.tokens.len(), allow_gaps);
 
         // Transition to MatchingContent state
