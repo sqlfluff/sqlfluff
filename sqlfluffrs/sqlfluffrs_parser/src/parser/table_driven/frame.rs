@@ -18,8 +18,18 @@ pub enum TableFrameResult {
 /// Stack structure for managing ParseFrames and related state
 pub struct TableParseFrameStack {
     stack: Vec<TableParseFrame>,
-    /// Results map: frame_id -> (Arc<MatchResult>, end_pos, element_key)
-    /// Using Rc to avoid expensive clones of MatchResults
+    /// Completed-child results, keyed by `frame_id`.
+    ///
+    /// This is the hand-off channel between a child and its parent: when a child
+    /// frame reaches `Complete`, the loop writes its
+    /// `(Arc<MatchResult>, end_pos, element_key)` here; the parent — parked in
+    /// `WaitingForChild` — reclaims it by looking up its own
+    /// `last_child_frame_id`. `Arc` keeps the hand-off clone-free.
+    ///
+    /// - `end_pos`: token position just past the child's match (the parent's new
+    ///   `working_idx`/`matched_idx`).
+    /// - `element_key`: optional per-element identity (set by OneOf, consumed by
+    ///   AnyNumberOf for `max_times_per_element` accounting); `None` otherwise.
     pub results: hashbrown::HashMap<usize, (Arc<MatchResult>, usize, Option<u64>)>,
     pub frame_id_counter: usize,
     // Add any additional state fields here as needed
@@ -173,50 +183,11 @@ impl TableParseFrameStack {
         context_type: GrammarVariant,
         child_frame_id: usize,
     ) -> bool {
-        if let Some(parent_frame) = self.last_mut() {
-            match (&mut parent_frame.context, context_type) {
-                (
-                    FrameContext::SequenceTableDriven {
-                        last_child_frame_id,
-                        ..
-                    },
-                    GrammarVariant::Sequence,
-                )
-                | (
-                    FrameContext::OneOfTableDriven {
-                        last_child_frame_id,
-                        ..
-                    },
-                    GrammarVariant::OneOf,
-                )
-                | (
-                    FrameContext::BracketedTableDriven {
-                        last_child_frame_id,
-                        ..
-                    },
-                    GrammarVariant::Bracketed,
-                )
-                | (
-                    FrameContext::DelimitedTableDriven {
-                        last_child_frame_id,
-                        ..
-                    },
-                    GrammarVariant::Delimited,
-                )
-                | (
-                    FrameContext::RefTableDriven {
-                        last_child_frame_id,
-                        ..
-                    },
-                    GrammarVariant::Ref,
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                _ => false,
-            }
-        } else {
-            false
+        match self.last_mut() {
+            Some(parent_frame) => parent_frame
+                .context
+                .set_last_child_id(context_type, child_frame_id),
+            None => false,
         }
     }
 
@@ -232,46 +203,9 @@ impl TableParseFrameStack {
         let child_id = child_frame.frame_id;
 
         // Update parent's last_child_frame_id BEFORE pushing
-        match (&mut parent_frame.context, parent_context_type) {
-            (
-                FrameContext::SequenceTableDriven {
-                    last_child_frame_id,
-                    ..
-                },
-                GrammarVariant::Sequence,
-            )
-            | (
-                FrameContext::OneOfTableDriven {
-                    last_child_frame_id,
-                    ..
-                },
-                GrammarVariant::OneOf,
-            )
-            | (
-                FrameContext::BracketedTableDriven {
-                    last_child_frame_id,
-                    ..
-                },
-                GrammarVariant::Bracketed,
-            )
-            | (
-                FrameContext::DelimitedTableDriven {
-                    last_child_frame_id,
-                    ..
-                },
-                GrammarVariant::Delimited,
-            )
-            | (
-                FrameContext::RefTableDriven {
-                    last_child_frame_id,
-                    ..
-                },
-                GrammarVariant::Ref,
-            ) => {
-                *last_child_frame_id = Some(child_id);
-            }
-            _ => {}
-        }
+        parent_frame
+            .context
+            .set_last_child_id(parent_context_type, child_id);
 
         // Push parent and child
         self.push(parent_frame);
@@ -291,16 +225,11 @@ impl TableParseFrameStack {
         // Update parent's last_child_frame_id AND current_element_idx BEFORE pushing
         #[cfg(feature = "verbose-debug")]
         let parent_id = parent_frame.frame_id;
-        if let FrameContext::SequenceTableDriven {
-            last_child_frame_id,
-            current_element_idx,
-            ..
-        } = &mut parent_frame.context
-        {
+        if let FrameContext::Sequence(state) = &mut parent_frame.context {
             vdebug!("DEBUG: push_sequence_child_and_update_parent (table) - parent {}, child {}, setting last_child_frame_id to {}",
                 parent_id, child_id, child_id);
-            *last_child_frame_id = Some(child_id);
-            *current_element_idx = next_element_idx;
+            state.last_child_frame_id = Some(child_id);
+            state.current_element_idx = next_element_idx;
         }
 
         // Push parent and child
@@ -320,14 +249,9 @@ impl TableParseFrameStack {
 
         // Update parent's last_child_frame_id, current_element_idx, AND state
         if let Some(parent_frame) = self.last_mut() {
-            if let FrameContext::SequenceTableDriven {
-                last_child_frame_id,
-                current_element_idx,
-                ..
-            } = &mut parent_frame.context
-            {
-                *last_child_frame_id = Some(child_id);
-                *current_element_idx = next_element_idx;
+            if let FrameContext::Sequence(state) = &mut parent_frame.context {
+                state.last_child_frame_id = Some(child_id);
+                state.current_element_idx = next_element_idx;
             }
             // CRITICAL: Set parent state to WaitingForChild so it knows to process child result
             parent_frame.state = FrameState::WaitingForChild {
@@ -365,14 +289,19 @@ pub struct TableParseFrame {
     pub state: FrameState,
     /// Additional context depending on grammar type
     pub context: FrameContext,
-    /// Parent's max_idx limit (simulates Python's segments[:max_idx] slicing)
-    /// If Some(n), this frame cannot match beyond position n
+    /// The ceiling inherited from the parent (simulates Python's
+    /// `segments[:max_idx]` slicing): if `Some(n)`, this frame may not match
+    /// past `n`. This is the *input* bound, set when the frame is created.
     pub parent_max_idx: Option<usize>,
-    /// Handler-calculated max_idx after considering terminators and parse mode
-    /// Set by handlers (Sequence, OneOf, etc.) after they calculate their effective max_idx
-    /// Used for cache key to ensure consistency between cache checks and stores
+    /// The frame's *own* effective ceiling, computed in `Initial` from its
+    /// terminators, parse mode, and `parent_max_idx` (see
+    /// [`crate::parser::helpers::Parser::calculate_max_idx`]).
+    /// `None` until the handler computes it. This — not `parent_max_idx` — is
+    /// the authoritative bound used during matching and as part of the cache
+    /// key, so cache checks and stores stay consistent.
     pub calculated_max_idx: Option<usize>,
-    /// End position for this parse (used when transitioning to Complete state)
+    /// Where this frame's match ended, set when transitioning to `Complete`.
+    /// Authoritative result extent; mirrored into the `results` map's `end_pos`.
     pub end_pos: Option<usize>,
     /// Element key for this match (used by AnyNumberOf to track per-element counts)
     /// Set by OneOf when storing its result, propagated to parent via results map

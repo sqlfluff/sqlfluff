@@ -15,9 +15,9 @@ use crate::parser::{MatchResult, MetaSegment};
 use super::{cache::TableParseCache, Node, ParseError};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::regex::RegexMode;
-use sqlfluffrs_types::{SimpleHint, Token};
+use sqlfluffrs_types::Token;
 // NEW: Table-driven grammar support
-use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant, RootGrammar};
+use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant};
 
 /// Read a string-id list from aux_data region starting at ``offset``.
 /// Layout is ``[count, string_id_0, string_id_1, ...]``.
@@ -44,67 +44,93 @@ fn read_string_ids_from_aux(
         .collect()
 }
 
-/// A checkpoint in the collection history that tracks which tokens were collected
-/// at a specific point. Used for backtracking.
-#[derive(Debug, Clone)]
-pub struct CollectionCheckpoint {
-    /// Frame ID associated with this checkpoint
-    pub frame_id: usize,
-    /// Token positions that were marked as collected at this checkpoint
-    pub positions: Vec<usize>,
+/// Diagnostic counters accumulated during a parse.
+///
+/// Pure instrumentation: nothing here affects parse results, so every field is a
+/// `Cell<usize>` updated through `&self`. Grouped into one struct to keep the
+/// `Parser` struct focused on parsing state and to expose the counters as a unit
+/// via [`Parser::diagnostics`] rather than field-by-field across the FFI boundary.
+#[derive(Debug, Default)]
+pub(crate) struct ParserMetrics {
+    /// Number of `prune_options` calls.
+    pub pruning_calls: std::cell::Cell<usize>,
+    /// Total options considered across all prune calls.
+    pub pruning_total: std::cell::Cell<usize>,
+    /// Options kept after pruning.
+    pub pruning_kept: std::cell::Cell<usize>,
+    /// Options that had a simple hint.
+    pub pruning_hinted: std::cell::Cell<usize>,
+    /// Options that returned None (too complex to hint).
+    pub pruning_complex: std::cell::Cell<usize>,
+    /// Match attempts (mirrors Python's `longest_match` accounting).
+    pub match_attempts: std::cell::Cell<usize>,
+    /// Successful matches.
+    pub match_successes: std::cell::Cell<usize>,
+    /// Early exits taken on an already-complete match.
+    pub complete_match_early_exits: std::cell::Cell<usize>,
+    /// Terminator checks performed.
+    pub terminator_checks: std::cell::Cell<usize>,
+    /// Terminator hits (early exits caused by a terminator).
+    pub terminator_hits: std::cell::Cell<usize>,
 }
+
+impl ParserMetrics {
+    /// Snapshot the counters as a name -> value map (for debug/FFI reporting).
+    fn as_map(&self) -> std::collections::HashMap<String, usize> {
+        let mut m = std::collections::HashMap::new();
+        m.insert("pruning_calls".to_string(), self.pruning_calls.get());
+        m.insert("pruning_total".to_string(), self.pruning_total.get());
+        m.insert("pruning_kept".to_string(), self.pruning_kept.get());
+        m.insert("pruning_hinted".to_string(), self.pruning_hinted.get());
+        m.insert("pruning_complex".to_string(), self.pruning_complex.get());
+        m.insert("match_attempts".to_string(), self.match_attempts.get());
+        m.insert("match_successes".to_string(), self.match_successes.get());
+        m.insert(
+            "complete_match_early_exits".to_string(),
+            self.complete_match_early_exits.get(),
+        );
+        m.insert(
+            "terminator_checks".to_string(),
+            self.terminator_checks.get(),
+        );
+        m.insert("terminator_hits".to_string(), self.terminator_hits.get());
+        m
+    }
+}
+
 /// The main parser struct that holds parsing state and provides parsing methods.
+///
+/// Fields are `pub(crate)`: the parser's public API is the methods re-exported from
+/// [`crate::parser`] (plus the `PyParser` bindings), not its internal state.
 pub struct Parser<'a> {
-    pub simple_hint_cache: hashbrown::HashMap<u64, Option<SimpleHint>>,
-    pub tokens: &'a [Token],
-    pub pos: usize, // current position in tokens
-    pub dialect: Dialect,
-    pub table_cache: TableParseCache, // Frame-level cache
-    pub cache_enabled: bool,
-    pub collected_transparent_positions: Vec<usize>, // Track which token positions have had transparent tokens collected (Vec for O(1) truncate)
-    /// Stack of collection checkpoints for backtracking.
-    /// Each checkpoint records which tokens were marked as collected at that point.
-    pub collection_stack: Vec<CollectionCheckpoint>,
-    pub pruning_calls: std::cell::Cell<usize>, // Track number of prune_options calls
-    pub pruning_total: std::cell::Cell<usize>, // Total options considered
-    pub pruning_kept: std::cell::Cell<usize>,  // Options kept after pruning
-    pub pruning_hinted: std::cell::Cell<usize>, // Options that had hints
-    pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
-    pub match_attempts: std::cell::Cell<usize>, // Track number of match attempts (like Python's longest_match)
-    pub match_successes: std::cell::Cell<usize>, // Track number of successful matches
-    pub complete_match_early_exits: std::cell::Cell<usize>, // Track early exits from complete matches
-    pub terminator_checks: std::cell::Cell<usize>,          // Track number of terminator checks
-    pub terminator_hits: std::cell::Cell<usize>, // Track number of terminator hits (early exits)
+    pub(crate) tokens: &'a [Token],
+    pub(crate) pos: usize, // current position in tokens
+    pub(crate) dialect: Dialect,
+    pub(crate) table_cache: TableParseCache, // Frame-level cache
+    pub(crate) cache_enabled: bool,
+    /// Diagnostic counters (instrumentation only; see [`ParserMetrics`]).
+    pub(crate) metrics: ParserMetrics,
     /// Cache for terminator match results: (position, grammar_id) -> matches
     /// Key insight: the same terminator at the same position will always give the same result.
     /// This avoids redundant parse_table_iterative calls from nested Delimited grammars.
-    pub terminator_match_cache: std::cell::RefCell<hashbrown::HashMap<(usize, u32), bool>>,
-    /// Cache for terminator hash computation: Vec<GrammarId> -> u64
-    /// Many grammars share the same terminators, so we cache the computed hashes.
-    /// OPTIMIZATION: This avoids recomputing the same hash thousands of times in
-    /// expression-heavy queries (arithmetic_a.sql, expression_recursion.sql).
-    pub terminator_hash_cache: std::cell::RefCell<hashbrown::HashMap<Vec<u32>, u64>>,
+    pub(crate) terminator_match_cache: std::cell::RefCell<hashbrown::HashMap<(usize, u32), bool>>,
     // Table-driven grammar support
-    pub grammar_ctx: GrammarContext<'static>,
+    pub(crate) grammar_ctx: GrammarContext<'static>,
     /// Indentation configuration (key -> enabled)
     /// Used by conditional meta segments (e.g., indented_joins=true enables Indent/Dedent)
-    pub indent_config: hashbrown::HashMap<&'static str, bool>,
-    /// Optional owned RootGrammar. When present, callers can use `parse_root`
-    /// to parse starting from this root without having to pass grammar ids
-    /// or contexts manually.
-    pub root: Option<RootGrammar>,
+    pub(crate) indent_config: hashbrown::HashMap<&'static str, bool>,
     // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
     regex_cache: std::cell::RefCell<hashbrown::HashMap<String, RegexMode>>,
     /// Maximum number of main-loop iterations before aborting.
     /// Configurable via `rust_parser_max_iterations` in `.sqlfluff`.
-    pub max_parser_iterations: usize,
+    pub(crate) max_parser_iterations: usize,
     /// Iteration count at which a warning is emitted (the former hard limit).
     /// Configurable via `rust_parser_warn_threshold` in `.sqlfluff`.
-    pub parser_warn_threshold: usize,
+    pub(crate) parser_warn_threshold: usize,
     /// Maximum parse depth (frame stack). 0 = no limit. Used for DoS mitigation.
-    pub max_parse_depth: usize,
+    pub(crate) max_parse_depth: usize,
     /// Maximum parse nodes in the accepted parse tree. 0 = no limit.
-    pub max_parse_nodes: usize,
+    pub(crate) max_parse_nodes: usize,
 }
 
 impl<'a> Parser<'a> {
@@ -141,25 +167,11 @@ impl<'a> Parser<'a> {
             pos: 0,
             dialect,
             table_cache: TableParseCache::new(),
-            collected_transparent_positions: Vec::new(),
-            collection_stack: Vec::new(),
-            pruning_calls: std::cell::Cell::new(0),
-            pruning_total: std::cell::Cell::new(0),
-            pruning_kept: std::cell::Cell::new(0),
-            pruning_hinted: std::cell::Cell::new(0),
-            pruning_complex: std::cell::Cell::new(0),
-            match_attempts: std::cell::Cell::new(0),
-            match_successes: std::cell::Cell::new(0),
-            complete_match_early_exits: std::cell::Cell::new(0),
-            terminator_checks: std::cell::Cell::new(0),
-            terminator_hits: std::cell::Cell::new(0),
+            metrics: ParserMetrics::default(),
             terminator_match_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
-            terminator_hash_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
-            simple_hint_cache: hashbrown::HashMap::new(),
             cache_enabled: true,
             grammar_ctx,
             indent_config,
-            root: None,
             regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
             max_parser_iterations: 3_000_000,
             parser_warn_threshold: 2_000_000,
@@ -235,6 +247,19 @@ impl<'a> Parser<'a> {
     /// Enable or disable the parse cache (for debugging)
     pub fn set_cache_enabled(&mut self, enabled: bool) {
         self.cache_enabled = enabled;
+    }
+
+    /// Current position in the token stream (index of the next token to consume).
+    pub fn position(&self) -> usize {
+        self.pos
+    }
+
+    /// Snapshot the parser's diagnostic counters as a name -> value map.
+    ///
+    /// Pure instrumentation; the values have no effect on parse results. Used by the
+    /// Python bindings and perf debugging instead of reaching into individual counters.
+    pub fn diagnostics(&self) -> std::collections::HashMap<String, usize> {
+        self.metrics.as_map()
     }
 
     /// Parse and return MatchResult
@@ -392,7 +417,7 @@ impl<'a> Parser<'a> {
     // ============================================================================
 
     /// Handle StringParser using table-driven approach
-    pub(crate) fn handle_string_parser_table_driven(
+    pub(crate) fn handle_string_parser(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -511,7 +536,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle TypedParser using table-driven approach
-    pub(crate) fn handle_typed_parser_table_driven(
+    pub(crate) fn handle_typed_parser(
         &mut self,
         mut frame: TableParseFrame,
     ) -> Result<TableFrameResult, ParseError> {
@@ -770,7 +795,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle MultiStringParser using table-driven approach
-    pub(crate) fn handle_multi_string_parser_table_driven(
+    pub(crate) fn handle_multi_string_parser(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -916,10 +941,7 @@ impl<'a> Parser<'a> {
     /// Dump table-driven grammar / table information useful for debugging
     /// (variants, children, terminators, aux data, regex patterns etc.).
     /// If `grammar_id` is None, dumps all grammars in the tables.
-    pub fn dump_table_driven_grammar_info(
-        &self,
-        grammar_id: Option<GrammarId>,
-    ) -> Result<String, ParseError> {
+    pub fn dump_grammar_info(&self, grammar_id: Option<GrammarId>) -> Result<String, ParseError> {
         let ctx = &self.grammar_ctx;
         let tables = ctx.tables();
 
@@ -1048,7 +1070,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle RegexParser using table-driven approach
-    pub(crate) fn handle_regex_parser_table_driven(
+    pub(crate) fn handle_regex_parser(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -1231,19 +1253,19 @@ impl<'a> Parser<'a> {
     // ============================================================================
 
     /// Handle Nothing using table-driven approach
-    pub(crate) fn handle_nothing_table_driven(&mut self) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_nothing(&mut self) -> Result<MatchResult, ParseError> {
         vdebug!("Nothing[table]: pos={}, returning Empty", self.pos);
         Ok(MatchResult::empty_at(self.pos))
     }
 
     /// Handle Empty using table-driven approach
-    pub(crate) fn handle_empty_table_driven(&mut self) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_empty(&mut self) -> Result<MatchResult, ParseError> {
         vdebug!("Empty[table]: pos={}, returning Empty", self.pos);
         Ok(MatchResult::empty_at(self.pos))
     }
 
     /// Handle Missing using table-driven approach
-    pub(crate) fn handle_missing_table_driven(&mut self) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_missing(&mut self) -> Result<MatchResult, ParseError> {
         vdebug!("Missing[table]: encountered at pos={}", self.pos);
         Err(ParseError::with_context(
             "Encountered Missing grammar".into(),
@@ -1264,7 +1286,7 @@ impl<'a> Parser<'a> {
         idx
     }
 
-    pub(crate) fn handle_preceded_by_table_driven(
+    pub(crate) fn handle_preceded_by(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -1277,7 +1299,7 @@ impl<'a> Parser<'a> {
             let preceding_start = tables.aux_data[sequence_meta_offset] as usize;
             let preceding_count = tables.aux_data[sequence_meta_offset + 1] as usize;
 
-            if self.match_preceding_sequence_table_driven(preceding_start, preceding_count) {
+            if self.match_preceding_sequence(preceding_start, preceding_count) {
                 if self.pos < self.tokens.len() {
                     return Ok(MatchResult {
                         matched_slice: self.pos..self.pos + 1,
@@ -1292,11 +1314,7 @@ impl<'a> Parser<'a> {
         Ok(MatchResult::empty_at(self.pos))
     }
 
-    fn match_preceding_sequence_table_driven(
-        &self,
-        preceding_start: usize,
-        preceding_count: usize,
-    ) -> bool {
+    fn match_preceding_sequence(&self, preceding_start: usize, preceding_count: usize) -> bool {
         let tables = self.grammar_ctx.tables();
         let mut prev = self.pos as isize - 1;
 
@@ -1318,7 +1336,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle Token using table-driven approach
-    pub(crate) fn handle_token_table_driven(
+    pub(crate) fn handle_token(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -1383,10 +1401,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle Meta using table-driven approach
-    pub(crate) fn handle_meta_table_driven(
-        &mut self,
-        grammar_id: GrammarId,
-    ) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_meta(&mut self, grammar_id: GrammarId) -> Result<MatchResult, ParseError> {
         // Extract token_type from tables
         let tables = self.grammar_ctx.tables();
 
@@ -1421,9 +1436,7 @@ impl<'a> Parser<'a> {
     /// Matches ALL consecutive non-code segments (whitespace, newline, comment, EOF).
     /// This implements Python parity with NonCodeMatcher.match() which loops through
     /// segments until finding a code token, returning MatchResult with the full slice.
-    pub(crate) fn handle_noncode_matcher_table_driven(
-        &mut self,
-    ) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_noncode_matcher(&mut self) -> Result<MatchResult, ParseError> {
         let start_pos = self.pos;
         vdebug!("NonCodeMatcher[table]: pos={}", start_pos);
 
@@ -1488,7 +1501,7 @@ impl<'a> Parser<'a> {
 
     /// Handle Anything using table-driven approach
     /// Consumes all tokens until terminator or EOF, preserving bracket structure
-    pub(crate) fn handle_anything_table_initial(
+    pub(crate) fn handle_anything_initial(
         &mut self,
         mut frame: TableParseFrame,
         grammar_id: GrammarId,
@@ -1523,7 +1536,7 @@ impl<'a> Parser<'a> {
                 }
             }
 
-            if self.is_terminated_table_driven(&terminators_vec) || self.is_at_end() {
+            if self.is_terminated(&terminators_vec) || self.is_at_end() {
                 break;
             }
 
@@ -1563,9 +1576,9 @@ impl<'a> Parser<'a> {
     }
 
     /// Compatibility wrapper expected by `core.rs`.
-    /// `core.rs` calls `handle_anything_table_driven`; implement a thin wrapper
-    /// that forwards to `handle_anything_table_initial` with a dummy frame.
-    pub(crate) fn handle_anything_table_driven(
+    /// `core.rs` calls `handle_anything`; implement a thin wrapper
+    /// that forwards to `handle_anything_initial` with a dummy frame.
+    pub(crate) fn handle_anything(
         &mut self,
         grammar_id: GrammarId,
         parent_terminators: &[GrammarId],
@@ -1574,12 +1587,7 @@ impl<'a> Parser<'a> {
         // Create a temporary table-driven frame to use the initial handler and then extract MatchResult
         let frame = TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators, None);
 
-        match self.handle_anything_table_initial(
-            frame,
-            grammar_id,
-            parent_terminators,
-            parent_max_idx,
-        )? {
+        match self.handle_anything_initial(frame, grammar_id, parent_terminators, parent_max_idx)? {
             TableFrameResult::Push(f) => {
                 if let FrameState::Complete(match_result) = f.state {
                     return Ok((*match_result).clone());
