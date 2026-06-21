@@ -18,6 +18,7 @@ mod core;
 mod frame;
 mod helpers; // Utility methods for Parser
 mod match_result;
+mod rules_cp01; // Experimental Rust-native CP01 detection
 mod table_driven;
 pub(crate) mod types;
 

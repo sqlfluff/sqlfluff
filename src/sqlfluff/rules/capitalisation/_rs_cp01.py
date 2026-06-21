@@ -117,3 +117,57 @@ def cp01_results_via_rs_node(
         memory = result.memory
         results.append(result)
     return results
+
+
+def cp01_results_via_rust(
+    rule: "Rule_CP01",
+    root: "BaseSegment",
+    context: "RuleContext",
+) -> Optional[list["LintResult"]]:
+    """Produce CP01's LintResults by running detection natively in Rust.
+
+    The whole detection loop (target selection, exclusions, consistent-policy
+    inference, casing) runs in Rust via ``RsNode.cp01_violations`` and returns
+    ``(leaf_index, fixed_raw)`` pairs in a single FFI crossing. Python only maps
+    each leaf index to its ``raw_segment`` and emits a standard ``LintFix``.
+
+    Returns ``None`` (caller falls back) when there's no Rust node tree or the
+    config uses features the native path doesn't implement yet
+    (``ignore_words_regex`` or non-keyword policies).
+    """
+    from sqlfluff.core.rules import LintResult
+
+    rs_node = getattr(root, "_rs_node", None)
+    if rs_node is None:
+        return None
+
+    policy = str(getattr(rule, "capitalisation_policy", "consistent"))
+    if policy not in ("consistent", "upper", "lower", "capitalise"):
+        return None
+    # The native path doesn't implement regex word-ignore yet.
+    if getattr(rule, "ignore_words_regex", None):
+        return None
+
+    ignore_words_config = str(getattr(rule, "ignore_words", None))
+    if ignore_words_config and ignore_words_config != "None":
+        ignore_words = rule.split_comma_separated_string(ignore_words_config.lower())
+    else:
+        ignore_words = []
+    ignore_templated = bool(context.config.get("ignore_templated_areas"))
+
+    violations = rs_node.cp01_violations(policy, ignore_words, ignore_templated)
+    if not violations:
+        return []
+
+    raw_segments = root.raw_segments
+    results: list[LintResult] = []
+    for leaf_idx, fixed_raw in violations:
+        segment = raw_segments[leaf_idx]
+        results.append(
+            LintResult(
+                anchor=segment,
+                fixes=[rule._get_fix(segment, fixed_raw)],
+                description=f"{rule._description_elem} must be consistent.",
+            )
+        )
+    return results

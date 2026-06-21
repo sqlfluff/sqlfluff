@@ -14,6 +14,7 @@ try:
     from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER
     from sqlfluff.rules.capitalisation._rs_cp01 import (
         cp01_results_via_rs_node,
+        cp01_results_via_rust,
         cp01_targets_via_rs_node,
     )
 except ImportError:  # pragma: no cover
@@ -35,6 +36,15 @@ _SAMPLES = [
     "SELECT A FROM B",
     "select a from b",
 ]
+
+
+def _cfg(policy="consistent"):
+    """Config that genuinely sets CP01's policy (overrides don't reach rules)."""
+    return FluffConfig.from_string(
+        "[sqlfluff]\ndialect=ansi\nrules=CP01\nuse_rust_parser=True\n"
+        "[sqlfluff:rules:capitalisation.keywords]\n"
+        f"capitalisation_policy={policy}\n"
+    )
 
 
 def _stock_fixed(linter, sql):
@@ -71,14 +81,7 @@ def _rs_fixed(linter, cfg, sql):
 @pytest.mark.parametrize("sql", _SAMPLES)
 def test__cp01_rs_assist__matches_stock(policy, sql):
     """Rust-assisted CP01 produces identical fixes to stock CP01."""
-    cfg = FluffConfig(
-        overrides={
-            "dialect": "ansi",
-            "rules": "CP01",
-            "use_rust_parser": True,
-            "capitalisation_policy": policy,
-        }
-    )
+    cfg = _cfg(policy)
     linter = Linter(config=cfg)
     assert _rs_fixed(linter, cfg, sql) == _stock_fixed(linter, sql)
 
@@ -104,3 +107,86 @@ def test__cp01_rs_assist__falls_back_without_rs_node():
         segment=tree,
     )
     assert cp01_results_via_rs_node(rule, tree, ctx) is None
+
+
+# ---------------------------------------------------------------------------
+# Rust-native CP01 detection (cp01_results_via_rust)
+# ---------------------------------------------------------------------------
+
+
+def _rule_and_ctx(linter, cfg, tree):
+    rule = next(r for r in linter.get_rulepack(cfg).rules if r.code == "CP01")
+    ctx = RuleContext(
+        dialect=cfg.get("dialect_obj"),
+        fix=True,
+        templated_file=None,
+        path=None,
+        config=cfg,
+        segment=tree,
+    )
+    return rule, ctx
+
+
+def _rust_path_fixed(linter, cfg, sql):
+    tree = linter.parse_string(sql).tree
+    if tree is None or getattr(tree, "_rs_node", None) is None:
+        return None
+    rule, ctx = _rule_and_ctx(linter, cfg, tree)
+    results = cp01_results_via_rust(rule, tree, ctx)
+    replacements = {}
+    for result in results:
+        for fix in result.fixes or []:
+            if fix.edit:
+                replacements[id(fix.anchor)] = fix.edit[0].raw
+    return "".join(replacements.get(id(s), s.raw) for s in tree.raw_segments)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize("policy", ["consistent", "upper", "lower", "capitalise"])
+@pytest.mark.parametrize("sql", _SAMPLES)
+def test__cp01_rust__matches_stock(policy, sql):
+    """Rust-native CP01 detection produces identical fixes to stock CP01."""
+    cfg = _cfg(policy)
+    linter = Linter(config=cfg)
+    assert _rust_path_fixed(linter, cfg, sql) == _stock_fixed(linter, sql)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__cp01_rust__honours_ignore_words():
+    """An ignored keyword is left untouched by the native detection."""
+    cfg = _cfg("upper")
+    linter = Linter(config=cfg)
+    tree = linter.parse_string("select a from t").tree
+    rule, ctx = _rule_and_ctx(linter, cfg, tree)
+    rule.ignore_words = "from"  # ignore the FROM keyword
+
+    results = cp01_results_via_rust(rule, tree, ctx)
+    fixed_raws = {fix.edit[0].raw for r in results for fix in r.fixes or [] if fix.edit}
+    # "select" is upper-cased; the ignored "from" is not touched.
+    assert "SELECT" in fixed_raws
+    assert "FROM" not in fixed_raws
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__cp01_rust__fallbacks():
+    """The native path declines (returns None) for unsupported configurations."""
+    cfg = FluffConfig(
+        overrides={"dialect": "ansi", "rules": "CP01", "use_rust_parser": True}
+    )
+    linter = Linter(config=cfg)
+    tree = linter.parse_string("select 1").tree
+    rule, ctx = _rule_and_ctx(linter, cfg, tree)
+
+    # Unsupported (non-keyword) policy -> fall back to Python.
+    rule.capitalisation_policy = "pascal"
+    assert cp01_results_via_rust(rule, tree, ctx) is None
+    rule.capitalisation_policy = "upper"
+
+    # Regex word-ignore is not implemented natively -> fall back.
+    rule.ignore_words_regex = "^x"
+    assert cp01_results_via_rust(rule, tree, ctx) is None
+    rule.ignore_words_regex = None
+
+    # No Rust node tree -> fall back.
+    tree._rs_node = None
+    assert cp01_results_via_rust(rule, tree, ctx) is None
