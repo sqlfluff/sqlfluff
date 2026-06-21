@@ -576,22 +576,8 @@ impl PyParser {
         stats.insert("cache_hits".to_string(), cache_hits);
         stats.insert("cache_misses".to_string(), cache_misses);
         stats.insert("cache_entries".to_string(), cache_entries);
-        stats.insert("pruning_calls".to_string(), parser.pruning_calls.get());
-        stats.insert("pruning_total".to_string(), parser.pruning_total.get());
-        stats.insert("pruning_kept".to_string(), parser.pruning_kept.get());
-        stats.insert("pruning_hinted".to_string(), parser.pruning_hinted.get());
-        stats.insert("pruning_complex".to_string(), parser.pruning_complex.get());
-        stats.insert("match_attempts".to_string(), parser.match_attempts.get());
-        stats.insert("match_successes".to_string(), parser.match_successes.get());
-        stats.insert(
-            "complete_match_early_exits".to_string(),
-            parser.complete_match_early_exits.get(),
-        );
-        stats.insert(
-            "terminator_checks".to_string(),
-            parser.terminator_checks.get(),
-        );
-        stats.insert("terminator_hits".to_string(), parser.terminator_hits.get());
+        // Diagnostic counters are owned by the parser; pull them as a unit.
+        stats.extend(parser.diagnostics());
 
         Ok((PyMatchResult(match_result), stats))
     }
