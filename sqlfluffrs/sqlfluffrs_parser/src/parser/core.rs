@@ -1564,7 +1564,7 @@ impl<'a> Parser<'a> {
 
     /// Compatibility wrapper expected by `core.rs`.
     /// `core.rs` calls `handle_anything`; implement a thin wrapper
-    /// that forwards to `handle_anything_table_initial` with a dummy frame.
+    /// that forwards to `handle_anything_initial` with a dummy frame.
     pub(crate) fn handle_anything(
         &mut self,
         grammar_id: GrammarId,
