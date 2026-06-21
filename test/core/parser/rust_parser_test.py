@@ -1,5 +1,7 @@
 """Tests for the RustParser error handling and iteration limits."""
 
+from pathlib import Path
+
 import pytest
 
 from sqlfluff.core.errors import SQLFluffUserError
@@ -451,3 +453,51 @@ def test__rust_parser__profiling_cleared_for_no_code_input():
         assert get_parse_profile() == {}
     finally:
         set_profiling(False)
+
+
+# ---------------------------------------------------------------------------
+# Native (fused) AST builder parity
+# ---------------------------------------------------------------------------
+
+_ANSI_FIXTURE_SQL = sorted(
+    (
+        Path(__file__).resolve().parents[3] / "test" / "fixtures" / "dialects" / "ansi"
+    ).glob("*.sql")
+)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "sqlfile", _ANSI_FIXTURE_SQL, ids=[p.name for p in _ANSI_FIXTURE_SQL]
+)
+def test__rust_parser__native_ast_parity(sqlfile):
+    """The fused builder must produce the same tree as convert+apply.
+
+    For every ansi fixture, parse the same lexer output twice - once via the
+    legacy convert+apply path and once via the fused native builder - and assert
+    the resulting BaseSegment trees (or raised exceptions) are identical. Both
+    paths use the same config, so this isolates the tree-building difference.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+    from sqlfluff.core.parser.rust_parser import set_native_ast
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    segments, _ = Lexer(config=config).lex(sqlfile.read_text(encoding="utf-8"))
+
+    def build(native: bool):
+        set_native_ast(native)
+        try:
+            tree = RustParser(config=config).parse(segments, fname=str(sqlfile))
+            return (
+                "tree",
+                tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
+                if tree
+                else None,
+            )
+        except BaseException as err:  # PanicException is a BaseException
+            return ("exc", type(err).__name__)
+        finally:
+            set_native_ast(False)
+
+    assert build(native=True) == build(native=False)
