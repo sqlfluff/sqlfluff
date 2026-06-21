@@ -132,8 +132,8 @@ impl Parser<'_> {
         }
 
         // Track match attempts (like Python's longest_match - each option is an attempt)
-        self.match_attempts
-            .set(self.match_attempts.get() + pruned_children.len());
+        self.metrics.match_attempts
+            .set(self.metrics.match_attempts.get() + pruned_children.len());
 
         // Save first child before moving pruned_children into context
         let first_child = pruned_children[0];
@@ -269,8 +269,8 @@ impl Parser<'_> {
                 max_idx
             );
             // Track early exit for stats
-            self.complete_match_early_exits
-                .set(self.complete_match_early_exits.get() + 1);
+            self.metrics.complete_match_early_exits
+                .set(self.metrics.complete_match_early_exits.get() + 1);
             *longest_match = Some((child_match_rc, consumed, current_child));
             // Skip directly to Combining state
             frame.state = FrameState::Combining;
@@ -399,7 +399,7 @@ impl Parser<'_> {
         let result_match = if let Some((best_match, best_consumed, _best_child_id)) = longest_match
         {
             // Track successful match (like Python's longest_match returning a match)
-            self.match_successes.set(self.match_successes.get() + 1);
+            self.metrics.match_successes.set(self.metrics.match_successes.get() + 1);
             self.pos = post_skip_pos + best_consumed;
 
             best_match

@@ -25,12 +25,12 @@ impl<'a> Parser<'a> {
         println!();
 
         // Print pruning stats
-        let calls = self.pruning_calls.get();
-        let total = self.pruning_total.get();
-        let kept = self.pruning_kept.get();
+        let calls = self.metrics.pruning_calls.get();
+        let total = self.metrics.pruning_total.get();
+        let kept = self.metrics.pruning_kept.get();
         let pruned = total.saturating_sub(kept);
-        let hinted = self.pruning_hinted.get();
-        let complex = self.pruning_complex.get();
+        let hinted = self.metrics.pruning_hinted.get();
+        let complex = self.metrics.pruning_complex.get();
 
         if calls > 0 {
             println!("SimpleHint Pruning Statistics:");
@@ -271,17 +271,17 @@ impl<'a> Parser<'a> {
     /// This is the table-driven equivalent of prune_options().
     pub(crate) fn prune_options(&mut self, options: &[GrammarId]) -> Vec<GrammarId> {
         // Track stats
-        self.pruning_calls.set(self.pruning_calls.get() + 1);
-        self.pruning_total
-            .set(self.pruning_total.get() + options.len());
+        self.metrics.pruning_calls.set(self.metrics.pruning_calls.get() + 1);
+        self.metrics.pruning_total
+            .set(self.metrics.pruning_total.get() + options.len());
 
         // Find first code token
         let first_code_token = self.tokens.iter().skip(self.pos).find(|t| t.is_code());
 
         // If no code token found, can't prune - return all options
         let Some(first_token) = first_code_token else {
-            self.pruning_kept
-                .set(self.pruning_kept.get() + options.len());
+            self.metrics.pruning_kept
+                .set(self.metrics.pruning_kept.get() + options.len());
             return options.to_vec();
         };
 
@@ -307,7 +307,7 @@ impl<'a> Parser<'a> {
             if let Some(tables) = tables {
                 if let Some(hint) = tables.get_simple_hint_for_grammar(opt_id) {
                     // We have a hint - track it
-                    self.pruning_hinted.set(self.pruning_hinted.get() + 1);
+                    self.metrics.pruning_hinted.set(self.metrics.pruning_hinted.get() + 1);
                     // Use hint to filter
                     if tables.hint_can_match(hint, &first_raw, &first_types) {
                         available_options.push(opt_id);
@@ -317,12 +317,12 @@ impl<'a> Parser<'a> {
                     }
                 } else {
                     // No hint = complex grammar, must try it
-                    self.pruning_complex.set(self.pruning_complex.get() + 1);
+                    self.metrics.pruning_complex.set(self.metrics.pruning_complex.get() + 1);
                     available_options.push(opt_id);
                 }
             } else {
                 // No tables available - keep all options (conservative)
-                self.pruning_complex.set(self.pruning_complex.get() + 1);
+                self.metrics.pruning_complex.set(self.metrics.pruning_complex.get() + 1);
                 available_options.push(opt_id);
             }
         }
@@ -365,8 +365,8 @@ impl<'a> Parser<'a> {
             );
         }
 
-        self.pruning_kept
-            .set(self.pruning_kept.get() + available_options.len());
+        self.metrics.pruning_kept
+            .set(self.metrics.pruning_kept.get() + available_options.len());
 
         available_options
     }
@@ -375,7 +375,7 @@ impl<'a> Parser<'a> {
     ///
     /// This is the table-driven equivalent of is_terminated_with_elements().
     pub(crate) fn is_terminated(&mut self, terminators: &[GrammarId]) -> bool {
-        self.terminator_checks.set(self.terminator_checks.get() + 1);
+        self.metrics.terminator_checks.set(self.metrics.terminator_checks.get() + 1);
         let init_pos = self.pos;
 
         // CRITICAL: Check for GrammarId::NONCODE BEFORE skipping transparent tokens!
@@ -397,7 +397,7 @@ impl<'a> Parser<'a> {
                 );
                 if !is_code {
                     vdebug!("  TERMED NONCODE found non-code token at current position");
-                    self.terminator_hits.set(self.terminator_hits.get() + 1);
+                    self.metrics.terminator_hits.set(self.metrics.terminator_hits.get() + 1);
                     return true;
                 }
             }
@@ -425,7 +425,7 @@ impl<'a> Parser<'a> {
         if self.is_at_end() {
             vdebug!("  TERMED Reached end of file");
             self.pos = init_pos;
-            self.terminator_hits.set(self.terminator_hits.get() + 1);
+            self.metrics.terminator_hits.set(self.metrics.terminator_hits.get() + 1);
             return true;
         }
 
@@ -434,7 +434,7 @@ impl<'a> Parser<'a> {
             if tok.get_type() == "end_of_file" {
                 vdebug!("  TERMED Found end_of_file token");
                 self.pos = init_pos;
-                self.terminator_hits.set(self.terminator_hits.get() + 1);
+                self.metrics.terminator_hits.set(self.metrics.terminator_hits.get() + 1);
                 return true;
             }
         }
@@ -512,7 +512,7 @@ impl<'a> Parser<'a> {
                 if cached_result {
                     vdebug!("  TERMED Terminator matched (cached): {:?}", term_id);
                     self.pos = init_pos;
-                    self.terminator_hits.set(self.terminator_hits.get() + 1);
+                    self.metrics.terminator_hits.set(self.metrics.terminator_hits.get() + 1);
                     return true;
                 }
                 // Cached false - skip this terminator
@@ -535,7 +535,7 @@ impl<'a> Parser<'a> {
                 if !is_empty {
                     vdebug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
                     self.pos = init_pos;
-                    self.terminator_hits.set(self.terminator_hits.get() + 1);
+                    self.metrics.terminator_hits.set(self.metrics.terminator_hits.get() + 1);
                     return true;
                 }
             } else {

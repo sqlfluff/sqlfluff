@@ -40,7 +40,7 @@ fn test_bracketed_implicit_sequence() {
 
             println!(
                 "\n=== Parser position: {} / {} ===",
-                parser.pos,
+                parser.position(),
                 tokens.len()
             );
 

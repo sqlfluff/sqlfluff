@@ -15,9 +15,9 @@ use crate::parser::{MatchResult, MetaSegment};
 use super::{cache::TableParseCache, Node, ParseError};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::regex::RegexMode;
-use sqlfluffrs_types::{SimpleHint, Token};
+use sqlfluffrs_types::Token;
 // NEW: Table-driven grammar support
-use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant, RootGrammar};
+use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant};
 
 /// Read a string-id list from aux_data region starting at ``offset``.
 /// Layout is ``[count, string_id_0, string_id_1, ...]``.
@@ -44,67 +44,90 @@ fn read_string_ids_from_aux(
         .collect()
 }
 
-/// A checkpoint in the collection history that tracks which tokens were collected
-/// at a specific point. Used for backtracking.
-#[derive(Debug, Clone)]
-pub struct CollectionCheckpoint {
-    /// Frame ID associated with this checkpoint
-    pub frame_id: usize,
-    /// Token positions that were marked as collected at this checkpoint
-    pub positions: Vec<usize>,
+/// Diagnostic counters accumulated during a parse.
+///
+/// Pure instrumentation: nothing here affects parse results, so every field is a
+/// `Cell<usize>` updated through `&self`. Grouped into one struct to keep the
+/// `Parser` struct focused on parsing state and to expose the counters as a unit
+/// via [`Parser::diagnostics`] rather than field-by-field across the FFI boundary.
+#[derive(Debug, Default)]
+pub(crate) struct ParserMetrics {
+    /// Number of `prune_options` calls.
+    pub pruning_calls: std::cell::Cell<usize>,
+    /// Total options considered across all prune calls.
+    pub pruning_total: std::cell::Cell<usize>,
+    /// Options kept after pruning.
+    pub pruning_kept: std::cell::Cell<usize>,
+    /// Options that had a simple hint.
+    pub pruning_hinted: std::cell::Cell<usize>,
+    /// Options that returned None (too complex to hint).
+    pub pruning_complex: std::cell::Cell<usize>,
+    /// Match attempts (mirrors Python's `longest_match` accounting).
+    pub match_attempts: std::cell::Cell<usize>,
+    /// Successful matches.
+    pub match_successes: std::cell::Cell<usize>,
+    /// Early exits taken on an already-complete match.
+    pub complete_match_early_exits: std::cell::Cell<usize>,
+    /// Terminator checks performed.
+    pub terminator_checks: std::cell::Cell<usize>,
+    /// Terminator hits (early exits caused by a terminator).
+    pub terminator_hits: std::cell::Cell<usize>,
 }
+
+impl ParserMetrics {
+    /// Snapshot the counters as a name -> value map (for debug/FFI reporting).
+    fn as_map(&self) -> std::collections::HashMap<String, usize> {
+        let mut m = std::collections::HashMap::new();
+        m.insert("pruning_calls".to_string(), self.pruning_calls.get());
+        m.insert("pruning_total".to_string(), self.pruning_total.get());
+        m.insert("pruning_kept".to_string(), self.pruning_kept.get());
+        m.insert("pruning_hinted".to_string(), self.pruning_hinted.get());
+        m.insert("pruning_complex".to_string(), self.pruning_complex.get());
+        m.insert("match_attempts".to_string(), self.match_attempts.get());
+        m.insert("match_successes".to_string(), self.match_successes.get());
+        m.insert(
+            "complete_match_early_exits".to_string(),
+            self.complete_match_early_exits.get(),
+        );
+        m.insert("terminator_checks".to_string(), self.terminator_checks.get());
+        m.insert("terminator_hits".to_string(), self.terminator_hits.get());
+        m
+    }
+}
+
 /// The main parser struct that holds parsing state and provides parsing methods.
+///
+/// Fields are `pub(crate)`: the parser's public API is the methods re-exported from
+/// [`crate::parser`] (plus the `PyParser` bindings), not its internal state.
 pub struct Parser<'a> {
-    pub simple_hint_cache: hashbrown::HashMap<u64, Option<SimpleHint>>,
-    pub tokens: &'a [Token],
-    pub pos: usize, // current position in tokens
-    pub dialect: Dialect,
-    pub table_cache: TableParseCache, // Frame-level cache
-    pub cache_enabled: bool,
-    pub collected_transparent_positions: Vec<usize>, // Track which token positions have had transparent tokens collected (Vec for O(1) truncate)
-    /// Stack of collection checkpoints for backtracking.
-    /// Each checkpoint records which tokens were marked as collected at that point.
-    pub collection_stack: Vec<CollectionCheckpoint>,
-    pub pruning_calls: std::cell::Cell<usize>, // Track number of prune_options calls
-    pub pruning_total: std::cell::Cell<usize>, // Total options considered
-    pub pruning_kept: std::cell::Cell<usize>,  // Options kept after pruning
-    pub pruning_hinted: std::cell::Cell<usize>, // Options that had hints
-    pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
-    pub match_attempts: std::cell::Cell<usize>, // Track number of match attempts (like Python's longest_match)
-    pub match_successes: std::cell::Cell<usize>, // Track number of successful matches
-    pub complete_match_early_exits: std::cell::Cell<usize>, // Track early exits from complete matches
-    pub terminator_checks: std::cell::Cell<usize>,          // Track number of terminator checks
-    pub terminator_hits: std::cell::Cell<usize>, // Track number of terminator hits (early exits)
+    pub(crate) tokens: &'a [Token],
+    pub(crate) pos: usize, // current position in tokens
+    pub(crate) dialect: Dialect,
+    pub(crate) table_cache: TableParseCache, // Frame-level cache
+    pub(crate) cache_enabled: bool,
+    /// Diagnostic counters (instrumentation only; see [`ParserMetrics`]).
+    pub(crate) metrics: ParserMetrics,
     /// Cache for terminator match results: (position, grammar_id) -> matches
     /// Key insight: the same terminator at the same position will always give the same result.
     /// This avoids redundant parse_table_iterative calls from nested Delimited grammars.
-    pub terminator_match_cache: std::cell::RefCell<hashbrown::HashMap<(usize, u32), bool>>,
-    /// Cache for terminator hash computation: Vec<GrammarId> -> u64
-    /// Many grammars share the same terminators, so we cache the computed hashes.
-    /// OPTIMIZATION: This avoids recomputing the same hash thousands of times in
-    /// expression-heavy queries (arithmetic_a.sql, expression_recursion.sql).
-    pub terminator_hash_cache: std::cell::RefCell<hashbrown::HashMap<Vec<u32>, u64>>,
+    pub(crate) terminator_match_cache: std::cell::RefCell<hashbrown::HashMap<(usize, u32), bool>>,
     // Table-driven grammar support
-    pub grammar_ctx: GrammarContext<'static>,
+    pub(crate) grammar_ctx: GrammarContext<'static>,
     /// Indentation configuration (key -> enabled)
     /// Used by conditional meta segments (e.g., indented_joins=true enables Indent/Dedent)
-    pub indent_config: hashbrown::HashMap<&'static str, bool>,
-    /// Optional owned RootGrammar. When present, callers can use `parse_root`
-    /// to parse starting from this root without having to pass grammar ids
-    /// or contexts manually.
-    pub root: Option<RootGrammar>,
+    pub(crate) indent_config: hashbrown::HashMap<&'static str, bool>,
     // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
     regex_cache: std::cell::RefCell<hashbrown::HashMap<String, RegexMode>>,
     /// Maximum number of main-loop iterations before aborting.
     /// Configurable via `rust_parser_max_iterations` in `.sqlfluff`.
-    pub max_parser_iterations: usize,
+    pub(crate) max_parser_iterations: usize,
     /// Iteration count at which a warning is emitted (the former hard limit).
     /// Configurable via `rust_parser_warn_threshold` in `.sqlfluff`.
-    pub parser_warn_threshold: usize,
+    pub(crate) parser_warn_threshold: usize,
     /// Maximum parse depth (frame stack). 0 = no limit. Used for DoS mitigation.
-    pub max_parse_depth: usize,
+    pub(crate) max_parse_depth: usize,
     /// Maximum parse nodes in the accepted parse tree. 0 = no limit.
-    pub max_parse_nodes: usize,
+    pub(crate) max_parse_nodes: usize,
 }
 
 impl<'a> Parser<'a> {
@@ -141,25 +164,11 @@ impl<'a> Parser<'a> {
             pos: 0,
             dialect,
             table_cache: TableParseCache::new(),
-            collected_transparent_positions: Vec::new(),
-            collection_stack: Vec::new(),
-            pruning_calls: std::cell::Cell::new(0),
-            pruning_total: std::cell::Cell::new(0),
-            pruning_kept: std::cell::Cell::new(0),
-            pruning_hinted: std::cell::Cell::new(0),
-            pruning_complex: std::cell::Cell::new(0),
-            match_attempts: std::cell::Cell::new(0),
-            match_successes: std::cell::Cell::new(0),
-            complete_match_early_exits: std::cell::Cell::new(0),
-            terminator_checks: std::cell::Cell::new(0),
-            terminator_hits: std::cell::Cell::new(0),
+            metrics: ParserMetrics::default(),
             terminator_match_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
-            terminator_hash_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
-            simple_hint_cache: hashbrown::HashMap::new(),
             cache_enabled: true,
             grammar_ctx,
             indent_config,
-            root: None,
             regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
             max_parser_iterations: 3_000_000,
             parser_warn_threshold: 2_000_000,
@@ -235,6 +244,19 @@ impl<'a> Parser<'a> {
     /// Enable or disable the parse cache (for debugging)
     pub fn set_cache_enabled(&mut self, enabled: bool) {
         self.cache_enabled = enabled;
+    }
+
+    /// Current position in the token stream (index of the next token to consume).
+    pub fn position(&self) -> usize {
+        self.pos
+    }
+
+    /// Snapshot the parser's diagnostic counters as a name -> value map.
+    ///
+    /// Pure instrumentation; the values have no effect on parse results. Used by the
+    /// Python bindings and perf debugging instead of reaching into individual counters.
+    pub fn diagnostics(&self) -> std::collections::HashMap<String, usize> {
+        self.metrics.as_map()
     }
 
     /// Parse and return MatchResult
