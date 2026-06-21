@@ -12,6 +12,8 @@ double-counting issues.
 
 import functools
 import logging
+import os
+import time
 from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.config import FluffConfig
@@ -33,6 +35,40 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # Instantiate the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
+
+
+# --- Sub-stage parse profiling -------------------------------------------------
+# RustParser.parse() is a fast Rust core wrapped in O(nodes) Python work. To find
+# out where the time actually goes (Rust parse vs. the Python re-conversion vs.
+# building the BaseSegment tree vs. building the currently-unused _rs_node tree),
+# the four internal stages can be timed individually.
+#
+# This is OFF by default (zero overhead). Enable it either by setting the
+# SQLFLUFF_RS_PROFILE environment variable, or by calling set_profiling(True)
+# from tooling (e.g. utils/benchmark_parsing.py). When enabled, the most recent
+# parse() call records per-stage wall-clock seconds into _PARSE_PROFILE, readable
+# via get_parse_profile().
+_PROFILE_ENABLED = bool(os.environ.get("SQLFLUFF_RS_PROFILE"))
+_PARSE_PROFILE: dict[str, float] = {}
+
+
+def set_profiling(enabled: bool) -> None:
+    """Enable or disable per-stage parse profiling at runtime."""
+    global _PROFILE_ENABLED
+    _PROFILE_ENABLED = enabled
+
+
+def get_parse_profile() -> dict[str, float]:
+    """Return per-stage timings (seconds) from the most recent parse().
+
+    Only populated when profiling is enabled (see set_profiling / the
+    SQLFLUFF_RS_PROFILE env var). Keys, in execution order:
+        rust_core      - the Rust parse (parse_match_result_from_tokens)
+        convert        - Python rebuild of the tree as a MatchResult
+        apply          - building the BaseSegment tree (MatchResult.apply)
+        apply_as_node  - building the (currently unused) _rs_node tree
+    """
+    return dict(_PARSE_PROFILE)
 
 
 try:
@@ -164,12 +200,20 @@ try:
                     segments[_start_idx:_end_idx]
                 )
 
+                # Per-stage profiling (no-op unless profiling is enabled).
+                _prof = {} if _PROFILE_ENABLED else None
+                _ts = 0.0
+
                 # Parse using Rust parser to get MatchResult
                 # The Rust parser may raise RsParseError for certain parse errors (e.g.,
                 # missing closing brackets in terminators). We catch these and convert to
                 # SQLParseError. Regular parse errors are embedded in the MatchResult.
                 try:
+                    if _prof is not None:
+                        _ts = time.perf_counter()
                     rs_match = self._rs_parser.parse_match_result_from_tokens(tokens)
+                    if _prof is not None:
+                        _prof["rust_core"] = time.perf_counter() - _ts
                 except RsParseError as e:
                     # Convert Rust parse error to SQLParseError with position info
                     raise SQLParseError.from_rs_parse_error(
@@ -178,17 +222,25 @@ try:
 
                 # Convert RsMatchResult to Python MatchResult
                 # This also checks for embedded parse errors and raises them
+                if _prof is not None:
+                    _ts = time.perf_counter()
                 match = self._convert_rs_match_result(
                     rs_match, segments[_start_idx:_end_idx]
                 )
+                if _prof is not None:
+                    _prof["convert"] = time.perf_counter() - _ts
                 parser_logger.info("Root Match:\n%s", match)
 
                 # Apply the match result to construct the BaseSegment tree
                 # PYTHON PARITY: Pass only the code portion (segments[_start_idx:_end_idx])
                 # because match result indices are relative to this trimmed array
+                if _prof is not None:
+                    _ts = time.perf_counter()
                 _matched = match.apply(
                     segments[_start_idx:_end_idx], parse_context=parse_context
                 )
+                if _prof is not None:
+                    _prof["apply"] = time.perf_counter() - _ts
 
                 # PYTHON PARITY: Add back any unmatched segments after the match
                 # (relative to the _start_idx:_end_idx range)
@@ -253,11 +305,15 @@ try:
                         if _end_idx < len(segments)
                         else []
                     )
+                    if _prof is not None:
+                        _ts = time.perf_counter()
                     result._rs_node = rs_match.apply_as_node(
                         tokens,
                         leading=leading_tokens,
                         trailing=trailing_tokens,
                     )
+                    if _prof is not None:
+                        _prof["apply_as_node"] = time.perf_counter() - _ts
                 except Exception:  # pragma: no cover
                     # Non-critical: if node building fails, rules fall back to Python
                     parser_logger.warning(
@@ -266,6 +322,11 @@ try:
                         " caused it."
                     )
                     result._rs_node = None
+
+                # Publish the per-stage timings for the most recent parse.
+                if _prof is not None:
+                    _PARSE_PROFILE.clear()
+                    _PARSE_PROFILE.update(_prof)
 
                 if parse_statistics:  # pragma: no cover
                     print(

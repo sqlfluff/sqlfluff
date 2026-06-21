@@ -21,6 +21,10 @@ from typing import Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter import Linter
+from sqlfluff.core.parser.rust_parser import get_parse_profile, set_profiling
+
+# Stages reported by the Rust parser's per-stage profiler, in execution order.
+_PROFILE_STAGES = ("rust_core", "convert", "apply", "apply_as_node")
 
 
 def find_sql_files(
@@ -54,7 +58,11 @@ def find_sql_files(
 
 
 def parse_with_sqlfluff(
-    sql_file: Path, use_rust: bool = False, iterations: int = 10, warmup: int = 2
+    sql_file: Path,
+    use_rust: bool = False,
+    iterations: int = 10,
+    warmup: int = 2,
+    profile: bool = False,
 ) -> dict:
     """Parse a SQL file using sqlfluff and measure timing.
 
@@ -63,6 +71,7 @@ def parse_with_sqlfluff(
         use_rust: Whether to use Rust parser
         iterations: Number of timed iterations for stable timing
         warmup: Number of warmup iterations (not timed)
+        profile: Collect the Rust parser's per-stage breakdown (Rust only)
 
     Returns:
         Dict with timing info and status
@@ -97,6 +106,7 @@ def parse_with_sqlfluff(
 
     lexing_times = []
     parsing_times = []
+    stage_times: dict[str, list[float]] = {stage: [] for stage in _PROFILE_STAGES}
     success = True
     error_msg = None
 
@@ -120,6 +130,13 @@ def parse_with_sqlfluff(
             lexing_times.append(lexing_time)
             parsing_times.append(parsing_time)
 
+            # Pull the per-stage breakdown of the parse we just timed.
+            if profile and use_rust:
+                stage_profile = get_parse_profile()
+                for stage in _PROFILE_STAGES:
+                    if stage in stage_profile:
+                        stage_times[stage].append(stage_profile[stage])
+
             # Check for parse violations
             if not result.parsed_variants or not result.parsed_variants[0].tree:
                 success = False
@@ -137,7 +154,7 @@ def parse_with_sqlfluff(
     if not parsing_times:
         parsing_times = [0]
 
-    return {
+    result_dict = {
         "file": str(sql_file.relative_to(Path(__file__).parent.parent)),
         "dialect": dialect,
         "success": success,
@@ -152,12 +169,22 @@ def parse_with_sqlfluff(
         "iterations": len(lexing_times),
     }
 
+    # Mean per-stage parse timings (Rust only, when profiling is requested).
+    if profile and use_rust:
+        result_dict["stage_profile"] = {
+            stage: (statistics.mean(times) if times else 0.0)
+            for stage, times in stage_times.items()
+        }
+
+    return result_dict
+
 
 def benchmark_files(
     sql_files: list[Path],
     use_rust: bool = False,
     iterations: int = 10,
     warmup: int = 2,
+    profile: bool = False,
 ) -> list[dict]:
     """Benchmark a list of SQL files.
 
@@ -166,6 +193,7 @@ def benchmark_files(
         use_rust: Whether to use Rust parser
         iterations: Number of timed iterations per file
         warmup: Number of warmup iterations per file
+        profile: Collect the Rust parser's per-stage breakdown (Rust only)
 
     Returns:
         List of benchmark results
@@ -180,7 +208,7 @@ def benchmark_files(
         if i % 10 == 0 or i == len(sql_files):
             print(f"  Progress: {i}/{len(sql_files)} ({i * 100 // len(sql_files)}%)")
 
-        result = parse_with_sqlfluff(sql_file, use_rust, iterations, warmup)
+        result = parse_with_sqlfluff(sql_file, use_rust, iterations, warmup, profile)
         results.append(result)
 
     return results
@@ -463,6 +491,68 @@ def save_results(results: dict, output_file: Path) -> None:
     print(f"\nResults saved to: {output_file}")
 
 
+def _print_stage_table(label: str, results: list[dict]) -> None:
+    """Print a per-stage breakdown for a set of profiled Rust results."""
+    profiled = [
+        r for r in results if r.get("success") and r.get("stage_profile") is not None
+    ]
+    if not profiled:
+        print(f"  {label}: no profiled results")
+        return
+
+    # Sum each stage across the files in this group (convert to ms).
+    stage_totals = {
+        stage: sum(r["stage_profile"].get(stage, 0.0) for r in profiled) * 1000
+        for stage in _PROFILE_STAGES
+    }
+    grand_total = sum(stage_totals.values())
+    parse_total = sum(r["mean_parsing_time"] for r in profiled) * 1000
+
+    print(f"\n  {label} ({len(profiled)} files)")
+    print(f"  {'stage':<16}{'total (ms)':>14}{'% of stages':>14}")
+    print(f"  {'-' * 44}")
+    for stage in _PROFILE_STAGES:
+        total = stage_totals[stage]
+        pct = (total / grand_total * 100) if grand_total else 0.0
+        print(f"  {stage:<16}{total:>14.3f}{pct:>13.1f}%")
+    print(f"  {'-' * 44}")
+    print(f"  {'stages sum':<16}{grand_total:>14.3f}")
+    # Sanity check: the four stages should account for ~all of parse() time.
+    print(f"  {'parse() total':<16}{parse_total:>14.3f}  (timed externally)")
+
+
+def print_profile_summary(rust_results: list[dict]) -> None:
+    """Show where time goes inside the Rust parser, overall and by file size."""
+    print("\n" + "=" * 80)
+    print("RUST PARSER PER-STAGE PROFILE")
+    print("=" * 80)
+    print(
+        "Stages: rust_core (Rust parse) | convert (Python MatchResult rebuild) |\n"
+        "        apply (build BaseSegment tree) | apply_as_node (build _rs_node)"
+    )
+
+    ok = [r for r in rust_results if r.get("success") and r.get("stage_profile")]
+    if not ok:
+        print("\nNo profiled results to report.")
+        return
+
+    _print_stage_table("OVERALL", ok)
+
+    # Bucket by parse complexity (terciles of mean parse time) so we can see how
+    # the boundary cost scales with file size.
+    by_parse = sorted(ok, key=lambda r: r["mean_parsing_time"])
+    n = len(by_parse)
+    if n >= 3:
+        third = n // 3
+        buckets = [
+            ("SMALL files (fastest third)", by_parse[:third]),
+            ("MEDIUM files (middle third)", by_parse[third : 2 * third]),
+            ("LARGE files (slowest third)", by_parse[2 * third :]),
+        ]
+        for label, group in buckets:
+            _print_stage_table(label, group)
+
+
 def main():
     """Main benchmark runner."""
     parser = argparse.ArgumentParser(
@@ -509,8 +599,18 @@ def main():
         type=Path,
         help="Save results to JSON file",
     )
+    parser.add_argument(
+        "--profile",
+        action="store_true",
+        help="Break down Rust parse time by internal stage "
+        "(rust_core/convert/apply/apply_as_node)",
+    )
 
     args = parser.parse_args()
+
+    # Enable the Rust parser's per-stage profiler if requested.
+    if args.profile:
+        set_profiling(True)
 
     # Find files
     if args.all_dialects:
@@ -530,10 +630,16 @@ def main():
             sql_files, use_rust=False, iterations=args.iterations, warmup=args.warmup
         )
         rust_results = benchmark_files(
-            sql_files, use_rust=True, iterations=args.iterations, warmup=args.warmup
+            sql_files,
+            use_rust=True,
+            iterations=args.iterations,
+            warmup=args.warmup,
+            profile=args.profile,
         )
 
         compare_results(python_results, rust_results)
+        if args.profile:
+            print_profile_summary(rust_results)
 
         if args.output:
             save_results(
@@ -546,8 +652,15 @@ def main():
     elif args.rust_only:
         # Rust parser only
         results = benchmark_files(
-            sql_files, use_rust=True, iterations=args.iterations, warmup=args.warmup
+            sql_files,
+            use_rust=True,
+            iterations=args.iterations,
+            warmup=args.warmup,
+            profile=args.profile,
         )
+
+        if args.profile:
+            print_profile_summary(results)
 
         if args.output:
             save_results({"rust": results}, args.output)
