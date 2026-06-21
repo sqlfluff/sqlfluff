@@ -946,7 +946,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
             Ref("CreateCredentialStatementSegment"),
             Ref("AlterCredentialStatementSegment"),
-            Ref("AlterDatabaseScopedCredentialStatementSegment"),
             Ref("DropCredentialStatementSegment"),
             Ref("CreateExternalDataSourceStatementSegment"),
             Ref("SqlcmdCommandSegment"),
@@ -8289,32 +8288,16 @@ class CreateCredentialStatementSegment(BaseSegment):
 
 
 class AlterCredentialStatementSegment(BaseSegment):
-    """An `ALTER CREDENTIAL` statement.
+    """An `ALTER CREDENTIAL` or `ALTER DATABASE SCOPED CREDENTIAL` statement.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-credential-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-credential-transact-sql
     """
 
     type = "alter_credential_statement"
     match_grammar: Matchable = Sequence(
         "ALTER",
-        "CREDENTIAL",
-        Ref("ObjectReferenceSegment"),
-        "WITH",
-        Ref("CredentialGrammar"),
-    )
-
-
-class AlterDatabaseScopedCredentialStatementSegment(BaseSegment):
-    """An `ALTER DATABASE SCOPED CREDENTIAL` statement.
-
-    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-credential-transact-sql
-    """
-
-    type = "alter_database_scoped_credential_statement"
-    match_grammar: Matchable = Sequence(
-        "ALTER",
-        "DATABASE",
-        "SCOPED",
+        Sequence("DATABASE", "SCOPED", optional=True),
         "CREDENTIAL",
         Ref("ObjectReferenceSegment"),
         "WITH",
