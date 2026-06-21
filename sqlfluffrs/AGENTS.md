@@ -388,7 +388,7 @@ Dialect grammars are generated, so the source of truth is **Python**:
 
 1. Edit `src/sqlfluff/dialects/dialect_<name>.py` (keywords, grammar, etc.).
 2. Regenerate: `python utils/rustify.py build`.
-3. Test parity: `cargo test` (fixtures) and `tox -e py312`.
+3. Test parity: `cargo test` (fixtures) and `tox -e py312-rust`.
 
 ### Exposing a New Class to Python
 
