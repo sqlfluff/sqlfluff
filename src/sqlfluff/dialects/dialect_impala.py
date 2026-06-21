@@ -6,9 +6,12 @@ from sqlfluff.core.parser import (
     BaseSegment,
     BinaryOperatorSegment,
     Bracketed,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     OneOf,
+    ParseMode,
     Ref,
     Sequence,
     StringParser,
@@ -89,13 +92,27 @@ impala_dialect.add(
             Sequence("INTO", Ref("NumericLiteralSegment"), "BUCKETS"),
         ),
     ),
+    KuduRangePartitionSpecGrammar=OneOf(
+        Sequence("VALUE", Ref("EqualsSegment"), Ref("ExpressionSegment")),
+        Sequence(
+            Ref("ExpressionSegment"),
+            OneOf(Ref("LessThanOrEqualToSegment"), Ref("LessThanSegment")),
+            "VALUES",
+            OneOf(Ref("LessThanOrEqualToSegment"), Ref("LessThanSegment")),
+            Ref("ExpressionSegment"),
+        ),
+    ),
+    KuduRangePartitionElementGrammar=Sequence(
+        "PARTITION",
+        Ref.keyword("IF", optional=True),
+        Ref.keyword("NOT", optional=True),
+        Ref.keyword("EXISTS", optional=True),
+        Ref("KuduRangePartitionSpecGrammar"),
+    ),
     KuduRangePartitionGrammar=Sequence(
         "RANGE",
         Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
-        Bracketed(
-            Delimited(Ref("ExpressionSegment")),
-            optional=True,
-        ),
+        Bracketed(Delimited(Ref("KuduRangePartitionElementGrammar"))),
     ),
     KuduPartitionByGrammar=Delimited(
         OneOf(
@@ -141,6 +158,7 @@ impala_dialect.add(
                 "MERGE_FN",
                 "PREPARE_FN",
                 "CLOSE_FN",
+                "CLOSEFN",
                 "SERIALIZE_FN",
                 "FINALIZE_FN",
             ),
@@ -175,6 +193,59 @@ class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     match_grammar = Sequence(
         OneOf("ALL", "DISTINCT", optional=True),
         Ref.keyword("STRAIGHT_JOIN", optional=True),
+    )
+
+
+class SelectClauseSegment(hive.SelectClauseSegment):
+    """Impala SELECT clause with optional bracket hints."""
+
+    match_grammar = Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Ref("ImpalaBracketHintGrammar", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            allow_trailing=True,
+        ),
+        Dedent,
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+    )
+
+
+class TableConstraintSegment(hive.TableConstraintSegment):
+    """Impala table constraints including FOREIGN KEY ... DISABLE NOVALIDATE RELY."""
+
+    match_grammar = Sequence(
+        Sequence("CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True),
+        OneOf(
+            Sequence(
+                "UNIQUE",
+                Ref("BracketedColumnReferenceListGrammar"),
+            ),
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("BracketedColumnReferenceListGrammar"),
+                Sequence(
+                    "DISABLE",
+                    "NOVALIDATE",
+                    OneOf("RELY", "NORELY", optional=True),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Ref("ForeignKeyGrammar"),
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("ReferenceDefinitionGrammar"),
+                Sequence(
+                    "DISABLE",
+                    "NOVALIDATE",
+                    OneOf("RELY", "NORELY", optional=True),
+                    optional=True,
+                ),
+            ),
+        ),
     )
 
 
@@ -289,6 +360,10 @@ class CreateTableStatementSegment(hive.CreateTableStatementSegment):
                 "PARQUET",
                 Ref("QuotedLiteralSegment"),
             ),
+            Sequence(
+                "LIKE",
+                Ref("TableReferenceSegment"),
+            ),
             Bracketed(
                 Delimited(
                     OneOf(
@@ -358,6 +433,11 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Sequence(
+            Ref("PrimaryKeyGrammar"),
+            Ref("BracketedColumnReferenceListGrammar"),
+            optional=True,
+        ),
         Sequence(
             "PARTITIONED",
             "BY",
@@ -488,7 +568,6 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                             Ref("ColumnDefinitionSegment"),
                         ),
                         Sequence(
-                            "PARTITION",
                             Ref("PartitionSpecGrammar"),
                             Ref("LocationGrammar", optional=True),
                             Ref("ImpalaCacheSpecGrammar", optional=True),
@@ -496,7 +575,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                         Sequence(
                             "RANGE",
                             "PARTITION",
-                            Ref("ExpressionSegment"),
+                            Ref("KuduRangePartitionSpecGrammar"),
                         ),
                     ),
                 ),
@@ -512,14 +591,17 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 ),
                 Sequence(
                     "CHANGE",
+                    Ref.keyword("COLUMN", optional=True),
                     Ref("SingleIdentifierGrammar"),
                     Ref("ColumnDefinitionSegment"),
                 ),
                 Sequence(
                     "SET",
                     "OWNER",
-                    "USER",
-                    Ref("SingleIdentifierGrammar"),
+                    OneOf(
+                        Sequence("USER", Ref("SingleIdentifierGrammar")),
+                        Sequence("ROLE", Ref("SingleIdentifierGrammar")),
+                    ),
                 ),
                 Sequence(
                     "ALTER",
@@ -535,6 +617,18 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                                     Ref("ExpressionSegment"),
                                 ),
                                 Sequence("COMMENT", Ref("QuotedLiteralSegment")),
+                                Sequence(
+                                    "ENCODING",
+                                    Ref("SingleIdentifierGrammar"),
+                                ),
+                                Sequence(
+                                    "COMPRESSION",
+                                    Ref("SingleIdentifierGrammar"),
+                                ),
+                                Sequence(
+                                    "BLOCK_SIZE",
+                                    Ref("NumericLiteralSegment"),
+                                ),
                             ),
                         ),
                         "DROP",
@@ -555,6 +649,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     "SET",
                     OneOf(
                         Ref("StoredAsGrammar"),
+                        Sequence("FILEFORMAT", Ref("FileFormatGrammar")),
                         Ref("RowFormatClauseSegment"),
                         Ref("LocationGrammar"),
                         Ref("TablePropertiesGrammar"),
@@ -563,6 +658,9 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     ),
                 ),
                 Sequence(
+                    "SET",
+                    "COLUMN",
+                    "STATS",
                     Ref("SingleIdentifierGrammar"),
                     Bracketed(Delimited(Ref("PropertyGrammar"))),
                 ),
@@ -571,11 +669,11 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Ref.keyword("IF", optional=True),
                     Ref.keyword("EXISTS", optional=True),
                     OneOf(
-                        Sequence("PARTITION", Ref("PartitionSpecGrammar")),
+                        Ref("PartitionSpecGrammar"),
                         Sequence(
                             "RANGE",
                             "PARTITION",
-                            Ref("ExpressionSegment"),
+                            Ref("KuduRangePartitionSpecGrammar"),
                         ),
                     ),
                     Ref.keyword("PURGE", optional=True),
@@ -635,7 +733,7 @@ class AlterViewStatementSegment(hive.AlterViewStatementSegment):
 
 
 class AlterDatabaseStatementSegment(hive.AlterDatabaseStatementSegment):
-    """Impala `ALTER DATABASE` — SET OWNER USER."""
+    """Impala `ALTER DATABASE` — SET OWNER USER or ROLE."""
 
     type = "alter_database_statement"
 
@@ -645,8 +743,10 @@ class AlterDatabaseStatementSegment(hive.AlterDatabaseStatementSegment):
         Ref("DatabaseReferenceSegment"),
         "SET",
         "OWNER",
-        "USER",
-        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Sequence("USER", Ref("SingleIdentifierGrammar")),
+            Sequence("ROLE", Ref("SingleIdentifierGrammar")),
+        ),
     )
 
 
@@ -856,14 +956,21 @@ class InvalidateMetadataStatementSegment(BaseSegment):
 
 
 class RefreshStatementSegment(BaseSegment):
-    """Impala table `REFRESH` statement."""
+    """Impala `REFRESH` table or `REFRESH FUNCTIONS` statements."""
 
     type = "refresh_statement"
 
-    match_grammar = Sequence(
-        "REFRESH",
-        Ref("TableReferenceSegment"),
-        Ref("PartitionSpecGrammar", optional=True),
+    match_grammar = OneOf(
+        Sequence(
+            "REFRESH",
+            "FUNCTIONS",
+            Ref("DatabaseReferenceSegment"),
+        ),
+        Sequence(
+            "REFRESH",
+            Ref("TableReferenceSegment"),
+            Ref("PartitionSpecGrammar", optional=True),
+        ),
     )
 
 
@@ -967,6 +1074,7 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
                 Sequence("GROUP", Ref("SingleIdentifierGrammar")),
                 Sequence("ROLE", Ref("SingleIdentifierGrammar")),
             ),
+            Sequence("WITH", "GRANT", "OPTION", optional=True),
         ),
     )
 
@@ -987,18 +1095,32 @@ class RevokeStatementSegment(ansi.RevokeStatementSegment):
         ),
         Sequence(
             "REVOKE",
-            Ref.keyword("GRANT", optional=True),
-            Ref.keyword("OPTION", optional=True),
-            Ref.keyword("FOR", optional=True),
-            Ref("ImpalaPrivilegeGrammar"),
-            "ON",
-            Ref("ImpalaSecurableGrammar"),
-            "FROM",
-            Ref.keyword("ROLE", optional=True),
             OneOf(
-                Sequence("USER", Ref("SingleIdentifierGrammar")),
-                Sequence("GROUP", Ref("SingleIdentifierGrammar")),
-                Sequence("ROLE", Ref("SingleIdentifierGrammar")),
+                Sequence(
+                    "GRANT",
+                    "OPTION",
+                    "FOR",
+                    Ref("ImpalaPrivilegeGrammar"),
+                    "ON",
+                    Ref("ImpalaSecurableGrammar"),
+                    "FROM",
+                    OneOf(
+                        Sequence("USER", Ref("SingleIdentifierGrammar")),
+                        Sequence("GROUP", Ref("SingleIdentifierGrammar")),
+                        Sequence("ROLE", Ref("SingleIdentifierGrammar")),
+                    ),
+                ),
+                Sequence(
+                    Ref("ImpalaPrivilegeGrammar"),
+                    "ON",
+                    Ref("ImpalaSecurableGrammar"),
+                    "FROM",
+                    OneOf(
+                        Sequence("USER", Ref("SingleIdentifierGrammar")),
+                        Sequence("GROUP", Ref("SingleIdentifierGrammar")),
+                        Sequence("ROLE", Ref("SingleIdentifierGrammar")),
+                    ),
+                ),
             ),
         ),
     )
