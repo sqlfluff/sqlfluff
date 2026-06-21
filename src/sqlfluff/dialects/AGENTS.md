@@ -257,6 +257,19 @@ python test/generate_parse_fixture_yml.py -d tsql
 sqlfluff parse test/fixtures/dialects/tsql/top_clause.sql --dialect tsql
 ```
 
+> **Propagate grammar changes to the Rust parser.** Dialect grammars are also
+> compiled into the Rust implementation (`sqlfluffrs/`). With
+> `core.use_rust_parser = auto` (the default when `sqlfluff[rs]` is installed)
+> the Rust parser is what actually runs, so a stale Rust build will parse with
+> the *old* grammar. Regenerate the Rust dialect tables after editing a grammar:
+>
+> ```bash
+> python utils/rustify.py build   # regenerate; or just rebuild the extension
+> ```
+>
+> A `cargo build` / `maturin develop` also regenerates automatically (see
+> `sqlfluffrs/AGENTS.md` → "Syncing with Python").
+
 ### Step 5: Run Full Test Suite
 
 ```bash

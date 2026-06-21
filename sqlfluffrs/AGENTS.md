@@ -8,39 +8,64 @@ The `sqlfluffrs/` directory contains an **experimental Rust implementation** of 
 
 ## Project Status
 
-**Current state**: Experimental and under development
+**Current state**: Opt-in beta, gated by config (`core.use_rust_parser = auto`).
+Shipped as the `sqlfluff[rs]` extra since 4.0; planned to become the default
+from 5.0.
 
-**Goals:**
-- Accelerate lexing performance (tokenization)
-- Speed up parsing for large SQL files
-- Maintain API compatibility with Python components
-- Provide optional Rust-based acceleration for production users
+**What's migrated:**
+- **Lexer** — done; Rust tokenizes and returns `RsToken`s that Python wraps.
+- **Parser** — core done for **all dialects**, but **hybrid**: Rust returns a
+  lightweight `MatchResult` (slices/classes/inserts); Python's
+  `MatchResult.apply()` still builds the `BaseSegment` AST. A parallel Rust node
+  tree (`_rs_node`) is built and cached for future Rust-side rules.
+- **Linting rules & fixing** — **not migrated**; 100% Python. The `_rs_node`
+  hook exists but currently has no consumers.
 
-**Not a replacement**: The Rust components are designed to work alongside Python, not replace the entire codebase.
+**Not a replacement**: the Rust components work alongside Python. When
+`sqlfluffrs` is unavailable, Python falls back transparently (auto mode).
 
 ## Structure
 
+This is a **Cargo workspace** with several member crates — not a single `src/`
+tree. The root crate (`sqlfluffrs`) is a thin PyO3 extension module that
+aggregates the others; the real work lives in the member crates.
+
 ```
 sqlfluffrs/
-├── Cargo.toml              # Rust package manifest
-├── pyproject.toml          # Python packaging for Rust extension
-├── LICENSE.md              # License
-├── README.md               # Rust component README
-├── py.typed                # Type stub marker
-├── sqlfluffrs.pyi          # Python type stubs for Rust extension
-└── src/                    # Rust source code
-    ├── lib.rs              # Library root
-    ├── python.rs           # Python bindings (PyO3)
-    ├── lexer.rs            # Lexer implementation
-    ├── marker.rs           # Position markers
-    ├── matcher.rs          # Pattern matching
-    ├── regex.rs            # Regex utilities
-    ├── slice.rs            # String slicing
-    ├── config/             # Configuration handling
-    ├── dialect/            # Dialect definitions
-    ├── templater/          # Template handling
-    └── token/              # Token types
+├── Cargo.toml              # Workspace root + root crate (cdylib + rlib)
+├── pyproject.toml          # Python packaging (maturin) for the extension
+├── sqlfluffrs.pyi          # Python type stubs (Rs* names); + py.typed marker
+├── src/                    # Root crate — aggregation only
+│   ├── lib.rs              #   Library root
+│   ├── python.rs           #   #[pymodule] — registers all PyO3 classes
+│   └── test_harness.rs     #   Fixture-comparison test helpers
+├── tests/                  # Integration tests (YAML/fixture parity vs Python)
+├── benches/                # Criterion benchmarks (parser_bench, …)
+│
+├── sqlfluffrs_types/       # LEAF crate — core data types (no internal deps):
+│   └── src/                #   Token, PositionMarker, Slice, config/, templater/,
+│                           #   GrammarInst / GrammarTables (flattened grammar)
+├── sqlfluffrs_dialects/    # Dialect grammars + lexers (GENERATED — see below)
+│   ├── build.rs            #   Reruns utils/rustify.py when Python dialects change
+│   └── src/                #   block_comment.rs + generated dialect/<name>/*
+├── sqlfluffrs_lexer/       # Tokenization        (deps: types, dialects)
+├── sqlfluffrs_parser/      # Largest crate — table-driven + recursive parser
+│   └── src/parser/         #   core.rs, frame.rs, cache.rs, table_driven/*
+├── sqlfluffrs_python/      # PyO3 wrapper shims (PyToken, PyPositionMarker, …)
+└── sqlfluffrs_benchmarks/  # TPC-H / TPC-DS fixture helpers
 ```
+
+**Internal dependency graph:**
+
+```
+types ← dialects ← lexer ← parser ← root crate (sqlfluffrs) & benchmarks
+sqlfluffrs_python depends only on types; lexer/parser pull it in under
+the `python` feature.
+```
+
+> **Generated code:** the `dialect/<name>/{mod,matcher,parser}.rs` files under
+> `sqlfluffrs_dialects/src/` are produced by `utils/rustify.py` from the Python
+> dialect definitions — **never hand-edit them**. See "Syncing with Python".
 
 ## Rust Development Setup
 
@@ -83,16 +108,25 @@ cargo clippy
 
 ### Python Integration
 
-The Rust components are exposed to Python via **PyO3**:
+The Rust components are exposed to Python via **PyO3** and packaged with
+**maturin** (see `pyproject.toml`). The extension is built with the `python`
+feature enabled, which pulls in `pyo3` and the `*/python` features of the lexer
+and parser crates.
 
 ```bash
-# Build and install Python extension
+# Build + install the extension into the active venv (rebuilds on Rust changes)
 cd sqlfluffrs
-pip install -e .
+maturin develop            # debug
+maturin develop --release  # optimized — use this for benchmarking
 
-# Or from repository root
+# A plain pip install also works (invokes maturin under the hood):
 pip install -e ./sqlfluffrs/
 ```
+
+> Building the extension triggers `sqlfluffrs_dialects/build.rs`, which runs
+> `utils/rustify.py` to (re)generate dialect sources. It needs Python able to
+> `import sqlfluff`, so build from an environment where the repo's `src/` is on
+> `PYTHONPATH` (the build script handles this for isolated build envs).
 
 ## Rust Coding Standards
 
@@ -174,90 +208,83 @@ cargo test --release      # Optimized build
 
 ### Exposing Rust to Python
 
-**Basic example** in `src/python.rs`:
+The public API is **class-based**, not free functions. The `#[pyclass]` wrappers
+live in the `sqlfluffrs_python` crate and in each component crate's `python.rs`
+(e.g. `PyLexer`, `PyParser`); they are all registered in the root crate's
+`src/python.rs`. Note the module uses the modern PyO3 `Bound` API:
 
 ```rust
+// src/python.rs (abridged)
 use pyo3::prelude::*;
+use sqlfluffrs_lexer::{PyLexer, PySQLLexError};
+use sqlfluffrs_parser::{PyMatchResult, PyNode, PyParser, RsParseError};
+use sqlfluffrs_python::token::{PyCaseFold, PyToken};
 
-#[pyfunction]
-fn tokenize(sql: &str) -> PyResult<Vec<String>> {
-    let tokens = internal_tokenize(sql)
-        .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
-    Ok(tokens)
-}
-
-#[pymodule]
-fn sqlfluffrs(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(tokenize, m)?)?;
+#[pymodule(name = "sqlfluffrs", module = "sqlfluffrs")]
+fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<PyToken>()?;
+    m.add_class::<PyLexer>()?;
+    m.add_class::<PyParser>()?;
+    m.add_class::<PyNode>()?;
+    m.add_class::<PyMatchResult>()?;
+    m.add("RsParseError", m.py().get_type::<RsParseError>())?;
     Ok(())
 }
 ```
 
-**Python usage:**
-```python
-import sqlfluffrs
-
-tokens = sqlfluffrs.tokenize("SELECT * FROM users")
-print(tokens)  # ['SELECT', '*', 'FROM', 'users']
-```
+These classes are surfaced to Python under their `Rs*` aliases (e.g. `PyLexer`
+→ `RsLexer`, `PyParser` → `RsParser`); the Python side imports them in
+`src/sqlfluff/core/parser/{lexer.py,rust_parser.py}` behind a try/except so a
+missing extension degrades to pure Python.
 
 ### Type Stubs
 
-Provide Python type hints in `sqlfluffrs.pyi`:
+Public types are declared in `sqlfluffrs.pyi` under their `Rs*` names, e.g.:
 
 ```python
-from typing import List
+class RsLexer:
+    def _lex(self, lex_input: object) -> object: ...
 
-def tokenize(sql: str) -> List[str]: ...
+class RsParser:
+    def parse_match_result_from_tokens(self, ...) -> RsMatchResult: ...
 ```
 
 ## Architecture
 
-### Lexer
+The pipeline is **lex → parse**, with dialect grammars supplied as flat tables.
 
-The Rust lexer (`src/lexer.rs`) tokenizes SQL strings:
+### Lexer (`sqlfluffrs_lexer`)
 
-```rust
-pub struct Lexer {
-    config: LexerConfig,
-}
+`Lexer` (in `sqlfluffrs_lexer/src/lexer.rs`) turns a SQL string (plus templater
+metadata) into a `Vec<Token>` using the dialect's `LexMatcher`s. Tokens and
+`PositionMarker`s are defined in `sqlfluffrs_types`.
 
-impl Lexer {
-    pub fn new(config: LexerConfig) -> Self {
-        Lexer { config }
-    }
+### Grammar representation (`sqlfluffrs_types`)
 
-    pub fn lex(&self, sql: &str) -> Result<Vec<Token>, LexError> {
-        // Tokenization logic
-    }
-}
-```
+Python's grammar AST (`Sequence`, `OneOf`, `Bracketed`, `Delimited`, `Ref`,
+`StringParser`, …) is **not** modelled as a tree of trait objects. Instead it is
+**flattened by codegen** into compact static tables — `GrammarInst` (~20 bytes
+each) indexed by `GrammarId`, plus side tables (`CHILD_IDS`, `TERMINATORS`,
+`STRINGS`, `AUX_DATA`, `SIMPLE_HINTS`, …). See `grammar_inst.rs` /
+`grammar_tables.rs`. This keeps a dialect ~1 MB instead of tens of MB of boxed
+nodes and avoids per-node heap allocation.
 
-### Matcher
+### Parser (`sqlfluffrs_parser`)
 
-Pattern matching for grammar rules (`src/matcher.rs`):
+A **table-driven** engine walks those tables. The hot path is the iterative,
+frame-based executor in `src/parser/table_driven/` (one module per grammar
+variant: `sequence.rs`, `oneof.rs`, `bracketed.rs`, `delimited.rs`,
+`anynumberof.rs`, `ref_grammar.rs`, plus `iterative.rs` driving the frame stack).
+`oneof.rs` uses pre-computed `SimpleHint`s to prune alternatives cheaply. The
+parser produces a `MatchResult`, not a finished AST (Python builds the AST — see
+Project Status).
 
-```rust
-pub trait Matcher {
-    fn matches(&self, tokens: &[Token]) -> bool;
-}
+### Dialect support (`sqlfluffrs_dialects`)
 
-pub struct SequenceMatcher {
-    matchers: Vec<Box<dyn Matcher>>,
-}
-```
-
-### Dialect Support
-
-Rust dialects mirror Python dialects (`src/dialect/`):
-
-```rust
-pub struct Dialect {
-    name: String,
-    reserved_keywords: HashSet<String>,
-    unreserved_keywords: HashSet<String>,
-}
-```
+All Python dialects are mirrored here as **generated** modules. Each dialect gets
+`matcher.rs` (lexers + keyword sets) and `parser.rs` (the grammar tables above),
+dispatched through a generated `Dialect` enum. Do not edit by hand — regenerate
+via `utils/rustify.py` (see "Syncing with Python").
 
 ## Performance Considerations
 
@@ -298,10 +325,11 @@ cargo bench
 
 ### Making Changes
 
-1. **Edit Rust code** in `src/`
+1. **Edit Rust code** in the relevant member crate (e.g. `sqlfluffrs_parser/src/`)
 2. **Run tests:**
    ```bash
-   cargo test
+   cargo test                 # workspace-wide
+   cargo test -p sqlfluffrs_parser   # a single crate
    ```
 3. **Format code:**
    ```bash
@@ -313,70 +341,67 @@ cargo bench
    ```
 5. **Build Python extension:**
    ```bash
-   pip install -e .
+   maturin develop --release
    ```
 6. **Test Python integration:**
    ```python
    import sqlfluffrs
-   # Test Rust functions from Python
+   # exercise RsLexer / RsParser from Python
    ```
 
 ### Syncing with Python
 
-After changing Rust lexer/parser:
+The dialect grammars/lexers are **generated from the Python dialect
+definitions** in `src/sqlfluff/dialects/`. After changing a Python dialect (or
+the generators in `utils/build_*.py`):
 
-1. **Regenerate dialect bindings:**
+1. **Regenerate the Rust dialect sources:**
    ```bash
-   # From repository root
-   source .venv/bin/activate
-   python utils/rustify.py build
+   # From repository root, in an env where `import sqlfluff` works
+   source venv/bin/activate
+   python utils/rustify.py build      # `check` verifies output is up to date (CI)
    ```
+   (A normal `cargo build` / `maturin develop` also triggers this via
+   `sqlfluffrs_dialects/build.rs` when Python sources are newer.)
 
-2. **Test against Python test suite:**
+2. **Confirm parity against the Python suite:**
    ```bash
    tox -e py312
    ```
+   Cross-language parity is also checked by the Rust integration tests in
+   `tests/` (e.g. `fixture_tests.rs`), which compare Rust parse output against
+   the YAML fixtures used by the Python tests.
 
 ## Common Tasks
 
-### Adding New Lexer Pattern
+### Adjusting Lexing Behaviour
 
-1. Edit `src/lexer.rs`
-2. Add pattern matching logic
-3. Write tests
-4. Run `cargo test`
-5. Update Python bindings if needed
+1. Edit the lexer engine in `sqlfluffrs_lexer/src/lexer.rs`.
+2. Note: the per-dialect lexer matchers/keywords are **generated** into
+   `sqlfluffrs_dialects/src/dialect/<name>/matcher.rs` — to change *those*,
+   edit the Python dialect and regenerate (next section), don't hand-edit.
+3. Write tests, run `cargo test`.
 
-### Updating Dialect
+### Updating a Dialect
 
-1. Edit `src/dialect/<dialect>.rs`
-2. Update keyword lists or grammar
-3. Sync with Python via `utils/rustify.py build`
-4. Test with `cargo test`
+Dialect grammars are generated, so the source of truth is **Python**:
 
-### Exposing New Function to Python
+1. Edit `src/sqlfluff/dialects/dialect_<name>.py` (keywords, grammar, etc.).
+2. Regenerate: `python utils/rustify.py build`.
+3. Test parity: `cargo test` (fixtures) and `tox -e py312-rust`.
 
-1. Add function in appropriate Rust module
-2. Add Python binding in `src/python.rs`:
+### Exposing a New Class to Python
+
+1. Add a `#[pyclass]` in `sqlfluffrs_python` (or the owning component crate's
+   `python.rs`).
+2. Register it in the root crate's `src/python.rs`:
    ```rust
-   #[pyfunction]
-   fn my_new_function(input: &str) -> PyResult<String> {
-       // Implementation
-   }
+   m.add_class::<PyMyThing>()?;
    ```
-3. Register in module:
-   ```rust
-   #[pymodule]
-   fn sqlfluffrs(_py: Python, m: &PyModule) -> PyResult<()> {
-       m.add_function(wrap_pyfunction!(my_new_function, m)?)?;
-       Ok(())
-   }
-   ```
-4. Add type stub to `sqlfluffrs.pyi`:
-   ```python
-   def my_new_function(input: str) -> str: ...
-   ```
-5. Rebuild and test
+3. Add the corresponding `Rs*` type to `sqlfluffrs.pyi`.
+4. Wire it into the Python side (`src/sqlfluff/core/parser/…`) behind the
+   existing try/except import so a missing extension still degrades gracefully.
+5. Rebuild with `maturin develop` and test.
 
 ## Testing
 
@@ -417,10 +442,13 @@ tox -e py312
 
 ## Current Limitations
 
-- Experimental and incomplete
-- Not all Python features implemented
-- Performance gains vary by use case
-- May have compatibility issues with some dialects
+- **Lexing and parsing only** — linting rules and the fix/format pipeline are
+  still entirely Python; the Rust node tree (`_rs_node`) has no consumers yet.
+- **Hybrid parse** — Rust returns a `MatchResult`; Python still builds the AST.
+- **Performance gains scale with file size** — small files see little benefit
+  because of the Python↔Rust crossing overhead.
+- All shipped dialects are mirrored and parity-tested against the Python
+  fixtures, so dialect *coverage* is not a current limitation.
 
 ## Contributing to Rust Components
 
