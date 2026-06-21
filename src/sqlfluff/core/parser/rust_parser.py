@@ -176,6 +176,14 @@ try:
                 parse_context = ParseContext.from_config(config=self.config)
                 parse_context.seed_parse_nodes(len(segments))
 
+                # Per-stage profiling (no-op unless profiling is enabled).
+                # Clear up front so that an early return or an exception leaves
+                # an empty profile rather than stale data from a previous parse.
+                _prof: Optional[dict[str, float]] = {} if _PROFILE_ENABLED else None
+                _ts = 0.0
+                if _prof is not None:
+                    _PARSE_PROFILE.clear()
+
                 # PYTHON PARITY: Trim non-code from start (like root_parse)
                 _start_idx = 0
                 for _start_idx in range(len(segments)):
@@ -199,10 +207,6 @@ try:
                 tokens = self._extract_tokens_from_segments(
                     segments[_start_idx:_end_idx]
                 )
-
-                # Per-stage profiling (no-op unless profiling is enabled).
-                _prof = {} if _PROFILE_ENABLED else None
-                _ts = 0.0
 
                 # Parse using Rust parser to get MatchResult
                 # The Rust parser may raise RsParseError for certain parse errors (e.g.,
@@ -324,8 +328,8 @@ try:
                     result._rs_node = None
 
                 # Publish the per-stage timings for the most recent parse.
+                # (_PARSE_PROFILE was already cleared at the top of parse().)
                 if _prof is not None:
-                    _PARSE_PROFILE.clear()
                     _PARSE_PROFILE.update(_prof)
 
                 if parse_statistics:  # pragma: no cover
