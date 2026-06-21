@@ -204,11 +204,7 @@ impl Parser<'_> {
                     }
                 }
                 FrameState::WaitingForChild { .. } => {
-                    match self.handle_waiting_for_child(
-                        frame,
-                        &mut stack,
-                        iteration_count,
-                    )? {
+                    match self.handle_waiting_for_child(frame, &mut stack, iteration_count)? {
                         TableFrameResult::Done => continue,
                         TableFrameResult::Push(updated_frame) => {
                             stack.push(updated_frame);
@@ -540,11 +536,7 @@ impl Parser<'_> {
                     Ok(TableFrameResult::Done)
                 }
                 FrameContext::Ref(_) => {
-                    match self.handle_ref_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                    )? {
+                    match self.handle_ref_waiting_for_child(frame, child_node, child_end_pos)? {
                         TableFrameResult::Done => {}
                         TableFrameResult::Push(updated_frame) => {
                             stack.push(updated_frame);

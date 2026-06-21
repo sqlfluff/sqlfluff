@@ -529,8 +529,7 @@ impl Parser<'_> {
                 );
             }
 
-            let new_max_idx =
-                self.trim_to_terminator(matched_idx, &frame.table_terminators)?;
+            let new_max_idx = self.trim_to_terminator(matched_idx, &frame.table_terminators)?;
 
             let ctx = frame.context.as_sequence_mut().unwrap();
             ctx.trim_max_idx(new_max_idx);

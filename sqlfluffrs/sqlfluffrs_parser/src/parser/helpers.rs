@@ -615,8 +615,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        let term_match =
-            self.greedy_match(start_idx, terminators, self.tokens.len())?;
+        let term_match = self.greedy_match(start_idx, terminators, self.tokens.len())?;
         vdebug!(
             "[TRIM_TO_TERM_TABLE] greedy_match returned {:?}",
             term_match

@@ -45,7 +45,10 @@ fn try_match_grammar(
     let end_pos = parser.pos;
     vdebug!(
         "[TRY_MATCH_TABLE] try_match_grammar: grammar_id={:?}, pos={} -> end_pos={}, result={:?}",
-        grammar_id, pos, end_pos, result
+        grammar_id,
+        pos,
+        end_pos,
+        result
     );
 
     // Restore position regardless of match success
@@ -156,9 +159,7 @@ impl Parser<'_> {
                 "[GREEDY_MATCH_TABLE] greedy_match: checking immediate terminator match for {:?} at {}",
                 term_id, start_idx
             );
-            if let Ok(end_pos) =
-                self.try_match_grammar(term_id, start_idx, terminators)
-            {
+            if let Ok(end_pos) = self.try_match_grammar(term_id, start_idx, terminators) {
                 if end_pos > start_idx {
                     vdebug!(
                         "[GREEDY_MATCH_TABLE] greedy_match: immediate terminator {:?} matched at {}",
@@ -245,7 +246,8 @@ impl Parser<'_> {
                     }
                     vdebug!(
                         "[GREEDY_MATCH_TABLE] greedy_match: terminator {:?} matched at {}",
-                        term_id, i
+                        term_id,
+                        i
                     );
                     let last_code_idx = skip_stop_index_backward_to_code(tokens, i, start_idx);
                     return Ok((i, last_code_idx + 1));

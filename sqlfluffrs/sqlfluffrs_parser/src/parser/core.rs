@@ -916,10 +916,7 @@ impl<'a> Parser<'a> {
     /// Dump table-driven grammar / table information useful for debugging
     /// (variants, children, terminators, aux data, regex patterns etc.).
     /// If `grammar_id` is None, dumps all grammars in the tables.
-    pub fn dump_grammar_info(
-        &self,
-        grammar_id: Option<GrammarId>,
-    ) -> Result<String, ParseError> {
+    pub fn dump_grammar_info(&self, grammar_id: Option<GrammarId>) -> Result<String, ParseError> {
         let ctx = &self.grammar_ctx;
         let tables = ctx.tables();
 
@@ -1292,11 +1289,7 @@ impl<'a> Parser<'a> {
         Ok(MatchResult::empty_at(self.pos))
     }
 
-    fn match_preceding_sequence(
-        &self,
-        preceding_start: usize,
-        preceding_count: usize,
-    ) -> bool {
+    fn match_preceding_sequence(&self, preceding_start: usize, preceding_count: usize) -> bool {
         let tables = self.grammar_ctx.tables();
         let mut prev = self.pos as isize - 1;
 
@@ -1383,10 +1376,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle Meta using table-driven approach
-    pub(crate) fn handle_meta(
-        &mut self,
-        grammar_id: GrammarId,
-    ) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_meta(&mut self, grammar_id: GrammarId) -> Result<MatchResult, ParseError> {
         // Extract token_type from tables
         let tables = self.grammar_ctx.tables();
 
@@ -1421,9 +1411,7 @@ impl<'a> Parser<'a> {
     /// Matches ALL consecutive non-code segments (whitespace, newline, comment, EOF).
     /// This implements Python parity with NonCodeMatcher.match() which loops through
     /// segments until finding a code token, returning MatchResult with the full slice.
-    pub(crate) fn handle_noncode_matcher(
-        &mut self,
-    ) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_noncode_matcher(&mut self) -> Result<MatchResult, ParseError> {
         let start_pos = self.pos;
         vdebug!("NonCodeMatcher[table]: pos={}", start_pos);
 
@@ -1574,12 +1562,7 @@ impl<'a> Parser<'a> {
         // Create a temporary table-driven frame to use the initial handler and then extract MatchResult
         let frame = TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators, None);
 
-        match self.handle_anything_initial(
-            frame,
-            grammar_id,
-            parent_terminators,
-            parent_max_idx,
-        )? {
+        match self.handle_anything_initial(frame, grammar_id, parent_terminators, parent_max_idx)? {
             TableFrameResult::Push(f) => {
                 if let FrameState::Complete(match_result) = f.state {
                     return Ok((*match_result).clone());

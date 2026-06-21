@@ -86,8 +86,7 @@ impl Parser<'_> {
         );
 
         // Early termination check for GREEDY mode
-        if parse_mode == sqlfluffrs_types::ParseMode::Greedy
-            && self.is_terminated(&all_terminators)
+        if parse_mode == sqlfluffrs_types::ParseMode::Greedy && self.is_terminated(&all_terminators)
         {
             vdebug!("OneOf[table]: Early termination - at terminator position");
             if optional {
