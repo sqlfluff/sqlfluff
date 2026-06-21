@@ -1488,7 +1488,7 @@ impl<'a> Parser<'a> {
 
     /// Handle Anything using table-driven approach
     /// Consumes all tokens until terminator or EOF, preserving bracket structure
-    pub(crate) fn handle_anything_table_initial(
+    pub(crate) fn handle_anything_initial(
         &mut self,
         mut frame: TableParseFrame,
         grammar_id: GrammarId,
@@ -1574,7 +1574,7 @@ impl<'a> Parser<'a> {
         // Create a temporary table-driven frame to use the initial handler and then extract MatchResult
         let frame = TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators, None);
 
-        match self.handle_anything_table_initial(
+        match self.handle_anything_initial(
             frame,
             grammar_id,
             parent_terminators,
