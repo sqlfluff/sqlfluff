@@ -89,7 +89,10 @@ impl ParserMetrics {
             "complete_match_early_exits".to_string(),
             self.complete_match_early_exits.get(),
         );
-        m.insert("terminator_checks".to_string(), self.terminator_checks.get());
+        m.insert(
+            "terminator_checks".to_string(),
+            self.terminator_checks.get(),
+        );
         m.insert("terminator_hits".to_string(), self.terminator_hits.get());
         m
     }

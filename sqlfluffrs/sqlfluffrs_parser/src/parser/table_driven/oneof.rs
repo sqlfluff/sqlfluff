@@ -132,7 +132,8 @@ impl Parser<'_> {
         }
 
         // Track match attempts (like Python's longest_match - each option is an attempt)
-        self.metrics.match_attempts
+        self.metrics
+            .match_attempts
             .set(self.metrics.match_attempts.get() + pruned_children.len());
 
         // Save first child before moving pruned_children into context
@@ -269,7 +270,8 @@ impl Parser<'_> {
                 max_idx
             );
             // Track early exit for stats
-            self.metrics.complete_match_early_exits
+            self.metrics
+                .complete_match_early_exits
                 .set(self.metrics.complete_match_early_exits.get() + 1);
             *longest_match = Some((child_match_rc, consumed, current_child));
             // Skip directly to Combining state
@@ -399,7 +401,9 @@ impl Parser<'_> {
         let result_match = if let Some((best_match, best_consumed, _best_child_id)) = longest_match
         {
             // Track successful match (like Python's longest_match returning a match)
-            self.metrics.match_successes.set(self.metrics.match_successes.get() + 1);
+            self.metrics
+                .match_successes
+                .set(self.metrics.match_successes.get() + 1);
             self.pos = post_skip_pos + best_consumed;
 
             best_match
