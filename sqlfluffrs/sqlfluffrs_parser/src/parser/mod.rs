@@ -31,7 +31,10 @@ pub use sqlfluffrs_types::ParseMode;
 pub use types::{MetaType, Node, ParseError, ParseErrorType, RawSegmentKwargs};
 
 // Internal re-exports for submodules
-pub(crate) use frame::{BracketedState, DelimitedState, FrameContext, FrameState};
+pub(crate) use frame::{
+    AnyNumberOfState, BracketedPhase, BracketedState, DelimitedPhase, DelimitedState, FrameContext,
+    FrameState, OneOfState, RefState, SequenceState,
+};
 
 // Re-export Python bindings when feature is enabled
 #[cfg(feature = "python")]

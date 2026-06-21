@@ -1,6 +1,7 @@
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, MatchResult, ParseError, Parser,
+    table_driven::parity,
+    FrameContext, FrameState, MatchResult, OneOfState, ParseError, Parser,
 };
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
@@ -13,7 +14,7 @@ impl Parser<'_> {
     // ========================================================================
 
     /// Handle OneOf Initial state using table-driven approach
-    pub(crate) fn handle_oneof_table_driven_initial(
+    pub(crate) fn handle_oneof_initial(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -56,23 +57,18 @@ impl Parser<'_> {
         }
 
         // Collect leading transparent tokens if allow_gaps
-        // self.skip_start_index_forward_to_code(start_pos, frame)
-        let post_skip_pos = if allow_gaps {
-            self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
-        } else {
-            start_pos
-        };
+        let post_skip_pos = self.skip_to_code_if_gaps(start_pos, self.tokens.len(), allow_gaps);
 
         // Combine terminators (read parent terminators from frame directly)
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let all_terminators = Parser::combine_terminators_table_driven(
+        let all_terminators = Parser::combine_terminators(
             &local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );
 
         // Calculate max_idx with terminators
-        let max_idx = self.calculate_max_idx_table_driven(
+        let max_idx = self.calculate_max_idx(
             post_skip_pos,
             &all_terminators,
             parse_mode,
@@ -90,8 +86,7 @@ impl Parser<'_> {
         );
 
         // Early termination check for GREEDY mode
-        if parse_mode == sqlfluffrs_types::ParseMode::Greedy
-            && self.is_terminated_table_driven(&all_terminators)
+        if parse_mode == sqlfluffrs_types::ParseMode::Greedy && self.is_terminated(&all_terminators)
         {
             vdebug!("OneOf[table]: Early termination - at terminator position");
             if optional {
@@ -103,7 +98,7 @@ impl Parser<'_> {
         let all_children: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
 
         // Prune options based on simple hints
-        let pruned_children = self.prune_options_table_driven(&all_children);
+        let pruned_children = self.prune_options(&all_children);
 
         // Debug: list kept children names
         #[cfg(feature = "verbose-debug")]
@@ -150,7 +145,7 @@ impl Parser<'_> {
         );
 
         // Store context for WaitingForChild state (move pruned_children, no clone)
-        frame.context = FrameContext::OneOfTableDriven {
+        frame.context = FrameContext::OneOf(OneOfState {
             grammar_id,
             pruned_children,
             post_skip_pos,
@@ -159,7 +154,7 @@ impl Parser<'_> {
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
             current_child_id: Some(first_child),
-        };
+        });
 
         // Move terminators into frame (no clone)
         frame.table_terminators = all_terminators;
@@ -185,14 +180,14 @@ impl Parser<'_> {
     }
 
     /// Handle OneOf WaitingForChild state using table-driven approach
-    pub(crate) fn handle_oneof_table_driven_waiting_for_child(
+    pub(crate) fn handle_oneof_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
         child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::OneOfTableDriven {
+        let FrameContext::OneOf(OneOfState {
             pruned_children,
             post_skip_pos,
             longest_match,
@@ -200,9 +195,9 @@ impl Parser<'_> {
             max_idx,
             current_child_id,
             ..
-        } = &mut frame.context
+        }) = &mut frame.context
         else {
-            unreachable!("Expected OneOfTableDriven context");
+            unreachable!("Expected OneOf context");
         };
 
         let consumed = *child_end_pos - *post_skip_pos;
@@ -289,18 +284,13 @@ impl Parser<'_> {
             let is_better = if let Some((ref current_best, current_consumed, _)) = longest_match {
                 // Use MatchResult's contains_unparsable instead of is_node_clean
                 let current_is_clean = !current_best.contains_unparsable();
-
-                if child_is_clean && !current_is_clean {
-                    // Clean beats unclean only if it consumed at least as much.
-                    // A shorter clean match that leaves content unparsed is worse
-                    // than a longer unclean match that covers everything.
-                    consumed >= *current_consumed
-                } else if !child_is_clean && current_is_clean {
-                    // Unclean only beats clean if strictly longer (same length: prefer clean).
-                    consumed > *current_consumed
-                } else {
-                    consumed > *current_consumed
-                }
+                parity::is_better_candidate(
+                    parity::MatchQualityPolicy::LongestClean,
+                    consumed,
+                    child_is_clean,
+                    *current_consumed,
+                    current_is_clean,
+                )
             } else {
                 true
             };
@@ -316,7 +306,7 @@ impl Parser<'_> {
                 let next_code_pos =
                     self.skip_start_index_forward_to_code(child_end_pos_val, *max_idx);
                 self.pos = next_code_pos;
-                should_early_terminate = self.is_terminated_table_driven(&frame.table_terminators);
+                should_early_terminate = self.is_terminated(&frame.table_terminators);
             }
         }
 
@@ -371,24 +361,20 @@ impl Parser<'_> {
     }
 
     /// Handle OneOf Combining state using table-driven approach
-    pub(crate) fn handle_oneof_table_driven_combining(
+    pub(crate) fn handle_oneof_combining(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         // Extract values from context by moving them out
         let (post_skip_pos, longest_match) = match &mut frame.context {
-            FrameContext::OneOfTableDriven {
-                post_skip_pos,
-                longest_match,
-                ..
-            } => {
+            FrameContext::OneOf(state) => {
                 // Take ownership to avoid clones
-                (*post_skip_pos, longest_match.take())
+                (state.post_skip_pos, state.longest_match.take())
             }
             _ => {
                 return Err(ParseError::new(
-                    "Expected OneOfTableDriven context in combining".to_string(),
+                    "Expected OneOf context in combining".to_string(),
                 ));
             }
         };

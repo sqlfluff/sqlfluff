@@ -2,90 +2,94 @@ use std::sync::Arc;
 
 use sqlfluffrs_types::GrammarId;
 
-use crate::parser::{FrameContext, MatchResult, MetaSegment};
+use crate::parser::{table_driven::parity, FrameContext, MatchResult, MetaSegment};
 
 impl FrameContext {
+    /// The frame id of the child this frame is currently waiting on, if any.
+    ///
+    /// Every compound context (`OneOf`/`Sequence`/`Ref`/`Bracketed`/`Delimited`/
+    /// `AnyNumberOf`) records the id of the child frame it pushed so its result can be
+    /// reclaimed on resume. Returns `None` for `FrameContext::None` and the terminal
+    /// variants, which never wait on a child.
     #[inline]
-    pub(crate) fn as_anynumberof_mut(&mut self) -> Option<AnyNumberOfContextMut<'_>> {
+    pub(crate) fn last_child_frame_id(&self) -> Option<usize> {
         match self {
-            FrameContext::AnyNumberOfTableDriven {
-                grammar_id,
-                pruned_children,
-                count,
-                matched_idx,
-                working_idx,
-                option_counter,
-                max_idx,
-                last_child_frame_id,
-                matched,
-                longest_match,
-                tried_elements,
-            } => Some(AnyNumberOfContextMut {
-                grammar_id,
-                pruned_children,
-                count,
-                matched_idx,
-                working_idx,
-                option_counter,
-                max_idx,
-                last_child_frame_id,
-                matched,
-                longest_match,
-                tried_elements,
-            }),
+            FrameContext::AnyNumberOf(state) => state.last_child_frame_id,
+            FrameContext::Bracketed(state) => state.last_child_frame_id,
+            FrameContext::Delimited(state) => state.last_child_frame_id,
+            FrameContext::Sequence(state) => state.last_child_frame_id,
+            FrameContext::OneOf(state) => state.last_child_frame_id,
+            FrameContext::Ref(state) => state.last_child_frame_id,
+            FrameContext::None => None,
+        }
+    }
+
+    /// Record the frame id of the child this frame just pushed.
+    ///
+    /// Every compound context stores `last_child_frame_id` so the child's result
+    /// can be reclaimed from the results map on resume. This is the single writer
+    /// for that field; `context_type` guards against a context/variant mismatch
+    /// (a no-op for `None`/terminal variants). Returns whether the write landed.
+    #[inline]
+    pub(crate) fn set_last_child_id(
+        &mut self,
+        context_type: sqlfluffrs_types::GrammarVariant,
+        child_frame_id: usize,
+    ) -> bool {
+        use sqlfluffrs_types::GrammarVariant;
+        match (self, context_type) {
+            (FrameContext::Bracketed(state), GrammarVariant::Bracketed) => {
+                state.last_child_frame_id = Some(child_frame_id);
+                true
+            }
+            (FrameContext::Delimited(state), GrammarVariant::Delimited) => {
+                state.last_child_frame_id = Some(child_frame_id);
+                true
+            }
+            (FrameContext::Sequence(state), GrammarVariant::Sequence) => {
+                state.last_child_frame_id = Some(child_frame_id);
+                true
+            }
+            (FrameContext::OneOf(state), GrammarVariant::OneOf) => {
+                state.last_child_frame_id = Some(child_frame_id);
+                true
+            }
+            (FrameContext::Ref(state), GrammarVariant::Ref) => {
+                state.last_child_frame_id = Some(child_frame_id);
+                true
+            }
+            (FrameContext::AnyNumberOf(state), GrammarVariant::AnyNumberOf) => {
+                state.last_child_frame_id = Some(child_frame_id);
+                true
+            }
+            _ => false,
+        }
+    }
+
+    #[inline]
+    pub(crate) fn as_anynumberof_mut(&mut self) -> Option<&mut crate::parser::AnyNumberOfState> {
+        match self {
+            FrameContext::AnyNumberOf(state) => Some(state),
             _ => None,
         }
     }
 
     #[inline]
-    pub(crate) fn as_sequence_mut(&mut self) -> Option<SequenceContextMut<'_>> {
+    pub(crate) fn as_sequence_mut(&mut self) -> Option<&mut crate::parser::SequenceState> {
         match self {
-            FrameContext::SequenceTableDriven {
-                seq_grammar_id,
-                start_idx,
-                matched_idx,
-                max_idx,
-                original_max_idx,
-                current_element_idx,
-                first_match,
-                meta_buffer,
-                insert_segments,
-                child_matches,
-                child_terminators,
-                ..
-            } => Some(SequenceContextMut {
-                seq_grammar_id,
-                start_idx,
-                matched_idx,
-                max_idx,
-                original_max_idx,
-                current_element_idx,
-                first_match,
-                meta_buffer,
-                insert_segments,
-                child_matches,
-                child_terminators,
-            }),
+            FrameContext::Sequence(state) => Some(state),
             _ => None,
         }
     }
 }
 
-pub struct AnyNumberOfContextMut<'a> {
-    pub grammar_id: &'a GrammarId,
-    pub pruned_children: &'a mut Vec<GrammarId>,
-    pub count: &'a mut usize,
-    pub matched_idx: &'a mut usize,
-    pub working_idx: &'a mut usize,
-    pub option_counter: &'a mut hashbrown::HashMap<u64, usize>,
-    pub max_idx: &'a mut usize,
-    pub last_child_frame_id: &'a mut Option<usize>,
-    pub matched: &'a mut Arc<MatchResult>,
-    pub longest_match: &'a mut (Arc<MatchResult>, Option<GrammarId>),
-    pub tried_elements: &'a mut usize,
-}
-
-impl<'a> AnyNumberOfContextMut<'a> {
+impl crate::parser::AnyNumberOfState {
+    /// Keep the candidate with the greatest end position (longest wins).
+    ///
+    /// This is AnyNumberOf's match-quality policy
+    /// ([`parity::MatchQualityPolicy::LongestEnd`]): end-position only, with NO
+    /// clean-vs-unclean tiebreak. OneOf uses `LongestClean` instead — both rules
+    /// live in [`parity::is_better_candidate`].
     #[inline]
     pub(crate) fn update_longest_match(
         &mut self,
@@ -93,10 +97,17 @@ impl<'a> AnyNumberOfContextMut<'a> {
         end_pos: usize,
         grammar_id: GrammarId,
     ) {
-        let is_better = end_pos > self.longest_match.0.end();
+        // Cleanliness flags are not consulted by the LongestEnd policy.
+        let is_better = parity::is_better_candidate(
+            parity::MatchQualityPolicy::LongestEnd,
+            end_pos,
+            true,
+            self.longest_match.0.end(),
+            true,
+        );
 
         if is_better {
-            *self.longest_match = (child_match, Some(grammar_id));
+            self.longest_match = (child_match, Some(grammar_id));
             vdebug!(
                 "AnyNumberOf[table]: Updated longest_match: child_id={}, end_pos={}",
                 grammar_id.0,
@@ -114,63 +125,49 @@ impl<'a> AnyNumberOfContextMut<'a> {
 
     #[inline]
     pub(crate) fn reset_for_next_repetition(&mut self, new_pruned_children: &[GrammarId]) {
-        *self.pruned_children = new_pruned_children.to_vec();
-        *self.longest_match = (
+        self.pruned_children = new_pruned_children.to_vec();
+        self.longest_match = (
             Arc::new(MatchResult::empty_at(self.longest_match.0.end())),
             None,
         );
-        *self.tried_elements = 0;
+        self.tried_elements = 0;
     }
 
     #[inline]
     pub(crate) fn has_more_candidates(&self) -> bool {
-        *self.tried_elements < self.pruned_children.len()
+        self.tried_elements < self.pruned_children.len()
     }
 
     #[inline]
     pub(crate) fn next_candidate_idx(&self) -> usize {
-        *self.tried_elements
+        self.tried_elements
     }
 }
 
-pub struct SequenceContextMut<'a> {
-    pub seq_grammar_id: &'a GrammarId,
-    pub start_idx: &'a usize, // This shouldn't change
-    pub matched_idx: &'a mut usize,
-    pub max_idx: &'a mut usize, // This may change due to GREEDY_ONCE_STARTED
-    pub original_max_idx: &'a usize, // Max_idx before GREEDY_ONCE_STARTED trimming
-    pub current_element_idx: &'a mut usize, // Track which element we're currently processing
-    pub first_match: &'a mut bool, // For GREEDY_ONCE_STARTED: trim max_idx after first match
-    pub meta_buffer: &'a mut Vec<MetaSegment>, // Buffer for meta elements to be flushed after matching content
-    pub insert_segments: &'a mut Vec<(usize, MetaSegment)>, // (position, segments) to insert
-    pub child_matches: &'a mut Vec<Arc<MatchResult>>, // Store child matches here until sequence is complete
-    pub child_terminators: &'a [GrammarId],           // Parent terminators to pass to child frames
-}
-
-impl<'a> SequenceContextMut<'a> {
+impl crate::parser::SequenceState {
     #[inline]
     pub(crate) fn advance_element_idx(&mut self) {
-        *self.current_element_idx += 1;
+        self.current_element_idx += 1;
     }
 
     #[inline]
     pub(crate) fn is_first_match(&self) -> bool {
-        *self.first_match
+        self.first_match
     }
 
     #[inline]
     pub(crate) fn mark_first_match_done(&mut self) {
-        *self.first_match = false;
+        self.first_match = false;
     }
 
     #[inline]
     pub(crate) fn update_matched_idx(&mut self, new_idx: usize) {
-        *self.matched_idx = new_idx;
+        self.matched_idx = new_idx;
     }
 
     #[inline]
     pub(crate) fn trim_max_idx(&mut self, new_max_idx: usize) {
-        *self.max_idx = new_max_idx.min(*self.original_max_idx);
+        self.max_idx = new_max_idx.min(self.original_max_idx);
     }
 
     #[inline]
@@ -180,16 +177,16 @@ impl<'a> SequenceContextMut<'a> {
 
     #[inline]
     pub(crate) fn take_meta_buffer(&mut self) -> Vec<MetaSegment> {
-        std::mem::take(self.meta_buffer)
+        std::mem::take(&mut self.meta_buffer)
     }
 
     #[inline]
     pub(crate) fn matched_idx_value(&self) -> usize {
-        *self.matched_idx
+        self.matched_idx
     }
 
     #[inline]
     pub(crate) fn max_idx_value(&self) -> usize {
-        *self.max_idx
+        self.max_idx
     }
 }
