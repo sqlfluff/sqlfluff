@@ -405,7 +405,11 @@ def test__rust_parser__profiling_records_stage_timings():
     """Enabling profiling records per-stage wall-clock timings for a parse."""
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
-    from sqlfluff.core.parser.rust_parser import get_parse_profile, set_profiling
+    from sqlfluff.core.parser.rust_parser import (
+        get_parse_profile,
+        reset_parse_profile,
+        set_profiling,
+    )
 
     config = FluffConfig(overrides={"dialect": "ansi"})
     parser = RustParser(config=config)
@@ -413,6 +417,7 @@ def test__rust_parser__profiling_records_stage_timings():
     segments, _ = lexer.lex("SELECT 1 FROM my_table")
 
     set_profiling(True)
+    reset_parse_profile()  # profile accumulates; isolate from other tests
     try:
         result = parser.parse(segments, fname="test.sql")
         profile = get_parse_profile()
@@ -426,26 +431,45 @@ def test__rust_parser__profiling_records_stage_timings():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-def test__rust_parser__profiling_cleared_for_no_code_input():
-    """A no-code parse clears the profile rather than leaving stale timings."""
+def test__rust_parser__profiling_accumulates_and_resets():
+    """Timings accumulate across parses (e.g. template variants) until reset.
+
+    parse() runs once per rendered variant, so the profile sums across parses
+    rather than recording only the last one. reset_parse_profile() scopes it,
+    and a no-code parse (early return) contributes nothing.
+    """
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
-    from sqlfluff.core.parser.rust_parser import get_parse_profile, set_profiling
+    from sqlfluff.core.parser.rust_parser import (
+        get_parse_profile,
+        reset_parse_profile,
+        set_profiling,
+    )
 
     config = FluffConfig(overrides={"dialect": "ansi"})
     parser = RustParser(config=config)
     lexer = Lexer(config=config)
+    code_segments, _ = lexer.lex("SELECT 1 FROM my_table")
 
     set_profiling(True)
     try:
-        # First parse real SQL so the profile is populated.
-        code_segments, _ = lexer.lex("SELECT 1")
-        parser.parse(code_segments, fname="code.sql")
-        assert get_parse_profile()  # non-empty
+        # reset clears the accumulator.
+        reset_parse_profile()
+        assert get_parse_profile() == {}
 
-        # A comment-only input has no code segments and takes the early-return
-        # path; the profile must be cleared, not carried over from the parse
-        # above.
+        # First parse populates it.
+        parser.parse(code_segments, fname="code.sql")
+        after_one = get_parse_profile()
+        assert after_one
+
+        # A second parse (no reset) accumulates on top — it does not overwrite,
+        # so the rust_core total strictly increases.
+        parser.parse(code_segments, fname="code.sql")
+        after_two = get_parse_profile()
+        assert after_two["rust_core"] > after_one["rust_core"]
+
+        # After a reset, a no-code parse (early return) adds nothing.
+        reset_parse_profile()
         nocode_segments, _ = lexer.lex("-- just a comment\n")
         parser.parse(nocode_segments, fname="nocode.sql")
         assert get_parse_profile() == {}

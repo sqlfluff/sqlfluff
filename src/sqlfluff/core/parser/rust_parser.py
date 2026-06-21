@@ -58,11 +58,24 @@ def set_profiling(enabled: bool) -> None:
     _PROFILE_ENABLED = enabled
 
 
-def get_parse_profile() -> dict[str, float]:
-    """Return per-stage timings (seconds) from the most recent parse().
+def reset_parse_profile() -> None:
+    """Clear the accumulated per-stage profile.
 
-    Only populated when profiling is enabled (see set_profiling / the
-    SQLFLUFF_RS_PROFILE env var). Keys, in execution order:
+    parse() accumulates timings (across rendered variants), so callers reset
+    between top-level parses to scope the profile to a single source. The
+    benchmark calls this before each timed iteration.
+    """
+    _PARSE_PROFILE.clear()
+
+
+def get_parse_profile() -> dict[str, float]:
+    """Return per-stage timings (seconds) accumulated since the last reset.
+
+    parse() *accumulates* into this profile (summing across rendered variants,
+    e.g. branching Jinja), so it reflects all parse() calls since the last
+    reset_parse_profile() rather than just the final one. Only populated when
+    profiling is enabled (see set_profiling / the SQLFLUFF_RS_PROFILE env var).
+    Keys, in execution order:
         rust_core      - the Rust parse (parse_match_result_from_tokens)
         convert        - Python rebuild of the tree as a MatchResult
         apply          - building the BaseSegment tree (MatchResult.apply)
@@ -177,12 +190,15 @@ try:
                 parse_context.seed_parse_nodes(len(segments))
 
                 # Per-stage profiling (no-op unless profiling is enabled).
-                # Clear up front so that an early return or an exception leaves
-                # an empty profile rather than stale data from a previous parse.
+                # NOTE: parse() runs once per rendered variant, so timings are
+                # *accumulated* into _PARSE_PROFILE (see the publish step below)
+                # rather than overwritten — branching templates (e.g. Jinja
+                # `{% if %}`) parse multiple variants and we want their combined
+                # cost, consistent with the linter's total parse time. Callers
+                # reset between top-level parses via reset_parse_profile()
+                # (the benchmark does this per timed iteration).
                 _prof: Optional[dict[str, float]] = {} if _PROFILE_ENABLED else None
                 _ts = 0.0
-                if _prof is not None:
-                    _PARSE_PROFILE.clear()
 
                 # PYTHON PARITY: Trim non-code from start (like root_parse)
                 _start_idx = 0
@@ -327,10 +343,11 @@ try:
                     )
                     result._rs_node = None
 
-                # Publish the per-stage timings for the most recent parse.
-                # (_PARSE_PROFILE was already cleared at the top of parse().)
+                # Accumulate this variant's per-stage timings into the profile
+                # (summing across rendered variants of the same source).
                 if _prof is not None:
-                    _PARSE_PROFILE.update(_prof)
+                    for _stage, _dur in _prof.items():
+                        _PARSE_PROFILE[_stage] = _PARSE_PROFILE.get(_stage, 0.0) + _dur
 
                 if parse_statistics:  # pragma: no cover
                     print(

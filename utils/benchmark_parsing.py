@@ -26,7 +26,11 @@ from typing import Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter import Linter
-from sqlfluff.core.parser.rust_parser import get_parse_profile, set_profiling
+from sqlfluff.core.parser.rust_parser import (
+    get_parse_profile,
+    reset_parse_profile,
+    set_profiling,
+)
 
 # Stages reported by the Rust parser's per-stage profiler, in execution order.
 _PROFILE_STAGES = ("rust_core", "convert", "apply", "apply_as_node")
@@ -126,6 +130,10 @@ def parse_with_sqlfluff(
     # Timed iterations
     for _ in range(iterations):
         try:
+            # Reset so the profile is scoped to this parse (summed across any
+            # rendered variants), matching this iteration's parse time.
+            if profile and use_rust:
+                reset_parse_profile()
             result = linter.parse_string(sql_content, fname=str(sql_file))
 
             # Extract timing from result.time_dict
