@@ -393,3 +393,61 @@ def test__rust_parser__trailing_non_code_segments():
     # Check that no UnparsableSegment was created (since trailing is all non-code)
     unparsable_segments = [s for s in all_segments if s.is_type("unparsable")]
     assert len(unparsable_segments) == 0
+
+
+# ---------------------------------------------------------------------------
+# Per-stage profiling
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__profiling_records_stage_timings():
+    """Enabling profiling records per-stage wall-clock timings for a parse."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+    from sqlfluff.core.parser.rust_parser import get_parse_profile, set_profiling
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    parser = RustParser(config=config)
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1 FROM my_table")
+
+    set_profiling(True)
+    try:
+        result = parser.parse(segments, fname="test.sql")
+        profile = get_parse_profile()
+    finally:
+        set_profiling(False)
+
+    assert result is not None
+    # All four stages should be recorded, each a non-negative duration.
+    assert set(profile) == {"rust_core", "convert", "apply", "apply_as_node"}
+    assert all(v >= 0.0 for v in profile.values())
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__profiling_cleared_for_no_code_input():
+    """A no-code parse clears the profile rather than leaving stale timings."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+    from sqlfluff.core.parser.rust_parser import get_parse_profile, set_profiling
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    parser = RustParser(config=config)
+    lexer = Lexer(config=config)
+
+    set_profiling(True)
+    try:
+        # First parse real SQL so the profile is populated.
+        code_segments, _ = lexer.lex("SELECT 1")
+        parser.parse(code_segments, fname="code.sql")
+        assert get_parse_profile()  # non-empty
+
+        # A comment-only input has no code segments and takes the early-return
+        # path; the profile must be cleared, not carried over from the parse
+        # above.
+        nocode_segments, _ = lexer.lex("-- just a comment\n")
+        parser.parse(nocode_segments, fname="nocode.sql")
+        assert get_parse_profile() == {}
+    finally:
+        set_profiling(False)
