@@ -13,7 +13,7 @@ impl Parser<'_> {
     // ========================================================================
 
     /// Handle AnyNumberOf Initial state using table-driven approach
-    pub(crate) fn handle_anynumberof_table_driven_initial(
+    pub(crate) fn handle_anynumberof_initial(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -84,7 +84,7 @@ impl Parser<'_> {
 
         // Get all element children (excludes exclude grammar via element_children)
         let element_ids: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
-        let pruned_children = self.prune_options_table_driven(&element_ids);
+        let pruned_children = self.prune_options(&element_ids);
         #[cfg(feature = "verbose-debug")]
         {
             // Debug element names for easier tracing
@@ -113,7 +113,7 @@ impl Parser<'_> {
 
         // Combine terminators (read parent terminators from frame directly)
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let all_terminators = Parser::combine_terminators_table_driven(
+        let all_terminators = Parser::combine_terminators(
             &local_terminators,
             &frame.table_terminators,
             reset_terminators,
@@ -140,7 +140,7 @@ impl Parser<'_> {
         // element-aware max_idx here caused the parse window to be too
         // restrictive in some cases (e.g. bracketed lists). Use the
         // terminator-only variant for parity.
-        let max_idx = self.calculate_max_idx_table_driven(
+        let max_idx = self.calculate_max_idx(
             start_pos,
             &all_terminators,
             parse_mode,
@@ -220,7 +220,7 @@ impl Parser<'_> {
     }
 
     /// Handle AnyNumberOf WaitingForChild state using table-driven approach
-    pub(crate) fn handle_anynumberof_table_driven_waiting_for_child(
+    pub(crate) fn handle_anynumberof_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
         child_match: &Arc<MatchResult>,
@@ -452,7 +452,7 @@ impl Parser<'_> {
 
         // Re-prune at new position
         let element_ids: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
-        let repruned_children = self.prune_options_table_driven(&element_ids);
+        let repruned_children = self.prune_options(&element_ids);
 
         vdebug!(
             "AnyNumberOf[table]: After match, re-pruned elements from {} to {}",
@@ -487,7 +487,7 @@ impl Parser<'_> {
     }
 
     /// Handle AnyNumberOf Combining state using table-driven approach
-    pub(crate) fn handle_anynumberof_table_driven_combining(
+    pub(crate) fn handle_anynumberof_combining(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,

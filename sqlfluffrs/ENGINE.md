@@ -142,7 +142,7 @@ to the Python-generated `*.yml` under `test/fixtures/dialects/<dialect>/`. When 
    comparison of the expected (Python) vs generated (Rust) YAML tree — scan it for the first
    line where the node kind or nesting differs.
 3. **Trace deep cases:** rebuild with `--features verbose-debug` for the `vdebug!` frame
-   trace, and use `Parser::dump_table_driven_grammar_info(...)` to inspect resolved tables.
+   trace, and use `Parser::dump_grammar_info(...)` to inspect resolved tables.
 4. **Map symptom → invariant (see the Python-parity contract):** wrong alternative → #1 (longest match / hints); trailing
    tokens dropped or an unexpected error → #2/#3 (parse mode / terminators); right tokens but
    wrong nesting or missing meta → #4.

@@ -295,7 +295,7 @@ pub struct TableParseFrame {
     pub parent_max_idx: Option<usize>,
     /// The frame's *own* effective ceiling, computed in `Initial` from its
     /// terminators, parse mode, and `parent_max_idx` (see
-    /// [`crate::parser::helpers::Parser::calculate_max_idx_table_driven`]).
+    /// [`crate::parser::helpers::Parser::calculate_max_idx`]).
     /// `None` until the handler computes it. This — not `parent_max_idx` — is
     /// the authoritative bound used during matching and as part of the cache
     /// key, so cache checks and stores stay consistent.

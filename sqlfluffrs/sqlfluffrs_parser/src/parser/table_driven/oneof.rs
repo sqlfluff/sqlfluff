@@ -14,7 +14,7 @@ impl Parser<'_> {
     // ========================================================================
 
     /// Handle OneOf Initial state using table-driven approach
-    pub(crate) fn handle_oneof_table_driven_initial(
+    pub(crate) fn handle_oneof_initial(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -61,14 +61,14 @@ impl Parser<'_> {
 
         // Combine terminators (read parent terminators from frame directly)
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let all_terminators = Parser::combine_terminators_table_driven(
+        let all_terminators = Parser::combine_terminators(
             &local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );
 
         // Calculate max_idx with terminators
-        let max_idx = self.calculate_max_idx_table_driven(
+        let max_idx = self.calculate_max_idx(
             post_skip_pos,
             &all_terminators,
             parse_mode,
@@ -87,7 +87,7 @@ impl Parser<'_> {
 
         // Early termination check for GREEDY mode
         if parse_mode == sqlfluffrs_types::ParseMode::Greedy
-            && self.is_terminated_table_driven(&all_terminators)
+            && self.is_terminated(&all_terminators)
         {
             vdebug!("OneOf[table]: Early termination - at terminator position");
             if optional {
@@ -99,7 +99,7 @@ impl Parser<'_> {
         let all_children: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
 
         // Prune options based on simple hints
-        let pruned_children = self.prune_options_table_driven(&all_children);
+        let pruned_children = self.prune_options(&all_children);
 
         // Debug: list kept children names
         #[cfg(feature = "verbose-debug")]
@@ -181,7 +181,7 @@ impl Parser<'_> {
     }
 
     /// Handle OneOf WaitingForChild state using table-driven approach
-    pub(crate) fn handle_oneof_table_driven_waiting_for_child(
+    pub(crate) fn handle_oneof_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
         child_match: &Arc<MatchResult>,
@@ -307,7 +307,7 @@ impl Parser<'_> {
                 let next_code_pos =
                     self.skip_start_index_forward_to_code(child_end_pos_val, *max_idx);
                 self.pos = next_code_pos;
-                should_early_terminate = self.is_terminated_table_driven(&frame.table_terminators);
+                should_early_terminate = self.is_terminated(&frame.table_terminators);
             }
         }
 
@@ -362,7 +362,7 @@ impl Parser<'_> {
     }
 
     /// Handle OneOf Combining state using table-driven approach
-    pub(crate) fn handle_oneof_table_driven_combining(
+    pub(crate) fn handle_oneof_combining(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,

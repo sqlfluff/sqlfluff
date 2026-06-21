@@ -19,7 +19,7 @@ impl Parser<'_> {
     /// Structure after code generator change:
     /// - Child 0: OneOf(elements) if multiple elements, or single element directly
     /// - Child 1: delimiter
-    pub(crate) fn handle_delimited_table_driven_initial(
+    pub(crate) fn handle_delimited_initial(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -127,7 +127,7 @@ impl Parser<'_> {
 
         // Calculate max_idx with terminators (read from frame)
         let grammar_parse_mode = inst.parse_mode;
-        let max_idx = self.calculate_max_idx_table_driven(
+        let max_idx = self.calculate_max_idx(
             start_pos,
             &frame.table_terminators,
             grammar_parse_mode,
@@ -180,7 +180,7 @@ impl Parser<'_> {
     /// This matches the Python handler logic:
     /// - MatchingElement: handles termination/end/empty uniformly, then processes match
     /// - MatchingDelimiter: stores delimiter_match (doesn't push immediately), checks termination
-    pub(crate) fn handle_delimited_table_driven_waiting_for_child(
+    pub(crate) fn handle_delimited_waiting_for_child(
         &mut self,
         frame: TableParseFrame,
         child_match: &Arc<MatchResult>,
@@ -244,7 +244,7 @@ impl Parser<'_> {
         // The terminator check happens at working_idx, which is positioned AFTER
         // the previous delimiter (if any was matched). This ensures we properly
         // detect terminators that may appear between delimiters and elements.
-        let is_terminated = self.is_terminated_table_driven(&frame.table_terminators);
+        let is_terminated = self.is_terminated(&frame.table_terminators);
 
         // Handle termination or end of input
         if self.is_at_end() || is_terminated {
@@ -500,7 +500,7 @@ impl Parser<'_> {
         let saved_pos = self.pos;
         let check_pos_1 = pos_before_delimiter.unwrap();
         self.pos = check_pos_1;
-        let is_terminated = self.is_terminated_table_driven(&frame.table_terminators);
+        let is_terminated = self.is_terminated(&frame.table_terminators);
         self.pos = saved_pos;
 
         if is_terminated {
@@ -585,7 +585,7 @@ impl Parser<'_> {
                 if delimiter_consumed_parent_limit {
                     // Parent's previous boundary was on the delimiter we just consumed.
                     // Re-trim from the new working position.
-                    self.trim_to_terminator_table_driven(*working_idx, &frame.table_terminators)?
+                    self.trim_to_terminator(*working_idx, &frame.table_terminators)?
                 } else {
                     // Genuine parent boundary (e.g., trailing comma with
                     // newline before FROM). Cap to trigger allow_trailing.
@@ -630,7 +630,7 @@ impl Parser<'_> {
     }
 
     /// Handle Delimited Combining state using table-driven approach
-    pub(crate) fn handle_delimited_table_driven_combining(
+    pub(crate) fn handle_delimited_combining(
         &mut self,
         frame: TableParseFrame,
         stack: &mut TableParseFrameStack,

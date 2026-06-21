@@ -214,7 +214,7 @@ impl<'a> Parser<'a> {
     /// `reset_terminators` is true only `local_terminators` are used; otherwise the local
     /// and parent terminators are combined. Mirrors Python's terminator handling.
     #[inline]
-    pub(crate) fn combine_terminators_table_driven(
+    pub(crate) fn combine_terminators(
         local_terminators: &[GrammarId],
         parent_terminators: &[GrammarId],
         reset_terminators: bool,
@@ -234,7 +234,7 @@ impl<'a> Parser<'a> {
     ///
     /// This is the table-driven equivalent of calculate_max_idx().
     #[inline]
-    pub(crate) fn calculate_max_idx_table_driven(
+    pub(crate) fn calculate_max_idx(
         &mut self,
         start_idx: usize,
         terminators: &[GrammarId],
@@ -243,7 +243,7 @@ impl<'a> Parser<'a> {
     ) -> Result<usize, crate::parser::ParseError> {
         // Calculate initial max_idx based on parse_mode
         let mut max_idx = if parse_mode == ParseMode::Greedy {
-            self.trim_to_terminator_table_driven(start_idx, terminators)?
+            self.trim_to_terminator(start_idx, terminators)?
         } else {
             self.tokens.len()
         };
@@ -259,7 +259,7 @@ impl<'a> Parser<'a> {
         }
 
         vdebug!(
-            "calculate_max_idx_table_driven: start_idx={}, terminators.len()={}, parse_mode={:?}, parent_max_idx={:?}, final_max_idx={}",
+            "calculate_max_idx: start_idx={}, terminators.len()={}, parse_mode={:?}, parent_max_idx={:?}, final_max_idx={}",
             start_idx, terminators.len(), parse_mode, parent_max_idx, max_idx
         );
 
@@ -269,7 +269,7 @@ impl<'a> Parser<'a> {
     /// Prune options for table-driven parsing based on simple hints.
     ///
     /// This is the table-driven equivalent of prune_options().
-    pub(crate) fn prune_options_table_driven(&mut self, options: &[GrammarId]) -> Vec<GrammarId> {
+    pub(crate) fn prune_options(&mut self, options: &[GrammarId]) -> Vec<GrammarId> {
         // Track stats
         self.pruning_calls.set(self.pruning_calls.get() + 1);
         self.pruning_total
@@ -374,7 +374,7 @@ impl<'a> Parser<'a> {
     /// Check if we're at a terminator for table-driven parsing, considering elements.
     ///
     /// This is the table-driven equivalent of is_terminated_with_elements().
-    pub(crate) fn is_terminated_table_driven(&mut self, terminators: &[GrammarId]) -> bool {
+    pub(crate) fn is_terminated(&mut self, terminators: &[GrammarId]) -> bool {
         self.terminator_checks.set(self.terminator_checks.get() + 1);
         let init_pos = self.pos;
 
@@ -383,7 +383,7 @@ impl<'a> Parser<'a> {
         // not after skipping them. This is essential for allow_gaps=false behavior.
         let has_noncode_terminator = terminators.contains(&GrammarId::NONCODE);
         vdebug!(
-            "  is_terminated_table_driven at pos {}: has_noncode_terminator={}",
+            "  is_terminated at pos {}: has_noncode_terminator={}",
             init_pos,
             has_noncode_terminator
         );
@@ -391,7 +391,7 @@ impl<'a> Parser<'a> {
             if let Some(tok) = self.peek() {
                 let is_code = tok.is_code();
                 vdebug!(
-                    "  is_terminated_table_driven: current token is_code={}, type={}",
+                    "  is_terminated: current token is_code={}, type={}",
                     is_code,
                     tok.get_type()
                 );
@@ -446,7 +446,7 @@ impl<'a> Parser<'a> {
             self.pos,
             terminators_without_noncode
         );
-        let pruned_terminators = self.prune_terminators_table_driven(terminators_without_noncode);
+        let pruned_terminators = self.prune_terminators(terminators_without_noncode);
         vdebug!(
             "  TERM Checking {} pruned terminators at pos {}",
             pruned_terminators.len(),
@@ -556,12 +556,12 @@ impl<'a> Parser<'a> {
     /// Prune terminators for table-driven parsing based on simple matchers.
     ///
     /// This is the table-driven equivalent of prune_terminators().
-    fn prune_terminators_table_driven(&mut self, terminators: &[GrammarId]) -> Vec<GrammarId> {
-        // Reuse the same pruning logic as prune_options_table_driven
-        self.prune_options_table_driven(terminators)
+    fn prune_terminators(&mut self, terminators: &[GrammarId]) -> Vec<GrammarId> {
+        // Reuse the same pruning logic as prune_options
+        self.prune_options(terminators)
     }
 
-    pub(crate) fn trim_to_terminator_table_driven(
+    pub(crate) fn trim_to_terminator(
         &mut self,
         start_idx: usize,
         terminators: &[GrammarId],
@@ -578,7 +578,7 @@ impl<'a> Parser<'a> {
             return Ok(segments.len());
         }
 
-        let pruned_terms = self.prune_options_table_driven(terminators);
+        let pruned_terms = self.prune_options(terminators);
         vdebug!(
             "[TRIM_TO_TERM_TABLE] Scanning for terminators from idx={}, pruned_terms={:?}",
             start_idx,
@@ -593,7 +593,7 @@ impl<'a> Parser<'a> {
                 grammar_name,
                 start_idx
             );
-            if let Ok(_m) = self.try_match_grammar_table_driven(*term, start_idx, &[]) {
+            if let Ok(_m) = self.try_match_grammar(*term, start_idx, &[]) {
                 vdebug!(
                     "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) matched immediately at idx={}, returning start_idx={}",
                     term,
@@ -616,12 +616,12 @@ impl<'a> Parser<'a> {
         }
 
         let term_match =
-            self.greedy_match_table_driven(start_idx, terminators, self.tokens.len())?;
+            self.greedy_match(start_idx, terminators, self.tokens.len())?;
         vdebug!(
-            "[TRIM_TO_TERM_TABLE] greedy_match_table_driven returned {:?}",
+            "[TRIM_TO_TERM_TABLE] greedy_match returned {:?}",
             term_match
         );
-        // term_match.1 is already the last code index before the terminator (computed by greedy_match_table_driven)
+        // term_match.1 is already the last code index before the terminator (computed by greedy_match)
         let final_idx = term_match.1;
         vdebug!(
             "[TRIM_TO_TERM_TABLE] Using term_match.1 as final_idx: {}",

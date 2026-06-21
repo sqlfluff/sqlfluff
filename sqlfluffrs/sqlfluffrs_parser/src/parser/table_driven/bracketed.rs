@@ -11,7 +11,7 @@ use crate::parser::{
 };
 
 impl Parser<'_> {
-    pub(crate) fn handle_bracketed_table_driven_initial(
+    pub(crate) fn handle_bracketed_initial(
         &mut self,
         frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -29,7 +29,7 @@ impl Parser<'_> {
             .terminators(grammar_id)
             .collect::<Vec<GrammarId>>();
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
-        let all_terminators = Self::combine_terminators_table_driven(
+        let all_terminators = Self::combine_terminators(
             &local_terminators,
             &frame.table_terminators,
             reset_terminators,
@@ -46,9 +46,9 @@ impl Parser<'_> {
         }
         let (start_bracket_idx, _end_bracket_idx) = self.grammar_ctx.bracketed_config(grammar_id);
         let open_bracket_id = all_children[start_bracket_idx];
-        initialize_table_driven_bracketed_frame(grammar_id, frame, stack, &all_terminators);
+        initialize_bracketed_frame(grammar_id, frame, stack, &all_terminators);
         let parent_max_idx = stack.last_mut().unwrap().parent_max_idx;
-        let child_frame = create_table_driven_child_frame(
+        let child_frame = create_child_frame(
             stack.frame_id_counter,
             open_bracket_id,
             start_idx,
@@ -71,7 +71,7 @@ impl Parser<'_> {
     }
 
     /// Handle Bracketed WaitingForChild state using table-driven approach
-    pub(crate) fn handle_bracketed_table_driven_waiting_for_child(
+    pub(crate) fn handle_bracketed_waiting_for_child(
         &mut self,
         frame: TableParseFrame,
         child_match: &Arc<MatchResult>,
@@ -259,7 +259,7 @@ impl Parser<'_> {
                 self.pos,
                 parent_limit
             );
-            let close_frame = create_table_driven_child_frame(
+            let close_frame = create_child_frame(
                 stack.frame_id_counter,
                 close_bracket_id,
                 self.pos,
@@ -289,7 +289,7 @@ impl Parser<'_> {
         // NOTE: The child frame's context is always overwritten by the handler that
         // processes it (Sequence, OneOf, etc.), so we pass None to avoid cloning
         // content_ids and child_matches into dead storage.
-        let child_frame = create_table_driven_child_frame(
+        let child_frame = create_child_frame(
             stack.frame_id_counter,
             content_grammar_id,
             self.pos,
@@ -409,7 +409,7 @@ impl Parser<'_> {
                 // Instead, we rely on bracket_max_idx to constrain parsing via parent_max_idx.
                 // NOTE: The child frame's context is always overwritten by the handler that
                 // processes it, so we pass None to avoid cloning content_ids and child_matches.
-                let child_frame = create_table_driven_child_frame(
+                let child_frame = create_child_frame(
                     stack.frame_id_counter,
                     next_content_id,
                     self.pos,
@@ -503,7 +503,7 @@ impl Parser<'_> {
                 self.pos,
                 parent_limit
             );
-            let child_frame = create_table_driven_child_frame(
+            let child_frame = create_child_frame(
                 stack.frame_id_counter,
                 close_bracket_id,
                 self.pos,
@@ -598,7 +598,7 @@ impl Parser<'_> {
     ///
     /// Called after all children have been collected in waiting_for_child state.
     /// Builds the final Bracketed node and transitions to Complete state.
-    pub(crate) fn handle_bracketed_table_driven_combining(
+    pub(crate) fn handle_bracketed_combining(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -663,7 +663,7 @@ impl Parser<'_> {
     }
 }
 
-fn initialize_table_driven_bracketed_frame(
+fn initialize_bracketed_frame(
     grammar_id: GrammarId,
     mut frame: TableParseFrame,
     stack: &mut TableParseFrameStack,
@@ -685,7 +685,7 @@ fn initialize_table_driven_bracketed_frame(
     stack.push(frame);
 }
 
-fn create_table_driven_child_frame(
+fn create_child_frame(
     frame_id: usize,
     grammar_id: GrammarId,
     start_idx: usize,

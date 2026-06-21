@@ -196,7 +196,7 @@ impl Parser<'_> {
                         self.build_table_grammar_path(&frame, &stack)
                     );
 
-                    match self.handle_table_driven_initial(frame, &mut stack, iteration_count)? {
+                    match self.handle_initial(frame, &mut stack, iteration_count)? {
                         TableFrameResult::Done => continue,
                         TableFrameResult::Push(updated_frame) => {
                             stack.push(updated_frame);
@@ -204,7 +204,7 @@ impl Parser<'_> {
                     }
                 }
                 FrameState::WaitingForChild { .. } => {
-                    match self.handle_table_driven_waiting_for_child(
+                    match self.handle_waiting_for_child(
                         frame,
                         &mut stack,
                         iteration_count,
@@ -228,7 +228,7 @@ impl Parser<'_> {
                     );
 
                     // Delegate to specific handler based on grammar type
-                    match self.handle_table_driven_combining(frame, &mut stack)? {
+                    match self.handle_combining(frame, &mut stack)? {
                         TableFrameResult::Done => {}
                         TableFrameResult::Push(updated_frame) => {
                             stack.push(updated_frame);
@@ -367,7 +367,7 @@ impl Parser<'_> {
     }
 
     /// Dispatch handler for table-driven Initial state.
-    pub fn handle_table_driven_initial(
+    pub fn handle_initial(
         &mut self,
         frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -393,52 +393,52 @@ impl Parser<'_> {
         self.pos = frame.pos;
 
         match variant {
-            GrammarVariant::OneOf => self.handle_oneof_table_driven_initial(frame, stack),
-            GrammarVariant::Sequence => self.handle_sequence_table_driven_initial(frame, stack),
-            GrammarVariant::Delimited => self.handle_delimited_table_driven_initial(frame, stack),
-            GrammarVariant::Bracketed => self.handle_bracketed_table_driven_initial(frame, stack),
+            GrammarVariant::OneOf => self.handle_oneof_initial(frame, stack),
+            GrammarVariant::Sequence => self.handle_sequence_initial(frame, stack),
+            GrammarVariant::Delimited => self.handle_delimited_initial(frame, stack),
+            GrammarVariant::Bracketed => self.handle_bracketed_initial(frame, stack),
             GrammarVariant::AnyNumberOf | GrammarVariant::AnySetOf => {
                 // AnySetOf currently delegates to AnyNumberOf semantics in table-driven handlers
-                self.handle_anynumberof_table_driven_initial(frame, stack)
+                self.handle_anynumberof_initial(frame, stack)
             }
-            GrammarVariant::Ref => self.handle_ref_table_driven_initial(frame, stack),
+            GrammarVariant::Ref => self.handle_ref_initial(frame, stack),
             // Terminal/simple variants should be handled synchronously here
             GrammarVariant::StringParser => {
                 // Synchronous match: call the table-driven string parser and store result for parent
-                let res = self.handle_string_parser_table_driven(grammar_id);
+                let res = self.handle_string_parser(grammar_id);
                 self.store_sync(stack, &frame, res)
             }
-            GrammarVariant::TypedParser => self.handle_typed_parser_table_driven(frame),
+            GrammarVariant::TypedParser => self.handle_typed_parser(frame),
             GrammarVariant::MultiStringParser => {
-                let res = self.handle_multi_string_parser_table_driven(grammar_id);
+                let res = self.handle_multi_string_parser(grammar_id);
                 self.store_sync(stack, &frame, res)
             }
             GrammarVariant::RegexParser => {
-                let res = self.handle_regex_parser_table_driven(grammar_id);
+                let res = self.handle_regex_parser(grammar_id);
                 self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Nothing => {
-                let res = self.handle_nothing_table_driven();
+                let res = self.handle_nothing();
                 self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Empty => {
-                let res = self.handle_empty_table_driven();
+                let res = self.handle_empty();
                 self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Missing => {
-                let res = self.handle_missing_table_driven();
+                let res = self.handle_missing();
                 self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Token => {
-                let res = self.handle_token_table_driven(grammar_id);
+                let res = self.handle_token(grammar_id);
                 self.store_sync(stack, &frame, res)
             }
             GrammarVariant::PrecededBy => {
-                let res = self.handle_preceded_by_table_driven(grammar_id);
+                let res = self.handle_preceded_by(grammar_id);
                 self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Meta => {
-                let res = self.handle_meta_table_driven(grammar_id);
+                let res = self.handle_meta(grammar_id);
                 let parent_frame = stack.last_mut().unwrap();
                 let variant = self.grammar_ctx.inst(parent_frame.grammar_id).variant;
                 log::warn!(
@@ -451,11 +451,11 @@ impl Parser<'_> {
                 self.store_sync(stack, &frame, res)
             }
             GrammarVariant::NonCodeMatcher => {
-                let res = self.handle_noncode_matcher_table_driven();
+                let res = self.handle_noncode_matcher();
                 self.store_sync(stack, &frame, res)
             }
             GrammarVariant::Anything => {
-                let res = self.handle_anything_table_driven(
+                let res = self.handle_anything(
                     grammar_id,
                     &frame.table_terminators,
                     frame.parent_max_idx,
@@ -466,7 +466,7 @@ impl Parser<'_> {
     }
 
     /// Dispatch handler for WaitingForChild state.
-    fn handle_table_driven_waiting_for_child(
+    fn handle_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -512,7 +512,7 @@ impl Parser<'_> {
 
             match &mut frame.context {
                 FrameContext::OneOf(_) => {
-                    match self.handle_oneof_table_driven_waiting_for_child(
+                    match self.handle_oneof_waiting_for_child(
                         frame,
                         child_node,
                         child_end_pos,
@@ -526,7 +526,7 @@ impl Parser<'_> {
                     Ok(TableFrameResult::Done)
                 }
                 FrameContext::Sequence(_) => {
-                    match self.handle_sequence_table_driven_waiting_for_child(
+                    match self.handle_sequence_waiting_for_child(
                         frame,
                         child_node,
                         child_end_pos,
@@ -540,7 +540,7 @@ impl Parser<'_> {
                     Ok(TableFrameResult::Done)
                 }
                 FrameContext::Ref(_) => {
-                    match self.handle_ref_table_driven_waiting_for_child(
+                    match self.handle_ref_waiting_for_child(
                         frame,
                         child_node,
                         child_end_pos,
@@ -553,7 +553,7 @@ impl Parser<'_> {
                     Ok(TableFrameResult::Done)
                 }
                 FrameContext::Delimited(_) => {
-                    match self.handle_delimited_table_driven_waiting_for_child(
+                    match self.handle_delimited_waiting_for_child(
                         frame,
                         child_node,
                         child_end_pos,
@@ -567,7 +567,7 @@ impl Parser<'_> {
                     Ok(TableFrameResult::Done)
                 }
                 FrameContext::Bracketed(_) => {
-                    match self.handle_bracketed_table_driven_waiting_for_child(
+                    match self.handle_bracketed_waiting_for_child(
                         frame,
                         child_node,
                         child_end_pos,
@@ -581,7 +581,7 @@ impl Parser<'_> {
                     Ok(TableFrameResult::Done)
                 }
                 FrameContext::AnyNumberOf(_) => {
-                    match self.handle_anynumberof_table_driven_waiting_for_child(
+                    match self.handle_anynumberof_waiting_for_child(
                         frame,
                         child_node,
                         child_end_pos,
@@ -636,7 +636,7 @@ impl Parser<'_> {
         }
     }
 
-    fn handle_table_driven_combining(
+    fn handle_combining(
         &mut self,
         frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -655,14 +655,14 @@ impl Parser<'_> {
         );
 
         match variant {
-            GrammarVariant::OneOf => self.handle_oneof_table_driven_combining(frame, stack),
-            GrammarVariant::Sequence => self.handle_sequence_table_driven_combining(frame, stack),
-            GrammarVariant::Delimited => self.handle_delimited_table_driven_combining(frame, stack),
-            GrammarVariant::Bracketed => self.handle_bracketed_table_driven_combining(frame, stack),
+            GrammarVariant::OneOf => self.handle_oneof_combining(frame, stack),
+            GrammarVariant::Sequence => self.handle_sequence_combining(frame, stack),
+            GrammarVariant::Delimited => self.handle_delimited_combining(frame, stack),
+            GrammarVariant::Bracketed => self.handle_bracketed_combining(frame, stack),
             GrammarVariant::AnyNumberOf | GrammarVariant::AnySetOf => {
-                self.handle_anynumberof_table_driven_combining(frame, stack)
+                self.handle_anynumberof_combining(frame, stack)
             }
-            GrammarVariant::Ref => self.handle_ref_table_driven_combining(frame),
+            GrammarVariant::Ref => self.handle_ref_combining(frame),
             _ => {
                 // Combining should not be reached for terminal/simple variants
                 unimplemented!(
@@ -759,7 +759,7 @@ impl Parser<'_> {
             None => {
                 let parse_mode =
                     parity::effective_parse_mode(frame, self.grammar_ctx.inst(frame.grammar_id));
-                self.calculate_max_idx_table_driven(
+                self.calculate_max_idx(
                     frame.pos,
                     &frame.table_terminators,
                     parse_mode,

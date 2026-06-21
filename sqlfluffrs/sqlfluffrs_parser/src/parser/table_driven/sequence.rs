@@ -15,7 +15,7 @@ impl Parser<'_> {
     // ========================================================================
 
     /// Handle Sequence Initial state using table-driven approach
-    pub(crate) fn handle_sequence_table_driven_initial(
+    pub(crate) fn handle_sequence_initial(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -66,14 +66,14 @@ impl Parser<'_> {
         // The Sequence uses the combined set (own + parent) only for its own
         // trim_to_terminator / max_idx computation.
         let child_terminators = frame.table_terminators.to_vec();
-        let all_terminators = Self::combine_terminators_table_driven(
+        let all_terminators = Self::combine_terminators(
             &local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );
 
         // calculate max_idx with terminator and parent constraints
-        let max_idx = self.calculate_max_idx_table_driven(
+        let max_idx = self.calculate_max_idx(
             start_idx,
             &all_terminators,
             parse_mode,
@@ -180,7 +180,7 @@ impl Parser<'_> {
     /// child_end_pos,
     /// child_element_key,
     /// stack,
-    pub(crate) fn handle_sequence_table_driven_waiting_for_child(
+    pub(crate) fn handle_sequence_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
         child_match: &Arc<MatchResult>,
@@ -530,7 +530,7 @@ impl Parser<'_> {
             }
 
             let new_max_idx =
-                self.trim_to_terminator_table_driven(matched_idx, &frame.table_terminators)?;
+                self.trim_to_terminator(matched_idx, &frame.table_terminators)?;
 
             let ctx = frame.context.as_sequence_mut().unwrap();
             ctx.trim_max_idx(new_max_idx);
@@ -710,7 +710,7 @@ impl Parser<'_> {
     }
 
     /// Handle Sequence Combining state using table-driven approach
-    pub(crate) fn handle_sequence_table_driven_combining(
+    pub(crate) fn handle_sequence_combining(
         &mut self,
         mut frame: TableParseFrame,
         _stack: &mut TableParseFrameStack,

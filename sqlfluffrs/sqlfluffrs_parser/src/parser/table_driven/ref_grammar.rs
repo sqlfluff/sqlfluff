@@ -15,7 +15,7 @@ impl Parser<'_> {
     // ========================================================================
 
     /// Handle Ref Initial state using table-driven approach
-    pub(crate) fn handle_ref_table_driven_initial(
+    pub(crate) fn handle_ref_initial(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -137,7 +137,7 @@ impl Parser<'_> {
         // Combine the Ref's local terminators with the parent terminators so
         // the referenced child parsing respects both sets (parity with Arc path)
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let child_terminators = Self::combine_terminators_table_driven(
+        let child_terminators = Self::combine_terminators(
             &local_terminators,
             &frame.table_terminators,
             reset_terminators,
@@ -163,7 +163,7 @@ impl Parser<'_> {
     }
 
     /// Handle Ref WaitingForChild state using table-driven approach
-    pub(crate) fn handle_ref_table_driven_waiting_for_child(
+    pub(crate) fn handle_ref_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
         child_match: &Arc<MatchResult>,
@@ -215,7 +215,7 @@ impl Parser<'_> {
     }
 
     /// Handle Ref Combining state using table-driven approach
-    pub(crate) fn handle_ref_table_driven_combining(
+    pub(crate) fn handle_ref_combining(
         &mut self,
         mut frame: TableParseFrame,
     ) -> Result<TableFrameResult, ParseError> {

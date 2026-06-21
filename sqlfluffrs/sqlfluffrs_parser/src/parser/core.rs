@@ -392,7 +392,7 @@ impl<'a> Parser<'a> {
     // ============================================================================
 
     /// Handle StringParser using table-driven approach
-    pub(crate) fn handle_string_parser_table_driven(
+    pub(crate) fn handle_string_parser(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -511,7 +511,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle TypedParser using table-driven approach
-    pub(crate) fn handle_typed_parser_table_driven(
+    pub(crate) fn handle_typed_parser(
         &mut self,
         mut frame: TableParseFrame,
     ) -> Result<TableFrameResult, ParseError> {
@@ -770,7 +770,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle MultiStringParser using table-driven approach
-    pub(crate) fn handle_multi_string_parser_table_driven(
+    pub(crate) fn handle_multi_string_parser(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -916,7 +916,7 @@ impl<'a> Parser<'a> {
     /// Dump table-driven grammar / table information useful for debugging
     /// (variants, children, terminators, aux data, regex patterns etc.).
     /// If `grammar_id` is None, dumps all grammars in the tables.
-    pub fn dump_table_driven_grammar_info(
+    pub fn dump_grammar_info(
         &self,
         grammar_id: Option<GrammarId>,
     ) -> Result<String, ParseError> {
@@ -1048,7 +1048,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle RegexParser using table-driven approach
-    pub(crate) fn handle_regex_parser_table_driven(
+    pub(crate) fn handle_regex_parser(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -1231,19 +1231,19 @@ impl<'a> Parser<'a> {
     // ============================================================================
 
     /// Handle Nothing using table-driven approach
-    pub(crate) fn handle_nothing_table_driven(&mut self) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_nothing(&mut self) -> Result<MatchResult, ParseError> {
         vdebug!("Nothing[table]: pos={}, returning Empty", self.pos);
         Ok(MatchResult::empty_at(self.pos))
     }
 
     /// Handle Empty using table-driven approach
-    pub(crate) fn handle_empty_table_driven(&mut self) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_empty(&mut self) -> Result<MatchResult, ParseError> {
         vdebug!("Empty[table]: pos={}, returning Empty", self.pos);
         Ok(MatchResult::empty_at(self.pos))
     }
 
     /// Handle Missing using table-driven approach
-    pub(crate) fn handle_missing_table_driven(&mut self) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_missing(&mut self) -> Result<MatchResult, ParseError> {
         vdebug!("Missing[table]: encountered at pos={}", self.pos);
         Err(ParseError::with_context(
             "Encountered Missing grammar".into(),
@@ -1264,7 +1264,7 @@ impl<'a> Parser<'a> {
         idx
     }
 
-    pub(crate) fn handle_preceded_by_table_driven(
+    pub(crate) fn handle_preceded_by(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -1277,7 +1277,7 @@ impl<'a> Parser<'a> {
             let preceding_start = tables.aux_data[sequence_meta_offset] as usize;
             let preceding_count = tables.aux_data[sequence_meta_offset + 1] as usize;
 
-            if self.match_preceding_sequence_table_driven(preceding_start, preceding_count) {
+            if self.match_preceding_sequence(preceding_start, preceding_count) {
                 if self.pos < self.tokens.len() {
                     return Ok(MatchResult {
                         matched_slice: self.pos..self.pos + 1,
@@ -1292,7 +1292,7 @@ impl<'a> Parser<'a> {
         Ok(MatchResult::empty_at(self.pos))
     }
 
-    fn match_preceding_sequence_table_driven(
+    fn match_preceding_sequence(
         &self,
         preceding_start: usize,
         preceding_count: usize,
@@ -1318,7 +1318,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle Token using table-driven approach
-    pub(crate) fn handle_token_table_driven(
+    pub(crate) fn handle_token(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -1383,7 +1383,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle Meta using table-driven approach
-    pub(crate) fn handle_meta_table_driven(
+    pub(crate) fn handle_meta(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -1421,7 +1421,7 @@ impl<'a> Parser<'a> {
     /// Matches ALL consecutive non-code segments (whitespace, newline, comment, EOF).
     /// This implements Python parity with NonCodeMatcher.match() which loops through
     /// segments until finding a code token, returning MatchResult with the full slice.
-    pub(crate) fn handle_noncode_matcher_table_driven(
+    pub(crate) fn handle_noncode_matcher(
         &mut self,
     ) -> Result<MatchResult, ParseError> {
         let start_pos = self.pos;
@@ -1523,7 +1523,7 @@ impl<'a> Parser<'a> {
                 }
             }
 
-            if self.is_terminated_table_driven(&terminators_vec) || self.is_at_end() {
+            if self.is_terminated(&terminators_vec) || self.is_at_end() {
                 break;
             }
 
@@ -1563,9 +1563,9 @@ impl<'a> Parser<'a> {
     }
 
     /// Compatibility wrapper expected by `core.rs`.
-    /// `core.rs` calls `handle_anything_table_driven`; implement a thin wrapper
+    /// `core.rs` calls `handle_anything`; implement a thin wrapper
     /// that forwards to `handle_anything_table_initial` with a dummy frame.
-    pub(crate) fn handle_anything_table_driven(
+    pub(crate) fn handle_anything(
         &mut self,
         grammar_id: GrammarId,
         parent_terminators: &[GrammarId],

@@ -27,7 +27,7 @@ use crate::vdebug;
 ///   which attempts to match the given grammar at the given position and
 ///   returns the end index on success. The closure is expected to perform any
 ///   necessary parser delegation (for example, calling the iterative engine).
-fn try_match_grammar_table_driven(
+fn try_match_grammar(
     parser: &mut Parser<'_>,
     grammar_id: GrammarId,
     pos: usize,
@@ -44,7 +44,7 @@ fn try_match_grammar_table_driven(
     // Capture end_pos
     let end_pos = parser.pos;
     vdebug!(
-        "[TRY_MATCH_TABLE] try_match_grammar_table_driven: grammar_id={:?}, pos={} -> end_pos={}, result={:?}",
+        "[TRY_MATCH_TABLE] try_match_grammar: grammar_id={:?}, pos={} -> end_pos={}, result={:?}",
         grammar_id, pos, end_pos, result
     );
 
@@ -86,14 +86,14 @@ pub(crate) fn skip_stop_index_backward_to_code(
 }
 
 impl Parser<'_> {
-    pub(crate) fn try_match_grammar_table_driven(
+    pub(crate) fn try_match_grammar(
         &mut self,
         grammar_id: GrammarId,
         pos: usize,
         terminators: &[GrammarId],
     ) -> Result<usize, ParseError> {
         // Delegate to module-level implementation
-        try_match_grammar_table_driven(self, grammar_id, pos, terminators)
+        try_match_grammar(self, grammar_id, pos, terminators)
     }
 
     /// Returns true if position `i` in the token stream is preceded (looking
@@ -136,7 +136,7 @@ impl Parser<'_> {
         true
     }
 
-    pub(crate) fn greedy_match_table_driven(
+    pub(crate) fn greedy_match(
         &mut self,
         start_idx: usize,
         terminators: &[GrammarId],
@@ -153,15 +153,15 @@ impl Parser<'_> {
         // Python allows keyword terminators at the very start ("first element" edge case).
         for &term_id in terminators {
             vdebug!(
-                "[GREEDY_MATCH_TABLE] greedy_match_table_driven: checking immediate terminator match for {:?} at {}",
+                "[GREEDY_MATCH_TABLE] greedy_match: checking immediate terminator match for {:?} at {}",
                 term_id, start_idx
             );
             if let Ok(end_pos) =
-                self.try_match_grammar_table_driven(term_id, start_idx, terminators)
+                self.try_match_grammar(term_id, start_idx, terminators)
             {
                 if end_pos > start_idx {
                     vdebug!(
-                        "[GREEDY_MATCH_TABLE] greedy_match_table_driven: immediate terminator {:?} matched at {}",
+                        "[GREEDY_MATCH_TABLE] greedy_match: immediate terminator {:?} matched at {}",
                         term_id, start_idx
                     );
                     return Ok((start_idx, start_idx));
@@ -179,7 +179,7 @@ impl Parser<'_> {
             if raw == "(" || raw == "[" || raw == "{" {
                 if let Some(matching_idx) = token.matching_bracket_idx {
                     vdebug!(
-                        "[GREEDY_MATCH_TABLE] greedy_match_table_driven: skipping bracket at {} to {}",
+                        "[GREEDY_MATCH_TABLE] greedy_match: skipping bracket at {} to {}",
                         i,
                         matching_idx + 1
                     );
@@ -187,7 +187,7 @@ impl Parser<'_> {
                     continue;
                 } else {
                     vdebug!(
-                        "[GREEDY_MATCH_TABLE] greedy_match_table_driven: no matching closing bracket for opening bracket at {}",
+                        "[GREEDY_MATCH_TABLE] greedy_match: no matching closing bracket for opening bracket at {}",
                         i
                     );
                     return Err(ParseError::with_context(
@@ -200,7 +200,7 @@ impl Parser<'_> {
 
             for &term_id in terminators {
                 vdebug!(
-                    "[GREEDY_MATCH_TABLE] greedy_match_table_driven: checking terminator {:?} at {}",
+                    "[GREEDY_MATCH_TABLE] greedy_match: checking terminator {:?} at {}",
                     term_id,
                     i
                 );
@@ -214,7 +214,7 @@ impl Parser<'_> {
                     hit
                 } else {
                     let result = self
-                        .try_match_grammar_table_driven(term_id, i, terminators)
+                        .try_match_grammar(term_id, i, terminators)
                         .map(|end_pos| end_pos > i)
                         .unwrap_or(false);
                     self.terminator_match_cache
@@ -237,14 +237,14 @@ impl Parser<'_> {
                         let variant = tables.get_inst(term_id).variant;
                         if variant != GrammarVariant::TypedParser {
                             vdebug!(
-                                "[GREEDY_MATCH_TABLE] greedy_match_table_driven: skipping {:?} at {} — all-alpha token not preceded by whitespace",
+                                "[GREEDY_MATCH_TABLE] greedy_match: skipping {:?} at {} — all-alpha token not preceded by whitespace",
                                 term_id, i
                             );
                             continue;
                         }
                     }
                     vdebug!(
-                        "[GREEDY_MATCH_TABLE] greedy_match_table_driven: terminator {:?} matched at {}",
+                        "[GREEDY_MATCH_TABLE] greedy_match: terminator {:?} matched at {}",
                         term_id, i
                     );
                     let last_code_idx = skip_stop_index_backward_to_code(tokens, i, start_idx);
@@ -254,7 +254,7 @@ impl Parser<'_> {
             i += 1;
         }
         vdebug!(
-            "[GREEDY_MATCH_TABLE] greedy_match_table_driven: returning max_idx={}",
+            "[GREEDY_MATCH_TABLE] greedy_match: returning max_idx={}",
             max_idx
         );
         Ok((start_idx, max_idx))
