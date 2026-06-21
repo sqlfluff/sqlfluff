@@ -10,6 +10,11 @@ Usage:
     python benchmark_parsing.py --dialect tsql --limit 100
     python benchmark_parsing.py --all-dialects --limit 10
     python benchmark_parsing.py --compare  # Run both parsers
+    python benchmark_parsing.py --dialect ansi --rust-only --profile  # stage breakdown
+
+The --profile flag breaks the Rust parse down by internal stage
+(rust_core/convert/apply/apply_as_node); it requires the Rust parser
+(--compare or --rust-only) and has no effect on the pure-Python parser.
 """
 
 import argparse
