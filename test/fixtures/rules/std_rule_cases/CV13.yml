@@ -1,5 +1,13 @@
 rule: CV13
 
+# CV13 is disabled by default (opinionated convention). The fixture cases below
+# exercise the rule's logic, so they enable it explicitly. Applied to every test
+# case that does not define its own `configs`.
+configs:
+  rules:
+    convention.last_select_star:
+      force_enable: true
+
 test_pass_cte_select_star:
   # The dbt convention: a final CTE selected with `select * from final`.
   pass_str: |
@@ -84,3 +92,41 @@ test_fail_star_with_extra_column:
   fail_str: |
     WITH final AS (SELECT a FROM foo)
     SELECT *, extra_col FROM final
+
+test_fail_select_star_with_where:
+  # A `select * from` with a trailing transformation clause is not a pure
+  # passthrough (cubic-dev-ai PR review finding).
+  fail_str: |
+    WITH final AS (SELECT a FROM foo)
+    SELECT * FROM final WHERE a > 1
+
+test_fail_select_star_with_group_by:
+  fail_str: |
+    WITH final AS (SELECT a FROM foo)
+    SELECT * FROM final GROUP BY a
+
+test_fail_select_star_with_order_by_limit:
+  fail_str: |
+    WITH final AS (SELECT a FROM foo)
+    SELECT * FROM final ORDER BY a LIMIT 10
+
+test_fail_select_distinct_star:
+  # `SELECT DISTINCT *` reshapes the result set, so it is not a passthrough.
+  fail_str: |
+    WITH final AS (SELECT a FROM foo)
+    SELECT DISTINCT * FROM final
+
+test_pass_disabled_by_default:
+  # Without `force_enable`, CV13 never flags (it is off by default). This is the
+  # anti-pattern from test_fail_cte_explicit_columns, which passes here because
+  # the rule is not enabled.
+  pass_str: |
+    WITH final AS (
+        SELECT a, b FROM foo
+    )
+
+    SELECT a, b FROM final
+  configs:
+    rules:
+      convention.last_select_star:
+        force_enable: false

@@ -20,7 +20,18 @@ class Rule_CV13(BaseRule):
     To avoid flagging ad-hoc queries, this rule only applies when the *last*
     top-level statement of a file is a ``WITH ... SELECT`` (i.e. it uses CTEs).
     Plain ``SELECT`` statements, and files ending in DML or DDL, are not in
-    scope.
+    scope. The final select must also be a pure passthrough: a lone
+    ``SELECT * FROM <cte>`` with no further transformation (``WHERE``,
+    ``GROUP BY``, ``DISTINCT``, ``ORDER BY``, ``LIMIT``, etc.).
+
+    This convention is opinionated and not universally agreed upon, so this
+    rule is **disabled by default**. It can be enabled with the
+    ``force_enable = True`` flag:
+
+    .. code-block:: cfg
+
+        [sqlfluff:rules:convention.last_select_star]
+        force_enable = True
 
     **Anti-pattern**
 
@@ -61,10 +72,19 @@ class Rule_CV13(BaseRule):
     name = "convention.last_select_star"
     aliases = ()
     groups: tuple[str, ...] = ("all", "convention")
+    config_keywords = ["force_enable"]
     crawl_behaviour = RootOnlyCrawler()
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """The final select of a CTE model should be ``SELECT * FROM ...``."""
+        # Config type hints
+        self.force_enable: bool
+
+        # This convention is opinionated, so the rule is disabled by default
+        # and only runs when explicitly enabled via `force_enable = True`.
+        if not self.force_enable:
+            return None
+
         # We only operate on the file root.
         assert context.segment.is_type("file")
 
@@ -110,16 +130,44 @@ class Rule_CV13(BaseRule):
             return queries[-1]
         return None
 
-    @staticmethod
-    def _is_select_star_from(select_statement: BaseSegment) -> bool:
-        """Return whether a select is exactly ``SELECT * FROM ...``."""
+    # Clauses that are permitted in a pure passthrough select. Anything else
+    # (`where_clause`, `groupby_clause`, `having_clause`, `orderby_clause`,
+    # `limit_clause`, `qualify_clause`, ...) is a transformation and means the
+    # final select is doing more than passing the last CTE through.
+    _passthrough_clauses = frozenset({"select_clause", "from_clause"})
+
+    @classmethod
+    def _is_select_star_from(cls, select_statement: BaseSegment) -> bool:
+        """Return whether a select is exactly ``SELECT * FROM <source>``.
+
+        This must be a *pure* passthrough: a lone wildcard selected from a
+        single source, with no further transformation clauses (e.g. ``WHERE``,
+        ``GROUP BY``, ``DISTINCT``, ``ORDER BY``, ``LIMIT``).
+        """
         # The convention is `select * from`, so a source must be present.
         if not select_statement.get_child("from_clause"):
             return False
 
+        # Reject any transformation clause beyond `select`/`from`. A passthrough
+        # must not filter, aggregate, sort or limit the final result set.
+        for clause in select_statement.segments:
+            if clause.is_type("keyword") or clause.is_meta:
+                continue  # pragma: no cover
+            if (
+                clause.type.endswith("_clause")
+                and clause.type not in cls._passthrough_clauses
+            ):
+                return False
+
         select_clause = select_statement.get_child("select_clause")
         if not select_clause:
             return False  # pragma: no cover
+
+        # A select modifier such as `DISTINCT` reshapes the result set, so it is
+        # not a passthrough (`ALL` is the default and is harmless, but treating
+        # any explicit modifier as non-passthrough keeps the rule conservative).
+        if select_clause.get_child("select_clause_modifier"):
+            return False
 
         elements = select_clause.get_children("select_clause_element")
         # There must be exactly one selected element, and it must be a wildcard.
