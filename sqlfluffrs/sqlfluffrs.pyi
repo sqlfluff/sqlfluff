@@ -168,12 +168,62 @@ class RsMatchResult:
     escape_replacement: Optional[tuple[str, str]]
     insert_segments: Optional[List[tuple[int, str, bool]]]
 
-    def apply_as_node(
+    def apply_as_tree(
         self,
         tokens: List[RsToken],
         leading: List[RsToken],
         trailing: List[RsToken],
-    ) -> RsNode: ...
+    ) -> "RsTree": ...
+
+class RsHandle:
+    """A lightweight cursor into an :class:`RsTree` arena node.
+
+    Every accessor runs Rust-side; only thin handles and scalars cross FFI.
+    Wrapped by the Python ``RsSegment`` facade.
+    """
+
+    uuid: int
+    raw: str
+    raw_upper: str
+    type: str
+    segment_class: Optional[str]
+    is_code: bool
+    is_whitespace: bool
+    is_comment: bool
+    is_meta: bool
+    is_templated: bool
+    pos_marker: Optional[RsPositionMarker]
+    children: List["RsHandle"]
+    parent: Optional["RsHandle"]
+
+    def is_type(self, seg_type: List[str]) -> bool: ...
+    def is_raw(self) -> bool: ...
+    def class_types(self) -> List[str]: ...
+    def instance_types(self) -> List[str]: ...
+    def descendant_type_set(self) -> List[str]: ...
+    def get_parent(self) -> Optional[tuple["RsHandle", int]]: ...
+    def get_child(self, seg_type: List[str]) -> Optional["RsHandle"]: ...
+    def get_children(self, seg_type: List[str]) -> List["RsHandle"]: ...
+    def raw_segments(self) -> List["RsHandle"]: ...
+    def recursive_crawl(
+        self,
+        seg_type: List[str],
+        recurse_into: bool = True,
+        no_recursive_seg_type: List[str] = ...,
+        allow_self: bool = True,
+    ) -> List["RsHandle"]: ...
+    def recursive_crawl_all(self) -> List["RsHandle"]: ...
+    def path_to(
+        self, other: "RsHandle"
+    ) -> List[tuple["RsHandle", int, int, List[int]]]: ...
+
+class RsTree:
+    """Owner of a mutable arena parse tree, used by the ``RsSegment`` facade."""
+
+    root: RsHandle
+
+    def __len__(self) -> int: ...
+    def node_by_uuid(self, uuid: int) -> Optional[RsHandle]: ...
 
 class RsParseError(Exception):
     """Exception raised by Rust parser when parsing fails.

@@ -13,6 +13,7 @@ macro_rules! vdebug {
     };
 }
 
+pub(crate) mod arena;
 mod cache;
 mod core;
 mod frame;
@@ -21,6 +22,8 @@ mod match_result;
 mod table_driven;
 pub(crate) mod types;
 
+#[cfg(feature = "python")]
+pub mod arena_py;
 #[cfg(feature = "python")]
 pub mod python;
 
@@ -37,5 +40,7 @@ pub(crate) use frame::{
 };
 
 // Re-export Python bindings when feature is enabled
+#[cfg(feature = "python")]
+pub use arena_py::{PyHandle, PyTree};
 #[cfg(feature = "python")]
 pub use python::{PyMatchResult, PyNode, PyParser, RsParseError};

@@ -284,10 +284,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # This is set by RawSegment.from_rstoken() for efficient round-trip
         # to the Rust parser, but isn't needed after pickling.
         s.pop("_rstoken", None)
-        # Remove _rs_node if present - RsNode objects can't be pickled.
+        # Remove _rs_tree if present - RsTree objects can't be pickled.
         # This is set on the root FileSegment by the Rust parser for efficient
         # rule evaluation, but isn't needed after pickling.
-        s.pop("_rs_node", None)
+        s.pop("_rs_tree", None)
         return s
 
     def __setstate__(self, state: dict[str, Any]) -> None:
