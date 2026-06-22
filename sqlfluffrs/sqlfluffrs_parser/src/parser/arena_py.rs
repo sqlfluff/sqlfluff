@@ -37,7 +37,7 @@ pub struct PyTree {
 }
 
 impl PyTree {
-    pub fn new(arena: Arena) -> Self {
+    pub(crate) fn new(arena: Arena) -> Self {
         PyTree {
             inner: Arc::new(Mutex::new(arena)),
         }

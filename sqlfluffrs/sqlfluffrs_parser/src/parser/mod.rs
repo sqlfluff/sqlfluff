@@ -23,7 +23,7 @@ mod table_driven;
 pub(crate) mod types;
 
 #[cfg(feature = "python")]
-pub mod arena_py;
+pub(crate) mod arena_py;
 #[cfg(feature = "python")]
 pub mod python;
 
