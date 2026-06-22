@@ -314,6 +314,34 @@ Run benchmarks:
 cargo bench
 ```
 
+Criterion measures the Rust internals in isolation. To see how the cost is
+split across the **Python↔Rust boundary** when SQLFluff actually drives the
+Rust parser, use the per-stage profiler instead (see below).
+
+### Profiling the Python↔Rust parse path
+
+`RustParser.parse()` (in `src/sqlfluff/core/parser/rust_parser.py`) is a fast
+Rust core wrapped in O(nodes) Python work. The profiler splits a parse into
+four stages so you can see where the time goes:
+
+- `rust_core` — the Rust parse (`parse_match_result_from_tokens`)
+- `convert` — rebuilding the result as a Python `MatchResult`
+- `apply` — building the `BaseSegment` tree (`MatchResult.apply`)
+- `apply_as_node` — building the `_rs_node` tree
+
+Enable it via the `SQLFLUFF_RS_PROFILE` env var or `set_profiling(True)`, then
+read the most recent parse with `get_parse_profile()`. The benchmark harness
+surfaces it directly (overall + small/medium/large file buckets):
+
+```bash
+# Requires the Rust parser (--compare or --rust-only); no effect on pure Python.
+python utils/benchmark_parsing.py --dialect ansi --rust-only --profile
+```
+
+As a rule of thumb, the Python-side stages dominate parse time on small/medium
+files (the FFI/tree-build overhead is not yet amortised), while `rust_core`
+dominates on large files.
+
 ### Optimization
 
 - Use `cargo build --release` for production builds
