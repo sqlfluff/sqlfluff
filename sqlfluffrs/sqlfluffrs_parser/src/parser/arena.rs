@@ -517,7 +517,7 @@ impl Arena {
         self.children(id)
             .iter()
             .copied()
-            .find(|&c| !self.is_meta(c) && self.is_any_type(c, seg_type))
+            .find(|&c| self.is_any_type(c, seg_type))
     }
 
     /// All children matching any of `seg_type` (mirrors `get_children`).
@@ -525,7 +525,7 @@ impl Arena {
         self.children(id)
             .iter()
             .copied()
-            .filter(|&c| !self.is_meta(c) && self.is_any_type(c, seg_type))
+            .filter(|&c| self.is_any_type(c, seg_type))
             .collect()
     }
 
@@ -827,5 +827,34 @@ mod tests {
         assert!(arena.is_code(raws[0]));
         assert!(!arena.is_code(raws[1]));
         assert!(arena.is_whitespace(raws[1]));
+    }
+
+    #[test]
+    fn get_child_includes_meta() {
+        // Mirror `BaseSegment.get_child`/`get_children`, which consider *all*
+        // children including metas: a query for `indent` must return the meta.
+        let tree = Node::Segment {
+            segment_class: "SelectStatementSegment".to_string(),
+            segment_type: Some("select_statement".to_string()),
+            pos_marker: None,
+            class_types: vec!["select_statement".to_string()],
+            children: vec![
+                raw("KeywordSegment", "keyword", "SELECT", &["keyword"]),
+                Node::Meta {
+                    meta_type: MetaType::Indent { is_implicit: false },
+                    pos_marker: None,
+                },
+                raw("WhitespaceSegment", "whitespace", " ", &["whitespace"]),
+            ],
+        };
+        let arena = Arena::from_node(&tree);
+        let root = arena.root();
+        let indent = vec!["indent".to_string()];
+        let child = arena.get_child(root, &indent).expect("indent meta found");
+        assert!(arena.is_meta(child));
+        assert_eq!(arena.get_type(child), "indent");
+        assert_eq!(arena.get_children(root, &indent).len(), 1);
+        // A non-meta query still works alongside metas.
+        assert!(arena.get_child(root, &["keyword".to_string()]).is_some());
     }
 }
