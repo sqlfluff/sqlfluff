@@ -521,7 +521,7 @@ impl<'a> Parser<'a> {
 
             // Check terminator match cache first - key is (position after skipping transparent, grammar_id)
             let cache_key = (saved_pos, term_id.0);
-            if let Some(&cached_result) = self.terminator_match_cache.borrow().get(&cache_key) {
+            if let Some(&cached_result) = self.terminator_match_cache.get(&cache_key) {
                 vdebug!(
                     "  TERMCACHE HIT at pos {} for {:?}: {}",
                     saved_pos,
@@ -549,9 +549,7 @@ impl<'a> Parser<'a> {
                 self.pos = check_pos;
 
                 // Cache the result
-                self.terminator_match_cache
-                    .borrow_mut()
-                    .insert(cache_key, !is_empty);
+                self.terminator_match_cache.insert(cache_key, !is_empty);
 
                 if !is_empty {
                     vdebug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
@@ -564,9 +562,7 @@ impl<'a> Parser<'a> {
             } else {
                 self.pos = check_pos;
                 // Cache the failure
-                self.terminator_match_cache
-                    .borrow_mut()
-                    .insert(cache_key, false);
+                self.terminator_match_cache.insert(cache_key, false);
             }
             vdebug!("  Terminator did not match (table-driven): {:?}", term_id);
         }

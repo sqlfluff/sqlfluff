@@ -147,14 +147,14 @@ pub struct Parser<'a> {
     /// Cache for terminator match results: (position, grammar_id) -> matches
     /// Key insight: the same terminator at the same position will always give the same result.
     /// This avoids redundant parse_table_iterative calls from nested Delimited grammars.
-    pub(crate) terminator_match_cache: std::cell::RefCell<hashbrown::HashMap<(usize, u32), bool>>,
+    pub(crate) terminator_match_cache: hashbrown::HashMap<(usize, u32), bool>,
     // Table-driven grammar support
     pub(crate) grammar_ctx: GrammarContext<'static>,
     /// Indentation configuration (key -> enabled)
     /// Used by conditional meta segments (e.g., indented_joins=true enables Indent/Dedent)
     pub(crate) indent_config: hashbrown::HashMap<&'static str, bool>,
     // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
-    regex_cache: std::cell::RefCell<hashbrown::HashMap<String, std::sync::Arc<RegexMode>>>,
+    regex_cache: hashbrown::HashMap<String, std::sync::Arc<RegexMode>>,
     /// Maximum number of main-loop iterations before aborting.
     /// Configurable via `rust_parser_max_iterations` in `.sqlfluff`.
     pub(crate) max_parser_iterations: usize,
@@ -202,11 +202,11 @@ impl<'a> Parser<'a> {
             dialect,
             table_cache: TableParseCache::new(),
             metrics: ParserMetrics::default(),
-            terminator_match_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
+            terminator_match_cache: hashbrown::HashMap::new(),
             cache_enabled: true,
             grammar_ctx,
             indent_config,
-            regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
+            regex_cache: hashbrown::HashMap::new(),
             max_parser_iterations: 3_000_000,
             parser_warn_threshold: 2_000_000,
             max_parse_depth,
@@ -1136,19 +1136,17 @@ impl<'a> Parser<'a> {
         }
 
         let pattern = {
-            let mut cache = self.regex_cache.borrow_mut();
             let comp_key = normalize_for_compile(&pattern_str).to_string();
-            cache
+            self.regex_cache
                 .entry(comp_key.clone())
                 .or_insert_with(|| std::sync::Arc::new(RegexMode::new(&comp_key)))
                 .clone()
         };
 
         let anti_pattern = if let Some(anti_str) = anti_opt.as_ref() {
-            let mut cache = self.regex_cache.borrow_mut();
             let comp_key = normalize_for_compile(anti_str).to_string();
             Some(
-                cache
+                self.regex_cache
                     .entry(comp_key.clone())
                     .or_insert_with(|| std::sync::Arc::new(RegexMode::new(&comp_key)))
                     .clone(),
