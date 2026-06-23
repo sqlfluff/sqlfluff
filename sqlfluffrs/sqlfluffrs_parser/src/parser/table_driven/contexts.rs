@@ -1,3 +1,4 @@
+use smallvec::SmallVec;
 use std::sync::Arc;
 
 use sqlfluffrs_types::GrammarId;
@@ -125,7 +126,7 @@ impl crate::parser::AnyNumberOfState {
 
     #[inline]
     pub(crate) fn reset_for_next_repetition(&mut self, new_pruned_children: &[GrammarId]) {
-        self.pruned_children = new_pruned_children.to_vec();
+        self.pruned_children = SmallVec::from_slice(new_pruned_children);
         self.longest_match = (
             Arc::new(MatchResult::empty_at(self.longest_match.0.end())),
             None,

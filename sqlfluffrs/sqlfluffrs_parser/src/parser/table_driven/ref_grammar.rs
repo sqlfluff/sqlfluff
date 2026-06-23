@@ -26,7 +26,7 @@ impl Parser<'_> {
 
         // Get rule name via GrammarContext helper which knows how names are
         // stored in aux_data (generator packs ref names into aux_data).
-        let rule_name = self.grammar_ctx.ref_name(grammar_id).to_string();
+        let rule_name = self.grammar_ctx.ref_name(grammar_id);
 
         vdebug!(
             "Ref[table] Initial: frame_id={}, pos={}, grammar_id={}, rule={}",
@@ -97,7 +97,7 @@ impl Parser<'_> {
         // If the explicit child grammar allows gaps, collect leading transparent
         // tokens so child parsing starts at the next non-transparent token.
         let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
-        let this_type = self.grammar_ctx.get_type(grammar_id);
+        let this_type = self.grammar_ctx.segment_type(grammar_id);
         let child_start_pos = if child_allows_gaps {
             self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
         } else {
@@ -107,10 +107,7 @@ impl Parser<'_> {
         // Determine the segment_class (Python class name) from tables
         // This is what gets stored in matched_class for Python lookup
         // e.g., "ProcedureDefinitionGrammar", "SelectStatementSegment", etc.
-        let table_segment_class = self
-            .grammar_ctx
-            .segment_class(grammar_id)
-            .map(|s| s.to_string());
+        let table_segment_class = self.grammar_ctx.segment_class(grammar_id);
 
         vdebug!(
             "Ref[table]: rule_name='{}', table_segment_class={:?}",
@@ -284,7 +281,7 @@ impl Parser<'_> {
                     seg_type.to_string()
                 }
             } else {
-                state.segment_type.clone().unwrap_or_default()
+                state.segment_type.unwrap_or_default().to_string()
             };
 
             vdebug!(
@@ -299,7 +296,7 @@ impl Parser<'_> {
                     Some(MatchedClass {
                         // take() instead of clone() + unwrap — frame context is not read
                         // again after this point (state transitions to Complete).
-                        class_name: state.segment_class_name.take().unwrap_or_default(),
+                        class_name: state.segment_class_name.take().unwrap_or_default().to_string(),
                         segment_type: Some(effective_segment_type),
                         segment_kwargs: SegmentKwargs {
                             class_types,
@@ -313,8 +310,7 @@ impl Parser<'_> {
             // let start_idx = self.skip_start_index_forward_to_code(*saved_pos, final_pos);
 
             MatchResult::ref_match(
-                // std::mem::take avoids a clone since the context won't be accessed again.
-                std::mem::take(&mut state.name),
+                state.name,
                 matched_class,
                 // start_idx,
                 state.saved_pos,

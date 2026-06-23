@@ -269,7 +269,7 @@ impl<'a> Parser<'a> {
     /// Prune options for table-driven parsing based on simple hints.
     ///
     /// This is the table-driven equivalent of prune_options().
-    pub(crate) fn prune_options(&mut self, options: &[GrammarId]) -> Vec<GrammarId> {
+    pub(crate) fn prune_options(&mut self, options: &[GrammarId]) -> SmallVec<[GrammarId; 8]> {
         // Track stats
         self.metrics
             .pruning_calls
@@ -286,7 +286,7 @@ impl<'a> Parser<'a> {
             self.metrics
                 .pruning_kept
                 .set(self.metrics.pruning_kept.get() + options.len());
-            return options.to_vec();
+            return SmallVec::from_slice(options);
         };
 
         // Get token properties for matching
@@ -301,7 +301,7 @@ impl<'a> Parser<'a> {
             first_types
         );
 
-        let mut available_options = Vec::new();
+        let mut available_options = SmallVec::<[GrammarId; 8]>::new();
 
         // Get grammar tables if available
         let tables = Some(self.grammar_ctx.tables());
@@ -579,7 +579,7 @@ impl<'a> Parser<'a> {
     /// Prune terminators for table-driven parsing based on simple matchers.
     ///
     /// This is the table-driven equivalent of prune_terminators().
-    fn prune_terminators(&mut self, terminators: &[GrammarId]) -> Vec<GrammarId> {
+    fn prune_terminators(&mut self, terminators: &[GrammarId]) -> SmallVec<[GrammarId; 8]> {
         // Reuse the same pruning logic as prune_options
         self.prune_options(terminators)
     }
