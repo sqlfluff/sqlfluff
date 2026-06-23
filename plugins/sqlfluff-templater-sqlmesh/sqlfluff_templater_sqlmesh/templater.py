@@ -302,6 +302,9 @@ class SQLMeshTemplater(JinjaTemplater):
         model_name = self._get_model_name_from_path(fname)
 
         if not model_name:
+            # The file is outside the project directory (or the project dir is
+            # invalid), so it cannot map to a SQLMesh model. Fall back to
+            # literal templating without touching the SQLMesh context.
             templater_logger.debug(
                 "Could not determine SQLMesh model name for %s. "
                 "Falling back to literal templating (no SQLMesh rendering).",
@@ -311,12 +314,30 @@ class SQLMeshTemplater(JinjaTemplater):
                 fname, in_str, source_content=in_str
             )
 
+        # The file lives within the project tree, but not every such file is a
+        # renderable model: ``macros/``, ``tests/``, ``seeds/``, ``audits/`` and
+        # similar files share the project directory but are not models.
+        # Resolving against the loaded models lets us skip SQLMesh rendering for
+        # those files instead of crashing when ``Context.render`` calls
+        # ``get_model(..., raise_if_missing=True)``.
+        model = self._resolve_model(fname, model_name)
+
+        if model is None:
+            templater_logger.debug(
+                "No SQLMesh model is registered for %s. "
+                "Falling back to literal templating (no SQLMesh rendering).",
+                fname,
+            )
+            return self._create_literal_templated_file(
+                fname, in_str, source_content=in_str
+            )
+
         # Use SQLMesh Context.render() to get the rendered SQL
-        templater_logger.debug("Rendering SQLMesh model: %s", model_name)
+        templater_logger.debug("Rendering SQLMesh model: %s", model.name)
 
         try:
             rendered_ast = self.sqlmesh_context.render(
-                model_name,
+                model,
                 expand=True,  # Expand all macros and dependencies
                 no_format=True,  # Don't format, let SQLFluff handle that
             )
@@ -327,7 +348,7 @@ class SQLMeshTemplater(JinjaTemplater):
                 else str(rendered_ast)
             )
             templater_logger.debug(
-                "Successfully rendered SQLMesh model: %s", model_name
+                "Successfully rendered SQLMesh model: %s", model.name
             )
             templater_logger.debug("Rendered SQL: %s", rendered_sql)
         except Exception as err:
@@ -335,7 +356,7 @@ class SQLMeshTemplater(JinjaTemplater):
                 err, (AttributeError, TypeError, ValueError)
             ):
                 raise SQLTemplaterError(
-                    f"SQLMesh rendering failed for model '{model_name}': {err}. "
+                    f"SQLMesh rendering failed for model '{model.name}': {err}. "
                     "Check your SQLMesh model syntax and project configuration."
                 ) from None
             raise
@@ -358,6 +379,38 @@ class SQLMeshTemplater(JinjaTemplater):
             raw_sliced=raw_sliced,
         )
         return templated_file, []
+
+    def _resolve_model(self, fname: str, model_name: Optional[str]) -> Any:
+        """Resolve the SQLMesh model for a file, or None if it isn't a model.
+
+        Resolution prefers matching the file path against the loaded models so
+        that non-model files (``macros/``, ``tests/``, ``seeds/``, ``audits/``,
+        ...) and models whose declared name differs from their path are handled
+        correctly. A name-based lookup is used as a fallback for cases where the
+        path does not map directly to a registered model file.
+        """
+        context = self.sqlmesh_context
+
+        try:
+            target = os.path.realpath(fname)
+        except (OSError, ValueError):
+            target = None
+
+        if target is not None:
+            for model in context.models.values():
+                model_path = getattr(model, "_path", None)
+                if not model_path:
+                    continue
+                try:
+                    if os.path.realpath(str(model_path)) == target:
+                        return model
+                except (OSError, ValueError):
+                    continue
+
+        if model_name:
+            return context.get_model(model_name, raise_if_missing=False)
+
+        return None
 
     def _get_model_name_from_path(self, fname: str) -> Optional[str]:
         """Extract the SQLMesh model name from a file path."""

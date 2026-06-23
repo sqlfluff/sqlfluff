@@ -93,6 +93,31 @@ SELECT 1 as test_column"""
             templated_file.templated_str
         ) or "source_table" in str(templated_file.templated_str)
 
+    def test_non_model_file_falls_back_to_literal(self, sqlmesh_config, fixture_dir):
+        """Non-model files in the project tree fall back to literal templating.
+
+        Files such as those under ``macros/`` live inside the project directory
+        but are not renderable SQLMesh models. They must not reach
+        ``Context.render`` (which raises for unknown models); instead the
+        templater should pass the source through unchanged.
+        """
+        macro_path = fixture_dir / "macros" / "custom_macros.sql"
+        content = macro_path.read_text()
+
+        templater = SQLMeshTemplater()
+        config = FluffConfig(configs=sqlmesh_config)
+        templater.sqlfluff_config = config
+
+        templated_file, violations = templater.process(
+            in_str=content, fname=str(macro_path), config=config
+        )
+
+        # Should not raise and should produce a literal (pass-through) mapping.
+        assert templated_file is not None
+        assert violations == []
+        assert templated_file.source_str == content
+        assert templated_file.templated_str == content
+
     def test_templater_config_pairs(self, sqlmesh_config):
         """Test templater config_pairs method."""
         templater = SQLMeshTemplater()
