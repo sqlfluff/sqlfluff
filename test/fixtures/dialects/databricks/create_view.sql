@@ -25,6 +25,10 @@ CREATE VIEW sales_summary
 COMMENT 'Aggregated sales data by region'
 AS SELECT region, SUM(amount) as total FROM sales GROUP BY region;
 
+CREATE VIEW long_comment_view
+COMMENT 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec dignissim diam, eu consectetur dolor. Aliquam vestibulum hendrerit massa ac dapibus. Duis luctus ut nunc quis mollis. Pellentesque at ultricies justo. Mauris nulla metus, posuere in lorem eget, mattis eleifend dui. In ullamcorper, enim id posuere mattis, urna ex tempus ipsum, ac bibendum neque arcu at mi. Pellentesque ultricies rutrum nibh a accumsan. Morbi non fermentum eros. Sed at nisl et purus suscipit congue. Vestibulum auctor vehicula maximus. In semper felis neque, eu condimentum lacus pharetra ut. Curabitur nibh metus, dapibus sed tellus ac, commodo porta orci.'
+AS SELECT 1 AS col;
+
 CREATE VIEW audited_view
 TBLPROPERTIES ('created_by' = 'admin', 'purpose' = 'audit')
 AS SELECT * FROM transactions;
