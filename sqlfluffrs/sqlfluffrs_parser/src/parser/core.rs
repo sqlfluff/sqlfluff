@@ -120,7 +120,7 @@ pub struct Parser<'a> {
     /// Used by conditional meta segments (e.g., indented_joins=true enables Indent/Dedent)
     pub(crate) indent_config: hashbrown::HashMap<&'static str, bool>,
     // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
-    regex_cache: std::cell::RefCell<hashbrown::HashMap<String, RegexMode>>,
+    regex_cache: std::cell::RefCell<hashbrown::HashMap<String, std::sync::Arc<RegexMode>>>,
     /// Maximum number of main-loop iterations before aborting.
     /// Configurable via `rust_parser_max_iterations` in `.sqlfluff`.
     pub(crate) max_parser_iterations: usize,
@@ -1151,7 +1151,7 @@ impl<'a> Parser<'a> {
             let comp_key = normalize_for_compile(&pattern_str).to_string();
             cache
                 .entry(comp_key.clone())
-                .or_insert_with(|| RegexMode::new(&comp_key))
+                .or_insert_with(|| std::sync::Arc::new(RegexMode::new(&comp_key)))
                 .clone()
         };
 
@@ -1161,7 +1161,7 @@ impl<'a> Parser<'a> {
             Some(
                 cache
                     .entry(comp_key.clone())
-                    .or_insert_with(|| RegexMode::new(&comp_key))
+                    .or_insert_with(|| std::sync::Arc::new(RegexMode::new(&comp_key)))
                     .clone(),
             )
         } else {
