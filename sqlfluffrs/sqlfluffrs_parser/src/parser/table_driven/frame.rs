@@ -18,19 +18,16 @@ pub enum TableFrameResult {
 /// Stack structure for managing ParseFrames and related state
 pub struct TableParseFrameStack {
     stack: Vec<TableParseFrame>,
-    /// Completed-child results, keyed by `frame_id`.
+    /// Single pending result slot: `(frame_id, result, end_pos, element_key)`.
     ///
-    /// This is the hand-off channel between a child and its parent: when a child
-    /// frame reaches `Complete`, the loop writes its
-    /// `(Arc<MatchResult>, end_pos, element_key)` here; the parent — parked in
-    /// `WaitingForChild` — reclaims it by looking up its own
-    /// `last_child_frame_id`. `Arc` keeps the hand-off clone-free.
+    /// At most one child result is in-flight at any time because the stack
+    /// processes frames sequentially and each parent consumes its child's result
+    /// before any new result is written. Replacing the HashMap with an Option
+    /// eliminates all hash-map overhead on the hot child-to-parent hand-off path.
     ///
-    /// - `end_pos`: token position just past the child's match (the parent's new
-    ///   `working_idx`/`matched_idx`).
-    /// - `element_key`: optional per-element identity (set by OneOf, consumed by
-    ///   AnyNumberOf for `max_times_per_element` accounting); `None` otherwise.
-    pub results: hashbrown::HashMap<usize, (Arc<MatchResult>, usize, Option<u64>)>,
+    /// - `end_pos`: token position just past the child's match.
+    /// - `element_key`: optional per-element identity for AnyNumberOf accounting.
+    pub results: Option<(usize, Arc<MatchResult>, usize, Option<u64>)>,
     pub frame_id_counter: usize,
     // Add any additional state fields here as needed
 }
@@ -45,9 +42,21 @@ impl TableParseFrameStack {
     pub fn new() -> Self {
         TableParseFrameStack {
             stack: Vec::new(),
-            results: hashbrown::HashMap::new(),
+            results: None,
             frame_id_counter: 0,
         }
+    }
+
+    /// Take a pending result for `frame_id`. Returns `None` if no result is
+    /// pending or the stored frame id does not match.
+    #[inline]
+    pub fn take_pending(
+        &mut self,
+        frame_id: usize,
+    ) -> Option<(Arc<MatchResult>, usize, Option<u64>)> {
+        self.results
+            .take_if(|(stored_id, ..)| *stored_id == frame_id)
+            .map(|(_, result, end_pos, element_key)| (result, end_pos, element_key))
     }
 
     pub fn push(&mut self, frame: TableParseFrame) {
@@ -80,8 +89,7 @@ impl TableParseFrameStack {
 
     #[inline]
     pub(crate) fn insert_empty_result(&mut self, frame_id: usize, pos: usize) {
-        self.results
-            .insert(frame_id, (Arc::new(MatchResult::empty_at(pos)), pos, None));
+        self.results = Some((frame_id, Arc::new(MatchResult::empty_at(pos)), pos, None));
     }
 
     #[inline]
@@ -91,8 +99,7 @@ impl TableParseFrameStack {
         match_result: MatchResult,
         end_pos: usize,
     ) {
-        self.results
-            .insert(frame_id, (Arc::new(match_result), end_pos, None));
+        self.results = Some((frame_id, Arc::new(match_result), end_pos, None));
     }
 
     #[inline]
@@ -102,7 +109,7 @@ impl TableParseFrameStack {
         match_result: Arc<MatchResult>,
         end_pos: usize,
     ) {
-        self.results.insert(frame_id, (match_result, end_pos, None));
+        self.results = Some((frame_id, match_result, end_pos, None));
     }
 
     #[inline]
@@ -113,8 +120,7 @@ impl TableParseFrameStack {
         end_pos: usize,
         element_key: Option<u64>,
     ) {
-        self.results
-            .insert(frame_id, (match_result, end_pos, element_key));
+        self.results = Some((frame_id, match_result, end_pos, element_key));
     }
 
     /// Push child frame and update parent to wait for it
