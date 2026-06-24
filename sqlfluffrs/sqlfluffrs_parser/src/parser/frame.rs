@@ -227,7 +227,7 @@ pub struct RefState {
     pub last_child_frame_id: Option<usize>,
     /// The actual grammar this Ref resolves to (for casefold lookup).
     pub child_grammar_id: GrammarId,
-    pub match_result: Arc<MatchResult>,
+    pub match_result: Option<Arc<MatchResult>>,
 }
 
 /// Sub-state for Bracketed parsing. The `WaitingForChild` handler in

@@ -127,7 +127,7 @@ impl Parser<'_> {
             saved_pos: child_start_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             child_grammar_id,
-            match_result: Arc::new(MatchResult::empty_at(start_pos)),
+            match_result: None,
         });
 
         // CRITICAL: Set parent frame state to WaitingForChild so it will
@@ -188,7 +188,7 @@ impl Parser<'_> {
                 frame.frame_id,
                 child_end_pos
             );
-            state.match_result = Arc::clone(child_match);
+            state.match_result = Some(Arc::clone(child_match));
             self.pos = *child_end_pos;
             frame.end_pos = Some(*child_end_pos);
         } else {
@@ -227,19 +227,14 @@ impl Parser<'_> {
 
         vdebug!("Ref[table] Combining: frame_id={}", frame.frame_id,);
 
-        // Debug: print accumulated children to inspect whether typed tokens are present
-        if !state.match_result.is_empty() {
-            vdebug!(
-                "Ref[table] Combining DEBUG: accumulated nodes={:?}",
-                state.match_result
-            );
-        }
-
         // Build final result
         let final_pos = frame.end_pos.unwrap_or(frame.pos);
-        let result_match = if state.match_result.is_empty() {
-            MatchResult::empty_at(frame.pos)
-        } else {
+        let result_match = if let Some(ref_match_result) = &state.match_result {
+            // Debug: print accumulated children to inspect whether typed tokens are present
+            vdebug!(
+                "Ref[table] Combining DEBUG: accumulated nodes={:?}",
+                ref_match_result
+            );
             // TODO: make this cleaner
             // Python parity for leaf token grammars (CodeSegment, WordSegment etc.):
             // When `Ref("CodeSegment")` resolves to Token("raw") and matches a token,
@@ -255,12 +250,12 @@ impl Parser<'_> {
             let effective_segment_type = if let Some(seg_type) = state.segment_type.as_deref() {
                 // Check if the child match is a bare single-token match (no matched_class)
                 // by looking at the match_result's matched_class and slice length
-                let is_bare_token_match = state.match_result.matched_class.is_none()
-                    && state.match_result.matched_slice.len() == 1
-                    && state.match_result.child_matches.is_empty();
+                let is_bare_token_match = ref_match_result.matched_class.is_none()
+                    && ref_match_result.matched_slice.len() == 1
+                    && ref_match_result.child_matches.is_empty();
 
                 if is_bare_token_match {
-                    let token_idx = state.match_result.matched_slice.start;
+                    let token_idx = ref_match_result.matched_slice.start;
                     if let Some(tok) = self.tokens.get(token_idx) {
                         // Get effective type as &str WITHOUT cloning first so the common
                         // case (types already match) pays no allocation cost.
@@ -324,8 +319,10 @@ impl Parser<'_> {
                 // start_idx,
                 state.saved_pos,
                 final_pos,
-                vec![state.match_result.clone()],
+                vec![Arc::clone(ref_match_result)],
             )
+        } else {
+            MatchResult::empty_at(frame.pos)
         };
 
         self.pos = final_pos;
