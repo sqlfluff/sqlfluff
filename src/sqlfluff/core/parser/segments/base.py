@@ -12,6 +12,7 @@ Here we define:
 from __future__ import annotations
 
 import logging
+import os
 import weakref
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
@@ -27,7 +28,6 @@ from typing import (
     Union,
     cast,
 )
-from uuid import uuid4
 
 from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser.context import ParseContext
@@ -142,7 +142,7 @@ class SegmentMetaclass(type, Matchable):
         # Create a cache uuid on definition.
         # We do it here so every _definition_ of a segment
         # gets a unique UUID regardless of dialect.
-        class_dict["_cache_key"] = uuid4().hex
+        class_dict["_cache_key"] = os.urandom(16).hex()
 
         # Populate the `_class_types` property on creation.
         added_type = class_dict.get("type", None)
@@ -217,7 +217,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Tracker for matching when things start moving.
         # NOTE: We're storing the .int attribute so that it's swifter
         # for comparisons.
-        self.uuid = uuid or uuid4().int
+        self.uuid = uuid or int.from_bytes(os.urandom(16), "big")
 
         self.set_as_parent(recurse=False)
         self.validate_non_code_ends()
