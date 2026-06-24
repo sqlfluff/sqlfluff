@@ -5,11 +5,11 @@ any children, and the output of the lexer.
 """
 
 import functools
-import os
 from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
 
 import regex as re
 
+from sqlfluff.core.helpers.identity import get_next_id
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 
@@ -74,8 +74,8 @@ class RawSegment(BaseSegment):
         self.trim_chars = trim_chars
         # Keep track of any source fixes
         self._source_fixes = source_fixes
-        # UUID for matching (the int attribute of it)
-        self.uuid = uuid or int.from_bytes(os.urandom(16), "big")
+        # Identifier for matching (a plain int, swift for comparisons).
+        self.uuid = uuid or get_next_id()
         self.quoted_value = quoted_value
         self.escape_replacements = escape_replacements
         self.casefold = casefold
