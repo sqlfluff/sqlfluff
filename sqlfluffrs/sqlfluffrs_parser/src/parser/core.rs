@@ -44,6 +44,40 @@ fn read_string_ids_from_aux(
         .collect()
 }
 
+/// Returns the `[start, end)` bounds of `grammar_id`'s `aux_data` block.
+///
+/// The end is normally the next grammar's offset, but `aux_data` blocks are
+/// **not** stored in grammar-id order, so the next grammar may have a smaller
+/// offset (e.g. `0` when it has no `aux_data`). When that offset doesn't sit
+/// after this block's start, fall back to the full `aux_data` length: the
+/// inst/class_types reads in the callers are count-prefixed and self-delimiting,
+/// so `aux_end` is only a safety bound, never a delimiter.
+///
+/// NOTE: codegen (build_parsers.py) unconditionally emits the new-schema fields
+/// (instance_types + class_types) for every String/Typed/Multi/Regex parser, so
+/// those fields are always present for the grammars that reach these handlers;
+/// the `aux_end >= aux_start + N` checks in the callers are bounds guards, not a
+/// real old- vs new-schema discriminator.
+#[inline]
+fn aux_block_bounds(
+    tables: &sqlfluffrs_types::GrammarTables,
+    grammar_id: GrammarId,
+) -> (usize, usize) {
+    let idx = grammar_id.get() as usize;
+    let aux_start = tables.aux_data_offsets[idx] as usize;
+    let next_aux_off = tables
+        .aux_data_offsets
+        .get(idx + 1)
+        .map(|&off| off as usize)
+        .unwrap_or_else(|| tables.aux_data.len());
+    let aux_end = if next_aux_off > aux_start {
+        next_aux_off
+    } else {
+        tables.aux_data.len()
+    };
+    (aux_start, aux_end)
+}
+
 /// Diagnostic counters accumulated during a parse.
 ///
 /// Pure instrumentation: nothing here affects parse results, so every field is a
@@ -429,12 +463,7 @@ impl<'a> Parser<'a> {
         //   new schema: [template_id, token_type_id, raw_class_id, inst_count, inst_type_ids...,
         //                class_types_count, class_type_ids...]
         // aux_data_offsets maps instruction -> aux_data start for variable-length aux.
-        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
-            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
-        } else {
-            tables.aux_data.len()
-        };
+        let (aux_start, aux_end) = aux_block_bounds(tables, grammar_id);
         let template_id = tables.aux_data[aux_start];
         let token_type_id = tables.aux_data[aux_start + 1];
         let raw_class_id = tables.aux_data[aux_start + 2];
@@ -556,12 +585,7 @@ impl<'a> Parser<'a> {
         //   new schema: [template_id, token_type_id, raw_class_id, inst_count, inst_type_ids...,
         //                class_types_count, class_type_ids...]
         // aux_data_offsets maps instruction -> aux_data start for variable-length aux.
-        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
-            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
-        } else {
-            tables.aux_data.len()
-        };
+        let (aux_start, aux_end) = aux_block_bounds(tables, grammar_id);
         let template_id = tables.aux_data[aux_start];
         let token_type_id = tables.aux_data[aux_start + 1];
         let raw_class_id = tables.aux_data[aux_start + 2];
@@ -807,12 +831,7 @@ impl<'a> Parser<'a> {
         //   new schema: [templates_start, templates_count, token_type_id, raw_class_id,
         //                inst_count, inst_type_ids..., class_types_count, class_type_ids...]
         // The aux_data offset is stored in the separate AUX_DATA_OFFSETS table, NOT in first_child_idx
-        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
-            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
-        } else {
-            tables.aux_data.len()
-        };
+        let (aux_start, aux_end) = aux_block_bounds(tables, grammar_id);
         let templates_start = tables.aux_data[aux_start] as usize;
         let templates_count = tables.aux_data[aux_start + 1] as usize;
         let token_type_id = tables.aux_data[aux_start + 2];
@@ -1092,12 +1111,7 @@ impl<'a> Parser<'a> {
         //   new schema: [regex_id, anti_regex_id, token_type_id, raw_class_id,
         //                inst_count, inst_type_ids..., class_types_count, class_type_ids...]
         let tables = self.grammar_ctx.tables();
-        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
-            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
-        } else {
-            tables.aux_data.len()
-        };
+        let (aux_start, aux_end) = aux_block_bounds(tables, grammar_id);
         let token_type_id = if aux_start + 2 < tables.aux_data.len() {
             tables.aux_data[aux_start + 2]
         } else {
