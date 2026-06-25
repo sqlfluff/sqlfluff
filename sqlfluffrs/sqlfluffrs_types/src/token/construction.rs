@@ -24,7 +24,9 @@ impl Token {
         } = config;
 
         let (token_types, class_types) = iter_base_types("base", class_types.clone());
-        let raw_value = Token::normalize(&raw, quoted_value.clone(), escape_replacement.clone());
+        // raw_normalized() is unimplemented (todo!) and raw_value has no readers,
+        // so normalize() is dead work. Skip it.
+        let raw_value = String::new();
         Self {
             token_type: token_types,
             class_name: "BaseSegment".to_string(),
