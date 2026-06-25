@@ -18,7 +18,7 @@ fn test_bracketed_implicit_sequence() {
 
     println!("\n=== TOKENS ===");
     for (i, tok) in tokens.iter().enumerate() {
-        println!("{:3}: {:20} {:?}", i, tok.token_type, tok.raw);
+        println!("{:3}: {:20} {:?}", i, tok.token_type, tok.raw());
     }
 
     assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);

@@ -46,7 +46,7 @@ impl Parser<'_> {
                 vdebug!(
                 "AnyNumberOf[table] Initial: grammar='{}' start_token='{}' token_type='{}' start_pos={}",
                 grammar_name,
-                tok.raw,
+                tok.raw(),
                 tok.get_type(),
                 start_pos
             );

@@ -425,7 +425,7 @@ impl Lexer {
                 SQLLexError::new(
                     Some(format!(
                         "Unable to lex characters: {}",
-                        token.raw.chars().take(10).collect::<String>()
+                        token.raw().chars().take(10).collect::<String>()
                     )),
                     token.pos_marker.clone(),
                     None,

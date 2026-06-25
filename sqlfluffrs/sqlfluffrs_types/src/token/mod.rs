@@ -5,6 +5,8 @@ mod eq;
 pub mod fix;
 mod fmt;
 pub mod path;
+mod raw_string;
+pub use raw_string::RawString;
 
 use std::{
     fmt::Write,
@@ -45,8 +47,7 @@ pub struct Token {
     pub is_meta: bool,
     pub allow_empty: bool,
     pub pos_marker: Option<PositionMarker>,
-    pub raw: String,
-    pub raw_upper: String,
+    raw: RawString,
     is_whitespace: bool,
     is_code: bool,
     is_comment: bool,
@@ -126,11 +127,11 @@ impl Token {
     }
 
     pub fn raw(&self) -> String {
-        self.raw.clone()
+        self.raw.as_str().to_owned()
     }
 
     pub fn raw_upper(&self) -> &str {
-        &self.raw_upper
+        self.raw.upper()
     }
 
     /// Get the quoted_value pattern for this token (if any)
@@ -265,7 +266,7 @@ impl Token {
     }
 
     pub fn raw_trimmed(&self) -> String {
-        let mut raw_buff = self.raw.clone();
+        let mut raw_buff = self.raw.as_str().to_owned();
 
         // Trim start sequences
         if let Some(trim_start) = &self.trim_start {
@@ -276,7 +277,7 @@ impl Token {
 
         // Trim specified characters from both ends
         if let Some(trim_chars) = &self.trim_chars {
-            raw_buff = self.raw.clone(); // Reset raw_buff before trimming chars
+            raw_buff = self.raw.as_str().to_owned(); // Reset raw_buff before trimming chars
 
             for seq in trim_chars {
                 while raw_buff.starts_with(seq) {
@@ -333,10 +334,9 @@ impl Token {
     }
 
     pub fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Self {
-        let new_raw = raw.unwrap_or(self.raw.clone());
+        let new_raw = raw.unwrap_or_else(|| self.raw.as_str().to_owned());
         Self {
-            raw_upper: new_raw.to_uppercase(),
-            raw: new_raw,
+            raw: RawString::new(new_raw),
             source_fixes: Some(source_fixes.unwrap_or(self.source_fixes())),
             uuid: crate::identity::next_id(),
             ..self.clone()
@@ -534,7 +534,7 @@ impl Token {
         self.pos_marker
             .clone()
             .expect("PositionMarker unset")
-            .working_loc_after(&self.raw)
+            .working_loc_after(self.raw.as_str())
     }
 
     pub fn recursive_crawl_all(&self, reverse: bool) -> Box<dyn Iterator<Item = &Token> + '_> {
@@ -587,7 +587,7 @@ impl Token {
         let include_meta = include_meta.unwrap_or_default();
         // If `show_raw` is true and there are no child segments, return (type, raw)
         if show_raw && self.segments.is_empty() {
-            return TupleSerialisedSegment::Str(self.get_type(), self.raw.clone());
+            return TupleSerialisedSegment::Str(self.get_type(), self.raw.as_str().to_owned());
         }
 
         // Determine filtering criteria for child segments
@@ -679,7 +679,7 @@ impl Token {
             let new_position = new_position.expect("Position should be assigned");
             let new_position = new_position.with_working_position(line_no, line_pos);
             let (new_line_no, new_line_pos) =
-                new_position.infer_next_position(&segment.raw, line_no, line_pos);
+                new_position.infer_next_position(segment.raw.as_str(), line_no, line_pos);
             line_no = new_line_no;
             line_pos = new_line_pos;
 
