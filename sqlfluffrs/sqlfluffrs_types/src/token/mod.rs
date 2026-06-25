@@ -333,8 +333,10 @@ impl Token {
     }
 
     pub fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Self {
+        let new_raw = raw.unwrap_or(self.raw.clone());
         Self {
-            raw: raw.unwrap_or(self.raw.clone()),
+            raw_upper: new_raw.to_uppercase(),
+            raw: new_raw,
             source_fixes: Some(source_fixes.unwrap_or(self.source_fixes())),
             uuid: crate::identity::next_id(),
             ..self.clone()
