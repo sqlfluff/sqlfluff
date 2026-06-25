@@ -121,6 +121,23 @@ impl PyNode {
         }
     }
 
+    /// Experimental: detect CP01 (keyword capitalisation) violations natively.
+    ///
+    /// Walks this node tree once in Rust and returns `(leaf_index, fixed_raw)`
+    /// for each keyword/operator leaf needing a fix. `leaf_index` matches the
+    /// Python `raw_segments` order so the caller can anchor a LintFix. One FFI
+    /// crossing for the whole file (unlike reading the tree node-by-node).
+    #[pyo3(signature = (policy, ignore_words=vec![], ignore_templated=false))]
+    fn cp01_violations(
+        &self,
+        policy: &str,
+        ignore_words: Vec<String>,
+        ignore_templated: bool,
+    ) -> Vec<(usize, String)> {
+        let ignore: std::collections::HashSet<String> = ignore_words.into_iter().collect();
+        crate::parser::rules_cp01::cp01_violations(&self.0, policy, &ignore, ignore_templated)
+    }
+
     /// Convert to tuple representation (mirrors Python's to_tuple)
     #[pyo3(signature = (code_only=false, show_raw=false, include_meta=false))]
     fn to_tuple(
