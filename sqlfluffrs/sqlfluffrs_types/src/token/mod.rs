@@ -336,7 +336,7 @@ impl Token {
         Self {
             raw: raw.unwrap_or(self.raw.clone()),
             source_fixes: Some(source_fixes.unwrap_or(self.source_fixes())),
-            uuid: Uuid::new_v4().as_u128(),
+            uuid: crate::identity::next_id(),
             ..self.clone()
         }
     }

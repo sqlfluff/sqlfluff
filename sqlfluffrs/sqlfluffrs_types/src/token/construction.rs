@@ -51,7 +51,7 @@ impl Token {
             segments,
             preface_modifier: "".to_string(),
             suffix: "".to_string(),
-            uuid: Uuid::new_v4().as_u128(),
+            uuid: crate::identity::next_id(),
             source_fixes: None,
             trim_start,
             trim_chars,
