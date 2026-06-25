@@ -945,6 +945,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTypeStatementSegment"),
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
             Ref("CreateCredentialStatementSegment"),
+            Ref("AlterCredentialStatementSegment"),
             Ref("DropCredentialStatementSegment"),
             Ref("CreateExternalDataSourceStatementSegment"),
             Ref("SqlcmdCommandSegment"),
@@ -8286,15 +8287,35 @@ class CreateCredentialStatementSegment(BaseSegment):
     )
 
 
+class AlterCredentialStatementSegment(BaseSegment):
+    """An `ALTER CREDENTIAL` or `ALTER DATABASE SCOPED CREDENTIAL` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-credential-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-credential-transact-sql
+    """
+
+    type = "alter_credential_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Sequence("DATABASE", "SCOPED", optional=True),
+        "CREDENTIAL",
+        Ref("ObjectReferenceSegment"),
+        "WITH",
+        Ref("CredentialGrammar"),
+    )
+
+
 class DropCredentialStatementSegment(BaseSegment):
-    """A `DROP CREDENTIAL` statement.
+    """A `DROP CREDENTIAL` or `DROP DATABASE SCOPED CREDENTIAL` statement.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-credential-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-database-scoped-credential-transact-sql
     """
 
     type = "drop_credential_statement"
     match_grammar: Matchable = Sequence(
         "DROP",
+        Sequence("DATABASE", "SCOPED", optional=True),
         "CREDENTIAL",
         Ref("ObjectReferenceSegment"),
     )
