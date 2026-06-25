@@ -70,6 +70,26 @@ def _get_struct_alias_refs(segment: BaseSegment) -> set[int]:
     return struct_alias_ids
 
 
+def _get_select_except_refs(segment: BaseSegment) -> set[int]:
+    """Get the ids of object references inside a SELECT * EXCEPT clause.
+
+    Dialects like Databricks, SparkSQL, and ClickHouse support
+    ``SELECT t.* EXCEPT (col1, col2)`` where the excluded columns are listed
+    inside an ``EXCEPT (...)`` clause. Those columns name what to drop from the
+    star expansion, so they don't need to be qualified and shouldn't be treated
+    as ordinary column references by rules like RF02.
+    See: https://github.com/sqlfluff/sqlfluff/issues/5764
+    """
+    except_ref_ids: set[int] = set()
+    for except_clause in segment.recursive_crawl(
+        "select_except_clause",
+        no_recursive_seg_type=["select_statement", "merge_statement"],
+    ):
+        for ref in except_clause.recursive_crawl("object_reference"):
+            except_ref_ids.add(id(ref))
+    return except_ref_ids
+
+
 def _get_object_references(
     segment: BaseSegment,
     exclude_ids: Optional[set[int]] = None,
@@ -110,8 +130,11 @@ def get_select_statement_info(
     # Identify references that are aliases inside STRUCT() functions so we can
     # exclude them. These are alias definitions, not real column references.
     # See: https://github.com/sqlfluff/sqlfluff/issues/6919
-    struct_alias_ids = _get_struct_alias_refs(sc)
-    reference_buffer = _get_object_references(sc, exclude_ids=struct_alias_ids)
+    # Also identify columns listed in a SELECT * EXCEPT (...) clause; those name
+    # columns to drop from the star expansion and don't need qualification.
+    # See: https://github.com/sqlfluff/sqlfluff/issues/5764
+    exclude_ref_ids = _get_struct_alias_refs(sc) | _get_select_except_refs(sc)
+    reference_buffer = _get_object_references(sc, exclude_ids=exclude_ref_ids)
     table_reference_buffer = []
     for potential_clause in (
         "where_clause",
