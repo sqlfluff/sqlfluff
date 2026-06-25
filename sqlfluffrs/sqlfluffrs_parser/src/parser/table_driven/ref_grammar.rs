@@ -296,7 +296,11 @@ impl Parser<'_> {
                     Some(MatchedClass {
                         // take() instead of clone() + unwrap — frame context is not read
                         // again after this point (state transitions to Complete).
-                        class_name: state.segment_class_name.take().unwrap_or_default().to_string(),
+                        class_name: state
+                            .segment_class_name
+                            .take()
+                            .unwrap_or_default()
+                            .to_string(),
                         segment_type: Some(effective_segment_type),
                         segment_kwargs: SegmentKwargs {
                             class_types,
