@@ -656,55 +656,30 @@ impl<'a> Parser<'a> {
                 let (effective_segment_type, instance_types_vec) = if let Some(cls_type) =
                     class_type
                 {
-                    if token_type == cls_type {
-                        // No explicit type override: TypedParser was invoked like Python's
-                        // isinstance path. Preserve the token's own type and instance_types
-                        // so that e.g. a WordSegment token matching Ref("CodeSegment") outputs
-                        // `word: value` instead of `raw: value`, or a double_quote token outputs
-                        // `double_quote: "value"` instead of `raw: "value"`.
-                        //
-                        // This mirrors Python's RawSegment.get_type():
-                        //   if instance_types: return instance_types[0]
-                        //   return super().get_type()  (= class type attribute)
-                        let tok_effective_type = tok
-                            .instance_types
-                            .first()
-                            .cloned()
-                            .unwrap_or_else(|| tok.token_type.clone());
-                        let tok_inst = tok.instance_types.clone();
-                        vdebug!(
-                            "TypedParser[table] isinstance-path: token_type='{}' == cls_type='{}', preserving effective_type='{}', instance_types={:?}",
-                            token_type,
-                            cls_type,
-                            tok_effective_type,
-                            tok_inst
-                        );
-                        (tok_effective_type, tok_inst)
-                    } else {
-                        // Explicit type override: use configured instance_types from
-                        // codegen (Python parity), with old-schema fallback.
-                        let mut vec = configured_instance_types;
-                        if cls_type != token_type && !vec.iter().any(|t| t == cls_type) {
-                            vec.push(cls_type.to_string());
-                        }
-                        if template != token_type
-                            && template != cls_type
-                            && !vec.iter().any(|t| t == &template)
-                        {
-                            vec.push(template.to_string());
-                        }
-                        let effective_type = vec
-                            .first()
-                            .cloned()
-                            .unwrap_or_else(|| token_type.to_string());
-                        vdebug!(
-                            "TypedParser[table] explicit-override-path: token_type='{}' != cls_type='{}', instance_types={:?}",
-                            token_type,
-                            cls_type,
-                            vec
-                        );
-                        (effective_type, vec)
+                    // Python parity: TypedParser always overrides the token's
+                    // instance_types with its configured `_instance_types`
+                    // (= `configured_instance_types`), so the leaf type is
+                    // `_instance_types[0]` (e.g. `literal`, not the token's
+                    // lexer type `file_literal`).
+                    let mut vec = configured_instance_types;
+                    if !vec.iter().any(|t| t == cls_type) {
+                        vec.push(cls_type.to_string());
                     }
+                    if template != cls_type && !vec.iter().any(|t| t == &template) {
+                        vec.push(template.to_string());
+                    }
+                    let effective_type = vec
+                        .first()
+                        .cloned()
+                        .unwrap_or_else(|| token_type.to_string());
+                    vdebug!(
+                        "TypedParser[table] configured-path: token_type='{}' cls_type='{}' template='{}' instance_types={:?}",
+                        token_type,
+                        cls_type,
+                        template,
+                        vec
+                    );
+                    (effective_type, vec)
                 } else {
                     // Fallback: no class type info available, use TypedParser config as-is
                     log::warn!(
@@ -1602,10 +1577,12 @@ impl<'a> Parser<'a> {
     /// This ensures that nested brackets inside Anything grammars produce
     /// proper BracketedSegment child_matches.
     fn match_bracket_recursively(&mut self, open_bracket: &str, persists: bool) -> MatchResult {
-        let close_bracket = match open_bracket {
-            "(" => ")",
-            "[" => "]",
-            "{" => "}",
+        // Python parity: bracket leaf type depends on the bracket char
+        // (`[`→square, `{`→curly); only `(` uses the plain bracket type.
+        let (close_bracket, start_bracket_type, end_bracket_type) = match open_bracket {
+            "(" => (")", "start_bracket", "end_bracket"),
+            "[" => ("]", "start_square_bracket", "end_square_bracket"),
+            "{" => ("}", "start_curly_bracket", "end_curly_bracket"),
             _ => unreachable!(),
         };
 
@@ -1616,9 +1593,9 @@ impl<'a> Parser<'a> {
             matched_slice: self.pos..self.pos + 1,
             matched_class: Some(MatchedClass {
                 class_name: "SymbolSegment".to_string(),
-                segment_type: Some("start_bracket".to_string()),
+                segment_type: Some(start_bracket_type.to_string()),
                 segment_kwargs: SegmentKwargs {
-                    instance_types: Some(vec!["start_bracket".to_string()]),
+                    instance_types: Some(vec![start_bracket_type.to_string()]),
                     ..Default::default()
                 },
             }),
@@ -1664,9 +1641,9 @@ impl<'a> Parser<'a> {
             matched_slice: bracket_end - 1..bracket_end,
             matched_class: Some(MatchedClass {
                 class_name: "SymbolSegment".to_string(),
-                segment_type: Some("end_bracket".to_string()),
+                segment_type: Some(end_bracket_type.to_string()),
                 segment_kwargs: SegmentKwargs {
-                    instance_types: Some(vec!["end_bracket".to_string()]),
+                    instance_types: Some(vec![end_bracket_type.to_string()]),
                     ..Default::default()
                 },
             }),
