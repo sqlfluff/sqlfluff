@@ -85,7 +85,7 @@ fn aux_block_bounds(
 /// `Parser` struct focused on parsing state and to expose the counters as a unit
 /// via [`Parser::diagnostics`] rather than field-by-field across the FFI boundary.
 #[derive(Debug, Default)]
-pub(crate) struct ParserMetrics {
+pub struct ParserMetrics {
     /// Number of `prune_options` calls.
     pub pruning_calls: std::cell::Cell<usize>,
     /// Total options considered across all prune calls.
@@ -294,6 +294,24 @@ impl<'a> Parser<'a> {
     /// Python bindings and perf debugging instead of reaching into individual counters.
     pub fn diagnostics(&self) -> std::collections::HashMap<String, usize> {
         self.metrics.as_map()
+    }
+
+    /// Borrow the raw diagnostic counters.
+    ///
+    /// Cheaper than [`Parser::diagnostics`] (no map allocation), so benchmarks can read
+    /// individual counters inside timed regions without distorting measurements.
+    pub fn metrics(&self) -> &ParserMetrics {
+        &self.metrics
+    }
+
+    /// Parse-cache stats as `(hits, misses, hit_rate)`.
+    pub fn cache_stats(&self) -> (usize, usize, f64) {
+        self.table_cache.stats()
+    }
+
+    /// Number of entries currently held in the parse cache.
+    pub fn cache_entries(&self) -> usize {
+        self.table_cache.len()
     }
 
     /// Parse and return MatchResult
