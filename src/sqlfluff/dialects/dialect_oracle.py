@@ -691,6 +691,22 @@ oracle_dialect.replace(
         Ref.keyword("TEMPORARY"),
         optional=True,
     ),
+    TimeWithTZGrammar=OneOf(
+        Sequence(
+            "TIMESTAMP",
+            Ref("BracketedArguments", optional=True),
+            OneOf(
+                Sequence("WITH", "LOCAL", "TIME", "ZONE"),
+                Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "TIME",
+            Ref("BracketedArguments", optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+    ),
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
     ),
