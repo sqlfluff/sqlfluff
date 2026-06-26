@@ -586,6 +586,7 @@ def test__rust_parser__native_ast_profile_has_no_convert_stage():
     from sqlfluff.core.parser import Lexer
     from sqlfluff.core.parser.rust_parser import (
         get_parse_profile,
+        reset_parse_profile,
         set_native_ast,
         set_profiling,
     )
@@ -595,6 +596,7 @@ def test__rust_parser__native_ast_profile_has_no_convert_stage():
 
     set_profiling(True)
     set_native_ast(True)
+    reset_parse_profile()  # profile accumulates; scope to this parse
     try:
         RustParser(config=config).parse(segments, fname="test.sql")
         profile = get_parse_profile()

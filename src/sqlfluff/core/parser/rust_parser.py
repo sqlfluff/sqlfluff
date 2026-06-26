@@ -380,11 +380,6 @@ try:
                     for _stage, _dur in _prof.items():
                         _PARSE_PROFILE[_stage] = _PARSE_PROFILE.get(_stage, 0.0) + _dur
 
-                # Publish the per-stage timings for the most recent parse.
-                # (_PARSE_PROFILE was already cleared at the top of parse().)
-                if _prof is not None:
-                    _PARSE_PROFILE.update(_prof)
-
                 if parse_statistics:  # pragma: no cover
                     print(
                         "Warning: parse_statistics not yet implemented for Rust parser"
