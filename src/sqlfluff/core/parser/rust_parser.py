@@ -40,7 +40,7 @@ parser_logger = logging.getLogger("sqlfluff.parser")
 # --- Sub-stage parse profiling -------------------------------------------------
 # RustParser.parse() is a fast Rust core wrapped in O(nodes) Python work. To find
 # out where the time actually goes (Rust parse vs. the Python re-conversion vs.
-# building the BaseSegment tree vs. building the currently-unused _rs_node tree),
+# building the BaseSegment tree vs. building the Rust arena tree (_rs_tree)),
 # the four internal stages can be timed individually.
 #
 # This is OFF by default (zero overhead). Enable it either by setting the
@@ -79,7 +79,7 @@ def get_parse_profile() -> dict[str, float]:
         rust_core      - the Rust parse (parse_match_result_from_tokens)
         convert        - Python rebuild of the tree as a MatchResult
         apply          - building the BaseSegment tree (MatchResult.apply)
-        apply_as_node  - building the (currently unused) _rs_node tree
+        apply_as_tree  - building the Rust arena tree (_rs_tree)
     """
     return dict(_PARSE_PROFILE)
 
@@ -305,12 +305,13 @@ try:
                     segments[:_start_idx] + content + segments[_end_idx:], fname=fname
                 )
 
-                # Build the Rust Node tree (RsNode) from the MatchResult.
-                # This is used by Rust-side linting rules (e.g., LT01 respace)
-                # to avoid expensive round-tripping through Python's segment tree.
+                # Build the mutable Rust arena tree (RsTree) from the MatchResult.
+                # This is the id-addressable façade tree (RsTree/RsHandle) used by
+                # Rust-side linting/fixing to avoid round-tripping through Python's
+                # segment tree.
                 try:
                     # Extract leading non-code tokens (segments before _start_idx:
-                    # whitespace/newlines at the start of the file) so the Rust node's
+                    # whitespace/newlines at the start of the file) so the arena's
                     # flat raw list matches Python's raw_segments ordering exactly.
                     leading_tokens = (
                         self._extract_tokens_from_segments(segments[:_start_idx])
@@ -318,7 +319,7 @@ try:
                         else []
                     )
                     # Extract trailing non-code tokens (segments after _end_idx: newline,
-                    # end_of_file, etc.) and include them in the Rust node so that the
+                    # end_of_file, etc.) and include them in the arena so that the
                     # reflow/respace rules can correctly detect EOF and trailing newlines.
                     trailing_tokens = (
                         self._extract_tokens_from_segments(segments[_end_idx:])
@@ -327,21 +328,21 @@ try:
                     )
                     if _prof is not None:
                         _ts = time.perf_counter()
-                    result._rs_node = rs_match.apply_as_node(
+                    result._rs_tree = rs_match.apply_as_tree(
                         tokens,
                         leading=leading_tokens,
                         trailing=trailing_tokens,
                     )
                     if _prof is not None:
-                        _prof["apply_as_node"] = time.perf_counter() - _ts
+                        _prof["apply_as_tree"] = time.perf_counter() - _ts
                 except Exception:  # pragma: no cover
-                    # Non-critical: if node building fails, rules fall back to Python
+                    # Non-critical: if tree building fails, rules fall back to Python
                     parser_logger.warning(
                         f"Unable to apply match result in parse tree for {fname}, falling"
                         " back to Python. Please report this as a bug with the SQL that"
                         " caused it."
                     )
-                    result._rs_node = None
+                    result._rs_tree = None
 
                 # Accumulate this variant's per-stage timings into the profile
                 # (summing across rendered variants of the same source).

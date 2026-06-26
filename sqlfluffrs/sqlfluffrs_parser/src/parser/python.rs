@@ -414,22 +414,23 @@ impl PyMatchResult {
         )
     }
 
-    /// Build the full AST as an `RsNode` from this MatchResult and tokens.
+    /// Build the mutable arena tree (`RsTree`) from this MatchResult and tokens.
     ///
     /// Applies the match result against the provided tokens to construct the
-    /// complete Rust-side AST which can be used by Rust linting rules
-    /// (e.g., respace/LT01) without round-tripping through Python's segment
-    /// tree. Optionally prepend `leading` and append `trailing` non-code
-    /// tokens to the root.
+    /// immutable [`Node`] tree, then ingests it into the id-addressable arena
+    /// that backs the Rust-side segment façade (`RsTree`/`RsHandle`) used by
+    /// linting and (in later milestones) fixing — so per-node navigation never
+    /// round-trips through Python's segment tree. Optionally prepend `leading`
+    /// and append `trailing` non-code tokens to the root.
     ///
-    /// This is the single PyO3 entry-point for node construction.
+    /// This is the single PyO3 entry-point for tree construction.
     #[pyo3(signature = (tokens, leading=vec![], trailing=vec![]))]
-    fn apply_as_node(
+    fn apply_as_tree(
         &self,
         tokens: Vec<PyToken>,
         leading: Vec<PyToken>,
         trailing: Vec<PyToken>,
-    ) -> PyNode {
+    ) -> super::arena_py::PyTree {
         let rust_leading: Vec<Token> = leading.into_iter().map(|t| t.into()).collect();
         let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
         let rust_trailing: Vec<Token> = trailing.into_iter().map(|t| t.into()).collect();
@@ -437,7 +438,7 @@ impl PyMatchResult {
             .0
             .clone()
             .apply_as_root(&rust_tokens, &rust_leading, &rust_trailing);
-        PyNode(node)
+        super::arena_py::PyTree::new(super::arena::Arena::from_node(&node))
     }
 }
 

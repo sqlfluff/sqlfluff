@@ -625,14 +625,17 @@ impl MatchResult {
                 }
             }
 
-            // Calculate position marker from first child
-            let pos_marker = result_nodes.first().and_then(|n| match n {
-                Node::Raw { pos_marker, .. }
-                | Node::Segment { pos_marker, .. }
-                | Node::Meta { pos_marker, .. }
-                | Node::Unparsable { pos_marker, .. } => pos_marker.clone(),
-                _ => None,
-            });
+            // Position marker spans ALL children (mirrors Python's
+            // `PositionMarker.from_child_markers`): min source/templated start
+            // to max stop. Using only the first child would make a container's
+            // position cover just its first token.
+            let child_markers: Vec<Option<PositionMarker>> =
+                result_nodes.iter().map(node_pos_marker).collect();
+            let pos_marker = if child_markers.iter().any(|m| m.is_some()) {
+                Some(PositionMarker::from_child_markers(&child_markers))
+            } else {
+                None
+            };
 
             // Create Segment node — move class_name/segment_type without clone
             vec![Node::Segment {
@@ -677,7 +680,12 @@ impl MatchResult {
         let mut root = root_nodes.into_iter().next().unwrap_or_default();
 
         // Prepend leading and append trailing token-derived children.
-        if let Node::Segment { children, .. } = &mut root {
+        if let Node::Segment {
+            children,
+            pos_marker,
+            ..
+        } = &mut root
+        {
             if !trailing.is_empty() {
                 children.extend(trailing.iter().map(token_to_node));
             }
@@ -686,6 +694,17 @@ impl MatchResult {
                 let mut new_children = leading_nodes;
                 new_children.extend(children.drain(..));
                 *children = new_children;
+            }
+            // The original match didn't cover the prepended leading / appended
+            // trailing tokens, so recompute the root to span all children
+            // (mirroring Python's FileSegment, whose position covers the whole
+            // file).
+            if !leading.is_empty() || !trailing.is_empty() {
+                let child_markers: Vec<Option<PositionMarker>> =
+                    children.iter().map(node_pos_marker).collect();
+                if child_markers.iter().any(|m| m.is_some()) {
+                    *pos_marker = Some(PositionMarker::from_child_markers(&child_markers));
+                }
             }
         }
 
@@ -753,6 +772,17 @@ fn get_point_pos_at_token_idx(tokens: &[Token], idx: usize) -> Option<PositionMa
             .map(|pm| pm.end_point_marker())
     } else {
         None
+    }
+}
+
+/// Get a node's position marker (if any), regardless of variant.
+fn node_pos_marker(node: &Node) -> Option<PositionMarker> {
+    match node {
+        Node::Raw { pos_marker, .. }
+        | Node::Segment { pos_marker, .. }
+        | Node::Meta { pos_marker, .. }
+        | Node::Unparsable { pos_marker, .. } => pos_marker.clone(),
+        Node::Empty => None,
     }
 }
 

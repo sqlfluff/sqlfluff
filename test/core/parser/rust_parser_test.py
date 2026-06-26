@@ -397,7 +397,7 @@ def test__rust_parser__trailing_non_code_segments():
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__rs_node_class_types_match_python():
-    """Regression: _rs_node leaf class_types must mirror Python's class_types.
+    """Regression: arena leaf class_types must mirror Python's class_types.
 
     A quoted-string MultiStringParser match (snowflake's quoted compression
     value, e.g. ``'GZIP'``) previously lost its keyword class hierarchy in the
@@ -415,18 +415,18 @@ def test__rust_parser__rs_node_class_types_match_python():
     segments, _ = Lexer(config=config).lex(sql)
     tree = RustParser(config=config).parse(segments, fname="t.sql")
 
-    # Flatten the Rust node tree to its leaves (1:1 with raw_segments).
+    # Flatten the Rust arena to its leaves (1:1 with raw_segments).
     leaves = []
 
-    def _flatten(node):
-        children = node.children()
-        if children is None:
-            leaves.append(node)
+    def _flatten(handle):
+        children = handle.children
+        if not children:
+            leaves.append(handle)
         else:
             for child in children:
                 _flatten(child)
 
-    _flatten(tree._rs_node)
+    _flatten(tree._rs_tree.root)
     raws = tree.raw_segments
     assert len(leaves) == len(raws)
 
@@ -472,7 +472,7 @@ def test__rust_parser__profiling_records_stage_timings():
 
     assert result is not None
     # All four stages should be recorded, each a non-negative duration.
-    assert set(profile) == {"rust_core", "convert", "apply", "apply_as_node"}
+    assert set(profile) == {"rust_core", "convert", "apply", "apply_as_tree"}
     assert all(v >= 0.0 for v in profile.values())
 
 
@@ -521,3 +521,63 @@ def test__rust_parser__profiling_accumulates_and_resets():
         assert get_parse_profile() == {}
     finally:
         set_profiling(False)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_tree_arena_navigation():
+    """The Rust arena (``_rs_tree``) mirrors the Python tree for navigation.
+
+    Smoke test for the RsTree/RsHandle façade substrate: the arena is ingested
+    from the same node as the BaseSegment tree, so walking it to its leaves is
+    1:1 with ``raw_segments``, handle accessors return the expected scalars, and
+    parent/child links are consistent.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi", "use_rust_parser": True})
+    sql = "SELECT a, b FROM my_table WHERE a > 1\n"
+    segments, _ = Lexer(config=config).lex(sql)
+    tree = RustParser(config=config).parse(segments, fname="t.sql")
+
+    rs_tree = tree._rs_tree
+    assert rs_tree is not None
+    root = rs_tree.root
+
+    # Root handle basics.
+    assert root.type == "file"
+    assert root.parent is None
+    assert root.raw == tree.raw
+
+    # Flatten the arena to its leaves (nodes with no children).
+    leaves = []
+
+    def _flatten(handle):
+        children = handle.children
+        if not children:
+            leaves.append(handle)
+        else:
+            for child in children:
+                # Parent links round-trip with child links.
+                assert child.parent == handle
+                _flatten(child)
+
+    _flatten(root)
+
+    raws = tree.raw_segments
+    assert len(leaves) == len(raws)
+
+    # Leaf scalars line up with the Python raw_segments, position by position.
+    # NOTE: class_types is a subset, not equality — the arena faithfully carries
+    # whatever the node tree has, but the full keyword hierarchy enrichment
+    # (e.g. the inherited ``word`` type) is a separate fidelity fix not assumed
+    # by this substrate test.
+    for leaf, raw_seg in zip(leaves, raws):
+        assert leaf.raw == raw_seg.raw
+        assert leaf.type == raw_seg.get_type()
+        assert set(leaf.class_types() or []) <= set(raw_seg.class_types)
+
+    # The "FROM" keyword is reachable and typed.
+    assert any(
+        leaf.raw.upper() == "FROM" and leaf.is_type(["keyword"]) for leaf in leaves
+    )
