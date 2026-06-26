@@ -397,7 +397,7 @@ def test__rust_parser__trailing_non_code_segments():
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__rs_node_class_types_match_python():
-    """Regression: _rs_node leaf class_types must mirror Python's class_types.
+    """Regression: arena leaf class_types must mirror Python's class_types.
 
     A quoted-string MultiStringParser match (snowflake's quoted compression
     value, e.g. ``'GZIP'``) previously lost its keyword class hierarchy in the
@@ -415,18 +415,18 @@ def test__rust_parser__rs_node_class_types_match_python():
     segments, _ = Lexer(config=config).lex(sql)
     tree = RustParser(config=config).parse(segments, fname="t.sql")
 
-    # Flatten the Rust node tree to its leaves (1:1 with raw_segments).
+    # Flatten the Rust arena to its leaves (1:1 with raw_segments).
     leaves = []
 
-    def _flatten(node):
-        children = node.children()
-        if children is None:
-            leaves.append(node)
+    def _flatten(handle):
+        children = handle.children
+        if not children:
+            leaves.append(handle)
         else:
             for child in children:
                 _flatten(child)
 
-    _flatten(tree._rs_node)
+    _flatten(tree._rs_tree.root)
     raws = tree.raw_segments
     assert len(leaves) == len(raws)
 
