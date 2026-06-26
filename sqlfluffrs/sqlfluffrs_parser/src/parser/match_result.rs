@@ -151,7 +151,7 @@ impl MatchResult {
 
     /// Create a MatchResult for a Ref with child matches (lazy evaluation)
     pub fn ref_match(
-        _name: String,
+        _name: &'static str,
         matched_class: Option<MatchedClass>,
         start_idx: usize,
         end_idx: usize,
