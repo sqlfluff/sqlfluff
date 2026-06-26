@@ -9,6 +9,7 @@
 
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
+use std::borrow::Cow;
 use std::fmt::Display;
 use std::ops::Range;
 use std::sync::Arc;
@@ -57,16 +58,16 @@ impl Default for SegmentKwargs {
 
 #[derive(Debug, Clone, Default)]
 pub struct MatchedClass {
-    pub class_name: String,
-    pub segment_type: Option<String>,
+    pub class_name: Cow<'static, str>,
+    pub segment_type: Option<Cow<'static, str>>,
     pub segment_kwargs: SegmentKwargs,
 }
 
 impl MatchedClass {
     pub fn root() -> Self {
         MatchedClass {
-            class_name: "Root".to_string(),
-            segment_type: Some("file".to_string()),
+            class_name: Cow::Borrowed("Root"),
+            segment_type: Some(Cow::Borrowed("file")),
             segment_kwargs: SegmentKwargs {
                 class_types: Some(vec!["base".to_string(), "file".to_string()]),
                 ..Default::default()
@@ -76,8 +77,8 @@ impl MatchedClass {
 
     pub fn unparsable(message: &str, error_pos: usize) -> Self {
         MatchedClass {
-            class_name: "UnparsableSegment".to_string(),
-            segment_type: Some("unparsable".to_string()),
+            class_name: Cow::Borrowed("UnparsableSegment"),
+            segment_type: Some(Cow::Borrowed("unparsable")),
             segment_kwargs: SegmentKwargs {
                 parse_error: Some((message.to_string(), error_pos)),
                 class_types: Some(vec!["base".to_string(), "unparsable".to_string()]),
@@ -238,8 +239,8 @@ impl MatchResult {
         // When bracket_persists is true (parentheses), wrap in BracketedSegment.
         let matched_class = if bracket_persists {
             Some(MatchedClass {
-                class_name: "BracketedSegment".to_string(),
-                segment_type: Some("bracketed".to_string()),
+                class_name: Cow::Borrowed("BracketedSegment"),
+                segment_type: Some(Cow::Borrowed("bracketed")),
                 segment_kwargs: SegmentKwargs {
                     class_types: Some(vec!["base".to_string(), "bracketed".to_string()]),
                     ..Default::default()
@@ -581,15 +582,15 @@ impl MatchResult {
                         .unwrap_or_default();
                     if instance_types.is_empty() {
                         if let Some(seg_type) = &match_class.segment_type {
-                            instance_types.push(seg_type.clone());
+                            instance_types.push(seg_type.to_string());
                         }
                     }
 
-                    let effective_segment_type = match_class
+                    let effective_segment_type: Cow<'static, str> = match_class
                         .segment_type
                         .clone()
-                        .or_else(|| instance_types.first().cloned())
-                        .unwrap_or_else(|| "raw".to_string());
+                        .or_else(|| instance_types.first().map(|s| Cow::Owned(s.clone())))
+                        .unwrap_or(Cow::Borrowed("raw"));
 
                     let raw_class_ct = match_class.segment_kwargs.class_types.unwrap_or_default();
 
@@ -816,13 +817,13 @@ fn token_to_node(tok: &Token) -> Node {
         // In Rust, tok.token_type holds the class-level type (e.g. "raw") while
         // tok.instance_types holds the per-instance override (e.g. ["double_quote"]).
         // Use instance_types[0] as the segment_type to match Python's behavior.
-        let segment_type = tok
+        let segment_type: Cow<'static, str> = tok
             .instance_types
             .first()
-            .cloned()
-            .unwrap_or_else(|| tok.token_type.clone());
+            .map(|s| Cow::Owned(s.clone()))
+            .unwrap_or_else(|| Cow::Owned(tok.token_type.clone()));
         Node::new_raw_with_class_types(
-            tok.class_name.clone(),
+            Cow::Owned(tok.class_name.clone()),
             segment_type,
             tok.raw.to_string(),
             tok.pos_marker.clone(),

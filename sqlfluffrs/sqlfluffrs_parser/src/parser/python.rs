@@ -66,7 +66,7 @@ impl PyNode {
     fn segment_class(&self) -> Option<String> {
         match &self.0 {
             Node::Raw { segment_class, .. } | Node::Segment { segment_class, .. } => {
-                Some(segment_class.clone())
+                Some(segment_class.to_string())
             }
             _ => None,
         }
@@ -270,7 +270,10 @@ impl PyMatchResult {
     /// Get the matched class type as a string (or None)
     #[getter]
     fn matched_class(&self) -> Option<String> {
-        self.0.matched_class.as_ref().map(|s| s.class_name.clone())
+        self.0
+            .matched_class
+            .as_ref()
+            .map(|s| s.class_name.to_string())
     }
 
     /// Get child matches as a list of PyMatchResult objects
