@@ -3,7 +3,6 @@
 //! This module contains utility methods used by both iterative and recursive parsers
 //! including token navigation, whitespace handling, and terminator checking.
 
-use hashbrown::HashSet;
 use smallvec::SmallVec;
 
 use super::core::Parser;
@@ -291,14 +290,12 @@ impl<'a> Parser<'a> {
 
         // Get token properties for matching
         let first_raw = first_token.raw_upper();
-        let first_types: HashSet<String> = first_token.get_all_types();
 
         vdebug!(
-            "Pruning {} options at pos {} (token: '{}', types: {:?})",
+            "Pruning {} options at pos {} (token: '{}')",
             options.len(),
             self.pos,
-            first_raw,
-            first_types
+            first_raw
         );
 
         let mut available_options = Vec::new();
@@ -315,7 +312,12 @@ impl<'a> Parser<'a> {
                         .pruning_hinted
                         .set(self.metrics.pruning_hinted.get() + 1);
                     // Use hint to filter
-                    if tables.hint_can_match(hint, &first_raw, &first_types) {
+                    if tables.hint_can_match(
+                        hint,
+                        first_raw,
+                        &first_token.instance_types,
+                        &first_token.class_types,
+                    ) {
                         available_options.push(opt_id);
                     } else {
                         // Hint says no match possible - skip this option
