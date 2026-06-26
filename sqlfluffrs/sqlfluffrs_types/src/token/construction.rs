@@ -25,7 +25,6 @@ impl Token {
 
         let (token_types, class_types) = iter_base_types("base", class_types.clone());
         let raw_value = Token::normalize(&raw, quoted_value.clone(), escape_replacement.clone());
-        let raw_upper = raw.to_uppercase();
         Self {
             token_type: token_types,
             class_name: "BaseSegment".to_string(),
@@ -35,8 +34,7 @@ impl Token {
             is_meta: false,
             allow_empty: false,
             pos_marker: Some(pos_marker),
-            raw,
-            raw_upper,
+            raw: crate::token::RawString::new(raw),
             is_whitespace: false,
             is_code: true,
             is_comment: false,
