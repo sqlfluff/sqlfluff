@@ -231,7 +231,11 @@ impl Node {
                     NodeTupleValue::Tuple(type_str.to_string(), vec![])
                 }
             }
-            Node::Segment { children, .. } => {
+            Node::Segment {
+                children,
+                class_types,
+                ..
+            } => {
                 // Collect relevant children (respecting code_only and include_meta).
                 let relevant_children: Vec<&Node> = children
                     .iter()
@@ -246,23 +250,17 @@ impl Node {
                     })
                     .collect();
 
-                // Special case: if the segment has exactly one child that is a Raw node
-                // with the SAME segment_type as this Segment, treat this segment as a leaf.
-                // This handles cases where a Segment wrapper still exists around a single
-                // token of matching type (e.g. WordSegment wrapping word Raw node).
-                //
-                // We do NOT apply this when types differ (e.g. select_clause_element
-                // wrapping numeric_literal) — that must remain nested to match Python output.
-                if show_raw && relevant_children.len() == 1 {
-                    if let Node::Raw {
-                        raw,
-                        segment_type: child_type,
-                        ..
-                    } = relevant_children[0]
-                    {
-                        if self.get_type() == *child_type {
-                            return NodeTupleValue::Raw(self.get_type(), raw.clone());
-                        }
+                // Collapse a single-Raw-child Segment to a leaf `(type, raw)`,
+                // mirroring Python's bare `RawSegment`. Only raw-segment classes
+                // (LiteralSegment/WordSegment/...) are spurious wrappers here; they
+                // carry `"raw"` in `class_types`, while genuine containers
+                // (e.g. ColumnIndexSegment, FileLiteralSegment) lack it and stay nested.
+                if show_raw
+                    && relevant_children.len() == 1
+                    && class_types.iter().any(|t| t == "raw")
+                {
+                    if let Node::Raw { raw, .. } = relevant_children[0] {
+                        return NodeTupleValue::Raw(self.get_type(), raw.clone());
                     }
                 }
 

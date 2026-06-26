@@ -77,6 +77,75 @@ def test__config__load_file_missing_extra():
         )
 
 
+def test__config__load_with_config_dir(tmp_path):
+    """Test that a directory named like a config file does not crash loading.
+
+    https://github.com/sqlfluff/sqlfluff/issues/6617
+
+    A directory sharing the name of a config file (here a directory named
+    ``.sqlfluff``) used to be opened as if it were a config file, raising an
+    ``IsADirectoryError``. It should be ignored instead.
+    """
+    # Create a *directory* named `.sqlfluff` alongside a valid config file.
+    (tmp_path / ".sqlfluff").mkdir()
+    (tmp_path / "pyproject.toml").write_text(
+        '[tool.sqlfluff.core]\ndialect = "ansi"\n', encoding="utf-8"
+    )
+
+    try:
+        cfg = load_config_at_path(str(tmp_path))
+    finally:
+        clear_config_caches()
+
+    # The `.sqlfluff` directory is ignored and the valid config still loads.
+    assert cfg == {"core": {"dialect": "ansi"}}
+
+
+def test__config__load_extra_config_dir(tmp_path):
+    """Test a clean user error when an extra config path is a directory.
+
+    https://github.com/sqlfluff/sqlfluff/issues/6617
+
+    Passing a directory (e.g. via ``--config``) used to raise an
+    ``IsADirectoryError``. It should raise a ``SQLFluffUserError`` instead,
+    consistent with the not-found case.
+    """
+    (tmp_path / ".sqlfluff").mkdir()
+
+    with pytest.raises(SQLFluffUserError):
+        load_config_up_to_path(
+            str(tmp_path),
+            extra_config_path=str(tmp_path / ".sqlfluff"),
+        )
+
+
+def test__config__load_extra_config_tilde(tmp_path, monkeypatch):
+    """Test that an extra config path containing ``~`` is expanded.
+
+    ``Path.resolve()`` does not expand ``~``, so a quoted path such as
+    ``--config "~/.sqlfluff"`` used to be reported as not existing even when a
+    valid config file was present in the home directory. The path should be
+    expanded before the directory check and before loading.
+    """
+    # Point the home directory at tmp_path so that `~` expands here.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n", encoding="utf-8"
+    )
+
+    try:
+        cfg = load_config_up_to_path(
+            str(tmp_path),
+            extra_config_path="~/.sqlfluff",
+            ignore_local_config=True,
+        )
+    finally:
+        clear_config_caches()
+
+    assert cfg == {"core": {"dialect": "ansi"}}
+
+
 def test__config__load_nested():
     """Test nested overwrite and order of precedence of config files."""
     cfg = load_config_up_to_path(

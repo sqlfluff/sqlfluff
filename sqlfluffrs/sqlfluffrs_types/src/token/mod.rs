@@ -46,6 +46,7 @@ pub struct Token {
     pub allow_empty: bool,
     pub pos_marker: Option<PositionMarker>,
     pub raw: String,
+    pub raw_upper: String,
     is_whitespace: bool,
     is_code: bool,
     is_comment: bool,
@@ -128,8 +129,8 @@ impl Token {
         self.raw.clone()
     }
 
-    pub fn raw_upper(&self) -> String {
-        self.raw.to_uppercase()
+    pub fn raw_upper(&self) -> &str {
+        &self.raw_upper
     }
 
     /// Get the quoted_value pattern for this token (if any)
@@ -217,8 +218,9 @@ impl Token {
 
     pub fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
         self.raw_segments().iter().find_map(|seg| {
-            if !seg.raw_upper().trim().is_empty() {
-                Some(seg.raw_upper().clone())
+            let upper = seg.raw_upper();
+            if !upper.trim().is_empty() {
+                Some(upper.to_owned())
             } else {
                 None
             }
@@ -331,10 +333,12 @@ impl Token {
     }
 
     pub fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Self {
+        let new_raw = raw.unwrap_or(self.raw.clone());
         Self {
-            raw: raw.unwrap_or(self.raw.clone()),
+            raw_upper: new_raw.to_uppercase(),
+            raw: new_raw,
             source_fixes: Some(source_fixes.unwrap_or(self.source_fixes())),
-            uuid: Uuid::new_v4().as_u128(),
+            uuid: crate::identity::next_id(),
             ..self.clone()
         }
     }

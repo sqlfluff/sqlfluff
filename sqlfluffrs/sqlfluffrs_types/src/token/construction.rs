@@ -25,6 +25,7 @@ impl Token {
 
         let (token_types, class_types) = iter_base_types("base", class_types.clone());
         let raw_value = Token::normalize(&raw, quoted_value.clone(), escape_replacement.clone());
+        let raw_upper = raw.to_uppercase();
         Self {
             token_type: token_types,
             class_name: "BaseSegment".to_string(),
@@ -35,6 +36,7 @@ impl Token {
             allow_empty: false,
             pos_marker: Some(pos_marker),
             raw,
+            raw_upper,
             is_whitespace: false,
             is_code: true,
             is_comment: false,
@@ -49,7 +51,7 @@ impl Token {
             segments,
             preface_modifier: "".to_string(),
             suffix: "".to_string(),
-            uuid: Uuid::new_v4().as_u128(),
+            uuid: crate::identity::next_id(),
             source_fixes: None,
             trim_start,
             trim_chars,

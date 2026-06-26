@@ -206,11 +206,7 @@ impl Parser<'_> {
                     i
                 );
                 let cache_key = (i, term_id.0);
-                let cached = self
-                    .terminator_match_cache
-                    .borrow()
-                    .get(&cache_key)
-                    .copied();
+                let cached = self.terminator_match_cache.get(&cache_key).copied();
                 let matched = if let Some(hit) = cached {
                     hit
                 } else {
@@ -218,9 +214,7 @@ impl Parser<'_> {
                         .try_match_grammar(term_id, i, terminators)
                         .map(|end_pos| end_pos > i)
                         .unwrap_or(false);
-                    self.terminator_match_cache
-                        .borrow_mut()
-                        .insert(cache_key, result);
+                    self.terminator_match_cache.insert(cache_key, result);
                     result
                 };
                 if matched {

@@ -395,6 +395,52 @@ def test__rust_parser__trailing_non_code_segments():
     assert len(unparsable_segments) == 0
 
 
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_node_class_types_match_python():
+    """Regression: _rs_node leaf class_types must mirror Python's class_types.
+
+    A quoted-string MultiStringParser match (snowflake's quoted compression
+    value, e.g. ``'GZIP'``) previously lost its keyword class hierarchy in the
+    Rust node because aux_end was derived from the next grammar's offset, which
+    can be 0 and wrongly truncated the count-prefixed class_types read.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "snowflake", "use_rust_parser": True})
+    sql = (
+        "alter file format if exists my_avro_format set "
+        "type = AVRO compression = 'GZIP'"
+    )
+    segments, _ = Lexer(config=config).lex(sql)
+    tree = RustParser(config=config).parse(segments, fname="t.sql")
+
+    # Flatten the Rust node tree to its leaves (1:1 with raw_segments).
+    leaves = []
+
+    def _flatten(node):
+        children = node.children()
+        if children is None:
+            leaves.append(node)
+        else:
+            for child in children:
+                _flatten(child)
+
+    _flatten(tree._rs_node)
+    raws = tree.raw_segments
+    assert len(leaves) == len(raws)
+
+    # The quoted compression value carries the full keyword hierarchy and
+    # matches Python's class_types exactly.
+    checked_gzip = False
+    for leaf, raw_seg in zip(leaves, raws):
+        if raw_seg.raw.upper() == "'GZIP'":
+            checked_gzip = True
+            assert set(leaf.class_types() or []) == set(raw_seg.class_types)
+            assert "keyword" in (leaf.class_types() or [])
+    assert checked_gzip, "expected a quoted 'GZIP' compression value in the parse"
+
+
 # ---------------------------------------------------------------------------
 # Per-stage profiling
 # ---------------------------------------------------------------------------

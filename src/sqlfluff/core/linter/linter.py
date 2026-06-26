@@ -309,8 +309,9 @@ class Linter:
         if parsed is None:  # pragma: no cover
             return None, violations
 
-        linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))
-        linter_logger.info("\n" + parsed.stringify())
+        if linter_logger.isEnabledFor(logging.INFO):
+            linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))
+            linter_logger.info("\n" + parsed.stringify())
         # We may succeed parsing, but still have unparsable segments. Extract them
         # here.
         for unparsable in parsed.iter_unparsables():
@@ -331,8 +332,9 @@ class Linter:
                     segment=unparsable,
                 )
             )
-            linter_logger.info("Found unparsable segment...")
-            linter_logger.info(unparsable.stringify())
+            if linter_logger.isEnabledFor(logging.INFO):
+                linter_logger.info("Found unparsable segment...")
+                linter_logger.info(unparsable.stringify())
         return parsed, violations
 
     @staticmethod
@@ -699,8 +701,9 @@ class Linter:
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
 
-        linter_logger.info("\n###\n#\n# {}\n#\n###".format("Fixed Tree:"))
-        linter_logger.info("\n" + tree.stringify())
+        if linter_logger.isEnabledFor(logging.INFO):
+            linter_logger.info("\n###\n#\n# {}\n#\n###".format("Fixed Tree:"))
+            linter_logger.info("\n" + tree.stringify())
 
         return tree, initial_linting_errors, ignore_mask, rule_timings
 
