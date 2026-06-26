@@ -280,7 +280,8 @@ impl GrammarTables {
         &self,
         hint: &SimpleHintData,
         raw_upper: &str,
-        token_types: &hashbrown::HashSet<String>,
+        instance_types: &[String],
+        class_types: &hashbrown::HashSet<String>,
     ) -> bool {
         // Empty hint means "complex - can't determine", so return true (must try it)
         if hint.is_empty() {
@@ -297,12 +298,12 @@ impl GrammarTables {
             }
         }
 
-        // Check token types intersection
+        // Check token types: instance_types first (linear, small), then class_types (O(1))
         let types_start = hint.token_types_start as usize;
         let types_end = types_start + hint.token_types_count as usize;
         for i in types_start..types_end {
-            let str_idx = self.hint_string_indices[i] as usize;
-            if token_types.contains(self.strings[str_idx]) {
+            let type_str = self.strings[self.hint_string_indices[i] as usize];
+            if instance_types.iter().any(|t| t == type_str) || class_types.contains(type_str) {
                 return true;
             }
         }

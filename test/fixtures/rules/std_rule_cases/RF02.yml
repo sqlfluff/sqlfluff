@@ -694,3 +694,48 @@ test_pass_redshift_array_unnest:
   configs:
     core:
       dialect: redshift
+
+test_pass_databricks_star_except:
+  # Columns inside a SELECT * EXCEPT (...) clause name what to drop from the
+  # star expansion, so they don't need qualification.
+  # https://github.com/sqlfluff/sqlfluff/issues/5764
+  pass_str: |
+    SELECT
+        test.* EXCEPT (test_column),
+        test_2.*
+    FROM test
+    LEFT JOIN test_2 ON test.test_column = test_2.test_column
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_sparksql_star_except:
+  pass_str: |
+    SELECT a.* EXCEPT (col_one, col_two)
+    FROM table_a AS a
+    JOIN table_b AS b ON a.id = b.id
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_clickhouse_star_except:
+  pass_str: |
+    SELECT a.* EXCEPT (col_one, col_two)
+    FROM table_a AS a
+    JOIN table_b AS b ON a.id = b.id
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_unqualified_reference_with_star_except:
+  # The EXCEPT exclusion is scoped to the EXCEPT clause; a genuinely
+  # unqualified reference elsewhere in the select should still fail.
+  fail_str: |
+    SELECT
+        a.* EXCEPT (col_one),
+        col_two
+    FROM table_a AS a
+    JOIN table_b AS b ON a.id = b.id
+  configs:
+    core:
+      dialect: databricks

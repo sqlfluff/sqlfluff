@@ -26,6 +26,7 @@
 //! See the glossary in `ENGINE.md` for the full list.
 
 use hashbrown::HashMap;
+use smallvec::SmallVec;
 use std::sync::Arc;
 
 use crate::parser::MetaSegment;
@@ -82,7 +83,7 @@ pub enum FrameContext {
 #[derive(Debug, Clone)]
 pub struct AnyNumberOfState {
     pub grammar_id: GrammarId,
-    pub pruned_children: Vec<GrammarId>,
+    pub pruned_children: SmallVec<[GrammarId; 8]>,
     pub count: usize,
     pub matched_idx: usize,
     pub working_idx: usize,
@@ -192,7 +193,7 @@ pub struct SequenceState {
 pub struct OneOfState {
     pub grammar_id: GrammarId,
     /// Children after simple_hint pruning.
-    pub pruned_children: Vec<GrammarId>,
+    pub pruned_children: SmallVec<[GrammarId; 8]>,
     pub post_skip_pos: usize,
     /// Best candidate seen so far, as `(result, consumed, child_grammar_id)`
     /// where `consumed = child_end_pos - post_skip_pos` (token count, NOT an
@@ -218,9 +219,9 @@ pub struct OneOfState {
 #[derive(Debug, Clone)]
 pub struct RefState {
     pub grammar_id: GrammarId,
-    pub name: String,
-    pub segment_class_name: Option<String>,
-    pub segment_type: Option<String>,
+    pub name: &'static str,
+    pub segment_class_name: Option<&'static str>,
+    pub segment_type: Option<&'static str>,
     /// Position the child was started at (after any leading-transparent skip);
     /// the position restored when the child comes back empty.
     pub saved_pos: usize,
