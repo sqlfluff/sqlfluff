@@ -479,7 +479,7 @@ impl Parser<'_> {
             }
         };
 
-        let child = stack.results.get(&child_frame_id).cloned();
+        let child = stack.results.remove(&child_frame_id);
         vdebug!(
             "[RESULT GET] parent_frame_id={}, child_frame_id={}, child_found={}",
             frame.frame_id,

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a49075281a63bf5771627f5fcd4511135014998598777840aafd3d0bcfff031e
+_hash: 758894eb16eba25316e25a274e8e2196d72a92bd4be287ee1e295ef191569d7e
 file:
 - statement:
     create_view_statement:
@@ -138,13 +138,15 @@ file:
       - start_bracket: (
       - column_reference:
           naked_identifier: emp_id
-      - keyword: COMMENT
-      - quoted_literal: "'Employee ID'"
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'Employee ID'"
       - comma: ','
       - column_reference:
           naked_identifier: emp_name
-      - keyword: COMMENT
-      - quoted_literal: "'Full name'"
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'Full name'"
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -171,8 +173,9 @@ file:
     - keyword: VIEW
     - table_reference:
         naked_identifier: sales_summary
-    - keyword: COMMENT
-    - quoted_literal: "'Aggregated sales data by region'"
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Aggregated sales data by region'"
     - keyword: AS
     - select_statement:
         select_clause:
@@ -208,6 +211,34 @@ file:
         - keyword: BY
         - column_reference:
             naked_identifier: region
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: long_comment_view
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\
+          \ Integer nec dignissim diam, eu consectetur dolor. Aliquam vestibulum hendrerit\
+          \ massa ac dapibus. Duis luctus ut nunc quis mollis. Pellentesque at ultricies\
+          \ justo. Mauris nulla metus, posuere in lorem eget, mattis eleifend dui.\
+          \ In ullamcorper, enim id posuere mattis, urna ex tempus ipsum, ac bibendum\
+          \ neque arcu at mi. Pellentesque ultricies rutrum nibh a accumsan. Morbi\
+          \ non fermentum eros. Sed at nisl et purus suscipit congue. Vestibulum auctor\
+          \ vehicula maximus. In semper felis neque, eu condimentum lacus pharetra\
+          \ ut. Curabitur nibh metus, dapibus sed tellus ac, commodo porta orci.'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: col
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -441,16 +472,19 @@ file:
       - start_bracket: (
       - column_reference:
           naked_identifier: id
-      - keyword: COMMENT
-      - quoted_literal: "'Primary key'"
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'Primary key'"
       - comma: ','
       - column_reference:
           naked_identifier: value
-      - keyword: COMMENT
-      - quoted_literal: "'Metric value'"
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'Metric value'"
       - end_bracket: )
-    - keyword: COMMENT
-    - quoted_literal: "'A comprehensive view example'"
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'A comprehensive view example'"
     - keyword: DEFAULT
     - keyword: COLLATION
     - object_reference:
@@ -493,8 +527,9 @@ file:
     - keyword: VIEW
     - table_reference:
         naked_identifier: temp_summary
-    - keyword: COMMENT
-    - quoted_literal: "'Temporary summary for session'"
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Temporary summary for session'"
     - keyword: AS
     - select_statement:
         select_clause:

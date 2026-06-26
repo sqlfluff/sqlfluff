@@ -26,7 +26,7 @@ impl Parser<'_> {
 
         // Get rule name via GrammarContext helper which knows how names are
         // stored in aux_data (generator packs ref names into aux_data).
-        let rule_name = self.grammar_ctx.ref_name(grammar_id).to_string();
+        let rule_name = self.grammar_ctx.ref_name(grammar_id);
 
         vdebug!(
             "Ref[table] Initial: frame_id={}, pos={}, grammar_id={}, rule={}",
@@ -97,7 +97,7 @@ impl Parser<'_> {
         // If the explicit child grammar allows gaps, collect leading transparent
         // tokens so child parsing starts at the next non-transparent token.
         let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
-        let this_type = self.grammar_ctx.get_type(grammar_id);
+        let this_type = self.grammar_ctx.segment_type(grammar_id);
         let child_start_pos = if child_allows_gaps {
             self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
         } else {
@@ -107,10 +107,7 @@ impl Parser<'_> {
         // Determine the segment_class (Python class name) from tables
         // This is what gets stored in matched_class for Python lookup
         // e.g., "ProcedureDefinitionGrammar", "SelectStatementSegment", etc.
-        let table_segment_class = self
-            .grammar_ctx
-            .segment_class(grammar_id)
-            .map(|s| s.to_string());
+        let table_segment_class = self.grammar_ctx.segment_class(grammar_id);
 
         vdebug!(
             "Ref[table]: rule_name='{}', table_segment_class={:?}",
@@ -127,7 +124,7 @@ impl Parser<'_> {
             saved_pos: child_start_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             child_grammar_id,
-            match_result: Arc::new(MatchResult::empty_at(start_pos)),
+            match_result: None,
         });
 
         // CRITICAL: Set parent frame state to WaitingForChild so it will
@@ -188,7 +185,7 @@ impl Parser<'_> {
                 frame.frame_id,
                 child_end_pos
             );
-            state.match_result = Arc::clone(child_match);
+            state.match_result = Some(Arc::clone(child_match));
             self.pos = *child_end_pos;
             frame.end_pos = Some(*child_end_pos);
         } else {
@@ -227,19 +224,14 @@ impl Parser<'_> {
 
         vdebug!("Ref[table] Combining: frame_id={}", frame.frame_id,);
 
-        // Debug: print accumulated children to inspect whether typed tokens are present
-        if !state.match_result.is_empty() {
-            vdebug!(
-                "Ref[table] Combining DEBUG: accumulated nodes={:?}",
-                state.match_result
-            );
-        }
-
         // Build final result
         let final_pos = frame.end_pos.unwrap_or(frame.pos);
-        let result_match = if state.match_result.is_empty() {
-            MatchResult::empty_at(frame.pos)
-        } else {
+        let result_match = if let Some(ref_match_result) = &state.match_result {
+            // Debug: print accumulated children to inspect whether typed tokens are present
+            vdebug!(
+                "Ref[table] Combining DEBUG: accumulated nodes={:?}",
+                ref_match_result
+            );
             // TODO: make this cleaner
             // Python parity for leaf token grammars (CodeSegment, WordSegment etc.):
             // When `Ref("CodeSegment")` resolves to Token("raw") and matches a token,
@@ -255,12 +247,12 @@ impl Parser<'_> {
             let effective_segment_type = if let Some(seg_type) = state.segment_type.as_deref() {
                 // Check if the child match is a bare single-token match (no matched_class)
                 // by looking at the match_result's matched_class and slice length
-                let is_bare_token_match = state.match_result.matched_class.is_none()
-                    && state.match_result.matched_slice.len() == 1
-                    && state.match_result.child_matches.is_empty();
+                let is_bare_token_match = ref_match_result.matched_class.is_none()
+                    && ref_match_result.matched_slice.len() == 1
+                    && ref_match_result.child_matches.is_empty();
 
                 if is_bare_token_match {
-                    let token_idx = state.match_result.matched_slice.start;
+                    let token_idx = ref_match_result.matched_slice.start;
                     if let Some(tok) = self.tokens.get(token_idx) {
                         // Get effective type as &str WITHOUT cloning first so the common
                         // case (types already match) pays no allocation cost.
@@ -289,7 +281,7 @@ impl Parser<'_> {
                     seg_type.to_string()
                 }
             } else {
-                state.segment_type.clone().unwrap_or_default()
+                state.segment_type.unwrap_or_default().to_string()
             };
 
             vdebug!(
@@ -304,7 +296,11 @@ impl Parser<'_> {
                     Some(MatchedClass {
                         // take() instead of clone() + unwrap — frame context is not read
                         // again after this point (state transitions to Complete).
-                        class_name: state.segment_class_name.take().unwrap_or_default(),
+                        class_name: state
+                            .segment_class_name
+                            .take()
+                            .unwrap_or_default()
+                            .to_string(),
                         segment_type: Some(effective_segment_type),
                         segment_kwargs: SegmentKwargs {
                             class_types,
@@ -318,14 +314,15 @@ impl Parser<'_> {
             // let start_idx = self.skip_start_index_forward_to_code(*saved_pos, final_pos);
 
             MatchResult::ref_match(
-                // std::mem::take avoids a clone since the context won't be accessed again.
-                std::mem::take(&mut state.name),
+                state.name,
                 matched_class,
                 // start_idx,
                 state.saved_pos,
                 final_pos,
-                vec![state.match_result.clone()],
+                vec![Arc::clone(ref_match_result)],
             )
+        } else {
+            MatchResult::empty_at(frame.pos)
         };
 
         self.pos = final_pos;

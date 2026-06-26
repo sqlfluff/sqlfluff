@@ -2,6 +2,7 @@ pub mod config;
 pub mod grammar_api;
 pub mod grammar_inst;
 pub mod grammar_tables;
+pub mod identity;
 pub mod marker;
 pub mod matcher;
 pub mod parser;

@@ -397,6 +397,52 @@ def test__rust_parser__trailing_non_code_segments():
     assert len(unparsable_segments) == 0
 
 
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_node_class_types_match_python():
+    """Regression: arena leaf class_types must mirror Python's class_types.
+
+    A quoted-string MultiStringParser match (snowflake's quoted compression
+    value, e.g. ``'GZIP'``) previously lost its keyword class hierarchy in the
+    Rust node because aux_end was derived from the next grammar's offset, which
+    can be 0 and wrongly truncated the count-prefixed class_types read.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "snowflake", "use_rust_parser": True})
+    sql = (
+        "alter file format if exists my_avro_format set "
+        "type = AVRO compression = 'GZIP'"
+    )
+    segments, _ = Lexer(config=config).lex(sql)
+    tree = RustParser(config=config).parse(segments, fname="t.sql")
+
+    # Flatten the Rust arena to its leaves (1:1 with raw_segments).
+    leaves = []
+
+    def _flatten(handle):
+        children = handle.children
+        if not children:
+            leaves.append(handle)
+        else:
+            for child in children:
+                _flatten(child)
+
+    _flatten(tree._rs_tree.root)
+    raws = tree.raw_segments
+    assert len(leaves) == len(raws)
+
+    # The quoted compression value carries the full keyword hierarchy and
+    # matches Python's class_types exactly.
+    checked_gzip = False
+    for leaf, raw_seg in zip(leaves, raws):
+        if raw_seg.raw.upper() == "'GZIP'":
+            checked_gzip = True
+            assert set(leaf.class_types() or []) == set(raw_seg.class_types)
+            assert "keyword" in (leaf.class_types() or [])
+    assert checked_gzip, "expected a quoted 'GZIP' compression value in the parse"
+
+
 # ---------------------------------------------------------------------------
 # Per-stage profiling
 # ---------------------------------------------------------------------------
@@ -407,7 +453,11 @@ def test__rust_parser__profiling_records_stage_timings():
     """Enabling profiling records per-stage wall-clock timings for a parse."""
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
-    from sqlfluff.core.parser.rust_parser import get_parse_profile, set_profiling
+    from sqlfluff.core.parser.rust_parser import (
+        get_parse_profile,
+        reset_parse_profile,
+        set_profiling,
+    )
 
     config = FluffConfig(overrides={"dialect": "ansi"})
     parser = RustParser(config=config)
@@ -415,6 +465,7 @@ def test__rust_parser__profiling_records_stage_timings():
     segments, _ = lexer.lex("SELECT 1 FROM my_table")
 
     set_profiling(True)
+    reset_parse_profile()  # profile accumulates; isolate from other tests
     try:
         result = parser.parse(segments, fname="test.sql")
         profile = get_parse_profile()
@@ -423,31 +474,50 @@ def test__rust_parser__profiling_records_stage_timings():
 
     assert result is not None
     # All four stages should be recorded, each a non-negative duration.
-    assert set(profile) == {"rust_core", "convert", "apply", "apply_as_node"}
+    assert set(profile) == {"rust_core", "convert", "apply", "apply_as_tree"}
     assert all(v >= 0.0 for v in profile.values())
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-def test__rust_parser__profiling_cleared_for_no_code_input():
-    """A no-code parse clears the profile rather than leaving stale timings."""
+def test__rust_parser__profiling_accumulates_and_resets():
+    """Timings accumulate across parses (e.g. template variants) until reset.
+
+    parse() runs once per rendered variant, so the profile sums across parses
+    rather than recording only the last one. reset_parse_profile() scopes it,
+    and a no-code parse (early return) contributes nothing.
+    """
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
-    from sqlfluff.core.parser.rust_parser import get_parse_profile, set_profiling
+    from sqlfluff.core.parser.rust_parser import (
+        get_parse_profile,
+        reset_parse_profile,
+        set_profiling,
+    )
 
     config = FluffConfig(overrides={"dialect": "ansi"})
     parser = RustParser(config=config)
     lexer = Lexer(config=config)
+    code_segments, _ = lexer.lex("SELECT 1 FROM my_table")
 
     set_profiling(True)
     try:
-        # First parse real SQL so the profile is populated.
-        code_segments, _ = lexer.lex("SELECT 1")
-        parser.parse(code_segments, fname="code.sql")
-        assert get_parse_profile()  # non-empty
+        # reset clears the accumulator.
+        reset_parse_profile()
+        assert get_parse_profile() == {}
 
-        # A comment-only input has no code segments and takes the early-return
-        # path; the profile must be cleared, not carried over from the parse
-        # above.
+        # First parse populates it.
+        parser.parse(code_segments, fname="code.sql")
+        after_one = get_parse_profile()
+        assert after_one
+
+        # A second parse (no reset) accumulates on top — it does not overwrite,
+        # so the rust_core total strictly increases.
+        parser.parse(code_segments, fname="code.sql")
+        after_two = get_parse_profile()
+        assert after_two["rust_core"] > after_one["rust_core"]
+
+        # After a reset, a no-code parse (early return) adds nothing.
+        reset_parse_profile()
         nocode_segments, _ = lexer.lex("-- just a comment\n")
         parser.parse(nocode_segments, fname="nocode.sql")
         assert get_parse_profile() == {}
@@ -536,3 +606,63 @@ def test__rust_parser__native_ast_profile_has_no_convert_stage():
     assert "rust_core" in profile
     assert "apply" in profile
     assert "convert" not in profile
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_tree_arena_navigation():
+    """The Rust arena (``_rs_tree``) mirrors the Python tree for navigation.
+
+    Smoke test for the RsTree/RsHandle façade substrate: the arena is ingested
+    from the same node as the BaseSegment tree, so walking it to its leaves is
+    1:1 with ``raw_segments``, handle accessors return the expected scalars, and
+    parent/child links are consistent.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi", "use_rust_parser": True})
+    sql = "SELECT a, b FROM my_table WHERE a > 1\n"
+    segments, _ = Lexer(config=config).lex(sql)
+    tree = RustParser(config=config).parse(segments, fname="t.sql")
+
+    rs_tree = tree._rs_tree
+    assert rs_tree is not None
+    root = rs_tree.root
+
+    # Root handle basics.
+    assert root.type == "file"
+    assert root.parent is None
+    assert root.raw == tree.raw
+
+    # Flatten the arena to its leaves (nodes with no children).
+    leaves = []
+
+    def _flatten(handle):
+        children = handle.children
+        if not children:
+            leaves.append(handle)
+        else:
+            for child in children:
+                # Parent links round-trip with child links.
+                assert child.parent == handle
+                _flatten(child)
+
+    _flatten(root)
+
+    raws = tree.raw_segments
+    assert len(leaves) == len(raws)
+
+    # Leaf scalars line up with the Python raw_segments, position by position.
+    # NOTE: class_types is a subset, not equality — the arena faithfully carries
+    # whatever the node tree has, but the full keyword hierarchy enrichment
+    # (e.g. the inherited ``word`` type) is a separate fidelity fix not assumed
+    # by this substrate test.
+    for leaf, raw_seg in zip(leaves, raws):
+        assert leaf.raw == raw_seg.raw
+        assert leaf.type == raw_seg.get_type()
+        assert set(leaf.class_types() or []) <= set(raw_seg.class_types)
+
+    # The "FROM" keyword is reachable and typed.
+    assert any(
+        leaf.raw.upper() == "FROM" and leaf.is_type(["keyword"]) for leaf in leaves
+    )

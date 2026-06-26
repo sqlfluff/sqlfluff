@@ -317,7 +317,7 @@ impl PyToken {
 
     #[getter]
     pub fn raw_upper(&self) -> String {
-        self.0.raw_upper()
+        self.0.raw_upper().to_owned()
     }
 
     pub fn invalidate_caches(&self) {}

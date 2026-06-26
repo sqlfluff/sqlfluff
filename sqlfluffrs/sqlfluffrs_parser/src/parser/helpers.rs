@@ -3,7 +3,6 @@
 //! This module contains utility methods used by both iterative and recursive parsers
 //! including token navigation, whitespace handling, and terminator checking.
 
-use hashbrown::HashSet;
 use smallvec::SmallVec;
 
 use super::core::Parser;
@@ -269,7 +268,7 @@ impl<'a> Parser<'a> {
     /// Prune options for table-driven parsing based on simple hints.
     ///
     /// This is the table-driven equivalent of prune_options().
-    pub(crate) fn prune_options(&mut self, options: &[GrammarId]) -> Vec<GrammarId> {
+    pub(crate) fn prune_options(&mut self, options: &[GrammarId]) -> SmallVec<[GrammarId; 8]> {
         // Track stats
         self.metrics
             .pruning_calls
@@ -286,22 +285,20 @@ impl<'a> Parser<'a> {
             self.metrics
                 .pruning_kept
                 .set(self.metrics.pruning_kept.get() + options.len());
-            return options.to_vec();
+            return SmallVec::from_slice(options);
         };
 
         // Get token properties for matching
         let first_raw = first_token.raw_upper();
-        let first_types: HashSet<String> = first_token.get_all_types();
 
         vdebug!(
-            "Pruning {} options at pos {} (token: '{}', types: {:?})",
+            "Pruning {} options at pos {} (token: '{}')",
             options.len(),
             self.pos,
-            first_raw,
-            first_types
+            first_raw
         );
 
-        let mut available_options = Vec::new();
+        let mut available_options = SmallVec::<[GrammarId; 8]>::new();
 
         // Get grammar tables if available
         let tables = Some(self.grammar_ctx.tables());
@@ -315,7 +312,12 @@ impl<'a> Parser<'a> {
                         .pruning_hinted
                         .set(self.metrics.pruning_hinted.get() + 1);
                     // Use hint to filter
-                    if tables.hint_can_match(hint, &first_raw, &first_types) {
+                    if tables.hint_can_match(
+                        hint,
+                        first_raw,
+                        &first_token.instance_types,
+                        &first_token.class_types,
+                    ) {
                         available_options.push(opt_id);
                     } else {
                         // Hint says no match possible - skip this option
@@ -521,7 +523,7 @@ impl<'a> Parser<'a> {
 
             // Check terminator match cache first - key is (position after skipping transparent, grammar_id)
             let cache_key = (saved_pos, term_id.0);
-            if let Some(&cached_result) = self.terminator_match_cache.borrow().get(&cache_key) {
+            if let Some(&cached_result) = self.terminator_match_cache.get(&cache_key) {
                 vdebug!(
                     "  TERMCACHE HIT at pos {} for {:?}: {}",
                     saved_pos,
@@ -549,9 +551,7 @@ impl<'a> Parser<'a> {
                 self.pos = check_pos;
 
                 // Cache the result
-                self.terminator_match_cache
-                    .borrow_mut()
-                    .insert(cache_key, !is_empty);
+                self.terminator_match_cache.insert(cache_key, !is_empty);
 
                 if !is_empty {
                     vdebug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
@@ -564,9 +564,7 @@ impl<'a> Parser<'a> {
             } else {
                 self.pos = check_pos;
                 // Cache the failure
-                self.terminator_match_cache
-                    .borrow_mut()
-                    .insert(cache_key, false);
+                self.terminator_match_cache.insert(cache_key, false);
             }
             vdebug!("  Terminator did not match (table-driven): {:?}", term_id);
         }
@@ -579,7 +577,7 @@ impl<'a> Parser<'a> {
     /// Prune terminators for table-driven parsing based on simple matchers.
     ///
     /// This is the table-driven equivalent of prune_terminators().
-    fn prune_terminators(&mut self, terminators: &[GrammarId]) -> Vec<GrammarId> {
+    fn prune_terminators(&mut self, terminators: &[GrammarId]) -> SmallVec<[GrammarId; 8]> {
         // Reuse the same pruning logic as prune_options
         self.prune_options(terminators)
     }
