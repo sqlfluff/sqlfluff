@@ -11,7 +11,8 @@ class Rule_CV13(BaseRule):
     """The final ``SELECT`` of a CTE model should be ``SELECT * FROM ...``.
 
     This is a convention popularised by the dbt
-    `coding conventions <https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md>`_,
+    `style guide
+    <https://docs.getdbt.com/best-practices/how-we-style/0-how-we-style-our-dbt-projects>`_,
     where the final statement of a model is a "passthrough" select from the last
     CTE. Keeping the final select as ``SELECT * FROM final`` makes a model easier
     to debug, because the source of the final result set can be swapped by
