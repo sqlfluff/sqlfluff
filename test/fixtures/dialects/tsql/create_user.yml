@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dec9cf9f72ec3b863a3155b45a150641d1f0dd342a7aece9c66dd6824d3d9c6b
+_hash: be16a4136a713d76f60d96ff59b23a4e6073ee08446eca7a6aed9153bda04802
 file:
   batch:
   - statement:
@@ -80,6 +80,11 @@ file:
           raw_comparison_operator: '='
       - object_reference:
           naked_identifier: Other
+      - comma: ','
+      - keyword: DEFAULT_LANGUAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: British
   - statement_terminator: ;
   - statement:
       create_user_statement:
@@ -92,6 +97,17 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: 'ON'
+      - comma: ','
+      - keyword: DEFAULT_SCHEMA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          quoted_identifier: '[dbo]'
+      - comma: ','
+      - keyword: DEFAULT_LANGUAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: '[Chinese]'
   - statement_terminator: ;
   - statement:
       create_user_statement:
@@ -109,6 +125,11 @@ file:
           raw_comparison_operator: '='
       - object_reference:
           naked_identifier: Marketing
+      - comma: ','
+      - keyword: DEFAULT_LANGUAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: '"French"'
   - statement_terminator: ;
   - statement:
       create_user_statement:
