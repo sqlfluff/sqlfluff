@@ -198,7 +198,10 @@ def _check_references(
         # tbl``) refers to the whole row, not a column. It neither needs
         # qualification nor counts towards single-table consistency, so qualifying
         # it as ``tbl.tbl`` would be invalid.
-        if this_ref_type == "unqualified" and ref.raw == table_ref_str:
+        if (
+            this_ref_type == "unqualified"
+            and ref.raw_normalized(casefold=False) == table_ref_str
+        ):
             continue
         if this_ref_type == "qualified" and is_struct_dialect:
             # If this col appears "qualified" check if it is more logically a struct.

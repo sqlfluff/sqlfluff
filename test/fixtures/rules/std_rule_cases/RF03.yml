@@ -160,7 +160,6 @@ test_tsql_pivot_are_excluded:
     core:
       dialect: tsql
 
-
 test_date_functions_are_excluded:
   # This should pass as date keywords columns do not need to be
   # qualified
@@ -657,6 +656,19 @@ test_pass_postgres_whole_row_json_operator:
   pass_str: |
     SELECT pattern_obj ->> 'col' AS c
     FROM jsonb_array_elements('[]'::jsonb) AS pattern_obj
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_pass_postgres_quoted_whole_row_json_operator:
+  # Quoted aliases should use normalized identifier matching for the same
+  # whole-row-reference exemption, rather than comparing the quoted raw text.
+  pass_str: |
+    SELECT "Pattern_Obj" ->> 'col' AS c
+    FROM jsonb_array_elements('[]'::jsonb) AS "Pattern_Obj"
   configs:
     core:
       dialect: postgres
