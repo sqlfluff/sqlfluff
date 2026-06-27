@@ -93,6 +93,7 @@ clickhouse_dialect.add(
         type="quoted_identifier",
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question"),
 )
 
 clickhouse_dialect.replace(
@@ -1005,6 +1006,26 @@ class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
         Ref("WildcardIdentifierSegment"),
         Ref("ExceptClauseSegment", optional=True),
         AnyNumberOf(Ref("ApplyClauseSegment")),
+    )
+
+
+class ExpressionSegment(ansi.ExpressionSegment):
+    """An expression, optionally with a C-style ternary conditional.
+
+    ClickHouse supports the ternary conditional operator
+    ``cond ? then : else`` as shorthand for ``if(cond, then, else)``.
+    https://clickhouse.com/docs/en/sql-reference/functions/conditional-functions#ternary-operator
+    """
+
+    match_grammar = Sequence(
+        Ref("Expression_A_Grammar"),
+        Sequence(
+            Ref("QuestionMarkSegment"),
+            Ref("ExpressionSegment"),
+            Ref("ColonSegment"),
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
     )
 
 
