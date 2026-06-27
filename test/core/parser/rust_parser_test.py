@@ -1,5 +1,7 @@
 """Tests for the RustParser error handling and iteration limits."""
 
+from pathlib import Path
+
 import pytest
 
 from sqlfluff.core.errors import SQLFluffUserError
@@ -521,6 +523,91 @@ def test__rust_parser__profiling_accumulates_and_resets():
         assert get_parse_profile() == {}
     finally:
         set_profiling(False)
+
+
+# ---------------------------------------------------------------------------
+# Native (fused) AST builder parity
+# ---------------------------------------------------------------------------
+
+# All dialect fixtures, parametrized as (dialect, sqlfile). Parity must hold for
+# every dialect since the flag affects all of them; covering the whole corpus
+# also exercises the fused builder's rarer branches (e.g. zero-length matches).
+_FIXTURE_DIR = Path(__file__).resolve().parents[3] / "test" / "fixtures" / "dialects"
+_FIXTURE_SQL = sorted(_FIXTURE_DIR.glob("*/*.sql"))
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "sqlfile",
+    _FIXTURE_SQL,
+    ids=[str(p.relative_to(_FIXTURE_DIR)) for p in _FIXTURE_SQL],
+)
+def test__rust_parser__native_ast_parity(sqlfile):
+    """The fused builder must produce the same tree as convert+apply.
+
+    For every dialect fixture, parse the same lexer output twice - once via the
+    legacy convert+apply path and once via the fused native builder - and assert
+    the resulting BaseSegment trees (or raised exceptions) are identical. Both
+    paths use the same config, so this isolates the tree-building difference.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+    from sqlfluff.core.parser.rust_parser import set_native_ast
+
+    config = FluffConfig(overrides={"dialect": sqlfile.parent.name})
+    segments, _ = Lexer(config=config).lex(sqlfile.read_text(encoding="utf-8"))
+
+    def build(native: bool):
+        set_native_ast(native)
+        try:
+            tree = RustParser(config=config).parse(segments, fname=str(sqlfile))
+            return (
+                "tree",
+                tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
+                if tree
+                else None,
+            )
+        except BaseException as err:  # PanicException is a BaseException
+            return ("exc", type(err).__name__)
+        finally:
+            set_native_ast(False)
+
+    assert build(native=True) == build(native=False)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__native_ast_profile_has_no_convert_stage():
+    """With the native builder, profiling records no separate convert stage.
+
+    Exercises the profiling timers on the native branch of parse() and confirms
+    the fused builder folds convert into a single pass.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+    from sqlfluff.core.parser.rust_parser import (
+        get_parse_profile,
+        reset_parse_profile,
+        set_native_ast,
+        set_profiling,
+    )
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    segments, _ = Lexer(config=config).lex("SELECT a, b FROM my_table WHERE a = 1")
+
+    set_profiling(True)
+    set_native_ast(True)
+    reset_parse_profile()  # profile accumulates; scope to this parse
+    try:
+        RustParser(config=config).parse(segments, fname="test.sql")
+        profile = get_parse_profile()
+    finally:
+        set_native_ast(False)
+        set_profiling(False)
+
+    # rust_core + the fused build are timed; convert no longer runs.
+    assert "rust_core" in profile
+    assert "apply" in profile
+    assert "convert" not in profile
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")

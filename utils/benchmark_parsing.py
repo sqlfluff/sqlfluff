@@ -13,7 +13,7 @@ Usage:
     python benchmark_parsing.py --dialect ansi --rust-only --profile  # stage breakdown
 
 The --profile flag breaks the Rust parse down by internal stage
-(rust_core/convert/apply/apply_as_node); it requires the Rust parser
+(rust_core/convert/apply/apply_as_tree); it requires the Rust parser
 (--compare or --rust-only) and has no effect on the pure-Python parser.
 """
 
@@ -33,7 +33,7 @@ from sqlfluff.core.parser.rust_parser import (
 )
 
 # Stages reported by the Rust parser's per-stage profiler, in execution order.
-_PROFILE_STAGES = ("rust_core", "convert", "apply", "apply_as_node")
+_PROFILE_STAGES = ("rust_core", "convert", "apply", "apply_as_tree")
 
 
 def find_sql_files(
@@ -545,7 +545,7 @@ def print_profile_summary(rust_results: list[dict]) -> None:
     print("=" * 80)
     print(
         "Stages: rust_core (Rust parse) | convert (Python MatchResult rebuild) |\n"
-        "        apply (build BaseSegment tree) | apply_as_node (build _rs_node)"
+        "        apply (build BaseSegment tree) | apply_as_tree (build _rs_tree)"
     )
 
     ok = [r for r in rust_results if r.get("success") and r.get("stage_profile")]
@@ -620,7 +620,7 @@ def main():
         "--profile",
         action="store_true",
         help="Break down Rust parse time by internal stage "
-        "(rust_core/convert/apply/apply_as_node)",
+        "(rust_core/convert/apply/apply_as_tree)",
     )
 
     args = parser.parse_args()
