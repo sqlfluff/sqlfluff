@@ -389,7 +389,7 @@ impl Lexer {
             let raw = tokens[idx].raw();
 
             // Check if this is an opening bracket
-            if let Some(open_char) = match raw.as_str() {
+            if let Some(open_char) = match raw {
                 "(" => Some('('),
                 "[" => Some('['),
                 "{" => Some('{'),
@@ -398,7 +398,7 @@ impl Lexer {
                 bracket_stack.push((idx, open_char));
             }
             // Check if this is a closing bracket
-            else if let Some(expected_open) = match raw.as_str() {
+            else if let Some(expected_open) = match raw {
                 ")" => Some('('),
                 "]" => Some('['),
                 "}" => Some('{'),

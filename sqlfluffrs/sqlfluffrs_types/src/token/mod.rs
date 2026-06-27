@@ -6,7 +6,7 @@ pub mod fix;
 mod fmt;
 pub mod path;
 mod raw_string;
-pub use raw_string::RawString;
+pub(crate) use raw_string::RawString;
 
 use std::{
     fmt::Write,
@@ -126,8 +126,8 @@ impl Token {
         }
     }
 
-    pub fn raw(&self) -> String {
-        self.raw.as_str().to_owned()
+    pub fn raw(&self) -> &str {
+        self.raw.as_str()
     }
 
     pub fn raw_upper(&self) -> &str {

@@ -238,7 +238,7 @@ impl Parser<'_> {
                 let end_idx = child_end_pos_val.min(self.tokens.len());
                 if start_idx < end_idx {
                     for tok in &self.tokens[start_idx..end_idx] {
-                        candidate_tokens.push(tok.raw().to_string());
+                        candidate_tokens.push(tok.raw().to_owned());
                     }
                 }
             }

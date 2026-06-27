@@ -161,7 +161,7 @@ pub struct PyToken(pub Token);
 impl PyToken {
     #[getter]
     pub fn raw(&self) -> String {
-        self.0.raw()
+        self.0.raw().to_owned()
     }
 
     pub fn raw_trimmed(&self) -> String {
