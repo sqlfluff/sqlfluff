@@ -26,6 +26,8 @@ pub(crate) mod types;
 pub(crate) mod arena_py;
 #[cfg(feature = "python")]
 pub mod python;
+#[cfg(feature = "python")]
+mod rules_cp01; // Experimental Rust-native CP01 detection over the arena
 
 // Re-export public types
 pub use core::Parser;

@@ -72,6 +72,26 @@ impl PyTree {
         id.map(|n| self.handle(n))
     }
 
+    /// Experimental: detect CP01 (keyword capitalisation) violations natively.
+    ///
+    /// Walks the arena once in Rust and returns `(leaf_index, fixed_raw)` for
+    /// each keyword/operator node needing a fix, where `leaf_index` is the
+    /// position in the depth-first leaf order (1:1 with Python `raw_segments`).
+    /// The whole detection loop runs in Rust (one FFI crossing for the result);
+    /// the caller anchors via `raw_segments[leaf_index]`. Read-only — no
+    /// mutation of the arena.
+    #[pyo3(signature = (policy, ignore_words=vec![], ignore_templated=false))]
+    fn cp01_violations(
+        &self,
+        policy: &str,
+        ignore_words: Vec<String>,
+        ignore_templated: bool,
+    ) -> Vec<(usize, String)> {
+        let ignore: std::collections::HashSet<String> = ignore_words.into_iter().collect();
+        let arena = self.inner.lock().unwrap();
+        crate::parser::rules_cp01::cp01_violations(&arena, policy, &ignore, ignore_templated)
+    }
+
     fn __repr__(&self) -> String {
         format!("RsTree(nodes={})", self.inner.lock().unwrap().len())
     }

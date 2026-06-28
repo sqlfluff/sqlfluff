@@ -16,10 +16,16 @@ from 5.0.
 - **Lexer** — done; Rust tokenizes and returns `RsToken`s that Python wraps.
 - **Parser** — core done for **all dialects**, but **hybrid**: Rust returns a
   lightweight `MatchResult` (slices/classes/inserts); Python's
-  `MatchResult.apply()` still builds the `BaseSegment` AST. A parallel Rust node
-  tree (`_rs_node`) is built and cached for future Rust-side rules.
-- **Linting rules & fixing** — **not migrated**; 100% Python. The `_rs_node`
-  hook exists but currently has no consumers.
+  `MatchResult.apply()` still builds the `BaseSegment` AST. A parallel,
+  id-addressable Rust arena (`_rs_tree`, `RsTree`/`RsHandle`) is built and cached
+  as the substrate for Rust-side rules (read-only to Python today).
+- **Linting rules & fixing** — **not migrated**; 100% Python. One **experimental
+  prototype** exists: `RsTree.cp01_violations(...)` runs CP01's detection loop
+  natively over the arena (validated at parity with stock CP01), but it is **not
+  wired into rule dispatch** — the Python rule still runs. It currently lives in
+  the parser crate (`parser/rules_cp01.rs`) as scaffolding; a production home (a
+  `rules` module) and dispatch/gating are pending an arena public-API decision.
+  See `parser/rules_cp01.rs` and PR #7984.
 
 **Not a replacement**: the Rust components work alongside Python. When
 `sqlfluffrs` is unavailable, Python falls back transparently (auto mode).
