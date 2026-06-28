@@ -9,6 +9,13 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
+try:
+    import sqlfluffrs
+
+    _HAS_SQLFLUFFRS = True
+except ImportError:  # pragma: no cover
+    _HAS_SQLFLUFFRS = False
+
 
 def is_capitalizable(character: str) -> bool:
     """Does the character have differing lower and upper-case versions?"""
@@ -65,6 +72,71 @@ class Rule_CP01(BaseRule):
     config_keywords = ["capitalisation_policy", "ignore_words", "ignore_words_regex"]
     # Human readable target elem for description
     _description_elem = "Keywords"
+
+    def _eval_rust(self, context: RuleContext) -> Optional[list[LintResult]]:
+        """Rust-native CP01 detection over the arena.
+
+        Runs the whole detection in Rust (`sqlfluffrs.cp01_violations` over
+        `root._rs_tree`) and maps each `(leaf_index, fixed_raw)` back to its
+        Python segment to emit a standard `LintFix`. Returns ``None`` (Python
+        fallback) when the Rust extension/arena is unavailable, or for any
+        config the native path doesn't implement (a non-keyword policy or a
+        regex word-ignore). See ``BaseRule._eval_rust``.
+        """
+        if not _HAS_SQLFLUFFRS:
+            return None
+        root = context.segment
+        rs_tree = getattr(root, "_rs_tree", None)
+        if rs_tree is None:
+            return None
+
+        policy = str(self.capitalisation_policy)
+        if policy not in ("consistent", "upper", "lower", "capitalise"):
+            return None
+        if getattr(self, "ignore_words_regex", None):
+            return None
+
+        ignore_words_config = str(getattr(self, "ignore_words", None))
+        if ignore_words_config and ignore_words_config != "None":
+            ignore_words = self.split_comma_separated_string(
+                ignore_words_config.lower()
+            )
+        else:
+            ignore_words = []
+        ignore_templated = bool(context.config.get("ignore_templated_areas"))
+
+        violations = sqlfluffrs.cp01_violations(
+            rs_tree, policy, ignore_words, ignore_templated
+        )
+        if not violations:
+            return []
+
+        raw_segments = root.raw_segments
+        consistency = "consistently " if policy == "consistent" else ""
+        results: list[LintResult] = []
+        for leaf_idx, fixed_raw in violations:
+            segment = raw_segments[leaf_idx]
+            # Concrete policy for the message (mirrors stock CP01 wording); for
+            # "consistent" it is inferred from the fix that was chosen.
+            concrete = policy
+            if policy == "consistent":
+                if fixed_raw == segment.raw.upper():
+                    concrete = "upper"
+                elif fixed_raw == segment.raw.lower():
+                    concrete = "lower"
+                else:
+                    concrete = "capitalise"
+            policy_text = "capitalised." if concrete == "capitalise" else f"{concrete} case."
+            results.append(
+                LintResult(
+                    anchor=segment,
+                    fixes=[self._get_fix(segment, fixed_raw)],
+                    description=(
+                        f"{self._description_elem} must be {consistency}{policy_text}"
+                    ),
+                )
+            )
+        return results
 
     def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Inconsistent capitalisation of keywords.

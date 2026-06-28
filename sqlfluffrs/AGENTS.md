@@ -19,14 +19,15 @@ from 5.0.
   `MatchResult.apply()` still builds the `BaseSegment` AST. A parallel,
   id-addressable Rust arena (`_rs_tree`, `RsTree`/`RsHandle`) is built and cached
   as the substrate for Rust-side rules (read-only to Python today).
-- **Linting rules & fixing** — **not migrated**; 100% Python. One **experimental
-  rule** exists: CP01 detection in the `sqlfluffrs_rules` crate, run over the
-  arena's public read API (`sqlfluffrs_parser::Arena`) and exposed as the
-  `sqlfluffrs.cp01_violations(tree, …)` function. Validated at parity with stock
-  CP01, but **not wired into rule dispatch** — the Python rule still runs, and
-  fixes are applied Python-side (anchored by leaf index). Dispatch/gating (e.g.
-  `use_rust_rules`) and Rust-side fixing are still to come. See
-  `sqlfluffrs_rules/` and PR #7984.
+- **Linting rules** — mostly Python; **one experimental rule is wired end to
+  end**. CP01 detection lives in the `sqlfluffrs_rules` crate, runs over the
+  arena's public read API (`sqlfluffrs_parser::Arena`), and is dispatched by the
+  linter via `BaseRule._eval_rust` when **`core.use_rust_rules`** is enabled
+  (default `False`; also requires the Rust parser's arena, else it falls back
+  per-rule to Python). Validated at parity with stock CP01. **Fixing is still
+  Python-side** — the Rust rule returns `(leaf_index, fixed_raw)` and the linter
+  anchors a `LintFix`; Rust-side (mutating) fixing waits on the arena mutation
+  milestone. See `sqlfluffrs_rules/`, `BaseRule._eval_rust`, and PR #7984.
 
 **Not a replacement**: the Rust components work alongside Python. When
 `sqlfluffrs` is unavailable, Python falls back transparently (auto mode).

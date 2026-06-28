@@ -487,6 +487,34 @@ class BaseRule(metaclass=RuleMetaclass):
             ).format(self.__class__.__name__)
         )  # pragma: no cover
 
+    @staticmethod
+    def _rust_rules_enabled(config: "FluffConfig") -> bool:
+        """Whether Rust-native rule detection is enabled (core.use_rust_rules)."""
+        return config.get_section(["core", "use_rust_rules"]) in (
+            "auto",
+            "Auto",
+            "AUTO",
+            True,
+            "True",
+            "true",
+            1,
+        )
+
+    def _eval_rust(self, context: RuleContext) -> Optional[list[LintResult]]:
+        """Optionally evaluate the whole rule natively in Rust.
+
+        Override in a rule to compute *all* of its ``LintResult``s in one pass
+        over the Rust arena (``context.segment._rs_tree`` — ``context`` is the
+        root context here), instead of the per-segment Python ``_eval`` crawl.
+
+        Return ``None`` (the default) to use the Python path. Only consulted
+        when ``core.use_rust_rules`` is enabled and the parse produced an arena;
+        the returned results are post-processed identically to ``_eval``
+        results, so a rule should also return ``None`` for any configuration it
+        does not implement natively (so it falls back to Python).
+        """
+        return None
+
     def crawl(
         self,
         tree: BaseSegment,
@@ -518,6 +546,27 @@ class BaseRule(metaclass=RuleMetaclass):
         )
         vs: list[SQLLintError] = []
         fixes: list[LintFix] = []
+
+        # Experimental: whole-rule Rust-native dispatch (opt-in via
+        # core.use_rust_rules). When enabled and the parse produced an arena, a
+        # rule may compute all of its results in one pass over root._rs_tree
+        # (see _eval_rust) instead of the per-segment Python crawl. The results
+        # are post-processed identically to _eval results. Rules without a Rust
+        # path — or parses with no arena (Python parser) — fall through to the
+        # Python crawl below.
+        if self._rust_rules_enabled(config) and getattr(tree, "_rs_tree", None):
+            rust_results = self._eval_rust(root_context)
+            if rust_results is not None:
+                for res in rust_results:
+                    new_lerrs: list[SQLLintError] = []
+                    new_fixes: list[LintFix] = []
+                    self._adjust_anchors_for_fixes(root_context, res)
+                    self._process_lint_result(
+                        res, templated_file, ignore_mask, new_lerrs, new_fixes, tree
+                    )
+                    vs += new_lerrs
+                    fixes += new_fixes
+                return vs, root_context.raw_stack, fixes, root_context.memory
 
         # Propagates memory from one rule _eval() to the next.
         memory = root_context.memory
