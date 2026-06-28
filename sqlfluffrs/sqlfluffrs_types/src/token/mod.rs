@@ -43,7 +43,7 @@ pub struct Token {
     pub token_type: Cow<'static, str>,
     pub class_name: Cow<'static, str>,
     pub instance_types: Vec<String>,
-    pub class_types: HashSet<String>,
+    pub class_types: Arc<HashSet<String>>,
     pub comment_separate: bool,
     pub is_meta: bool,
     pub allow_empty: bool,
@@ -181,7 +181,7 @@ impl Token {
     /// Adds the surrogate type for raw segments.
     pub fn class_types(&self) -> HashSet<String> {
         let mut full_types = self.instance_types.iter().cloned().collect::<HashSet<_>>();
-        full_types.extend(self.class_types.clone());
+        full_types.extend(self.class_types.iter().cloned());
         full_types
     }
 
