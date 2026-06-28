@@ -1,6 +1,7 @@
 use super::{config::TokenConfig, Token};
 use crate::{marker::PositionMarker, slice::Slice, templater::templatefile::TemplatedFile};
 
+use std::borrow::Cow;
 use std::sync::Arc;
 
 use hashbrown::HashSet;
@@ -26,7 +27,7 @@ impl Token {
         let (token_types, class_types) = iter_base_types("base", class_types.clone());
         Self {
             token_type: token_types,
-            class_name: "BaseSegment".to_string(),
+            class_name: Cow::Borrowed("BaseSegment"),
             instance_types,
             class_types,
             comment_separate: false,
@@ -37,7 +38,7 @@ impl Token {
             is_whitespace: false,
             is_code: true,
             is_comment: false,
-            _default_raw: "".to_string(),
+            _default_raw: Cow::Borrowed(""),
             indent_value: 0,
             is_templated: false,
             block_uuid: None,
@@ -46,8 +47,8 @@ impl Token {
             parent: None,
             parent_idx: None,
             segments,
-            preface_modifier: "".to_string(),
-            suffix: "".to_string(),
+            preface_modifier: Cow::Borrowed(""),
+            suffix: Cow::Borrowed(""),
             uuid: crate::identity::next_id(),
             source_fixes: None,
             trim_start,
@@ -69,8 +70,8 @@ impl Token {
             },
             vec![],
         );
-        token.class_name = "RawSegment".to_string();
-        token.suffix = suffix;
+        token.class_name = Cow::Borrowed("RawSegment");
+        token.suffix = Cow::Owned(suffix);
         token.token_type = token_type;
         token
     }
@@ -90,7 +91,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "SymbolSegment".to_string();
+        token.class_name = Cow::Borrowed("SymbolSegment");
         token
     }
 
@@ -105,7 +106,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "IdentifierSegment".to_string();
+        token.class_name = Cow::Borrowed("IdentifierSegment");
         token
     }
 
@@ -120,7 +121,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "LiteralSegment".to_string();
+        token.class_name = Cow::Borrowed("LiteralSegment");
         token
     }
 
@@ -140,7 +141,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "BinaryOperatorSegment".to_string();
+        token.class_name = Cow::Borrowed("BinaryOperatorSegment");
         token
     }
 
@@ -160,7 +161,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "ComparisonOperatorSegment".to_string();
+        token.class_name = Cow::Borrowed("ComparisonOperatorSegment");
         token
     }
 
@@ -175,7 +176,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "WordSegment".to_string();
+        token.class_name = Cow::Borrowed("WordSegment");
         token
     }
 
@@ -190,7 +191,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "UnlexableSegment".to_string();
+        token.class_name = Cow::Borrowed("UnlexableSegment");
         token
     }
 
@@ -205,11 +206,11 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "WhitespaceSegment".to_string();
+        token.class_name = Cow::Borrowed("WhitespaceSegment");
         token.is_whitespace = true;
         token.is_code = false;
         token.is_comment = false;
-        token._default_raw = " ".to_string();
+        token._default_raw = Cow::Borrowed(" ");
         token
     }
 
@@ -224,11 +225,11 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "NewlineSegment".to_string();
+        token.class_name = Cow::Borrowed("NewlineSegment");
         token.is_whitespace = true;
         token.is_code = false;
         token.is_comment = false;
-        token._default_raw = "\n".to_string();
+        token._default_raw = Cow::Borrowed("\n");
         token
     }
 
@@ -243,7 +244,7 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "CommentSegment".to_string();
+        token.class_name = Cow::Borrowed("CommentSegment");
         token.is_code = false;
         token.is_comment = true;
         token
@@ -266,13 +267,13 @@ impl Token {
             },
         );
         token.token_type = token_type;
-        token.class_name = "MetaSegment".to_string();
+        token.class_name = Cow::Borrowed("MetaSegment");
         token.is_code = false;
         token.is_meta = true;
         token.is_templated = is_templated;
         token.block_uuid = block_uuid;
-        token.preface_modifier = "[META] ".to_string();
-        token.suffix = String::new();
+        token.preface_modifier = Cow::Borrowed("[META] ");
+        token.suffix = Cow::Borrowed("");
         token
     }
 
@@ -285,7 +286,7 @@ impl Token {
         let (token_type, class_types) = iter_base_types("end_of_file", class_types);
         let mut token = Self::meta_token(pos_marker, is_templated, block_uuid, class_types);
         token.token_type = token_type;
-        token.class_name = "EndOfFile".to_string();
+        token.class_name = Cow::Borrowed("EndOfFile");
         token
     }
 
@@ -298,11 +299,11 @@ impl Token {
         let (token_type, class_types) = iter_base_types("indent", class_types);
         let mut token = Self::meta_token(pos_marker, is_templated, block_uuid, class_types);
         token.token_type = token_type;
-        token.class_name = "Indent".to_string();
+        token.class_name = Cow::Borrowed("Indent");
         token.indent_value = 1;
         token.suffix = block_uuid
-            .map(|u| u.as_hyphenated().to_string())
-            .unwrap_or_default();
+            .map(|u| Cow::Owned(u.as_hyphenated().to_string()))
+            .unwrap_or(Cow::Borrowed(""));
         token
     }
 
@@ -315,7 +316,7 @@ impl Token {
         let (token_type, class_types) = iter_base_types("dedent", class_types);
         let mut token = Self::indent_token(pos_marker, is_templated, block_uuid, class_types);
         token.token_type = token_type;
-        token.class_name = "Dedent".to_string();
+        token.class_name = Cow::Borrowed("Dedent");
         token.indent_value = -1;
         token
     }
@@ -328,7 +329,7 @@ impl Token {
         let (token_type, class_types) = iter_base_types("template_loop", class_types);
         let mut token = Self::meta_token(pos_marker, false, block_uuid, class_types);
         token.token_type = token_type;
-        token.class_name = "TemplateLoop".to_string();
+        token.class_name = Cow::Borrowed("TemplateLoop");
         token
     }
 
@@ -342,7 +343,7 @@ impl Token {
         let (token_type, class_types) = iter_base_types("placeholder", class_types);
         let mut token = Self::meta_token(pos_marker, false, block_uuid, class_types);
         token.token_type = token_type;
-        token.class_name = "TemplateSegment".to_string();
+        token.class_name = Cow::Borrowed("TemplateSegment");
         token.block_type = Some(block_type);
         token.source_str = Some(source_string);
         token
@@ -375,9 +376,11 @@ impl Token {
     }
 }
 
-fn iter_base_types(token_type: &str, class_types: HashSet<String>) -> (String, HashSet<String>) {
+fn iter_base_types(
+    token_type: &'static str,
+    class_types: HashSet<String>,
+) -> (Cow<'static, str>, HashSet<String>) {
     let mut class_types = class_types;
-    let token_type = token_type.to_string();
-    class_types.insert(token_type.clone());
-    (token_type, class_types)
+    class_types.insert(token_type.to_string());
+    (Cow::Borrowed(token_type), class_types)
 }

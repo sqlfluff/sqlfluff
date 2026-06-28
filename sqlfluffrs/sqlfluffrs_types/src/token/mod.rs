@@ -9,6 +9,7 @@ mod raw_string;
 pub(crate) use raw_string::RawString;
 
 use std::{
+    borrow::Cow,
     fmt::Write,
     sync::{Arc, Weak},
 };
@@ -39,8 +40,8 @@ pub enum TupleSerialisedSegment {
 
 #[derive(Debug, Clone)]
 pub struct Token {
-    pub token_type: String,
-    pub class_name: String,
+    pub token_type: Cow<'static, str>,
+    pub class_name: Cow<'static, str>,
     pub instance_types: Vec<String>,
     pub class_types: HashSet<String>,
     pub comment_separate: bool,
@@ -51,7 +52,7 @@ pub struct Token {
     is_whitespace: bool,
     is_code: bool,
     is_comment: bool,
-    _default_raw: String,
+    _default_raw: Cow<'static, str>,
     pub indent_value: i32,
     pub is_templated: bool,
     pub block_uuid: Option<Uuid>,
@@ -60,8 +61,8 @@ pub struct Token {
     parent: Option<Weak<Token>>,
     parent_idx: Option<usize>,
     pub segments: Vec<Token>,
-    preface_modifier: String,
-    suffix: String,
+    preface_modifier: Cow<'static, str>,
+    suffix: Cow<'static, str>,
     pub uuid: u128,
     pub source_fixes: Option<Vec<SourceFix>>,
     pub trim_start: Option<Vec<String>>,
@@ -235,7 +236,7 @@ impl Token {
     }
 
     pub fn get_type(&self) -> String {
-        self.token_type.clone()
+        self.token_type.to_string()
     }
 
     /// Get all types for this token (instance_types + class_types)
@@ -248,7 +249,7 @@ impl Token {
     }
 
     pub fn preface_modifier(&self) -> String {
-        self.preface_modifier.clone()
+        self.preface_modifier.to_string()
     }
 
     pub fn is_type(&self, seg_types: &[&str]) -> bool {
@@ -430,7 +431,7 @@ impl Token {
 
         // Recursively process child segments
         for seg in &self.segments {
-            if no_recursive_set.contains(seg.token_type.as_str()) {
+            if no_recursive_set.contains(seg.token_type.as_ref()) {
                 continue;
             }
             results.extend(seg.recursive_crawl(

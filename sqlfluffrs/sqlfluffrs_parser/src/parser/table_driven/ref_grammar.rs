@@ -268,7 +268,7 @@ impl Parser<'_> {
                             .instance_types
                             .first()
                             .map(String::as_str)
-                            .unwrap_or(tok.token_type.as_str());
+                            .unwrap_or(tok.token_type.as_ref());
 
                         if effective != seg_type {
                             vdebug!(

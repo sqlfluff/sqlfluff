@@ -793,7 +793,7 @@ fn node_pos_marker(node: &Node) -> Option<PositionMarker> {
 /// determine the variant.  All other tokens become `Node::Raw`.
 fn token_to_node(tok: &Token) -> Node {
     if tok.is_meta {
-        let meta_type = match tok.token_type.as_str() {
+        let meta_type = match tok.token_type.as_ref() {
             "end_of_file" => MetaType::EndOfFile,
             "indent" => MetaType::Indent { is_implicit: false },
             "dedent" => MetaType::Dedent { is_implicit: false },
@@ -821,9 +821,9 @@ fn token_to_node(tok: &Token) -> Node {
             .instance_types
             .first()
             .map(|s| Cow::Owned(s.clone()))
-            .unwrap_or_else(|| Cow::Owned(tok.token_type.clone()));
+            .unwrap_or_else(|| tok.token_type.clone());
         Node::new_raw_with_class_types(
-            Cow::Owned(tok.class_name.clone()),
+            tok.class_name.clone(),
             segment_type,
             tok.raw().to_owned(),
             tok.pos_marker.clone(),
