@@ -1,0 +1,171 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3eb39f74ef791442f597bc774dd2cdd74e2632dd1508c7a1e1c371259238ba81
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: col
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "''"
+          - question: '?'
+          - expression:
+              numeric_literal: '0'
+          - colon: ':'
+          - expression:
+              numeric_literal: '1'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - question: '?'
+          - expression:
+              column_reference:
+                naked_identifier: b
+          - colon: ':'
+          - expression:
+              column_reference:
+                naked_identifier: c
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - question: '?'
+          - expression:
+              column_reference:
+                naked_identifier: b
+          - colon: ':'
+          - expression:
+            - column_reference:
+                naked_identifier: c
+            - question: '?'
+            - expression:
+                column_reference:
+                  naked_identifier: d
+            - colon: ':'
+            - expression:
+                column_reference:
+                  naked_identifier: e
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - question: '?'
+          - expression:
+            - column_reference:
+                naked_identifier: b
+            - question: '?'
+            - expression:
+                column_reference:
+                  naked_identifier: c
+            - colon: ':'
+            - expression:
+                column_reference:
+                  naked_identifier: d
+          - colon: ':'
+          - expression:
+              column_reference:
+                naked_identifier: e
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: number
+          - binary_operator: '%'
+          - numeric_literal: '2'
+          - question: '?'
+          - expression:
+              quoted_literal: "'odd'"
+          - colon: ':'
+          - expression:
+              quoted_literal: "'even'"
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: parity
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: numbers
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '10'
+                    end_bracket: )
+- statement_terminator: ;

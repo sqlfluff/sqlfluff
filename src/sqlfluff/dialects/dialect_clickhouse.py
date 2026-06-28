@@ -93,6 +93,7 @@ clickhouse_dialect.add(
         type="quoted_identifier",
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question"),
 )
 
 clickhouse_dialect.replace(
@@ -296,6 +297,19 @@ clickhouse_dialect.replace(
     Expression_D_Grammar=OneOf(
         Ref("TupleElementAccessSegment"),
         ansi_dialect.get_grammar("Expression_D_Grammar"),
+    ),
+    # ClickHouse C-style ternary `cond ? then : else`; the lowest-precedence
+    # operator, so the optional tail wraps the whole Expression_A condition.
+    # https://clickhouse.com/docs/en/sql-reference/functions/conditional-functions#ternary-operator
+    Expression_A_Grammar=Sequence(
+        ansi_dialect.get_grammar("Expression_A_Grammar"),
+        Sequence(
+            Ref("QuestionMarkSegment"),
+            Ref("ExpressionSegment"),
+            Ref("ColonSegment"),
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
     ),
 )
 
