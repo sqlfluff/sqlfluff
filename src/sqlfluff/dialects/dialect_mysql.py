@@ -36,6 +36,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_mysql_keywords import (
@@ -437,6 +438,116 @@ class CurrentTimestampLikeFunctionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("CurrentTimestampLikeFunctionNameSegment"),
         Ref("CurrentTimestampLikeFunctionContentsSegment"),
+    )
+
+
+class JsonTableColumnDefinitionSegment(BaseSegment):
+    """A column definition in a JSON_TABLE COLUMNS clause.
+
+    The column names here define the shape of the table produced by
+    JSON_TABLE; they are not references to columns of an outer table, so
+    they are modelled as identifiers rather than column references.
+
+    https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html
+    """
+
+    type = "json_table_column_definition"
+    match_grammar: Matchable = OneOf(
+        # name FOR ORDINALITY
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            "FOR",
+            "ORDINALITY",
+        ),
+        # NESTED [PATH] path COLUMNS (...)
+        Sequence(
+            "NESTED",
+            Ref.keyword("PATH", optional=True),
+            Ref("QuotedLiteralSegment"),
+            Ref("JsonTableColumnsClauseSegment"),
+        ),
+        # name type [EXISTS] PATH path [on_empty] [on_error]
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment"),
+            OneOf(
+                Sequence("EXISTS", "PATH", Ref("QuotedLiteralSegment")),
+                Sequence(
+                    "PATH",
+                    Ref("QuotedLiteralSegment"),
+                    # on_empty / on_error handlers, in either order
+                    AnyNumberOf(
+                        Sequence(
+                            OneOf(
+                                "NULL",
+                                "ERROR",
+                                Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
+                            ),
+                            "ON",
+                            OneOf("EMPTY", "ERROR"),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class JsonTableColumnsClauseSegment(BaseSegment):
+    """The COLUMNS clause in a JSON_TABLE function.
+
+    https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html
+    """
+
+    type = "json_table_columns_clause"
+    match_grammar: Matchable = Sequence(
+        "COLUMNS",
+        Bracketed(
+            Delimited(
+                Ref("JsonTableColumnDefinitionSegment"),
+            ),
+        ),
+    )
+
+
+class JsonTableFunctionContentsSegment(BaseSegment):
+    """JSON_TABLE function contents.
+
+    https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("QuotedLiteralSegment"),
+        Ref("JsonTableColumnsClauseSegment"),
+    )
+
+
+class JsonTableFunctionNameSegment(BaseSegment):
+    """JSON_TABLE function name segment.
+
+    Specified as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "JSON_TABLE", WordSegment, type="function_name_identifier"
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function, with JSON_TABLE support."""
+
+    match_grammar = ansi.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("JsonTableFunctionNameSegment"),
+                Ref("JsonTableFunctionContentsSegment"),
+            ),
+        ],
+        at=0,
     )
 
 

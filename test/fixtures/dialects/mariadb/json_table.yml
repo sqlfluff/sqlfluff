@@ -1,0 +1,73 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dbae3652e2d89bfa40bf0df381ecd15ec6f6637851306716182091ac624802ba
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - quoted_identifier: '`jt`'
+          - dot: .
+          - quoted_identifier: '`name`'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - quoted_identifier: '`jt`'
+          - dot: .
+          - quoted_identifier: '`price`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      variable: '@json'
+                    comma: ','
+                    quoted_literal: "'$[*]'"
+                    json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                      - start_bracket: (
+                      - json_table_column_definition:
+                          quoted_identifier: '`name`'
+                          data_type:
+                            data_type_identifier: VARCHAR
+                            bracketed_arguments:
+                              bracketed:
+                                start_bracket: (
+                                numeric_literal: '10'
+                                end_bracket: )
+                          keyword: PATH
+                          quoted_literal: "'$.name'"
+                      - comma: ','
+                      - json_table_column_definition:
+                          quoted_identifier: '`price`'
+                          data_type:
+                            data_type_identifier: DECIMAL
+                            bracketed_arguments:
+                              bracketed:
+                              - start_bracket: (
+                              - numeric_literal: '8'
+                              - comma: ','
+                              - numeric_literal: '2'
+                              - end_bracket: )
+                          keyword: PATH
+                          quoted_literal: "'$.price'"
+                      - end_bracket: )
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '`jt`'
+  statement_terminator: ;
