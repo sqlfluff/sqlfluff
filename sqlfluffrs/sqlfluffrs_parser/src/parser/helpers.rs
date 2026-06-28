@@ -178,7 +178,7 @@ impl<'a> Parser<'a> {
         // Validate the token at matching_idx is actually the expected closing bracket
         let close_tok = self.tokens.get(matching_idx)?;
         let open_raw = open_tok.raw();
-        let expected_close = match open_raw.as_str() {
+        let expected_close = match open_raw {
             "(" => ")",
             "[" => "]",
             "{" => "}",

@@ -798,7 +798,7 @@ fn token_to_node(tok: &Token) -> Node {
             "dedent" => MetaType::Dedent { is_implicit: false },
             "template_loop" => MetaType::TemplateLoop,
             _ => MetaType::Template {
-                source_str: tok.raw(),
+                source_str: tok.raw().to_owned(),
                 block_type: tok.block_type().expect("block_type for template"),
             },
         };
@@ -824,7 +824,7 @@ fn token_to_node(tok: &Token) -> Node {
         Node::new_raw_with_class_types(
             tok.class_name.clone(),
             segment_type,
-            tok.raw.to_string(),
+            tok.raw().to_owned(),
             tok.pos_marker.clone(),
             tok.instance_types.clone(),
             &raw_class_ct,

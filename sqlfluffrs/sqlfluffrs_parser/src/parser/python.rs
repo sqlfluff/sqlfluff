@@ -75,7 +75,7 @@ impl PyNode {
     /// Get raw text of this node (recursively joins children for containers)
     #[getter]
     fn raw(&self) -> String {
-        self.0.raw()
+        self.0.raw().to_owned()
     }
 
     /// Check if node is empty
@@ -659,7 +659,7 @@ fn compute_bracket_pairs(tokens: &mut [Token]) {
         let raw = tokens[idx].raw();
 
         // Check if this is an opening bracket
-        if let Some(open_char) = match raw.as_str() {
+        if let Some(open_char) = match raw {
             "(" => Some('('),
             "[" => Some('['),
             "{" => Some('{'),
@@ -668,7 +668,7 @@ fn compute_bracket_pairs(tokens: &mut [Token]) {
             bracket_stack.push((idx, open_char));
         }
         // Check if this is a closing bracket
-        else if let Some(expected_open) = match raw.as_str() {
+        else if let Some(expected_open) = match raw {
             ")" => Some('('),
             "]" => Some('['),
             "}" => Some('{'),
