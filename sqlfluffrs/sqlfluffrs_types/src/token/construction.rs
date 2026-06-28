@@ -38,7 +38,7 @@ impl Token {
             is_whitespace: false,
             is_code: true,
             is_comment: false,
-            _default_raw: "".to_string(),
+            _default_raw: Cow::Borrowed(""),
             indent_value: 0,
             is_templated: false,
             block_uuid: None,
@@ -47,8 +47,8 @@ impl Token {
             parent: None,
             parent_idx: None,
             segments,
-            preface_modifier: "".to_string(),
-            suffix: "".to_string(),
+            preface_modifier: Cow::Borrowed(""),
+            suffix: Cow::Borrowed(""),
             uuid: crate::identity::next_id(),
             source_fixes: None,
             trim_start,
@@ -71,7 +71,7 @@ impl Token {
             vec![],
         );
         token.class_name = Cow::Borrowed("RawSegment");
-        token.suffix = suffix;
+        token.suffix = Cow::Owned(suffix);
         token.token_type = token_type;
         token
     }
@@ -210,7 +210,7 @@ impl Token {
         token.is_whitespace = true;
         token.is_code = false;
         token.is_comment = false;
-        token._default_raw = " ".to_string();
+        token._default_raw = Cow::Borrowed(" ");
         token
     }
 
@@ -229,7 +229,7 @@ impl Token {
         token.is_whitespace = true;
         token.is_code = false;
         token.is_comment = false;
-        token._default_raw = "\n".to_string();
+        token._default_raw = Cow::Borrowed("\n");
         token
     }
 
@@ -272,8 +272,8 @@ impl Token {
         token.is_meta = true;
         token.is_templated = is_templated;
         token.block_uuid = block_uuid;
-        token.preface_modifier = "[META] ".to_string();
-        token.suffix = String::new();
+        token.preface_modifier = Cow::Borrowed("[META] ");
+        token.suffix = Cow::Borrowed("");
         token
     }
 
@@ -302,8 +302,8 @@ impl Token {
         token.class_name = Cow::Borrowed("Indent");
         token.indent_value = 1;
         token.suffix = block_uuid
-            .map(|u| u.as_hyphenated().to_string())
-            .unwrap_or_default();
+            .map(|u| Cow::Owned(u.as_hyphenated().to_string()))
+            .unwrap_or(Cow::Borrowed(""));
         token
     }
 

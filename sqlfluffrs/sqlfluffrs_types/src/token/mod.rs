@@ -52,7 +52,7 @@ pub struct Token {
     is_whitespace: bool,
     is_code: bool,
     is_comment: bool,
-    _default_raw: String,
+    _default_raw: Cow<'static, str>,
     pub indent_value: i32,
     pub is_templated: bool,
     pub block_uuid: Option<Uuid>,
@@ -61,8 +61,8 @@ pub struct Token {
     parent: Option<Weak<Token>>,
     parent_idx: Option<usize>,
     pub segments: Vec<Token>,
-    preface_modifier: String,
-    suffix: String,
+    preface_modifier: Cow<'static, str>,
+    suffix: Cow<'static, str>,
     pub uuid: u128,
     pub source_fixes: Option<Vec<SourceFix>>,
     pub trim_start: Option<Vec<String>>,
@@ -249,7 +249,7 @@ impl Token {
     }
 
     pub fn preface_modifier(&self) -> String {
-        self.preface_modifier.clone()
+        self.preface_modifier.to_string()
     }
 
     pub fn is_type(&self, seg_types: &[&str]) -> bool {
