@@ -902,6 +902,49 @@ oracle_dialect.replace(
 )
 
 
+class IntervalDataTypeSegment(BaseSegment):
+    """An INTERVAL data type segment for Oracle.
+
+    Handles the two Oracle interval types:
+    - INTERVAL YEAR [(year_precision)] TO MONTH
+    - INTERVAL DAY [(day_precision)] TO SECOND [(fractional_seconds_precision)]
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html#GUID-C8C6D1D4-7B68-4A6A-BD77-DA8B5578B35C
+    """
+
+    type = "interval_data_type"
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            Sequence(
+                "YEAR",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                "TO",
+                "MONTH",
+            ),
+            Sequence(
+                "DAY",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                "TO",
+                "SECOND",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            ),
+        ),
+    )
+
+
+class DatatypeSegment(ansi.DatatypeSegment):
+    """A data type segment for Oracle.
+
+    Extends the ANSI data type segment to include Oracle-specific interval types.
+    """
+
+    match_grammar: Matchable = OneOf(
+        Ref("IntervalDataTypeSegment"),
+        ansi.DatatypeSegment.match_grammar,
+    )
+
+
 class MultisetOperatorSegment(BaseSegment):
     """A MULTISET operator (MULTISET EXCEPT/INTERSECT/UNION [ALL|DISTINCT]).
 
