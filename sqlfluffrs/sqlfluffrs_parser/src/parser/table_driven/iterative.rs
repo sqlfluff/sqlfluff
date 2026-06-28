@@ -250,9 +250,9 @@ impl Parser<'_> {
                 iteration_count
             );
         }
-        vdebug!("DEBUG: Main loop ended. Stack has {} frames left. Results has {} entries. Looking for frame_id={}",
+        vdebug!("DEBUG: Main loop ended. Stack has {} frames left. Result pending: {}. Looking for frame_id={}",
             stack.len(),
-            stack.results.len(),
+            stack.result_pending(),
             initial_frame_id
         );
 
@@ -306,12 +306,11 @@ impl Parser<'_> {
         }
 
         vdebug!(
-            "Main loop ended. Stack empty. Results has {} entries. Looking for frame_id={}",
-            stack.results.len(),
+            "Main loop ended. Stack empty. Result pending: {}. Looking for frame_id={}",
+            stack.result_pending(),
             initial_frame_id
         );
-        if let Some((match_result, end_pos, _element_key)) = stack.results.remove(&initial_frame_id)
-        {
+        if let Some((match_result, end_pos, _element_key)) = stack.take_pending(initial_frame_id) {
             vdebug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
                 initial_frame_id,
@@ -354,9 +353,9 @@ impl Parser<'_> {
         } else {
             // Parse error - don't cache errors for now (to keep it simple)
             let error = ParseError::new(format!(
-                "Iterative parse produced no result (initial_frame_id={}, stack.results has {} entries)",
+                "Iterative parse produced no result (initial_frame_id={}, result_pending={})",
                 initial_frame_id,
-                stack.results.len()
+                stack.result_pending()
             ));
             Err(error)
         }
@@ -479,7 +478,7 @@ impl Parser<'_> {
             }
         };
 
-        let child = stack.results.remove(&child_frame_id);
+        let child = stack.take_pending(child_frame_id);
         vdebug!(
             "[RESULT GET] parent_frame_id={}, child_frame_id={}, child_found={}",
             frame.frame_id,
@@ -812,7 +811,7 @@ impl Parser<'_> {
         vdebug!("ERROR: Exceeded max iterations ({})", max_iterations);
         vdebug!("Last frame: {:?}", _frame.grammar_id);
         vdebug!("Stack depth: {}", _stack.len());
-        vdebug!("Results count: {}", _stack.results.len());
+        vdebug!("Result pending: {}", _stack.result_pending());
 
         // Print last 20 frames on stack for diagnosis
         vdebug!("\n=== Last 20 frames on stack ===");
