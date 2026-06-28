@@ -24,7 +24,6 @@ impl Token {
         } = config;
 
         let (token_types, class_types) = iter_base_types("base", class_types.clone());
-        let raw_value = Token::normalize(&raw, quoted_value.clone(), escape_replacement.clone());
         Self {
             token_type: token_types,
             class_name: "BaseSegment".to_string(),
@@ -34,7 +33,7 @@ impl Token {
             is_meta: false,
             allow_empty: false,
             pos_marker: Some(pos_marker),
-            raw: crate::token::RawString::new(raw),
+            raw: crate::token::RawString::new(raw, quoted_value, escape_replacement),
             is_whitespace: false,
             is_code: true,
             is_comment: false,
@@ -53,10 +52,7 @@ impl Token {
             source_fixes: None,
             trim_start,
             trim_chars,
-            quoted_value,
-            escape_replacement,
             casefold,
-            raw_value,
             matching_bracket_idx: None, // Will be computed after all tokens are created
         }
     }

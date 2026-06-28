@@ -66,11 +66,7 @@ pub struct Token {
     pub source_fixes: Option<Vec<SourceFix>>,
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
-    quoted_value: Option<(String, RegexModeGroup)>,
-    escape_replacement: Option<(String, String)>,
     pub casefold: CaseFold,
-    #[allow(dead_code)]
-    raw_value: String,
     /// Pre-computed index of matching bracket for O(1) lookup during parsing.
     /// For opening brackets like '(', '[', '{', this points to the matching closing bracket.
     /// For closing brackets like ')', ']', '}', this points back to the matching opening bracket.
@@ -136,29 +132,30 @@ impl Token {
 
     /// Get the quoted_value pattern for this token (if any)
     pub fn quoted_value(&self) -> Option<&(String, RegexModeGroup)> {
-        self.quoted_value.as_ref()
+        self.raw.quoted_value()
     }
 
     /// Get the escape_replacement pattern for this token (if any)
     pub fn escape_replacement(&self) -> Option<&(String, String)> {
-        self.escape_replacement.as_ref()
+        self.raw.escape_replacement()
     }
 
     pub fn normalize(
         value: &str,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
+        quoted_value: Option<&(String, RegexModeGroup)>,
+        escape_replacement: Option<&(String, String)>,
     ) -> String {
         let mut str_buffer = value.to_string();
 
-        if let Some((ref regex_str, idx)) = quoted_value {
-            if let Some(captured) = RegexMode::new(regex_str).capture(idx, value) {
+        if let Some((regex_str, idx)) = quoted_value {
+            if let Some(captured) = RegexMode::cached(regex_str).capture(idx.clone(), value) {
                 str_buffer = captured
             }
         }
 
-        if let Some((ref regex_str, ref replacement)) = escape_replacement {
-            str_buffer = RegexMode::new(regex_str).replace_all(&str_buffer, replacement.as_str());
+        if let Some((regex_str, replacement)) = escape_replacement {
+            str_buffer =
+                RegexMode::cached(regex_str).replace_all(&str_buffer, replacement.as_str());
         }
 
         str_buffer
@@ -292,12 +289,13 @@ impl Token {
         raw_buff
     }
 
-    fn _raw_normalized(&self) -> String {
-        todo!()
-    }
-
+    /// The normalized form of this token's raw value: the quoted value extracted
+    /// and escape sequences replaced, per this token's dialect config.
+    ///
+    /// Computed lazily and cached, so tokens never inspected by a rule pay
+    /// nothing, and the common case (no transform spec) avoids all regex work.
     pub fn raw_normalized(&self) -> String {
-        todo!()
+        self.raw.normalized().to_owned()
     }
 
     pub fn stringify(&self, ident: usize, tabsize: usize, code_only: bool) -> String {
@@ -336,7 +334,12 @@ impl Token {
     pub fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Self {
         let new_raw = raw.unwrap_or_else(|| self.raw.as_str().to_owned());
         Self {
-            raw: RawString::new(new_raw),
+            // Carry over the transform spec so the edited raw normalizes the same way.
+            raw: RawString::new(
+                new_raw,
+                self.raw.quoted_value().cloned(),
+                self.raw.escape_replacement().cloned(),
+            ),
             source_fixes: Some(source_fixes.unwrap_or(self.source_fixes())),
             uuid: crate::identity::next_id(),
             ..self.clone()
