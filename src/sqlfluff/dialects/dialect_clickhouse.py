@@ -298,6 +298,19 @@ clickhouse_dialect.replace(
         Ref("TupleElementAccessSegment"),
         ansi_dialect.get_grammar("Expression_D_Grammar"),
     ),
+    # ClickHouse C-style ternary `cond ? then : else`; the lowest-precedence
+    # operator, so the optional tail wraps the whole Expression_A condition.
+    # https://clickhouse.com/docs/en/sql-reference/functions/conditional-functions#ternary-operator
+    Expression_A_Grammar=Sequence(
+        ansi_dialect.get_grammar("Expression_A_Grammar"),
+        Sequence(
+            Ref("QuestionMarkSegment"),
+            Ref("ExpressionSegment"),
+            Ref("ColonSegment"),
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+    ),
 )
 
 # Set the datetime units
@@ -1006,26 +1019,6 @@ class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
         Ref("WildcardIdentifierSegment"),
         Ref("ExceptClauseSegment", optional=True),
         AnyNumberOf(Ref("ApplyClauseSegment")),
-    )
-
-
-class ExpressionSegment(ansi.ExpressionSegment):
-    """An expression, optionally with a C-style ternary conditional.
-
-    ClickHouse supports the ternary conditional operator
-    ``cond ? then : else`` as shorthand for ``if(cond, then, else)``.
-    https://clickhouse.com/docs/en/sql-reference/functions/conditional-functions#ternary-operator
-    """
-
-    match_grammar = Sequence(
-        Ref("Expression_A_Grammar"),
-        Sequence(
-            Ref("QuestionMarkSegment"),
-            Ref("ExpressionSegment"),
-            Ref("ColonSegment"),
-            Ref("ExpressionSegment"),
-            optional=True,
-        ),
     )
 
 
