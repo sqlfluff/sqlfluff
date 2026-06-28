@@ -90,7 +90,9 @@ class Rule_CP01(BaseRule):
         if rs_tree is None:
             return None
 
-        policy = str(self.capitalisation_policy)
+        # capitalisation_policy is set on the instance from config_keywords;
+        # access via getattr so mypy doesn't flag the dynamic attribute.
+        policy = str(getattr(self, "capitalisation_policy"))
         if policy not in ("consistent", "upper", "lower", "capitalise"):
             return None
         if getattr(self, "ignore_words_regex", None):
@@ -126,7 +128,9 @@ class Rule_CP01(BaseRule):
                     concrete = "lower"
                 else:
                     concrete = "capitalise"
-            policy_text = "capitalised." if concrete == "capitalise" else f"{concrete} case."
+            policy_text = (
+                "capitalised." if concrete == "capitalise" else f"{concrete} case."
+            )
             results.append(
                 LintResult(
                     anchor=segment,

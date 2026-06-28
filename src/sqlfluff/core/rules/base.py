@@ -557,15 +557,22 @@ class BaseRule(metaclass=RuleMetaclass):
         if self._rust_rules_enabled(config) and getattr(tree, "_rs_tree", None):
             rust_results = self._eval_rust(root_context)
             if rust_results is not None:
-                for res in rust_results:
-                    new_lerrs: list[SQLLintError] = []
-                    new_fixes: list[LintFix] = []
-                    self._adjust_anchors_for_fixes(root_context, res)
+                # Distinct names from the per-segment loop below so each keeps
+                # its own inferred type (mypy treats reused names as redefs).
+                for rust_res in rust_results:
+                    rust_lerrs: list[SQLLintError] = []
+                    rust_fixes: list[LintFix] = []
+                    self._adjust_anchors_for_fixes(root_context, rust_res)
                     self._process_lint_result(
-                        res, templated_file, ignore_mask, new_lerrs, new_fixes, tree
+                        rust_res,
+                        templated_file,
+                        ignore_mask,
+                        rust_lerrs,
+                        rust_fixes,
+                        tree,
                     )
-                    vs += new_lerrs
-                    fixes += new_fixes
+                    vs += rust_lerrs
+                    fixes += rust_fixes
                 return vs, root_context.raw_stack, fixes, root_context.memory
 
         # Propagates memory from one rule _eval() to the next.
