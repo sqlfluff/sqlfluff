@@ -72,10 +72,11 @@ fn is_excluded_parent(arena: &Arena, parent: Option<NodeId>) -> bool {
     let Some(parent) = parent else {
         return false;
     };
-    if arena
-        .class_types(parent)
+    // Membership checks via `is_type` (no allocation), not `class_types` (clones
+    // a Vec per call).
+    if EXCLUDE_PARENT_TYPES
         .iter()
-        .any(|t| EXCLUDE_PARENT_TYPES.contains(&t.as_str()))
+        .any(|t| arena.is_type(parent, t))
     {
         return true;
     }
@@ -122,12 +123,11 @@ fn walk(
     let this_leaf = *leaf_idx;
     *leaf_idx += 1;
 
-    // Target type? (keyword/binary_operator/date_part, not a literal)
-    let class_types = arena.class_types(id);
-    let is_target = class_types
-        .iter()
-        .any(|t| TARGET_TYPES.contains(&t.as_str()))
-        && !class_types.iter().any(|t| t == "literal");
+    // Target type? (keyword/binary_operator/date_part, not a literal). Use the
+    // non-cloning `is_type` membership check — calling `class_types(id)` here
+    // would clone a Vec<String> for every leaf in the file.
+    let is_target =
+        TARGET_TYPES.iter().any(|t| arena.is_type(id, t)) && !arena.is_type(id, "literal");
     if !is_target || is_excluded_parent(arena, parent) {
         return;
     }
