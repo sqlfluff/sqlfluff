@@ -6,6 +6,7 @@
 use crate::parser::match_result::{self, MatchedClass, SegmentKwargs};
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
+use std::borrow::Cow;
 use std::sync::Arc;
 
 use crate::parser::table_driven::frame::{TableFrameResult, TableParseFrame};
@@ -543,8 +544,8 @@ impl<'a> Parser<'a> {
                 let result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(MatchedClass {
-                        class_name: raw_class.to_string(),
-                        segment_type: Some(token_type.to_string()),
+                        class_name: Cow::Borrowed(raw_class),
+                        segment_type: Some(Cow::Borrowed(token_type)),
                         segment_kwargs,
                     }),
                     ..Default::default()
@@ -767,8 +768,8 @@ impl<'a> Parser<'a> {
                 let match_result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(MatchedClass {
-                        class_name: raw_class.to_string(),
-                        segment_type: Some(effective_segment_type.clone()),
+                        class_name: Cow::Borrowed(raw_class),
+                        segment_type: Some(Cow::Owned(effective_segment_type.clone())),
                         segment_kwargs,
                     }),
                     ..Default::default()
@@ -930,8 +931,8 @@ impl<'a> Parser<'a> {
                 let result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(MatchedClass {
-                        class_name: raw_class.to_string(),
-                        segment_type: Some(token_type.to_string()),
+                        class_name: Cow::Borrowed(raw_class),
+                        segment_type: Some(Cow::Borrowed(token_type)),
                         segment_kwargs,
                     }),
                     ..Default::default()
@@ -1229,8 +1230,8 @@ impl<'a> Parser<'a> {
                     let result = MatchResult {
                         matched_slice: token_pos..token_pos + 1,
                         matched_class: Some(MatchedClass {
-                            class_name: raw_class.clone(),
-                            segment_type: Some(token_type.clone()),
+                            class_name: Cow::Owned(raw_class.clone()),
+                            segment_type: Some(Cow::Owned(token_type.clone())),
                             segment_kwargs,
                         }),
                         ..Default::default()
@@ -1628,8 +1629,8 @@ impl<'a> Parser<'a> {
         let open_bracket_match = MatchResult {
             matched_slice: self.pos..self.pos + 1,
             matched_class: Some(MatchedClass {
-                class_name: "SymbolSegment".to_string(),
-                segment_type: Some(start_bracket_type.to_string()),
+                class_name: Cow::Borrowed("SymbolSegment"),
+                segment_type: Some(Cow::Borrowed(start_bracket_type)),
                 segment_kwargs: SegmentKwargs {
                     instance_types: Some(vec![start_bracket_type.to_string()]),
                     ..Default::default()
@@ -1679,8 +1680,8 @@ impl<'a> Parser<'a> {
         let close_bracket_match = MatchResult {
             matched_slice: bracket_end - 1..bracket_end,
             matched_class: Some(MatchedClass {
-                class_name: "SymbolSegment".to_string(),
-                segment_type: Some(end_bracket_type.to_string()),
+                class_name: Cow::Borrowed("SymbolSegment"),
+                segment_type: Some(Cow::Borrowed(end_bracket_type)),
                 segment_kwargs: SegmentKwargs {
                     instance_types: Some(vec![end_bracket_type.to_string()]),
                     ..Default::default()

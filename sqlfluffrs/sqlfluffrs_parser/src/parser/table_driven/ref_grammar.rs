@@ -1,4 +1,5 @@
 use sqlfluffrs_types::GrammarId;
+use std::borrow::Cow;
 use std::sync::Arc;
 
 use crate::parser::{
@@ -244,7 +245,13 @@ impl Parser<'_> {
             //   2. The child match is a bare token match (no matched_class, exactly 1 token)
             //
             // In that case, use the actual token's effective type (instance_types[0] or token_type).
-            let effective_segment_type = if let Some(seg_type) = state.segment_type.as_deref() {
+            // `state.segment_type` is `Option<&'static str>` (Copy), so binding by
+            // value keeps the `'static` lifetime — the common case borrows the
+            // grammar-table string into the node with no allocation. Only the
+            // isinstance override (a runtime token type) takes the owned branch.
+            let effective_segment_type: Cow<'static, str> = if let Some(seg_type) =
+                state.segment_type
+            {
                 // Check if the child match is a bare single-token match (no matched_class)
                 // by looking at the match_result's matched_class and slice length
                 let is_bare_token_match = ref_match_result.matched_class.is_none()
@@ -270,18 +277,18 @@ impl Parser<'_> {
                                 seg_type,
                                 tok.raw()
                             );
-                            effective.to_string()
+                            Cow::Owned(effective.to_string())
                         } else {
-                            seg_type.to_string()
+                            Cow::Borrowed(seg_type)
                         }
                     } else {
-                        seg_type.to_string()
+                        Cow::Borrowed(seg_type)
                     }
                 } else {
-                    seg_type.to_string()
+                    Cow::Borrowed(seg_type)
                 }
             } else {
-                state.segment_type.unwrap_or_default().to_string()
+                Cow::Borrowed(state.segment_type.unwrap_or_default())
             };
 
             vdebug!(
@@ -289,27 +296,26 @@ impl Parser<'_> {
                 state.name,
                 effective_segment_type
             );
-            let matched_class =
-                if !effective_segment_type.is_empty() || state.segment_class_name.is_some() {
-                    // Look up the Python _class_types hierarchy for this grammar from codegen tables.
-                    let class_types = self.grammar_ctx.segment_class_types(state.grammar_id);
-                    Some(MatchedClass {
-                        // take() instead of clone() + unwrap — frame context is not read
-                        // again after this point (state transitions to Complete).
-                        class_name: state
-                            .segment_class_name
-                            .take()
-                            .unwrap_or_default()
-                            .to_string(),
-                        segment_type: Some(effective_segment_type),
-                        segment_kwargs: SegmentKwargs {
-                            class_types,
-                            ..Default::default()
-                        },
-                    })
-                } else {
-                    None
-                };
+            let matched_class = if !effective_segment_type.is_empty()
+                || state.segment_class_name.is_some()
+            {
+                // Look up the Python _class_types hierarchy for this grammar from codegen tables.
+                let class_types = self.grammar_ctx.segment_class_types(state.grammar_id);
+                Some(MatchedClass {
+                    // take() instead of clone() + unwrap — frame context is not read
+                    // again after this point (state transitions to Complete).
+                    // segment_class_name is Option<&'static str> (PR #8002), so
+                    // borrow the grammar-table class name straight into the node.
+                    class_name: Cow::Borrowed(state.segment_class_name.take().unwrap_or_default()),
+                    segment_type: Some(effective_segment_type),
+                    segment_kwargs: SegmentKwargs {
+                        class_types,
+                        ..Default::default()
+                    },
+                })
+            } else {
+                None
+            };
 
             // let start_idx = self.skip_start_index_forward_to_code(*saved_pos, final_pos);
 

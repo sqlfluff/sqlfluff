@@ -17,6 +17,7 @@
 //! uuid through `apply_as_root` is deferred to the fixing milestone where
 //! cross-reingest identity matters for `LintFix` anchoring.
 
+use std::borrow::Cow;
 use std::cell::RefCell;
 use std::sync::Arc;
 
@@ -43,16 +44,16 @@ impl NodeId {
 #[derive(Debug, Clone, PartialEq)]
 enum ArenaKind {
     Raw {
-        segment_class: String,
-        segment_type: String,
+        segment_class: Cow<'static, str>,
+        segment_type: Cow<'static, str>,
         raw: String,
         instance_types: Vec<String>,
         class_types: Vec<String>,
         kwargs: RawSegmentKwargs,
     },
     Segment {
-        segment_class: String,
-        segment_type: Option<String>,
+        segment_class: Cow<'static, str>,
+        segment_type: Option<Cow<'static, str>>,
         class_types: Vec<String>,
     },
     Meta {
@@ -303,8 +304,10 @@ impl Arena {
     /// Semantic type string (mirrors [`Node::get_type`]).
     pub(crate) fn get_type(&self, id: NodeId) -> String {
         match &self.node(id).kind {
-            ArenaKind::Raw { segment_type, .. } => segment_type.clone(),
-            ArenaKind::Segment { segment_type, .. } => segment_type.clone().unwrap_or_default(),
+            ArenaKind::Raw { segment_type, .. } => segment_type.to_string(),
+            ArenaKind::Segment { segment_type, .. } => {
+                segment_type.as_deref().unwrap_or_default().to_string()
+            }
             ArenaKind::Meta { meta_type } => meta_type_str(meta_type).to_string(),
             ArenaKind::Unparsable { .. } => "unparsable".to_string(),
             ArenaKind::Empty => "empty".to_string(),
@@ -344,7 +347,7 @@ impl Arena {
                 segment_type,
                 class_types,
                 ..
-            } => segment_type == target || class_types.iter().any(|t| t == target),
+            } => segment_type.as_ref() == target || class_types.iter().any(|t| t == target),
             ArenaKind::Segment {
                 segment_type,
                 class_types,
@@ -392,7 +395,7 @@ impl Arena {
     pub(crate) fn segment_class(&self, id: NodeId) -> Option<String> {
         match &self.node(id).kind {
             ArenaKind::Raw { segment_class, .. } | ArenaKind::Segment { segment_class, .. } => {
-                Some(segment_class.clone())
+                Some(segment_class.to_string())
             }
             _ => None,
         }
@@ -464,7 +467,7 @@ impl Arena {
                     )
                 });
                 let non_code_by_type = segment_type.contains("comment")
-                    || matches!(segment_type.as_str(), "whitespace" | "newline");
+                    || matches!(segment_type.as_ref(), "whitespace" | "newline");
                 let non_code_by_class = class_types.iter().any(|t| t == "comment");
                 !(non_code_by_instance || non_code_by_type || non_code_by_class)
             }
@@ -724,22 +727,22 @@ mod tests {
             &["identifier"],
         );
         let col = Node::Segment {
-            segment_class: "ColumnReferenceSegment".to_string(),
-            segment_type: Some("column_reference".to_string()),
+            segment_class: "ColumnReferenceSegment".into(),
+            segment_type: Some("column_reference".into()),
             pos_marker: None,
             class_types: vec!["column_reference".to_string()],
             children: vec![ident],
         };
         let select = Node::Segment {
-            segment_class: "SelectStatementSegment".to_string(),
-            segment_type: Some("select_statement".to_string()),
+            segment_class: "SelectStatementSegment".into(),
+            segment_type: Some("select_statement".into()),
             pos_marker: None,
             class_types: vec!["select_statement".to_string(), "statement".to_string()],
             children: vec![kw, ws, col],
         };
         Node::Segment {
-            segment_class: "StatementSegment".to_string(),
-            segment_type: Some("statement".to_string()),
+            segment_class: "StatementSegment".into(),
+            segment_type: Some("statement".into()),
             pos_marker: None,
             class_types: vec!["statement".to_string()],
             children: vec![select],
@@ -834,8 +837,8 @@ mod tests {
         // Mirror `BaseSegment.get_child`/`get_children`, which consider *all*
         // children including metas: a query for `indent` must return the meta.
         let tree = Node::Segment {
-            segment_class: "SelectStatementSegment".to_string(),
-            segment_type: Some("select_statement".to_string()),
+            segment_class: "SelectStatementSegment".into(),
+            segment_type: Some("select_statement".into()),
             pos_marker: None,
             class_types: vec!["select_statement".to_string()],
             children: vec![
