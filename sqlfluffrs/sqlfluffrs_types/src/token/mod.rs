@@ -9,6 +9,7 @@ mod raw_string;
 pub(crate) use raw_string::RawString;
 
 use std::{
+    borrow::Cow,
     fmt::Write,
     sync::{Arc, Weak},
 };
@@ -39,8 +40,8 @@ pub enum TupleSerialisedSegment {
 
 #[derive(Debug, Clone)]
 pub struct Token {
-    pub token_type: String,
-    pub class_name: String,
+    pub token_type: Cow<'static, str>,
+    pub class_name: Cow<'static, str>,
     pub instance_types: Vec<String>,
     pub class_types: HashSet<String>,
     pub comment_separate: bool,
@@ -235,7 +236,7 @@ impl Token {
     }
 
     pub fn get_type(&self) -> String {
-        self.token_type.clone()
+        self.token_type.to_string()
     }
 
     /// Get all types for this token (instance_types + class_types)
@@ -430,7 +431,7 @@ impl Token {
 
         // Recursively process child segments
         for seg in &self.segments {
-            if no_recursive_set.contains(seg.token_type.as_str()) {
+            if no_recursive_set.contains(seg.token_type.as_ref()) {
                 continue;
             }
             results.extend(seg.recursive_crawl(
