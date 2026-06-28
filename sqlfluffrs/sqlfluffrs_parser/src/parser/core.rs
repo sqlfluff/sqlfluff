@@ -207,7 +207,9 @@ impl<'a> Parser<'a> {
             tokens,
             pos: 0,
             dialect,
-            table_cache: TableParseCache::new(),
+            // The frame cache grows to several times the token count; pre-size it
+            // to avoid repeated rehashing of a map that reaches thousands of entries.
+            table_cache: TableParseCache::with_capacity(tokens.len().saturating_mul(8)),
             metrics: ParserMetrics::default(),
             terminator_match_cache: hashbrown::HashMap::new(),
             cache_enabled: true,

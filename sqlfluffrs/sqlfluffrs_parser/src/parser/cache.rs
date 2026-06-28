@@ -95,6 +95,16 @@ impl TableParseCache {
         }
     }
 
+    /// Pre-size the cache. The frame cache grows to several times the token
+    /// count during a parse; reserving up front avoids repeated rehashing.
+    pub fn with_capacity(cap: usize) -> Self {
+        TableParseCache {
+            cache: HashMap::with_capacity(cap),
+            hits: 0,
+            misses: 0,
+        }
+    }
+
     /// Check cache for a result
     pub fn get(&mut self, key: &TableCacheKey) -> Option<&TableCacheValue> {
         match self.cache.get(key) {
