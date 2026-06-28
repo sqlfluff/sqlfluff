@@ -12,6 +12,7 @@ from unittest import mock
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.errors import SQLFluffUserError
 
 try:
     import sqlfluffrs
@@ -101,3 +102,20 @@ def test__cp01_dispatch__regex_ignore_falls_back_to_python():
     ) as spy:
         Linter(config=cfg).lint_string("select a from t", fix=True)
     assert not spy.called, "regex word-ignore should fall back to the Python rule"
+
+
+def test__use_rust_rules_requires_rust_parser():
+    """Enabling rust rules while disabling the rust parser is rejected."""
+    # Contradiction: explicit rules-on + explicit parser-off.
+    with pytest.raises(SQLFluffUserError, match="use_rust_parser"):
+        FluffConfig.from_string(
+            "[sqlfluff]\ndialect=ansi\nuse_rust_parser=False\nuse_rust_rules=True\n"
+        )
+    # auto degrades gracefully (not an error) even with the parser off.
+    FluffConfig.from_string(
+        "[sqlfluff]\ndialect=ansi\nuse_rust_parser=False\nuse_rust_rules=auto\n"
+    )
+    # The valid combinations construct fine.
+    FluffConfig.from_string(
+        "[sqlfluff]\ndialect=ansi\nuse_rust_parser=auto\nuse_rust_rules=True\n"
+    )

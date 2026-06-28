@@ -139,6 +139,9 @@ class FluffConfig:
 
         self._configs["core"]["templater_obj"] = self.get_templater()
 
+        # Guard against an impossible Rust configuration.
+        self._verify_rust_config()
+
     def _handle_comma_separated_values(self) -> None:
         for in_key, out_key in [
             ("ignore", "ignore"),
@@ -183,6 +186,38 @@ class FluffConfig:
                 "specify one on the command line using --dialect after the "
                 "command. Available dialects:\n"
                 f"{', '.join([d.label for d in dialect_readout()])}"
+            )
+
+    def _verify_rust_config(self) -> None:
+        """Reject a contradictory Rust parser/rules configuration.
+
+        Rust-native rules read the parse arena, which only exists when the Rust
+        parser runs. Explicitly enabling ``use_rust_rules`` while the Rust
+        parser will not run (``use_rust_parser`` disabled) is contradictory —
+        the rules would silently do nothing — so raise instead.
+
+        ``auto`` degrades gracefully and is never an error: ``use_rust_rules``
+        is only "on" for the explicit truthy values, and the parser is
+        considered enabled for ``auto`` too (matching the linter's own logic).
+        """
+        core = self._configs["core"]
+        # Mirror the linter's parser-enable test (linter.py).
+        parser_enabled = core.get("use_rust_parser") in (
+            "auto",
+            "Auto",
+            "AUTO",
+            True,
+            "True",
+            "true",
+            1,
+        )
+        rules_forced_on = core.get("use_rust_rules") in (True, "True", "true", 1)
+        if rules_forced_on and not parser_enabled:
+            raise SQLFluffUserError(
+                "use_rust_rules is enabled but use_rust_parser is disabled. "
+                "Rust-native rules require the Rust parser (they read its parse "
+                "arena), so this combination does nothing. Set use_rust_parser "
+                "to 'auto' or 'True', or disable use_rust_rules."
             )
 
     def __getstate__(self) -> dict[str, Any]:
