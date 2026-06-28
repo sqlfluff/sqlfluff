@@ -90,6 +90,25 @@ def _get_select_except_refs(segment: BaseSegment) -> set[int]:
     return except_ref_ids
 
 
+def _get_hint_refs(segment: BaseSegment) -> set[int]:
+    """Get the ids of object references inside a query hint.
+
+    Dialects like SparkSQL support optimizer hints such as
+    ``SELECT /*+ BROADCAST(t1) */ ...`` where the hint arguments name tables or
+    aliases for the planner. Those names are not column references in the select
+    and shouldn't be treated as ordinary references by rules like RF02.
+    See: https://github.com/sqlfluff/sqlfluff/issues/6771
+    """
+    hint_ref_ids: set[int] = set()
+    for hint in segment.recursive_crawl(
+        "select_hint",
+        no_recursive_seg_type=["select_statement", "merge_statement"],
+    ):
+        for ref in hint.recursive_crawl("object_reference"):
+            hint_ref_ids.add(id(ref))
+    return hint_ref_ids
+
+
 def _get_object_references(
     segment: BaseSegment,
     exclude_ids: Optional[set[int]] = None,
@@ -133,7 +152,12 @@ def get_select_statement_info(
     # Also identify columns listed in a SELECT * EXCEPT (...) clause; those name
     # columns to drop from the star expansion and don't need qualification.
     # See: https://github.com/sqlfluff/sqlfluff/issues/5764
-    exclude_ref_ids = _get_struct_alias_refs(sc) | _get_select_except_refs(sc)
+    # Also identify object references inside a query hint (e.g.
+    # ``/*+ BROADCAST(t1) */``); those name tables/aliases for the planner, not
+    # columns in the select. See: https://github.com/sqlfluff/sqlfluff/issues/6771
+    exclude_ref_ids = (
+        _get_struct_alias_refs(sc) | _get_select_except_refs(sc) | _get_hint_refs(sc)
+    )
     reference_buffer = _get_object_references(sc, exclude_ids=exclude_ref_ids)
     table_reference_buffer = []
     for potential_clause in (

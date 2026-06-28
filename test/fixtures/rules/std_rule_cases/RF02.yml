@@ -739,3 +739,41 @@ test_fail_unqualified_reference_with_star_except:
   configs:
     core:
       dialect: databricks
+
+test_pass_sparksql_broadcast_hint:
+  # The argument of a query hint names a table/alias for the planner, not a
+  # column in the select, so it doesn't need qualification.
+  # https://github.com/sqlfluff/sqlfluff/issues/6771
+  pass_str: |
+    SELECT /*+ BROADCAST(a) */
+        a.col_one,
+        b.col_two
+    FROM table_a AS a
+    JOIN table_b AS b ON a.id = b.id
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_sparksql_merge_hint_multiple_tables:
+  pass_str: |
+    SELECT /*+ MERGE(a, b) */
+        a.col_one,
+        b.col_two
+    FROM table_a AS a
+    JOIN table_b AS b ON a.id = b.id
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_unqualified_reference_with_hint:
+  # The hint exclusion is scoped to the hint; a genuinely unqualified
+  # reference elsewhere in the select should still fail.
+  fail_str: |
+    SELECT /*+ BROADCAST(a) */
+        col_one,
+        b.col_two
+    FROM table_a AS a
+    JOIN table_b AS b ON a.id = b.id
+  configs:
+    core:
+      dialect: sparksql
