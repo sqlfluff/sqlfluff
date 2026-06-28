@@ -7,8 +7,11 @@
 //! Python side for now (the linter anchors a `LintFix` from the returned data).
 //! Moving fixing into Rust waits on the arena's mutation milestone.
 //!
-//! The PyO3 bindings are not here — they live in the root `sqlfluffrs` crate,
-//! which depends on both this crate and `sqlfluffrs_parser`, so this crate stays
-//! pure Rust and unit-testable.
+//! Each rule's PyO3 binding lives next to its logic, gated behind the optional
+//! `python` feature, and is registered on the module by [`python::register`].
+//! Rule *detection* stays pure Rust (no feature needed) and unit-testable.
 
 pub mod cp01;
+
+#[cfg(feature = "python")]
+pub mod python;

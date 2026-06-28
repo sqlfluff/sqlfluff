@@ -2255,6 +2255,7 @@ dependencies = [
 name = "sqlfluffrs_rules"
 version = "4.2.2"
 dependencies = [
+ "pyo3",
  "sqlfluffrs_parser",
 ]
 
