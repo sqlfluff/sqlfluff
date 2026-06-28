@@ -1,6 +1,6 @@
 //! Rust-native lint rules, run over the parse arena's public read API.
 //!
-//! ## STATUS: early — one experimental rule (CP01), not wired into dispatch
+//! ## STATUS: early — one experimental rule (CP01), gated by `core.use_rust_rules`
 //!
 //! Each rule's *detection* runs entirely in Rust over [`sqlfluffrs_parser::Arena`]
 //! (read-only) and returns a compact result; *fix application* stays on the

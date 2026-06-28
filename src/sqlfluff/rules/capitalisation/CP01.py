@@ -85,6 +85,13 @@ class Rule_CP01(BaseRule):
         """
         if not _HAS_SQLFLUFFRS:
             return None  # pragma: no cover
+        # Only CP01 itself: this detection targets keyword/operator segments, so
+        # the subclasses (CP02-CP05 capitalise identifiers/functions/literals/
+        # types) must not use it — they fall back to Python until they get their
+        # own Rust path. CP04 in particular shares `capitalisation_policy`, so a
+        # policy check alone wouldn't exclude it.
+        if self.name != "capitalisation.keywords":
+            return None
         root = context.segment
         rs_tree = getattr(root, "_rs_tree", None)
         if rs_tree is None:
@@ -92,15 +99,10 @@ class Rule_CP01(BaseRule):
             # has an arena), but guard in case _eval_rust is called directly.
             return None  # pragma: no cover
 
-        # `capitalisation_policy` is set on the instance from config_keywords;
-        # use getattr with a default so this is safe for subclasses that use a
-        # different key (e.g. CP03's extended_capitalisation_policy) — they get
-        # None here and fall back to the Python path.
-        policy = getattr(self, "capitalisation_policy", None)
-        if policy not in ("consistent", "upper", "lower", "capitalise"):
-            return None
         if getattr(self, "ignore_words_regex", None):
             return None
+        # CP01's capitalisation_policy is validated to one of these four values.
+        policy = str(getattr(self, "capitalisation_policy"))
 
         ignore_words_config = str(getattr(self, "ignore_words", None))
         if ignore_words_config and ignore_words_config != "None":

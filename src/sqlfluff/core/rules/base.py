@@ -555,7 +555,42 @@ class BaseRule(metaclass=RuleMetaclass):
         # path — or parses with no arena (Python parser) — fall through to the
         # Python crawl below.
         if self._rust_rules_enabled(config) and getattr(tree, "_rs_tree", None):
-            rust_results = self._eval_rust(root_context)
+            try:
+                rust_results = self._eval_rust(root_context)
+            except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
+                raise
+            except Exception as e:
+                # Mirror the per-segment handler below: a Rust binding/mapping
+                # error must not abort linting the whole file — surface it as a
+                # recoverable SQLLintError and stop this rule.
+                self.logger.critical(
+                    (
+                        f"Applying rule {self.code} (rust) to {fname!r} "
+                        f"threw an Exception: {e}"
+                        if fname
+                        else f"Applying rule {self.code} (rust) threw an Exception: {e}"
+                    ),
+                    exc_info=True,
+                )
+                assert root_context.segment.pos_marker
+                exception_line, _ = root_context.segment.pos_marker.source_position()
+                self._log_critical_errors(e)
+                vs.append(
+                    SQLLintError(
+                        rule=self,
+                        segment=root_context.segment,
+                        fixes=[],
+                        description=(
+                            f"Unexpected exception: {str(e)};\n"
+                            "Could you open an issue at "
+                            "https://github.com/sqlfluff/sqlfluff/issues ?\n"
+                            "You can ignore this exception for now, by adding "
+                            f"'-- noqa: {self.code}' at the end\n"
+                            f"of line {exception_line}\n"
+                        ),
+                    )
+                )
+                return vs, root_context.raw_stack, fixes, root_context.memory
             if rust_results is not None:
                 # Distinct names from the per-segment loop below so each keeps
                 # its own inferred type (mypy treats reused names as redefs).

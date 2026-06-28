@@ -779,3 +779,5 @@ class FluffConfig:
                 self.process_inline_config(raw_line, fname)
         # Deal with potential list-like inputs.
         self._handle_comma_separated_values()
+        # Re-validate: inline config may have changed the rust parser/rules keys.
+        self._verify_rust_config()
