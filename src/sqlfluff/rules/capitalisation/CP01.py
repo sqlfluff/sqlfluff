@@ -84,15 +84,19 @@ class Rule_CP01(BaseRule):
         regex word-ignore). See ``BaseRule._eval_rust``.
         """
         if not _HAS_SQLFLUFFRS:
-            return None
+            return None  # pragma: no cover
         root = context.segment
         rs_tree = getattr(root, "_rs_tree", None)
         if rs_tree is None:
-            return None
+            # Unreachable via dispatch (crawl() only calls this when the root
+            # has an arena), but guard in case _eval_rust is called directly.
+            return None  # pragma: no cover
 
-        # capitalisation_policy is set on the instance from config_keywords;
-        # access via getattr so mypy doesn't flag the dynamic attribute.
-        policy = str(getattr(self, "capitalisation_policy"))
+        # `capitalisation_policy` is set on the instance from config_keywords;
+        # use getattr with a default so this is safe for subclasses that use a
+        # different key (e.g. CP03's extended_capitalisation_policy) — they get
+        # None here and fall back to the Python path.
+        policy = getattr(self, "capitalisation_policy", None)
         if policy not in ("consistent", "upper", "lower", "capitalise"):
             return None
         if getattr(self, "ignore_words_regex", None):
@@ -114,33 +118,27 @@ class Rule_CP01(BaseRule):
             return []
 
         raw_segments = root.raw_segments
-        consistency = "consistently " if policy == "consistent" else ""
+        policy_text = self._policy_description(policy)
         results: list[LintResult] = []
         for leaf_idx, fixed_raw in violations:
             segment = raw_segments[leaf_idx]
-            # Concrete policy for the message (mirrors stock CP01 wording); for
-            # "consistent" it is inferred from the fix that was chosen.
-            concrete = policy
-            if policy == "consistent":
-                if fixed_raw == segment.raw.upper():
-                    concrete = "upper"
-                elif fixed_raw == segment.raw.lower():
-                    concrete = "lower"
-                else:
-                    concrete = "capitalise"
-            policy_text = (
-                "capitalised." if concrete == "capitalise" else f"{concrete} case."
-            )
             results.append(
                 LintResult(
                     anchor=segment,
                     fixes=[self._get_fix(segment, fixed_raw)],
-                    description=(
-                        f"{self._description_elem} must be {consistency}{policy_text}"
-                    ),
+                    description=f"{self._description_elem} must be {policy_text}",
                 )
             )
         return results
+
+    @staticmethod
+    def _policy_description(policy: str) -> str:
+        """Human-readable policy text for a Rust-path violation description."""
+        if policy == "capitalise":
+            return "capitalised."
+        if policy == "consistent":
+            return "consistent."
+        return f"{policy} case."
 
     def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Inconsistent capitalisation of keywords.

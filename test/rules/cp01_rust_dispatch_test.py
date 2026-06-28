@@ -104,6 +104,43 @@ def test__cp01_dispatch__regex_ignore_falls_back_to_python():
     assert not spy.called, "regex word-ignore should fall back to the Python rule"
 
 
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__dispatch__rule_without_rust_path_falls_back():
+    """A rule that doesn't override _eval_rust uses the base hook (None) -> Python.
+
+    Exercises BaseRule._eval_rust's default and confirms an un-ported rule is
+    unaffected by use_rust_rules.
+    """
+
+    def fixed(use_rust_rules):
+        cfg = FluffConfig.from_string(
+            "[sqlfluff]\ndialect=ansi\nrules=LT01\nuse_rust_parser=True\n"
+            f"use_rust_rules={use_rust_rules}\n"
+        )
+        return Linter(config=cfg).lint_string("SELECT  1", fix=True).fix_string()[0]
+
+    assert fixed("True") == fixed("False")
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__dispatch__cp03_inherits_eval_rust_and_falls_back():
+    """CP03 inherits CP01._eval_rust but uses a different policy key.
+
+    It must fall back to Python (not crash on a missing capitalisation_policy)
+    and produce identical fixes with use_rust_rules on vs off.
+    """
+
+    def fixed(use_rust_rules):
+        cfg = FluffConfig.from_string(
+            "[sqlfluff]\ndialect=ansi\nrules=CP03\nuse_rust_parser=True\n"
+            f"use_rust_rules={use_rust_rules}\n"
+        )
+        sql = "select MAX(x), Min(y) from t"
+        return Linter(config=cfg).lint_string(sql, fix=True).fix_string()[0]
+
+    assert fixed("True") == fixed("False")
+
+
 def test__use_rust_rules_requires_rust_parser():
     """Enabling rust rules while disabling the rust parser is rejected."""
     # Contradiction: explicit rules-on + explicit parser-off.
