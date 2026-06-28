@@ -45,19 +45,18 @@ impl RawString {
         } else {
             Some(raw.to_uppercase())
         };
-        let spec = if quoted_value.is_some()
-            || escape_replacement.is_some()
-            || casefold != CaseFold::None
-        {
-            Some(Box::new(NormalizeSpec {
-                quoted_value,
-                escape_replacement,
-                casefold,
-                normalized: OnceLock::new(),
-            }))
-        } else {
-            None
-        };
+        let spec =
+            if quoted_value.is_some() || escape_replacement.is_some() || casefold != CaseFold::None
+            {
+                Some(Box::new(NormalizeSpec {
+                    quoted_value,
+                    escape_replacement,
+                    casefold,
+                    normalized: OnceLock::new(),
+                }))
+            } else {
+                None
+            };
         Self {
             raw,
             raw_upper,
@@ -80,7 +79,9 @@ impl RawString {
 
     /// Get the escape_replacement transform spec (if any).
     pub fn escape_replacement(&self) -> Option<&(String, String)> {
-        self.spec.as_ref().and_then(|s| s.escape_replacement.as_ref())
+        self.spec
+            .as_ref()
+            .and_then(|s| s.escape_replacement.as_ref())
     }
 
     /// Get the casefold mode (`CaseFold::None` when there is no spec).
