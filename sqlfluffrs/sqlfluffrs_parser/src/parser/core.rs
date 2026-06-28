@@ -156,6 +156,12 @@ pub struct Parser<'a> {
     pub(crate) indent_config: hashbrown::HashMap<&'static str, bool>,
     // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
     regex_cache: hashbrown::HashMap<String, std::sync::Arc<RegexMode>>,
+    /// Memoizes a Ref's resolved child grammar (ref grammar_id -> child grammar_id).
+    /// The resolution (element children / by-name dialect lookup) depends only on
+    /// the Ref's grammar_id, but the same Ref is hit thousands of times per parse,
+    /// so caching it avoids repeating the by-name `get_*_segment_grammar` match.
+    /// `None` value = no child (the Ref resolves to Empty).
+    pub(crate) ref_child_cache: hashbrown::HashMap<u32, Option<u32>>,
     /// Maximum number of main-loop iterations before aborting.
     /// Configurable via `rust_parser_max_iterations` in `.sqlfluff`.
     pub(crate) max_parser_iterations: usize,
@@ -208,6 +214,7 @@ impl<'a> Parser<'a> {
             grammar_ctx,
             indent_config,
             regex_cache: hashbrown::HashMap::new(),
+            ref_child_cache: hashbrown::HashMap::new(),
             max_parser_iterations: 3_000_000,
             parser_warn_threshold: 2_000_000,
             max_parse_depth,

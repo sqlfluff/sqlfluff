@@ -72,25 +72,37 @@ impl Parser<'_> {
 
         self.pos = start_pos;
 
-        // Get element children (excludes the exclude grammar if present).
-        // For a Ref with only an exclude (no explicit match_grammar child), this will be empty.
-        let element_children: Vec<GrammarId> =
-            self.grammar_ctx.element_children(grammar_id).collect();
-
-        // Use first element child if present, otherwise resolve by name via dialect mapping.
-        // CRITICAL: For Ref grammars with an exclude, the `children` list contains ONLY the
-        // exclude grammar. The actual referenced segment must be resolved by name.
-        let child_grammar_id = if !element_children.is_empty() {
-            element_children[0]
-        } else {
-            match self.dialect.get_segment_grammar(&rule_name) {
-                Some(root) => root.grammar_id,
-                None => {
-                    vdebug!(
-                        "Ref[table]: No element children and no dialect mapping for '{}', returning Empty",
-                        rule_name
-                    );
-                    return Ok(stack.complete_frame_empty(&frame));
+        // Resolve the Ref's child grammar. This depends only on `grammar_id`
+        // (first element child if present, else a by-name dialect lookup), but the
+        // same Ref is hit thousands of times per parse, so memoize it — the by-name
+        // `get_*_segment_grammar` match is otherwise ~20% of parse self-time.
+        let child_grammar_id = match self.ref_child_cache.get(&grammar_id.0) {
+            Some(&Some(id)) => GrammarId(id),
+            Some(&None) => return Ok(stack.complete_frame_empty(&frame)),
+            None => {
+                // First element child if present, otherwise resolve by name.
+                // CRITICAL: For Ref grammars with an exclude, `children` contains ONLY
+                // the exclude grammar, so the referenced segment is resolved by name.
+                let resolved = self
+                    .grammar_ctx
+                    .element_children(grammar_id)
+                    .next()
+                    .or_else(|| {
+                        self.dialect
+                            .get_segment_grammar(&rule_name)
+                            .map(|root| root.grammar_id)
+                    });
+                self.ref_child_cache
+                    .insert(grammar_id.0, resolved.map(|g| g.0));
+                match resolved {
+                    Some(id) => id,
+                    None => {
+                        vdebug!(
+                            "Ref[table]: No element children and no dialect mapping for '{}', returning Empty",
+                            rule_name
+                        );
+                        return Ok(stack.complete_frame_empty(&frame));
+                    }
                 }
             }
         };
