@@ -740,7 +740,7 @@ pub fn segment_kwargs_from_token(
 ) -> SegmentKwargs {
     SegmentKwargs {
         instance_types: instance_types.or_else(|| Some(vec![token_type.to_string()])),
-        casefold: casefold.unwrap_or_else(|| tok.casefold.clone()),
+        casefold: casefold.unwrap_or_else(|| tok.casefold()),
         trim_chars: tok.trim_chars.clone(),
         escape_replacement: tok.escape_replacement().cloned(),
         quoted_value: tok.quoted_value().cloned(),

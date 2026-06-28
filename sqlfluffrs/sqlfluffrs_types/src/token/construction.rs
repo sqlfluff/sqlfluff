@@ -33,7 +33,7 @@ impl Token {
             is_meta: false,
             allow_empty: false,
             pos_marker: Some(pos_marker),
-            raw: crate::token::RawString::new(raw, quoted_value, escape_replacement),
+            raw: crate::token::RawString::new(raw, quoted_value, escape_replacement, casefold),
             is_whitespace: false,
             is_code: true,
             is_comment: false,
@@ -52,7 +52,6 @@ impl Token {
             source_fixes: None,
             trim_start,
             trim_chars,
-            casefold,
             matching_bracket_idx: None, // Will be computed after all tokens are created
         }
     }

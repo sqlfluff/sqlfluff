@@ -2,16 +2,18 @@ use std::sync::OnceLock;
 
 use crate::regex::RegexModeGroup;
 
-use super::Token;
+use super::{CaseFold, Token};
 
-/// Spec for normalizing `raw` (extract the quoted value / replace escapes),
-/// plus the lazily-computed result. Boxed and only present for the minority of
-/// tokens that actually carry a transform (string literals, quoted identifiers),
-/// so the common token pays a single pointer instead of ~128 bytes.
+/// Spec for normalizing `raw` (extract the quoted value, replace escapes,
+/// casefold), plus the lazily-computed result. Boxed and only present for the
+/// minority of tokens that actually carry a transform (string literals, quoted
+/// identifiers, the rare casefolded grammar), so the common token pays a single
+/// pointer instead of carrying these fields inline.
 #[derive(Debug, Clone)]
 struct NormalizeSpec {
     quoted_value: Option<(String, RegexModeGroup)>,
     escape_replacement: Option<(String, String)>,
+    casefold: CaseFold,
     /// Config-dependent normalized form, computed at most once. Empty until the
     /// first `normalized()` call (typically only during linting).
     normalized: OnceLock<String>,
@@ -35,6 +37,7 @@ impl RawString {
         raw: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
+        casefold: CaseFold,
     ) -> Self {
         // Only allocate an uppercase copy when it actually differs from `raw`.
         let raw_upper = if raw.is_ascii() && !raw.bytes().any(|b| b.is_ascii_lowercase()) {
@@ -42,10 +45,14 @@ impl RawString {
         } else {
             Some(raw.to_uppercase())
         };
-        let spec = if quoted_value.is_some() || escape_replacement.is_some() {
+        let spec = if quoted_value.is_some()
+            || escape_replacement.is_some()
+            || casefold != CaseFold::None
+        {
             Some(Box::new(NormalizeSpec {
                 quoted_value,
                 escape_replacement,
+                casefold,
                 normalized: OnceLock::new(),
             }))
         } else {
@@ -74,6 +81,11 @@ impl RawString {
     /// Get the escape_replacement transform spec (if any).
     pub fn escape_replacement(&self) -> Option<&(String, String)> {
         self.spec.as_ref().and_then(|s| s.escape_replacement.as_ref())
+    }
+
+    /// Get the casefold mode (`CaseFold::None` when there is no spec).
+    pub fn casefold(&self) -> CaseFold {
+        self.spec.as_ref().map_or(CaseFold::None, |s| s.casefold)
     }
 
     /// The normalized form of `raw`, computed at most once. With no transform

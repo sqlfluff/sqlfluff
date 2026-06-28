@@ -66,7 +66,6 @@ pub struct Token {
     pub source_fixes: Option<Vec<SourceFix>>,
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
-    pub casefold: CaseFold,
     /// Pre-computed index of matching bracket for O(1) lookup during parsing.
     /// For opening brackets like '(', '[', '{', this points to the matching closing bracket.
     /// For closing brackets like ')', ']', '}', this points back to the matching opening bracket.
@@ -138,6 +137,11 @@ impl Token {
     /// Get the escape_replacement pattern for this token (if any)
     pub fn escape_replacement(&self) -> Option<&(String, String)> {
         self.raw.escape_replacement()
+    }
+
+    /// Get the casefold mode for this token (`CaseFold::None` if unset)
+    pub fn casefold(&self) -> CaseFold {
+        self.raw.casefold()
     }
 
     pub fn normalize(
@@ -339,6 +343,7 @@ impl Token {
                 new_raw,
                 self.raw.quoted_value().cloned(),
                 self.raw.escape_replacement().cloned(),
+                self.raw.casefold(),
             ),
             source_fixes: Some(source_fixes.unwrap_or(self.source_fixes())),
             uuid: crate::identity::next_id(),
