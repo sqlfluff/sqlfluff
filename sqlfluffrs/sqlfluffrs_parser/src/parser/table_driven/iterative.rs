@@ -252,7 +252,7 @@ impl Parser<'_> {
         }
         vdebug!("DEBUG: Main loop ended. Stack has {} frames left. Result pending: {}. Looking for frame_id={}",
             stack.len(),
-            stack.results.is_some(),
+            stack.result_pending(),
             initial_frame_id
         );
 
@@ -307,7 +307,7 @@ impl Parser<'_> {
 
         vdebug!(
             "Main loop ended. Stack empty. Result pending: {}. Looking for frame_id={}",
-            stack.results.is_some(),
+            stack.result_pending(),
             initial_frame_id
         );
         if let Some((match_result, end_pos, _element_key)) = stack.take_pending(initial_frame_id) {
@@ -355,7 +355,7 @@ impl Parser<'_> {
             let error = ParseError::new(format!(
                 "Iterative parse produced no result (initial_frame_id={}, result_pending={})",
                 initial_frame_id,
-                stack.results.is_some()
+                stack.result_pending()
             ));
             Err(error)
         }
@@ -811,7 +811,7 @@ impl Parser<'_> {
         vdebug!("ERROR: Exceeded max iterations ({})", max_iterations);
         vdebug!("Last frame: {:?}", _frame.grammar_id);
         vdebug!("Stack depth: {}", _stack.len());
-        vdebug!("Result pending: {}", _stack.results.is_some());
+        vdebug!("Result pending: {}", _stack.result_pending());
 
         // Print last 20 frames on stack for diagnosis
         vdebug!("\n=== Last 20 frames on stack ===");

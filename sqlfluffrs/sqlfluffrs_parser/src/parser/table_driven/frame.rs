@@ -27,7 +27,7 @@ pub struct TableParseFrameStack {
     ///
     /// - `end_pos`: token position just past the child's match.
     /// - `element_key`: optional per-element identity for AnyNumberOf accounting.
-    pub results: Option<(usize, Arc<MatchResult>, usize, Option<u64>)>,
+    results: Option<(usize, Arc<MatchResult>, usize, Option<u64>)>,
     pub frame_id_counter: usize,
     // Add any additional state fields here as needed
 }
@@ -57,6 +57,11 @@ impl TableParseFrameStack {
         self.results
             .take_if(|(stored_id, ..)| *stored_id == frame_id)
             .map(|(_, result, end_pos, element_key)| (result, end_pos, element_key))
+    }
+
+    #[inline]
+    pub fn result_pending(&self) -> bool {
+        self.results.is_some()
     }
 
     pub fn push(&mut self, frame: TableParseFrame) {
@@ -89,6 +94,7 @@ impl TableParseFrameStack {
 
     #[inline]
     pub(crate) fn insert_empty_result(&mut self, frame_id: usize, pos: usize) {
+        debug_assert!(self.results.is_none());
         self.results = Some((frame_id, Arc::new(MatchResult::empty_at(pos)), pos, None));
     }
 
@@ -99,6 +105,7 @@ impl TableParseFrameStack {
         match_result: MatchResult,
         end_pos: usize,
     ) {
+        debug_assert!(self.results.is_none());
         self.results = Some((frame_id, Arc::new(match_result), end_pos, None));
     }
 
@@ -109,6 +116,7 @@ impl TableParseFrameStack {
         match_result: Arc<MatchResult>,
         end_pos: usize,
     ) {
+        debug_assert!(self.results.is_none());
         self.results = Some((frame_id, match_result, end_pos, None));
     }
 
@@ -120,6 +128,7 @@ impl TableParseFrameStack {
         end_pos: usize,
         element_key: Option<u64>,
     ) {
+        debug_assert!(self.results.is_none());
         self.results = Some((frame_id, match_result, end_pos, element_key));
     }
 
