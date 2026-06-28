@@ -1,28 +1,10 @@
-//! Rust-native detection for rule CP01 (keyword capitalisation), over the arena.
+//! CP01 (keyword capitalisation) detection over the parse arena.
 //!
-//! ## STATUS: experimental prototype — NOT wired into rule dispatch
-//!
-//! This proves out the "Rust-accelerated lint rule" approach end-to-end
-//! (detect in Rust over the arena → return a compact result → Python anchors a
-//! `LintFix`). It is exposed only via `RsTree.cp01_violations(...)` and is not
-//! invoked by the linter; the stock Python `Rule_CP01` is still what runs.
-//! Validated at parity with stock CP01 across the dialect fixtures × policies.
-//!
-//! Two things are deliberately left for design discussion before this becomes
-//! production (see PR #7984):
-//!   1. **Where this lives.** A *rule* in the *parser* crate is a layering
-//!      smell; it sits here only because the arena read accessors are
-//!      `pub(crate)`. Moving it to a `rules` module/crate needs the arena to
-//!      expose a *public* navigation API — an arena-substrate decision.
-//!   2. **Dispatch + gating.** How a Rust-accelerated rule is selected/gated
-//!      (e.g. a `use_rust_rules` config) and falls back to Python is not
-//!      decided here.
-//!
-//! Walks the parsed arena once, entirely in Rust, and returns the leaf indices
-//! that need a capitalisation fix paired with the corrected raw text. Keeping
-//! the whole detection loop in Rust (one FFI crossing for the result) avoids the
-//! per-node boundary cost that makes a Python-reads-the-tree approach slower than
-//! a native Python crawl.
+//! Walks the arena once, entirely in Rust, and returns the leaf indices that
+//! need a capitalisation fix paired with the corrected raw text. Keeping the
+//! whole detection loop in Rust (one FFI crossing for the result) avoids the
+//! per-node boundary cost that makes a Python-reads-the-tree approach slower
+//! than a native crawl.
 //!
 //! Mirrors `Rule_CP01` for the `consistent`/`upper`/`lower`/`capitalise`
 //! policies (the only options `capitalisation_policy` accepts). Word-ignore and
@@ -37,7 +19,7 @@
 
 use std::collections::HashSet;
 
-use crate::parser::arena::{Arena, NodeId};
+use sqlfluffrs_parser::{Arena, NodeId};
 
 const TARGET_TYPES: [&str; 3] = ["keyword", "binary_operator", "date_part"];
 const EXCLUDE_PARENT_TYPES: [&str; 3] = ["data_type", "datetime_type_identifier", "primitive_type"];
@@ -67,13 +49,12 @@ fn apply_policy(raw: &str, policy: &str) -> String {
     }
 }
 
-/// Mirrors `Rule_CP01`'s parent-type exclusions.
+/// Mirrors `Rule_CP01`'s parent-type exclusions. Uses the non-cloning `is_type`
+/// accessor (not `class_types`, which clones a Vec per call).
 fn is_excluded_parent(arena: &Arena, parent: Option<NodeId>) -> bool {
     let Some(parent) = parent else {
         return false;
     };
-    // Membership checks via `is_type` (no allocation), not `class_types` (clones
-    // a Vec per call).
     if EXCLUDE_PARENT_TYPES
         .iter()
         .any(|t| arena.is_type(parent, t))
@@ -135,12 +116,10 @@ fn walk(
     let raw = arena.raw(id);
 
     // Skips that must NOT influence the consistent-policy inference.
-    let templated = ignore_templated
-        && arena
-            .pos_marker(id)
-            .map(|m| m.source_slice.start != m.source_slice.stop && !m.is_literal())
-            .unwrap_or(false);
-    if raw.is_empty() || ignore_words.contains(&raw.to_lowercase()) || templated {
+    if raw.is_empty()
+        || ignore_words.contains(&raw.to_lowercase())
+        || (ignore_templated && arena.is_templated(id))
+    {
         return;
     }
 
@@ -196,7 +175,7 @@ fn walk(
 /// a capitalisation fix. `leaf_index` is the position in the arena's depth-first
 /// leaf order, which matches Python's `raw_segments`, so the caller anchors via
 /// `raw_segments[leaf_index]`.
-pub(crate) fn cp01_violations(
+pub fn cp01_violations(
     arena: &Arena,
     policy: &str,
     ignore_words: &HashSet<String>,

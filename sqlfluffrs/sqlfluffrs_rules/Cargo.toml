@@ -1,0 +1,10 @@
+[package]
+name = "sqlfluffrs_rules"
+version.workspace = true
+edition = "2021"
+
+# Rust-native lint rules. Detection runs over the parse arena's public read API
+# (sqlfluffrs_parser::Arena); fixes are still applied Python-side for now. No
+# PyO3 here — the thin bindings live in the root crate, which depends on both.
+[dependencies]
+sqlfluffrs_parser = { path = "../sqlfluffrs_parser" }

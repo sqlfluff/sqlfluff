@@ -49,6 +49,16 @@ impl PyTree {
             node,
         }
     }
+
+    /// Run a closure with read access to the underlying arena.
+    ///
+    /// This is the bridge for out-of-crate consumers (e.g. the rules crate's
+    /// PyO3 bindings): it locks the arena once and hands a `&Arena` to `f`,
+    /// keeping the `Arc<Mutex<…>>` encapsulated here.
+    pub fn with_arena<R>(&self, f: impl FnOnce(&Arena) -> R) -> R {
+        let guard = self.inner.lock().unwrap();
+        f(&guard)
+    }
 }
 
 #[pymethods]
@@ -70,26 +80,6 @@ impl PyTree {
     fn node_by_uuid(&self, uuid: u128) -> Option<PyHandle> {
         let id = self.inner.lock().unwrap().node_by_uuid(uuid);
         id.map(|n| self.handle(n))
-    }
-
-    /// Experimental: detect CP01 (keyword capitalisation) violations natively.
-    ///
-    /// Walks the arena once in Rust and returns `(leaf_index, fixed_raw)` for
-    /// each keyword/operator node needing a fix, where `leaf_index` is the
-    /// position in the depth-first leaf order (1:1 with Python `raw_segments`).
-    /// The whole detection loop runs in Rust (one FFI crossing for the result);
-    /// the caller anchors via `raw_segments[leaf_index]`. Read-only — no
-    /// mutation of the arena.
-    #[pyo3(signature = (policy, ignore_words=vec![], ignore_templated=false))]
-    fn cp01_violations(
-        &self,
-        policy: &str,
-        ignore_words: Vec<String>,
-        ignore_templated: bool,
-    ) -> Vec<(usize, String)> {
-        let ignore: std::collections::HashSet<String> = ignore_words.into_iter().collect();
-        let arena = self.inner.lock().unwrap();
-        crate::parser::rules_cp01::cp01_violations(&arena, policy, &ignore, ignore_templated)
     }
 
     fn __repr__(&self) -> String {
