@@ -360,6 +360,28 @@ impl Parser<'_> {
         *working_idx = self.skip_to_code_if_gaps(*working_idx, *max_idx, allow_gaps);
         self.pos = *working_idx;
 
+        // PYTHON PARITY: respect the hard `max_idx` boundary before matching a
+        // delimiter (Python matches against `segments[:max_idx]`). Once the next
+        // code position reaches `max_idx`, the list is complete; otherwise a
+        // delimiter landing exactly on a parent's trimmed boundary would be
+        // consumed and the list would expand past it.
+        if *working_idx >= *max_idx {
+            vdebug!(
+                "Delimited[table]: reached max_idx ({}) after element, finalizing without delimiter",
+                *max_idx
+            );
+            let final_pos = *matched_idx;
+            self.pos = final_pos;
+            if *delimiter_count < min_delimiters {
+                frame.end_pos = Some(frame.pos);
+            } else {
+                frame.end_pos = Some(final_pos);
+            }
+            frame.state = FrameState::Combining;
+            stack.push(frame);
+            return Ok(TableFrameResult::Done);
+        }
+
         // Transition to MatchingDelimiter
         *delim_state = DelimitedPhase::MatchingDelimiter;
 
