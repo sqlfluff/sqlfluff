@@ -3,11 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eca5cbbdb465872c10860f003bbf7c8b0637aec6bf1ecd1d3a7d548dbf89d67f
+_hash: 94ed53ed5a14ec879482ebe7723c611b3e9bb8693411ca38929a6c47e4cebe34
 file:
 - statement:
     magic_cell_segment:
-      bare_magic_cell: "%python\nprint(\"Hello world\")"
+      bare_magic_cell:
+      - binary_operator: '%'
+      - word: python
+      - word: print
+      - bracketed:
+          start_bracket: (
+          double_quote: '"Hello world"'
+          end_bracket: )
 - statement_terminator: "\n\n-- COMMAND ----------\n"
 - statement:
     select_statement:
@@ -27,4 +34,9 @@ file:
 - statement_terminator: "\n\n-- COMMAND ----------\n"
 - statement:
     magic_cell_segment:
-      bare_magic_cell: "%run ./Notebook\n"
+      bare_magic_cell:
+      - binary_operator: '%'
+      - word: run
+      - dot: .
+      - divide: /
+      - word: Notebook
