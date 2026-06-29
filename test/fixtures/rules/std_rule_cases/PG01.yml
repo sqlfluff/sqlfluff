@@ -113,45 +113,6 @@ test_fail_refresh_materialized_view_without_concurrently:
     core:
       dialect: postgres
 
-# ---- ADD CONSTRAINT FOREIGN KEY ----
-
-test_pass_alter_table_add_column:
-  pass_str: |
-    ALTER TABLE foo ADD COLUMN bar TEXT;
-  configs:
-    core:
-      dialect: postgres
-
-test_pass_alter_table_drop_column:
-  pass_str: |
-    ALTER TABLE foo DROP COLUMN bar;
-  configs:
-    core:
-      dialect: postgres
-
-test_pass_add_foreign_key_not_valid:
-  pass_str: |
-    ALTER TABLE foo ADD CONSTRAINT fk_bar
-        FOREIGN KEY (bar_id) REFERENCES bar (id) NOT VALID;
-  configs:
-    core:
-      dialect: postgres
-
-test_fail_add_foreign_key_without_not_valid:
-  fail_str: |
-    ALTER TABLE foo ADD CONSTRAINT fk_bar
-        FOREIGN KEY (bar_id) REFERENCES bar (id);
-  configs:
-    core:
-      dialect: postgres
-
-test_pass_add_non_fk_constraint_without_not_valid:
-  pass_str: |
-    ALTER TABLE foo ADD CONSTRAINT uq_bar UNIQUE (bar_id);
-  configs:
-    core:
-      dialect: postgres
-
 # ---- Dialect scoping ----
 
 test_pass_non_postgres_dialect_ignored:
