@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dfc8e3d9226812673731110a480b2fc476bd6fac130d86e444d7a808f46cf61b
+_hash: 74e77c723a0f03823e5c0b6a553903ea9aef17a27f1812e57b45d9e2a74cdfda
 file:
 - statement:
     select_statement:
@@ -45,43 +45,40 @@ file:
                       keyword: COLUMNS
                       bracketed:
                       - start_bracket: (
-                      - json_table_column_definition:
-                          quoted_identifier: '`name`'
-                          data_type:
-                            data_type_identifier: VARCHAR
-                            bracketed_arguments:
-                              bracketed:
-                                start_bracket: (
-                                numeric_literal: '10'
-                                end_bracket: )
-                          keyword: PATH
-                          quoted_literal: "'$.name'"
+                      - quoted_identifier: '`name`'
+                      - data_type:
+                          data_type_identifier: VARCHAR
+                          bracketed_arguments:
+                            bracketed:
+                              start_bracket: (
+                              numeric_literal: '10'
+                              end_bracket: )
+                      - keyword: PATH
+                      - quoted_literal: "'$.name'"
                       - comma: ','
-                      - json_table_column_definition:
-                          quoted_identifier: '`color`'
-                          data_type:
-                            data_type_identifier: VARCHAR
-                            bracketed_arguments:
-                              bracketed:
-                                start_bracket: (
-                                numeric_literal: '10'
-                                end_bracket: )
-                          keyword: PATH
-                          quoted_literal: "'$.color'"
+                      - quoted_identifier: '`color`'
+                      - data_type:
+                          data_type_identifier: VARCHAR
+                          bracketed_arguments:
+                            bracketed:
+                              start_bracket: (
+                              numeric_literal: '10'
+                              end_bracket: )
+                      - keyword: PATH
+                      - quoted_literal: "'$.color'"
                       - comma: ','
-                      - json_table_column_definition:
-                          quoted_identifier: '`price`'
-                          data_type:
-                            data_type_identifier: DECIMAL
-                            bracketed_arguments:
-                              bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '8'
-                              - comma: ','
-                              - numeric_literal: '2'
-                              - end_bracket: )
-                          keyword: PATH
-                          quoted_literal: "'$.price'"
+                      - quoted_identifier: '`price`'
+                      - data_type:
+                          data_type_identifier: DECIMAL
+                          bracketed_arguments:
+                            bracketed:
+                            - start_bracket: (
+                            - numeric_literal: '8'
+                            - comma: ','
+                            - numeric_literal: '2'
+                            - end_bracket: )
+                      - keyword: PATH
+                      - quoted_literal: "'$.price'"
                       - end_bracket: )
                     end_bracket: )
             alias_expression:
@@ -150,17 +147,16 @@ file:
                         keyword: COLUMNS
                         bracketed:
                           start_bracket: (
-                          json_table_column_definition:
-                            quoted_identifier: '`name`'
-                            data_type:
-                              data_type_identifier: VARCHAR
-                              bracketed_arguments:
-                                bracketed:
-                                  start_bracket: (
-                                  numeric_literal: '50'
-                                  end_bracket: )
-                            keyword: PATH
-                            quoted_literal: "'$.name'"
+                          quoted_identifier: '`name`'
+                          data_type:
+                            data_type_identifier: VARCHAR
+                            bracketed_arguments:
+                              bracketed:
+                                start_bracket: (
+                                numeric_literal: '50'
+                                end_bracket: )
+                          keyword: PATH
+                          quoted_literal: "'$.name'"
                           end_bracket: )
                       end_bracket: )
               alias_expression:
@@ -214,63 +210,58 @@ file:
                       keyword: COLUMNS
                       bracketed:
                       - start_bracket: (
-                      - json_table_column_definition:
-                        - quoted_identifier: '`id`'
-                        - keyword: FOR
-                        - keyword: ORDINALITY
+                      - quoted_identifier: '`id`'
+                      - keyword: FOR
+                      - keyword: ORDINALITY
                       - comma: ','
-                      - json_table_column_definition:
-                        - quoted_identifier: '`name`'
-                        - data_type:
-                            data_type_identifier: VARCHAR
-                            bracketed_arguments:
-                              bracketed:
-                                start_bracket: (
-                                numeric_literal: '40'
-                                end_bracket: )
-                        - keyword: PATH
-                        - quoted_literal: "'$.name'"
-                        - keyword: DEFAULT
-                        - quoted_literal: "'0'"
-                        - keyword: 'ON'
-                        - keyword: EMPTY
-                        - keyword: 'NULL'
-                        - keyword: 'ON'
-                        - keyword: ERROR
-                      - comma: ','
-                      - json_table_column_definition:
-                        - quoted_identifier: '`has_price`'
-                        - data_type:
-                            data_type_identifier: VARCHAR
-                            bracketed_arguments:
-                              bracketed:
-                                start_bracket: (
-                                numeric_literal: '10'
-                                end_bracket: )
-                        - keyword: EXISTS
-                        - keyword: PATH
-                        - quoted_literal: "'$.price'"
-                      - comma: ','
-                      - json_table_column_definition:
-                        - keyword: NESTED
-                        - keyword: PATH
-                        - quoted_literal: "'$.tags[*]'"
-                        - json_table_columns_clause:
-                            keyword: COLUMNS
+                      - quoted_identifier: '`name`'
+                      - data_type:
+                          data_type_identifier: VARCHAR
+                          bracketed_arguments:
                             bracketed:
                               start_bracket: (
-                              json_table_column_definition:
-                                quoted_identifier: '`tag`'
-                                data_type:
-                                  data_type_identifier: VARCHAR
-                                  bracketed_arguments:
-                                    bracketed:
-                                      start_bracket: (
-                                      numeric_literal: '40'
-                                      end_bracket: )
-                                keyword: PATH
-                                quoted_literal: "'$.tag'"
+                              numeric_literal: '40'
                               end_bracket: )
+                      - keyword: PATH
+                      - quoted_literal: "'$.name'"
+                      - keyword: DEFAULT
+                      - quoted_literal: "'0'"
+                      - keyword: 'ON'
+                      - keyword: EMPTY
+                      - keyword: 'NULL'
+                      - keyword: 'ON'
+                      - keyword: ERROR
+                      - comma: ','
+                      - quoted_identifier: '`has_price`'
+                      - data_type:
+                          data_type_identifier: VARCHAR
+                          bracketed_arguments:
+                            bracketed:
+                              start_bracket: (
+                              numeric_literal: '10'
+                              end_bracket: )
+                      - keyword: EXISTS
+                      - keyword: PATH
+                      - quoted_literal: "'$.price'"
+                      - comma: ','
+                      - keyword: NESTED
+                      - keyword: PATH
+                      - quoted_literal: "'$.tags[*]'"
+                      - json_table_columns_clause:
+                          keyword: COLUMNS
+                          bracketed:
+                            start_bracket: (
+                            quoted_identifier: '`tag`'
+                            data_type:
+                              data_type_identifier: VARCHAR
+                              bracketed_arguments:
+                                bracketed:
+                                  start_bracket: (
+                                  numeric_literal: '40'
+                                  end_bracket: )
+                            keyword: PATH
+                            quoted_literal: "'$.tag'"
+                            end_bracket: )
                       - end_bracket: )
                     end_bracket: )
             alias_expression:

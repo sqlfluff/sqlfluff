@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dbae3652e2d89bfa40bf0df381ecd15ec6f6637851306716182091ac624802ba
+_hash: b19efd592daa82ca68b136a631b5d249b6b5143e9839d8d0f157067096c6826b
 file:
   statement:
     select_statement:
@@ -39,31 +39,29 @@ file:
                       keyword: COLUMNS
                       bracketed:
                       - start_bracket: (
-                      - json_table_column_definition:
-                          quoted_identifier: '`name`'
-                          data_type:
-                            data_type_identifier: VARCHAR
-                            bracketed_arguments:
-                              bracketed:
-                                start_bracket: (
-                                numeric_literal: '10'
-                                end_bracket: )
-                          keyword: PATH
-                          quoted_literal: "'$.name'"
+                      - quoted_identifier: '`name`'
+                      - data_type:
+                          data_type_identifier: VARCHAR
+                          bracketed_arguments:
+                            bracketed:
+                              start_bracket: (
+                              numeric_literal: '10'
+                              end_bracket: )
+                      - keyword: PATH
+                      - quoted_literal: "'$.name'"
                       - comma: ','
-                      - json_table_column_definition:
-                          quoted_identifier: '`price`'
-                          data_type:
-                            data_type_identifier: DECIMAL
-                            bracketed_arguments:
-                              bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '8'
-                              - comma: ','
-                              - numeric_literal: '2'
-                              - end_bracket: )
-                          keyword: PATH
-                          quoted_literal: "'$.price'"
+                      - quoted_identifier: '`price`'
+                      - data_type:
+                          data_type_identifier: DECIMAL
+                          bracketed_arguments:
+                            bracketed:
+                            - start_bracket: (
+                            - numeric_literal: '8'
+                            - comma: ','
+                            - numeric_literal: '2'
+                            - end_bracket: )
+                      - keyword: PATH
+                      - quoted_literal: "'$.price'"
                       - end_bracket: )
                     end_bracket: )
             alias_expression:

@@ -441,18 +441,21 @@ class CurrentTimestampLikeFunctionSegment(BaseSegment):
     )
 
 
-class JsonTableColumnDefinitionSegment(BaseSegment):
-    """A column definition in a JSON_TABLE COLUMNS clause.
+class JsonTableColumnsClauseSegment(BaseSegment):
+    """The COLUMNS clause in a JSON_TABLE function.
 
-    The column names here define the shape of the table produced by
-    JSON_TABLE; they are not references to columns of an outer table, so
-    they are modelled as identifiers rather than column references.
+    The column names defined here describe the shape of the table produced by
+    JSON_TABLE; they are not references to columns of an outer table, so they
+    are modelled as identifiers rather than column references.
 
     https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html
     """
 
-    type = "json_table_column_definition"
-    match_grammar: Matchable = OneOf(
+    type = "json_table_columns_clause"
+
+    # A single column definition. Defined locally because it is only used
+    # inside this clause; the NESTED branch recurses through the clause itself.
+    _column_definition: Matchable = OneOf(
         # name FOR ORDINALITY
         Sequence(
             Ref("SingleIdentifierGrammar"),
@@ -492,19 +495,11 @@ class JsonTableColumnDefinitionSegment(BaseSegment):
         ),
     )
 
-
-class JsonTableColumnsClauseSegment(BaseSegment):
-    """The COLUMNS clause in a JSON_TABLE function.
-
-    https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html
-    """
-
-    type = "json_table_columns_clause"
     match_grammar: Matchable = Sequence(
         "COLUMNS",
         Bracketed(
             Delimited(
-                Ref("JsonTableColumnDefinitionSegment"),
+                _column_definition,
             ),
         ),
     )
