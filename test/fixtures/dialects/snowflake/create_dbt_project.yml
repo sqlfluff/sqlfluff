@@ -1,0 +1,152 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 12ab5925ffa3307f3ef7c5adb3ab4df934a3376ec8fad885497fe4d36b9b9dce
+file:
+- statement:
+    create_dbt_project_statement:
+    - keyword: CREATE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+        naked_identifier: my_dbt_project
+- statement_terminator: ;
+- statement:
+    create_dbt_project_statement:
+    - keyword: CREATE
+    - keyword: DBT
+    - keyword: PROJECT
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_dbt_project
+- statement_terminator: ;
+- statement:
+    create_dbt_project_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+        naked_identifier: my_dbt_project
+- statement_terminator: ;
+- statement:
+    create_dbt_project_statement:
+    - keyword: CREATE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+        naked_identifier: my_dbt_project
+    - keyword: FROM
+    - quoted_literal: "'https://github.com/my-org/my-dbt-repo.git'"
+- statement_terminator: ;
+- statement:
+    create_dbt_project_statement:
+    - keyword: CREATE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+        naked_identifier: my_dbt_project
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'My dbt project'"
+- statement_terminator: ;
+- statement:
+    create_dbt_project_statement:
+    - keyword: CREATE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+        naked_identifier: my_dbt_project
+    - keyword: DBT_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1.8'
+- statement_terminator: ;
+- statement:
+    create_dbt_project_statement:
+    - keyword: CREATE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+        naked_identifier: my_dbt_project
+    - keyword: DEFAULT_TARGET
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: prod
+- statement_terminator: ;
+- statement:
+    create_dbt_project_statement:
+    - keyword: CREATE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+        naked_identifier: my_dbt_project
+    - external_access_integration_equals:
+        keyword: EXTERNAL_ACCESS_INTEGRATIONS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          naked_identifier: my_integration
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dbt_project_statement:
+    - keyword: CREATE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+        naked_identifier: my_dbt_project
+    - external_access_integration_equals:
+        keyword: EXTERNAL_ACCESS_INTEGRATIONS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+        - start_bracket: (
+        - naked_identifier: integration_a
+        - comma: ','
+        - naked_identifier: integration_b
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dbt_project_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+        naked_identifier: my_dbt_project
+    - keyword: FROM
+    - quoted_literal: "'https://github.com/my-org/my-dbt-repo.git'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Full dbt project example'"
+    - keyword: DBT_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1.8'
+    - keyword: DEFAULT_TARGET
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: prod
+    - external_access_integration_equals:
+        keyword: EXTERNAL_ACCESS_INTEGRATIONS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          naked_identifier: my_github_integration
+          end_bracket: )
+- statement_terminator: ;
