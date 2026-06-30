@@ -1070,6 +1070,7 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
         OneOf(
             Ref("FunctionNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
+            Ref("SystemFunctionName"),
             # Snowflake's IDENTIFIER pseudo-function
             # https://docs.snowflake.com/en/sql-reference/identifier-literal.html
             Sequence(
@@ -2037,23 +2038,6 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     ).copy(
         insert=[Ref("IntoClauseSegment", optional=True)],
         before=Ref("FromClauseSegment", optional=True),
-    )
-
-
-class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
-    """Inherit from ansi but also allow for Snowflake System Functions.
-
-    https://docs.snowflake.com/en/sql-reference/functions-system
-    """
-
-    match_grammar = ansi.SelectClauseElementSegment.match_grammar.copy(
-        insert=[
-            Sequence(
-                Ref("SystemFunctionName"),
-                Bracketed(Delimited(Ref("LiteralGrammar"))),
-            )
-        ],
-        before=Ref("WildcardExpressionSegment"),
     )
 
 
