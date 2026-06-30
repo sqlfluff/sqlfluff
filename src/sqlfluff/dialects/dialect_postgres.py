@@ -5854,7 +5854,10 @@ class CopyStatementSegment(BaseSegment):
 
     _target_subset = OneOf(
         Ref("QuotedLiteralSegment"),
-        Sequence("PROGRAM", Ref("QuotedLiteralSegment")),
+        Sequence(
+            "PROGRAM",
+            OneOf(Ref("QuotedLiteralSegment"), Ref("PsqlVariableGrammar")),
+        ),
         Ref("PsqlVariableGrammar"),
     )
 
