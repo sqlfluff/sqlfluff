@@ -2042,9 +2042,21 @@ class MagicCellStatementSegment(BaseSegment):
                 AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
             ),
             Ref("MagicSingleLineGrammar", optional=True),
+            Ref("BareMagicCellSegment"),
         ),
         terminators=[Ref("CommandCellSegment", optional=True)],
         reset_terminators=True,
+    )
+
+
+class BareMagicCellSegment(BaseSegment):
+    """A bare Databricks notebook magic cell starting with %."""
+
+    type = "bare_magic_cell"
+    match_grammar = Sequence(
+        Ref("ModuloSegment"),
+        Anything(terminators=[Ref("CommandCellSegment")], optional=True),
+        allow_gaps=False,
     )
 
 
