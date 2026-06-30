@@ -1029,7 +1029,6 @@ class PropertyNameSegment(sparksql.PropertyNameSegment):
                     Ref("PropertiesBackTickedIdentifierSegment"),
                 ),
                 delimiter=Ref("DotSegment"),
-                allow_gaps=False,
             ),
             Ref("SingleIdentifierGrammar"),
         ),

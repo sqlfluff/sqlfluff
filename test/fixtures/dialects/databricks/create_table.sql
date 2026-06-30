@@ -122,3 +122,9 @@ CREATE TABLE catalog.silver.child2 (
     REFERENCES catalog.silver.parent (parent_key)
     ON UPDATE NO ACTION ON DELETE NO ACTION
 ) USING DELTA;
+
+CREATE TABLE delta_change_feed_table (
+    id BIGINT
+)
+USING DELTA
+TBLPROPERTIES (delta . enableChangeDataFeed = TRUE);
