@@ -3,19 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 94ed53ed5a14ec879482ebe7723c611b3e9bb8693411ca38929a6c47e4cebe34
+_hash: f845e8af9d124988fbe9f4ea1fd5f40670ab9d481b313c58e48a6832a527c80e
 file:
+- statement_terminator: -- COMMAND ----------
 - statement:
     magic_cell_segment:
-      bare_magic_cell:
-      - binary_operator: '%'
-      - word: python
-      - word: print
-      - bracketed:
-          start_bracket: (
-          double_quote: '"Hello world"'
-          end_bracket: )
-- statement_terminator: "\n\n-- COMMAND ----------\n"
+    - bare_magic_cell: '%python'
+    - bare_magic_cell: print("Hello world")
+- statement_terminator: -- COMMAND ----------
 - statement:
     select_statement:
       select_clause:
@@ -31,12 +26,7 @@ file:
               table_reference:
                 naked_identifier: b
 - statement_terminator: ;
-- statement_terminator: "\n\n-- COMMAND ----------\n"
+- statement_terminator: -- COMMAND ----------
 - statement:
     magic_cell_segment:
-      bare_magic_cell:
-      - binary_operator: '%'
-      - word: run
-      - dot: .
-      - divide: /
-      - word: Notebook
+      bare_magic_cell: '%run ./Notebook'
