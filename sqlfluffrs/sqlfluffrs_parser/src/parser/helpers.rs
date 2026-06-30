@@ -304,6 +304,11 @@ impl<'a> Parser<'a> {
         let tables = Some(self.grammar_ctx.tables());
 
         for &opt_id in options {
+            // Skip the NONCODE sentinel (not a real grammar id; handled by
+            // `is_terminated`). Indexing the grammar tables with it would panic.
+            if opt_id == GrammarId::NONCODE {
+                continue;
+            }
             // Try to get simple hint for this grammar from tables
             if let Some(tables) = tables {
                 if let Some(hint) = tables.get_simple_hint_for_grammar(opt_id) {
