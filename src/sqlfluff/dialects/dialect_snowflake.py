@@ -1475,6 +1475,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AccessStatementSegment"),
             Ref("CreateStatementSegment"),
             Ref("DefineStatementSegment"),
+            Ref("CreateDbtProjectStatementSegment"),
+            Ref("CreateDcmProjectStatementSegment"),
             Ref("CreateTaskSegment"),
             Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
@@ -3283,6 +3285,8 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         "NOTEBOOK",
         "MODEL",
         "WORKSPACE",
+        Sequence("DBT", "PROJECT"),
+        Sequence("DCM", "PROJECT"),
         Sequence("MATERIALIZED", "VIEW"),
         Sequence("DYNAMIC", "TABLE"),
         Sequence("EXTERNAL", "TABLE"),
@@ -3313,6 +3317,8 @@ class AccessSchemaPluralObjectSegment(ansi.AccessSchemaPluralObjectSegment):
         "NOTEBOOKS",
         "MODELS",
         "WORKSPACES",
+        Sequence("DBT", "PROJECTS"),
+        Sequence("DCM", "PROJECTS"),
     )
 
 
@@ -6050,6 +6056,68 @@ class DefineStatementSegment(BaseSegment):
     )
 
 
+class CreateDbtProjectStatementSegment(BaseSegment):
+    """A Snowflake `CREATE DBT PROJECT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-dbt-project
+    """
+
+    type = "create_dbt_project_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "DBT",
+        "PROJECT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FROM",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        Sequence(
+            "DBT_VERSION",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "DEFAULT_TARGET",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Ref("ExternalAccessIntegrationsEqualsSegment", optional=True),
+    )
+
+
+class CreateDcmProjectStatementSegment(BaseSegment):
+    """A Snowflake `CREATE DCM PROJECT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-dcm-project
+    """
+
+    type = "create_dcm_project_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "DCM",
+        "PROJECT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "LOG_LEVEL",
+            Ref("EqualsSegment"),
+            OneOf("DEBUG", "INFO", "WARN", "ERROR"),
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
 class CreateUserSegment(BaseSegment):
     """A snowflake `CREATE USER` statement.
 
@@ -8221,6 +8289,9 @@ class ShowStatementSegment(BaseSegment):
         "STREAMLITS",
         "TASKS",
         "WORKSPACES",
+        "DEPLOYMENTS",
+        Sequence("DBT", "PROJECTS"),
+        Sequence("DCM", "PROJECTS"),
         Sequence("USER", "FUNCTIONS"),
         Sequence("EXTERNAL", "FUNCTIONS"),
         "PROCEDURES",
@@ -8246,6 +8317,8 @@ class ShowStatementSegment(BaseSegment):
                 "WAREHOUSE",
                 "VIEW",
                 "WORKSPACE",
+                Sequence("DBT", "PROJECT"),
+                Sequence("DCM", "PROJECT"),
             ),
             Ref("ObjectReferenceSegment", optional=True),
         ),
@@ -9113,6 +9186,18 @@ class DescribeStatementSegment(BaseSegment):
                 "CORTEX",
                 "SEARCH",
                 "SERVICE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-dcm-project
+            Sequence(
+                "DCM",
+                "PROJECT",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-dbt-project
+            Sequence(
+                "DBT",
+                "PROJECT",
                 Ref("ObjectReferenceSegment"),
             ),
         ),
