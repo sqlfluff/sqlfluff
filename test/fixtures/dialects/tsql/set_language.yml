@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8a5c1f5321de6e84b773a3d5c13ce5a10a1f239a630900ef419e0adeff82838a
+_hash: 0a7ddb326f770f4be07b96ee988e4c85413675b6f1c71cb674b5ed045cb7c2a4
 file:
   batch:
   - statement:
@@ -22,11 +22,23 @@ file:
       set_language_statement:
       - keyword: SET
       - keyword: LANGUAGE
+      - quoted_literal: "N'Portuguese'"
+  - statement_terminator: ;
+  - statement:
+      set_language_statement:
+      - keyword: SET
+      - keyword: LANGUAGE
       - quoted_identifier: '[us_english]'
   - statement_terminator: ;
   - statement:
       set_language_statement:
       - keyword: SET
       - keyword: LANGUAGE
-      - naked_identifier: British
+      - quoted_identifier: '"British"'
+  - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: LANGUAGE
+      - parameter: '@lang'
   - statement_terminator: ;
