@@ -228,7 +228,7 @@ clickhouse_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            r"[a-zA-Z_][0-9a-zA-Z_]*",
+            r"[0-9a-zA-Z_]*[a-zA-Z_][0-9a-zA-Z_]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^("
