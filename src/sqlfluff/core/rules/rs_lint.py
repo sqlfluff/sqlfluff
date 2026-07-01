@@ -22,12 +22,23 @@ from __future__ import annotations
 
 from typing import Any, Iterator, Optional
 
-# Rules verified to lint AND fix correctly over the façade — i.e. the façade's
-# multi-pass source-patch fix output is byte-identical to native SQLFluff across
-# every case in that rule's ``std_rule_cases`` fixture. Rules whose fixes are
-# structural (alias add/remove, etc., where source-patching diverges from
-# native's tree rebuild) or need façade accessors not yet implemented are
-# excluded and should stay on the Python ``BaseSegment`` path.
+# Rules whose façade multi-pass source-patch FIX output is byte-identical to
+# native SQLFluff across every case in that rule's ``std_rule_cases`` fixture.
+# This is a *fix-output* guarantee, used by the self-guarding stdin-fix fast
+# path (which re-checks that no violations remain before committing to it).
+#
+# NOTE: it is NOT a detection/lint guarantee. A few of these rules diverge on
+# raw *violation* reporting over the façade even though their fix output matches
+# — e.g. CP01 double-reports the sparksql ``div`` operator (nested keyword +
+# binary_operator in the arena), which is idempotent for fixing but wrong for
+# lint. Wiring `lint` over the façade must use a detection-verified subset
+# (currently the 31 rules that also match native violation-for-violation:
+# this set minus AL04, AL10, CP01, CV09, RF02, ST03 — the last group also
+# includes rules that use `isinstance` against concrete segment classes, which
+# a duck-type façade cannot satisfy).
+FACADE_SAFE_RULES_DETECTION_UNSAFE: frozenset[str] = frozenset(
+    {"AL04", "AL10", "CP01", "CV09", "RF02", "ST03"}
+)
 FACADE_SAFE_RULES: frozenset[str] = frozenset(
     {
         "AL03",
