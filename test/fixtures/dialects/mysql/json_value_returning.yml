@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc374437c17b589a211fd18664159c64ef7803c2bbbc544ab3142941fa520ae9
+_hash: 70f3a89f84e9b552ac501143731440085ccef2b92a72275897f1c19d624a081f
 file:
 - statement:
     select_statement:
@@ -70,15 +70,15 @@ file:
                   quoted_literal: "'$.a'"
               - keyword: RETURNING
               - data_type:
-                  data_type_identifier: CHAR
-                  bracketed_arguments:
+                - data_type_identifier: CHAR
+                - bracketed_arguments:
                     bracketed:
                       start_bracket: (
                       numeric_literal: '255'
                       end_bracket: )
-              - keyword: CHARACTER
-              - keyword: SET
-              - naked_identifier: utf8mb4
+                - keyword: CHARACTER
+                - keyword: SET
+                - naked_identifier: utf8mb4
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -246,14 +246,14 @@ file:
                     quoted_literal: "'$.a'"
                 - keyword: RETURNING
                 - data_type:
-                    data_type_identifier: CHAR
-                    bracketed_arguments:
+                  - data_type_identifier: CHAR
+                  - bracketed_arguments:
                       bracketed:
                         start_bracket: (
                         numeric_literal: '255'
                         end_bracket: )
-                - keyword: CHARACTER
-                - keyword: SET
-                - naked_identifier: utf8mb4
+                  - keyword: CHARACTER
+                  - keyword: SET
+                  - naked_identifier: utf8mb4
                 - end_bracket: )
 - statement_terminator: ;

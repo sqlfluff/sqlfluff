@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d383e37b65631c852af5deffd0bdde1132fbaef0e98b247fd01bbc2cece2e8c
+_hash: 2ff6f87f1c777156b84c5fd82f8d8bedb4990ed1eb7f9b063dc56362c5dfb59c
 file:
 - statement:
     create_table_statement:
@@ -14,21 +14,19 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-        - naked_identifier: col1
-        - data_type:
-            data_type_identifier: VARCHAR
-            bracketed_arguments:
+          naked_identifier: col1
+          data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '5'
                 end_bracket: )
-        - column_constraint_segment:
           - keyword: CHARACTER
           - keyword: SET
           - naked_identifier: latin1
-        - column_constraint_segment:
-            keyword: COLLATE
-            collation_reference:
+          - keyword: COLLATE
+          - collation_reference:
               naked_identifier: latin1_german1_ci
         end_bracket: )
 - statement_terminator: ;
@@ -68,21 +66,19 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-        - naked_identifier: col1
-        - data_type:
-            data_type_identifier: VARCHAR
-            bracketed_arguments:
+          naked_identifier: col1
+          data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
               bracketed:
                 start_bracket: (
                 numeric_literal: '5'
                 end_bracket: )
-        - column_constraint_segment:
           - keyword: CHARACTER
           - keyword: SET
           - quoted_identifier: "'latin1'"
-        - column_constraint_segment:
-            keyword: COLLATE
-            collation_reference:
+          - keyword: COLLATE
+          - collation_reference:
               quoted_literal: "'latin1_german1_ci'"
         end_bracket: )
 - statement_terminator: ;

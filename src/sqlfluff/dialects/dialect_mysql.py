@@ -390,19 +390,6 @@ class TableReferenceSegment(ansi.TableReferenceSegment):
     )
 
 
-class AsAliasOperatorSegment(BaseSegment):
-    """The `AS` alias operator.
-
-    Defined locally (rather than relying on ansi.AsAliasOperatorSegment)
-    because older sqlfluff cores (e.g. 3.4.1, as bundled by nixpkgs) don't
-    define this as its own segment on the ansi dialect - they just inline
-    Ref.keyword("AS", ...) instead.
-    """
-
-    type = "alias_operator"
-    match_grammar: Matchable = Sequence("AS")
-
-
 class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """A reference to an object with an `AS` clause.
 
@@ -1535,20 +1522,11 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
     )
 
 
-class GrantStatementSegment(BaseSegment):
+class GrantStatementSegment(ansi.GrantStatementSegment):
     """A `GRANT` statement, MySQL specific.
 
     https://dev.mysql.com/doc/refman/8.0/en/grant.html
-
-    NOTE: Inherits from BaseSegment (not ansi.GrantStatementSegment) because
-    older sqlfluff cores (e.g. 3.4.1, as bundled by nixpkgs) don't define
-    GrantStatementSegment on the ansi dialect at all. On those older cores,
-    AccessPermissionsSegment/AccessObjectSegment (referenced below) are also
-    unavailable, so GRANT statements won't fully resolve there - only this
-    class's ability to import cleanly is being preserved.
     """
-
-    type = "grant_statement"
 
     match_grammar: Matchable = Sequence(
         "GRANT",
@@ -2468,23 +2446,61 @@ class CaseStatementSegment(BaseSegment):
 
     type = "case_statement"
 
-    match_grammar = AnyNumberOf(
-        Sequence(
-            "CASE",
-            # WHEN is unreserved in MySQL, so without this exclusion the
-            # searched form (bare CASE immediately followed by WHEN) would
-            # have the optional case_value expression greedily swallow the
-            # WHEN keyword itself.
-            Ref("ExpressionSegment", exclude=Ref.keyword("WHEN"), optional=True),
+    match_grammar = Sequence(
+        "CASE",
+        # WHEN is unreserved in MySQL, so without this exclusion the
+        # searched form (bare CASE immediately followed by WHEN) would
+        # have the optional case_value expression greedily swallow the
+        # WHEN keyword itself.
+        Ref("ExpressionSegment", exclude=Ref.keyword("WHEN"), optional=True),
+        AnyNumberOf(
+            Sequence(
+                "WHEN",
+                Ref("ExpressionSegment"),
+                "THEN",
+                # A THEN/ELSE body is a `statement_list`: one or more
+                # semicolon-terminated statements. StatementSegment itself
+                # doesn't consume its own terminator, so it must be paired
+                # with an explicit delimiter here to allow the sequence to
+                # continue past it to the next WHEN/ELSE/END CASE.
+                # NOTE: IfExpressionStatement's own grammar allows a bare
+                # "ELSE ..." to match as a standalone StatementSegment, so
+                # the exclude= below is required to stop this loop from
+                # greedily gobbling up a following ELSE clause as if it
+                # were part of this WHEN's body.
+                AnyNumberOf(
+                    Sequence(
+                        Ref(
+                            "StatementSegment",
+                            exclude=OneOf(
+                                Ref.keyword("WHEN"),
+                                Ref.keyword("ELSE"),
+                                Sequence("END", "CASE"),
+                            ),
+                        ),
+                        Ref("DelimiterGrammar"),
+                    ),
+                    min_times=1,
+                ),
+            ),
+            min_times=1,
         ),
         Sequence(
-            "WHEN",
-            Ref("ExpressionSegment"),
-            "THEN",
-            Ref("StatementSegment"),
+            "ELSE",
+            AnyNumberOf(
+                Sequence(
+                    Ref(
+                        "StatementSegment",
+                        exclude=Sequence("END", "CASE"),
+                    ),
+                    Ref("DelimiterGrammar"),
+                ),
+                min_times=1,
+            ),
+            optional=True,
         ),
-        Sequence("ELSE", Ref("StatementSegment"), optional=True),
-        Sequence("END", "CASE"),
+        "END",
+        "CASE",
     )
 
 

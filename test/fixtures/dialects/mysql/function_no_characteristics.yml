@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 587434fd309a0afedf93348befbc00c1d2776a7f49497b38335724d76ae4feda
+_hash: 9fdbb2b4f85042e628871d9368962959d5cd9c8e3f653e411c58ca0392cd73d9
 file:
-  statement:
+- statement:
     create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -20,16 +20,22 @@ file:
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: longtext
-    - characteristic_statement:
-        comment_clause:
-          keyword: COMMENT
-          quoted_literal: "'this is a comment'"
-        keyword: DETERMINISTIC
+        data_type_identifier: int
     - function_definition:
         transaction_statement:
           keyword: BEGIN
           statement:
-            transaction_statement:
-              keyword: END
-  statement_terminator: '~'
+            return_statement:
+              keyword: RETURN
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: var1
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: END
+- statement_terminator: '~'

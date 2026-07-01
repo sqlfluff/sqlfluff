@@ -1,0 +1,64 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8f066f62c0b9564627e4773014740471dcb74351f2e0e258dd2e5c7ecfaba4f5
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        quoted_identifier: '`testprocedure`'
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter_direction: IN
+          parameter: val
+          data_type:
+            data_type_identifier: int
+          end_bracket: )
+    - function_definition:
+        transaction_statement:
+          keyword: BEGIN
+          statement:
+            case_statement:
+            - keyword: CASE
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  naked_identifier: val
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '1'
+            - keyword: THEN
+            - statement:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      quoted_literal: "'one'"
+            - statement_terminator: ;
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  naked_identifier: val
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '2'
+            - keyword: THEN
+            - statement:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      quoted_literal: "'two'"
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: CASE
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: END
+- statement_terminator: '~'
