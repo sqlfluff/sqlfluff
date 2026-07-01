@@ -184,6 +184,10 @@ For now, we only want to fix the following rules: *LT02*, *LT12*, *CP01*
     == [test.sql] FIXED
     4 fixable linting violations found
 
+By default, :code:`sqlfluff fix` applies fixes immediately. To review
+the proposed fixes and confirm them before they are applied, use
+:code:`sqlfluff fix --check`.
+
 If we now open up :code:`test.sql`, we'll see the content is
 now different.
 
