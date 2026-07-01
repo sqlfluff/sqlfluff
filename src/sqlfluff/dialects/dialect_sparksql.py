@@ -265,6 +265,16 @@ sparksql_dialect.sets("datetime_units").update(
 # Set Keywords
 sparksql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 sparksql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+# `LEFT` and `RIGHT` are only reserved in Spark's ANSI mode. In the default
+# (non-ANSI) mode they are strict-non-reserved, so they can be used as
+# identifiers, e.g. as lambda variables in higher-order functions like
+# `array_sort(arr, (left, right) -> ...)` (the documented example in #5004).
+# Treat them as unreserved (as already done for the sibling strict-non-reserved
+# join keywords `ANTI`/`SEMI`). They are still matched as keywords in
+# `JoinTypeKeywordsGrammar`, so `LEFT`/`RIGHT [OUTER] JOIN` continue to parse.
+# https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html#sql-keywords
+sparksql_dialect.sets("reserved_keywords").difference_update(["LEFT", "RIGHT"])
+sparksql_dialect.sets("unreserved_keywords").update(["LEFT", "RIGHT"])
 
 # Set Angle Bracket Pairs
 sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
