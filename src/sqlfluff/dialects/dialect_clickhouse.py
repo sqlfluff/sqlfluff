@@ -690,7 +690,7 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
 class SetOperatorSegment(ansi.SetOperatorSegment):
     """A set operator such as Union, Minus, Except or Intersect.
 
-    Excludes ClickHouse `SELECT * EXCEPT (...)` wildcard exclusions from being
+    Excludes ClickHouse `SELECT * EXCEPT ...` wildcard exclusions from being
     consumed as set operators.
     """
 
@@ -704,7 +704,13 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
             Ref.keyword("ALL", optional=True),
         ),
         "MINUS",
-        exclude=Sequence("EXCEPT", Bracketed(Anything())),
+        exclude=Sequence(
+            "EXCEPT",
+            OneOf(
+                Bracketed(Anything()),
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
     )
 
 
