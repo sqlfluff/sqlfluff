@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6948bbc8f7a40ba3588b2530a180b95a7c7c9ac013907c8e56cfbf40a1b18dd4
+_hash: ec84d8cde52728fc77c33800c3ff7eaf3bb592bb480663a45b30d65c19aadb54
 file:
 - statement:
     select_statement:
@@ -33,7 +33,7 @@ file:
       - keyword: BY
       - column_reference:
           naked_identifier: a
-      - with_groupby_modifier_clause:
+      - with_totals_clause:
         - keyword: WITH
         - keyword: TOTALS
 - statement_terminator: ;
@@ -65,7 +65,7 @@ file:
       - keyword: BY
       - column_reference:
           naked_identifier: a
-      - with_groupby_modifier_clause:
+      - with_rollup_or_cube_clause:
         - keyword: WITH
         - keyword: ROLLUP
 - statement_terminator: ;
@@ -97,7 +97,7 @@ file:
       - keyword: BY
       - column_reference:
           naked_identifier: a
-      - with_groupby_modifier_clause:
+      - with_rollup_or_cube_clause:
         - keyword: WITH
         - keyword: CUBE
 - statement_terminator: ;
@@ -131,19 +131,15 @@ file:
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - cube_rollup_clause:
-          function_name:
-            function_name_identifier: ROLLUP
-          bracketed:
-            start_bracket: (
-            grouping_expression_list:
-            - column_reference:
-                naked_identifier: a
-            - comma: ','
-            - column_reference:
-                naked_identifier: b
-            end_bracket: )
-      - with_groupby_modifier_clause:
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - with_rollup_or_cube_clause:
+        - keyword: WITH
+        - keyword: ROLLUP
+      - with_totals_clause:
         - keyword: WITH
         - keyword: TOTALS
 - statement_terminator: ;
@@ -182,10 +178,10 @@ file:
       - comma: ','
       - column_reference:
           naked_identifier: b
-      - with_groupby_modifier_clause:
+      - with_rollup_or_cube_clause:
         - keyword: WITH
-        - keyword: ROLLUP
-      - with_groupby_modifier_clause:
+        - keyword: CUBE
+      - with_totals_clause:
         - keyword: WITH
         - keyword: TOTALS
 - statement_terminator: ;

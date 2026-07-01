@@ -1240,30 +1240,47 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
             "ALL",
             Ref("GroupingSetsClauseSegment"),
             Ref("CubeRollupClauseSegment"),
-            Delimited(
-                OneOf(
-                    Ref("ColumnReferenceSegment"),
-                    # Can `GROUP BY 1`
-                    Ref("NumericLiteralSegment"),
-                    # Can `GROUP BY coalesce(col, 1)`
-                    Ref("ExpressionSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY coalesce(col, 1)`
+                        Ref(
+                            "ExpressionSegment",
+                            exclude=Ref("CubeRollupClauseSegment"),
+                        ),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
                 ),
-                terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                Ref("WithRollupOrCubeClauseSegment", optional=True),
+                Ref("WithTotalsClauseSegment", optional=True),
             ),
         ),
-        AnyNumberOf(Ref("WithGroupByModifierClauseSegment")),
         Dedent,
     )
 
 
-class WithGroupByModifierClauseSegment(BaseSegment):
-    """A `WITH TOTALS`, `WITH ROLLUP`, or `WITH CUBE` group-by modifier."""
+class WithRollupOrCubeClauseSegment(BaseSegment):
+    """A `WITH ROLLUP` or `WITH CUBE` group-by modifier."""
 
-    type = "with_groupby_modifier_clause"
+    type = "with_rollup_or_cube_clause"
 
     match_grammar = Sequence(
         "WITH",
-        OneOf("TOTALS", "ROLLUP", "CUBE"),
+        OneOf("ROLLUP", "CUBE"),
+    )
+
+
+class WithTotalsClauseSegment(BaseSegment):
+    """A `WITH TOTALS` group-by modifier."""
+
+    type = "with_totals_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        "TOTALS",
     )
 
 
