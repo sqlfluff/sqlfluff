@@ -5,3 +5,6 @@ with toto as (SELECT 1 as id, 'test' as name) SELECT * FROM toto LIMIT 1 by id;
 with toto as (SELECT 1 as id, 'test' as name) SELECT * FROM toto LIMIT 2 OFFSET 1 by id;
 
 with toto as (SELECT 1 as id, 'test' as name) SELECT * FROM toto LIMIT 2, 1 by (id, name);
+
+SELECT * FROM t LIMIT 1 BY a, b;
+SELECT * FROM t LIMIT 2 BY ALL;

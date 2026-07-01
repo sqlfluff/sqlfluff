@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bfb1a1991e553e932bdb4d70cc5871ef1bec789eb542a3da37739661335c4c54
+_hash: 1099af78820bb9906539cac91527e72c463a0c9eb22e50fb08971e73a7b8f0f5
 file:
 - statement:
     with_compound_statement:
@@ -199,12 +199,61 @@ file:
         - limit_clause_component:
             numeric_literal: '1'
         - keyword: by
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-              naked_identifier: id
-          - comma: ','
-          - column_reference:
-              naked_identifier: name
-          - end_bracket: )
+        - expression:
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: id
+            - comma: ','
+            - column_reference:
+                naked_identifier: name
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      limit_clause:
+      - keyword: LIMIT
+      - limit_clause_component:
+          numeric_literal: '1'
+      - keyword: BY
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      limit_clause:
+      - keyword: LIMIT
+      - limit_clause_component:
+          numeric_literal: '2'
+      - keyword: BY
+      - keyword: ALL
 - statement_terminator: ;

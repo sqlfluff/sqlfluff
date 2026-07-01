@@ -2681,8 +2681,14 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
             Sequence(
                 "BY",
                 OneOf(
-                    Ref("BracketedColumnReferenceListGrammar"),
-                    Ref("ColumnReferenceSegment"),
+                    "ALL",
+                    Delimited(
+                        OneOf(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
+                        terminators=[Ref("SelectClauseTerminatorGrammar")],
+                    ),
                 ),
                 optional=True,
             ),
