@@ -1229,6 +1229,61 @@ class DatabaseEngineSegment(BaseSegment):
     )
 
 
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
+    """A ClickHouse `GROUP BY` clause."""
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY coalesce(col, 1)`
+                        Ref(
+                            "ExpressionSegment",
+                            exclude=Ref("CubeRollupClauseSegment"),
+                        ),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+                Ref("WithRollupOrCubeClauseSegment", optional=True),
+                Ref("WithTotalsClauseSegment", optional=True),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class WithRollupOrCubeClauseSegment(BaseSegment):
+    """A `WITH ROLLUP` or `WITH CUBE` group-by modifier."""
+
+    type = "with_rollup_or_cube_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        OneOf("ROLLUP", "CUBE"),
+    )
+
+
+class WithTotalsClauseSegment(BaseSegment):
+    """A `WITH TOTALS` group-by modifier."""
+
+    type = "with_totals_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        "TOTALS",
+    )
+
+
 class ColumnTTLSegment(BaseSegment):
     """A TTL clause for columns as used in CREATE TABLE.
 

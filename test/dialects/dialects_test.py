@@ -197,3 +197,20 @@ def test_tsql_cursor_rejects_disallowed_select_clauses(sql: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT a FROM t GROUP BY a WITH TOTALS WITH TOTALS;",
+        "SELECT a FROM t GROUP BY a WITH ROLLUP WITH CUBE;",
+        "SELECT a FROM t GROUP BY ROLLUP(a) WITH CUBE;",
+        "SELECT a FROM t GROUP BY GROUPING SETS ((a)) WITH ROLLUP;",
+    ],
+)
+def test_clickhouse_group_by_rejects_invalid_modifiers(sql: str) -> None:
+    """ClickHouse GROUP BY modifiers should follow documented alternatives."""
+    parsed = Linter(dialect="clickhouse").parse_string(sql)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
