@@ -18,7 +18,7 @@ use pyo3::types::{PyDict, PyList};
 
 use sqlfluffrs_engine::pipeline::ParseLimits;
 use sqlfluffrs_engine::{discovery, pipeline};
-use sqlfluffrs_parser::PyNode;
+use sqlfluffrs_parser::{PyNode, PyTree};
 use sqlfluffrs_python::templater::templatefile::PySqlFluffTemplatedFile;
 use sqlfluffrs_types::TemplatedFile;
 
@@ -382,4 +382,47 @@ pub fn engine_render_string<'py>(
     dict.set_item("templated_variants", variant_list)?;
     dict.set_item("templater_violations", violations)?;
     Ok(dict)
+}
+
+/// Rust-driven parse of one file to a crawlable arena tree (`RsTree`), built from
+/// the native `Node` via `Arena::from_node` (not `MatchResult::apply_as_tree`).
+/// This is what lets the Rust engine drive linting: hand Python an `RsTree` that
+/// an `RsSegment` façade wraps for the rule crawl. Returns `None` if the render
+/// yielded no variant or the parse failed.
+#[pyfunction]
+#[pyo3(signature = (raw_sql, fname, config, formatter=None, direct_config=false))]
+pub fn engine_parse_to_tree<'py>(
+    py: Python<'py>,
+    raw_sql: String,
+    fname: String,
+    config: Bound<'py, PyAny>,
+    formatter: Option<Bound<'py, PyAny>>,
+    direct_config: bool,
+) -> PyResult<Option<Py<PyTree>>> {
+    // `direct_config` uses the passed config as-is (like stdin / `lint_string`),
+    // rather than re-resolving per-file via `make_child_from_path`.
+    let child = child_config(&config, &fname, direct_config, &raw_sql)?;
+    let (variants, _violations) =
+        render_via_python(py, &child, &raw_sql, &fname, formatter.as_ref())?;
+    let Some(root) = variants.first() else {
+        return Ok(None);
+    };
+
+    let pf: PySqlFluffTemplatedFile = root.extract()?;
+    let templated: Arc<TemplatedFile> = pf.into();
+    child.call_method0("verify_dialect_specified")?;
+    let dialect = pipeline::resolve_dialect_by_name(get_str(&child, "dialect", None).as_deref())
+        .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+    let tbi = template_blocks_indent(&child);
+    let indent = indent_config(&child);
+    let limits = parse_limits(&child);
+
+    let parsed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let (tokens, _lex_errors) = pipeline::lex_variant(&templated, dialect, tbi);
+        pipeline::parse_tokens(&tokens, dialect, indent, limits)
+    }));
+    match parsed {
+        Ok(Ok(node)) => Ok(Some(Py::new(py, PyTree::from_node(&node))?)),
+        _ => Ok(None),
+    }
 }

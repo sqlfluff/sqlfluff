@@ -53,5 +53,9 @@ fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
         sqlfluffrs_python::templater::templatefile::templated_file_cache_len,
         m
     )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::engine_entry::engine_parse_to_tree,
+        m
+    )?)?;
     Ok(())
 }

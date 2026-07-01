@@ -322,3 +322,17 @@ def engine_render_string(
     Returns `{templated_variants, templater_violations}`.
     """
     ...
+
+def engine_parse_to_tree(
+    raw_sql: str,
+    fname: str,
+    config: "FluffConfig",
+    formatter: Any = None,
+    direct_config: bool = False,
+) -> Optional["RsTree"]:
+    """Rust-driven parse of one file to a crawlable arena tree (`RsTree`).
+
+    Built from the native `Node` via `Arena::from_node`, for linting the Python
+    rules over an `RsSegment` façade. `None` if render/parse produced no tree.
+    """
+    ...

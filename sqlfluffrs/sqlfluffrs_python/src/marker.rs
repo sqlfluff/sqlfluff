@@ -87,6 +87,13 @@ impl PyPositionMarker {
         self.0.infer_next_position(raw, line_no, line_pos)
     }
 
+    /// The working (line_no, line_pos) *after* consuming `raw`, mirroring
+    /// Python `PositionMarker.working_loc_after`. Used by reflow alignment.
+    pub fn working_loc_after(&self, raw: &str) -> (usize, usize) {
+        self.0
+            .infer_next_position(raw, self.0.working_line_no, self.0.working_line_pos)
+    }
+
     #[getter]
     pub fn line_no(&self) -> usize {
         self.0.line_no()

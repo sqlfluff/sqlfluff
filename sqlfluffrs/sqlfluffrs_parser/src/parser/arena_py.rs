@@ -43,6 +43,13 @@ impl PyTree {
         }
     }
 
+    /// Build an arena tree directly from a parsed [`Node`]. Used by the
+    /// Rust-driven engine (which parses to a `Node`) to hand Python a
+    /// crawlable `RsTree` façade without going through a `MatchResult`.
+    pub fn from_node(node: &super::types::Node) -> Self {
+        PyTree::new(Arena::from_node(node))
+    }
+
     fn handle(&self, node: NodeId) -> PyHandle {
         PyHandle {
             inner: self.inner.clone(),
