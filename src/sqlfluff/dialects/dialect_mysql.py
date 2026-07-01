@@ -1622,15 +1622,15 @@ class DeclareStatement(BaseSegment):
         ),
         Sequence(
             "DECLARE",
-            Ref("LocalVariableNameSegment"),
+            # DECLARE var_name [, var_name] ... type
+            # [COLLATE collation_name] [DEFAULT value]
+            # https://dev.mysql.com/doc/refman/8.0/en/declare-local-variable.html
+            Delimited(Ref("LocalVariableNameSegment")),
             Ref("DatatypeSegment"),
+            Ref("CollateGrammar", optional=True),
             Sequence(
                 Ref.keyword("DEFAULT"),
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("FunctionSegment"),
-                ),
+                Ref("ExpressionSegment"),
                 optional=True,
             ),
         ),
@@ -1660,6 +1660,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ResignalSegment"),
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
+            Ref("CaseStatementSegment"),
+            Ref("AlterProcedureStatementSegment"),
+            Ref("AlterFunctionStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
@@ -1716,7 +1719,6 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("ProcedureParameterListGrammar", optional=True),
-        Ref("CommentClauseSegment", optional=True),
         Ref("CharacteristicStatement", optional=True),
         Ref("FunctionDefinitionGrammar"),
     )
@@ -1730,21 +1732,28 @@ class FunctionDefinitionGrammar(BaseSegment):
 
 
 class CharacteristicStatement(BaseSegment):
-    """A Characteristics statement for functions/procedures."""
+    """Characteristics for `CREATE`/`ALTER` `PROCEDURE`/`FUNCTION`.
+
+    Each characteristic is optional and, per the MySQL grammar, may appear
+    zero or more times in any order.
+    https://dev.mysql.com/doc/refman/8.0/en/create-procedure.html
+    https://dev.mysql.com/doc/refman/8.0/en/create-function.html
+    https://dev.mysql.com/doc/refman/8.0/en/alter-procedure.html
+    """
 
     type = "characteristic_statement"
 
-    match_grammar = Sequence(
+    match_grammar = AnyNumberOf(
+        Ref("CommentClauseSegment"),
+        Sequence("LANGUAGE", "SQL"),
         OneOf("DETERMINISTIC", Sequence("NOT", "DETERMINISTIC")),
-        Sequence("LANGUAGE", "SQL", optional=True),
         OneOf(
-            Sequence("CONTAINS", "SQL", optional=True),
-            Sequence("NO", "SQL", optional=True),
-            Sequence("READS", "SQL", "DATA", optional=True),
-            Sequence("MODIFIES", "SQL", "DATA", optional=True),
-            optional=True,
+            Sequence("CONTAINS", "SQL"),
+            Sequence("NO", "SQL"),
+            Sequence("READS", "SQL", "DATA"),
+            Sequence("MODIFIES", "SQL", "DATA"),
         ),
-        Sequence("SQL", "SECURITY", OneOf("DEFINER", "INVOKER"), optional=True),
+        Sequence("SQL", "SECURITY", OneOf("DEFINER", "INVOKER")),
     )
 
 
@@ -1766,9 +1775,40 @@ class CreateFunctionStatementSegment(BaseSegment):
             "RETURNS",
             Ref("DatatypeSegment"),
         ),
-        Ref("CommentClauseSegment", optional=True),
-        Ref("CharacteristicStatement"),
+        Ref("CharacteristicStatement", optional=True),
         Ref("FunctionDefinitionGrammar"),
+    )
+
+
+class AlterProcedureStatementSegment(BaseSegment):
+    """An `ALTER PROCEDURE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/alter-procedure.html
+    """
+
+    type = "alter_procedure_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "PROCEDURE",
+        Ref("FunctionNameSegment"),
+        Ref("CharacteristicStatement", optional=True),
+    )
+
+
+class AlterFunctionStatementSegment(BaseSegment):
+    """An `ALTER FUNCTION` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/alter-function.html
+    """
+
+    type = "alter_function_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
+        Ref("CharacteristicStatement", optional=True),
     )
 
 
@@ -2183,7 +2223,7 @@ class AlterTableStatementSegment(BaseSegment):
             Sequence(
                 "WITH",
                 "TABLE",
-                Ref("TableReference"),
+                Ref("TableReferenceSegment"),
                 OneOf("WITH", "WITHOUT"),
                 "VALIDATION",
                 optional=True,
@@ -2393,6 +2433,74 @@ class IfExpressionStatement(BaseSegment):
         ),
         Sequence("ELSE", Ref("StatementSegment"), optional=True),
         Sequence("END", "IF"),
+    )
+
+
+class CaseStatementSegment(BaseSegment):
+    """A procedural `CASE` statement, as distinct from the `CASE` expression.
+
+    Covers both the simple form (``CASE case_value WHEN ...``) and the
+    searched form (``CASE WHEN search_condition ...``).
+    https://dev.mysql.com/doc/refman/8.0/en/case.html
+    """
+
+    type = "case_statement"
+
+    match_grammar = Sequence(
+        "CASE",
+        # WHEN is unreserved in MySQL, so without this exclusion the
+        # searched form (bare CASE immediately followed by WHEN) would
+        # have the optional case_value expression greedily swallow the
+        # WHEN keyword itself.
+        Ref("ExpressionSegment", exclude=Ref.keyword("WHEN"), optional=True),
+        AnyNumberOf(
+            Sequence(
+                "WHEN",
+                Ref("ExpressionSegment"),
+                "THEN",
+                # A THEN/ELSE body is a `statement_list`: one or more
+                # semicolon-terminated statements. StatementSegment itself
+                # doesn't consume its own terminator, so it must be paired
+                # with an explicit delimiter here to allow the sequence to
+                # continue past it to the next WHEN/ELSE/END CASE.
+                # NOTE: IfExpressionStatement's own grammar allows a bare
+                # "ELSE ..." to match as a standalone StatementSegment, so
+                # the exclude= below is required to stop this loop from
+                # greedily gobbling up a following ELSE clause as if it
+                # were part of this WHEN's body.
+                AnyNumberOf(
+                    Sequence(
+                        Ref(
+                            "StatementSegment",
+                            exclude=OneOf(
+                                Ref.keyword("WHEN"),
+                                Ref.keyword("ELSE"),
+                                Sequence("END", "CASE"),
+                            ),
+                        ),
+                        Ref("DelimiterGrammar"),
+                    ),
+                    min_times=1,
+                ),
+            ),
+            min_times=1,
+        ),
+        Sequence(
+            "ELSE",
+            AnyNumberOf(
+                Sequence(
+                    Ref(
+                        "StatementSegment",
+                        exclude=Sequence("END", "CASE"),
+                    ),
+                    Ref("DelimiterGrammar"),
+                ),
+                min_times=1,
+            ),
+            optional=True,
+        ),
+        "END",
+        "CASE",
     )
 
 
@@ -3759,13 +3867,24 @@ class DatatypeSegment(BaseSegment):
             ),
             # There may be no brackets for some data types
             Ref("BracketedArguments", optional=True),
-            OneOf(
+            AnyNumberOf(
                 Ref("CharCharacterSetGrammar"),
                 "SIGNED",
                 "UNSIGNED",
                 "ZEROFILL",
-                Sequence("ZEROFILL", "UNSIGNED"),
-                Sequence("UNSIGNED", "ZEROFILL"),
+                # [CHARACTER SET charset_name] [COLLATE collation_name]
+                # Valid on CHAR, VARCHAR, the TEXT types, ENUM, and SET, and
+                # also referenced (redundantly) after the type in DECLARE,
+                # parameter, and RETURNS grammars.
+                # https://dev.mysql.com/doc/refman/8.0/en/charset-column.html
+                Sequence(
+                    Ref("CharsetGrammar"),
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("SingleQuotedIdentifierSegment"),
+                    ),
+                ),
+                Ref("CollateGrammar"),
                 optional=True,
             ),
         ),

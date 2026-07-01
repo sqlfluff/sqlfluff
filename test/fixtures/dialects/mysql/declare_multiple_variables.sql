@@ -1,0 +1,1 @@
+DECLARE v1, v2, v3 int DEFAULT 0;

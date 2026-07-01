@@ -197,3 +197,22 @@ def test_tsql_cursor_rejects_disallowed_select_clauses(sql: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        # No WHEN clause at all.
+        "CASE val END CASE;",
+        # ELSE appearing before any WHEN clause.
+        "CASE val ELSE SELECT 1; WHEN 1 THEN SELECT 2; END CASE;",
+        # A second, duplicate CASE header.
+        "CASE val CASE val WHEN 1 THEN SELECT 1; END CASE;",
+    ],
+)
+def test_mysql_case_statement_rejects_malformed_structure(sql: str) -> None:
+    """The procedural CASE statement should enforce a fixed clause order."""
+    parsed = Linter(dialect="mysql").parse_string(sql)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
