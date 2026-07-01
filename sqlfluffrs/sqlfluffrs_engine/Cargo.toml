@@ -1,0 +1,22 @@
+[package]
+name = "sqlfluffrs_engine"
+version.workspace = true
+edition = "2021"
+
+# Pure-Rust orchestration primitives (config resolution, file discovery,
+# lex/parse pipeline) shared by the standalone `sqlfluff-rs` binary and the
+# Python-driven engine entrypoints in the `sqlfluffrs` extension module.
+# NO pyo3 here — the Python bridge lives with each consumer.
+[lib]
+name = "sqlfluffrs_engine"
+
+[dependencies]
+anyhow = "1"
+regex = { version = "1.12.3", features = ["perf"] }
+walkdir = "2"
+toml = "1.1.2"
+hashbrown = "0.16.1"
+sqlfluffrs_types = { path = "../sqlfluffrs_types" }
+sqlfluffrs_dialects = { path = "../sqlfluffrs_dialects" }
+sqlfluffrs_lexer = { path = "../sqlfluffrs_lexer" }
+sqlfluffrs_parser = { path = "../sqlfluffrs_parser" }

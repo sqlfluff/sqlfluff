@@ -21,6 +21,8 @@ members = [
     "sqlfluffrs_types",
     "sqlfluffrs_python",
     "sqlfluffrs_benchmarks",
+    "sqlfluffrs_cli",
+    "sqlfluffrs_engine",
 ]
 
 [workspace.package]
@@ -66,6 +68,7 @@ sqlfluffrs_lexer = { path = "sqlfluffrs_lexer" }
 sqlfluffrs_dialects = { path = "sqlfluffrs_dialects" }
 sqlfluffrs_parser = { path = "sqlfluffrs_parser" }
 sqlfluffrs_python = { path = "sqlfluffrs_python", optional = true }
+sqlfluffrs_engine = { path = "sqlfluffrs_engine" }
 
 [dev-dependencies]
 env_logger = "0.11.9"

@@ -253,3 +253,33 @@ class RsParser:
     def parse_match_result_from_tokens(
         self, tokens: List[RsToken]
     ) -> RsMatchResult: ...
+
+def engine_parse_paths(
+    paths: list[str],
+    config: "FluffConfig",
+    formatter: Any = None,
+    *,
+    stdin_content: Optional[str] = None,
+    stdin_filename: Optional[str] = None,
+    code_only: bool = False,
+    include_meta: bool = False,
+    parse_statistics: bool = False,
+) -> list[dict[str, Any]]:
+    """Rust-driven discover->render->lex->parse for the `parse` command.
+
+    Returns one dict per file: `{fname, segments, templater_violations,
+    lex_errors, parse_errors}`.
+    """
+    ...
+
+def engine_render_string(
+    raw_sql: str,
+    fname: str,
+    config: "FluffConfig",
+    formatter: Any = None,
+) -> dict[str, Any]:
+    """Rust-driven render for the `render` command.
+
+    Returns `{templated_variants, templater_violations}`.
+    """
+    ...
