@@ -28,6 +28,14 @@ test_pass_parenthesis_function:
   pass_str: |
     SELECT foo(5) FROM T1;
 
+test_pass_tsql_xml_method_column_alias:
+  pass_str: |
+    DECLARE @Xml XML = '<a>1</a>';
+    SELECT 1 FROM @Xml.nodes('a') AS FN(A);
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_snowflake_match_condition:
   pass_str: |
     select *
