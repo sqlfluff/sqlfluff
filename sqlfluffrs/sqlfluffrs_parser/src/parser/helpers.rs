@@ -16,12 +16,12 @@ impl<'a> Parser<'a> {
     pub fn print_cache_stats(&self) {
         // Print table cache stats
         let (table_hits, table_misses, table_hit_rate) = self.table_cache.stats();
-        println!("Table Parse Cache Statistics:");
-        println!("  Hits: {}", table_hits);
-        println!("  Misses: {}", table_misses);
-        println!("  Entries: {}", self.table_cache.len());
-        println!("  Hit Rate: {:.2}%", table_hit_rate * 100.0);
-        println!();
+        eprintln!("Table Parse Cache Statistics:");
+        eprintln!("  Hits: {}", table_hits);
+        eprintln!("  Misses: {}", table_misses);
+        eprintln!("  Entries: {}", self.table_cache.len());
+        eprintln!("  Hit Rate: {:.2}%", table_hit_rate * 100.0);
+        eprintln!();
 
         // Print pruning stats
         let calls = self.metrics.pruning_calls.get();
@@ -32,30 +32,30 @@ impl<'a> Parser<'a> {
         let complex = self.metrics.pruning_complex.get();
 
         if calls > 0 {
-            println!("SimpleHint Pruning Statistics:");
-            println!("  Pruning calls: {}", calls);
-            println!("  Total options: {}", total);
-            println!(
+            eprintln!("SimpleHint Pruning Statistics:");
+            eprintln!("  Pruning calls: {}", calls);
+            eprintln!("  Total options: {}", total);
+            eprintln!(
                 "  Options with hints: {} ({:.1}%)",
                 hinted,
                 100.0 * hinted as f64 / total as f64
             );
-            println!(
+            eprintln!(
                 "  Complex options (no hint): {} ({:.1}%)",
                 complex,
                 100.0 * complex as f64 / total as f64
             );
-            println!(
+            eprintln!(
                 "  Options kept: {} ({:.1}%)",
                 kept,
                 100.0 * kept as f64 / total as f64
             );
-            println!(
+            eprintln!(
                 "  Options pruned: {} ({:.1}%)",
                 pruned,
                 100.0 * pruned as f64 / total as f64
             );
-            println!(
+            eprintln!(
                 "  Pruning effectiveness: {:.1}% of hinted options pruned",
                 if hinted > 0 {
                     100.0 * pruned as f64 / hinted as f64
@@ -63,7 +63,7 @@ impl<'a> Parser<'a> {
                     0.0
                 }
             );
-            println!("  Avg options per call: {:.1}", total as f64 / calls as f64);
+            eprintln!("  Avg options per call: {:.1}", total as f64 / calls as f64);
         }
     }
 
