@@ -306,6 +306,40 @@ def apply_source_fixes(source: str, fixes: list[Any]) -> Optional[str]:
     return out
 
 
+def facade_violations(
+    source: str,
+    fname: str,
+    config: Any,
+    rules: list[Any],
+) -> Optional[list[Any]]:
+    """Crawl ``rules`` over the arena façade and return their ``SQLLintError``s.
+
+    Returns ``None`` if the source can't be parsed via the engine (the caller
+    should fall back to the Python path). ``ignore_mask`` is not applied here —
+    callers relying on ``noqa`` must handle it separately.
+    """
+    import sqlfluffrs
+
+    rst = sqlfluffrs.engine_parse_to_tree(source, fname, config, None, True)
+    if rst is None:
+        return None
+    dialect_obj = config.get("dialect_obj")
+    root = RsSegment(rst.root)
+    out: list[Any] = []
+    for rule in rules:
+        lints, _, _, _ = rule.crawl(
+            tree=root,
+            dialect=dialect_obj,
+            fix=False,
+            templated_file=None,
+            ignore_mask=None,
+            fname=fname,
+            config=config,
+        )
+        out.extend(lints)
+    return out
+
+
 def facade_fix_loop(
     source: str,
     fname: str,

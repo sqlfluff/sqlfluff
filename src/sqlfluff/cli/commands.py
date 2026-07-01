@@ -1125,6 +1125,48 @@ def _handle_unparsable(
     return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 
 
+def _try_facade_stdin_fix(
+    linter: Linter, source: str, stdin_filename: Optional[str]
+) -> Optional[str]:
+    """EXPERIMENTAL fast path: fix stdin over the Rust arena façade.
+
+    Only taken when ``core.use_rust_engine`` is enabled, *every* selected rule is
+    façade-safe, the source parses via the engine, contains no ``noqa`` directive,
+    and the façade fully fixes it (no violations remain). Otherwise returns
+    ``None`` so the caller falls back to the Python path — keeping behaviour
+    correct for anything the façade doesn't fully cover.
+    """
+    try:
+        from sqlfluff.core.rules.rs_lint import (
+            FACADE_SAFE_RULES,
+            facade_fix_loop,
+            facade_violations,
+        )
+
+        config = linter.config
+        if stdin_filename:
+            config = config.make_child_from_path(stdin_filename, require_dialect=False)
+        if not _use_rust_engine(config, None):
+            return None
+        if "noqa" in source.lower():
+            return None  # ignore masks not applied on the façade path
+        rules = list(linter.get_rulepack(config=config).rules)
+        if not rules or any(r.code not in FACADE_SAFE_RULES for r in rules):
+            return None
+        import sqlfluffrs
+
+        if sqlfluffrs.engine_parse_to_tree(source, "stdin", config, None, True) is None:
+            return None  # unparsable / templater error -> let Python handle it
+        limit = int(config.get("runaway_limit"))
+        fixed = facade_fix_loop(source, "stdin", config, rules, limit)
+        remaining = facade_violations(fixed, "stdin", config, rules)
+        if remaining is None or remaining:
+            return None  # unfixable violations remain -> defer to Python
+        return fixed
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _stdin_fix(
     linter: Linter,
     formatter: OutputStreamFormatter,
@@ -1134,6 +1176,13 @@ def _stdin_fix(
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()
+
+    # EXPERIMENTAL: Rust-engine façade fast path (falls back to Python if it
+    # can't fully & safely handle the requested rules).
+    _facade_fixed = _try_facade_stdin_fix(linter, stdin, stdin_filename)
+    if _facade_fixed is not None:
+        click.echo(_facade_fixed, nl=False)
+        sys.exit(EXIT_SUCCESS)
 
     result = linter.lint_string_wrapped(
         stdin, fname="stdin", fix=True, stdin_filename=stdin_filename
