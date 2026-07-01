@@ -1240,20 +1240,18 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
             "ALL",
             Ref("GroupingSetsClauseSegment"),
             Ref("CubeRollupClauseSegment"),
-            Sequence(
-                Delimited(
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
-                        # Can `GROUP BY 1`
-                        Ref("NumericLiteralSegment"),
-                        # Can `GROUP BY coalesce(col, 1)`
-                        Ref("ExpressionSegment"),
-                    ),
-                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+            Delimited(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `GROUP BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can `GROUP BY coalesce(col, 1)`
+                    Ref("ExpressionSegment"),
                 ),
-                Ref("WithGroupByModifierClauseSegment", optional=True),
+                terminators=[Ref("GroupByClauseTerminatorGrammar")],
             ),
         ),
+        AnyNumberOf(Ref("WithGroupByModifierClauseSegment")),
         Dedent,
     )
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b5d66a1047228d8f85632f014f90221ef0f11cc41d25ccea126c5302769eab72
+_hash: 6948bbc8f7a40ba3588b2530a180b95a7c7c9ac013907c8e56cfbf40a1b18dd4
 file:
 - statement:
     select_statement:
@@ -100,4 +100,92 @@ file:
       - with_groupby_modifier_clause:
         - keyword: WITH
         - keyword: CUBE
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: ROLLUP
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: a
+            - comma: ','
+            - column_reference:
+                naked_identifier: b
+            end_bracket: )
+      - with_groupby_modifier_clause:
+        - keyword: WITH
+        - keyword: TOTALS
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - with_groupby_modifier_clause:
+        - keyword: WITH
+        - keyword: ROLLUP
+      - with_groupby_modifier_clause:
+        - keyword: WITH
+        - keyword: TOTALS
 - statement_terminator: ;
