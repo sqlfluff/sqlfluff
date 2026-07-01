@@ -1229,6 +1229,46 @@ class DatabaseEngineSegment(BaseSegment):
     )
 
 
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
+    """A ClickHouse `GROUP BY` clause."""
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY coalesce(col, 1)`
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+                Ref("WithGroupByModifierClauseSegment", optional=True),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class WithGroupByModifierClauseSegment(BaseSegment):
+    """A `WITH TOTALS`, `WITH ROLLUP`, or `WITH CUBE` group-by modifier."""
+
+    type = "with_groupby_modifier_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        OneOf("TOTALS", "ROLLUP", "CUBE"),
+    )
+
+
 class ColumnTTLSegment(BaseSegment):
     """A TTL clause for columns as used in CREATE TABLE.
 
