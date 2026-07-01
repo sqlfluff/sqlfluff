@@ -2096,6 +2096,30 @@ class EqualAliasOperatorSegment(BaseSegment):
     match_grammar: Matchable = Sequence(Ref("RawEqualsSegment"))
 
 
+class AliasColumnListSegment(BaseSegment):
+    """An optional column list following a T-SQL alias."""
+
+    type = "alias_column_list"
+    match_grammar = Bracketed(Ref("SingleIdentifierListSegment"))
+
+
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
+    """A reference to an object with an optional T-SQL alias column list."""
+
+    match_grammar: Matchable = Sequence(
+        Indent,
+        Ref("AsAliasOperatorSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("AliasColumnListSegment", optional=True),
+            ),
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        Dedent,
+    )
+
+
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 
