@@ -2931,6 +2931,19 @@ class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
     )
 
 
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """An element in a Redshift SELECT clause."""
+
+    match_grammar = OneOf(
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref("AliasExpressionSegment", optional=True),
+            Ref("ExcludeClauseSegment", optional=True),
+        ),
+    )
+
+
 class ExcludeClauseSegment(BaseSegment):
     """A Redshift SELECT EXCLUDE clause.
 
