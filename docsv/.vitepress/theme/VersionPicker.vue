@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useData, useRoute } from 'vitepress'
 import { manifestPath, normalizeBase } from '../path-utils'
 
 const props = withDefaults(
     defineProps<{
-        inline?: boolean
         showLabel?: boolean
     }>(),
     {
-        inline: false,
         showLabel: true,
     }
 )
@@ -25,9 +23,13 @@ interface VersionManifest {
 }
 
 const manifest = ref<VersionManifest | null>(null)
+const isOpen = ref(false)
+const menuRef = ref<HTMLElement | null>(null)
+const rootRef = ref<HTMLElement | null>(null)
+const triggerRef = ref<HTMLButtonElement | null>(null)
 const route = useRoute()
 const { site } = useData()
-const currentPath = ref('/')
+const currentPath = ref(normalizeBase(route.path, '/'))
 
 const docsBase = computed(() => normalizeBase(site.value.base, '/'))
 
@@ -81,19 +83,144 @@ async function loadManifest(): Promise<void> {
     throw new Error(`Failed to load versions manifest from ${manifestPath(docsBase.value)}`)
 }
 
-function onChange(event: Event): void {
-    const target = event.target as HTMLSelectElement
-    const version = versions.value.find((entry) => entry.key === target.value)
+function navigateToVersion(version: VersionEntry): void {
+    isOpen.value = false
+    window.location.href = version.path
+}
 
+function menuOptions(): HTMLButtonElement[] {
+    return Array.from(menuRef.value?.querySelectorAll<HTMLButtonElement>('.version-picker__option') || [])
+}
+
+function focusMenuOption(index: number): void {
+    const options = menuOptions()
+
+    if (!options.length) {
+        return
+    }
+
+    const nextIndex = (index + options.length) % options.length
+    options[nextIndex]?.focus()
+}
+
+function focusSelectedOrFallback(fallbackIndex = 0): void {
+    const options = menuOptions()
+
+    if (!options.length) {
+        return
+    }
+
+    const selectedIndex = options.findIndex((option) => option.getAttribute('aria-checked') === 'true')
+    focusMenuOption(selectedIndex >= 0 ? selectedIndex : fallbackIndex)
+}
+
+function openMenu(fallbackIndex = 0): void {
+    if (isOpen.value) {
+        return
+    }
+
+    isOpen.value = true
+
+    void nextTick(() => {
+        focusSelectedOrFallback(fallbackIndex)
+    })
+}
+
+function toggleMenu(): void {
+    if (isOpen.value) {
+        closeMenu()
+        return
+    }
+
+    openMenu()
+}
+
+function closeMenu(focusTrigger = false): void {
+    isOpen.value = false
+
+    if (focusTrigger) {
+        triggerRef.value?.focus()
+    }
+}
+
+function onDocumentPointerDown(event: PointerEvent): void {
+    if (!rootRef.value?.contains(event.target as Node)) {
+        closeMenu()
+    }
+}
+
+function onDocumentKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+        closeMenu(true)
+    }
+}
+
+function onTriggerKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        openMenu(0)
+        return
+    }
+
+    if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        openMenu(versions.value.length - 1)
+    }
+}
+
+function onOptionKeyDown(event: KeyboardEvent, index: number): void {
+    if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        focusMenuOption(index + 1)
+        return
+    }
+
+    if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        focusMenuOption(index - 1)
+        return
+    }
+
+    if (event.key === 'Home') {
+        event.preventDefault()
+        focusMenuOption(0)
+        return
+    }
+
+    if (event.key === 'End') {
+        event.preventDefault()
+        focusMenuOption(versions.value.length - 1)
+        return
+    }
+
+    if (event.key === 'Escape') {
+        event.preventDefault()
+        closeMenu(true)
+    }
+}
+
+function onSelect(version: VersionEntry): void {
     if (!version) {
         return
     }
 
-    window.location.href = version.path
+    navigateToVersion(version)
 }
+
+const currentLabel = computed(() => selectedVersion.value?.label || 'Version')
+
+watch(
+    () => route.path,
+    (path) => {
+        currentPath.value = normalizeBase(path, '/')
+        closeMenu()
+    }
+)
 
 onMounted(async () => {
     currentPath.value = normalizeBase(window.location.pathname || route.path, '/')
+    document.addEventListener('pointerdown', onDocumentPointerDown)
+    document.addEventListener('keydown', onDocumentKeyDown)
 
     try {
         await loadManifest()
@@ -101,26 +228,53 @@ onMounted(async () => {
         console.error(error)
     }
 })
+
+onBeforeUnmount(() => {
+    document.removeEventListener('pointerdown', onDocumentPointerDown)
+    document.removeEventListener('keydown', onDocumentKeyDown)
+})
 </script>
 
 <template>
-        <div v-if="versions.length" :class="['version-picker', { 'version-picker--inline': props.inline }]">
-        <label v-if="props.showLabel" class="version-picker__label" for="version-picker-select">Version</label>
-                <select
-                        id="version-picker-select"
-                        class="version-picker__select"
-                        :value="selectedVersion?.key"
-                        @change="onChange"
+    <div v-if="versions.length" ref="rootRef" class="version-picker">
+        <span v-if="props.showLabel" class="version-picker__label">Version</span>
+        <div class="version-picker__control">
+            <button
+                ref="triggerRef"
+                class="version-picker__trigger"
+                type="button"
+                aria-haspopup="menu"
+                :aria-expanded="isOpen"
+                :aria-label="props.showLabel ? undefined : 'Version'"
+                @click="toggleMenu"
+                @keydown="onTriggerKeyDown"
+            >
+                <span class="version-picker__current">{{ currentLabel }}</span>
+                <span class="version-picker__chevron" :class="{ 'version-picker__chevron--open': isOpen }" aria-hidden="true"></span>
+            </button>
+
+            <div
+                v-if="isOpen"
+                ref="menuRef"
+                class="version-picker__menu"
+                role="menu"
+                aria-label="Available versions"
+            >
+                <button
+                    v-for="(version, index) in versions"
+                    :key="version.key"
+                    class="version-picker__option"
+                    type="button"
+                    role="menuitemradio"
+                    :aria-checked="selectedVersion?.key === version.key"
+                    @click="onSelect(version)"
+                    @keydown="onOptionKeyDown($event, index)"
                 >
-                        <option
-                                v-for="version in versions"
-                                :key="version.key"
-                                :value="version.key"
-                        >
-                                {{ version.label }}
-                        </option>
-                </select>
+                    <span>{{ version.label }}</span>
+                </button>
+            </div>
         </div>
+    </div>
 </template>
 
 <style scoped>
@@ -131,40 +285,112 @@ onMounted(async () => {
     padding: 0.5rem 0;
 }
 
-.version-picker--inline {
-    padding: 0;
-}
-
 .version-picker__label {
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--vp-c-text-2);
 }
 
-.version-picker__select {
-    min-width: 7rem;
-    padding: 0.35rem 2rem 0.35rem 0.65rem;
-    border: 1px solid var(--vp-c-divider);
-    border-radius: 999px;
-    background: var(--vp-c-bg-soft);
+.version-picker__control {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.version-picker__current {
     color: var(--vp-c-text-1);
     font-size: 0.875rem;
+    font-weight: 600;
 }
 
-.version-picker--inline .version-picker__select {
-    min-width: 5.5rem;
-    padding-right: 1.5rem;
+.version-picker__trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-width: 7.5rem;
+    height: 2rem;
+    padding: 0 0.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--vp-c-default-soft) 78%, transparent);
+    color: var(--vp-c-text-1);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--vp-c-divider) 88%, transparent);
+}
+
+.version-picker__trigger:hover {
+    background: color-mix(in srgb, var(--vp-c-default-soft) 94%, var(--vp-c-brand-soft));
+}
+
+.version-picker__trigger:focus-visible,
+.version-picker__option:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--vp-c-brand-1);
+}
+
+.version-picker__chevron {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-0.1rem) rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.version-picker__chevron--open {
+    transform: translateY(0.1rem) rotate(-135deg);
+}
+
+.version-picker__menu {
+    position: absolute;
+    top: calc(100% + 0.125rem);
+    left: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    min-width: 9rem;
+    padding: 0.25rem;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--vp-c-bg-elv) 92%, var(--vp-c-bg));
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+    border: 1px solid color-mix(in srgb, var(--vp-c-divider) 85%, transparent);
+}
+
+.version-picker__option {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.45rem 0.625rem;
+    border: 0;
+    border-radius: 10px;
     background: transparent;
+    color: var(--vp-c-text-1);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    text-align: left;
+    cursor: pointer;
 }
 
-.version-picker__select:focus {
-    outline: 2px solid var(--vp-c-brand-1);
-    outline-offset: 2px;
+.version-picker__option:hover {
+    background: color-mix(in srgb, var(--vp-c-brand-soft) 68%, transparent);
+}
+
+.version-picker__option[aria-checked="true"] {
+    background: color-mix(in srgb, var(--vp-c-brand-soft) 88%, transparent);
+    color: var(--vp-c-brand-1);
 }
 
 @media (max-width: 960px) {
     .version-picker {
         justify-content: space-between;
+    }
+
+    .version-picker__menu {
+        left: auto;
+        right: 0;
     }
 }
 </style>

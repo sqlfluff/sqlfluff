@@ -72,7 +72,7 @@ const REFERENCES: DefaultTheme.NavItemWithLink[] = [
     { text: 'Release Notes', link: '/reference/release-notes' },
 ]
 
-const docsBase = normalizeBase(process.env.SQLFLUFF_DOCS_BASE, '/sqlfluff/')
+const docsBase = normalizeBase(process.env.SQLFLUFF_DOCS_BASE, '/en/latest/')
 const noIndex = process.env.SQLFLUFF_DOCS_NOINDEX === '1'
 
 const head: [string, Record<string, string>][] = [
