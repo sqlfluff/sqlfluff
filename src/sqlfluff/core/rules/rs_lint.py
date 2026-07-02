@@ -594,6 +594,7 @@ class RsSegment:
         segments: Optional[tuple[Any, ...]] = None,
         parent: Optional[Any] = None,
         parent_idx: Optional[int] = None,
+        preserve_uuid: bool = False,
     ) -> Any:
         """Materialise a real Python ``BaseSegment`` tree from this arena subtree.
 
@@ -643,6 +644,11 @@ class RsSegment:
                 escape_replacements=h.escape_replacements(),
                 casefold=casefold,
             )
+            if preserve_uuid:
+                # Keep the arena node's uuid so native ``apply_fixes`` (which
+                # matches fixes to segments by ``anchor.uuid``) lines up with the
+                # façade fixes — the uuid-bridge for tree-restructuring fixes.
+                new_segment.uuid = self._uid
             if parent is not None:
                 assert parent_idx is not None
                 new_segment.set_parent(parent, parent_idx)
@@ -652,7 +658,7 @@ class RsSegment:
         # the parse-time validation in __init__ and just transplant state.
         new_segment = cls.__new__(cls)  # type: ignore[call-overload]
         new_segment.pos_marker = h.pos_marker
-        new_segment.uuid = get_next_id()
+        new_segment.uuid = self._uid if preserve_uuid else get_next_id()
         if parent is not None:
             assert parent_idx is not None
             new_segment.set_parent(parent, parent_idx)
@@ -660,7 +666,9 @@ class RsSegment:
             new_segment.segments = tuple(segments)
         else:
             new_segment.segments = tuple(
-                child.copy(parent=new_segment, parent_idx=idx)
+                child.copy(
+                    parent=new_segment, parent_idx=idx, preserve_uuid=preserve_uuid
+                )
                 for idx, child in enumerate(self.segments)
             )
         return new_segment
@@ -840,6 +848,52 @@ def facade_violations(
     return out
 
 
+def _native_apply_fixes(
+    rst: Any, rule_code: str, fixes: list[Any], config: Any
+) -> Optional[str]:
+    """uuid-bridge: apply tree-restructuring ``fixes`` via the native machinery.
+
+    For fixes that ``apply_source_fixes`` can't express as source-slice edits
+    (subquery→CTE, reflow indent, …), materialise the arena tree into a real
+    ``BaseSegment`` tree **preserving the arena uuids** so native ``apply_fixes``
+    (which matches fixes by ``anchor.uuid``) lines up with the façade fixes, then
+    reconstruct the fixed source with native ``generate_source_patches`` +
+    ``fix_string`` — the exact, parity-correct path. Returns the fixed source, or
+    ``None`` on any failure so the caller falls back / skips.
+    """
+    try:
+        from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
+        from sqlfluff.core.linter.linted_file import LintedFile
+        from sqlfluff.core.linter.patch import generate_source_patches
+
+        tf = rst.templated_file
+        if tf is None:
+            return None
+        anchor_info = compute_anchor_edit_info(fixes)
+        if any(not info.is_valid for info in anchor_info.values()):
+            return None
+        materialised = RsSegment(rst.root).copy(preserve_uuid=True)
+        new_tree, _before, _after, valid = apply_fixes(
+            materialised,
+            config.get("dialect_obj"),
+            rule_code,
+            anchor_info,
+            fix_even_unparsable=config.get("fix_even_unparsable"),
+            max_parse_depth=config.get("max_parse_depth"),
+            max_parse_nodes=config.get("max_parse_nodes"),
+        )
+        if not valid:
+            return None
+        patches = generate_source_patches(new_tree, tf)
+        source_only = tf.source_only_slices()
+        slices = LintedFile._slice_source_file_using_patches(
+            patches, source_only, tf.source_str
+        )
+        return LintedFile._build_up_fixed_source_string(slices, patches, tf.source_str)
+    except Exception:  # noqa: BLE001 — any failure just defers to the caller
+        return None
+
+
 def facade_fix_loop(
     source: str,
     fname: str,
@@ -890,6 +944,11 @@ def facade_fix_loop(
                 if not fixes:
                     continue
                 new_source = apply_source_fixes(source, fixes)
+                if new_source is None:
+                    # Tree-restructuring fix that source-patching can't express —
+                    # apply it via the native machinery over a uuid-preserving
+                    # materialisation of the current arena tree (approach B).
+                    new_source = _native_apply_fixes(rst, rule.code, fixes, config)
                 if new_source is None or new_source == source:
                     continue
                 if new_source in seen:  # loop detected -> stop applying
