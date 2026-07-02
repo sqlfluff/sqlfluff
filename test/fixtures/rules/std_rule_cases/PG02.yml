@@ -75,3 +75,6 @@ test_pass_non_postgres_dialect_ignored:
   configs:
     core:
       dialect: redshift
+    rules:
+      postgres.not_valid_foreign_key:
+        force_enable: true

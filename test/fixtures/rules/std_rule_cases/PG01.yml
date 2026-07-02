@@ -166,3 +166,6 @@ test_pass_non_postgres_dialect_ignored:
   configs:
     core:
       dialect: ansi
+    rules:
+      postgres.excessive_locks:
+        force_enable: true
