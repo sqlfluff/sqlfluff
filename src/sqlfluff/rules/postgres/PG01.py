@@ -23,7 +23,8 @@ class Rule_PG01(BaseRule):
     * ``REINDEX`` → use ``CONCURRENTLY``
     * ``REFRESH MATERIALIZED VIEW`` → use ``CONCURRENTLY``
 
-    This rule only applies to the ``postgres`` dialect.
+    This rule only applies to the ``postgres`` dialect and is disabled by
+    default. Enable it with the ``force_enable = True`` flag.
 
     **Anti-pattern**
 
@@ -58,6 +59,7 @@ class Rule_PG01(BaseRule):
     name = "postgres.excessive_locks"
     aliases = ()
     groups = ("all", "postgres")
+    config_keywords = ["force_enable"]
     crawl_behaviour = SegmentSeekerCrawler(
         {
             "create_index_statement",
@@ -70,6 +72,11 @@ class Rule_PG01(BaseRule):
     _target_dialects = ("postgres",)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
+        self.force_enable: bool
+
+        if not self.force_enable:
+            return None
+
         if context.dialect.name not in self._target_dialects:
             return None
 

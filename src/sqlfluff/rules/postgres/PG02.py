@@ -19,7 +19,8 @@ class Rule_PG02(BaseRule):
     longer than necessary. Creating the constraint as ``NOT VALID`` defers that
     scan so it can be run later with ``VALIDATE CONSTRAINT``.
 
-    This rule only applies to the ``postgres`` dialect.
+    This rule only applies to the ``postgres`` dialect and is disabled by
+    default. Enable it with the ``force_enable = True`` flag.
 
     **Anti-pattern**
 
@@ -47,11 +48,17 @@ class Rule_PG02(BaseRule):
     name = "postgres.not_valid_foreign_key"
     aliases = ()
     groups = ("all", "postgres")
+    config_keywords = ["force_enable"]
     crawl_behaviour = SegmentSeekerCrawler({"alter_table_statement"})
 
     _target_dialects = ("postgres",)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
+        self.force_enable: bool
+
+        if not self.force_enable:
+            return None
+
         if context.dialect.name not in self._target_dialects:
             return None
 

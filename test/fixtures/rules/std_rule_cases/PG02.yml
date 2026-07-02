@@ -8,6 +8,9 @@ test_pass_alter_table_add_column:
   configs:
     core:
       dialect: postgres
+    rules:
+      postgres.not_valid_foreign_key:
+        force_enable: true
 
 test_pass_alter_table_drop_column:
   pass_str: |
@@ -15,6 +18,9 @@ test_pass_alter_table_drop_column:
   configs:
     core:
       dialect: postgres
+    rules:
+      postgres.not_valid_foreign_key:
+        force_enable: true
 
 test_pass_add_foreign_key_not_valid:
   pass_str: |
@@ -23,6 +29,9 @@ test_pass_add_foreign_key_not_valid:
   configs:
     core:
       dialect: postgres
+    rules:
+      postgres.not_valid_foreign_key:
+        force_enable: true
 
 test_pass_add_foreign_key_not_valid_then_validate:
   pass_str: |
@@ -32,6 +41,9 @@ test_pass_add_foreign_key_not_valid_then_validate:
   configs:
     core:
       dialect: postgres
+    rules:
+      postgres.not_valid_foreign_key:
+        force_enable: true
 
 test_fail_add_foreign_key_without_not_valid:
   fail_str: |
@@ -40,6 +52,9 @@ test_fail_add_foreign_key_without_not_valid:
   configs:
     core:
       dialect: postgres
+    rules:
+      postgres.not_valid_foreign_key:
+        force_enable: true
 
 test_pass_add_non_fk_constraint_without_not_valid:
   pass_str: |
@@ -47,6 +62,9 @@ test_pass_add_non_fk_constraint_without_not_valid:
   configs:
     core:
       dialect: postgres
+    rules:
+      postgres.not_valid_foreign_key:
+        force_enable: true
 
 # ---- Dialect scoping ----
 
