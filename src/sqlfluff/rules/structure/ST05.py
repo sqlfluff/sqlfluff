@@ -619,17 +619,34 @@ def _segmentify(input_el: str, casing: str) -> BaseSegment:
 
 
 class SegmentCloneMap:
-    """Clones a segment tree, maps from original segments to their clones."""
+    """Clones a segment tree, maps from original segments to their clones.
+
+    The clone (a full ``segment.copy()``) is built lazily on first lookup: the
+    caller builds the map for every SELECT statement but only *uses* it when
+    there are subqueries to rewrite, so deferring avoids cloning the whole
+    statement tree on the common no-subquery path (a notable cost over the Rust
+    arena façade, where copy() materialises real segments).
+    """
 
     def __init__(self, segment: BaseSegment):
+        self._segment = segment
+        self.segment_map: Optional[dict[int, BaseSegment]] = None
+
+    def _build(self) -> dict[int, BaseSegment]:
+        segment = self._segment
         segment_copy = segment.copy()
-        self.segment_map = {}
+        segment_map: dict[int, BaseSegment] = {}
         for old_segment, new_segment in zip(
             segment.recursive_crawl_all(),
             segment_copy.recursive_crawl_all(),
         ):
             new_segment.pos_marker = old_segment.pos_marker
-            self.segment_map[id(old_segment)] = new_segment
+            segment_map[id(old_segment)] = new_segment
+        self.segment_map = segment_map
+        return segment_map
 
     def __getitem__(self, old_segment: BaseSegment) -> BaseSegment:
-        return self.segment_map[id(old_segment)]
+        segment_map = self.segment_map
+        if segment_map is None:
+            segment_map = self._build()
+        return segment_map[id(old_segment)]
