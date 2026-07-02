@@ -7,7 +7,7 @@ import logging
 
 import pytest
 
-from sqlfluff.core import Linter
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.utils.reflow.elements import ReflowPoint
 from sqlfluff.utils.reflow.helpers import fixes_from_results
 from sqlfluff.utils.reflow.sequence import ReflowSequence
@@ -17,6 +17,29 @@ def parse_ansi_string(sql, config):
     """Parse an ansi sql string for testing."""
     linter = Linter(config=config)
     return linter.parse_string(sql).tree
+
+
+def test_reflow__respace_does_not_strip_newline_before_comment():
+    """A newline directly before a comment must survive strip_newlines=True.
+
+    Regression test: when a parent constraint (e.g. `spacing_within =
+    single:inline` on `expression`) requests stripped newlines between a
+    binary operator like `AND` and the following token, and that following
+    token is a comment, the newline separating them must NOT be removed.
+    Removing it would glue the operator to the `--` comment marker and
+    change the meaning/formatting of the statement.
+    """
+    config = FluffConfig(
+        overrides={"dialect": "ansi"},
+        configs={
+            "layout": {"type": {"expression": {"spacing_within": "single:inline"}}}
+        },
+    )
+    sql = "SELECT * FROM t WHERE a AND\n-- comment\nb\n"
+    root = parse_ansi_string(sql, config)
+    seq = ReflowSequence.from_root(root, config=config)
+    new_seq = seq.respace()
+    assert new_seq.get_raw() == sql
 
 
 @pytest.mark.parametrize(
