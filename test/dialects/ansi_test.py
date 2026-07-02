@@ -226,3 +226,52 @@ def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_lo
         idx for idx, raw_seg in enumerate(tree.get_raw_segments()) if raw_seg.is_meta
     )
     assert res_meta_locs == meta_loc
+
+
+def test__dialect__ansi_create_view_bracketed_select_is_not_bracketed_column_list():
+    """A parenthesised SELECT body in CREATE VIEW must not look like a column list.
+
+    ``CREATE VIEW v AS (SELECT ...)`` wraps the SELECT in optional brackets.
+    Code that inspects the direct children of ``create_view_statement`` to
+    detect an *explicit column list* (a bracketed segment containing
+    ``column_reference`` children, as produced by an actual
+    ``CREATE VIEW v (col1, col2) AS ...``) must not be fooled by this
+    parenthesised SELECT, even though its select targets are themselves
+    simple column references. The direct children of the statement must
+    therefore not include a bare ``bracketed`` segment for the SELECT body.
+    """
+    lnt = Linter(dialect="ansi")
+    parsed = lnt.parse_string(
+        "CREATE VIEW v AS (SELECT col1, col2 FROM my_table);"
+    )
+    create_view = next(parsed.tree.recursive_crawl("create_view_statement"))
+
+    def is_ambiguous_bracketed_column_list(segment):
+        return segment.is_type("bracketed") and any(
+            seg.is_type("column_reference")
+            for seg in segment.recursive_crawl("column_reference")
+        )
+
+    # None of the *direct* children of the create_view_statement should be a
+    # bare "bracketed" segment containing column references -- that shape is
+    # reserved for an explicit column list, e.g. CREATE VIEW v (col1, col2).
+    offending = [
+        child for child in create_view.segments if is_ambiguous_bracketed_column_list(child)
+    ]
+    assert offending == [], (
+        "The bracketed SELECT body was mistakable for an explicit column list: "
+        f"{[seg.raw for seg in offending]}"
+    )
+
+    # And an explicit column list is still detected correctly.
+    lnt2 = Linter(dialect="ansi")
+    parsed2 = lnt2.parse_string(
+        "CREATE VIEW v (col1, col2) AS SELECT col1, col2 FROM my_table;"
+    )
+    create_view2 = next(parsed2.tree.recursive_crawl("create_view_statement"))
+    explicit = [
+        child
+        for child in create_view2.segments
+        if is_ambiguous_bracketed_column_list(child)
+    ]
+    assert len(explicit) == 1

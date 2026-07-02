@@ -66,6 +66,13 @@ class Rule_ST06(BaseRule):
                 # Look for a bracketed segment containing column references
                 for child in parent.segments:
                     if child.is_type("bracketed"):
+                        # A bracketed SELECT body (e.g. `AS (SELECT ...)`) is
+                        # not an explicit column list, even though it may
+                        # itself contain identifiers/column references.
+                        if any(
+                            child.recursive_crawl("select_statement")
+                        ) or any(child.recursive_crawl("with_compound_statement")):
+                            continue
                         # Check if this bracketed segment contains column references
                         # ANSI-based dialects (Snowflake, PostgreSQL, etc.)
                         # use column_reference
@@ -78,6 +85,18 @@ class Rule_ST06(BaseRule):
                         if any(
                             seg.is_type("index_column_definition")
                             for seg in child.recursive_crawl("index_column_definition")
+                        ):
+                            return True
+                        # BigQuery dialect uses column_definition instead
+                        if any(
+                            seg.is_type("column_definition")
+                            for seg in child.recursive_crawl("column_definition")
+                        ):
+                            return True
+                        # ClickHouse dialect uses a plain identifier instead
+                        if any(
+                            seg.is_type("identifier")
+                            for seg in child.recursive_crawl("identifier")
                         ):
                             return True
                 # Found a CREATE VIEW but no explicit column list

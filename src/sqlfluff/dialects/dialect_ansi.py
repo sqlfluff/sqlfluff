@@ -3421,6 +3421,25 @@ class AlterTableStatementSegment(BaseSegment):
     )
 
 
+class CreateViewSelectableSegment(BaseSegment):
+    """The SELECT body of a `CREATE VIEW` statement, optionally bracketed.
+
+    Kept as its own segment type (rather than inlining
+    ``OptionallyBracketed(Ref("SelectableGrammar"))`` directly into
+    ``CreateViewStatementSegment``) so that a parenthesised SELECT body,
+    e.g. ``CREATE VIEW v AS (SELECT col1, col2 FROM t)``, is never a bare
+    ``bracketed`` segment at the direct-child level of
+    ``create_view_statement``. Without this wrapper, that parenthesised
+    SELECT is structurally indistinguishable from an explicit bracketed
+    column list (``CREATE VIEW v (col1, col2) AS ...``) to any code that
+    checks direct children for a "bracketed" segment containing
+    column references.
+    """
+
+    type = "create_view_selectable"
+    match_grammar: Matchable = OptionallyBracketed(Ref("SelectableGrammar"))
+
+
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement."""
 
@@ -3437,7 +3456,7 @@ class CreateViewStatementSegment(BaseSegment):
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        OptionallyBracketed(Ref("SelectableGrammar")),
+        Ref("CreateViewSelectableSegment"),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 

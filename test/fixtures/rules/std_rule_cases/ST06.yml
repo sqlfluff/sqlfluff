@@ -359,6 +359,61 @@ test_pass_create_view_with_explicit_columns_tsql:
       e.department
     FROM employees e
 
+test_pass_create_view_with_explicit_columns_bigquery:
+  # ST06 must not reorder SELECT columns when a CREATE VIEW declares an
+  # explicit column list using BigQuery's column_definition segment type.
+  configs:
+    core:
+      dialect: bigquery
+  pass_str: |
+    CREATE VIEW MyView(simple_col, complex_col) AS
+    SELECT
+      CASE WHEN simple_col > 0 THEN 1 ELSE 0 END as complex_col,
+      simple_col
+    FROM table1
+
+test_pass_create_view_with_explicit_columns_clickhouse:
+  # ST06 must not reorder SELECT columns when a CREATE VIEW declares an
+  # explicit column list using ClickHouse's identifier segment type.
+  configs:
+    core:
+      dialect: clickhouse
+  pass_str: |
+    CREATE VIEW MyView(simple_col, complex_col) AS
+    SELECT
+      CASE WHEN simple_col > 0 THEN 1 ELSE 0 END as complex_col,
+      simple_col
+    FROM table1
+
+test_fail_create_view_bracketed_select_without_explicit_columns:
+  # A bracketed SELECT body in CREATE VIEW (e.g. `AS (SELECT ...)`) must not
+  # be mistaken for an explicit column list. ST06 must still flag SELECT
+  # targets that are out of order in this case.
+  fail_str: |
+    CREATE VIEW v AS (
+    SELECT
+      f.franchiseename,
+      TRY_TO_DOUBLE(f.franchiseename) AS franchiseid,
+      f.storestatus,
+      f.grandstoreopeningdate,
+      CASE WHEN f.grandstoreopeningdate < dateadd(month, -18, current_date) THEN 'Same Gym' ELSE NULL END as same_gym,
+      f.state
+    FROM franchisee f
+    )
+  line_numbers: [2]
+
+  fix_str: |
+    CREATE VIEW v AS (
+    SELECT
+      f.franchiseename,
+      f.storestatus,
+      f.grandstoreopeningdate,
+      f.state,
+      TRY_TO_DOUBLE(f.franchiseename) AS franchiseid,
+      CASE WHEN f.grandstoreopeningdate < dateadd(month, -18, current_date) THEN 'Same Gym' ELSE NULL END as same_gym
+    FROM franchisee f
+    )
+
 test_fail_create_view_without_explicit_columns_tsql:
   configs:
     core:

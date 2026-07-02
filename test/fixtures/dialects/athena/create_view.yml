@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b9f327cd36317b0514ab31fba38d44f4416e2578e095ee9952aac4f2289f9b0
+_hash: f212baf073a744014c714a8e9c1a160799cd47a08d7d451b8c3b9d9b597eceb1
 file:
 - statement:
     create_view_statement:
@@ -12,34 +12,35 @@ file:
     - table_reference:
         naked_identifier: test
     - keyword: AS
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              naked_identifier: orderkey
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: orderstatus
-        - comma: ','
-        - select_clause_element:
-            expression:
+    - create_view_selectable:
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
               column_reference:
-                naked_identifier: totalprice
-              binary_operator: /
-              numeric_literal: '2'
-            alias_expression:
-              alias_operator:
-                keyword: AS
-              naked_identifier: half
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: orders
+                naked_identifier: orderkey
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: orderstatus
+          - comma: ','
+          - select_clause_element:
+              expression:
+                column_reference:
+                  naked_identifier: totalprice
+                binary_operator: /
+                numeric_literal: '2'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: half
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: orders
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -50,32 +51,33 @@ file:
     - table_reference:
         naked_identifier: test
     - keyword: AS
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              naked_identifier: orderkey
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: orderstatus
-        - comma: ','
-        - select_clause_element:
-            expression:
+    - create_view_selectable:
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
               column_reference:
-                naked_identifier: totalprice
-              binary_operator: /
-              numeric_literal: '4'
-            alias_expression:
-              alias_operator:
-                keyword: AS
-              naked_identifier: quarter
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: orders
+                naked_identifier: orderkey
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: orderstatus
+          - comma: ','
+          - select_clause_element:
+              expression:
+                column_reference:
+                  naked_identifier: totalprice
+                binary_operator: /
+                numeric_literal: '4'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: quarter
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: orders
 - statement_terminator: ;
