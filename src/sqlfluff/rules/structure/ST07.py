@@ -1,5 +1,6 @@
 """Implementation of Rule ST07."""
 
+import re
 from typing import Optional
 
 from sqlfluff.core.parser import (
@@ -121,6 +122,15 @@ class Rule_ST07(BaseRule):
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
 
         table_a, table_b = table_aliases[:2]
+        # ref_str is only the last part of a multi-part reference. For BigQuery
+        # hyphenated names it is e.g. "table-c", which is not a valid naked
+        # identifier, so splicing it into a generated ON clause yields broken SQL.
+        if not (
+            _NAKED_IDENTIFIER.match(table_a.ref_str)
+            and _NAKED_IDENTIFIER.match(table_b.ref_str)
+        ):
+            return unfixable_result
+
         edit_segments = [
             KeywordSegment(raw="ON"),
             WhitespaceSegment(raw=" "),
@@ -145,6 +155,9 @@ class Rule_ST07(BaseRule):
             description=description,
             fixes=fixes,
         )
+
+
+_NAKED_IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_$]*$")
 
 
 def _extract_cols_from_using(join_clause: Segments, using_segs: Segments) -> list[str]:
