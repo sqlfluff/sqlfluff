@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     IdentifierSegment,
     Indent,
     Matchable,
+    NewlineSegment,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -118,6 +119,33 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer("magic_line", r"(-- MAGIC)( [^%]{1})([^\n]*)", CodeSegment),
         RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})(\r?\n)", CodeSegment),
+        RegexLexer(
+            "bare_magic_sql",
+            r"(\r?\n)+-- COMMAND ----------(\r?\n)+%sql\b[^\r\n]*",
+            CommentSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+            trim_post_subdivide=RegexLexer(
+                "command", r"-- COMMAND ----------", CodeSegment
+            ),
+        ),
+        RegexLexer(
+            "bare_magic_cell",
+            r"(?s)(\r?\n)+-- COMMAND ----------(\r?\n)+"
+            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
+            r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
+            r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+            CodeSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+            trim_post_subdivide=RegexLexer(
+                "command", r"-- COMMAND ----------", CodeSegment
+            ),
+        ),
+        RegexLexer(
+            "command",
+            r"(\r?\n){2}-- COMMAND ----------(\r?\n)",
+            CodeSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+        ),
     ],
     before="inline_comment",
 )
@@ -301,6 +329,9 @@ databricks_dialect.add(
     ),
     MagicLineGrammar=TypedParser("magic_line", CodeSegment, type="magic_line"),
     MagicStartGrammar=TypedParser("magic_start", CodeSegment, type="magic_start"),
+    BareMagicCellGrammar=TypedParser(
+        "bare_magic_cell", CodeSegment, type="bare_magic_cell"
+    ),
     VariableNameIdentifierSegment=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
@@ -2042,21 +2073,11 @@ class MagicCellStatementSegment(BaseSegment):
                 AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
             ),
             Ref("MagicSingleLineGrammar", optional=True),
-            Ref("BareMagicCellSegment"),
+            # One `bare_magic_cell` token per line (see the lexer subdivider).
+            AnyNumberOf(Ref("BareMagicCellGrammar")),
         ),
         terminators=[Ref("CommandCellSegment", optional=True)],
         reset_terminators=True,
-    )
-
-
-class BareMagicCellSegment(BaseSegment):
-    """A bare Databricks notebook magic cell starting with %."""
-
-    type = "bare_magic_cell"
-    match_grammar = Sequence(
-        Ref("ModuloSegment"),
-        Anything(terminators=[Ref("CommandCellSegment")], optional=True),
-        allow_gaps=False,
     )
 
 
