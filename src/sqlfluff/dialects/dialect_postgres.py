@@ -218,9 +218,14 @@ postgres_dialect.insert_lexer_matchers(
             # The pattern is self-anchored on the `COPY ... FROM STDIN;` prefix,
             # so it stays context-free; a `COPY ... FROM STDIN` without a trailing
             # `\.` data block does not match and parses as a normal statement.
+            # The header may span multiple lines (e.g. a column list or `WITH`
+            # options on their own lines). `[^;]` rather than `[^\r\n]` allows the
+            # newlines while still stopping at the statement terminator, so the
+            # match cannot absorb a preceding statement to reach a later
+            # `FROM STDIN`.
             # Approach originally proposed in #7759 by @RedZapdos123.
             "postgres_copy_stdin_data_block",
-            r"(?i)COPY\b[^\r\n]*?\bFROM\b\s+STDIN\b[^\r\n]*?;[ \t]*\r?\n"
+            r"(?i)COPY\b[^;]*?\bFROM\b\s+STDIN\b[^;]*?;[ \t]*\r?\n"
             r"(?:[^\r\n]*\r?\n)*?\\\.[ \t]*(?=\r?\n|$)",
             CodeSegment,
         ),
