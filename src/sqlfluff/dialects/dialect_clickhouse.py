@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
@@ -63,6 +64,11 @@ clickhouse_dialect.insert_lexer_matchers(
     before="newline",
 )
 
+clickhouse_dialect.insert_lexer_matchers(
+    [StringLexer("double_equals", "==", CodeSegment)],
+    before="equals",
+)
+
 clickhouse_dialect.patch_lexer_matchers(
     [
         RegexLexer(
@@ -94,6 +100,9 @@ clickhouse_dialect.add(
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question"),
+    RawDoubleEqualsSegment=StringParser(
+        "==", SymbolSegment, type="raw_comparison_operator"
+    ),
 )
 
 clickhouse_dialect.replace(
@@ -108,6 +117,17 @@ clickhouse_dialect.replace(
         Ref("ComparisonOperatorGrammar"),
         # Add Lambda Function
         Ref("LambdaFunctionSegment"),
+    ),
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("DoubleEqualsSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment"),
+        Ref("LikeOperatorSegment"),
+        Ref("IsDistinctFromGrammar"),
     ),
     # https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
     JoinTypeKeywordsGrammar=Sequence(
@@ -372,6 +392,12 @@ clickhouse_dialect.sets("datetime_units").update(
         "YY",
     ]
 )
+
+
+class DoubleEqualsSegment(CompositeComparisonOperatorSegment):
+    """Double equals operator."""
+
+    match_grammar: Matchable = Ref("RawDoubleEqualsSegment")
 
 
 class AccessPermissionSegment(ansi.AccessPermissionSegment):
