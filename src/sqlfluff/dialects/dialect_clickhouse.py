@@ -753,6 +753,21 @@ class WithFillSegment(ansi.WithFillSegment):
             ),
             optional=True,
         ),
+        # https://clickhouse.com/docs/sql-reference/statements/select/order-by
+        # #filling-columns-with-interpolate
+        Sequence(
+            "INTERPOLATE",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Sequence("AS", Ref("ExpressionSegment"), optional=True),
+                    ),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
     )
 
 
