@@ -372,6 +372,36 @@ mysql_dialect.add(
 )
 
 
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
+    """A MySQL `GROUP BY` clause, adding the `WITH ROLLUP` modifier.
+
+    https://dev.mysql.com/doc/refman/8.0/en/group-by-modifiers.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("NumericLiteralSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+            ),
+        ),
+        Dedent,
+        Sequence("WITH", "ROLLUP", optional=True),
+    )
+
+
 class TableReferenceSegment(ansi.TableReferenceSegment):
     """A reference to a table.
 
