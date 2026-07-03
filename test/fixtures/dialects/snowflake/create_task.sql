@@ -116,3 +116,16 @@ AS
 CREATE TASK mytask
 AS
     ALTER DYNAMIC TABLE foo REFRESH;
+
+-- WITH TAG clause (https://github.com/sqlfluff/sqlfluff/issues/8060)
+CREATE OR REPLACE TASK GLOBAL_SANDBOX.SHARED_PLAYGROUND.SELECT_ONE_TASK
+    WITH TAG (GLOBAL_SANDBOX.SHARED_PLAYGROUND.data_owner = 'data_team')
+    SCHEDULE = 'USING CRON 0 0 1 1 * UTC'
+AS
+    SELECT 1;
+
+CREATE TASK mytask
+    TAG (cost_center = 'finance', env = 'prod')
+    SCHEDULE = '5 MINUTE'
+AS
+    SELECT 1;

@@ -5406,6 +5406,8 @@ class CreateTaskSegment(BaseSegment):
         ),
         Ref("ObjectReferenceSegment"),
         Indent,
+        # https://docs.snowflake.com/en/sql-reference/sql/create-task#optional-parameters
+        Ref("TagBracketedEqualsSegment", optional=True),
         AnyNumberOf(
             OneOf(
                 Sequence(
