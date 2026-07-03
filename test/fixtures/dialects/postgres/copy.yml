@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7183a7dc7491c71f71cee5e900729ff0c5f0d5eb9d01884c0b76be0b066ad37c
+_hash: e828edfa2f9b8f132796188d0568a6face270dee9bd9f5d86e8b2bd7c260a60a
 file:
 - statement:
     copy_statement:
@@ -1440,4 +1440,91 @@ file:
       - column_reference:
           naked_identifier: col2
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tmp_table
+    - keyword: FROM
+    - psql_variable:
+        colon: ':'
+        parameter: source
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - psql_variable:
+        colon: ':'
+        parameter: source
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: DELIMITER
+      - quoted_literal: "E'\\t'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - psql_variable:
+        colon: ':'
+        parameter: dest
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: FORMAT
+        naked_identifier: csv
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - psql_variable:
+        colon: ':'
+        quoted_literal: "'fname'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - psql_variable:
+        colon: ':'
+        parameter: '"out"'
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: PROGRAM
+    - psql_variable:
+        colon: ':'
+        quoted_literal: "'gen_cmd'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - keyword: PROGRAM
+    - psql_variable:
+        colon: ':'
+        parameter: dest_cmd
 - statement_terminator: ;
