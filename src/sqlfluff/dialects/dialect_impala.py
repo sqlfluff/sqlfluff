@@ -6,6 +6,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     BinaryOperatorSegment,
     Bracketed,
+    CommentSegment,
     Dedent,
     Delimited,
     Indent,
@@ -13,8 +14,10 @@ from sqlfluff.core.parser import (
     OneOf,
     ParseMode,
     Ref,
+    RegexLexer,
     Sequence,
     StringParser,
+    TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_hive as hive
@@ -32,6 +35,28 @@ impala_dialect = hive_dialect.copy_as(
 
 impala_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 impala_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+
+impala_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "impala_block_hint",
+            r"/\* \+(?:SHUFFLE|NOSHUFFLE|CLUSTERED) \*/",
+            CommentSegment,
+        ),
+    ],
+    before="block_comment",
+)
+impala_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "impala_dash_hint",
+            r"-- \+(?:SHUFFLE|NOSHUFFLE|CLUSTERED)",
+            CommentSegment,
+            segment_kwargs={"trim_start": ("--",)},
+        ),
+    ],
+    before="inline_comment",
+)
 
 # --------------------------------------------------------------------------- #
 # Grammar replacements (targeted sub-segment overrides)
@@ -76,6 +101,21 @@ impala_dialect.add(
     ImpalaBracketHintGrammar=Bracketed(
         OneOf("SHUFFLE", "NOSHUFFLE"),
         bracket_type="square",
+    ),
+    ImpalaDashHintGrammar=TypedParser(
+        "impala_dash_hint",
+        CommentSegment,
+        type="impala_hint",
+    ),
+    ImpalaBlockHintGrammar=TypedParser(
+        "impala_block_hint",
+        CommentSegment,
+        type="impala_hint",
+    ),
+    ImpalaHintClauseGrammar=OneOf(
+        Ref("ImpalaBracketHintGrammar"),
+        Ref("ImpalaDashHintGrammar"),
+        Ref("ImpalaBlockHintGrammar"),
     ),
     KuduColumnAttributeGrammar=OneOf(
         Sequence(Ref.keyword("NOT", optional=True), "NULL"),
@@ -781,39 +821,32 @@ class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
 
 
 class InsertStatementSegment(BaseSegment):
-    """Impala `INSERT` with bracket hints and VALUES."""
+    """Impala `INSERT` with hints and VALUES."""
 
     type = "insert_statement"
+
+    _insert_target = Sequence(
+        OneOf("INTO", "OVERWRITE"),
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(Ref("ColumnReferenceSegment")),
+            optional=True,
+        ),
+        Ref("PartitionSpecGrammar", optional=True),
+    )
 
     match_grammar = Sequence(
         Ref("WithCompoundStatementSegment", optional=True),
         "INSERT",
-        Ref("ImpalaBracketHintGrammar", optional=True),
+        Ref("ImpalaHintClauseGrammar", optional=True),
+        _insert_target,
         OneOf(
             Sequence(
-                "OVERWRITE",
-                Ref.keyword("TABLE", optional=True),
-                Ref("TableReferenceSegment"),
-                Ref("PartitionSpecGrammar", optional=True),
-                Ref("ImpalaBracketHintGrammar", optional=True),
-                Ref("IfNotExistsGrammar", optional=True),
+                Ref("ImpalaHintClauseGrammar", optional=True),
                 Ref("SelectableGrammar"),
             ),
-            Sequence(
-                "INTO",
-                Ref.keyword("TABLE", optional=True),
-                Ref("TableReferenceSegment"),
-                Bracketed(
-                    Delimited(Ref("ColumnReferenceSegment")),
-                    optional=True,
-                ),
-                Ref("PartitionSpecGrammar", optional=True),
-                Ref("ImpalaBracketHintGrammar", optional=True),
-                OneOf(
-                    Ref("SelectableGrammar"),
-                    Ref("ValuesClauseSegment"),
-                ),
-            ),
+            Ref("ValuesClauseSegment"),
         ),
     )
 

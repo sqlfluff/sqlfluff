@@ -52,6 +52,7 @@ RESERVED_KEYWORDS = [
     "CLASS",
     "CLOB",
     "CLOSE_FN",
+    "CLOSEFN",
     "COLLATE",
     "COLLECT",
     "COLUMN",
