@@ -1,0 +1,1 @@
+INVALIDATE METADATA target_table;

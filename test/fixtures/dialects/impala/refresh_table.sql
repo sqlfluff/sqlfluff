@@ -1,0 +1,1 @@
+REFRESH target_table;
