@@ -3,40 +3,185 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6284f2f98c2749b670977fcba03ddd2d813d020225a0b34b8521beca19a95110
+_hash: 8933bcf9d970add748282990c86600bdd2e83814fc56c8c2cd36567f1bb5201c
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          system_function_name: SYSTEM$STREAM_HAS_DATA
-          bracketed:
-            start_bracket: (
-            quoted_literal: "'SCH.MY_STREAM'"
-            end_bracket: )
+          function:
+            function_name:
+              system_function_name: SYSTEM$STREAM_HAS_DATA
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'SCH.MY_STREAM'"
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          system_function_name: SYSTEM$USER_TASK_CANCEL_ONGOING_EXECUTIONS
-          bracketed:
-            start_bracket: (
-            quoted_literal: "'MY_TASK'"
-            end_bracket: )
+          function:
+            function_name:
+              system_function_name: SYSTEM$USER_TASK_CANCEL_ONGOING_EXECUTIONS
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'MY_TASK'"
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          system_function_name: SYSTEM$SHOW_STREAMLITS_IN_ACCOUNT
-          bracketed:
-          - start_bracket: (
-          - boolean_literal: 'true'
-          - comma: ','
-          - boolean_literal: 'false'
-          - end_bracket: )
+          function:
+            function_name:
+              system_function_name: SYSTEM$SHOW_STREAMLITS_IN_ACCOUNT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  boolean_literal: 'true'
+              - comma: ','
+              - expression:
+                  boolean_literal: 'false'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: A
+          - dot: .
+          - naked_identifier: COL_1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              system_function_name: SYSTEM$CURRENT_USER_TASK_NAME
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: TASK_NAME
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: IFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      system_function_name: SYSTEM$CURRENT_USER_TASK_NAME
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                  comparison_operator:
+                  - raw_comparison_operator: <
+                  - raw_comparison_operator: '>'
+                  quoted_literal: "''"
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      system_function_name: SYSTEM$CURRENT_USER_TASK_NAME
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: CURRENT_USER
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: LOAD_USER
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: ROW_NUMBER
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            end_bracket: )
+                        over_clause:
+                          keyword: OVER
+                          bracketed:
+                            start_bracket: (
+                            window_specification:
+                              orderby_clause:
+                              - keyword: ORDER
+                              - keyword: BY
+                              - expression:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: SEQ4
+                                    function_contents:
+                                      bracketed:
+                                        start_bracket: (
+                                        end_bracket: )
+                            end_bracket: )
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: COL_1
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          function:
+                            function_name:
+                              function_name_identifier: TABLE
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: GENERATOR
+                                    function_contents:
+                                      bracketed:
+                                        start_bracket: (
+                                        snowflake_keyword_expression:
+                                          parameter: ROWCOUNT
+                                          parameter_assigner: =>
+                                          numeric_literal: '5'
+                                        end_bracket: )
+                                end_bracket: )
+                end_bracket: )
+            alias_expression:
+              naked_identifier: A
 - statement_terminator: ;

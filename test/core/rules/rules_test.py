@@ -211,6 +211,39 @@ def test__rules__filter_unparsable():
     assert not any(v.rule_code() == "T002" for v in res.violations)
 
 
+def test__rules__postgres_rules_require_force_enable():
+    """Test PG01 and PG02 stay quiet until force_enable is set."""
+    pg01_sql = "CREATE INDEX idx_foo ON bar (tenant_id);"
+    pg02_sql = (
+        "ALTER TABLE foo ADD CONSTRAINT fk_bar "
+        "FOREIGN KEY (bar_id) REFERENCES bar (id);"
+    )
+
+    default_pg01 = Linter(dialect="postgres", rules=["PG01"]).lint_string(pg01_sql)
+    default_pg02 = Linter(dialect="postgres", rules=["PG02"]).lint_string(pg02_sql)
+
+    assert not any(v.rule_code() == "PG01" for v in default_pg01.violations)
+    assert not any(v.rule_code() == "PG02" for v in default_pg02.violations)
+
+    enabled_pg01 = Linter(
+        config=FluffConfig(
+            configs={"rules": {"postgres.excessive_locks": {"force_enable": True}}},
+            overrides={"dialect": "postgres", "rules": "PG01"},
+        )
+    ).lint_string(pg01_sql)
+    enabled_pg02 = Linter(
+        config=FluffConfig(
+            configs={
+                "rules": {"postgres.not_valid_foreign_key": {"force_enable": True}}
+            },
+            overrides={"dialect": "postgres", "rules": "PG02"},
+        )
+    ).lint_string(pg02_sql)
+
+    assert any(v.rule_code() == "PG01" for v in enabled_pg01.violations)
+    assert any(v.rule_code() == "PG02" for v in enabled_pg02.violations)
+
+
 def test__rules__result_unparsable():
     """Test that the linter won't allow rules which make the file unparsable."""
     # Set up a linter with the user rule

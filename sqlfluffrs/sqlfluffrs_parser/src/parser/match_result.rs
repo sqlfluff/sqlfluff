@@ -9,6 +9,7 @@
 
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
+use std::borrow::Cow;
 use std::fmt::Display;
 use std::ops::Range;
 use std::sync::Arc;
@@ -57,16 +58,16 @@ impl Default for SegmentKwargs {
 
 #[derive(Debug, Clone, Default)]
 pub struct MatchedClass {
-    pub class_name: String,
-    pub segment_type: Option<String>,
+    pub class_name: Cow<'static, str>,
+    pub segment_type: Option<Cow<'static, str>>,
     pub segment_kwargs: SegmentKwargs,
 }
 
 impl MatchedClass {
     pub fn root() -> Self {
         MatchedClass {
-            class_name: "Root".to_string(),
-            segment_type: Some("file".to_string()),
+            class_name: Cow::Borrowed("Root"),
+            segment_type: Some(Cow::Borrowed("file")),
             segment_kwargs: SegmentKwargs {
                 class_types: Some(vec!["base".to_string(), "file".to_string()]),
                 ..Default::default()
@@ -76,8 +77,8 @@ impl MatchedClass {
 
     pub fn unparsable(message: &str, error_pos: usize) -> Self {
         MatchedClass {
-            class_name: "UnparsableSegment".to_string(),
-            segment_type: Some("unparsable".to_string()),
+            class_name: Cow::Borrowed("UnparsableSegment"),
+            segment_type: Some(Cow::Borrowed("unparsable")),
             segment_kwargs: SegmentKwargs {
                 parse_error: Some((message.to_string(), error_pos)),
                 class_types: Some(vec!["base".to_string(), "unparsable".to_string()]),
@@ -151,7 +152,7 @@ impl MatchResult {
 
     /// Create a MatchResult for a Ref with child matches (lazy evaluation)
     pub fn ref_match(
-        _name: String,
+        _name: &'static str,
         matched_class: Option<MatchedClass>,
         start_idx: usize,
         end_idx: usize,
@@ -238,8 +239,8 @@ impl MatchResult {
         // When bracket_persists is true (parentheses), wrap in BracketedSegment.
         let matched_class = if bracket_persists {
             Some(MatchedClass {
-                class_name: "BracketedSegment".to_string(),
-                segment_type: Some("bracketed".to_string()),
+                class_name: Cow::Borrowed("BracketedSegment"),
+                segment_type: Some(Cow::Borrowed("bracketed")),
                 segment_kwargs: SegmentKwargs {
                     class_types: Some(vec!["base".to_string(), "bracketed".to_string()]),
                     ..Default::default()
@@ -581,15 +582,15 @@ impl MatchResult {
                         .unwrap_or_default();
                     if instance_types.is_empty() {
                         if let Some(seg_type) = &match_class.segment_type {
-                            instance_types.push(seg_type.clone());
+                            instance_types.push(seg_type.to_string());
                         }
                     }
 
-                    let effective_segment_type = match_class
+                    let effective_segment_type: Cow<'static, str> = match_class
                         .segment_type
                         .clone()
-                        .or_else(|| instance_types.first().cloned())
-                        .unwrap_or_else(|| "raw".to_string());
+                        .or_else(|| instance_types.first().map(|s| Cow::Owned(s.clone())))
+                        .unwrap_or(Cow::Borrowed("raw"));
 
                     let raw_class_ct = match_class.segment_kwargs.class_types.unwrap_or_default();
 
@@ -625,14 +626,17 @@ impl MatchResult {
                 }
             }
 
-            // Calculate position marker from first child
-            let pos_marker = result_nodes.first().and_then(|n| match n {
-                Node::Raw { pos_marker, .. }
-                | Node::Segment { pos_marker, .. }
-                | Node::Meta { pos_marker, .. }
-                | Node::Unparsable { pos_marker, .. } => pos_marker.clone(),
-                _ => None,
-            });
+            // Position marker spans ALL children (mirrors Python's
+            // `PositionMarker.from_child_markers`): min source/templated start
+            // to max stop. Using only the first child would make a container's
+            // position cover just its first token.
+            let child_markers: Vec<Option<PositionMarker>> =
+                result_nodes.iter().map(node_pos_marker).collect();
+            let pos_marker = if child_markers.iter().any(|m| m.is_some()) {
+                Some(PositionMarker::from_child_markers(&child_markers))
+            } else {
+                None
+            };
 
             // Create Segment node — move class_name/segment_type without clone
             vec![Node::Segment {
@@ -677,7 +681,12 @@ impl MatchResult {
         let mut root = root_nodes.into_iter().next().unwrap_or_default();
 
         // Prepend leading and append trailing token-derived children.
-        if let Node::Segment { children, .. } = &mut root {
+        if let Node::Segment {
+            children,
+            pos_marker,
+            ..
+        } = &mut root
+        {
             if !trailing.is_empty() {
                 children.extend(trailing.iter().map(token_to_node));
             }
@@ -686,6 +695,17 @@ impl MatchResult {
                 let mut new_children = leading_nodes;
                 new_children.extend(children.drain(..));
                 *children = new_children;
+            }
+            // The original match didn't cover the prepended leading / appended
+            // trailing tokens, so recompute the root to span all children
+            // (mirroring Python's FileSegment, whose position covers the whole
+            // file).
+            if !leading.is_empty() || !trailing.is_empty() {
+                let child_markers: Vec<Option<PositionMarker>> =
+                    children.iter().map(node_pos_marker).collect();
+                if child_markers.iter().any(|m| m.is_some()) {
+                    *pos_marker = Some(PositionMarker::from_child_markers(&child_markers));
+                }
             }
         }
 
@@ -721,7 +741,7 @@ pub fn segment_kwargs_from_token(
 ) -> SegmentKwargs {
     SegmentKwargs {
         instance_types: instance_types.or_else(|| Some(vec![token_type.to_string()])),
-        casefold: casefold.unwrap_or_else(|| tok.casefold.clone()),
+        casefold: casefold.unwrap_or_else(|| tok.casefold()),
         trim_chars: tok.trim_chars.clone(),
         escape_replacement: tok.escape_replacement().cloned(),
         quoted_value: tok.quoted_value().cloned(),
@@ -756,19 +776,30 @@ fn get_point_pos_at_token_idx(tokens: &[Token], idx: usize) -> Option<PositionMa
     }
 }
 
+/// Get a node's position marker (if any), regardless of variant.
+fn node_pos_marker(node: &Node) -> Option<PositionMarker> {
+    match node {
+        Node::Raw { pos_marker, .. }
+        | Node::Segment { pos_marker, .. }
+        | Node::Meta { pos_marker, .. }
+        | Node::Unparsable { pos_marker, .. } => pos_marker.clone(),
+        Node::Empty => None,
+    }
+}
+
 /// Convert a single Token into a Node suitable for use as a trailing child.
 ///
 /// Meta tokens (is_meta=true) become `Node::Meta` using the token_type to
 /// determine the variant.  All other tokens become `Node::Raw`.
 fn token_to_node(tok: &Token) -> Node {
     if tok.is_meta {
-        let meta_type = match tok.token_type.as_str() {
+        let meta_type = match tok.token_type.as_ref() {
             "end_of_file" => MetaType::EndOfFile,
             "indent" => MetaType::Indent { is_implicit: false },
             "dedent" => MetaType::Dedent { is_implicit: false },
             "template_loop" => MetaType::TemplateLoop,
             _ => MetaType::Template {
-                source_str: tok.raw(),
+                source_str: tok.raw().to_owned(),
                 block_type: tok.block_type().expect("block_type for template"),
             },
         };
@@ -786,15 +817,15 @@ fn token_to_node(tok: &Token) -> Node {
         // In Rust, tok.token_type holds the class-level type (e.g. "raw") while
         // tok.instance_types holds the per-instance override (e.g. ["double_quote"]).
         // Use instance_types[0] as the segment_type to match Python's behavior.
-        let segment_type = tok
+        let segment_type: Cow<'static, str> = tok
             .instance_types
             .first()
-            .cloned()
+            .map(|s| Cow::Owned(s.clone()))
             .unwrap_or_else(|| tok.token_type.clone());
         Node::new_raw_with_class_types(
             tok.class_name.clone(),
             segment_type,
-            tok.raw.to_string(),
+            tok.raw().to_owned(),
             tok.pos_marker.clone(),
             tok.instance_types.clone(),
             &raw_class_ct,

@@ -1,13 +1,12 @@
 use crate::parser::{match_result::MatchedClass, MetaSegment};
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
-use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, MatchResult, ParseError, Parser,
+    FrameContext, FrameState, MatchResult, ParseError, Parser, SequenceState,
 };
 
 impl Parser<'_> {
@@ -16,7 +15,7 @@ impl Parser<'_> {
     // ========================================================================
 
     /// Handle Sequence Initial state using table-driven approach
-    pub(crate) fn handle_sequence_table_driven_initial(
+    pub(crate) fn handle_sequence_initial(
         &mut self,
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
@@ -67,14 +66,14 @@ impl Parser<'_> {
         // The Sequence uses the combined set (own + parent) only for its own
         // trim_to_terminator / max_idx computation.
         let child_terminators = frame.table_terminators.to_vec();
-        let all_terminators = self.combine_table_terminators(
+        let all_terminators = Self::combine_terminators(
             &local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );
 
         // calculate max_idx with terminator and parent constraints
-        let max_idx = self.calculate_max_idx_table_driven(
+        let max_idx = self.calculate_max_idx(
             start_idx,
             &all_terminators,
             parse_mode,
@@ -109,7 +108,7 @@ impl Parser<'_> {
         let frame_pos = frame.pos;
 
         // Update frame with Sequence context
-        frame.context = FrameContext::SequenceTableDriven {
+        frame.context = FrameContext::Sequence(SequenceState {
             seq_grammar_id,
             start_idx: frame.pos,
             matched_idx: frame.pos,
@@ -122,8 +121,8 @@ impl Parser<'_> {
             insert_segments: Vec::new(), // (position, segments) to insert
             child_matches: Vec::new(),   // Store child matches here until sequence is complete
             child_terminators,           // Parent terminators (without Sequence's own) for children
-        };
-        frame.table_terminators = SmallVec::from_vec(all_terminators);
+        });
+        frame.table_terminators = all_terminators;
 
         // Buffer any leading meta elements before creating first child
         self.buffer_trailing_meta_elements(&mut frame, &elements);
@@ -131,7 +130,7 @@ impl Parser<'_> {
         // Get updated current_element_idx after meta buffering
         let current_element_idx = {
             let ctx = frame.context.as_sequence_mut().unwrap();
-            *ctx.current_element_idx
+            ctx.current_element_idx
         };
 
         // Check if we buffered all elements (all were meta)
@@ -159,8 +158,8 @@ impl Parser<'_> {
     /// Returns the number of meta elements buffered
     #[inline]
     fn buffer_trailing_meta_elements(&self, frame: &mut TableParseFrame, elements: &[GrammarId]) {
-        let mut ctx = frame.context.as_sequence_mut().unwrap();
-        let current_idx = *ctx.current_element_idx;
+        let ctx = frame.context.as_sequence_mut().unwrap();
+        let current_idx = ctx.current_element_idx;
 
         for child_id in &elements[current_idx..elements.len()] {
             if self.grammar_ctx.variant(*child_id) == GrammarVariant::Meta {
@@ -181,7 +180,7 @@ impl Parser<'_> {
     /// child_end_pos,
     /// child_element_key,
     /// stack,
-    pub(crate) fn handle_sequence_table_driven_waiting_for_child(
+    pub(crate) fn handle_sequence_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
         child_match: &Arc<MatchResult>,
@@ -192,12 +191,12 @@ impl Parser<'_> {
         let (seq_grammar_id, current_element_idx, matched_idx, max_idx, start_idx, _first_match) = {
             let ctx = frame.context.as_sequence_mut().unwrap();
             (
-                *ctx.seq_grammar_id,
-                *ctx.current_element_idx,
-                *ctx.matched_idx,
-                *ctx.max_idx,
-                *ctx.start_idx,
-                *ctx.first_match,
+                ctx.seq_grammar_id,
+                ctx.current_element_idx,
+                ctx.matched_idx,
+                ctx.max_idx,
+                ctx.start_idx,
+                ctx.first_match,
             )
         };
 
@@ -276,9 +275,9 @@ impl Parser<'_> {
         );
 
         let next_element_idx = {
-            let mut ctx = frame.context.as_sequence_mut().unwrap();
+            let ctx = frame.context.as_sequence_mut().unwrap();
             ctx.advance_element_idx();
-            *ctx.current_element_idx
+            ctx.current_element_idx
         };
 
         // If element is optional or a Meta grammar, skip it and continue
@@ -289,7 +288,7 @@ impl Parser<'_> {
             if next_element_idx >= elements.len() {
                 // Flush any buffered metas before going to combining
                 let pending_metas = {
-                    let mut ctx = frame.context.as_sequence_mut().unwrap();
+                    let ctx = frame.context.as_sequence_mut().unwrap();
                     ctx.take_meta_buffer()
                 };
                 if !pending_metas.is_empty() {
@@ -307,14 +306,14 @@ impl Parser<'_> {
             // Update next_element_idx after buffering metas
             let next_element_idx = {
                 let ctx = frame.context.as_sequence_mut().unwrap();
-                *ctx.current_element_idx
+                ctx.current_element_idx
             };
 
             // We should check again if we're done after buffering metas if we're out of elements
             if next_element_idx >= elements.len() {
                 // Flush any buffered metas before going to combining
                 let pending_metas = {
-                    let mut ctx = frame.context.as_sequence_mut().unwrap();
+                    let ctx = frame.context.as_sequence_mut().unwrap();
                     ctx.take_meta_buffer()
                 };
                 if !pending_metas.is_empty() {
@@ -359,8 +358,8 @@ impl Parser<'_> {
                         .collect::<Vec<_>>();
                     ctx.insert_segments.extend(appending_meta_segments);
                     (
-                        std::mem::take(ctx.insert_segments),
-                        std::mem::take(ctx.child_matches),
+                        std::mem::take(&mut ctx.insert_segments),
+                        std::mem::take(&mut ctx.child_matches),
                     )
                 };
                 let element_desc = self.grammar_ctx.grammar_repr(elements[next_element_idx]);
@@ -484,7 +483,7 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         // Flush meta buffer before adding successful match
         let (matched_idx, max_idx, pending_metas, is_first) = {
-            let mut ctx = frame.context.as_sequence_mut().unwrap();
+            let ctx = frame.context.as_sequence_mut().unwrap();
             (
                 ctx.matched_idx_value(),
                 ctx.max_idx_value(),
@@ -495,11 +494,7 @@ impl Parser<'_> {
 
         if !pending_metas.is_empty() {
             let pre_code_idx = matched_idx;
-            let post_code_idx = if allow_gaps {
-                self.skip_start_index_forward_to_code(pre_code_idx, max_idx)
-            } else {
-                pre_code_idx
-            };
+            let post_code_idx = self.skip_to_code_if_gaps(pre_code_idx, max_idx, allow_gaps);
             let insert_positions =
                 self.flush_meta_buffer(pre_code_idx, post_code_idx, pending_metas);
             let ctx = frame.context.as_sequence_mut().unwrap();
@@ -508,13 +503,13 @@ impl Parser<'_> {
 
         // Add child match to context
         {
-            let mut ctx = frame.context.as_sequence_mut().unwrap();
+            let ctx = frame.context.as_sequence_mut().unwrap();
             ctx.update_matched_idx(child_end_pos);
         }
 
         // Handle GREEDY_ONCE_STARTED mode trimming after first match
         if is_first && parse_mode == ParseMode::GreedyOnceStarted {
-            let mut ctx = frame.context.as_sequence_mut().unwrap();
+            let ctx = frame.context.as_sequence_mut().unwrap();
             ctx.mark_first_match_done();
 
             let matched_idx = ctx.matched_idx_value();
@@ -534,10 +529,9 @@ impl Parser<'_> {
                 );
             }
 
-            let new_max_idx =
-                self.trim_to_terminator_table_driven(matched_idx, &frame.table_terminators)?;
+            let new_max_idx = self.trim_to_terminator(matched_idx, &frame.table_terminators)?;
 
-            let mut ctx = frame.context.as_sequence_mut().unwrap();
+            let ctx = frame.context.as_sequence_mut().unwrap();
             ctx.trim_max_idx(new_max_idx);
         }
 
@@ -545,7 +539,7 @@ impl Parser<'_> {
         // class or not.
         // If it did, then just add it as a child match and we're done. Move on.
         {
-            let mut ctx = frame.context.as_sequence_mut().unwrap();
+            let ctx = frame.context.as_sequence_mut().unwrap();
             if child_match.matched_class.is_some() {
                 ctx.child_matches.push(Arc::clone(child_match));
             } else {
@@ -564,7 +558,7 @@ impl Parser<'_> {
         let (current_idx, matched_idx, max_idx) = {
             let ctx = frame.context.as_sequence_mut().unwrap();
             (
-                *ctx.current_element_idx,
+                ctx.current_element_idx,
                 ctx.matched_idx_value(),
                 ctx.max_idx_value(),
             )
@@ -573,7 +567,7 @@ impl Parser<'_> {
         if current_idx >= elements.len() {
             // Flush remaining metas and finalize
             let pending_metas = {
-                let mut ctx = frame.context.as_sequence_mut().unwrap();
+                let ctx = frame.context.as_sequence_mut().unwrap();
                 ctx.take_meta_buffer()
             };
             if !pending_metas.is_empty() {
@@ -591,11 +585,7 @@ impl Parser<'_> {
 
         // Calculate start position for next child
         let next_element = elements[current_idx];
-        let child_start_pos = if allow_gaps {
-            self.skip_start_index_forward_to_code(matched_idx, max_idx)
-        } else {
-            matched_idx
-        };
+        let child_start_pos = self.skip_to_code_if_gaps(matched_idx, max_idx, allow_gaps);
 
         // Have we prematurely run out of segments?
         if child_start_pos >= max_idx {
@@ -634,8 +624,8 @@ impl Parser<'_> {
                     .collect::<Vec<_>>();
                 ctx.insert_segments.extend(appending_meta_segments);
                 (
-                    std::mem::take(ctx.insert_segments),
-                    std::mem::take(ctx.child_matches),
+                    std::mem::take(&mut ctx.insert_segments),
+                    std::mem::take(&mut ctx.child_matches),
                 )
             };
 
@@ -711,7 +701,7 @@ impl Parser<'_> {
 
     #[inline]
     fn sequence_child_terminators(frame: &mut TableParseFrame) -> &[GrammarId] {
-        frame
+        &frame
             .context
             .as_sequence_mut()
             .expect("sequence_child_terminators called on non-Sequence frame")
@@ -719,7 +709,7 @@ impl Parser<'_> {
     }
 
     /// Handle Sequence Combining state using table-driven approach
-    pub(crate) fn handle_sequence_table_driven_combining(
+    pub(crate) fn handle_sequence_combining(
         &mut self,
         mut frame: TableParseFrame,
         _stack: &mut TableParseFrameStack,
@@ -727,25 +717,17 @@ impl Parser<'_> {
         // Take ownership of the context fields we need, avoiding clones.
         // The frame is consumed after combining, so this is safe.
         let (grammar_id, matched_idx, max_idx, mut child_matches, insert_segments) = {
-            let FrameContext::SequenceTableDriven {
-                seq_grammar_id,
-                matched_idx,
-                max_idx,
-                child_matches,
-                insert_segments,
-                ..
-            } = &mut frame.context
-            else {
+            let FrameContext::Sequence(state) = &mut frame.context else {
                 return Err(ParseError::new(
-                    "Expected SequenceTableDriven context in combining".to_string(),
+                    "Expected Sequence context in combining".to_string(),
                 ));
             };
             (
-                *seq_grammar_id,
-                *matched_idx,
-                *max_idx,
-                std::mem::take(child_matches),
-                std::mem::take(insert_segments),
+                state.seq_grammar_id,
+                state.matched_idx,
+                state.max_idx,
+                std::mem::take(&mut state.child_matches),
+                std::mem::take(&mut state.insert_segments),
             )
         };
 

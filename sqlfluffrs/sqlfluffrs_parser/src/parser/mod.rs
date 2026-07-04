@@ -13,6 +13,7 @@ macro_rules! vdebug {
     };
 }
 
+pub(crate) mod arena;
 mod cache;
 mod core;
 mod frame;
@@ -21,6 +22,8 @@ mod match_result;
 mod table_driven;
 pub(crate) mod types;
 
+#[cfg(feature = "python")]
+pub(crate) mod arena_py;
 #[cfg(feature = "python")]
 pub mod python;
 
@@ -31,8 +34,13 @@ pub use sqlfluffrs_types::ParseMode;
 pub use types::{MetaType, Node, ParseError, ParseErrorType, RawSegmentKwargs};
 
 // Internal re-exports for submodules
-pub(crate) use frame::{BracketedState, DelimitedState, FrameContext, FrameState};
+pub(crate) use frame::{
+    AnyNumberOfState, BracketedPhase, BracketedState, DelimitedPhase, DelimitedState, FrameContext,
+    FrameState, OneOfState, RefState, SequenceState,
+};
 
 // Re-export Python bindings when feature is enabled
+#[cfg(feature = "python")]
+pub use arena_py::{PyHandle, PyTree};
 #[cfg(feature = "python")]
 pub use python::{PyMatchResult, PyNode, PyParser, RsParseError};

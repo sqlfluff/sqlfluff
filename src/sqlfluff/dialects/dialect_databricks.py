@@ -845,7 +845,7 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
     _view_clauses = AnyNumberOf(
-        Ref("CommentGrammar"),
+        Ref("CommentClauseSegment"),
         Sequence(
             "DEFAULT",
             "COLLATION",
@@ -868,7 +868,7 @@ class CreateViewStatementSegment(BaseSegment):
                 Delimited(
                     Sequence(
                         Ref("ColumnReferenceSegment"),
-                        Ref("CommentGrammar", optional=True),
+                        Ref("CommentClauseSegment", optional=True),
                     ),
                 ),
             ),

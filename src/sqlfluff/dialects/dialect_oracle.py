@@ -210,9 +210,11 @@ oracle_dialect.add(
     ),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     TriggerCorrelationReferenceSegment=Ref("TriggerCorrelationReferenceSegment"),
-    PivotForInGrammar=Sequence(
+    PivotForGrammar=Sequence(
         "FOR",
         OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
+    ),
+    PivotInGrammar=Sequence(
         "IN",
         Bracketed(
             Delimited(
@@ -220,6 +222,36 @@ oracle_dialect.add(
                     Ref("Expression_D_Grammar"),
                     Ref("AliasExpressionSegment", optional=True),
                 )
+            )
+        ),
+    ),
+    UnpivotAsCharacterLiteralGrammar=Delimited(
+        Sequence(
+            OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Sequence(
+                "AS",
+                OptionallyBracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+        ),
+    ),
+    UnpivotAsNumericLiteralGrammar=Delimited(
+        Sequence(
+            OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Sequence(
+                "AS",
+                OptionallyBracketed(Delimited(Ref("NumericLiteralSegment"))),
+                optional=True,
+            ),
+        ),
+    ),
+    UnpivotInGrammar=Sequence(
+        "IN",
+        Bracketed(
+            # Literals have to be either all characters or all numeric
+            OneOf(
+                Ref("UnpivotAsCharacterLiteralGrammar"),
+                Ref("UnpivotAsNumericLiteralGrammar"),
             )
         ),
     ),
@@ -659,8 +691,32 @@ oracle_dialect.replace(
         Ref.keyword("TEMPORARY"),
         optional=True,
     ),
+    TimeWithTZGrammar=OneOf(
+        Sequence(
+            "TIMESTAMP",
+            Ref("BracketedArguments", optional=True),
+            OneOf(
+                Sequence("WITH", "LOCAL", "TIME", "ZONE"),
+                Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "TIME",
+            Ref("BracketedArguments", optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+    ),
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
+    ),
+    JoinLikeClauseGrammar=Sequence(
+        AnyNumberOf(
+            Ref("PivotSegment"),
+            Ref("UnpivotSegment"),
+            min_times=1,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -844,6 +900,49 @@ oracle_dialect.replace(
         "FETCH",
     ),
 )
+
+
+class IntervalDataTypeSegment(BaseSegment):
+    """An INTERVAL data type segment for Oracle.
+
+    Handles the two Oracle interval types:
+    - INTERVAL YEAR [(year_precision)] TO MONTH
+    - INTERVAL DAY [(day_precision)] TO SECOND [(fractional_seconds_precision)]
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html#GUID-C8C6D1D4-7B68-4A6A-BD77-DA8B5578B35C
+    """
+
+    type = "interval_data_type"
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            Sequence(
+                "YEAR",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                "TO",
+                "MONTH",
+            ),
+            Sequence(
+                "DAY",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                "TO",
+                "SECOND",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            ),
+        ),
+    )
+
+
+class DatatypeSegment(ansi.DatatypeSegment):
+    """A data type segment for Oracle.
+
+    Extends the ANSI data type segment to include Oracle-specific interval types.
+    """
+
+    match_grammar: Matchable = OneOf(
+        Ref("IntervalDataTypeSegment"),
+        ansi.DatatypeSegment.match_grammar,
+    )
 
 
 class MultisetOperatorSegment(BaseSegment):
@@ -1688,14 +1787,10 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("HierarchicalQueryClauseSegment", optional=True),
-            Ref("PivotSegment", optional=True),
-            Ref("UnpivotSegment", optional=True),
         ],
         before=Ref("GroupByClauseSegment", optional=True),
         terminators=[
             Ref("HierarchicalQueryClauseSegment"),
-            Ref("PivotSegment", optional=True),
-            Ref("UnpivotSegment", optional=True),
             "LOG",
         ],
     ).copy(
@@ -1789,7 +1884,8 @@ class PivotSegment(BaseSegment):
                     Ref("FunctionSegment"), Ref("AliasExpressionSegment", optional=True)
                 )
             ),
-            Ref("PivotForInGrammar"),
+            Ref("PivotForGrammar"),
+            Ref("PivotInGrammar"),
         ),
     )
 
@@ -1831,7 +1927,8 @@ class UnpivotSegment(BaseSegment):
         Ref("UnpivotNullsGrammar", optional=True),
         Bracketed(
             OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
-            Ref("PivotForInGrammar"),
+            Ref("PivotForGrammar"),
+            Ref("UnpivotInGrammar"),
         ),
     )
 

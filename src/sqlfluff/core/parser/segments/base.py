@@ -27,8 +27,8 @@ from typing import (
     Union,
     cast,
 )
-from uuid import uuid4
 
+from sqlfluff.core.helpers.identity import get_next_id
 from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
@@ -139,10 +139,10 @@ class SegmentMetaclass(type, Matchable):
         here saves calculating it at runtime for each
         instance of the class.
         """
-        # Create a cache uuid on definition.
+        # Create a cache key on definition.
         # We do it here so every _definition_ of a segment
-        # gets a unique UUID regardless of dialect.
-        class_dict["_cache_key"] = uuid4().hex
+        # gets a unique key regardless of dialect.
+        class_dict["_cache_key"] = format(get_next_id(), "x")
 
         # Populate the `_class_types` property on creation.
         added_type = class_dict.get("type", None)
@@ -215,9 +215,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self.pos_marker = pos_marker
         self.segments: tuple[BaseSegment, ...] = segments
         # Tracker for matching when things start moving.
-        # NOTE: We're storing the .int attribute so that it's swifter
-        # for comparisons.
-        self.uuid = uuid or uuid4().int
+        # NOTE: We store a plain int so that it's swift for comparisons.
+        self.uuid = uuid or get_next_id()
 
         self.set_as_parent(recurse=False)
         self.validate_non_code_ends()
@@ -284,10 +283,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # This is set by RawSegment.from_rstoken() for efficient round-trip
         # to the Rust parser, but isn't needed after pickling.
         s.pop("_rstoken", None)
-        # Remove _rs_node if present - RsNode objects can't be pickled.
+        # Remove _rs_tree if present - RsTree objects can't be pickled.
         # This is set on the root FileSegment by the Rust parser for efficient
         # rule evaluation, but isn't needed after pickling.
-        s.pop("_rs_node", None)
+        s.pop("_rs_tree", None)
         return s
 
     def __setstate__(self, state: dict[str, Any]) -> None:

@@ -212,6 +212,24 @@ class BteqKeyWordSegment(BaseSegment):
     )
 
 
+class BteqFilePathSegment(BaseSegment):
+    """An unquoted file path used by BTEQ commands such as ``.RUN FILE=``.
+
+    BTEQ accepts bare file paths (e.g. ``POSTING``, ``reports/out.sql``,
+    ``../posting.sql``) as well as quoted ones. Model the unquoted form from
+    existing tokens rather than lexing paths as a single token.
+    """
+
+    type = "bteq_file_path"
+    match_grammar = AnyNumberOf(
+        Ref("SingleIdentifierGrammar"),
+        Ref("DotSegment"),
+        Ref("SlashSegment"),
+        min_times=1,
+        allow_gaps=False,
+    )
+
+
 class BteqStatementSegment(BaseSegment):
     """Bteq statements start with a dot, followed by a Keyword.
 
@@ -220,6 +238,7 @@ class BteqStatementSegment(BaseSegment):
     # BTEQ commands
     .if errorcode > 0 then .quit 2
     .IF ACTIVITYCOUNT = 0 THEN .QUIT
+    .RUN FILE=POSTING
     """
 
     type = "bteq_statement"
@@ -228,6 +247,12 @@ class BteqStatementSegment(BaseSegment):
         Ref("BteqKeyWordSegment"),
         AnyNumberOf(
             Ref("BteqKeyWordSegment"),
+            # FILE=<path> argument, e.g. `.RUN FILE=POSTING`.
+            Sequence(
+                "FILE",
+                Ref("EqualsSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("BteqFilePathSegment")),
+            ),
             # if ... then: the ...
             Sequence(
                 Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar"), optional=True

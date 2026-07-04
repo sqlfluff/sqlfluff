@@ -40,20 +40,21 @@ struct RunStats {
 
 impl RunStats {
     fn capture(duration: Duration, parser: &Parser) -> Self {
-        let (hits, misses, _) = parser.table_cache.stats();
+        let (hits, misses, _) = parser.cache_stats();
+        let m = parser.metrics();
         RunStats {
             duration_secs: duration.as_secs_f64(),
             cache_hits: hits,
             cache_misses: misses,
-            cache_entries: parser.table_cache.len(),
-            pruning_calls: parser.pruning_calls.get(),
-            pruning_total: parser.pruning_total.get(),
-            pruning_kept: parser.pruning_kept.get(),
-            match_attempts: parser.match_attempts.get(),
-            match_successes: parser.match_successes.get(),
-            complete_match_early_exits: parser.complete_match_early_exits.get(),
-            terminator_checks: parser.terminator_checks.get(),
-            terminator_hits: parser.terminator_hits.get(),
+            cache_entries: parser.cache_entries(),
+            pruning_calls: m.pruning_calls.get(),
+            pruning_total: m.pruning_total.get(),
+            pruning_kept: m.pruning_kept.get(),
+            match_attempts: m.match_attempts.get(),
+            match_successes: m.match_successes.get(),
+            complete_match_early_exits: m.complete_match_early_exits.get(),
+            terminator_checks: m.terminator_checks.get(),
+            terminator_hits: m.terminator_hits.get(),
         }
     }
 }
@@ -196,18 +197,19 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
             for tokens in all_tokens {
                 let mut p = Parser::new(tokens, Dialect::Ansi, hashbrown::HashMap::new());
                 p.call_rule_as_root().expect("Parse failed");
-                let (h, m, _) = p.table_cache.stats();
+                let (h, miss, _) = p.cache_stats();
                 cache_hits += h;
-                cache_misses += m;
-                cache_entries += p.table_cache.len();
-                pruning_calls += p.pruning_calls.get();
-                pruning_total += p.pruning_total.get();
-                pruning_kept += p.pruning_kept.get();
-                match_attempts += p.match_attempts.get();
-                match_successes += p.match_successes.get();
-                early_exits += p.complete_match_early_exits.get();
-                term_checks += p.terminator_checks.get();
-                term_hits += p.terminator_hits.get();
+                cache_misses += miss;
+                cache_entries += p.cache_entries();
+                let m = p.metrics();
+                pruning_calls += m.pruning_calls.get();
+                pruning_total += m.pruning_total.get();
+                pruning_kept += m.pruning_kept.get();
+                match_attempts += m.match_attempts.get();
+                match_successes += m.match_successes.get();
+                early_exits += m.complete_match_early_exits.get();
+                term_checks += m.terminator_checks.get();
+                term_hits += m.terminator_hits.get();
             }
             RunStats {
                 duration_secs: t0.elapsed().as_secs_f64(),

@@ -1,9 +1,11 @@
 use super::{config::TokenConfig, Token};
 use crate::{marker::PositionMarker, slice::Slice, templater::templatefile::TemplatedFile};
 
+use std::borrow::Cow;
 use std::sync::Arc;
 
 use hashbrown::HashSet;
+use once_cell::sync::Lazy;
 use uuid::Uuid;
 
 impl Token {
@@ -14,7 +16,9 @@ impl Token {
         segments: Vec<Token>,
     ) -> Self {
         let TokenConfig {
-            class_types,
+            // The lexer always supplies an empty class_types; the hierarchy is
+            // derived per-kind from a shared static instead (see *_CT below).
+            class_types: _,
             instance_types,
             trim_start,
             trim_chars,
@@ -23,22 +27,20 @@ impl Token {
             casefold,
         } = config;
 
-        let (token_types, class_types) = iter_base_types("base", class_types.clone());
-        let raw_value = Token::normalize(&raw, quoted_value.clone(), escape_replacement.clone());
         Self {
-            token_type: token_types,
-            class_name: "BaseSegment".to_string(),
+            token_type: Cow::Borrowed("base"),
+            class_name: Cow::Borrowed("BaseSegment"),
             instance_types,
-            class_types,
+            class_types: BASE_CT.clone(),
             comment_separate: false,
             is_meta: false,
             allow_empty: false,
             pos_marker: Some(pos_marker),
-            raw,
+            raw: crate::token::RawString::new(raw, quoted_value, escape_replacement, casefold),
             is_whitespace: false,
             is_code: true,
             is_comment: false,
-            _default_raw: "".to_string(),
+            _default_raw: Cow::Borrowed(""),
             indent_value: 0,
             is_templated: false,
             block_uuid: None,
@@ -47,36 +49,24 @@ impl Token {
             parent: None,
             parent_idx: None,
             segments,
-            preface_modifier: "".to_string(),
-            suffix: "".to_string(),
-            uuid: Uuid::new_v4().as_u128(),
+            preface_modifier: Cow::Borrowed(""),
+            suffix: Cow::Borrowed(""),
+            uuid: crate::identity::next_id(),
             source_fixes: None,
             trim_start,
             trim_chars,
-            quoted_value,
-            escape_replacement,
-            casefold,
-            raw_value,
             matching_bracket_idx: None, // Will be computed after all tokens are created
         }
     }
 
     pub fn raw_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        let (token_type, class_types) = iter_base_types("raw", config.class_types.clone());
         let suffix = format!("'{}'", raw.escape_debug().to_string().trim_matches('"'));
 
-        let mut token = Token::base_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-            vec![],
-        );
-        token.class_name = "RawSegment".to_string();
-        token.suffix = suffix;
-        token.token_type = token_type;
+        let mut token = Token::base_token(raw, pos_marker, config, vec![]);
+        token.class_name = Cow::Borrowed("RawSegment");
+        token.suffix = Cow::Owned(suffix);
+        token.token_type = Cow::Borrowed("raw");
+        token.class_types = RAW_CT.clone();
         token
     }
 
@@ -85,47 +75,26 @@ impl Token {
     }
 
     pub fn symbol_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        let (token_type, class_types) = iter_base_types("symbol", config.class_types.clone());
-        let mut token = Self::code_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-        );
-        token.token_type = token_type;
-        token.class_name = "SymbolSegment".to_string();
+        let mut token = Self::code_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("symbol");
+        token.class_name = Cow::Borrowed("SymbolSegment");
+        token.class_types = SYMBOL_CT.clone();
         token
     }
 
     pub fn identifier_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        let (token_type, class_types) = iter_base_types("identifier", config.class_types.clone());
-        let mut token = Self::code_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-        );
-        token.token_type = token_type;
-        token.class_name = "IdentifierSegment".to_string();
+        let mut token = Self::code_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("identifier");
+        token.class_name = Cow::Borrowed("IdentifierSegment");
+        token.class_types = IDENTIFIER_CT.clone();
         token
     }
 
     pub fn literal_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        let (token_type, class_types) = iter_base_types("literal", config.class_types.clone());
-        let mut token = Self::code_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-        );
-        token.token_type = token_type;
-        token.class_name = "LiteralSegment".to_string();
+        let mut token = Self::code_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("literal");
+        token.class_name = Cow::Borrowed("LiteralSegment");
+        token.class_types = LITERAL_CT.clone();
         token
     }
 
@@ -134,18 +103,10 @@ impl Token {
         pos_marker: PositionMarker,
         config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) =
-            iter_base_types("binary_operator", config.class_types.clone());
-        let mut token = Self::code_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-        );
-        token.token_type = token_type;
-        token.class_name = "BinaryOperatorSegment".to_string();
+        let mut token = Self::code_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("binary_operator");
+        token.class_name = Cow::Borrowed("BinaryOperatorSegment");
+        token.class_types = BINARY_OPERATOR_CT.clone();
         token
     }
 
@@ -154,101 +115,58 @@ impl Token {
         pos_marker: PositionMarker,
         config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) =
-            iter_base_types("comparison_operator", config.class_types.clone());
-        let mut token = Self::code_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-        );
-        token.token_type = token_type;
-        token.class_name = "ComparisonOperatorSegment".to_string();
+        let mut token = Self::code_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("comparison_operator");
+        token.class_name = Cow::Borrowed("ComparisonOperatorSegment");
+        token.class_types = COMPARISON_OPERATOR_CT.clone();
         token
     }
 
     pub fn word_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        let (token_type, class_types) = iter_base_types("word", config.class_types.clone());
-        let mut token = Self::code_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-        );
-        token.token_type = token_type;
-        token.class_name = "WordSegment".to_string();
+        let mut token = Self::code_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("word");
+        token.class_name = Cow::Borrowed("WordSegment");
+        token.class_types = WORD_CT.clone();
         token
     }
 
     pub fn unlexable_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        let (token_type, class_types) = iter_base_types("unlexable", config.class_types.clone());
-        let mut token = Self::code_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-        );
-        token.token_type = token_type;
-        token.class_name = "UnlexableSegment".to_string();
+        let mut token = Self::code_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("unlexable");
+        token.class_name = Cow::Borrowed("UnlexableSegment");
+        token.class_types = UNLEXABLE_CT.clone();
         token
     }
 
     pub fn whitespace_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        let (token_type, class_types) = iter_base_types("whitespace", config.class_types.clone());
-        let mut token = Self::raw_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-        );
-        token.token_type = token_type;
-        token.class_name = "WhitespaceSegment".to_string();
+        let mut token = Self::raw_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("whitespace");
+        token.class_name = Cow::Borrowed("WhitespaceSegment");
+        token.class_types = WHITESPACE_CT.clone();
         token.is_whitespace = true;
         token.is_code = false;
         token.is_comment = false;
-        token._default_raw = " ".to_string();
+        token._default_raw = Cow::Borrowed(" ");
         token
     }
 
     pub fn newline_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        let (token_type, class_types) = iter_base_types("newline", config.class_types.clone());
-        let mut token = Self::raw_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-        );
-        token.token_type = token_type;
-        token.class_name = "NewlineSegment".to_string();
+        let mut token = Self::raw_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("newline");
+        token.class_name = Cow::Borrowed("NewlineSegment");
+        token.class_types = NEWLINE_CT.clone();
         token.is_whitespace = true;
         token.is_code = false;
         token.is_comment = false;
-        token._default_raw = "\n".to_string();
+        token._default_raw = Cow::Borrowed("\n");
         token
     }
 
     pub fn comment_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        let (token_type, class_types) = iter_base_types("comment", config.class_types.clone());
-        let mut token = Self::raw_token(
-            raw,
-            pos_marker,
-            TokenConfig {
-                class_types,
-                ..config
-            },
-        );
-        token.token_type = token_type;
-        token.class_name = "CommentSegment".to_string();
+        let mut token = Self::raw_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("comment");
+        token.class_name = Cow::Borrowed("CommentSegment");
+        token.class_types = COMMENT_CT.clone();
         token.is_code = false;
         token.is_comment = true;
         token
@@ -258,26 +176,25 @@ impl Token {
         pos_marker: PositionMarker,
         is_templated: bool,
         block_uuid: Option<Uuid>,
-        class_types: HashSet<String>,
+        _class_types: HashSet<String>,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("meta", class_types.clone());
         let mut token = Self::raw_token(
             "".to_string(),
             pos_marker,
             TokenConfig {
-                class_types,
                 instance_types: vec![],
                 ..TokenConfig::default()
             },
         );
-        token.token_type = token_type;
-        token.class_name = "MetaSegment".to_string();
+        token.token_type = Cow::Borrowed("meta");
+        token.class_name = Cow::Borrowed("MetaSegment");
+        token.class_types = META_CT.clone();
         token.is_code = false;
         token.is_meta = true;
         token.is_templated = is_templated;
         token.block_uuid = block_uuid;
-        token.preface_modifier = "[META] ".to_string();
-        token.suffix = String::new();
+        token.preface_modifier = Cow::Borrowed("[META] ");
+        token.suffix = Cow::Borrowed("");
         token
     }
 
@@ -287,10 +204,10 @@ impl Token {
         block_uuid: Option<Uuid>,
         class_types: HashSet<String>,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("end_of_file", class_types);
         let mut token = Self::meta_token(pos_marker, is_templated, block_uuid, class_types);
-        token.token_type = token_type;
-        token.class_name = "EndOfFile".to_string();
+        token.token_type = Cow::Borrowed("end_of_file");
+        token.class_name = Cow::Borrowed("EndOfFile");
+        token.class_types = END_OF_FILE_CT.clone();
         token
     }
 
@@ -300,14 +217,14 @@ impl Token {
         block_uuid: Option<Uuid>,
         class_types: HashSet<String>,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("indent", class_types);
         let mut token = Self::meta_token(pos_marker, is_templated, block_uuid, class_types);
-        token.token_type = token_type;
-        token.class_name = "Indent".to_string();
+        token.token_type = Cow::Borrowed("indent");
+        token.class_name = Cow::Borrowed("Indent");
+        token.class_types = INDENT_CT.clone();
         token.indent_value = 1;
         token.suffix = block_uuid
-            .map(|u| u.as_hyphenated().to_string())
-            .unwrap_or_default();
+            .map(|u| Cow::Owned(u.as_hyphenated().to_string()))
+            .unwrap_or(Cow::Borrowed(""));
         token
     }
 
@@ -317,10 +234,10 @@ impl Token {
         block_uuid: Option<Uuid>,
         class_types: HashSet<String>,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("dedent", class_types);
         let mut token = Self::indent_token(pos_marker, is_templated, block_uuid, class_types);
-        token.token_type = token_type;
-        token.class_name = "Dedent".to_string();
+        token.token_type = Cow::Borrowed("dedent");
+        token.class_name = Cow::Borrowed("Dedent");
+        token.class_types = DEDENT_CT.clone();
         token.indent_value = -1;
         token
     }
@@ -330,10 +247,10 @@ impl Token {
         block_uuid: Option<Uuid>,
         class_types: HashSet<String>,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("template_loop", class_types);
         let mut token = Self::meta_token(pos_marker, false, block_uuid, class_types);
-        token.token_type = token_type;
-        token.class_name = "TemplateLoop".to_string();
+        token.token_type = Cow::Borrowed("template_loop");
+        token.class_name = Cow::Borrowed("TemplateLoop");
+        token.class_types = TEMPLATE_LOOP_CT.clone();
         token
     }
 
@@ -344,10 +261,10 @@ impl Token {
         block_uuid: Option<Uuid>,
         class_types: HashSet<String>,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("placeholder", class_types);
         let mut token = Self::meta_token(pos_marker, false, block_uuid, class_types);
-        token.token_type = token_type;
-        token.class_name = "TemplateSegment".to_string();
+        token.token_type = Cow::Borrowed("placeholder");
+        token.class_name = Cow::Borrowed("TemplateSegment");
+        token.class_types = PLACEHOLDER_CT.clone();
         token.block_type = Some(block_type);
         token.source_str = Some(source_string);
         token
@@ -380,9 +297,35 @@ impl Token {
     }
 }
 
-fn iter_base_types(token_type: &str, class_types: HashSet<String>) -> (String, HashSet<String>) {
-    let mut class_types = class_types;
-    let token_type = token_type.to_string();
-    class_types.insert(token_type.clone());
-    (token_type, class_types)
+/// The class-type hierarchy is fully determined by a token's kind (the lexer
+/// always supplies an empty `class_types`), and is never mutated after
+/// construction. So each kind shares a single `Arc<HashSet<String>>` built once,
+/// instead of every token allocating an identical set.
+fn make_class_types(types: &[&str]) -> Arc<HashSet<String>> {
+    Arc::new(types.iter().map(|s| s.to_string()).collect())
 }
+
+macro_rules! class_types_static {
+    ($name:ident, $($ty:literal),+) => {
+        static $name: Lazy<Arc<HashSet<String>>> = Lazy::new(|| make_class_types(&[$($ty),+]));
+    };
+}
+
+class_types_static!(BASE_CT, "base");
+class_types_static!(RAW_CT, "base", "raw");
+class_types_static!(SYMBOL_CT, "base", "raw", "symbol");
+class_types_static!(IDENTIFIER_CT, "base", "raw", "identifier");
+class_types_static!(LITERAL_CT, "base", "raw", "literal");
+class_types_static!(BINARY_OPERATOR_CT, "base", "raw", "binary_operator");
+class_types_static!(COMPARISON_OPERATOR_CT, "base", "raw", "comparison_operator");
+class_types_static!(WORD_CT, "base", "raw", "word");
+class_types_static!(UNLEXABLE_CT, "base", "raw", "unlexable");
+class_types_static!(WHITESPACE_CT, "base", "raw", "whitespace");
+class_types_static!(NEWLINE_CT, "base", "raw", "newline");
+class_types_static!(COMMENT_CT, "base", "raw", "comment");
+class_types_static!(META_CT, "base", "raw", "meta");
+class_types_static!(END_OF_FILE_CT, "base", "raw", "meta", "end_of_file");
+class_types_static!(INDENT_CT, "base", "raw", "meta", "indent");
+class_types_static!(DEDENT_CT, "base", "raw", "meta", "indent", "dedent");
+class_types_static!(TEMPLATE_LOOP_CT, "base", "raw", "meta", "template_loop");
+class_types_static!(PLACEHOLDER_CT, "base", "raw", "meta", "placeholder");

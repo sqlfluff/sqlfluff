@@ -1,7 +1,21 @@
 use std::fmt::Display;
+use std::sync::RwLock;
 
 use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
+use hashbrown::HashMap;
+use once_cell::sync::Lazy;
 use regex::{Regex, RegexBuilder};
+
+/// Process-global cache of compiled `RegexMode`s, keyed by `(pattern, case_insensitive)`.
+///
+/// Compiling a regex is orders of magnitude more expensive than matching one, and
+/// the same handful of dialect patterns (quoted-value / escape-replacement) are
+/// reused across thousands of tokens. Cache the compiled form so each distinct
+/// pattern is built at most once.
+///
+/// Note: the parser keeps its own instance-scoped cache for grammar patterns.
+static REGEX_CACHE: Lazy<RwLock<HashMap<(String, bool), RegexMode>>> =
+    Lazy::new(|| RwLock::new(HashMap::new()));
 
 #[derive(Debug, Clone)]
 pub enum RegexModeGroup {
@@ -36,6 +50,34 @@ pub enum RegexMode {
 impl RegexMode {
     pub fn new(pattern: &str) -> Self {
         Self::new_with_flags(pattern, true)
+    }
+
+    /// Like [`RegexMode::new`], but returns a cached compiled regex, only
+    /// compiling on the first request for a given pattern.
+    pub fn cached(pattern: &str) -> Self {
+        Self::cached_with_flags(pattern, true)
+    }
+
+    /// Like [`RegexMode::new_with_flags`], but returns a cached compiled regex,
+    /// only compiling on the first request for a given `(pattern, flags)`.
+    pub fn cached_with_flags(pattern: &str, case_insensitive: bool) -> Self {
+        let key = (pattern.to_string(), case_insensitive);
+        // Fast path: shared read lock for the common (already-cached) case.
+        if let Some(re) = REGEX_CACHE
+            .read()
+            .unwrap_or_else(|p| p.into_inner())
+            .get(&key)
+        {
+            return re.clone();
+        }
+        // Slow path: compile under the write lock so each pattern is built at
+        // most once even under concurrent first use.
+        REGEX_CACHE
+            .write()
+            .unwrap_or_else(|p| p.into_inner())
+            .entry(key)
+            .or_insert_with(|| Self::new_with_flags(pattern, case_insensitive))
+            .clone()
     }
 
     pub fn new_with_flags(pattern: &str, case_insensitive: bool) -> Self {

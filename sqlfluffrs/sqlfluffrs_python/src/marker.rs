@@ -87,10 +87,12 @@ impl PyPositionMarker {
         self.0.infer_next_position(raw, line_no, line_pos)
     }
 
+    #[getter]
     pub fn line_no(&self) -> usize {
         self.0.line_no()
     }
 
+    #[getter]
     pub fn line_pos(&self) -> usize {
         self.0.line_pos()
     }

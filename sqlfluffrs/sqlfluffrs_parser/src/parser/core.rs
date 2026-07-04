@@ -6,6 +6,7 @@
 use crate::parser::match_result::{self, MatchedClass, SegmentKwargs};
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
+use std::borrow::Cow;
 use std::sync::Arc;
 
 use crate::parser::table_driven::frame::{TableFrameResult, TableParseFrame};
@@ -15,9 +16,9 @@ use crate::parser::{MatchResult, MetaSegment};
 use super::{cache::TableParseCache, Node, ParseError};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::regex::RegexMode;
-use sqlfluffrs_types::{SimpleHint, Token};
+use sqlfluffrs_types::Token;
 // NEW: Table-driven grammar support
-use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant, RootGrammar};
+use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant};
 
 /// Read a string-id list from aux_data region starting at ``offset``.
 /// Layout is ``[count, string_id_0, string_id_1, ...]``.
@@ -44,67 +45,133 @@ fn read_string_ids_from_aux(
         .collect()
 }
 
-/// A checkpoint in the collection history that tracks which tokens were collected
-/// at a specific point. Used for backtracking.
-#[derive(Debug, Clone)]
-pub struct CollectionCheckpoint {
-    /// Frame ID associated with this checkpoint
-    pub frame_id: usize,
-    /// Token positions that were marked as collected at this checkpoint
-    pub positions: Vec<usize>,
+/// Returns the `[start, end)` bounds of `grammar_id`'s `aux_data` block.
+///
+/// The end is normally the next grammar's offset, but `aux_data` blocks are
+/// **not** stored in grammar-id order, so the next grammar may have a smaller
+/// offset (e.g. `0` when it has no `aux_data`). When that offset doesn't sit
+/// after this block's start, fall back to the full `aux_data` length: the
+/// inst/class_types reads in the callers are count-prefixed and self-delimiting,
+/// so `aux_end` is only a safety bound, never a delimiter.
+///
+/// NOTE: codegen (build_parsers.py) unconditionally emits the new-schema fields
+/// (instance_types + class_types) for every String/Typed/Multi/Regex parser, so
+/// those fields are always present for the grammars that reach these handlers;
+/// the `aux_end >= aux_start + N` checks in the callers are bounds guards, not a
+/// real old- vs new-schema discriminator.
+#[inline]
+fn aux_block_bounds(
+    tables: &sqlfluffrs_types::GrammarTables,
+    grammar_id: GrammarId,
+) -> (usize, usize) {
+    let idx = grammar_id.get() as usize;
+    let aux_start = tables.aux_data_offsets[idx] as usize;
+    let next_aux_off = tables
+        .aux_data_offsets
+        .get(idx + 1)
+        .map(|&off| off as usize)
+        .unwrap_or_else(|| tables.aux_data.len());
+    let aux_end = if next_aux_off > aux_start {
+        next_aux_off
+    } else {
+        tables.aux_data.len()
+    };
+    (aux_start, aux_end)
 }
+
+/// Diagnostic counters accumulated during a parse.
+///
+/// Pure instrumentation: nothing here affects parse results, so every field is a
+/// `Cell<usize>` updated through `&self`. Grouped into one struct to keep the
+/// `Parser` struct focused on parsing state and to expose the counters as a unit
+/// via [`Parser::diagnostics`] rather than field-by-field across the FFI boundary.
+#[derive(Debug, Default)]
+pub struct ParserMetrics {
+    /// Number of `prune_options` calls.
+    pub pruning_calls: std::cell::Cell<usize>,
+    /// Total options considered across all prune calls.
+    pub pruning_total: std::cell::Cell<usize>,
+    /// Options kept after pruning.
+    pub pruning_kept: std::cell::Cell<usize>,
+    /// Options that had a simple hint.
+    pub pruning_hinted: std::cell::Cell<usize>,
+    /// Options that returned None (too complex to hint).
+    pub pruning_complex: std::cell::Cell<usize>,
+    /// Match attempts (mirrors Python's `longest_match` accounting).
+    pub match_attempts: std::cell::Cell<usize>,
+    /// Successful matches.
+    pub match_successes: std::cell::Cell<usize>,
+    /// Early exits taken on an already-complete match.
+    pub complete_match_early_exits: std::cell::Cell<usize>,
+    /// Terminator checks performed.
+    pub terminator_checks: std::cell::Cell<usize>,
+    /// Terminator hits (early exits caused by a terminator).
+    pub terminator_hits: std::cell::Cell<usize>,
+}
+
+impl ParserMetrics {
+    /// Snapshot the counters as a name -> value map (for debug/FFI reporting).
+    fn as_map(&self) -> std::collections::HashMap<String, usize> {
+        let mut m = std::collections::HashMap::new();
+        m.insert("pruning_calls".to_string(), self.pruning_calls.get());
+        m.insert("pruning_total".to_string(), self.pruning_total.get());
+        m.insert("pruning_kept".to_string(), self.pruning_kept.get());
+        m.insert("pruning_hinted".to_string(), self.pruning_hinted.get());
+        m.insert("pruning_complex".to_string(), self.pruning_complex.get());
+        m.insert("match_attempts".to_string(), self.match_attempts.get());
+        m.insert("match_successes".to_string(), self.match_successes.get());
+        m.insert(
+            "complete_match_early_exits".to_string(),
+            self.complete_match_early_exits.get(),
+        );
+        m.insert(
+            "terminator_checks".to_string(),
+            self.terminator_checks.get(),
+        );
+        m.insert("terminator_hits".to_string(), self.terminator_hits.get());
+        m
+    }
+}
+
 /// The main parser struct that holds parsing state and provides parsing methods.
+///
+/// Fields are `pub(crate)`: the parser's public API is the methods re-exported from
+/// [`crate::parser`] (plus the `PyParser` bindings), not its internal state.
 pub struct Parser<'a> {
-    pub simple_hint_cache: hashbrown::HashMap<u64, Option<SimpleHint>>,
-    pub tokens: &'a [Token],
-    pub pos: usize, // current position in tokens
-    pub dialect: Dialect,
-    pub table_cache: TableParseCache, // Frame-level cache
-    pub cache_enabled: bool,
-    pub collected_transparent_positions: Vec<usize>, // Track which token positions have had transparent tokens collected (Vec for O(1) truncate)
-    /// Stack of collection checkpoints for backtracking.
-    /// Each checkpoint records which tokens were marked as collected at that point.
-    pub collection_stack: Vec<CollectionCheckpoint>,
-    pub pruning_calls: std::cell::Cell<usize>, // Track number of prune_options calls
-    pub pruning_total: std::cell::Cell<usize>, // Total options considered
-    pub pruning_kept: std::cell::Cell<usize>,  // Options kept after pruning
-    pub pruning_hinted: std::cell::Cell<usize>, // Options that had hints
-    pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
-    pub match_attempts: std::cell::Cell<usize>, // Track number of match attempts (like Python's longest_match)
-    pub match_successes: std::cell::Cell<usize>, // Track number of successful matches
-    pub complete_match_early_exits: std::cell::Cell<usize>, // Track early exits from complete matches
-    pub terminator_checks: std::cell::Cell<usize>,          // Track number of terminator checks
-    pub terminator_hits: std::cell::Cell<usize>, // Track number of terminator hits (early exits)
+    pub(crate) tokens: &'a [Token],
+    pub(crate) pos: usize, // current position in tokens
+    pub(crate) dialect: Dialect,
+    pub(crate) table_cache: TableParseCache, // Frame-level cache
+    pub(crate) cache_enabled: bool,
+    /// Diagnostic counters (instrumentation only; see [`ParserMetrics`]).
+    pub(crate) metrics: ParserMetrics,
     /// Cache for terminator match results: (position, grammar_id) -> matches
     /// Key insight: the same terminator at the same position will always give the same result.
     /// This avoids redundant parse_table_iterative calls from nested Delimited grammars.
-    pub terminator_match_cache: std::cell::RefCell<hashbrown::HashMap<(usize, u32), bool>>,
-    /// Cache for terminator hash computation: Vec<GrammarId> -> u64
-    /// Many grammars share the same terminators, so we cache the computed hashes.
-    /// OPTIMIZATION: This avoids recomputing the same hash thousands of times in
-    /// expression-heavy queries (arithmetic_a.sql, expression_recursion.sql).
-    pub terminator_hash_cache: std::cell::RefCell<hashbrown::HashMap<Vec<u32>, u64>>,
+    pub(crate) terminator_match_cache: hashbrown::HashMap<(usize, u32), bool>,
     // Table-driven grammar support
-    pub grammar_ctx: GrammarContext<'static>,
+    pub(crate) grammar_ctx: GrammarContext<'static>,
     /// Indentation configuration (key -> enabled)
     /// Used by conditional meta segments (e.g., indented_joins=true enables Indent/Dedent)
-    pub indent_config: hashbrown::HashMap<&'static str, bool>,
-    /// Optional owned RootGrammar. When present, callers can use `parse_root`
-    /// to parse starting from this root without having to pass grammar ids
-    /// or contexts manually.
-    pub root: Option<RootGrammar>,
+    pub(crate) indent_config: hashbrown::HashMap<&'static str, bool>,
     // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
-    regex_cache: std::cell::RefCell<hashbrown::HashMap<String, RegexMode>>,
+    regex_cache: hashbrown::HashMap<String, std::sync::Arc<RegexMode>>,
+    /// Memoizes a Ref's resolved child grammar (ref grammar_id -> child grammar_id).
+    /// The resolution (element children / by-name dialect lookup) depends only on
+    /// the Ref's grammar_id, but the same Ref is hit thousands of times per parse,
+    /// so caching it avoids repeating the by-name `get_*_segment_grammar` match.
+    /// `None` value = no child (the Ref resolves to Empty).
+    pub(crate) ref_child_cache: hashbrown::HashMap<u32, Option<u32>>,
     /// Maximum number of main-loop iterations before aborting.
     /// Configurable via `rust_parser_max_iterations` in `.sqlfluff`.
-    pub max_parser_iterations: usize,
+    pub(crate) max_parser_iterations: usize,
     /// Iteration count at which a warning is emitted (the former hard limit).
     /// Configurable via `rust_parser_warn_threshold` in `.sqlfluff`.
-    pub parser_warn_threshold: usize,
+    pub(crate) parser_warn_threshold: usize,
     /// Maximum parse depth (frame stack). 0 = no limit. Used for DoS mitigation.
-    pub max_parse_depth: usize,
+    pub(crate) max_parse_depth: usize,
     /// Maximum parse nodes in the accepted parse tree. 0 = no limit.
-    pub max_parse_nodes: usize,
+    pub(crate) max_parse_nodes: usize,
 }
 
 impl<'a> Parser<'a> {
@@ -140,27 +207,16 @@ impl<'a> Parser<'a> {
             tokens,
             pos: 0,
             dialect,
-            table_cache: TableParseCache::new(),
-            collected_transparent_positions: Vec::new(),
-            collection_stack: Vec::new(),
-            pruning_calls: std::cell::Cell::new(0),
-            pruning_total: std::cell::Cell::new(0),
-            pruning_kept: std::cell::Cell::new(0),
-            pruning_hinted: std::cell::Cell::new(0),
-            pruning_complex: std::cell::Cell::new(0),
-            match_attempts: std::cell::Cell::new(0),
-            match_successes: std::cell::Cell::new(0),
-            complete_match_early_exits: std::cell::Cell::new(0),
-            terminator_checks: std::cell::Cell::new(0),
-            terminator_hits: std::cell::Cell::new(0),
-            terminator_match_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
-            terminator_hash_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
-            simple_hint_cache: hashbrown::HashMap::new(),
+            // The frame cache grows to several times the token count; pre-size it
+            // to avoid repeated rehashing of a map that reaches thousands of entries.
+            table_cache: TableParseCache::with_capacity(tokens.len().saturating_mul(8)),
+            metrics: ParserMetrics::default(),
+            terminator_match_cache: hashbrown::HashMap::new(),
             cache_enabled: true,
             grammar_ctx,
             indent_config,
-            root: None,
-            regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
+            regex_cache: hashbrown::HashMap::new(),
+            ref_child_cache: hashbrown::HashMap::new(),
             max_parser_iterations: 3_000_000,
             parser_warn_threshold: 2_000_000,
             max_parse_depth,
@@ -235,6 +291,37 @@ impl<'a> Parser<'a> {
     /// Enable or disable the parse cache (for debugging)
     pub fn set_cache_enabled(&mut self, enabled: bool) {
         self.cache_enabled = enabled;
+    }
+
+    /// Current position in the token stream (index of the next token to consume).
+    pub fn position(&self) -> usize {
+        self.pos
+    }
+
+    /// Snapshot the parser's diagnostic counters as a name -> value map.
+    ///
+    /// Pure instrumentation; the values have no effect on parse results. Used by the
+    /// Python bindings and perf debugging instead of reaching into individual counters.
+    pub fn diagnostics(&self) -> std::collections::HashMap<String, usize> {
+        self.metrics.as_map()
+    }
+
+    /// Borrow the raw diagnostic counters.
+    ///
+    /// Cheaper than [`Parser::diagnostics`] (no map allocation), so benchmarks can read
+    /// individual counters inside timed regions without distorting measurements.
+    pub fn metrics(&self) -> &ParserMetrics {
+        &self.metrics
+    }
+
+    /// Parse-cache stats as `(hits, misses, hit_rate)`.
+    pub fn cache_stats(&self) -> (usize, usize, f64) {
+        self.table_cache.stats()
+    }
+
+    /// Number of entries currently held in the parse cache.
+    pub fn cache_entries(&self) -> usize {
+        self.table_cache.len()
     }
 
     /// Parse and return MatchResult
@@ -392,7 +479,7 @@ impl<'a> Parser<'a> {
     // ============================================================================
 
     /// Handle StringParser using table-driven approach
-    pub(crate) fn handle_string_parser_table_driven(
+    pub(crate) fn handle_string_parser(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -404,12 +491,7 @@ impl<'a> Parser<'a> {
         //   new schema: [template_id, token_type_id, raw_class_id, inst_count, inst_type_ids...,
         //                class_types_count, class_type_ids...]
         // aux_data_offsets maps instruction -> aux_data start for variable-length aux.
-        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
-            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
-        } else {
-            tables.aux_data.len()
-        };
+        let (aux_start, aux_end) = aux_block_bounds(tables, grammar_id);
         let template_id = tables.aux_data[aux_start];
         let token_type_id = tables.aux_data[aux_start + 1];
         let raw_class_id = tables.aux_data[aux_start + 2];
@@ -471,8 +553,8 @@ impl<'a> Parser<'a> {
                 let result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(MatchedClass {
-                        class_name: raw_class.to_string(),
-                        segment_type: Some(token_type.to_string()),
+                        class_name: Cow::Borrowed(raw_class),
+                        segment_type: Some(Cow::Borrowed(token_type)),
                         segment_kwargs,
                     }),
                     ..Default::default()
@@ -480,7 +562,7 @@ impl<'a> Parser<'a> {
 
                 #[cfg(feature = "verbose-debug")]
                 {
-                    let raw = tok.raw().to_string();
+                    let raw = tok.raw().to_owned();
 
                     vdebug!(
                         "StringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
@@ -511,7 +593,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle TypedParser using table-driven approach
-    pub(crate) fn handle_typed_parser_table_driven(
+    pub(crate) fn handle_typed_parser(
         &mut self,
         mut frame: TableParseFrame,
     ) -> Result<TableFrameResult, ParseError> {
@@ -531,12 +613,7 @@ impl<'a> Parser<'a> {
         //   new schema: [template_id, token_type_id, raw_class_id, inst_count, inst_type_ids...,
         //                class_types_count, class_type_ids...]
         // aux_data_offsets maps instruction -> aux_data start for variable-length aux.
-        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
-            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
-        } else {
-            tables.aux_data.len()
-        };
+        let (aux_start, aux_end) = aux_block_bounds(tables, grammar_id);
         let template_id = tables.aux_data[aux_start];
         let token_type_id = tables.aux_data[aux_start + 1];
         let raw_class_id = tables.aux_data[aux_start + 2];
@@ -580,7 +657,7 @@ impl<'a> Parser<'a> {
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
                 {
-                    let raw = tok.raw().to_string();
+                    let raw = tok.raw().to_owned();
                     let token_type_val = tok.token_type.clone();
                     let inst_types = tok.instance_types.clone();
                     let class_types = tok.class_types();
@@ -631,55 +708,30 @@ impl<'a> Parser<'a> {
                 let (effective_segment_type, instance_types_vec) = if let Some(cls_type) =
                     class_type
                 {
-                    if token_type == cls_type {
-                        // No explicit type override: TypedParser was invoked like Python's
-                        // isinstance path. Preserve the token's own type and instance_types
-                        // so that e.g. a WordSegment token matching Ref("CodeSegment") outputs
-                        // `word: value` instead of `raw: value`, or a double_quote token outputs
-                        // `double_quote: "value"` instead of `raw: "value"`.
-                        //
-                        // This mirrors Python's RawSegment.get_type():
-                        //   if instance_types: return instance_types[0]
-                        //   return super().get_type()  (= class type attribute)
-                        let tok_effective_type = tok
-                            .instance_types
-                            .first()
-                            .cloned()
-                            .unwrap_or_else(|| tok.token_type.clone());
-                        let tok_inst = tok.instance_types.clone();
-                        vdebug!(
-                            "TypedParser[table] isinstance-path: token_type='{}' == cls_type='{}', preserving effective_type='{}', instance_types={:?}",
-                            token_type,
-                            cls_type,
-                            tok_effective_type,
-                            tok_inst
-                        );
-                        (tok_effective_type, tok_inst)
-                    } else {
-                        // Explicit type override: use configured instance_types from
-                        // codegen (Python parity), with old-schema fallback.
-                        let mut vec = configured_instance_types;
-                        if cls_type != token_type && !vec.iter().any(|t| t == cls_type) {
-                            vec.push(cls_type.to_string());
-                        }
-                        if template != token_type
-                            && template != cls_type
-                            && !vec.iter().any(|t| t == &template)
-                        {
-                            vec.push(template.to_string());
-                        }
-                        let effective_type = vec
-                            .first()
-                            .cloned()
-                            .unwrap_or_else(|| token_type.to_string());
-                        vdebug!(
-                            "TypedParser[table] explicit-override-path: token_type='{}' != cls_type='{}', instance_types={:?}",
-                            token_type,
-                            cls_type,
-                            vec
-                        );
-                        (effective_type, vec)
+                    // Python parity: TypedParser always overrides the token's
+                    // instance_types with its configured `_instance_types`
+                    // (= `configured_instance_types`), so the leaf type is
+                    // `_instance_types[0]` (e.g. `literal`, not the token's
+                    // lexer type `file_literal`).
+                    let mut vec = configured_instance_types;
+                    if !vec.iter().any(|t| t == cls_type) {
+                        vec.push(cls_type.to_string());
                     }
+                    if template != cls_type && !vec.iter().any(|t| t == &template) {
+                        vec.push(template.to_string());
+                    }
+                    let effective_type = vec
+                        .first()
+                        .cloned()
+                        .unwrap_or_else(|| token_type.to_string());
+                    vdebug!(
+                        "TypedParser[table] configured-path: token_type='{}' cls_type='{}' template='{}' instance_types={:?}",
+                        token_type,
+                        cls_type,
+                        template,
+                        vec
+                    );
+                    (effective_type, vec)
                 } else {
                     // Fallback: no class type info available, use TypedParser config as-is
                     log::warn!(
@@ -725,8 +777,8 @@ impl<'a> Parser<'a> {
                 let match_result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(MatchedClass {
-                        class_name: raw_class.to_string(),
-                        segment_type: Some(effective_segment_type.clone()),
+                        class_name: Cow::Borrowed(raw_class),
+                        segment_type: Some(Cow::Owned(effective_segment_type.clone())),
                         segment_kwargs,
                     }),
                     ..Default::default()
@@ -770,7 +822,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle MultiStringParser using table-driven approach
-    pub(crate) fn handle_multi_string_parser_table_driven(
+    pub(crate) fn handle_multi_string_parser(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -782,12 +834,7 @@ impl<'a> Parser<'a> {
         //   new schema: [templates_start, templates_count, token_type_id, raw_class_id,
         //                inst_count, inst_type_ids..., class_types_count, class_type_ids...]
         // The aux_data offset is stored in the separate AUX_DATA_OFFSETS table, NOT in first_child_idx
-        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
-            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
-        } else {
-            tables.aux_data.len()
-        };
+        let (aux_start, aux_end) = aux_block_bounds(tables, grammar_id);
         let templates_start = tables.aux_data[aux_start] as usize;
         let templates_count = tables.aux_data[aux_start + 1] as usize;
         let token_type_id = tables.aux_data[aux_start + 2];
@@ -859,7 +906,7 @@ impl<'a> Parser<'a> {
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
                 {
-                    let raw = tok.raw().to_string();
+                    let raw = tok.raw().to_owned();
 
                     vdebug!(
                         "MultiStringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
@@ -893,8 +940,8 @@ impl<'a> Parser<'a> {
                 let result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(MatchedClass {
-                        class_name: raw_class.to_string(),
-                        segment_type: Some(token_type.to_string()),
+                        class_name: Cow::Borrowed(raw_class),
+                        segment_type: Some(Cow::Borrowed(token_type)),
                         segment_kwargs,
                     }),
                     ..Default::default()
@@ -916,10 +963,7 @@ impl<'a> Parser<'a> {
     /// Dump table-driven grammar / table information useful for debugging
     /// (variants, children, terminators, aux data, regex patterns etc.).
     /// If `grammar_id` is None, dumps all grammars in the tables.
-    pub fn dump_table_driven_grammar_info(
-        &self,
-        grammar_id: Option<GrammarId>,
-    ) -> Result<String, ParseError> {
+    pub fn dump_grammar_info(&self, grammar_id: Option<GrammarId>) -> Result<String, ParseError> {
         let ctx = &self.grammar_ctx;
         let tables = ctx.tables();
 
@@ -1048,7 +1092,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle RegexParser using table-driven approach
-    pub(crate) fn handle_regex_parser_table_driven(
+    pub(crate) fn handle_regex_parser(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -1070,12 +1114,7 @@ impl<'a> Parser<'a> {
         //   new schema: [regex_id, anti_regex_id, token_type_id, raw_class_id,
         //                inst_count, inst_type_ids..., class_types_count, class_type_ids...]
         let tables = self.grammar_ctx.tables();
-        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        let aux_end = if (grammar_id.get() as usize + 1) < tables.aux_data_offsets.len() {
-            tables.aux_data_offsets[grammar_id.get() as usize + 1] as usize
-        } else {
-            tables.aux_data.len()
-        };
+        let (aux_start, aux_end) = aux_block_bounds(tables, grammar_id);
         let token_type_id = if aux_start + 2 < tables.aux_data.len() {
             tables.aux_data[aux_start + 2]
         } else {
@@ -1125,21 +1164,19 @@ impl<'a> Parser<'a> {
         }
 
         let pattern = {
-            let mut cache = self.regex_cache.borrow_mut();
             let comp_key = normalize_for_compile(&pattern_str).to_string();
-            cache
+            self.regex_cache
                 .entry(comp_key.clone())
-                .or_insert_with(|| RegexMode::new(&comp_key))
+                .or_insert_with(|| std::sync::Arc::new(RegexMode::new(&comp_key)))
                 .clone()
         };
 
         let anti_pattern = if let Some(anti_str) = anti_opt.as_ref() {
-            let mut cache = self.regex_cache.borrow_mut();
             let comp_key = normalize_for_compile(anti_str).to_string();
             Some(
-                cache
+                self.regex_cache
                     .entry(comp_key.clone())
-                    .or_insert_with(|| RegexMode::new(&comp_key))
+                    .or_insert_with(|| std::sync::Arc::new(RegexMode::new(&comp_key)))
                     .clone(),
             )
         } else {
@@ -1202,8 +1239,8 @@ impl<'a> Parser<'a> {
                     let result = MatchResult {
                         matched_slice: token_pos..token_pos + 1,
                         matched_class: Some(MatchedClass {
-                            class_name: raw_class.clone(),
-                            segment_type: Some(token_type.clone()),
+                            class_name: Cow::Owned(raw_class.clone()),
+                            segment_type: Some(Cow::Owned(token_type.clone())),
                             segment_kwargs,
                         }),
                         ..Default::default()
@@ -1231,19 +1268,19 @@ impl<'a> Parser<'a> {
     // ============================================================================
 
     /// Handle Nothing using table-driven approach
-    pub(crate) fn handle_nothing_table_driven(&mut self) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_nothing(&mut self) -> Result<MatchResult, ParseError> {
         vdebug!("Nothing[table]: pos={}, returning Empty", self.pos);
         Ok(MatchResult::empty_at(self.pos))
     }
 
     /// Handle Empty using table-driven approach
-    pub(crate) fn handle_empty_table_driven(&mut self) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_empty(&mut self) -> Result<MatchResult, ParseError> {
         vdebug!("Empty[table]: pos={}, returning Empty", self.pos);
         Ok(MatchResult::empty_at(self.pos))
     }
 
     /// Handle Missing using table-driven approach
-    pub(crate) fn handle_missing_table_driven(&mut self) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_missing(&mut self) -> Result<MatchResult, ParseError> {
         vdebug!("Missing[table]: encountered at pos={}", self.pos);
         Err(ParseError::with_context(
             "Encountered Missing grammar".into(),
@@ -1264,7 +1301,7 @@ impl<'a> Parser<'a> {
         idx
     }
 
-    pub(crate) fn handle_preceded_by_table_driven(
+    pub(crate) fn handle_preceded_by(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -1277,7 +1314,7 @@ impl<'a> Parser<'a> {
             let preceding_start = tables.aux_data[sequence_meta_offset] as usize;
             let preceding_count = tables.aux_data[sequence_meta_offset + 1] as usize;
 
-            if self.match_preceding_sequence_table_driven(preceding_start, preceding_count) {
+            if self.match_preceding_sequence(preceding_start, preceding_count) {
                 if self.pos < self.tokens.len() {
                     return Ok(MatchResult {
                         matched_slice: self.pos..self.pos + 1,
@@ -1292,11 +1329,7 @@ impl<'a> Parser<'a> {
         Ok(MatchResult::empty_at(self.pos))
     }
 
-    fn match_preceding_sequence_table_driven(
-        &self,
-        preceding_start: usize,
-        preceding_count: usize,
-    ) -> bool {
+    fn match_preceding_sequence(&self, preceding_start: usize, preceding_count: usize) -> bool {
         let tables = self.grammar_ctx.tables();
         let mut prev = self.pos as isize - 1;
 
@@ -1318,7 +1351,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle Token using table-driven approach
-    pub(crate) fn handle_token_table_driven(
+    pub(crate) fn handle_token(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<MatchResult, ParseError> {
@@ -1340,7 +1373,7 @@ impl<'a> Parser<'a> {
             Some(tok) if tok.is_type(&[&token_type]) => {
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
-                let raw = tok.raw().to_string();
+                let raw = tok.raw().to_owned();
                 self.bump();
 
                 vdebug!(
@@ -1383,10 +1416,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle Meta using table-driven approach
-    pub(crate) fn handle_meta_table_driven(
-        &mut self,
-        grammar_id: GrammarId,
-    ) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_meta(&mut self, grammar_id: GrammarId) -> Result<MatchResult, ParseError> {
         // Extract token_type from tables
         let tables = self.grammar_ctx.tables();
 
@@ -1421,9 +1451,7 @@ impl<'a> Parser<'a> {
     /// Matches ALL consecutive non-code segments (whitespace, newline, comment, EOF).
     /// This implements Python parity with NonCodeMatcher.match() which loops through
     /// segments until finding a code token, returning MatchResult with the full slice.
-    pub(crate) fn handle_noncode_matcher_table_driven(
-        &mut self,
-    ) -> Result<MatchResult, ParseError> {
+    pub(crate) fn handle_noncode_matcher(&mut self) -> Result<MatchResult, ParseError> {
         let start_pos = self.pos;
         vdebug!("NonCodeMatcher[table]: pos={}", start_pos);
 
@@ -1488,7 +1516,7 @@ impl<'a> Parser<'a> {
 
     /// Handle Anything using table-driven approach
     /// Consumes all tokens until terminator or EOF, preserving bracket structure
-    pub(crate) fn handle_anything_table_initial(
+    pub(crate) fn handle_anything_initial(
         &mut self,
         mut frame: TableParseFrame,
         grammar_id: GrammarId,
@@ -1523,17 +1551,17 @@ impl<'a> Parser<'a> {
                 }
             }
 
-            if self.is_terminated_table_driven(&terminators_vec) || self.is_at_end() {
+            if self.is_terminated(&terminators_vec) || self.is_at_end() {
                 break;
             }
 
             if let Some(tok) = self.peek() {
-                let tok_raw = tok.raw();
+                let tok_raw = tok.raw().to_owned();
 
                 // Handle bracket openers - match entire bracketed section with nested brackets
                 if tok_raw == "(" || tok_raw == "[" || tok_raw == "{" {
                     let bracket_match =
-                        self.match_bracket_recursively(tok_raw.as_str(), tok_raw == "(");
+                        self.match_bracket_recursively(tok_raw.as_str(), tok_raw == "(", true);
                     child_matches.push(bracket_match);
                 } else {
                     // Regular token - just bump, it'll be part of the raw content
@@ -1563,9 +1591,9 @@ impl<'a> Parser<'a> {
     }
 
     /// Compatibility wrapper expected by `core.rs`.
-    /// `core.rs` calls `handle_anything_table_driven`; implement a thin wrapper
-    /// that forwards to `handle_anything_table_initial` with a dummy frame.
-    pub(crate) fn handle_anything_table_driven(
+    /// `core.rs` calls `handle_anything`; implement a thin wrapper
+    /// that forwards to `handle_anything_initial` with a dummy frame.
+    pub(crate) fn handle_anything(
         &mut self,
         grammar_id: GrammarId,
         parent_terminators: &[GrammarId],
@@ -1574,12 +1602,7 @@ impl<'a> Parser<'a> {
         // Create a temporary table-driven frame to use the initial handler and then extract MatchResult
         let frame = TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators, None);
 
-        match self.handle_anything_table_initial(
-            frame,
-            grammar_id,
-            parent_terminators,
-            parent_max_idx,
-        )? {
+        match self.handle_anything_initial(frame, grammar_id, parent_terminators, parent_max_idx)? {
             TableFrameResult::Push(f) => {
                 if let FrameState::Complete(match_result) = f.state {
                     return Ok((*match_result).clone());
@@ -1590,14 +1613,22 @@ impl<'a> Parser<'a> {
         }
     }
 
-    /// Recursively match brackets, handling nested brackets properly.
-    /// This ensures that nested brackets inside Anything grammars produce
-    /// proper BracketedSegment child_matches.
-    fn match_bracket_recursively(&mut self, open_bracket: &str, persists: bool) -> MatchResult {
-        let close_bracket = match open_bracket {
-            "(" => ")",
-            "[" => "]",
-            "{" => "}",
+    /// Recursively match brackets. `nested_match` mirrors Python's
+    /// `resolve_bracket`: when true, directly-nested brackets are attached as
+    /// structured children; the recursive call passes false, so deeper brackets
+    /// are consumed but flattened to raw siblings (pure-Python parity).
+    fn match_bracket_recursively(
+        &mut self,
+        open_bracket: &str,
+        persists: bool,
+        nested_match: bool,
+    ) -> MatchResult {
+        // Python parity: bracket leaf type depends on the bracket char
+        // (`[`→square, `{`→curly); only `(` uses the plain bracket type.
+        let (close_bracket, start_bracket_type, end_bracket_type) = match open_bracket {
+            "(" => (")", "start_bracket", "end_bracket"),
+            "[" => ("]", "start_square_bracket", "end_square_bracket"),
+            "{" => ("}", "start_curly_bracket", "end_curly_bracket"),
             _ => unreachable!(),
         };
 
@@ -1607,10 +1638,10 @@ impl<'a> Parser<'a> {
         let open_bracket_match = MatchResult {
             matched_slice: self.pos..self.pos + 1,
             matched_class: Some(MatchedClass {
-                class_name: "SymbolSegment".to_string(),
-                segment_type: Some("start_bracket".to_string()),
+                class_name: Cow::Borrowed("SymbolSegment"),
+                segment_type: Some(Cow::Borrowed(start_bracket_type)),
                 segment_kwargs: SegmentKwargs {
-                    instance_types: Some(vec!["start_bracket".to_string()]),
+                    instance_types: Some(vec![start_bracket_type.to_string()]),
                     ..Default::default()
                 },
             }),
@@ -1624,7 +1655,7 @@ impl<'a> Parser<'a> {
         // Match everything until matching close bracket, recursively handling nested brackets
         while !self.is_at_end() {
             if let Some(inner_tok) = self.peek() {
-                let inner_raw = inner_tok.raw();
+                let inner_raw = inner_tok.raw().to_owned();
 
                 if inner_raw == close_bracket {
                     // Found our closing bracket
@@ -1632,9 +1663,12 @@ impl<'a> Parser<'a> {
                 } else if inner_raw == "(" || inner_raw == "[" || inner_raw == "{" {
                     // Found a nested bracket - recursively match it
                     let nested_persists = inner_raw == "(";
-                    let nested_match =
-                        self.match_bracket_recursively(inner_raw.as_str(), nested_persists);
-                    inner_child_matches.push(Arc::new(nested_match));
+                    let nested_bracket =
+                        self.match_bracket_recursively(inner_raw.as_str(), nested_persists, false);
+                    // Only attach directly-nested brackets; deeper ones flatten.
+                    if nested_match {
+                        inner_child_matches.push(Arc::new(nested_bracket));
+                    }
                 } else {
                     // Regular token - just bump
                     self.bump();
@@ -1655,10 +1689,10 @@ impl<'a> Parser<'a> {
         let close_bracket_match = MatchResult {
             matched_slice: bracket_end - 1..bracket_end,
             matched_class: Some(MatchedClass {
-                class_name: "SymbolSegment".to_string(),
-                segment_type: Some("end_bracket".to_string()),
+                class_name: Cow::Borrowed("SymbolSegment"),
+                segment_type: Some(Cow::Borrowed(end_bracket_type)),
                 segment_kwargs: SegmentKwargs {
-                    instance_types: Some(vec!["end_bracket".to_string()]),
+                    instance_types: Some(vec![end_bracket_type.to_string()]),
                     ..Default::default()
                 },
             }),

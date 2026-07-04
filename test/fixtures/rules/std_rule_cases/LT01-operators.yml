@@ -85,6 +85,15 @@ pass_tsql_assignment_operator:
     core:
       dialect: tsql
 
+pass_oracle_execute_file_double_at_sign:
+  # Oracle SQL*Plus @@ execute-file prefixes should not be separated by LT01.
+  pass_str: |
+    @@ACS_DBLOGIN_FK.SQL
+    @@ACS_DPS_STRUKTURKLASSE_FK.SQL
+  configs:
+    core:
+      dialect: oracle
+
 pass_concat_string:
   pass_str: SELECT 'barry' || 'pollard'
 

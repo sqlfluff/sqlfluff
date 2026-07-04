@@ -237,11 +237,21 @@ def load_config_at_path(path: str) -> ConfigMappingType:
     else:
         p = os.path.dirname(path)
 
-    d = os.listdir(os.path.expanduser(p))
+    # Expand `~` once and reuse the expanded value for listing, checking and
+    # loading. Otherwise the existence checks (which expanded the path) could
+    # succeed while `load_config_file()` later fails to open the unexpanded path.
+    p = os.path.expanduser(p)
+
+    d = os.listdir(p)
     # iterate this way round to make sure things overwrite is the right direction.
     # NOTE: The `configs` variable is passed back in at each stage.
     for fname in filename_options:
-        if fname in d:
+        # Ignore any entries which aren't files. In particular this guards
+        # against a *directory* sharing the name of a config file (e.g. a
+        # directory named `.sqlfluff`), which would otherwise be opened as a
+        # file and raise an `IsADirectoryError`.
+        # https://github.com/sqlfluff/sqlfluff/issues/6617
+        if fname in d and os.path.isfile(os.path.join(p, fname)):
             configs = load_config_file(p, fname, configs=configs)
 
     return configs
@@ -319,9 +329,23 @@ def load_config_up_to_path(
     # is more efficient.
     extra_config = {}
     if extra_config_path:
+        # Expand `~` once so the directory check and resolution stay consistent.
+        # `Path.resolve()` does not expand `~`, so without this a quoted path
+        # like `--config "~/.sqlfluff"` would skip the directory check and be
+        # reported as not-found instead of loaded (or flagged as a directory).
+        expanded_config_path = os.path.expanduser(extra_config_path)
+        # A directory (e.g. one named `.sqlfluff`) is not a valid config file
+        # and would otherwise raise an `IsADirectoryError` when opened. Surface
+        # a clean user error instead, consistent with the not-found case.
+        # https://github.com/sqlfluff/sqlfluff/issues/6617
+        if os.path.isdir(expanded_config_path):
+            raise SQLFluffUserError(
+                f"Extra config path '{extra_config_path}' is a directory, "
+                "not a config file."
+            )
         try:
             extra_config = load_config_file_as_dict(
-                str(Path(extra_config_path).resolve())
+                str(Path(expanded_config_path).resolve())
             )
         except FileNotFoundError:
             raise SQLFluffUserError(
