@@ -378,27 +378,8 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     https://dev.mysql.com/doc/refman/8.0/en/group-by-modifiers.html
     """
 
-    match_grammar: Matchable = Sequence(
-        "GROUP",
-        "BY",
-        Indent,
-        OneOf(
-            "ALL",
-            Ref("GroupingSetsClauseSegment"),
-            Ref("CubeRollupClauseSegment"),
-            Sequence(
-                Delimited(
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
-                        Ref("NumericLiteralSegment"),
-                        Ref("ExpressionSegment"),
-                    ),
-                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
-                ),
-            ),
-        ),
-        Dedent,
-        Sequence("WITH", "ROLLUP", optional=True),
+    match_grammar = ansi.GroupByClauseSegment.match_grammar.copy(
+        insert=[Sequence("WITH", "ROLLUP", optional=True)],
     )
 
 
