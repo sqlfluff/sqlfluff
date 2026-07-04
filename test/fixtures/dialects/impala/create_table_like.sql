@@ -1,1 +1,0 @@
-CREATE TABLE t_like LIKE source_table STORED AS PARQUET;
