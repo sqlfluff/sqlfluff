@@ -3,34 +3,48 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e33a1833dd0dadb08d24316cb794574afd2869566a8ae7f295ed49b2b39cc145
+_hash: 9c5fa358308d69c423a7f62b8499ac155c0fa3343b481de99866d1a9476134e6
 file:
-  unparsable:
-  - word: ALTER
-  - word: TABLE
-  - word: target_table
-  - word: ADD
-  - word: PARTITION
-  - start_bracket: (
-  - word: partition_code
-  - equals: '='
-  - single_quote: "'202601'"
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - word: target_table
-  - word: DROP
-  - word: PARTITION
-  - start_bracket: (
-  - word: partition_code
-  - equals: '='
-  - single_quote: "'202601'"
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - word: target_table
-  - word: RECOVER
-  - word: PARTITIONS
-  - semicolon: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target_table
+    - keyword: ADD
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: partition_code
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'202601'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target_table
+    - keyword: DROP
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: partition_code
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'202601'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target_table
+    - keyword: RECOVER
+    - keyword: PARTITIONS
+- statement_terminator: ;

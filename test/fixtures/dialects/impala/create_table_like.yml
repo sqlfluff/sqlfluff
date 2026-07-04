@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6ae1646f5128a1f69ff1c61d2eb7148ec68628042fcc401352b7f453960fb2a2
+_hash: 7caea941096b3efab01b0980d936906e2dd1c9d8bf166b6673d4f3f6df1a397f
 file:
   statement:
     create_table_statement:
@@ -11,10 +11,10 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: t_like
-  unparsable:
-  - word: LIKE
-  - word: source_table
-  - word: STORED
-  - word: AS
-  - word: PARQUET
-  - semicolon: ;
+    - keyword: LIKE
+    - table_reference:
+        naked_identifier: source_table
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+  statement_terminator: ;

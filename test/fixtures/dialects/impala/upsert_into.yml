@@ -3,31 +3,52 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 05797f18b6631109512585a47a9c63b2dca400e7fdc9a733dd7b9b08fcf71e88
+_hash: 9312a815ffe5138a7768ed0eb9d29724b49ccefb2606ac35f5aa1fcaad754aa9
 file:
-  unparsable:
-  - word: UPSERT
-  - word: INTO
-  - word: target_table
-  - word: SELECT
-  - word: id
-  - comma: ','
-  - word: name
-  - word: FROM
-  - word: source_table
-  - semicolon: ;
-  - word: UPSERT
-  - word: INTO
-  - word: target_table
-  - start_bracket: (
-  - word: id
-  - comma: ','
-  - word: name
-  - end_bracket: )
-  - word: VALUES
-  - start_bracket: (
-  - numeric_literal: '1'
-  - comma: ','
-  - single_quote: "'abc'"
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+    upsert_statement:
+    - keyword: UPSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target_table
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    upsert_statement:
+    - keyword: UPSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          comma: ','
+          quoted_literal: "'abc'"
+          end_bracket: )
+- statement_terminator: ;

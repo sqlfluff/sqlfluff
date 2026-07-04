@@ -31,7 +31,40 @@ impala_dialect.replace(
     DivideSegment=OneOf(
         StringParser("DIV", BinaryOperatorSegment),
         StringParser("/", BinaryOperatorSegment),
-    )
+    ),
+    FileFormatGrammar=OneOf(
+        "SEQUENCEFILE",
+        "TEXTFILE",
+        "RCFILE",
+        "ORC",
+        "PARQUET",
+        "AVRO",
+        "JSONFILE",
+        "KUDU",
+        Sequence(
+            "INPUTFORMAT",
+            Ref("QuotedLiteralSegment"),
+            "OUTPUTFORMAT",
+            Ref("QuotedLiteralSegment"),
+        ),
+    ),
+    AlterTableOptionsGrammar=impala_dialect.get_grammar(
+        "AlterTableOptionsGrammar"
+    ).copy(
+        insert=[
+            Sequence(
+                "ADD",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("PartitionSpecGrammar"),
+            ),
+            Sequence(
+                "DROP",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("PartitionSpecGrammar"),
+            ),
+            Sequence("RECOVER", "PARTITIONS"),
+        ]
+    ),
 )
 
 
@@ -45,6 +78,7 @@ class StatementSegment(hive.StatementSegment):
             Ref("CreateTableAsSelectStatementSegment"),
             Ref("ComputeStatsStatementSegment"),
             Ref("InsertStatementSegment"),
+            Ref("UpsertStatementSegment"),
             Ref("InvalidateMetadataStatementSegment"),
             Ref("RefreshStatementSegment"),
         ]
@@ -89,65 +123,77 @@ class CreateTableStatementSegment(hive.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Bracketed(
-            Delimited(
-                OneOf(
-                    Ref("TableConstraintSegment", optional=True),
-                    Sequence(
-                        Ref("ColumnDefinitionSegment"),
-                        Ref("CommentGrammar", optional=True),
-                    ),
-                ),
-                bracket_pairs_set="angle_bracket_pairs",
-            ),
-            optional=True,
-        ),
-        Sequence(
-            "PARTITIONED",
-            "BY",
-            Bracketed(
-                Delimited(
-                    Sequence(
+        OneOf(
+            Sequence(
+                Bracketed(
+                    Delimited(
                         OneOf(
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("SingleIdentifierGrammar"),
+                            Ref("TableConstraintSegment", optional=True),
+                            Sequence(
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("CommentGrammar", optional=True),
+                            ),
                         ),
-                        Ref("CommentGrammar", optional=True),
+                        bracket_pairs_set="angle_bracket_pairs",
                     ),
+                    optional=True,
                 ),
-            ),
-            optional=True,
-        ),
-        Sequence(
-            "SORT",
-            "BY",
-            Bracketed(Delimited(Sequence(Ref("ColumnReferenceSegment")))),
-            optional=True,
-        ),
-        Ref("CommentGrammar", optional=True),
-        Ref("RowFormatClauseSegment", optional=True),
-        Ref("SerdePropertiesGrammar", optional=True),
-        Ref("StoredAsGrammar", optional=True),
-        Ref("LocationGrammar", optional=True),
-        Sequence(
-            OneOf(
                 Sequence(
-                    "CACHED",
-                    "IN",
-                    Delimited(Ref("PoolNameReferenceSegment")),
-                    Sequence(
-                        "WITH",
-                        "REPLICATION",
-                        "=",
-                        Ref("NumericLiteralSegment"),
-                        optional=True,
+                    "PARTITIONED",
+                    "BY",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                OneOf(
+                                    Ref("ColumnDefinitionSegment"),
+                                    Ref("SingleIdentifierGrammar"),
+                                ),
+                                Ref("CommentGrammar", optional=True),
+                            ),
+                        ),
                     ),
+                    optional=True,
                 ),
-                Ref.keyword("UNCACHED"),
+                Sequence(
+                    "SORT",
+                    "BY",
+                    Bracketed(Delimited(Sequence(Ref("ColumnReferenceSegment")))),
+                    optional=True,
+                ),
+                Ref("CommentGrammar", optional=True),
+                Ref("RowFormatClauseSegment", optional=True),
+                Ref("SerdePropertiesGrammar", optional=True),
+                Ref("StoredAsGrammar", optional=True),
+                Ref("LocationGrammar", optional=True),
+                Sequence(
+                    OneOf(
+                        Sequence(
+                            "CACHED",
+                            "IN",
+                            Delimited(Ref("PoolNameReferenceSegment")),
+                            Sequence(
+                                "WITH",
+                                "REPLICATION",
+                                "=",
+                                Ref("NumericLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        Ref.keyword("UNCACHED"),
+                    ),
+                    optional=True,
+                ),
+                Ref("TablePropertiesGrammar", optional=True),
             ),
-            optional=True,
+            Sequence(
+                "LIKE",
+                Ref("TableReferenceSegment"),
+                Ref("CommentGrammar", optional=True),
+                Ref("StoredAsGrammar", optional=True),
+                Ref("LocationGrammar", optional=True),
+                Ref("TablePropertiesGrammar", optional=True),
+            ),
         ),
-        Ref("TablePropertiesGrammar", optional=True),
     )
 
 
@@ -260,6 +306,31 @@ class InsertStatementSegment(BaseSegment):
                     Ref("ValuesClauseSegment"),
                 ),
             ),
+        ),
+    )
+
+
+class UpsertStatementSegment(BaseSegment):
+    """An `UPSERT` statement.
+
+    Full Apache Impala `UPSERT` reference here:
+    https://impala.apache.org/docs/build/html/topics/impala_upsert.html
+    """
+
+    type = "upsert_statement"
+
+    match_grammar = Sequence(
+        "UPSERT",
+        "INTO",
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            Bracketed(Delimited(Sequence(Ref("ColumnReferenceSegment")))),
+            optional=True,
+        ),
+        OneOf(
+            Ref("SelectableGrammar"),
+            Ref("ValuesClauseSegment"),
         ),
     )
 
