@@ -42,8 +42,8 @@ any test cases for a rule should include the code for that rule.
 Traversal Options
 -----------------
 
-``recurse_into``
-^^^^^^^^^^^^^^^^
+``crawl_behaviour``
+^^^^^^^^^^^^^^^^^^^
 Some rules are a poor fit for the simple traversal pattern described above.
 Typical reasons include:
 
@@ -51,11 +51,16 @@ Typical reasons include:
   end).
 * The rule needs to traverse the parse tree in a non-standard way.
 
-These rules can override ``BaseRule``'s ``recurse_into`` field, setting it to
-``False``. For these rules ``False``, ``_eval()`` is only called *once*, with
-the root segment of the tree. This can be much more efficient, especially on
-large files. For example, see rules ``LT13`` and ``LT12`` , which only look at
-the beginning or end of the file, respectively.
+These rules can override ``BaseRule``'s ``crawl_behaviour`` field, which
+controls how the parse tree is traversed. By default rules use a
+``SegmentSeekerCrawler``, which calls ``_eval()`` for every segment of the
+given type(s). A rule that only needs to look at the whole file once can set
+``crawl_behaviour = RootOnlyCrawler()`` instead, so that ``_eval()`` is only
+called *once*, with the root segment of the tree. This can be much more
+efficient, especially on large files. For example, see rules ``LT13`` and
+``LT12``, which only look at the beginning or end of the file, respectively.
+The available crawlers are defined in
+:code:`src/sqlfluff/core/rules/crawlers.py`.
 
 ``_works_on_unparsable``
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -67,14 +72,16 @@ their descendants.
 
 Performance-related Options
 ---------------------------
-These are other fields on ``BaseRule``. Rules can override them.
+These are other options a rule can set to make linting faster.
 
-``needs_raw_stack``
-^^^^^^^^^^^^^^^^^^^
-``needs_raw_stack`` defaults to ``False``. Some rules use
-``RuleContext.raw_stack`` property to access earlier segments in the traversal.
-This can be useful, but it adds significant overhead to the linting process.
-For this reason, it is disabled by default.
+``provide_raw_stack``
+^^^^^^^^^^^^^^^^^^^^^
+Some rules use the ``RuleContext.raw_stack`` property to access earlier
+segments in the traversal. This can be useful, but it adds significant overhead
+to the linting process, so it is not populated by default. A rule that needs it
+can request it when defining its crawler by passing ``provide_raw_stack=True``,
+for example ``crawl_behaviour = SegmentSeekerCrawler({"newline"},
+provide_raw_stack=True)``.
 
 ``lint_phase``
 ^^^^^^^^^^^^^^
