@@ -40,45 +40,36 @@ this:
        """A group of elements in a select target statement."""
 
        type = "select_clause"
-       match_grammar = StartsWith(
-           Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
-           terminator=OneOf(
-               "FROM",
-               "WHERE",
-               "ORDER",
-               "LIMIT",
-               "OVERLAPS",
-               Ref("SetOperatorSegment"),
+       match_grammar: Matchable = Sequence(
+           "SELECT",
+           Ref("SelectClauseModifierSegment", optional=True),
+           Indent,
+           Delimited(
+               Ref("SelectClauseElementSegment"),
+               allow_trailing=True,
            ),
-           enforce_whitespace_preceding_terminator=True,
+           Dedent,
+           terminators=[Ref("SelectClauseTerminatorGrammar")],
+           parse_mode=ParseMode.GREEDY_ONCE_STARTED,
        )
 
-       parse_grammar = Ref("SelectClauseSegmentGrammar")
+This says the :code:`SelectClauseSegment` starts with :code:`SELECT`, contains a
+delimited list of select elements, and ends when it encounters a :code:`FROM`,
+:code:`WHERE`, :code:`ORDER BY`...etc. clause (the terminators).
 
-This says the :code:`SelectClauseSegment` starts with :code:`SELECT` or
-:code:`SELECT *` and ends when it encounters a :code:`FROM`, :code:`WHERE`,
-:code:`ORDER`...etc. line.
+The :code:`match_grammar` is what is used to match and parse the statement. The
+:code:`terminators` tell the parser where this segment ends: parsing can be quite
+intensive and complicated as the parser tries various combinations of classes
+and segments to match the SQL, so knowing where a segment stops (here at the
+start of the next clause, such as :code:`FROM` or :code:`WHERE`) helps it match
+efficiently. The :code:`parse_mode` of
+:code:`ParseMode.GREEDY_ONCE_STARTED` tells the parser to greedily claim
+everything up to a terminator once it has matched the start of the segment,
+which lets any unexpected content surface as an :code:`unparsable` section
+rather than silently failing the whole match.
 
-The :code:`match_grammar` is what is used primarily to try to match and parse
-the statement. It can be relatively simple (as in this case), to quickly match
-just the start and terminating clauses. If that is the case, then a
-:code:`parse_grammar` is needed to actually delve into the statement itself
-with all the clauses and parts it is made up of. The :code:`parse_grammar`
-can be fully defined in the class or, like above example, reference another
-class with the definition.
-
-The :code:`match_grammar` is used to quickly identify the start and end of
-this block, as parsing can be quite intensive and complicated as the parser
-tries various combinations of classes and segments to match the SQL
-(particularly optional ones like the :code:`WildcardExpressionSegment` above,
-or when there is a choice of statements that could be used).
-
-For some statements a quick match is not needed, and so we can delve straight
-into the full grammar definition. In that case the :code:`match_grammar` will
-be sufficient and we don't need the optional :code:`parse_grammar`.
-
-Here's another statement, which only uses the :code:`match_grammar` and doesn't
-have (or need!) an optional :code:`parse_grammar`:
+Here's another statement, which uses a plain :code:`match_grammar` with no
+terminators or greedy parse mode, because it is short and unambiguous:
 
 .. code-block:: python
 
@@ -135,7 +126,7 @@ definition:
 
 .. code-block:: python
 
-   parse_grammar = Sequence(
+   match_grammar = Sequence(
        "DELETE",
        Ref("FromClauseSegment"),
        Ref("WhereClauseSegment", optional=True),
@@ -153,7 +144,7 @@ Segments and Grammars
 
 A Segment is a piece of the syntax which defines a :code:`type` (which can
 be useful to reference later in rules or parse trees). This can be through
-one of the functions that creates a Segment (e.g. :code:`NamedParser`,
+one of the functions that creates a Segment (e.g. :code:`TypedParser`,
 :code:`SegmentGenerator`...etc.) or through a class.
 
 A Grammar is a section of syntax that can be used in a Segment. Typically
@@ -441,7 +432,7 @@ This was in the :code:`postgres` dialect, so I had a look at
 
 .. code-block:: python
 
-   parse_grammar = Sequence(
+   match_grammar = Sequence(
        "CREATE",
        Sequence("OR", "REPLACE", optional=True),
        Ref("TemporaryGrammar", optional=True),
@@ -481,7 +472,7 @@ another return option:
 
 .. code-block:: python
 
-   parse_grammar = Sequence(
+   match_grammar = Sequence(
        "CREATE",
        Sequence("OR", "REPLACE", optional=True),
        Ref("TemporaryGrammar", optional=True),
@@ -832,9 +823,7 @@ corresponding SQLFluff grammar in a similar top-down way:
 :code:`postgres.SelectStatementSegment` --> we see it's mostly a copy of
 the ANSI select statement, so --> :code:`ansi.SelectStatementSegment` -->
 remember :code:`Ref` always picks the dialect-specific grammar first -->
-:code:`postgres.SelectClauseSegment` -->
-:code:`ansi.SelectClauseSegment.parse_grammar` -->
-:code:`postgres.SelectClauseSegmentGrammar` -->
+:code:`postgres.SelectClauseSegment.match_grammar` -->
 :code:`ansi.SelectClauseElementSegment` -->
 :code:`ansi.BaseExpressionElementGrammar` -->
 :code:`ansi.ExpressionSegment` --> :code:`ansi.Expression_A_Grammar` -->
