@@ -75,7 +75,10 @@ class Rule_CP03(Rule_CP01):
         if not _HAS_SQLFLUFFRS:
             return None  # pragma: no cover
         if self.name != "capitalisation.functions":
-            return None
+            # Defensive only: no rule currently subclasses CP03, so this is
+            # unreachable today — guards against a future subclass silently
+            # inheriting this override the way pre-fix CP04 inherited CP01's.
+            return None  # pragma: no cover
         if getattr(self, "ignore_words_regex", None):
             return None
         policy = str(getattr(self, "extended_capitalisation_policy"))

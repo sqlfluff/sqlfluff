@@ -23,12 +23,30 @@ fn is_capitalizable(c: char) -> bool {
     c.to_lowercase().to_string() != c.to_uppercase().to_string()
 }
 
-/// Python's `str.capitalize`: first char upper, the rest lower.
+/// The four Unicode digraph letters (Dz, Dž, Lj, Nj) whose titlecase mapping
+/// differs from their simple uppercase mapping — e.g. lowercase "dž" (U+01C6)
+/// uppercases to "DŽ" (U+01C4) but title-cases to "Dž" (U+01C5). Python's
+/// `str.capitalize()` uses the Unicode titlecase mapping for the first
+/// character; Rust's `char::to_uppercase()` only exposes the uppercase one.
+/// This table bridges that gap for exact parity on these (exceedingly rare in
+/// practice) code points.
+fn to_titlecase_char(c: char) -> String {
+    let title = match c {
+        '\u{01C4}' | '\u{01C6}' => '\u{01C5}',
+        '\u{01C7}' | '\u{01C9}' => '\u{01C8}',
+        '\u{01CA}' | '\u{01CC}' => '\u{01CB}',
+        '\u{01F1}' | '\u{01F3}' => '\u{01F2}',
+        _ => return c.to_uppercase().collect::<String>(),
+    };
+    title.to_string()
+}
+
+/// Python's `str.capitalize`: first char title-cased, the rest lower.
 fn to_capitalise(raw: &str) -> String {
     let mut chars = raw.chars();
     match chars.next() {
         None => String::new(),
-        Some(first) => first.to_uppercase().collect::<String>() + &chars.as_str().to_lowercase(),
+        Some(first) => to_titlecase_char(first) + &chars.as_str().to_lowercase(),
     }
 }
 
@@ -208,9 +226,9 @@ fn walk(
     out: &mut Vec<(usize, String)>,
 ) {
     // Containers (and unparsables): recurse into children. Targets are leaves.
-    let children = arena.children(id).to_vec();
+    let children = arena.children(id);
     if !children.is_empty() {
-        for child in children {
+        for &child in children {
             walk(
                 arena,
                 child,

@@ -123,6 +123,27 @@ def test__dispatch__rule_without_rust_path_falls_back():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__dispatch__cp02_inherits_eval_rust_and_falls_back():
+    """CP02 inherits CP01._eval_rust (no Rust path of its own yet).
+
+    Exercises CP01's own `self.name` mismatch branch specifically (as opposed
+    to BaseRule's default `None`, covered by
+    `test__dispatch__rule_without_rust_path_falls_back`), and confirms CP02
+    still produces identical fixes with use_rust_rules on vs off.
+    """
+
+    def fixed(use_rust_rules):
+        cfg = FluffConfig.from_string(
+            "[sqlfluff]\ndialect=ansi\nrules=CP02\nuse_rust_parser=True\n"
+            f"use_rust_rules={use_rust_rules}\n"
+        )
+        sql = "select A, b, C from t"
+        return Linter(config=cfg).lint_string(sql, fix=True).fix_string()[0]
+
+    assert fixed("True") == fixed("False")
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__dispatch__rust_error_is_recoverable():
     """A Rust-side error surfaces as a violation, not a crash that aborts linting."""
     cfg = FluffConfig.from_string(
