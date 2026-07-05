@@ -487,6 +487,34 @@ class BaseRule(metaclass=RuleMetaclass):
             ).format(self.__class__.__name__)
         )  # pragma: no cover
 
+    @staticmethod
+    def _rust_rules_enabled(config: "FluffConfig") -> bool:
+        """Whether Rust-native rule detection is enabled (core.use_rust_rules)."""
+        return config.get_section(["core", "use_rust_rules"]) in (
+            "auto",
+            "Auto",
+            "AUTO",
+            True,
+            "True",
+            "true",
+            1,
+        )
+
+    def _eval_rust(self, context: RuleContext) -> Optional[list[LintResult]]:
+        """Optionally evaluate the whole rule natively in Rust.
+
+        Override in a rule to compute *all* of its ``LintResult``s in one pass
+        over the Rust arena (``context.segment._rs_tree`` — ``context`` is the
+        root context here), instead of the per-segment Python ``_eval`` crawl.
+
+        Return ``None`` (the default) to use the Python path. Only consulted
+        when ``core.use_rust_rules`` is enabled and the parse produced an arena;
+        the returned results are post-processed identically to ``_eval``
+        results, so a rule should also return ``None`` for any configuration it
+        does not implement natively (so it falls back to Python).
+        """
+        return None
+
     def crawl(
         self,
         tree: BaseSegment,
@@ -518,6 +546,69 @@ class BaseRule(metaclass=RuleMetaclass):
         )
         vs: list[SQLLintError] = []
         fixes: list[LintFix] = []
+
+        # Experimental: whole-rule Rust-native dispatch (opt-in via
+        # core.use_rust_rules). When enabled and the parse produced an arena, a
+        # rule may compute all of its results in one pass over root._rs_tree
+        # (see _eval_rust) instead of the per-segment Python crawl. The results
+        # are post-processed identically to _eval results. Rules without a Rust
+        # path — or parses with no arena (Python parser) — fall through to the
+        # Python crawl below.
+        if self._rust_rules_enabled(config) and getattr(tree, "_rs_tree", None):
+            try:
+                rust_results = self._eval_rust(root_context)
+            except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
+                raise
+            except Exception as e:
+                # Mirror the per-segment handler below: a Rust binding/mapping
+                # error must not abort linting the whole file — surface it as a
+                # recoverable SQLLintError and stop this rule.
+                self.logger.critical(
+                    (
+                        f"Applying rule {self.code} (rust) to {fname!r} "
+                        f"threw an Exception: {e}"
+                        if fname
+                        else f"Applying rule {self.code} (rust) threw an Exception: {e}"
+                    ),
+                    exc_info=True,
+                )
+                assert root_context.segment.pos_marker
+                exception_line, _ = root_context.segment.pos_marker.source_position()
+                self._log_critical_errors(e)
+                vs.append(
+                    SQLLintError(
+                        rule=self,
+                        segment=root_context.segment,
+                        fixes=[],
+                        description=(
+                            f"Unexpected exception: {str(e)};\n"
+                            "Could you open an issue at "
+                            "https://github.com/sqlfluff/sqlfluff/issues ?\n"
+                            "You can ignore this exception for now, by adding "
+                            f"'-- noqa: {self.code}' at the end\n"
+                            f"of line {exception_line}\n"
+                        ),
+                    )
+                )
+                return vs, root_context.raw_stack, fixes, root_context.memory
+            if rust_results is not None:
+                # Distinct names from the per-segment loop below so each keeps
+                # its own inferred type (mypy treats reused names as redefs).
+                for rust_res in rust_results:
+                    rust_lerrs: list[SQLLintError] = []
+                    rust_fixes: list[LintFix] = []
+                    self._adjust_anchors_for_fixes(root_context, rust_res)
+                    self._process_lint_result(
+                        rust_res,
+                        templated_file,
+                        ignore_mask,
+                        rust_lerrs,
+                        rust_fixes,
+                        tree,
+                    )
+                    vs += rust_lerrs
+                    fixes += rust_fixes
+                return vs, root_context.raw_stack, fixes, root_context.memory
 
         # Propagates memory from one rule _eval() to the next.
         memory = root_context.memory

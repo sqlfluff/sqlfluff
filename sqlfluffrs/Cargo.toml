@@ -18,6 +18,7 @@ members = [
     "sqlfluffrs_dialects",
     "sqlfluffrs_lexer",
     "sqlfluffrs_parser",
+    "sqlfluffrs_rules",
     "sqlfluffrs_types",
     "sqlfluffrs_python",
     "sqlfluffrs_benchmarks",
@@ -34,6 +35,7 @@ python = [
     "pyo3",
     "sqlfluffrs_lexer/python",
     "sqlfluffrs_parser/python",
+    "sqlfluffrs_rules/python",
     "sqlfluffrs_python",
 ]
 
@@ -65,6 +67,7 @@ sqlfluffrs_types = { path = "sqlfluffrs_types" }
 sqlfluffrs_lexer = { path = "sqlfluffrs_lexer" }
 sqlfluffrs_dialects = { path = "sqlfluffrs_dialects" }
 sqlfluffrs_parser = { path = "sqlfluffrs_parser" }
+sqlfluffrs_rules = { path = "sqlfluffrs_rules" }
 sqlfluffrs_python = { path = "sqlfluffrs_python", optional = true }
 
 [dev-dependencies]
