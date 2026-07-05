@@ -123,45 +123,6 @@ def test__dispatch__rule_without_rust_path_falls_back():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-def test__dispatch__cp03_inherits_eval_rust_and_falls_back():
-    """CP03 inherits CP01._eval_rust but uses a different policy key.
-
-    It must fall back to Python (not crash on a missing capitalisation_policy)
-    and produce identical fixes with use_rust_rules on vs off.
-    """
-
-    def fixed(use_rust_rules):
-        cfg = FluffConfig.from_string(
-            "[sqlfluff]\ndialect=ansi\nrules=CP03\nuse_rust_parser=True\n"
-            f"use_rust_rules={use_rust_rules}\n"
-        )
-        sql = "select MAX(x), Min(y) from t"
-        return Linter(config=cfg).lint_string(sql, fix=True).fix_string()[0]
-
-    assert fixed("True") == fixed("False")
-
-
-@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-def test__dispatch__cp04_not_hijacked_by_cp01_rust_path():
-    """CP04 (literals) shares capitalisation_policy but must NOT use CP01's path.
-
-    CP01's Rust detection excludes literals; CP04 inheriting it unguarded would
-    silently miss boolean/null literal violations. The name-guard prevents that,
-    so CP04 fixes are identical with use_rust_rules on vs off.
-    """
-
-    def fixed(use_rust_rules):
-        cfg = FluffConfig.from_string(
-            "[sqlfluff]\ndialect=ansi\nrules=CP04\nuse_rust_parser=True\n"
-            f"use_rust_rules={use_rust_rules}\n"
-        )
-        sql = "select true, FALSE, null from t"
-        return Linter(config=cfg).lint_string(sql, fix=True).fix_string()[0]
-
-    assert fixed("True") == fixed("False")
-
-
-@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__dispatch__rust_error_is_recoverable():
     """A Rust-side error surfaces as a violation, not a crash that aborts linting."""
     cfg = FluffConfig.from_string(

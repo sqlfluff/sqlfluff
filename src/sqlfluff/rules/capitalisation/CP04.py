@@ -1,7 +1,17 @@
 """Implementation of Rule CP04."""
 
+from typing import Optional
+
+from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
+
+try:
+    import sqlfluffrs
+
+    _HAS_SQLFLUFFRS = True
+except ImportError:  # pragma: no cover
+    _HAS_SQLFLUFFRS = False
 
 
 class Rule_CP04(Rule_CP01):
@@ -54,3 +64,28 @@ class Rule_CP04(Rule_CP01):
     _exclude_types = ()
     _exclude_parent_types = ()
     _description_elem = "Boolean/null literals"
+
+    def _eval_rust(self, context: RuleContext) -> Optional[list[LintResult]]:
+        """Rust-native CP04 detection over the arena.
+
+        Runs the whole detection in Rust (`sqlfluffrs.cp04_violations` over
+        `root._rs_tree`) and maps each `(leaf_index, fixed_raw)` back to its
+        Python segment to emit a standard `LintFix`. Returns ``None`` (Python
+        fallback) when the Rust extension/arena is unavailable, or for a regex
+        word-ignore. See ``BaseRule._eval_rust``/``Rule_CP01._eval_rust``.
+
+        Deliberately its own override, not shared dispatch through CP01's —
+        CP04 shares `capitalisation_policy` with CP01, so a policy-only check
+        in an inherited hook would silently run CP01's keyword detection here
+        instead of falling back to Python.
+        """
+        if not _HAS_SQLFLUFFRS:
+            return None  # pragma: no cover
+        if self.name != "capitalisation.literals":
+            return None
+        if getattr(self, "ignore_words_regex", None):
+            return None
+        policy = str(getattr(self, "capitalisation_policy"))
+        return self._eval_rust_capitalisation(
+            context, sqlfluffrs.cp04_violations, policy
+        )
