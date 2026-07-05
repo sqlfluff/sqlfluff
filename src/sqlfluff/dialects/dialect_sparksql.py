@@ -552,6 +552,7 @@ sparksql_dialect.add(
         Ref("EqualsSegment", optional=True),
         OneOf(
             Ref("LiteralGrammar"),
+            Bracketed(Delimited(Ref("LiteralGrammar"))),
             # when property value is Java Class Name
             Delimited(
                 Ref("PropertiesNakedIdentifierSegment"),
