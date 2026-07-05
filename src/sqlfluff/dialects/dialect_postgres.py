@@ -219,13 +219,14 @@ postgres_dialect.insert_lexer_matchers(
             # so it stays context-free; a `COPY ... FROM STDIN` without a trailing
             # `\.` data block does not match and parses as a normal statement.
             # The header may span multiple lines (e.g. a column list or `WITH`
-            # options on their own lines). `[^;]` rather than `[^\r\n]` allows the
-            # newlines while still stopping at the statement terminator, so the
-            # match cannot absorb a preceding statement to reach a later
-            # `FROM STDIN`.
+            # options on their own lines). The scan toward the terminating `;`
+            # must also skip over quoted string literals so option values like
+            # `DELIMITER ';'` do not prematurely end the match. This still keeps
+            # the match bounded to one statement, so it cannot absorb a preceding
+            # statement to reach a later `FROM STDIN`.
             # Approach originally proposed in #7759 by @RedZapdos123.
             "postgres_copy_stdin_data_block",
-            r"(?i)COPY\b[^;]*?\bFROM\b\s+STDIN\b[^;]*?;[ \t]*\r?\n"
+            r"(?i)COPY\b(?:[^;']|'(?:[^']|'')*')*?\bFROM\b\s+STDIN\b(?:[^;']|'(?:[^']|'')*')*?;[ \t]*\r?\n"
             r"(?:[^\r\n]*\r?\n)*?\\\.[ \t]*(?=\r?\n|$)",
             CodeSegment,
         ),

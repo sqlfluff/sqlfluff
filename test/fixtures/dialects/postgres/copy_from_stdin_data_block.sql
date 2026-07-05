@@ -18,4 +18,9 @@ WITH (FORMAT text);
 2	bar
 \.
 
+COPY my_table FROM STDIN WITH (DELIMITER ';');
+1	foo
+2	bar
+\.
+
 SELECT 1;
