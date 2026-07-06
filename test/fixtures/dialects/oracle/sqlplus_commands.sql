@@ -21,3 +21,17 @@ BEGIN
 NULL;
 END;
 /
+
+DECLARE
+    acc := 1; -- comment
+BEGIN
+    NULL;
+END;
+/
+
+DECLARE
+    rem := 1; -- comment
+BEGIN
+    NULL;
+END;
+/
