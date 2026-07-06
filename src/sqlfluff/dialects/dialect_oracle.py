@@ -120,6 +120,23 @@ oracle_dialect.insert_lexer_matchers(
             r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
             CommentSegment,
         ),
+        RegexLexer(
+            "accept_command",
+            (
+                r"[aA][cC][cC](?:[eE][pP][tT])?"
+                r"[^\S\r\n]+(?:'(?:[^']|'')*'|[^;(\r\n)])*((?=\n)|(?=\r\n)|$)"
+            ),
+            CommentSegment,
+        ),
+        RegexLexer(
+            "remark_command",
+            (
+                r"[rR][eE][mM](?:[aA][rR][kK])?"
+                r"(?:[^\S\r\n]+"
+                r"(?:'(?:[^']|'')*'|[^;(\r\n)])*)?((?=\n)|(?=\r\n)|$)"
+            ),
+            CommentSegment,
+        ),
         StringLexer("at_sign", "@", CodeSegment),
     ],
     before="word",
