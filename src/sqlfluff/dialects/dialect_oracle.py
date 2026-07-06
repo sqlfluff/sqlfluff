@@ -1130,7 +1130,10 @@ class AlterTableConstraintClauses(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             "ADD",
-            Ref("TableConstraintSegment"),
+            OneOf(
+                Ref("TableConstraintSegment"),
+                Bracketed(Delimited(Ref("TableConstraintSegment"))),
+            ),
         ),
         # @TODO MODIFY
         # @TODO DROP
