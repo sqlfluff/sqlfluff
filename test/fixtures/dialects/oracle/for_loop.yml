@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 513e2e564a872a290e6fafab4870235943739306ab7f6ce4477a04f989a3c6ae
+_hash: fdc358d6501f37180a02a066de0c437a2a01d1699f2e5e24cc39e8a71941cc17
 file:
 - batch:
     statement:
@@ -788,6 +788,95 @@ file:
           close_statement:
             keyword: CLOSE
             naked_identifier: c1
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          for_loop_statement:
+          - keyword: FOR
+          - naked_identifier: i
+          - keyword: IN
+          - numeric_literal: '1'
+          - dot: .
+          - dot: .
+          - function:
+              function_name:
+                function_name_identifier: LENGTH
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: v_str
+                  end_bracket: )
+          - loop_statement:
+            - keyword: LOOP
+            - statement:
+                function:
+                  function_name:
+                    naked_identifier: DBMS_OUTPUT
+                    dot: .
+                    function_name_identifier: PUT_LINE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: i
+                      end_bracket: )
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          for_loop_statement:
+          - keyword: FOR
+          - naked_identifier: i
+          - keyword: IN
+          - numeric_literal: '1'
+          - dot: .
+          - dot: .
+          - function:
+              function_name:
+                naked_identifier: v_arr
+                dot: .
+                function_name_identifier: COUNT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+          - loop_statement:
+            - keyword: LOOP
+            - statement:
+                function:
+                  function_name:
+                    naked_identifier: DBMS_OUTPUT
+                    dot: .
+                    function_name_identifier: PUT_LINE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: i
+                      end_bracket: )
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
       - statement_terminator: ;
       - keyword: END
     statement_terminator: ;

@@ -326,6 +326,7 @@ oracle_dialect.add(
     ),
     IterationBoundsGrammar=OneOf(
         Ref("NumericLiteralSegment"),
+        Ref("FunctionSegment"),
         Ref("SingleIdentifierGrammar"),
         Sequence(
             Ref("SingleIdentifierGrammar"),
