@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 54758f3b204edfeac40fce297c49a270f19760ba21ed011e205949a86c2f97dd
+_hash: 4f84cd6039f2116d460e2717812de0b713d2586d280316d943b0cb6622005f3a
 file:
-  batch:
-    statement:
+- batch:
+  - statement:
       select_statement:
         select_clause:
           keyword: SELECT
@@ -20,4 +20,39 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      begin_end_block:
+      - declare_segment:
+          keyword: DECLARE
+          naked_identifier: acc
+          data_type:
+            data_type_identifier: NUMBER
+          statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          null_statement:
+            keyword: 'NULL'
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+          keyword: DECLARE
+          naked_identifier: rem
+          data_type:
+            data_type_identifier: NUMBER
+          statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          null_statement:
+            keyword: 'NULL'
+      - statement_terminator: ;
+      - keyword: END
     statement_terminator: ;
+    slash_buffer_executor:
+      slash: /

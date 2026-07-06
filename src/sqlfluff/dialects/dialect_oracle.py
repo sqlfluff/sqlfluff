@@ -124,7 +124,7 @@ oracle_dialect.insert_lexer_matchers(
             "accept_command",
             (
                 r"[aA][cC][cC](?:[eE][pP][tT])?"
-                r"(?:[^\S\r\n]+[^(\r\n)]*)?((?=\n)|(?=\r\n)|$)"
+                r"[^\S\r\n]+[^;(\r\n)]*((?=\n)|(?=\r\n)|$)"
             ),
             CommentSegment,
         ),
@@ -132,7 +132,7 @@ oracle_dialect.insert_lexer_matchers(
             "remark_command",
             (
                 r"[rR][eE][mM](?:[aA][rR][kK])?"
-                r"(?:[^\S\r\n]+[^(\r\n)]*)?((?=\n)|(?=\r\n)|$)"
+                r"[^\S\r\n]+[^;(\r\n)]*((?=\n)|(?=\r\n)|$)"
             ),
             CommentSegment,
         ),
