@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce3e4abdfcd8ccc03397051fa6596f2e2dff78cae1f791033a6bef6344e8adc1
+_hash: ae74aacdcb8de519aea9eaaca14d2ae1a8b604cc1062fddf3a806b94e4faa080
 file:
 - statement:
     compute_stats_statement:
@@ -81,4 +81,174 @@ file:
           raw_comparison_operator: '='
         numeric_literal: '2024'
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    compute_stats_statement:
+    - keyword: COMPUTE
+    - keyword: INCREMENTAL
+    - keyword: STATS
+    - table_reference:
+        naked_identifier: int_partitions
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: x
+          comparison_operator:
+            raw_comparison_operator: <
+          numeric_literal: '100'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    compute_stats_statement:
+    - keyword: COMPUTE
+    - keyword: INCREMENTAL
+    - keyword: STATS
+    - table_reference:
+        naked_identifier: int_partitions
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: x
+          keyword: IN
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '100'
+          - comma: ','
+          - numeric_literal: '150'
+          - comma: ','
+          - numeric_literal: '200'
+          - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    compute_stats_statement:
+    - keyword: COMPUTE
+    - keyword: INCREMENTAL
+    - keyword: STATS
+    - table_reference:
+        naked_identifier: int_partitions
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+            naked_identifier: x
+        - keyword: BETWEEN
+        - numeric_literal: '100'
+        - keyword: AND
+        - numeric_literal: '175'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    compute_stats_statement:
+    - keyword: COMPUTE
+    - keyword: INCREMENTAL
+    - keyword: STATS
+    - table_reference:
+        naked_identifier: int_partitions
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+            naked_identifier: x
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '100'
+          - comma: ','
+          - numeric_literal: '150'
+          - comma: ','
+          - numeric_literal: '200'
+          - end_bracket: )
+        - binary_operator: OR
+        - column_reference:
+            naked_identifier: x
+        - comparison_operator:
+            raw_comparison_operator: <
+        - numeric_literal: '100'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    compute_stats_statement:
+    - keyword: COMPUTE
+    - keyword: INCREMENTAL
+    - keyword: STATS
+    - table_reference:
+        naked_identifier: int_partitions
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: x
+          comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: '='
+          numeric_literal: '150'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    compute_stats_statement:
+    - keyword: COMPUTE
+    - keyword: INCREMENTAL
+    - keyword: STATS
+    - table_reference:
+        naked_identifier: item_partitioned
+- statement_terminator: ;
+- statement:
+    compute_stats_statement:
+    - keyword: COMPUTE
+    - keyword: INCREMENTAL
+    - keyword: STATS
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: foo
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: year
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '2024'
+      - comma: ','
+      - column_reference:
+          naked_identifier: month
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '6'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    compute_stats_statement:
+    - keyword: COMPUTE
+    - keyword: INCREMENTAL
+    - keyword: STATS
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: foo
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2026-01-01'"
+        end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - comma: ','
+      - column_reference:
+          naked_identifier: v
+      - end_bracket: )
 - statement_terminator: ;

@@ -217,6 +217,21 @@ impala_dialect.add(
         Ref("ImpalaShowLikeGrammar", optional=True),
         optional=True,
     ),
+    ImpalaIncrementalStatsPartitionSpecGrammar=Sequence(
+        "PARTITION",
+        Bracketed(
+            OneOf(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("LiteralGrammar"),
+                    ),
+                ),
+                Ref("ExpressionSegment"),
+            ),
+        ),
+    ),
 )
 
 
@@ -354,7 +369,7 @@ class ComputeStatsStatementSegment(BaseSegment):
                 "INCREMENTAL",
                 "STATS",
                 Ref("TableReferenceSegment"),
-                Ref("PartitionSpecGrammar", optional=True),
+                Ref("ImpalaIncrementalStatsPartitionSpecGrammar", optional=True),
                 Bracketed(
                     Delimited(Ref("ColumnReferenceSegment")),
                     optional=True,
