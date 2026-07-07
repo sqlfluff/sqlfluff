@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
@@ -63,6 +64,11 @@ clickhouse_dialect.insert_lexer_matchers(
     before="newline",
 )
 
+clickhouse_dialect.insert_lexer_matchers(
+    [StringLexer("double_equals", "==", CodeSegment)],
+    before="equals",
+)
+
 clickhouse_dialect.patch_lexer_matchers(
     [
         RegexLexer(
@@ -94,6 +100,9 @@ clickhouse_dialect.add(
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question"),
+    RawDoubleEqualsSegment=StringParser(
+        "==", SymbolSegment, type="raw_comparison_operator"
+    ),
 )
 
 clickhouse_dialect.replace(
@@ -108,6 +117,17 @@ clickhouse_dialect.replace(
         Ref("ComparisonOperatorGrammar"),
         # Add Lambda Function
         Ref("LambdaFunctionSegment"),
+    ),
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("DoubleEqualsSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment"),
+        Ref("LikeOperatorSegment"),
+        Ref("IsDistinctFromGrammar"),
     ),
     # https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
     JoinTypeKeywordsGrammar=Sequence(
@@ -372,6 +392,12 @@ clickhouse_dialect.sets("datetime_units").update(
         "YY",
     ]
 )
+
+
+class DoubleEqualsSegment(CompositeComparisonOperatorSegment):
+    """Double equals operator."""
+
+    match_grammar: Matchable = Ref("RawDoubleEqualsSegment")
 
 
 class AccessPermissionSegment(ansi.AccessPermissionSegment):
@@ -811,6 +837,54 @@ class EnumArgumentsSegment(BaseSegment):
     )
 
 
+class JSONPathSegment(BaseSegment):
+    """A (possibly dotted) path inside a JSON type definition."""
+
+    type = "json_path"
+    match_grammar = Delimited(
+        Ref("SingleIdentifierGrammar"),
+        delimiter=Ref("DotSegment"),
+        allow_gaps=False,
+    )
+
+
+class JSONArgumentsSegment(BaseSegment):
+    """Arguments for the JSON type (params, typed paths, SKIP).
+
+    https://clickhouse.com/docs/sql-reference/data-types/newjson
+    """
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Delimited(
+            OneOf(
+                # max_dynamic_paths=N / max_dynamic_types=N
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                # SKIP path / SKIP REGEXP 'regexp'
+                Sequence(
+                    "SKIP",
+                    OneOf(
+                        Sequence(
+                            "REGEXP",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Ref("JSONPathSegment"),
+                    ),
+                ),
+                # Typed-path hint: some.path Type
+                Sequence(
+                    Ref("JSONPathSegment"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        )
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """Support complex Clickhouse data types.
 
@@ -865,8 +939,11 @@ class DatatypeSegment(BaseSegment):
             StringParser("NESTED", CodeSegment, type="data_type_identifier"),
             Ref("NestedArgumentsSegment"),
         ),
-        # JSON data type
-        StringParser("JSON", CodeSegment, type="data_type_identifier"),
+        # JSON(param=N, path Type, SKIP ...)
+        Sequence(
+            StringParser("JSON", CodeSegment, type="data_type_identifier"),
+            Ref("JSONArgumentsSegment", optional=True),
+        ),
         # Enum8('val1' = 1, 'val2' = 2)
         Sequence(
             OneOf(

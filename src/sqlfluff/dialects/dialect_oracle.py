@@ -120,6 +120,23 @@ oracle_dialect.insert_lexer_matchers(
             r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
             CommentSegment,
         ),
+        RegexLexer(
+            "accept_command",
+            (
+                r"[aA][cC][cC](?:[eE][pP][tT])?"
+                r"[^\S\r\n]+(?:'(?:[^']|'')*'|[^;(\r\n)])*((?=\n)|(?=\r\n)|$)"
+            ),
+            CommentSegment,
+        ),
+        RegexLexer(
+            "remark_command",
+            (
+                r"[rR][eE][mM](?:[aA][rR][kK])?"
+                r"(?:[^\S\r\n]+"
+                r"(?:'(?:[^']|'')*'|[^;(\r\n)])*)?((?=\n)|(?=\r\n)|$)"
+            ),
+            CommentSegment,
+        ),
         StringLexer("at_sign", "@", CodeSegment),
     ],
     before="word",
@@ -309,6 +326,7 @@ oracle_dialect.add(
     ),
     IterationBoundsGrammar=OneOf(
         Ref("NumericLiteralSegment"),
+        Ref("FunctionSegment"),
         Ref("SingleIdentifierGrammar"),
         Sequence(
             Ref("SingleIdentifierGrammar"),
@@ -1112,7 +1130,10 @@ class AlterTableConstraintClauses(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             "ADD",
-            Ref("TableConstraintSegment"),
+            OneOf(
+                Ref("TableConstraintSegment"),
+                Bracketed(Delimited(Ref("TableConstraintSegment"))),
+            ),
         ),
         # @TODO MODIFY
         # @TODO DROP

@@ -533,13 +533,17 @@ class JsonTableFunctionNameSegment(BaseSegment):
 
 
 class FunctionSegment(ansi.FunctionSegment):
-    """A scalar or aggregate function, with JSON_TABLE support."""
+    """A scalar or aggregate function, with JSON_TABLE and JSON_VALUE support."""
 
     match_grammar = ansi.FunctionSegment.match_grammar.copy(
         insert=[
             Sequence(
                 Ref("JsonTableFunctionNameSegment"),
                 Ref("JsonTableFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("JsonValueFunctionNameSegment"),
+                Ref("JsonValueFunctionContentsSegment"),
             ),
         ],
         at=0,
@@ -2939,6 +2943,49 @@ class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
                 OneOf("DEFAULT", "NONE", "SHARED", "EXCLUSIVE"),
             ),
             optional=True,
+        ),
+    )
+
+
+class JsonValueFunctionNameSegment(BaseSegment):
+    """JSON_VALUE function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "JSON_VALUE", KeywordSegment, type="function_name_identifier"
+    )
+
+
+class JsonValueFunctionContentsSegment(BaseSegment):
+    """JSON_VALUE function contents.
+
+    JSON_VALUE(json_doc, path [RETURNING type] [on_empty] [on_error])
+
+    https://dev.mysql.com/doc/refman/8.4/en/json-search-functions.html#function_json-value
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),
+        Sequence(
+            "RETURNING",
+            Ref("DatatypeSegment"),
+            Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment"), optional=True),
+            optional=True,
+        ),
+        # [on_empty] [on_error]: {NULL | ERROR | DEFAULT value} ON {EMPTY | ERROR}
+        AnyNumberOf(
+            Sequence(
+                OneOf("NULL", "ERROR", Sequence("DEFAULT", Ref("ExpressionSegment"))),
+                "ON",
+                OneOf("EMPTY", "ERROR"),
+            ),
+            max_times=2,
         ),
     )
 
