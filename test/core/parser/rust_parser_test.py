@@ -740,6 +740,118 @@ def test__rust_parser__vs_python_unclosed_greedy_bracket_raises():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: for a GREEDY-mode Bracketed's Delimited content, "
+        "trailing trivia (whitespace/comments) between a dangling trailing "
+        "comma and the closing bracket is merged into the unparsable "
+        "segment on the Rust side (sqlfluffrs_parser/src/parser/"
+        "table_driven/bracketed.rs:456-476, which builds the unparsable "
+        "span straight through to the closing bracket with no skip-back "
+        "for trailing trivia), whereas Python's Bracketed.match "
+        "(src/sqlfluff/core/parser/grammar/sequence.py:503-533) keeps that "
+        "trivia as a separate, untyped sibling gap outside the unparsable "
+        "class. Reproduces at any GREEDY Bracketed+Delimited site (IN-list, "
+        "USING-list, ...), not just the one used here."
+    ),
+)
+def test__rust_parser__vs_python_trailing_trivia_in_unparsable():
+    """RustParser merges trailing trivia into an unparsable span; Python doesn't.
+
+    A dangling trailing comma inside a GREEDY-mode Delimited bracket (e.g.
+    an IN-list) is wrapped as unparsable by both engines, but they disagree
+    on whether the whitespace between the comma and the closing bracket is
+    part of that unparsable span or a sibling of it.
+    """
+    rust_result, python_result = _compare_parser_vs_rust(
+        "SELECT a FROM t WHERE a IN (1, )"
+    )
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: on a mismatched bracket type (e.g. '[' closed by ')'), "
+        "Python's bracket-matching immediately detects the mismatch and "
+        "raises a specific 'Found unexpected end bracket!, was expecting "
+        "..., but got ...' SQLParseError. RustParser's engine doesn't "
+        "replicate this specific check and instead falls through to the "
+        "generic 'Couldn't find closing bracket for opening bracket.' "
+        "error, as if the bracket were simply never closed. Same error "
+        "message content differs even though both raise SQLParseError, so "
+        "callers matching on the message (or anything depending on exact "
+        "error text) will see different behaviour."
+    ),
+)
+def test__rust_parser__vs_python_mismatched_bracket_type_error_message():
+    """RustParser's error message differs from Python's for a wrong-bracket-type close."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer, Parser
+
+    sql = "SELECT a[)"
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    segments, _ = Lexer(config=config).lex(sql)
+
+    def build(use_rust: bool):
+        parser = RustParser(config=config) if use_rust else Parser(config=config)
+        try:
+            parser.parse(segments, fname="t.sql")
+            return None
+        except BaseException as err:
+            return (type(err).__name__, str(err))
+
+    assert build(True) == build(False)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: a nested nested-bracket-type mismatch (e.g. an "
+        "unclosed '(' inside '[...]' that gets 'closed' by the outer ']') "
+        "makes Python raise the same 'Found unexpected end bracket!' "
+        "SQLParseError as the flat mismatched-bracket-type case. RustParser "
+        "instead silently recovers a tree, demoting the malformed nested "
+        "bracket content to an unparsable expression rather than raising. "
+        "This is bug class 3 (Python raises, Rust recovers) triggered by a "
+        "nested mismatch rather than an unclosed-to-EOF bracket."
+    ),
+)
+def test__rust_parser__vs_python_nested_bracket_mismatch_raises():
+    """Python raises on nested bracket-type mismatch; RustParser recovers a tree."""
+    rust_result, python_result = _compare_parser_vs_rust("SELECT a[(1]")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: a second instance of the 'stray closing bracket' bug "
+        "(sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs:"
+        "142-266 has no equivalent of Python's abort-to-EOF-on-unexpected-"
+        "closing-bracket rule in match_algorithms.py:469-529), this time at "
+        "UnorderedSelectStatementSegment's own terminator scan "
+        "(dialect_ansi.py:2755-2781) rather than SelectClauseSegment's. "
+        "This one is high-impact: with a stray ')' before a UNION, Python "
+        "discards the ENTIRE second arm of the set operation as unparsable "
+        "(') UNION SELECT c' all swallowed), while RustParser correctly "
+        "recovers a proper set_expression with both select_statement arms "
+        "intact and only the stray ')' marked unparsable."
+    ),
+)
+def test__rust_parser__vs_python_stray_bracket_swallows_union_arm():
+    """A stray ')' before UNION: Python discards the whole second arm, Rust doesn't."""
+    rust_result, python_result = _compare_parser_vs_rust(
+        "SELECT a FROM t) UNION SELECT c"
+    )
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__native_ast_profile_has_no_convert_stage():
     """With the native builder, profiling records no separate convert stage.
 
