@@ -218,8 +218,7 @@ impl PositionMarker {
                 // Pointer-eq fast path with value-eq fallback: see the
                 // comment in `from_points` above.
                 Some(tf)
-                    if !Arc::ptr_eq(tf, &marker.templated_file)
-                        && *tf != marker.templated_file =>
+                    if !Arc::ptr_eq(tf, &marker.templated_file) && *tf != marker.templated_file =>
                 {
                     panic!("Markers must refer to the same templated file.");
                 }
