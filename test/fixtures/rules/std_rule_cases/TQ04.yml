@@ -5,7 +5,7 @@ test_pass_default_disabled:
     SELECT
         help3 = 'hello',
         help4 = CASE WHEN help = 'apple' THEN 'hello' END
-  configs: &tsql_dialect
+  configs:
     core:
       dialect: tsql
 
