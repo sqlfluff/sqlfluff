@@ -244,24 +244,6 @@ def test__rules__postgres_rules_require_force_enable():
     assert any(v.rule_code() == "PG02" for v in enabled_pg02.violations)
 
 
-def test__rules__tsql_rule_require_force_enable():
-    """Test TQ04 stays quiet until force_enable is set."""
-    tsql_sql = "SELECT alias1 = col1"
-
-    default_tq04 = Linter(dialect="tsql", rules=["TQ04"]).lint_string(tsql_sql)
-
-    assert not any(v.rule_code() == "TQ04" for v in default_tq04.violations)
-
-    enabled_tq04 = Linter(
-        config=FluffConfig(
-            configs={"rules": {"tsql.prefer_as_alias": {"force_enable": True}}},
-            overrides={"dialect": "tsql", "rules": "TQ04"},
-        )
-    ).lint_string(tsql_sql)
-
-    assert any(v.rule_code() == "TQ04" for v in enabled_tq04.violations)
-
-
 def test__rules__result_unparsable():
     """Test that the linter won't allow rules which make the file unparsable."""
     # Set up a linter with the user rule

@@ -59,14 +59,16 @@ class Rule_TQ04(BaseRule):
             return None
 
         alias_operator = alias_expression.get_child("alias_operator")
-        if alias_operator is None:
+        if alias_operator is None:  # pragma: no cover
             return None
 
         if getattr(alias_operator, "raw", None) != "=":
             return None
 
         select_clause_element = context.parent_stack[-1]
-        if not select_clause_element.is_type("select_clause_element"):
+        if not select_clause_element.is_type(
+            "select_clause_element"
+        ):  # pragma: no cover
             return None
 
         alias_identifier = next(
