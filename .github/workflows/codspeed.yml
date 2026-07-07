@@ -2,17 +2,22 @@
 ## CodSpeed Benchmarks      ##
 ##############################
 #
-# On-demand benchmark of the Rust-backed parser against the TPC-H and
-# TPC-DS query suites (test/test_codspeed_tpc_parse.py), instrumented and
-# uploaded via CodSpeed. Triggered manually from the Actions tab.
+# Benchmark of the Rust-backed parser against the TPC-H and TPC-DS query
+# suites (test/test_codspeed_tpc_parse.py), instrumented and uploaded via
+# CodSpeed. Runs on every push and pull request, and can also be triggered
+# manually from the Actions tab.
 #
 name: CodSpeed Benchmarks
 
 on:
+  push:
+  pull_request:
   workflow_dispatch:
 
 jobs:
   benchmarks:
+    # Skip fork pull requests: they don't have access to secrets.CODSPEED_TOKEN.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
 
