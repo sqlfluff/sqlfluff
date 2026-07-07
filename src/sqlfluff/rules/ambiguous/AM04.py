@@ -76,10 +76,17 @@ class Rule_AM04(BaseRule):
         """Analyze CTEs recursively when explicit source projection is required."""
         for child in query.children:
             if child.cte_definition_segment:
-                self._analyze_result_columns(child)
+                self._analyze_result_columns(child, pop=False)
             self._analyze_source_ctes(child)
 
-    def _handle_alias(self, selectable, alias_info, query) -> None:
+    def _handle_alias(
+        self,
+        selectable,
+        alias_info,
+        query,
+        pop: bool = True,
+        visited: Optional[set[int]] = None,
+    ) -> None:
         select_info_target = next(
             query.crawl_sources(alias_info.from_expression_element, True)
         )
@@ -93,15 +100,24 @@ class Rule_AM04(BaseRule):
             raise RuleFailure(selectable.selectable)
         else:
             # Handle nested SELECT.
-            self._analyze_result_columns(select_info_target)
+            self._analyze_result_columns(select_info_target, pop=pop, visited=visited)
 
-    def _analyze_result_columns(self, query: Query) -> None:
+    def _analyze_result_columns(
+        self,
+        query: Query,
+        pop: bool = True,
+        visited: Optional[set[int]] = None,
+    ) -> None:
         """Given info on a list of SELECTs, determine whether to warn."""
         # Recursively walk from the given query (select_info_list) to any
-        # wildcard columns in the select targets. If every wildcard evdentually
+        # wildcard columns in the select targets. If every wildcard eventually
         # resolves to a query without wildcards, all is well. Otherwise, warn.
         if not query.selectables:
             return None  # pragma: no cover
+        visited = visited or set()
+        if id(query) in visited:
+            raise RuleFailure(query.selectables[0].selectable)
+        visited.add(id(query))
         for selectable in query.selectables:
             self.logger.debug(f"Analyzing query: {selectable.selectable.raw}")
             for wildcard in selectable.get_wildcard_info():
@@ -116,13 +132,21 @@ class Rule_AM04(BaseRule):
                         if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
-                            self._handle_alias(selectable, alias_info, query)
+                            self._handle_alias(
+                                selectable,
+                                alias_info,
+                                query,
+                                pop=pop,
+                                visited=visited,
+                            )
                         else:
                             # Not an alias. Is it a CTE?
-                            cte = query.lookup_cte(wildcard_table)
+                            cte = query.lookup_cte(wildcard_table, pop=pop)
                             if cte:
                                 # Wildcard refers to a CTE. Analyze it.
-                                self._analyze_result_columns(cte)
+                                self._analyze_result_columns(
+                                    cte, pop=pop, visited=visited
+                                )
                             else:
                                 # Not CTE, not table alias. Presumably an
                                 # external table. Warn.
@@ -136,7 +160,7 @@ class Rule_AM04(BaseRule):
                     # querying from a nested select in FROM.
                     for o in query.crawl_sources(selectable.selectable, True):
                         if isinstance(o, Query):
-                            self._analyze_result_columns(o)
+                            self._analyze_result_columns(o, pop=pop, visited=visited)
                             return None
                     self.logger.debug(
                         f'Query target "{selectable.selectable.raw}" has no '
@@ -149,12 +173,10 @@ class Rule_AM04(BaseRule):
         query: Query = Query.from_segment(context.segment, context.dialect)
 
         try:
+            if self.require_explicit_source_projection:
+                self._analyze_source_ctes(query)
             # Begin analysis at the outer query.
             self._analyze_result_columns(query)
-            if self.require_explicit_source_projection:
-                self._analyze_source_ctes(
-                    Query.from_segment(context.segment, context.dialect)
-                )
             return None
         except RuleFailure as e:
             return LintResult(anchor=e.anchor)

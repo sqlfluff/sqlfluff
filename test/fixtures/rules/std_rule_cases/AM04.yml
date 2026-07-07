@@ -329,6 +329,16 @@ test_fail_unknown_number_of_result_columns_17:
 
       select * from hubspot__engagement_calls
 
+test_fail_unknown_number_of_result_columns_source_projection_circular_cte:
+  desc: Source-CTE analysis should also fail self-referential wildcard CTEs when the outer query is explicit.
+  fail_str: |
+    with
+      hubspot__engagement_calls as (
+        select * from hubspot__engagement_calls
+      )
+
+      select 1 from hubspot__engagement_calls
+
 test_fail_unknown_number_of_result_columns_18:
   # Another test for issue #930
   fail_str: |
