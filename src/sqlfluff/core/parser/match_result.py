@@ -208,7 +208,14 @@ class MatchResult:
         and any inserts. If there are overlaps, then we have a problem, and we
         should abort.
         """
-        result_segments: tuple["BaseSegment", ...] = ()
+        # NOTE: Accumulate into a list and build the tuple once at the end.
+        # `tuple += ...` looks equivalent but isn't: tuples are immutable, so
+        # each `+=` allocates a new tuple and copies everything accumulated
+        # so far, making a loop of N appends O(N^2). A list amortises
+        # appends/extends to O(N), which matters here since this runs at
+        # every level of a potentially large tree (e.g. long column/UNION/IN
+        # lists produce nodes with many trigger locations).
+        result_segments_list: list["BaseSegment"] = []
         if not slice_length(self.matched_slice):
             assert not self.matched_class, (
                 "Tried to apply zero length MatchResult with "
@@ -230,8 +237,8 @@ class MatchResult:
                     _pos = _get_point_pos_at_idx(segments, idx)
                     if parse_context:
                         parse_context.increment_parse_nodes()
-                    result_segments += (seg(pos_marker=_pos),)
-            return result_segments
+                    result_segments_list.append(seg(pos_marker=_pos))
+            return tuple(result_segments_list)
 
         assert len(segments) >= self.matched_slice.stop, (
             f"Matched slice ({self.matched_slice}) sits outside segment "
@@ -255,7 +262,7 @@ class MatchResult:
             # Have we passed any untouched segments?
             if idx > max_idx:
                 # If so, add them in unchanged.
-                result_segments += segments[max_idx:idx]
+                result_segments_list.extend(segments[max_idx:idx])
                 max_idx = idx
             elif idx < max_idx:  # pragma: no cover
                 raise ValueError(
@@ -267,8 +274,8 @@ class MatchResult:
             for trigger in trigger_locs[idx]:
                 # If it's a match, apply it.
                 if isinstance(trigger, MatchResult):
-                    result_segments += trigger.apply(
-                        segments=segments, parse_context=parse_context
+                    result_segments_list.extend(
+                        trigger.apply(segments=segments, parse_context=parse_context)
                     )
                     # Update the end slice.
                     max_idx = trigger.matched_slice.stop
@@ -277,12 +284,14 @@ class MatchResult:
                 # Otherwise it's a segment.
                 # Get the location from the next segment unless there isn't one.
                 _pos = _get_point_pos_at_idx(segments, idx)
-                result_segments += (trigger(pos_marker=_pos),)
+                result_segments_list.append(trigger(pos_marker=_pos))
 
         # If we finish working through the triggers and there's
         # still something left, then add that too.
         if max_idx < self.matched_slice.stop:
-            result_segments += segments[max_idx : self.matched_slice.stop]
+            result_segments_list.extend(segments[max_idx : self.matched_slice.stop])
+
+        result_segments = tuple(result_segments_list)
 
         if not self.matched_class:
             return result_segments
