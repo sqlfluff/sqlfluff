@@ -1214,7 +1214,6 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
-            Ref("SqlplusSetStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
@@ -1428,7 +1427,10 @@ class BatchSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Delimited(
-                Ref("StatementSegment"),
+                OneOf(
+                    Ref("SqlplusSetStatementSegment"),
+                    Ref("StatementSegment"),
+                ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
                 allow_gaps=True,
                 allow_trailing=True,
