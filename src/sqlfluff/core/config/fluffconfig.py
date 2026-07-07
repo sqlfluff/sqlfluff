@@ -260,16 +260,19 @@ class FluffConfig:
             :obj:`FluffConfig`: A shallow copy of this config object but with
             a deep copy of the internal ``_configs`` dict.
         """
-        configs_attribute_copy = deepcopy(self._configs)
+        core = self._configs["core"]
+        # `dialect_obj` and `templater_obj` are large, effectively immutable
+        # (never reassigned in place after construction) and safe to share
+        # across copies. `dialect_obj` in particular is a fully expanded
+        # grammar object graph, so deep-copying it on every `.copy()` call
+        # (i.e. on every parse) would dominate parse time. Seed deepcopy's
+        # memo so it reuses these references instead of duplicating them.
+        shared = (core.get("dialect_obj"), core.get("templater_obj"))
+        memo = {id(obj): obj for obj in shared if obj is not None}
+        configs_attribute_copy = deepcopy(self._configs, memo)
+
         config_copy = copy(self)
         config_copy._configs = configs_attribute_copy
-        # During the initial `.copy()`, we use the same `__reduce__()` method
-        # which is used during pickling. The `templater_obj` doesn't pickle
-        # well so is normally removed, but it's ok for us to just pass across
-        # the original object here as we're in the same process.
-        configs_attribute_copy["core"]["templater_obj"] = self._configs["core"][
-            "templater_obj"
-        ]
         return config_copy
 
     @classmethod
