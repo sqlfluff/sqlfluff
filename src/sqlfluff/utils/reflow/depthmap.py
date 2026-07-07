@@ -141,9 +141,8 @@ class DepthMap:
         # BaseSegment has no `reflow_depth_data`, so it falls back unchanged.
         fast = getattr(parent, "reflow_depth_data", None)
         if fast is not None:  # pragma: no cover
-            # No coverage: reachable only over the façade with an LT rule in
-            # FACADE_SAFE_RULES / the forced-engine env (stack-05) — drop the
-            # pragma when that lands.
+            # No coverage: reachable only once reflow runs over the façade,
+            # i.e. when the LT fix rules join FACADE_SAFE_RULES (stack-04).
             per_leaf, anc_cts = fast()
             ct_map = {u: frozenset(ct) for u, ct in anc_cts}
             # Constructed with no raws (rather than ``cls.__new__``, which

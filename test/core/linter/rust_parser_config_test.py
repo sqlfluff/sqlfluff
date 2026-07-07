@@ -1,6 +1,7 @@
 """Tests for use_rust_parser configuration."""
 
 import logging
+import os
 
 import pytest
 
@@ -103,6 +104,10 @@ use_rust_parser = False
     assert result is not None
 
 
+@pytest.mark.skipif(
+    bool(os.environ.get("SQLFLUFF_TESTENV_RUST_ENGINE")),
+    reason="rust-engine testenv forces the default to True (see test/conftest.py)",
+)
 def test__linter__use_rust_parser_default_is_auto():
     """Test that default config uses 'auto' mode."""
     config = FluffConfig.from_string("""

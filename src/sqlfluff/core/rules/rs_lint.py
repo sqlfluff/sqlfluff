@@ -449,9 +449,9 @@ class RsSegment:
                 buff.append(seg)
         return buff
 
-    # No coverage: reflow (DepthMap) entry points, unreachable until an LT rule
-    # joins FACADE_SAFE_RULES / the forced-engine env (stack-05) exercises reflow
-    # over the façade — drop the pragmas when that lands.
+    # No coverage: reflow (DepthMap) entry points. Not exercised even under
+    # the forced-engine env at this point in the stack — reflow only runs over
+    # the façade once the LT fix rules join FACADE_SAFE_RULES (stack-04).
     @property
     def raw_segments_with_ancestors(  # pragma: no cover
         self,
