@@ -333,6 +333,22 @@ clickhouse_dialect.replace(
     ),
 )
 
+clickhouse_dialect.add(
+    NonFinalNonSetSelectableGrammar=OneOf(
+        Sequence(
+            Ref("UnorderedSelectStatementSegment"),
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("SettingsClauseSegment", optional=True),
+        ),
+        Ref("ValuesClauseSegment"),
+        Bracketed(Ref("SelectStatementSegment")),
+        Bracketed(Ref("WithCompoundStatementSegment")),
+        Bracketed(Ref("NonSetSelectableGrammar")),
+        Ref("BracketedSetExpressionGrammar"),
+    ),
+)
+
 # Set the datetime units
 clickhouse_dialect.sets("datetime_units").clear()
 clickhouse_dialect.sets("datetime_units").update(
@@ -701,11 +717,29 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
+class UnorderedSetExpressionSegment(ansi.UnorderedSetExpressionSegment):
+    """A ClickHouse set expression with support for member-level clauses."""
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Sequence(
+                Ref("NonFinalNonSetSelectableGrammar"),
+                Ref("SetOperatorSegment"),
+            ),
+            min_times=1,
+        ),
+        Ref("NonSetSelectableGrammar"),
+    )
+
+
 class SetExpressionSegment(ansi.SetExpressionSegment):
     """Enhance set expression to include ClickHouse-specific clauses."""
 
-    match_grammar = ansi.SetExpressionSegment.match_grammar.copy(
+    match_grammar = UnorderedSetExpressionSegment.match_grammar.copy(
         insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
             Ref("FormatClauseSegment", optional=True),
             Ref("SettingsClauseSegment", optional=True),
             Ref("IntoOutfileClauseSegment", optional=True),
