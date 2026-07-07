@@ -1,4 +1,5 @@
 PROMPT this is an Oracle SQL newline delimited prompt statement
+SET SCAN OFF
 ACCEPT var
 ACC short_var
 ACCEPT myvar PROMPT 'Enter value; then press Enter'
