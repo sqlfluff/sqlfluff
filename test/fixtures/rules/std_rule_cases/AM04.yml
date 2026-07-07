@@ -28,8 +28,9 @@ test_fail_unknown_number_of_result_columns_2:
     select * from cte
 
 
-test_pass_known_number_of_result_columns_3:
-  pass_str: |
+test_fail_unknown_number_of_result_columns_source_projection_1:
+  desc: Source-referencing CTEs must project explicit columns by default.
+  fail_str: |
     with cte as (
         select
             *
@@ -38,11 +39,26 @@ test_pass_known_number_of_result_columns_3:
     )
     select a, b from cte
 
-test_pass_known_number_of_result_columns_4:
-  desc: |
-    CTE1 has * but columns are specified in final select.
-    CTE2 has columns specified so cte2.* in final select will return only columns specified in CTE2's body.
+test_pass_known_number_of_result_columns_source_projection_1_opt_out:
+  desc: Disabling require_explicit_source_projection restores the prior behavior.
   pass_str: |
+    with cte as (
+        select
+            *
+        from
+            t
+    )
+    select a, b from cte
+  configs:
+    rules:
+      ambiguous.column_count:
+        require_explicit_source_projection: false
+
+test_fail_unknown_number_of_result_columns_source_projection_2:
+  desc: |
+    CTE1 has * from a source, so it must project explicit columns by default.
+    CTE2 has columns specified so cte2.* in final select will return only columns specified in CTE2's body.
+  fail_str: |
     with cte1 as (
         select
             *
@@ -371,9 +387,9 @@ test_fail_nested_ctes_2:
 
     select * from a
 
-test_pass_nested_ctes_3:
+test_fail_nested_ctes_source_projection_1:
   # Test for issue 1984
-  pass_str:
+  fail_str:
     with a as (
         with b as (
             select * from c
@@ -384,9 +400,9 @@ test_pass_nested_ctes_3:
 
     select * from a
 
-test_pass_nested_ctes_4:
+test_fail_nested_ctes_source_projection_2:
   # Test for issue 1984
-  pass_str:
+  fail_str:
     with a as (
         with b as (
             select * from c
@@ -453,8 +469,8 @@ test_nested_cte_references_outer_8:
 
     select * from a
 
-test_pass_join_inside_cte_with_unqualified:
-  pass_str:
+test_fail_join_inside_cte_with_unqualified:
+  fail_str:
     with cte as (
         select
             *

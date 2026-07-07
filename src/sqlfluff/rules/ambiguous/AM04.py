@@ -68,8 +68,16 @@ class Rule_AM04(BaseRule):
     name = "ambiguous.column_count"
     aliases = ("L044",)
     groups: tuple[str, ...] = ("all", "ambiguous")
+    config_keywords = ["require_explicit_source_projection"]
     # Only evaluate the outermost query.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
+
+    def _analyze_source_ctes(self, query: Query) -> None:
+        """Analyze CTEs recursively when explicit source projection is required."""
+        for child in query.children:
+            if child.cte_definition_segment:
+                self._analyze_result_columns(child)
+            self._analyze_source_ctes(child)
 
     def _handle_alias(self, selectable, alias_info, query) -> None:
         select_info_target = next(
@@ -143,6 +151,10 @@ class Rule_AM04(BaseRule):
         try:
             # Begin analysis at the outer query.
             self._analyze_result_columns(query)
+            if self.require_explicit_source_projection:
+                self._analyze_source_ctes(
+                    Query.from_segment(context.segment, context.dialect)
+                )
             return None
         except RuleFailure as e:
             return LintResult(anchor=e.anchor)
