@@ -170,6 +170,7 @@ class Rule_AM04(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
+        self.require_explicit_source_projection: bool
         query: Query = Query.from_segment(context.segment, context.dialect)
 
         try:
