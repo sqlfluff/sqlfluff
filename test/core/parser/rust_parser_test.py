@@ -1001,6 +1001,56 @@ def test__rust_parser__vs_python_tsql_sqlcmd_command_loses_token_type():
     assert rust_result == python_result
 
 
+# ---------------------------------------------------------------------------
+# PyLexer vs. PyRsLexer (the Rust-backed lexer) divergences.
+#
+# A separate investigation from the parser-layer bugs above: this compares
+# tokenization itself, not grammar matching. The lexer port turned out to be
+# extremely faithful (zero token-stream divergences across ~900 combined
+# adversarial cases: position markers, dialect-specific quoting, unlexable/
+# error boundaries). The one confirmed, deterministic divergence is in
+# SQLLexError's message text, not the tokens themselves.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: for an unlexable character run, PyLexer's "
+        "violations_from_segments (src/sqlfluff/core/parser/lexer.py:"
+        "838-847) builds the SQLLexError description via "
+        "'Unable to lex characters: {!r}'.format(...) - repr()-quoting and "
+        "escaping the raw text, and truncating to 9 characters plus a "
+        "literal '...' marker when longer. The Rust lexer's equivalent "
+        "(sqlfluffrs_lexer/src/lexer.rs:420-439, violations_from_tokens) "
+        "instead does format!(\"Unable to lex characters: {}\", "
+        "token.raw().chars().take(10).collect::<String>()) - embedding the "
+        "raw characters directly with no quoting/escaping, no truncation "
+        "marker, and a 10- vs 9-character cutoff. SQLLexError.from_rs_error "
+        "(src/sqlfluff/core/errors.py:190-200) passes the Rust description "
+        "through verbatim, so real lint/parse output can contain literal "
+        "unescaped control bytes or unicode where the Python lexer would "
+        "have produced a safely quoted repr()-style string."
+    ),
+)
+def test__rust_parser__vs_python_lexer_unlexable_error_message():
+    """PyRsLexer's SQLLexError text differs from PyLexer's for unlexable input.
+
+    Uses a non-ASCII character that neither lexer can tokenize, forcing the
+    <unlexable> fallback path on both sides.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser.lexer import PyLexer, PyRsLexer
+
+    sql = "SELECT \xa1 FROM t"
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    _, py_errs = PyLexer(config=config).lex(sql)
+    _, rs_errs = PyRsLexer(config=config).lex(sql)
+
+    assert [str(e) for e in py_errs] == [str(e) for e in rs_errs]
+
+
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__native_ast_profile_has_no_convert_stage():
     """With the native builder, profiling records no separate convert stage.
