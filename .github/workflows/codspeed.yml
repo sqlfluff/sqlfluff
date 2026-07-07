@@ -67,7 +67,13 @@ jobs:
           python -m pip install --force-reinstall --no-deps --no-index --find-links=dist sqlfluffrs
 
       - name: Run CodSpeed benchmarks
-        uses: CodSpeedHQ/action@v3
+        # v4+ is required for the "memory" mode and for combining multiple
+        # modes in one run. Walltime mode is most reliable on CodSpeed
+        # Hosted Macro Runners (runs-on: codspeed-macro); on a standard
+        # ubuntu-latest runner it still works but its numbers are noisier
+        # than the simulation/memory instruments.
+        uses: CodSpeedHQ/action@v4
         with:
+          mode: simulation,walltime,memory
           token: ${{ secrets.CODSPEED_TOKEN }}
           run: pytest test/test_codspeed_tpc_parse.py --codspeed
