@@ -83,14 +83,36 @@ class Rule_TQ04(BaseRule):
         if not alias_identifier or not expression_segment:
             return None  # pragma: no cover
 
+        alias_expression_segments = list(alias_expression.segments)
+        select_clause_segments = list(select_clause_element.segments)
+        alias_identifier_idx = alias_expression_segments.index(alias_identifier)
+        alias_operator_idx = alias_expression_segments.index(alias_operator)
+        alias_expression_idx = select_clause_segments.index(alias_expression)
+        expression_segment_idx = select_clause_segments.index(expression_segment)
+
+        whitespace_before_operator = [
+            seg
+            for seg in alias_expression_segments[
+                alias_identifier_idx + 1 : alias_operator_idx
+            ]
+            if seg.is_type("whitespace", "newline")
+        ]
+        whitespace_after_operator = [
+            seg
+            for seg in select_clause_segments[
+                alias_expression_idx + 1 : expression_segment_idx
+            ]
+            if seg.is_type("whitespace", "newline")
+        ]
+
         as_alias_operator_segment = AsAliasOperatorSegment(
             segments=(KeywordSegment("AS"),)
         )
         edit_segments: list[BaseSegment] = [
             expression_segment,
-            WhitespaceSegment(),
+            *(whitespace_after_operator or [WhitespaceSegment()]),
             as_alias_operator_segment,
-            WhitespaceSegment(),
+            *(whitespace_before_operator or [WhitespaceSegment()]),
             alias_identifier,
         ]
 
@@ -101,7 +123,7 @@ class Rule_TQ04(BaseRule):
                 LintFix.replace(
                     select_clause_element,
                     edit_segments,
-                    source=[expression_segment, alias_identifier],
+                    source=select_clause_segments,
                 )
             ],
         )
