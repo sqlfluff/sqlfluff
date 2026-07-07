@@ -735,6 +735,8 @@ class UnorderedSetExpressionSegment(ansi.UnorderedSetExpressionSegment):
 class SetExpressionSegment(ansi.SetExpressionSegment):
     """Enhance set expression to include ClickHouse-specific clauses."""
 
+    # Build from the ClickHouse-specific unordered set grammar so non-final
+    # UNION members can carry their own ORDER BY / LIMIT / SETTINGS clauses.
     match_grammar = UnorderedSetExpressionSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
