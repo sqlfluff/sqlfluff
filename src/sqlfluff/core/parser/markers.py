@@ -4,7 +4,6 @@ This class is a construct to keep track of positions within a file.
 """
 
 from collections.abc import Sequence
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.helpers.slice import zero_slice
@@ -14,7 +13,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluffrs import RsPositionMarker
 
 
-@dataclass(frozen=True)
 class PositionMarker:
     """A reference to a position in a file.
 
@@ -29,28 +27,57 @@ class PositionMarker:
         - Positions within the fixed file are identified with a line number and line
           position, which identify a point.
         - Arithmetic comparisons are on the location in the fixed file.
+
+    NOTE: This used to be a frozen dataclass. One is constructed per lexed
+    token, so it's on a hot path: frozen dataclasses generate an __init__
+    that calls object.__setattr__() once per field (required because normal
+    assignment is blocked on a frozen instance), which is considerably
+    slower than plain attribute assignment on an ordinary class. Nothing
+    in the codebase relies on instances being hashable, immutable-by-
+    enforcement, or constructed via dataclass-specific machinery (e.g.
+    dataclasses.replace), so a hand-written __init__ with plain assignment
+    is safe and meaningfully cheaper to construct.
     """
 
-    source_slice: slice
-    templated_slice: slice
-    templated_file: "TemplatedFile"
-    # If not set, these will be initialised in the post init.
-    working_line_no: int = -1
-    working_line_pos: int = -1
+    __slots__ = (
+        "source_slice",
+        "templated_slice",
+        "templated_file",
+        "working_line_no",
+        "working_line_pos",
+    )
 
-    def __post_init__(self) -> None:
-        # If the working position has not been explicitly set
-        # then infer it from the position in the templated file.
-        # This is accurate up until the point that any fixes have
-        # been applied.
-        if self.working_line_no == -1 or self.working_line_pos == -1:
-            line_no, line_pos = self.templated_position()
-            # Use the base method because we're working with a frozen class
-            object.__setattr__(self, "working_line_no", line_no)
-            object.__setattr__(self, "working_line_pos", line_pos)
+    def __init__(
+        self,
+        source_slice: slice,
+        templated_slice: slice,
+        templated_file: "TemplatedFile",
+        # If not set, these will be inferred below.
+        working_line_no: int = -1,
+        working_line_pos: int = -1,
+    ) -> None:
+        self.source_slice = source_slice
+        self.templated_slice = templated_slice
+        self.templated_file = templated_file
+        # If the working position has not been explicitly set then infer it
+        # from the position in the templated file. This is accurate up until
+        # the point that any fixes have been applied.
+        if working_line_no == -1 or working_line_pos == -1:
+            working_line_no, working_line_pos = self.templated_position()
+        self.working_line_no = working_line_no
+        self.working_line_pos = working_line_pos
 
     def __str__(self) -> str:
         return self.to_source_string()
+
+    def __repr__(self) -> str:
+        return (
+            f"PositionMarker(source_slice={self.source_slice!r}, "
+            f"templated_slice={self.templated_slice!r}, "
+            f"templated_file={self.templated_file!r}, "
+            f"working_line_no={self.working_line_no!r}, "
+            f"working_line_pos={self.working_line_pos!r})"
+        )
 
     def __gt__(self, other: "PositionMarker") -> bool:
         return self.working_loc > other.working_loc
