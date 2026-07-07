@@ -1,0 +1,36 @@
+rule: TQ04
+
+test_pass_default_disabled:
+  pass_str: |
+    SELECT
+        help3 = 'hello',
+        help4 = CASE WHEN help = 'apple' THEN 'hello' END
+  configs: &tsql_dialect
+    core:
+      dialect: tsql
+
+test_fail_prefer_as_alias:
+  fail_str: |
+    SELECT
+        help3 = 'hello',
+        help4 = CASE WHEN help = 'apple' THEN 'hello' END
+  fix_str: |
+    SELECT
+        'hello' AS help3,
+        CASE WHEN help = 'apple' THEN 'hello' END AS help4
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.prefer_as_alias:
+        force_enable: true
+
+test_pass_select_variable_assignment:
+  pass_str: |
+    SELECT @help3 = 'hello'
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.prefer_as_alias:
+        force_enable: true
