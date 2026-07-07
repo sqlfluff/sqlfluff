@@ -1427,7 +1427,10 @@ class BatchSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Delimited(
-                Ref("StatementSegment"),
+                OneOf(
+                    Ref("SqlplusSetStatementSegment"),
+                    Ref("StatementSegment"),
+                ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
                 allow_gaps=True,
                 allow_trailing=True,
@@ -1443,6 +1446,16 @@ class SlashBufferExecutorSegment(BaseSegment):
 
     type = "slash_buffer_executor"
     match_grammar = Ref("SlashSegment")
+
+
+class SqlplusSetStatementSegment(BaseSegment):
+    """A SQL*Plus `SET` command."""
+
+    type = "sqlplus_set_statement"
+
+    match_grammar = Sequence(
+        "SET", StringParser("SCAN", WordSegment, type="keyword"), OneOf("ON", "OFF")
+    )
 
 
 class CommentStatementSegment(BaseSegment):
