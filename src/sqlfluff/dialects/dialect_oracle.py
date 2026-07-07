@@ -1214,6 +1214,7 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
+            Ref("SqlplusSetStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
@@ -1443,6 +1444,16 @@ class SlashBufferExecutorSegment(BaseSegment):
 
     type = "slash_buffer_executor"
     match_grammar = Ref("SlashSegment")
+
+
+class SqlplusSetStatementSegment(BaseSegment):
+    """A SQL*Plus `SET` command."""
+
+    type = "sqlplus_set_statement"
+
+    match_grammar = Sequence(
+        "SET", StringParser("SCAN", WordSegment, type="keyword"), OneOf("ON", "OFF")
+    )
 
 
 class CommentStatementSegment(BaseSegment):
