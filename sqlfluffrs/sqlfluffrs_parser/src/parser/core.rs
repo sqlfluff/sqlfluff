@@ -1369,10 +1369,21 @@ impl<'a> Parser<'a> {
         // Extract token_type from tables
         let tables = self.grammar_ctx.tables();
 
-        // Token stores token_type string id in aux_data at the instruction's
-        // aux_data_offsets index (the generator emits the type id there).
-        let token_type_id = tables.aux_data_offsets[grammar_id.get() as usize];
-        let token_type = tables.get_string(token_type_id).to_string();
+        // Token aux block: [type_id, class_name_id, flags, ct_count, ct_ids...].
+        // A bare class matches iff the token is already an isinstance, and is
+        // then kept unchanged (no re-mint). isinstance = class's _class_types ⊆
+        // token's class chain, plus is_code/is_comment/is_whitespace equality
+        // for raw targets (flags bit3): CodeSegment's chain is only {base,raw},
+        // so without the flags a whitespace/comment token passes the subset.
+        let (aux_start, aux_end) = aux_block_bounds(tables, grammar_id);
+        #[cfg(feature = "verbose-debug")]
+        let token_type = tables.get_string(tables.aux_data[aux_start]).to_string();
+        let class_flags = if aux_start + 2 < aux_end {
+            tables.aux_data[aux_start + 2]
+        } else {
+            0
+        };
+        let class_type_ids = read_string_ids_from_aux(tables, aux_start + 3, aux_end);
 
         vdebug!(
             "Token[table]: pos={}, token_type='{}'",
@@ -1380,24 +1391,40 @@ impl<'a> Parser<'a> {
             token_type
         );
 
+        let is_instance = |tok: &sqlfluffrs_types::Token| -> bool {
+            let chain = &tok.class_types;
+            if !class_type_ids
+                .iter()
+                .all(|id| chain.contains(tables.get_string(*id)))
+            {
+                return false;
+            }
+            if class_flags & 0b1000 != 0 {
+                tok.is_code() == (class_flags & 0b0001 != 0)
+                    && tok.is_comment() == (class_flags & 0b0010 != 0)
+                    && tok.is_whitespace() == (class_flags & 0b0100 != 0)
+            } else {
+                true
+            }
+        };
+
         match self.peek() {
-            Some(tok) if tok.is_type(&[&token_type]) => {
+            Some(tok) if is_instance(tok) => {
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
                 let raw = tok.raw().to_owned();
                 self.bump();
 
                 vdebug!(
-                    "Token[table] MATCHED: type='{}', raw='{}' at pos={}",
+                    "Token[table] MATCHED (instance, kept unchanged): type='{}', raw='{}' at pos={}",
                     token_type,
                     raw,
                     token_pos
                 );
 
-                // Return MatchResult spanning this single token
-                // The apply() method will retrieve token data from the tokens array
                 Ok(MatchResult {
                     matched_slice: token_pos..token_pos + 1,
+                    matched_class: None,
                     ..Default::default()
                 })
             }

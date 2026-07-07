@@ -975,15 +975,11 @@ def test__rust_parser__vs_python_snowflake_numeric_literal_mistyped():
     a bare segment class with no dialect-specific match_grammar, so
     Python's isinstance fast path returns the already-lexed "10" token
     unwrapped, preserving its lex-time "numeric_literal" type.
-    RustParser's `handle_ref_combining` (ref_grammar.rs) computed that same
-    preserved type, but only fed it into `MatchedClass.segment_type` -
-    which feeds Rust's internal Node tree, not the Python-facing tree
-    RustParser.parse() actually builds. That builder reads the override
-    from `segment_kwargs["instance_types"]` instead, so the correct type
-    was silently dropped in favor of the generic "literal" default.
-
-    Fixed by also setting `segment_kwargs.instance_types` whenever the
-    isinstance-override applies.
+    RustParser's `handle_ref_combining` (ref_grammar.rs) used to wrap the
+    matched token in the grammar's class, re-typing it to the generic
+    "literal" default. It now mirrors native `BaseSegment.match`: a Ref to
+    a bare (match_grammar-less) class consumes the token UNCHANGED, so its
+    lexer-assigned type and full class chain are preserved.
 
     Uses the real, already-shipped snowflake/create_catalog_integration.sql
     fixture.
@@ -1026,16 +1022,66 @@ def test__rust_parser__vs_python_tsql_sqlcmd_command_loses_token_type():
 
     Same root cause and fix as
     test__rust_parser__vs_python_snowflake_numeric_literal_mistyped: a
-    `Ref` to a bare segment class hits Python's isinstance fast path,
-    and the preserved type now gets threaded through
-    `segment_kwargs.instance_types` so RustParser.parse()'s Python-side
-    tree builder picks it up too.
+    `Ref` to a bare segment class hits Python's isinstance fast path, so
+    the matched token is now consumed UNCHANGED (no class wrap, no
+    re-mint), preserving its lexer-assigned type and full class chain.
 
     Uses the real, already-shipped tsql/sqlcmd_command.sql fixture.
     """
     sql = _read_fixture("tsql", "sqlcmd_command.sql")
     rust_result, python_result = _compare_parser_vs_rust(sql, dialect="tsql")
     assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "dialect,sql",
+    [
+        # A numeric value routes a LiteralSegment (class chain includes the
+        # class-level `literal`) through the bare `Ref("CodeSegment")` that
+        # matches :setvar content - an ANCESTOR of the token's class.
+        ("tsql", ":setvar count 10"),
+        # The shipped fixture's quoted/word values are CodeSegment instances
+        # directly, so they were always safe - kept here as a control.
+        ("tsql", ':setvar count "variable_value"'),
+        # Snowflake numeric literal via a bare `LiteralSegment` reference.
+        (
+            "snowflake",
+            "CREATE CATALOG INTEGRATION glue_int CATALOG_SOURCE = GLUE "
+            "REFRESH_INTERVAL_SECONDS = 10;",
+        ),
+    ],
+)
+def test__rust_parser__vs_python_bare_class_ref_preserves_class_types(dialect, sql):
+    """A bare-class ``Ref`` must preserve the token's FULL class_types chain.
+
+    Guards a blind spot: ``to_tuple`` (used by ``_compare_parser_vs_rust``)
+    only records each leaf's ``get_type()``, not its ``class_types`` set.
+    When a bare-class ``Ref`` targets an ANCESTOR of the matched token's
+    class (e.g. ``Ref("CodeSegment")`` over a ``LiteralSegment`` numeric
+    value in ``:setvar count 10``), an earlier fix that rebuilt the chain
+    as ``ancestor-class ∪ instance_types`` produced the right ``get_type()``
+    but silently dropped the class-level type (here ``literal``) - invisible
+    to a ``to_tuple`` comparison. Bare-class grammars now consume the token
+    unchanged, so its native ``class_types`` is preserved exactly.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer, Parser
+
+    config = FluffConfig(overrides={"dialect": dialect})
+    segments, _ = Lexer(config=config).lex(sql)
+    python_tree = Parser(config=config).parse(segments, fname="t.sql")
+    rust_tree = RustParser(config=config).parse(segments, fname="t.sql")
+
+    def leaves(tree):
+        return [s for s in tree.recursive_crawl_all() if not s.segments]
+
+    for py_leaf, rs_leaf in zip(leaves(python_tree), leaves(rust_tree)):
+        assert set(rs_leaf.class_types) == set(py_leaf.class_types), (
+            f"class_types diverge for {py_leaf.raw!r}: "
+            f"python={sorted(set(py_leaf.class_types))} "
+            f"rust={sorted(set(rs_leaf.class_types))}"
+        )
 
 
 # ---------------------------------------------------------------------------
