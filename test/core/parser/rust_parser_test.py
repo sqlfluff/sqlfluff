@@ -851,6 +851,156 @@ def test__rust_parser__vs_python_stray_bracket_swallows_union_arm():
     assert rust_result == python_result
 
 
+# ---------------------------------------------------------------------------
+# RustParser vs. pure-Python Parser divergences on well-formed, already-shipped
+# dialect fixtures.
+#
+# Unlike the malformed-SQL cases above, these reproduce on VALID SQL that's
+# already checked into the repo as a dialect fixture with a Python-generated
+# .yml ground truth - i.e. RustParser disagrees with the fixture's own
+# checked-in expected output, on input nobody had to invent. Found by running
+# Parser vs RustParser over every fixture in every dialect (not just ansi);
+# unlike ansi (0 mismatches across 208 fixtures), other dialects' fixtures
+# turned up 7 mismatches across 4 dialects.
+# ---------------------------------------------------------------------------
+
+
+def _read_fixture(dialect: str, filename: str) -> str:
+    return (_FIXTURE_DIR / dialect / filename).read_text(encoding="utf-8")
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: for a PIVOT clause whose aggregate expression is a "
+        "function call (e.g. SUM(sales)), RustParser inserts a spurious "
+        "extra Indent leaf inside PivotClauseSegment's Bracketed content "
+        "that Python's Parser doesn't produce, shifting every subsequent "
+        "leaf in the tree by one position for the rest of the file. "
+        "PivotClauseSegment.match_grammar (dialect_sparksql.py:2485-2495) "
+        "is `Sequence(Indent, 'PIVOT', Bracketed(Indent, Delimited(Sequence("
+        "BaseExpressionElementGrammar, AliasExpressionSegment(optional))), "
+        "...))` - the nested Bracketed's own leading Indent appears to be "
+        "emitted twice on the Rust side for this shape. Reproduces "
+        "identically in both databricks/pivot.sql and "
+        "sparksql/pivot_clause.sql (databricks inherits sparksql's grammar)."
+    ),
+)
+def test__rust_parser__vs_python_pivot_clause_indent_duplication():
+    """RustParser duplicates an Indent inside PIVOT's bracketed content.
+
+    Uses the real, already-shipped databricks/pivot.sql fixture - this is
+    valid SQL with a correct Python-generated .yml, not invented malformed
+    input.
+    """
+    sql = _read_fixture("databricks", "pivot.sql")
+    rust_result, python_result = _compare_parser_vs_rust(sql, dialect="databricks")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: the same class of spurious extra Indent as the PIVOT "
+        "clause bug above, but inside UnpivotClauseSegment's bracketed "
+        "column-alias content instead of PivotClauseSegment's function-call "
+        "content - a second, distinct grammar site hitting the same "
+        "underlying Rust Bracketed/Indent duplication issue. Reproduces "
+        "identically in both databricks/unpivot.sql and "
+        "sparksql/unpivot_clause.sql."
+    ),
+)
+def test__rust_parser__vs_python_unpivot_clause_indent_duplication():
+    """RustParser duplicates an Indent inside UNPIVOT's bracketed content.
+
+    Uses the real, already-shipped databricks/unpivot.sql fixture.
+    """
+    sql = _read_fixture("databricks", "unpivot.sql")
+    rust_result, python_result = _compare_parser_vs_rust(sql, dialect="databricks")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: a numeric literal argument inside Snowflake's CREATE "
+        "CATALOG INTEGRATION statement is typed as 'numeric_literal' by "
+        "Python's Parser but as a generic, less-specific 'literal' by "
+        "RustParser - the two trees are otherwise byte-identical (same "
+        "leaf count, same positions), only the segment class assigned to "
+        "this one value differs, at 5 separate occurrences in the file. "
+        "This is a segment-class-assignment mismatch between the Rust "
+        "grammar table's codegen'd class for this grammar element and the "
+        "actual Python class Snowflake's grammar uses here."
+    ),
+)
+def test__rust_parser__vs_python_snowflake_numeric_literal_mistyped():
+    """RustParser types a numeric literal generically instead of as numeric_literal.
+
+    Uses the real, already-shipped snowflake/create_catalog_integration.sql
+    fixture.
+    """
+    sql = _read_fixture("snowflake", "create_catalog_integration.sql")
+    rust_result, python_result = _compare_parser_vs_rust(sql, dialect="snowflake")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: T-SQL's 'SomeSchema.Value(...)' (a datatype-method "
+        "call, e.g. an XML column's .value() method) is a genuine grammar "
+        "ambiguity - it can fully match either as a plain dotted function "
+        "call (FunctionSegment, function_name='SomeSchema.Value') or as a "
+        "column_reference with a DatatypeMethodSegment suffix "
+        "(ObjectReferenceSegment's AnyNumberOf(OneOf(Ref('DatatypeMethod"
+        "Segment'), ...)) in dialect_tsql.py:3565-3574). Both candidates "
+        "match the exact same span (a real longest-match TIE, not one "
+        "candidate being longer), so whichever wins depends purely on "
+        "alternative-evaluation order. Python's Parser picks the function "
+        "interpretation; RustParser picks the column_reference+datatype_"
+        "method interpretation - a structurally different tree for the "
+        "same SQL, not just a differently-typed leaf."
+    ),
+)
+def test__rust_parser__vs_python_tsql_datatype_method_oneof_ambiguity():
+    """RustParser resolves a genuine OneOf tie differently than Python.
+
+    Uses the real, already-shipped tsql/datatype_methods.sql fixture.
+    """
+    sql = _read_fixture("tsql", "datatype_methods.sql")
+    rust_result, python_result = _compare_parser_vs_rust(sql, dialect="tsql")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: inside T-SQL's sqlcmd_command_segment (:setvar-style "
+        "sqlcmd commands), RustParser loses the original lexer-assigned "
+        "token type for its content - a bare word and a double-quoted "
+        "string both come out as a generic 'raw' segment instead of "
+        "'word'/'double_quote' respectively, as Python's Parser preserves. "
+        "sqlcmd_command_segment's content is matched via a catch-all "
+        "grammar (Anything()-style), and the Rust side isn't threading the "
+        "original token class through in that path."
+    ),
+)
+def test__rust_parser__vs_python_tsql_sqlcmd_command_loses_token_type():
+    """RustParser loses word/double_quote token typing inside sqlcmd_command_segment.
+
+    Uses the real, already-shipped tsql/sqlcmd_command.sql fixture.
+    """
+    sql = _read_fixture("tsql", "sqlcmd_command.sql")
+    rust_result, python_result = _compare_parser_vs_rust(sql, dialect="tsql")
+    assert rust_result == python_result
+
+
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__native_ast_profile_has_no_convert_stage():
     """With the native builder, profiling records no separate convert stage.
