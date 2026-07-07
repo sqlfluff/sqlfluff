@@ -576,6 +576,51 @@ def test__rust_parser__native_ast_parity(sqlfile):
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: _convert_rs_match_result (the native_ast=False tree "
+        "builder) recurses through an extra generator-expression stack frame "
+        "per nesting level that _apply_rs_match_result (the fused "
+        "native_ast=True builder) doesn't have, so the legacy path blows the "
+        "Python call stack roughly twice as early as the fused path for the "
+        "same deeply-nested input. Only reachable when max_parse_depth is "
+        "raised above its default (600): at the default, the depth guard "
+        "fires first on both paths identically, masking the divergence."
+    ),
+)
+def test__rust_parser__native_ast_recursion_depth_asymmetry():
+    """native_ast=True tolerates deeper bracket nesting than native_ast=False.
+
+    Minimal repro for a real (if narrow) correctness divergence: with the
+    depth guard raised out of the way, the two AST-building paths do not
+    fail at the same input size for identical SQL and identical config.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+    from sqlfluff.core.parser.rust_parser import set_native_ast
+
+    sql = "SELECT " + "(" * 70 + "1" + ")" * 70
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 2000})
+    segments, _ = Lexer(config=config).lex(sql)
+
+    def build(native):
+        set_native_ast(native)
+        try:
+            tree = RustParser(config=config).parse(segments, fname="t.sql")
+            return (
+                "tree",
+                tree.to_tuple(code_only=False, show_raw=True, include_meta=True),
+            )
+        except BaseException as err:  # PanicException/RecursionError, etc.
+            return ("exc", type(err).__name__)
+        finally:
+            set_native_ast(False)
+
+    assert build(native=True) == build(native=False)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__native_ast_profile_has_no_convert_stage():
     """With the native builder, profiling records no separate convert stage.
 
