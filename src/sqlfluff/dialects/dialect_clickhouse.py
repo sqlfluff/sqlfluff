@@ -718,7 +718,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
 
 class UnorderedSetExpressionSegment(ansi.UnorderedSetExpressionSegment):
-    """A ClickHouse set expression with support for member-level clauses."""
+    """A ClickHouse set expression with ORDER BY, LIMIT, and SETTINGS on non-final members."""
 
     match_grammar = Sequence(
         AnyNumberOf(
@@ -736,7 +736,7 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
     """Enhance set expression to include ClickHouse-specific clauses."""
 
     # Build from the ClickHouse-specific unordered set grammar so non-final
-    # UNION members can carry their own ORDER BY / LIMIT / SETTINGS clauses.
+    # set expression members can carry their own ORDER BY / LIMIT / SETTINGS.
     match_grammar = UnorderedSetExpressionSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
