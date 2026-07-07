@@ -46,6 +46,8 @@ class Rule_TQ04(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Prefer ANSI-style ``AS`` aliasing over ``alias = expression``."""
+        self.force_enable: bool
+
         if not self.force_enable:
             return None
 
@@ -57,6 +59,9 @@ class Rule_TQ04(BaseRule):
             return None
 
         alias_operator = alias_expression.get_child("alias_operator")
+        if alias_operator is None:
+            return None
+
         if getattr(alias_operator, "raw", None) != "=":
             return None
 
