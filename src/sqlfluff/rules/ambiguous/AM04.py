@@ -87,8 +87,10 @@ class Rule_AM04(BaseRule):
         pop: bool = True,
         visited: Optional[set[int]] = None,
     ) -> None:
+        sources = list(query.crawl_sources(alias_info.from_expression_element, True))
         select_info_target = next(
-            query.crawl_sources(alias_info.from_expression_element, True)
+            (source for source in sources if isinstance(source, Query)),
+            sources[0],
         )
         if isinstance(select_info_target, str):
             # It's an alias to an external table whose
@@ -125,7 +127,7 @@ class Rule_AM04(BaseRule):
                     for wildcard_table in wildcard.tables:
                         self.logger.debug(
                             f"Wildcard: {wildcard.segment.raw} has target "
-                            "{wildcard_table}"
+                            f"{wildcard_table}"
                         )
                         # Is it an alias?
                         alias_info = selectable.find_alias(wildcard_table)
