@@ -16,6 +16,7 @@ Pygments
 coverage>=6.4
 hypothesis
 pytest
+pytest-codspeed
 pytest-cov
 pytest-xdist
 tox
