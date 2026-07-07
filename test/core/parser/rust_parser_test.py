@@ -620,6 +620,125 @@ def test__rust_parser__native_ast_recursion_depth_asymmetry():
     assert build(native=True) == build(native=False)
 
 
+# ---------------------------------------------------------------------------
+# RustParser vs. pure-Python Parser parity on malformed/error-recovery SQL
+#
+# Unlike the native_ast checks above (which compare RustParser against
+# itself), these compare RustParser's Rust grammar-matching engine against
+# the ground-truth pure-Python Parser, on malformed ANSI SQL that exercises
+# GREEDY/GREEDY_ONCE_STARTED error-recovery paths. All 208 well-formed ANSI
+# fixtures already parse identically between the two; these regressions only
+# surface on malformed input, which is why they were previously undetected.
+# ---------------------------------------------------------------------------
+
+
+def _compare_parser_vs_rust(sql: str, dialect: str = "ansi"):
+    """Parse the same SQL with the pure-Python Parser and RustParser."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer, Parser
+
+    config = FluffConfig(overrides={"dialect": dialect})
+    segments, _ = Lexer(config=config).lex(sql)
+
+    def build(use_rust: bool):
+        try:
+            parser = RustParser(config=config) if use_rust else Parser(config=config)
+            tree = parser.parse(segments, fname="t.sql")
+            return (
+                "tree",
+                tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
+                if tree
+                else None,
+            )
+        except BaseException as err:
+            return ("exc", type(err).__name__)
+
+    return build(True), build(False)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: when a GREEDY_ONCE_STARTED Sequence (e.g. "
+        "SelectClauseSegment) fails partway through, the Rust engine's "
+        "'failed after partial match' branch "
+        "(sqlfluffrs_parser/src/parser/table_driven/sequence.rs, the branch "
+        "building `unparsable_match` with `..Default::default()`) drops the "
+        "already-matched children's MatchResult (child_matches/"
+        "insert_segments) instead of preserving them as siblings the way "
+        "Python's Sequence.match does. The already-matched SELECT keyword "
+        "then falls back to a raw, untyped `word` segment instead of a "
+        "`keyword` segment. This is not just cosmetic: it makes rule ST05 "
+        "raise an unhandled AssertionError('Keyword not found.') on input "
+        "like 'SELECT CASE' when use_rust_parser=True, where the "
+        "pure-Python path just reports a normal parse violation."
+    ),
+)
+def test__rust_parser__vs_python_partial_match_failure_drops_children():
+    """RustParser loses keyword typing when a GREEDY_ONCE_STARTED match fails.
+
+    Minimal repro for a real correctness regression found by comparing
+    RustParser against the ground-truth Python Parser on malformed SQL.
+    """
+    rust_result, python_result = _compare_parser_vs_rust("SELECT CASE")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: Python's greedy_match/next_ex_bracket_match "
+        "(src/sqlfluff/core/parser/match_algorithms.py:469-529) aborts the "
+        "terminator search entirely on an unexpected closing bracket, "
+        "claiming everything up to EOF as unparsable. Rust's greedy_match "
+        "(sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs:"
+        "142-266) only special-cases *opening* brackets and has no "
+        "equivalent handling for a stray closing bracket, so it keeps "
+        "scanning and finds the next real terminator (e.g. FROM) instead. "
+        "Rust's behaviour is arguably more useful here, but it is a real, "
+        "deterministic structural divergence from the Python parser for "
+        "SQL containing an unbalanced closing bracket."
+    ),
+)
+def test__rust_parser__vs_python_stray_closing_bracket_terminator():
+    """RustParser recovers more of the tree than Python after a stray ')'.
+
+    Python swallows everything up to EOF as unparsable once it hits an
+    unexpected closing bracket; RustParser instead keeps parsing and
+    recovers a proper from_clause sibling.
+    """
+    rust_result, python_result = _compare_parser_vs_rust("SELECT 1) FROM t")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: Bracketed.match (src/sqlfluff/core/parser/grammar/"
+        "sequence.py:541-562) only suppresses the hard "
+        "'Couldn't find closing bracket' SQLParseError for "
+        "ParseMode.STRICT; for ParseMode.GREEDY (used by "
+        "CTEDefinitionSegment at dialect_ansi.py:2869 and the VALUES tuple "
+        "in ValuesClauseSegment at dialect_ansi.py:2748) Python always "
+        "raises when no closing bracket is found before EOF. RustParser's "
+        "codegen'd engine does not replicate this hard-raise, and instead "
+        "returns a tree with the remainder wrapped as unparsable."
+    ),
+)
+def test__rust_parser__vs_python_unclosed_greedy_bracket_raises():
+    """Python raises SQLParseError for an unclosed GREEDY-mode bracket.
+
+    RustParser instead recovers a tree, for the specific GREEDY-mode
+    Bracketed sites (CTE definitions, VALUES tuples) that Python treats as
+    a hard parse error rather than an unparsable section.
+    """
+    rust_result, python_result = _compare_parser_vs_rust("WITH a AS (SELECT 1")
+    assert rust_result == python_result
+
+
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__native_ast_profile_has_no_convert_stage():
     """With the native builder, profiling records no separate convert stage.
