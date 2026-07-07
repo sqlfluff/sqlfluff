@@ -27,7 +27,6 @@ test_fail_unknown_number_of_result_columns_2:
     )
     select * from cte
 
-
 test_fail_unknown_number_of_result_columns_source_projection_1:
   desc: Source-referencing CTEs must project explicit columns by default.
   fail_str: |
@@ -38,6 +37,10 @@ test_fail_unknown_number_of_result_columns_source_projection_1:
             t
     )
     select a, b from cte
+  configs:
+    rules:
+      ambiguous.column_count:
+        require_explicit_source_projection: true
 
 test_pass_known_number_of_result_columns_source_projection_1_opt_out:
   desc: Disabling require_explicit_source_projection restores the prior behavior.
@@ -77,6 +80,10 @@ test_fail_unknown_number_of_result_columns_source_projection_2:
     from cte1
     join cte2
     using (a)
+  configs:
+    rules:
+      ambiguous.column_count:
+        require_explicit_source_projection: true
 
 test_fail_unknown_number_of_result_columns_3:
   fail_str: |
@@ -338,6 +345,10 @@ test_fail_unknown_number_of_result_columns_source_projection_circular_cte:
       )
 
       select 1 from hubspot__engagement_calls
+  configs:
+    rules:
+      ambiguous.column_count:
+        require_explicit_source_projection: true
 
 test_fail_unknown_number_of_result_columns_18:
   # Another test for issue #930
@@ -399,122 +410,125 @@ test_fail_nested_ctes_2:
 
 test_fail_nested_ctes_source_projection_1:
   # Test for issue 1984
-  fail_str:
-    with a as (
-        with b as (
-            select * from c
-        )
+  fail_str: with a as (
+    with b as (
+    select * from c
+    )
 
-        select 1 from b
+    select 1 from b
     )
 
     select * from a
+  configs:
+    rules:
+      ambiguous.column_count:
+        require_explicit_source_projection: true
 
 test_fail_nested_ctes_source_projection_2:
   # Test for issue 1984
-  fail_str:
-    with a as (
-        with b as (
-            select * from c
-        )
+  fail_str: with a as (
+    with b as (
+    select * from c
+    )
 
-        select * from b
+    select * from b
     )
 
     select 1 from a
+  configs:
+    rules:
+      ambiguous.column_count:
+        require_explicit_source_projection: true
 
 test_cte_reference_outer_5:
-  pass_str:
-    with a as (
-        select 1 from b
+  pass_str: with a as (
+    select 1 from b
     )
 
     select * from (
-        select * from a
+    select * from a
     )
 
 test_cte_tricky_nesting_6:
-  pass_str:
-    with b as (
-        select 1 from c
+  pass_str: with b as (
+    select 1 from c
     )
 
     select * from (
-        with a as (
-            select * from b
-        )
+    with a as (
+    select * from b
+    )
 
-        select * from a
+    select * from a
     )
 
 test_nested_and_same_level_ctes_7:
-  pass_str:
-    with a as (
-      with c as (
-        select 1 from d
-      ),
+  pass_str: with a as (
+    with c as (
+    select 1 from d
+    ),
 
-      b as (
-        select * from c
-      )
+    b as (
+    select * from c
+    )
 
-      select * from b
+    select * from b
     )
 
     select * from a
 
 test_nested_cte_references_outer_8:
-  pass_str:
-    with c as (
-      select 1 from d
+  pass_str: with c as (
+    select 1 from d
     ),
 
     a as (
-      with b as (
-        select * from c
-      )
+    with b as (
+    select * from c
+    )
 
-      select * from b
+    select * from b
     )
 
     select * from a
 
 test_fail_join_inside_cte_with_unqualified:
-  fail_str:
-    with cte as (
-        select
-            *
-        from
-            t1
-        inner join t2
+  fail_str: with cte as (
+    select
+    *
+    from
+    t1
+    inner join t2
     )
 
     select a, b from cte;
+  configs:
+    rules:
+      ambiguous.column_count:
+        require_explicit_source_projection: true
 
 test_pass_known_number_of_columns_in_two_join_subqueries:
-  pass_str:
-    select
-        *
+  pass_str: select
+    *
     from (
-        select a
-        from foo
+    select a
+    from foo
     ) t1
     inner join (
-        select b
-        from bar
+    select b
+    from bar
     ) t2;
 
 test_fail_two_join_subqueries_one_with_unknown_number_of_columns:
-  fail_str:
-    select
-        *
+  fail_str: select
+    *
     from (
-        select *
-        from foo
+    select *
+    from foo
     ) t1
     inner join (
-        select b
-        from bar
+    select b
+    from bar
     ) t2;
 
 test_fail_no_source_table:
@@ -522,8 +536,7 @@ test_fail_no_source_table:
     SELECT *
 
 test_query_on_snowflake_stage:
-  pass_str:
-    select mycolumn1
+  pass_str: select mycolumn1
     from @public.mytable1
   configs:
     core:
@@ -568,10 +581,9 @@ test_pass_exasol_values_clause_cte_2:
       dialect: exasol
 
 test_pass_exasol_values_clause:
-  pass_str:
-    SELECT *
+  pass_str: SELECT *
     FROM (
-        VALUES (1, 2), (3, 4)
+    VALUES (1, 2), (3, 4)
     ) AS t(c1, c2)
   configs:
     core:
@@ -600,19 +612,18 @@ test_pass_exasol_invalid_foreign_key_from:
       dialect: exasol
 
 test_pass_cte_no_select_final_statement:
-  pass_str:
-    WITH mycte AS (
-      SELECT
-          foo,
-          bar
-      FROM mytable1
+  pass_str: WITH mycte AS (
+    SELECT
+    foo,
+    bar
+    FROM mytable1
     )
 
     UPDATE sometable
     SET
-        sometable.baz = mycte.bar
+    sometable.baz = mycte.bar
     FROM
-        mycte;
+    mycte;
 
 test_tsql_select_system_as_identifier:
   pass_str: |
@@ -648,10 +659,9 @@ test_pass_sparksql_values_clause_cte_2:
       dialect: sparksql
 
 test_pass_sparksql_values_clause:
-  pass_str:
-    SELECT *
+  pass_str: SELECT *
     FROM (
-        VALUES (1, 2), (3, 4)
+    VALUES (1, 2), (3, 4)
     ) AS t(c1, c2)
   configs:
     core:
