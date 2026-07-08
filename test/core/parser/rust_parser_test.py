@@ -973,22 +973,22 @@ def test__rust_parser__vs_python_unpivot_clause_indent_duplication():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: a numeric literal argument inside Snowflake's CREATE "
-        "CATALOG INTEGRATION statement is typed as 'numeric_literal' by "
-        "Python's Parser but as a generic, less-specific 'literal' by "
-        "RustParser - the two trees are otherwise byte-identical (same "
-        "leaf count, same positions), only the segment class assigned to "
-        "this one value differs, at 5 separate occurrences in the file. "
-        "This is a segment-class-assignment mismatch between the Rust "
-        "grammar table's codegen'd class for this grammar element and the "
-        "actual Python class Snowflake's grammar uses here."
-    ),
-)
 def test__rust_parser__vs_python_snowflake_numeric_literal_mistyped():
-    """RustParser types a numeric literal generically instead of as numeric_literal.
+    """RustParser now types this numeric literal as numeric_literal, matching Python.
+
+    Regression test: `Ref("LiteralSegment")` (dialect_snowflake.py) targets
+    a bare segment class with no dialect-specific match_grammar, so
+    Python's isinstance fast path returns the already-lexed "10" token
+    unwrapped, preserving its lex-time "numeric_literal" type.
+    RustParser's `handle_ref_combining` (ref_grammar.rs) computed that same
+    preserved type, but only fed it into `MatchedClass.segment_type` -
+    which feeds Rust's internal Node tree, not the Python-facing tree
+    RustParser.parse() actually builds. That builder reads the override
+    from `segment_kwargs["instance_types"]` instead, so the correct type
+    was silently dropped in favor of the generic "literal" default.
+
+    Fixed by also setting `segment_kwargs.instance_types` whenever the
+    isinstance-override applies.
 
     Uses the real, already-shipped snowflake/create_catalog_integration.sql
     fixture.
@@ -1028,21 +1028,21 @@ def test__rust_parser__vs_python_tsql_datatype_method_oneof_ambiguity():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: inside T-SQL's sqlcmd_command_segment (:setvar-style "
-        "sqlcmd commands), RustParser loses the original lexer-assigned "
-        "token type for its content - a bare word and a double-quoted "
-        "string both come out as a generic 'raw' segment instead of "
-        "'word'/'double_quote' respectively, as Python's Parser preserves. "
-        "sqlcmd_command_segment's content is matched via a catch-all "
-        "grammar (Anything()-style), and the Rust side isn't threading the "
-        "original token class through in that path."
-    ),
-)
 def test__rust_parser__vs_python_tsql_sqlcmd_command_loses_token_type():
-    """RustParser loses word/double_quote token typing inside sqlcmd_command_segment.
+    """RustParser now preserves word/double_quote token typing inside sqlcmd_command_segment.
+
+    Regression test: inside T-SQL's sqlcmd_command_segment (:setvar-style
+    sqlcmd commands), RustParser used to lose the original lexer-assigned
+    token type for its content - a bare word and a double-quoted string
+    both came out as a generic 'raw' segment instead of
+    'word'/'double_quote' respectively, as Python's Parser preserves.
+
+    Same root cause and fix as
+    test__rust_parser__vs_python_snowflake_numeric_literal_mistyped: a
+    `Ref` to a bare segment class hits Python's isinstance fast path,
+    and the preserved type now gets threaded through
+    `segment_kwargs.instance_types` so RustParser.parse()'s Python-side
+    tree builder picks it up too.
 
     Uses the real, already-shipped tsql/sqlcmd_command.sql fixture.
     """

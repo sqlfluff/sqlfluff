@@ -261,6 +261,12 @@ impl Parser<'_> {
             // value keeps the `'static` lifetime — the common case borrows the
             // grammar-table string into the node with no allocation. Only the
             // isinstance override (a runtime token type) takes the owned branch.
+            // Records the runtime type when the isinstance-preservation path
+            // below overrides the grammar-table segment_type, so it can also
+            // be carried through `segment_kwargs.instance_types` below - that
+            // field is what RustParser.parse()'s Python-side tree builder
+            // actually reads the type override from.
+            let mut isinstance_override: Option<String> = None;
             let effective_segment_type: Cow<'static, str> = if let Some(seg_type) =
                 state.segment_type
             {
@@ -289,6 +295,7 @@ impl Parser<'_> {
                                 seg_type,
                                 tok.raw()
                             );
+                            isinstance_override = Some(effective.to_string());
                             Cow::Owned(effective.to_string())
                         } else {
                             Cow::Borrowed(seg_type)
@@ -313,6 +320,13 @@ impl Parser<'_> {
             {
                 // Look up the Python _class_types hierarchy for this grammar from codegen tables.
                 let class_types = self.grammar_ctx.segment_class_types(state.grammar_id);
+                // RustParser.parse()'s Python-side tree builder (rust_parser.py's
+                // _rs_match_fields/_apply_rs_match_result) reads its type
+                // override from `segment_kwargs["instance_types"]`, not from
+                // this MatchedClass's own `segment_type` field (that one only
+                // feeds Rust's internal Node tree). Set it here too so the
+                // isinstance-preserved type above also reaches that path.
+                let instance_types = isinstance_override.map(|t| vec![t]);
                 Some(MatchedClass {
                     // take() instead of clone() + unwrap — frame context is not read
                     // again after this point (state transitions to Complete).
@@ -322,6 +336,7 @@ impl Parser<'_> {
                     segment_type: Some(effective_segment_type),
                     segment_kwargs: SegmentKwargs {
                         class_types,
+                        instance_types,
                         ..Default::default()
                     },
                 })
