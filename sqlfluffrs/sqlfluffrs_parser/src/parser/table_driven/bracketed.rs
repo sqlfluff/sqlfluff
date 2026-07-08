@@ -455,23 +455,47 @@ impl Parser<'_> {
                         return Ok(TableFrameResult::Done);
                     } else {
                         // GREEDY mode: Create unparsable section for tokens between content end and closing bracket
-                        vdebug!(
-                                "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {})",
-                                check_pos, expected_close_pos, check_pos, expected_close_pos
+                        //
+                        // PYTHON PARITY: trim trailing non-code and comments off
+                        // the unparsable span (via the `_excluding_comments`
+                        // variant below), matching Python's Bracketed.match. Any
+                        // trimmed gap stays as untouched, raw sibling content
+                        // between here and the closing bracket.
+                        let unparsable_stop = self
+                            .skip_stop_index_backward_to_code_excluding_comments(
+                                expected_close_pos,
+                                check_pos,
                             );
 
-                        // Create an UnparsableSegment for the tokens we couldn't parse
-                        let unparsable_match = MatchResult {
-                            matched_slice: check_pos..expected_close_pos,
-                            matched_class: Some(MatchedClass::unparsable(
-                                "Nothing here.",
-                                expected_close_pos,
-                            )),
-                            ..Default::default()
-                        };
-                        child_matches.push(Arc::new(unparsable_match));
+                        // Guard against a zero-length span (mirrors sequence.rs's
+                        // analogous GREEDY-leftover handling in
+                        // handle_sequence_combining, `if _stop_idx > _idx`):
+                        // MatchResult::apply panics on a zero-length matched_slice
+                        // with matched_class set, so only create the unparsable
+                        // child when there's actually code left to wrap.
+                        if unparsable_stop > check_pos {
+                            vdebug!(
+                                    "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {})",
+                                    check_pos, unparsable_stop, check_pos, expected_close_pos
+                                );
 
-                        // Move position to the closing bracket
+                            // Create an UnparsableSegment for the tokens we couldn't parse
+                            let unparsable_match = MatchResult {
+                                matched_slice: check_pos..unparsable_stop,
+                                matched_class: Some(MatchedClass::unparsable(
+                                    "Nothing here.",
+                                    unparsable_stop,
+                                )),
+                                ..Default::default()
+                            };
+                            child_matches.push(Arc::new(unparsable_match));
+                        }
+
+                        // Move position to the closing bracket. Any gap between
+                        // unparsable_stop and expected_close_pos (the trimmed
+                        // trailing non-code) is left uncovered by any child here
+                        // and is filled in as raw, untouched content when the
+                        // tree is materialized.
                         self.pos = expected_close_pos;
                     }
                 } else {
