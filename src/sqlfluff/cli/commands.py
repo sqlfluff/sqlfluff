@@ -1292,8 +1292,8 @@ def _paths_fix(
     is_flag=True,
     help=(
         "Reduces the amount of output to stdout to a minimal level. "
-        "This is effectively the opposite of -v. NOTE: It will only "
-        "take effect if -f/--force is also set."
+        "This is effectively the opposite of -v. NOTE: It cannot be "
+        "used together with -v/--verbose."
     ),
 )
 @click.option(

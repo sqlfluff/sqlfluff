@@ -265,6 +265,15 @@ sparksql_dialect.sets("datetime_units").update(
 # Set Keywords
 sparksql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 sparksql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+# Spark SQL is less restrictive than ANSI: several ANSI reserved keywords are
+# only "strict-non-reserved" in Spark's default (non-ANSI) mode and may be used
+# as identifiers (e.g. `LEFT`/`RIGHT` as lambda variables in `array_sort`, #5004).
+# The keyword lists above are authoritative for Spark, so drop from the inherited
+# ANSI reserved set anything Spark declares unreserved. `LEFT`/`RIGHT` are still
+# matched as keywords in `JoinTypeKeywordsGrammar`, so `LEFT`/`RIGHT [OUTER] JOIN`
+# continue to parse.
+# https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html#sql-keywords
+sparksql_dialect.sets("reserved_keywords").difference_update(UNRESERVED_KEYWORDS)
 
 # Set Angle Bracket Pairs
 sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
