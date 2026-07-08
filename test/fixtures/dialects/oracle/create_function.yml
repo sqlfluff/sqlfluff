@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b1550643161e2db593460a29ec13691a0b356c1008165e68c07d96cd34cd9fed
+_hash: fe561ec6e61251cfce133d537b876d42327f3312eecd09fa6a07da7efb22a402
 file:
 - batch:
     statement:
@@ -524,4 +524,50 @@ file:
       - keyword: JAVA
       - keyword: NAME
       - quoted_literal: "'exClass.someMethod(java.lang.String) return byte[]'"
+      - statement_terminator: ;
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: f_ex
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: p_ex
+            keyword: IN
+            data_type:
+              data_type_identifier: NUMBER
+            end_bracket: )
+      - keyword: RETURN
+      - column_type_reference:
+          column_reference:
+          - naked_identifier: ex_tab
+          - dot: .
+          - naked_identifier: a
+          binary_operator: '%'
+          keyword: TYPE
+      - statement_terminator: ;
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: f_ex
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: p_ex
+            keyword: IN
+            data_type:
+              data_type_identifier: NUMBER
+            end_bracket: )
+      - keyword: RETURN
+      - row_type_reference:
+          table_reference:
+          - naked_identifier: ex_tab
+          - dot: .
+          - naked_identifier: a
+          binary_operator: '%'
+          keyword: ROWTYPE
       - statement_terminator: ;

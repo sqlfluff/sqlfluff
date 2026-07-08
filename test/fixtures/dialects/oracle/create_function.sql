@@ -90,3 +90,11 @@ END;
 
 FUNCTION ex_func(some_string IN VARCHAR2) RETURN RAW
 AS LANGUAGE JAVA NAME 'exClass.someMethod(java.lang.String) return byte[]';
+
+FUNCTION f_ex(
+    p_ex IN NUMBER
+) RETURN ex_tab.a%TYPE;
+
+FUNCTION f_ex(
+    p_ex IN NUMBER
+) RETURN ex_tab.a%ROWTYPE;
