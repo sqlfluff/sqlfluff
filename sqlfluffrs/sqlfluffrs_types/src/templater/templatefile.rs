@@ -751,20 +751,23 @@ mod tests {
         }
     }
 
+    /// `(fname, source_str, templated_str, in_slice, out_slice, is_literal, sliced_file, raw_sliced)`
+    type TemplatedSliceToSourceSliceCase = (
+        String,
+        String,
+        Option<String>,
+        Slice,
+        Slice,
+        bool,
+        Vec<TemplatedFileSlice>,
+        Vec<RawFileSlice>,
+    );
+
     #[test]
     fn test_templated_file_templated_slice_to_source_slice() {
         let complex_file_kwargs = complex_file_kwargs();
         let simple_file_kwargs = simple_file_kwargs();
-        let test_cases: Vec<(
-            String,
-            String,
-            Option<String>,
-            Slice,
-            Slice,
-            bool,
-            Vec<TemplatedFileSlice>,
-            Vec<RawFileSlice>,
-        )> = vec![
+        let test_cases: Vec<TemplatedSliceToSourceSliceCase> = vec![
             // Simple example
             (
                 "foo.sql".to_string(),
