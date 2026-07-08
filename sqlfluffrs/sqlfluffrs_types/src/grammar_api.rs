@@ -691,25 +691,25 @@ mod tests {
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
         static TRIM_CHARS_DATA: &[u32] = &[];
 
-        let tables = GrammarTables::new(
-            INSTRUCTIONS,
-            CHILD_IDS,
-            TERMINATORS,
-            STRINGS,
-            AUX_DATA,
-            AUX_DATA_OFFSETS,
-            REGEX_PATTERNS,
-            SIMPLE_HINTS,
-            HINT_STRING_INDICES,
-            SIMPLE_HINT_INDICES,
-            &[], // segment_type_offsets
-            &[], // segment_class_offsets
-            CASEFOLD_SPARSE,
-            TRIM_CHARS_SPARSE,
-            TRIM_CHARS_DATA,
-            &[], // segment_class_types_sparse
-            &[], // segment_class_types_data
-        );
+        let tables = GrammarTables {
+            instructions: INSTRUCTIONS,
+            child_ids: CHILD_IDS,
+            terminators: TERMINATORS,
+            strings: STRINGS,
+            aux_data: AUX_DATA,
+            aux_data_offsets: AUX_DATA_OFFSETS,
+            regex_patterns: REGEX_PATTERNS,
+            simple_hints: SIMPLE_HINTS,
+            hint_string_indices: HINT_STRING_INDICES,
+            simple_hint_indices: SIMPLE_HINT_INDICES,
+            segment_type_offsets: &[],
+            segment_class_offsets: &[],
+            casefold_sparse: CASEFOLD_SPARSE,
+            trim_chars_sparse: TRIM_CHARS_SPARSE,
+            trim_chars_data: TRIM_CHARS_DATA,
+            segment_class_types_sparse: &[],
+            segment_class_types_data: &[],
+        };
 
         let ctx = GrammarContext::new(&tables);
 
@@ -746,25 +746,25 @@ mod tests {
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
         static TRIM_CHARS_DATA: &[u32] = &[];
 
-        let tables = GrammarTables::new(
-            INSTRUCTIONS,
-            CHILD_IDS,
-            TERMINATORS,
-            STRINGS,
-            AUX_DATA,
-            AUX_DATA_OFFSETS,
-            REGEX_PATTERNS,
-            SIMPLE_HINTS,
-            HINT_STRING_INDICES,
-            SIMPLE_HINT_INDICES,
-            &[], // segment_type_offsets
-            &[], // segment_class_offsets
-            CASEFOLD_SPARSE,
-            TRIM_CHARS_SPARSE,
-            TRIM_CHARS_DATA,
-            &[], // segment_class_types_sparse
-            &[], // segment_class_types_data
-        );
+        let tables = GrammarTables {
+            instructions: INSTRUCTIONS,
+            child_ids: CHILD_IDS,
+            terminators: TERMINATORS,
+            strings: STRINGS,
+            aux_data: AUX_DATA,
+            aux_data_offsets: AUX_DATA_OFFSETS,
+            regex_patterns: REGEX_PATTERNS,
+            simple_hints: SIMPLE_HINTS,
+            hint_string_indices: HINT_STRING_INDICES,
+            simple_hint_indices: SIMPLE_HINT_INDICES,
+            segment_type_offsets: &[],
+            segment_class_offsets: &[],
+            casefold_sparse: CASEFOLD_SPARSE,
+            trim_chars_sparse: TRIM_CHARS_SPARSE,
+            trim_chars_data: TRIM_CHARS_DATA,
+            segment_class_types_sparse: &[],
+            segment_class_types_data: &[],
+        };
 
         let ctx = GrammarContext::new(&tables);
         let seq_id = GrammarId::new(0);

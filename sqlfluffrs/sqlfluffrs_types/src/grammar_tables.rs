@@ -146,47 +146,6 @@ pub struct GrammarTables {
 }
 
 impl GrammarTables {
-    /// Create new grammar tables (for codegen use)
-    pub const fn new(
-        instructions: &'static [GrammarInst],
-        child_ids: &'static [u32],
-        terminators: &'static [u32],
-        strings: &'static [&'static str],
-        aux_data: &'static [u32],
-        aux_data_offsets: &'static [u32],
-        regex_patterns: &'static [&'static str],
-        simple_hints: &'static [SimpleHintData],
-        hint_string_indices: &'static [u32],
-        simple_hint_indices: &'static [u32],
-        segment_type_offsets: &'static [u32],
-        segment_class_offsets: &'static [u32],
-        casefold_sparse: &'static [(u32, u8)],
-        trim_chars_sparse: &'static [(u32, u32, u8)],
-        trim_chars_data: &'static [u32],
-        segment_class_types_sparse: &'static [(u32, u32, u8)],
-        segment_class_types_data: &'static [u32],
-    ) -> Self {
-        Self {
-            instructions,
-            child_ids,
-            terminators,
-            strings,
-            aux_data,
-            aux_data_offsets,
-            regex_patterns,
-            simple_hints,
-            hint_string_indices,
-            simple_hint_indices,
-            segment_type_offsets,
-            segment_class_offsets,
-            casefold_sparse,
-            trim_chars_sparse,
-            trim_chars_data,
-            segment_class_types_sparse,
-            segment_class_types_data,
-        }
-    }
-
     /// Get instruction by ID
     #[inline]
     pub fn get_inst(&self, id: GrammarId) -> &GrammarInst {
@@ -602,25 +561,25 @@ mod tests {
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[]; // No trim_chars in this test
         static TRIM_CHARS_DATA: &[u32] = &[];
 
-        let tables = GrammarTables::new(
-            INSTRUCTIONS,
-            CHILD_IDS,
-            TERMINATORS,
-            STRINGS,
-            AUX_DATA,
-            AUX_DATA_OFFSETS,
-            REGEX_PATTERNS,
-            SIMPLE_HINTS,
-            HINT_STRING_INDICES,
-            SIMPLE_HINT_INDICES,
-            &[], // segment_type_offsets
-            &[], // segment_class_offsets
-            CASEFOLD_SPARSE,
-            TRIM_CHARS_SPARSE,
-            TRIM_CHARS_DATA,
-            &[], // segment_class_types_sparse
-            &[], // segment_class_types_data
-        );
+        let tables = GrammarTables {
+            instructions: INSTRUCTIONS,
+            child_ids: CHILD_IDS,
+            terminators: TERMINATORS,
+            strings: STRINGS,
+            aux_data: AUX_DATA,
+            aux_data_offsets: AUX_DATA_OFFSETS,
+            regex_patterns: REGEX_PATTERNS,
+            simple_hints: SIMPLE_HINTS,
+            hint_string_indices: HINT_STRING_INDICES,
+            simple_hint_indices: SIMPLE_HINT_INDICES,
+            segment_type_offsets: &[],
+            segment_class_offsets: &[],
+            casefold_sparse: CASEFOLD_SPARSE,
+            trim_chars_sparse: TRIM_CHARS_SPARSE,
+            trim_chars_data: TRIM_CHARS_DATA,
+            segment_class_types_sparse: &[],
+            segment_class_types_data: &[],
+        };
 
         assert_eq!(tables.instructions.len(), 3);
         assert_eq!(tables.get_string(0), "SELECT");
@@ -671,25 +630,25 @@ mod tests {
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[]; // No trim_chars in this test
         static TRIM_CHARS_DATA: &[u32] = &[];
 
-        let tables = GrammarTables::new(
-            INSTRUCTIONS,
-            CHILD_IDS,
-            TERMINATORS,
-            STRINGS,
-            AUX_DATA,
-            AUX_DATA_OFFSETS,
-            REGEX_PATTERNS,
-            SIMPLE_HINTS,
-            HINT_STRING_INDICES,
-            SIMPLE_HINT_INDICES,
-            &[], // segment_type_offsets
-            &[], // segment_class_offsets
-            CASEFOLD_SPARSE,
-            TRIM_CHARS_SPARSE,
-            TRIM_CHARS_DATA,
-            &[], // segment_class_types_sparse
-            &[], // segment_class_types_data
-        );
+        let tables = GrammarTables {
+            instructions: INSTRUCTIONS,
+            child_ids: CHILD_IDS,
+            terminators: TERMINATORS,
+            strings: STRINGS,
+            aux_data: AUX_DATA,
+            aux_data_offsets: AUX_DATA_OFFSETS,
+            regex_patterns: REGEX_PATTERNS,
+            simple_hints: SIMPLE_HINTS,
+            hint_string_indices: HINT_STRING_INDICES,
+            simple_hint_indices: SIMPLE_HINT_INDICES,
+            segment_type_offsets: &[],
+            segment_class_offsets: &[],
+            casefold_sparse: CASEFOLD_SPARSE,
+            trim_chars_sparse: TRIM_CHARS_SPARSE,
+            trim_chars_data: TRIM_CHARS_DATA,
+            segment_class_types_sparse: &[],
+            segment_class_types_data: &[],
+        };
 
         let stats = tables.memory_stats();
 
