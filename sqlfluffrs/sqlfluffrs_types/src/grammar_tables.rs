@@ -315,10 +315,10 @@ impl GrammarTables {
     pub fn memory_stats(&self) -> TableMemoryStats {
         use std::mem::size_of;
 
-        let instructions_bytes = self.instructions.len() * size_of::<GrammarInst>();
-        let child_ids_bytes = self.child_ids.len() * size_of::<u32>();
-        let terminators_bytes = self.terminators.len() * size_of::<u32>();
-        let aux_data_bytes = self.aux_data.len() * size_of::<u32>();
+        let instructions_bytes = std::mem::size_of_val(self.instructions);
+        let child_ids_bytes = std::mem::size_of_val(self.child_ids);
+        let terminators_bytes = std::mem::size_of_val(self.terminators);
+        let aux_data_bytes = std::mem::size_of_val(self.aux_data);
 
         // String data: sum of string lengths + pointer overhead
         let strings_bytes = self
@@ -333,7 +333,7 @@ impl GrammarTables {
             .map(|s| s.len() + size_of::<&str>())
             .sum();
 
-        let simple_hints_bytes = self.simple_hints.len() * size_of::<SimpleHintData>();
+        let simple_hints_bytes = std::mem::size_of_val(self.simple_hints);
 
         TableMemoryStats {
             instructions: (self.instructions.len(), instructions_bytes),

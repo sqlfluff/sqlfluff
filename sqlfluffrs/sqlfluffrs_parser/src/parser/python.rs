@@ -311,7 +311,7 @@ impl PyMatchResult {
             .0
             .matched_class
             .as_ref()
-            .map(|s| s.segment_kwargs.casefold.clone())
+            .map(|s| s.segment_kwargs.casefold)
             .unwrap_or_default()
         {
             sqlfluffrs_types::token::CaseFold::None => None,

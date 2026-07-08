@@ -121,9 +121,9 @@ impl LexMatcher {
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
     ) -> Self {
-        let mode = match RegexBuilder::new(&pattern).build() {
+        let mode = match RegexBuilder::new(pattern).build() {
             Ok(regex) => LexerMode::Regex(regex, precheck),
-            Err(_) => match FancyRegexBuilder::new(&pattern).build() {
+            Err(_) => match FancyRegexBuilder::new(pattern).build() {
                 Ok(regex) => LexerMode::FancyRegex(regex, precheck),
                 Err(_) => {
                     if let Some(fallback) = fallback_lexer {
@@ -362,7 +362,7 @@ impl LexMatcher {
             self.trim_chars.clone(),
             self.quoted_value.clone(),
             self.escape_replacements.clone(),
-            self.casefold.clone(),
+            self.casefold,
         )
     }
 }

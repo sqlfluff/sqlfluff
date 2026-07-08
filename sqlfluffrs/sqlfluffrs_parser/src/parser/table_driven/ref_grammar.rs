@@ -89,7 +89,7 @@ impl Parser<'_> {
                     .next()
                     .or_else(|| {
                         self.dialect
-                            .get_segment_grammar(&rule_name)
+                            .get_segment_grammar(rule_name)
                             .map(|root| root.grammar_id)
                     });
                 self.ref_child_cache
