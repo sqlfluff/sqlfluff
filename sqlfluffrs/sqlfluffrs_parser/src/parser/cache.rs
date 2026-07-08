@@ -151,18 +151,8 @@ impl TableParseCache {
         (self.hits, self.misses, self.hit_rate())
     }
 
-    pub fn clear(&mut self) {
-        self.cache.clear();
-        self.hits = 0;
-        self.misses = 0;
-    }
-
     pub fn len(&self) -> usize {
         self.cache.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.cache.is_empty()
     }
 
     /// Iterate over cache entries (for analysis/debugging)
