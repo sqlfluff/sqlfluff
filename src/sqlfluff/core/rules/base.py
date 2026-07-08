@@ -1037,7 +1037,7 @@ class RuleSet:
                 and config_option not in valid_options
                 and config_option is not None
             ):
-                raise ValueError(
+                raise SQLFluffUserError(
                     (
                         "Invalid option '{}' for {} configuration. Must be one of {}"
                     ).format(
