@@ -2759,7 +2759,8 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
                 "BY",
                 OneOf(
                     Ref("BracketedColumnReferenceListGrammar"),
-                    Ref("ColumnReferenceSegment"),
+                    # Unbracketed ``LIMIT n BY a, b`` accepts a list of columns.
+                    Delimited(Ref("ColumnReferenceSegment")),
                 ),
                 optional=True,
             ),
