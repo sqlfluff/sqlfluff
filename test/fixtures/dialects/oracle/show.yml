@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 58b4458ec62b00cf00925045321d60cffb350d26688128c1d92d67891fb36da7
+file:
+  batch:
+  - statement:
+      show_statement:
+      - keyword: SHOW
+      - keyword: ERRORS
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+      - keyword: SHOW
+      - keyword: ERRORS
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: my_func
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+      - keyword: SHOW
+      - keyword: ERRORS
+      - keyword: PACKAGE
+      - keyword: BODY
+      - object_reference:
+          naked_identifier: my_pkg
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+      - keyword: SHOW
+      - keyword: PARAMETER
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+      - keyword: SHOW
+      - keyword: PARAMETERS
+      - parameter: sga_target
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+        keyword: SHOW
+        naked_identifier: RECYCLEBIN
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+      - keyword: SHOW
+      - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+      - keyword: SHOW
+      - keyword: USER
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+        keyword: SHOW
+        naked_identifier: SGA
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+        keyword: SHOW
+        naked_identifier: RELEASE
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+        keyword: SHOW
+        naked_identifier: PDBS
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+        keyword: SHOW
+        naked_identifier: CON_NAME
+  - statement_terminator: ;
+  - statement:
+      show_statement:
+        keyword: SHOW
+        naked_identifier: LINESIZE
+  - statement_terminator: ;
