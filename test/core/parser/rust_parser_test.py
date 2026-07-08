@@ -707,29 +707,24 @@ def _compare_parser_vs_rust(sql: str, dialect: str = "ansi"):
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: when a GREEDY_ONCE_STARTED Sequence (e.g. "
-        "SelectClauseSegment) fails partway through, the Rust engine's "
-        "'failed after partial match' branch "
-        "(sqlfluffrs_parser/src/parser/table_driven/sequence.rs, the branch "
-        "building `unparsable_match` with `..Default::default()`) drops the "
-        "already-matched children's MatchResult (child_matches/"
-        "insert_segments) instead of preserving them as siblings the way "
-        "Python's Sequence.match does. The already-matched SELECT keyword "
-        "then falls back to a raw, untyped `word` segment instead of a "
-        "`keyword` segment. This is not just cosmetic: it makes rule ST05 "
-        "raise an unhandled AssertionError('Keyword not found.') on input "
-        "like 'SELECT CASE' when use_rust_parser=True, where the "
-        "pure-Python path just reports a normal parse violation."
-    ),
-)
 def test__rust_parser__vs_python_partial_match_failure_drops_children():
-    """RustParser loses keyword typing when a GREEDY_ONCE_STARTED match fails.
+    """RustParser preserves keyword typing when a GREEDY_ONCE_STARTED match fails.
 
-    Minimal repro for a real correctness regression found by comparing
-    RustParser against the ground-truth Python Parser on malformed SQL.
+    Regression test: when a GREEDY_ONCE_STARTED Sequence (e.g.
+    SelectClauseSegment) fails partway through, the already-matched
+    children (e.g. the SELECT keyword) must stay typed siblings, with only
+    the unmatched tail wrapped as UnparsableSegment - matching Python's
+    Sequence.match "handle the case of a partial match" behaviour.
+
+    Previously, RustParser's "failed after partial match" branch in
+    sqlfluffrs_parser/src/parser/table_driven/sequence.rs built its error
+    MatchResult with `..Default::default()`, which silently dropped
+    child_matches/insert_segments accumulated before the failure, so the
+    already-matched SELECT keyword fell back to a raw, untyped `word`
+    segment. This wasn't just cosmetic: it made rule ST05 raise an
+    unhandled AssertionError('Keyword not found.') on input like
+    'SELECT CASE' under use_rust_parser=True, where the pure-Python path
+    just reported a normal parse violation.
     """
     rust_result, python_result = _compare_parser_vs_rust("SELECT CASE")
     assert rust_result == python_result
