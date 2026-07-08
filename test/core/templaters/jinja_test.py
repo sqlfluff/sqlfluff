@@ -584,6 +584,35 @@ def test__templater_jinja_error_variable():
     assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
 
 
+def test__templater_jinja_macro_path_utf8(tmp_path, monkeypatch):
+    """Macro files are read as UTF-8 regardless of the platform default encoding.
+
+    See #6633: on platforms whose default text encoding is not UTF-8 (e.g.
+    Windows cp1252), a macro containing a non-ASCII character used to raise a
+    ``UnicodeDecodeError`` when loaded from ``load_macros_from_path``.
+    """
+    macro_file = tmp_path / "macros.sql"
+    # "Á" (U+00C1) is UTF-8 bytes C3 81; byte 0x81 is undefined in cp1252.
+    macro_file.write_text(
+        "{% macro square(n) %}-- Á\n{{ n * n }}{% endmacro %}", encoding="utf-8"
+    )
+
+    real_open = open
+
+    def cp1252_default_open(file, mode="r", *args, encoding=None, **kwargs):
+        # Emulate a platform whose default text encoding is cp1252.
+        if encoding is None and "b" not in mode:
+            encoding = "cp1252"
+        return real_open(file, mode, *args, encoding=encoding, **kwargs)
+
+    monkeypatch.setattr("builtins.open", cp1252_default_open)
+
+    macros = JinjaTemplater._extract_macros_from_path(
+        [str(macro_file)], env=Environment(), ctx={}
+    )
+    assert "square" in macros
+
+
 def test__templater_jinja_dynamic_variable_no_violations():
     """Test no templater violation for variable defined within template."""
     t = JinjaTemplater(override_context=dict(blah="foo"))

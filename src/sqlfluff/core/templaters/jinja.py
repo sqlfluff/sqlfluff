@@ -196,7 +196,10 @@ class JinjaTemplater(PythonTemplater):
                     ):
                         continue
                 # It's a file. Extract macros from it.
-                with open(path_entry) as opened_file:
+                # Read as UTF-8 rather than relying on the platform default
+                # encoding, which crashes on non-ASCII macros on e.g. Windows
+                # (cp1252). See #6633.
+                with open(path_entry, encoding="utf-8") as opened_file:
                     template = opened_file.read()
                 # Update the context with macros from the file.
                 try:
