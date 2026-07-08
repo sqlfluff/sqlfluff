@@ -821,23 +821,18 @@ def test__rust_parser__vs_python_trailing_trivia_in_unparsable():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: on a mismatched bracket type (e.g. '[' closed by ')'), "
-        "Python's bracket-matching immediately detects the mismatch and "
-        "raises a specific 'Found unexpected end bracket!, was expecting "
-        "..., but got ...' SQLParseError. RustParser's engine doesn't "
-        "replicate this specific check and instead falls through to the "
-        "generic 'Couldn't find closing bracket for opening bracket.' "
-        "error, as if the bracket were simply never closed. Same error "
-        "message content differs even though both raise SQLParseError, so "
-        "callers matching on the message (or anything depending on exact "
-        "error text) will see different behaviour."
-    ),
-)
 def test__rust_parser__vs_python_mismatched_bracket_type_error_message():
-    """RustParser's error message differs from Python's for a wrong-bracket-type close."""
+    """RustParser now raises the same specific error as Python for a wrong-bracket-type close.
+
+    Regression test: on a mismatched bracket type (e.g. '[' closed by ')'),
+    Python's bracket-matching immediately detects the mismatch and raises a
+    specific 'Found unexpected end bracket!, was expecting ..., but got
+    ...' SQLParseError. RustParser's greedy_match used to fall through to
+    the generic 'Couldn't find closing bracket for opening bracket.' error
+    instead, as if the bracket were simply never closed - it now scans
+    forward to distinguish a genuinely-unclosed bracket from one closed by
+    the wrong type, matching Python's specific message.
+    """
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer, Parser
 
