@@ -753,8 +753,42 @@ class WithFillSegment(ansi.WithFillSegment):
             ),
             optional=True,
         ),
-        # https://clickhouse.com/docs/sql-reference/statements/select/order-by
-        # #filling-columns-with-interpolate
+    )
+
+
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """An `ORDER BY` clause with ClickHouse's trailing `INTERPOLATE`.
+
+    Unlike `WITH FILL`, which attaches to an individual sort key, `INTERPOLATE`
+    is a single clause that follows the whole comma-delimited `ORDER BY` list.
+
+    https://clickhouse.com/docs/sql-reference/statements/select/order-by
+    #filling-columns-with-interpolate
+    """
+
+    match_grammar: Matchable = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                Ref("WithFillSegment", optional=True),
+            ),
+            terminators=[
+                Ref("LimitClauseSegment"),
+                Ref("FrameClauseUnitGrammar"),
+                "INTERPOLATE",
+            ],
+        ),
         Sequence(
             "INTERPOLATE",
             Bracketed(
@@ -768,6 +802,7 @@ class WithFillSegment(ansi.WithFillSegment):
             ),
             optional=True,
         ),
+        Dedent,
     )
 
 

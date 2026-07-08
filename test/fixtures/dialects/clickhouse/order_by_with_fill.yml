@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 544f5cb639af50c57b3067f269c7ee0549884a42d02a49e52ae8c6cb38f187e9
+_hash: 38988b77cd8c7cdb34b189d52c823ec2f7a8b85445ed77265f5697d67d1e0408
 file:
 - statement:
     select_statement:
@@ -412,18 +412,18 @@ file:
       - with_fill:
         - keyword: WITH
         - keyword: FILL
-        - keyword: INTERPOLATE
-        - bracketed:
-            start_bracket: (
+      - keyword: INTERPOLATE
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: b
+          keyword: AS
+          expression:
             column_reference:
               naked_identifier: b
-            keyword: AS
-            expression:
-              column_reference:
-                naked_identifier: b
-              binary_operator: +
-              numeric_literal: '1'
-            end_bracket: )
+            binary_operator: +
+            numeric_literal: '1'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -463,21 +463,21 @@ file:
             numeric_literal: '10'
         - keyword: STEP
         - numeric_literal: '2'
-        - keyword: INTERPOLATE
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
+      - keyword: INTERPOLATE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: b
+        - keyword: AS
+        - expression:
+            column_reference:
               naked_identifier: b
-          - keyword: AS
-          - expression:
-              column_reference:
-                naked_identifier: b
-              binary_operator: +
-              numeric_literal: '1'
-          - comma: ','
-          - column_reference:
-              naked_identifier: c
-          - end_bracket: )
+            binary_operator: +
+            numeric_literal: '1'
+        - comma: ','
+        - column_reference:
+            naked_identifier: c
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -505,5 +505,45 @@ file:
       - with_fill:
         - keyword: WITH
         - keyword: FILL
-        - keyword: INTERPOLATE
+      - keyword: INTERPOLATE
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: ts
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: ts
+      - with_fill:
+        - keyword: WITH
+        - keyword: FILL
+      - comma: ','
+      - column_reference:
+          naked_identifier: id
+      - keyword: INTERPOLATE
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: value
+          end_bracket: )
 - statement_terminator: ;
