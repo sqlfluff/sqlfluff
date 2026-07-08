@@ -764,26 +764,14 @@ def test__rust_parser__vs_python_stray_closing_bracket_terminator():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: Bracketed.match (src/sqlfluff/core/parser/grammar/"
-        "sequence.py:541-562) only suppresses the hard "
-        "'Couldn't find closing bracket' SQLParseError for "
-        "ParseMode.STRICT; for ParseMode.GREEDY (used by "
-        "CTEDefinitionSegment at dialect_ansi.py:2869 and the VALUES tuple "
-        "in ValuesClauseSegment at dialect_ansi.py:2748) Python always "
-        "raises when no closing bracket is found before EOF. RustParser's "
-        "codegen'd engine does not replicate this hard-raise, and instead "
-        "returns a tree with the remainder wrapped as unparsable."
-    ),
-)
 def test__rust_parser__vs_python_unclosed_greedy_bracket_raises():
-    """Python raises SQLParseError for an unclosed GREEDY-mode bracket.
+    """Python and RustParser now agree: an unclosed GREEDY-mode bracket raises.
 
-    RustParser instead recovers a tree, for the specific GREEDY-mode
-    Bracketed sites (CTE definitions, VALUES tuples) that Python treats as
-    a hard parse error rather than an unparsable section.
+    Regression test for bracketed.rs: for ParseMode.GREEDY (used by
+    CTEDefinitionSegment and the VALUES tuple in ValuesClauseSegment),
+    Python's Bracketed.match() always raises SQLParseError when no closing
+    bracket is found before EOF, so RustParser should raise too rather than
+    quietly recovering an unparsable tree.
     """
     rust_result, python_result = _compare_parser_vs_rust("WITH a AS (SELECT 1")
     assert rust_result == python_result
