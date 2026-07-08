@@ -204,6 +204,22 @@ impl Parser<'_> {
                 }
             }
 
+            // PYTHON PARITY: a closing bracket reached here is stray, not
+            // nested inside anything we're currently scanning past (an
+            // opening bracket's matching_bracket_idx skip would have
+            // consumed it otherwise). Mirror Python's next_ex_bracket_match
+            // (match_algorithms.py), which treats this as "unexpected end
+            // bracket! Return no match": abort the terminator search and
+            // claim everything through max_idx, rather than scan past the
+            // stray bracket to a later terminator like `FROM` or `UNION`.
+            if raw == ")" || raw == "]" || raw == "}" {
+                vdebug!(
+                    "[GREEDY_MATCH_TABLE] greedy_match: unexpected closing bracket at {} — aborting terminator search, claiming through {}",
+                    i, max_idx
+                );
+                return Ok((start_idx, max_idx));
+            }
+
             for &term_id in terminators {
                 // Skip the NONCODE sentinel (see the immediate-match loop above).
                 if term_id == GrammarId::NONCODE {
