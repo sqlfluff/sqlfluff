@@ -404,14 +404,26 @@ impl Lexer {
                 "}" => Some('{'),
                 _ => None,
             } {
-                // Try to match with the most recent opening bracket of the same type
-                if let Some(pos) = bracket_stack.iter().rposition(|(_, c)| *c == expected_open) {
-                    let (open_idx, _) = bracket_stack.remove(pos);
-                    // Set bidirectional pointers
-                    tokens[open_idx].matching_bracket_idx = Some(idx);
-                    tokens[idx].matching_bracket_idx = Some(open_idx);
+                // Only the most-recently-opened bracket (the top of the stack)
+                // may be closed next, per LIFO nesting discipline. This matches
+                // Python's resolve_bracket (match_algorithms.py), which recurses
+                // into a freshly-opened bracket and only returns once that
+                // specific bracket is resolved. On a type mismatch here (e.g.
+                // `a[(1]`), both this closer and the innermost opener stay
+                // unresolved (matching_bracket_idx None for both); the outer `[`
+                // is left for its own closer rather than matched against `]`.
+                if let Some(&(open_idx, top_char)) = bracket_stack.last() {
+                    if top_char == expected_open {
+                        bracket_stack.pop();
+                        // Set bidirectional pointers
+                        tokens[open_idx].matching_bracket_idx = Some(idx);
+                        tokens[idx].matching_bracket_idx = Some(open_idx);
+                    }
+                    // else: type mismatch - leave both this closer and the
+                    // top-of-stack opener unresolved.
                 }
-                // If no matching opening bracket, leave as None (syntax error)
+                // If the stack is empty, there's no open bracket at all -
+                // leave as None (syntax error).
             }
         }
         // Any remaining opening brackets on the stack are unmatched - leave as None
