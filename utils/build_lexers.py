@@ -13,7 +13,7 @@ from sqlfluff.core.parser.lexer import LexerType
 def generate_use():
     """Generates the `use` statements."""
     print("use once_cell::sync::Lazy;")
-    print("use sqlfluffrs_types::LexMatcher;")
+    print("use sqlfluffrs_types::{LexMatcher, LexMatcherConfig};")
     print("use sqlfluffrs_types::{Token, RegexModeGroup};")
     print("use sqlfluffrs_types::token::CaseFold;")
 
@@ -198,18 +198,22 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
     # every `Token::{kind}_token` constructor already matches directly.
     token_fn = f"Token::{segment_name}"
 
+    config = f"""LexMatcherConfig {{
+        subdivider: {subdivider},
+        trim_post_subdivide: {trim_post_subdivide},
+        trim_start: {trim_start},
+        trim_chars: {trim_chars},
+        quoted_value: {quoted_value},
+        escape_replacements: {escape_replacement},
+        casefold: {casefold_rust},
+        kwarg_type: {kwarg_type},
+    }}"""
+
     return f"""
     LexMatcher::{rust_fn}(
         "{lexer_matcher.name}",
-        {template},{token_fn},
-        {subdivider},
-        {trim_post_subdivide},
-        {trim_start},
-        {trim_chars},
-        {quoted_value},
-        {escape_replacement},
-        {casefold_rust},{fallback}{is_match_valid}
-        {kwarg_type},
+        {template},{token_fn},{fallback}{is_match_valid}
+        {config},
     )"""
 
 

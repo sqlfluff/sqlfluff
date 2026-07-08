@@ -57,6 +57,20 @@ pub struct LexMatcher {
     pub kwarg_type: Option<String>,
 }
 
+/// Grouped optional parameters shared by [`LexMatcher::string_lexer`],
+/// [`LexMatcher::regex_lexer`], and [`LexMatcher::regex_subdivider`].
+#[derive(Debug, Clone, Default)]
+pub struct LexMatcherConfig {
+    pub subdivider: Option<Box<LexMatcher>>,
+    pub trim_post_subdivide: Option<Box<LexMatcher>>,
+    pub trim_start: Option<Vec<String>>,
+    pub trim_chars: Option<Vec<String>>,
+    pub quoted_value: Option<(String, RegexModeGroup)>,
+    pub escape_replacements: Option<(String, String)>,
+    pub casefold: CaseFold,
+    pub kwarg_type: Option<String>,
+}
+
 impl Display for LexMatcher {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "<{}: {}>", self.mode, self.name)
@@ -69,28 +83,21 @@ impl LexMatcher {
         name: &str,
         template: &str,
         token_class_func: TokenGenerator,
-        subdivider: Option<Box<LexMatcher>>,
-        trim_post_subdivide: Option<Box<LexMatcher>>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacements: Option<(String, String)>,
-        casefold: CaseFold,
-        kwarg_type: Option<String>,
+        config: LexMatcherConfig,
     ) -> Self {
         Self {
             // dialect,
             name: name.to_string(),
             mode: LexerMode::String(template.to_string()),
             token_class_func,
-            subdivider,
-            trim_post_subdivide,
-            trim_start,
-            trim_chars,
-            quoted_value,
-            escape_replacements,
-            casefold,
-            kwarg_type,
+            subdivider: config.subdivider,
+            trim_post_subdivide: config.trim_post_subdivide,
+            trim_start: config.trim_start,
+            trim_chars: config.trim_chars,
+            quoted_value: config.quoted_value,
+            escape_replacements: config.escape_replacements,
+            casefold: config.casefold,
+            kwarg_type: config.kwarg_type,
         }
     }
 
@@ -99,16 +106,9 @@ impl LexMatcher {
         name: &str,
         pattern: &str,
         token_class_func: TokenGenerator,
-        subdivider: Option<Box<LexMatcher>>,
-        trim_post_subdivide: Option<Box<LexMatcher>>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacements: Option<(String, String)>,
-        casefold: CaseFold,
         fallback_lexer: Option<fn(&str) -> Option<&str>>,
         precheck: fn(&str) -> bool,
-        kwarg_type: Option<String>,
+        config: LexMatcherConfig,
     ) -> Self {
         let mode = match RegexBuilder::new(pattern).build() {
             Ok(regex) => LexerMode::Regex(regex, precheck),
@@ -132,14 +132,14 @@ impl LexMatcher {
             name: name.to_string(),
             mode,
             token_class_func,
-            subdivider,
-            trim_post_subdivide,
-            trim_start,
-            trim_chars,
-            quoted_value,
-            escape_replacements,
-            casefold,
-            kwarg_type,
+            subdivider: config.subdivider,
+            trim_post_subdivide: config.trim_post_subdivide,
+            trim_start: config.trim_start,
+            trim_chars: config.trim_chars,
+            quoted_value: config.quoted_value,
+            escape_replacements: config.escape_replacements,
+            casefold: config.casefold,
+            kwarg_type: config.kwarg_type,
         }
     }
 
@@ -148,16 +148,9 @@ impl LexMatcher {
         name: &str,
         template: &str,
         token_class_func: TokenGenerator,
-        subdivider: Option<Box<LexMatcher>>,
-        trim_post_subdivide: Option<Box<LexMatcher>>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacements: Option<(String, String)>,
-        casefold: CaseFold,
         fallback_lexer: Option<fn(&str) -> Option<&str>>,
         precheck: fn(&str) -> bool,
-        kwarg_type: Option<String>,
+        config: LexMatcherConfig,
     ) -> Self {
         let pattern = format!(r"(?s)\A(?:{})", template);
         Self::base_regex_lexer(
@@ -165,16 +158,9 @@ impl LexMatcher {
             name,
             &pattern,
             token_class_func,
-            subdivider,
-            trim_post_subdivide,
-            trim_start,
-            trim_chars,
-            quoted_value,
-            escape_replacements,
-            casefold,
             fallback_lexer,
             precheck,
-            kwarg_type,
+            config,
         )
     }
 
@@ -183,16 +169,9 @@ impl LexMatcher {
         name: &str,
         template: &str,
         token_class_func: TokenGenerator,
-        subdivider: Option<Box<LexMatcher>>,
-        trim_post_subdivide: Option<Box<LexMatcher>>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacements: Option<(String, String)>,
-        casefold: CaseFold,
         fallback_lexer: Option<fn(&str) -> Option<&str>>,
         precheck: fn(&str) -> bool,
-        kwarg_type: Option<String>,
+        config: LexMatcherConfig,
     ) -> Self {
         let pattern = format!(r"(?:{})", template);
         Self::base_regex_lexer(
@@ -200,16 +179,9 @@ impl LexMatcher {
             name,
             &pattern,
             token_class_func,
-            subdivider,
-            trim_post_subdivide,
-            trim_start,
-            trim_chars,
-            quoted_value,
-            escape_replacements,
-            casefold,
             fallback_lexer,
             precheck,
-            kwarg_type,
+            config,
         )
     }
 
