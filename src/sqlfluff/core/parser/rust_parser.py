@@ -561,7 +561,14 @@ try:
                 rs_match
             )
 
-            result_segments: tuple[BaseSegment, ...] = ()
+            # NOTE: Accumulate into a list and build the tuple once at the end.
+            # `tuple += ...` looks equivalent but isn't: tuples are immutable,
+            # so each `+=` allocates a new tuple and copies everything
+            # accumulated so far, making a loop of N appends O(N^2). A list
+            # amortises appends/extends to O(N), which matters here since this
+            # runs at every level of a potentially large tree (e.g. long
+            # column/UNION/IN lists produce nodes with many trigger locations).
+            result_segments_list: list[BaseSegment] = []
 
             # Zero-length match: only meta inserts are valid (mirrors apply()).
             if start == stop:
@@ -572,8 +579,8 @@ try:
                     )
                     _pos = _get_point_pos_at_idx(segments, idx)
                     parse_context.increment_parse_nodes()
-                    result_segments += (seg(pos_marker=_pos),)
-                return result_segments
+                    result_segments_list.append(seg(pos_marker=_pos))
+                return tuple(result_segments_list)
 
             # Merge inserts (added first) and child matches into trigger locations.
             trigger_locs: defaultdict[int, list[Union["RsMatchResult", type]]] = (
@@ -588,7 +595,7 @@ try:
             for idx in sorted(trigger_locs):
                 # Include any untouched segments before this trigger.
                 if idx > max_idx:
-                    result_segments += tuple(segments[max_idx:idx])
+                    result_segments_list.extend(segments[max_idx:idx])
                     max_idx = idx
                 elif idx < max_idx:  # pragma: no cover
                     # An outer match contains overlapping child matches: the
@@ -604,17 +611,21 @@ try:
                         # NOTE: apply() does not count meta inserts here (only in
                         # the zero-length branch above), so neither do we.
                         _pos = _get_point_pos_at_idx(segments, idx)
-                        result_segments += (trigger(pos_marker=_pos),)
+                        result_segments_list.append(trigger(pos_marker=_pos))
                     else:
                         # A child match - recurse and advance past it.
-                        result_segments += self._apply_rs_match_result(
-                            trigger, segments, parse_context
+                        result_segments_list.extend(
+                            self._apply_rs_match_result(
+                                trigger, segments, parse_context
+                            )
                         )
                         max_idx = trigger.matched_slice[1]
 
             # Anything left after the last trigger.
             if max_idx < stop:
-                result_segments += tuple(segments[max_idx:stop])
+                result_segments_list.extend(segments[max_idx:stop])
+
+            result_segments = tuple(result_segments_list)
 
             if not matched_class:
                 return result_segments
