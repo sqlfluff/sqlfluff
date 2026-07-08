@@ -70,15 +70,6 @@ class PositionMarker:
     def __str__(self) -> str:
         return self.to_source_string()
 
-    def __repr__(self) -> str:
-        return (
-            f"PositionMarker(source_slice={self.source_slice!r}, "
-            f"templated_slice={self.templated_slice!r}, "
-            f"templated_file={self.templated_file!r}, "
-            f"working_line_no={self.working_line_no!r}, "
-            f"working_line_pos={self.working_line_pos!r})"
-        )
-
     def __gt__(self, other: "PositionMarker") -> bool:
         return self.working_loc > other.working_loc
 
