@@ -2,7 +2,7 @@
 name = "sqlfluffrs_rules"
 version.workspace = true
 edition = "2021"
-rust-version = "1.82"
+rust-version = "1.96"
 
 # Rust-native lint rules. Detection runs over the parse arena's public read API
 # (sqlfluffrs_parser::Arena); fixes are still applied Python-side for now. The

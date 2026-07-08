@@ -2,7 +2,7 @@
 name = "sqlfluffrs_parser"
 version.workspace = true
 edition = "2021"
-rust-version = "1.82"
+rust-version = "1.96"
 
 [dependencies]
 env_logger = "0.11.9"
