@@ -229,9 +229,9 @@ impl TemplatedFile {
 
         // Update starting position based on insertion point
         let mut ts_start_sf_start = ts_start_sf_start;
-        if insertion_point.is_some() {
+        if let Some(insertion_point) = insertion_point {
             for elem in self.sliced_file.iter().skip(ts_start_sf_start) {
-                if elem.source_codepoint_slice.start == insertion_point.unwrap() {
+                if elem.source_codepoint_slice.start == insertion_point {
                     break;
                 }
                 ts_start_sf_start += 1;
