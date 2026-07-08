@@ -4,23 +4,12 @@ use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashSet;
 use regex::{Regex, RegexBuilder};
 
-use crate::{token::CaseFold, PositionMarker, RegexModeGroup, Token};
+use crate::{token::CaseFold, PositionMarker, RegexModeGroup, Token, TokenConfig};
 
 // use sqlfluffrs_dialects::Dialect;
 
-/// Legacy function pointer type for token generation (maintains backward compatibility)
-/// This signature accepts individual parameters and constructs a TokenConfig internally
-pub type TokenGenerator = fn(
-    String,                           // raw
-    PositionMarker,                   // pos_marker
-    HashSet<String>,                  // class_types
-    Vec<String>,                      // instance_types
-    Option<Vec<String>>,              // trim_start
-    Option<Vec<String>>,              // trim_chars
-    Option<(String, RegexModeGroup)>, // quoted_value
-    Option<(String, String)>,         // escape_replacement
-    CaseFold,                         // casefold
-) -> Token;
+/// Function pointer type for token generation: one of `Token::{kind}_token`.
+pub type TokenGenerator = fn(String, PositionMarker, TokenConfig) -> Token;
 
 #[derive(Debug, Clone)]
 pub enum LexerMode {
@@ -356,13 +345,15 @@ impl LexMatcher {
         (self.token_class_func)(
             raw.to_string(),
             pos_marker,
-            HashSet::new(),
-            instance_types,
-            self.trim_start.clone(),
-            self.trim_chars.clone(),
-            self.quoted_value.clone(),
-            self.escape_replacements.clone(),
-            self.casefold,
+            TokenConfig {
+                class_types: HashSet::new(),
+                instance_types,
+                trim_start: self.trim_start.clone(),
+                trim_chars: self.trim_chars.clone(),
+                quoted_value: self.quoted_value.clone(),
+                escape_replacement: self.escape_replacements.clone(),
+                casefold: self.casefold,
+            },
         )
     }
 }

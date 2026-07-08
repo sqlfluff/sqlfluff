@@ -194,15 +194,14 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
     else:
         escape_replacement = None
 
-    # Generate a closure that uses TokenConfig
-    token_closure = _generate_token_closure(
-        segment_name,
-    )
+    # TokenGenerator is `fn(String, PositionMarker, TokenConfig) -> Token`, which
+    # every `Token::{kind}_token` constructor already matches directly.
+    token_fn = f"Token::{segment_name}"
 
     return f"""
     LexMatcher::{rust_fn}(
         "{lexer_matcher.name}",
-        {template},{token_closure},
+        {template},{token_fn},
         {subdivider},
         {trim_post_subdivide},
         {trim_start},
@@ -212,29 +211,6 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         {casefold_rust},{fallback}{is_match_valid}
         {kwarg_type},
     )"""
-
-
-def _generate_token_closure(
-    segment_name: str,
-) -> str:
-    """Generate a closure that constructs a token with TokenConfig.
-
-    This generates a closure matching the TokenGenerator signature that
-    internally uses the new TokenConfig-based API.
-
-    Uses Rust's struct field shorthand syntax for cleaner code generation.
-
-    Note: The closure still accepts Option<fn(&str) -> str> for casefold
-    to maintain compatibility with the compat layer, which converts it to
-    the CaseFold enum internally.
-    """
-    return f"""
-        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
-         quoted_value, escape_replacement, casefold| {{
-            Token::{segment_name}_compat(raw, pos_marker, class_types,
-                instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold)
-        }}"""
 
 
 def generate_extract_nested_block_comments(dialect: str):
