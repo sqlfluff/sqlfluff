@@ -309,6 +309,105 @@ def test__parser__base_segments_copy_isolation(DummySegment, raw_segments):
     assert b_seg.pos_marker
 
 
+def _build_nested_segment(DummyAuxSegment, leaf_segments, depth):
+    """Build a segment nested `depth` levels deep, wrapping `leaf_segments`.
+
+    Built iteratively (no recursion here) so the test setup itself never
+    contributes to the recursion depth being probed.
+    """
+    node = DummyAuxSegment(leaf_segments)
+    for _ in range(depth):
+        node = DummyAuxSegment((node,))
+    return node
+
+
+# ---------------------------------------------------------------------------
+# Deep-nesting regression tests: these BaseSegment properties/methods should
+# recurse via a plain loop rather than a generator expression or
+# comprehension, keeping one Python stack frame per nesting level instead of
+# two, so deep parse trees stay well within Python's default recursion limit
+# (1000). Same fix as the RustParser native_ast recursion-depth-asymmetry
+# regression in rust_parser.py's _convert_rs_match_result.
+#
+# Each test below generates its own fresh leaf segments and stays in its own
+# function, rather than sharing the module-scoped `raw_segments` fixture or a
+# tree across tests, to keep each test's available stack headroom
+# independent and representative of a single recursive call in isolation.
+# Wrapping the shared `raw_segments` fixture at these depths also left
+# test__parser__base_segments_parent_ref seeing a stale parent on
+# raw_segments[0]; fresh leaves avoid that too.
+#
+# Depths are chosen with a comfortable margin either side of where the
+# pre-fix implementation starts raising RecursionError.
+# ---------------------------------------------------------------------------
+
+
+def _check_count_segments(tree, leaf_segments, depth):
+    # +1 for the innermost DummyAuxSegment directly wrapping the leaves,
+    # plus one more DummyAuxSegment per nesting level.
+    assert tree.count_segments() == depth + 1 + len(leaf_segments)
+
+
+def _check_copy(tree, leaf_segments, depth):
+    assert tree.copy().raw == tree.raw
+
+
+def _check_descendant_type_set(tree, leaf_segments, depth):
+    assert "raw" in tree.descendant_type_set
+
+
+# Each entry maps a recursive method/property to (depth, check). `check` just
+# needs to call the accessor and confirm it doesn't raise RecursionError;
+# a handful also assert a value, where that's cheap to do. Return shapes are
+# already covered by the non-deep-nesting tests elsewhere in this file.
+_DEEP_NESTING_CASES = {
+    "count_segments": (400, _check_count_segments),
+    "copy": (400, _check_copy),
+    "to_tuple": (400, lambda tree, leaf_segments, depth: tree.to_tuple()),
+    "descendant_type_set": (350, _check_descendant_type_set),
+    "is_code": (400, lambda tree, leaf_segments, depth: tree.is_code),
+    "is_comment": (400, lambda tree, leaf_segments, depth: tree.is_comment),
+    "is_whitespace": (400, lambda tree, leaf_segments, depth: tree.is_whitespace),
+    "raw_segments_with_ancestors": (
+        400,
+        lambda tree, leaf_segments, depth: tree.raw_segments_with_ancestors,
+    ),
+    "source_fixes": (400, lambda tree, leaf_segments, depth: tree.source_fixes),
+    "get_raw_segments": (
+        400,
+        lambda tree, leaf_segments, depth: tree.get_raw_segments(),
+    ),
+}
+
+
+@pytest.mark.parametrize("name", list(_DEEP_NESTING_CASES))
+def test__parser__base_segments_deep_nesting_no_recursion_error(
+    generate_test_segments, DummyAuxSegment, name
+):
+    """Recursive BaseSegment methods/properties survive deep nesting.
+
+    Each should recurse via a plain loop rather than a generator expression
+    or comprehension, keeping one Python stack frame per nesting level
+    instead of two, so deep parse trees stay well within Python's default
+    recursion limit (1000). Same fix as the RustParser native_ast
+    recursion-depth-asymmetry regression in rust_parser.py's
+    _convert_rs_match_result.
+
+    Fresh leaf segments are generated per call (rather than reusing the
+    module-scoped `raw_segments` fixture) so each case's available stack
+    headroom is independent and representative of a single recursive call
+    in isolation, and so wrapping them at these depths doesn't leave
+    test__parser__base_segments_parent_ref seeing a stale parent.
+
+    Depths are chosen with a comfortable margin either side of where the
+    pre-fix implementation starts raising RecursionError.
+    """
+    leaf_segments = generate_test_segments(["foobar", ".barfoo"])
+    depth, check = _DEEP_NESTING_CASES[name]
+    tree = _build_nested_segment(DummyAuxSegment, leaf_segments, depth)
+    check(tree, leaf_segments, depth)
+
+
 def test__parser__base_segments_parent_ref(DummySegment, raw_segments):
     """Test getting and setting parents on BaseSegment."""
     # Check initially no parent (because not set)
