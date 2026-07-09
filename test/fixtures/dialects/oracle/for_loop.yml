@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fdc358d6501f37180a02a066de0c437a2a01d1699f2e5e24cc39e8a71941cc17
+_hash: ed43d43abd19acebf123927b3433b5e73a8e519936dd532cd4a8a69f6ef26297
 file:
 - batch:
     statement:
@@ -539,7 +539,7 @@ file:
           row_type_reference:
             table_reference:
               naked_identifier: employees
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
           statement_terminator: ;
           cursor_variable:
@@ -592,7 +592,7 @@ file:
                 - keyword: WHEN
                 - expression:
                     naked_identifier: c1
-                    binary_operator: '%'
+                    attribute_indicator: '%'
                     keyword: NOTFOUND
             - statement_terminator: ;
             - keyword: END
@@ -616,7 +616,7 @@ file:
           row_type_reference:
             table_reference:
               naked_identifier: employees
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
           statement_terminator: ;
           cursor_variable:
@@ -681,7 +681,7 @@ file:
                       - keyword: WHEN
                       - expression:
                           naked_identifier: c1
-                          binary_operator: '%'
+                          attribute_indicator: '%'
                           keyword: NOTFOUND
                   - statement_terminator: ;
                   - keyword: END
@@ -709,7 +709,7 @@ file:
           row_type_reference:
             table_reference:
               naked_identifier: employees
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
           statement_terminator: ;
           cursor_variable:
@@ -774,7 +774,7 @@ file:
                       - keyword: WHEN
                       - expression:
                           naked_identifier: c1
-                          binary_operator: '%'
+                          attribute_indicator: '%'
                           keyword: NOTFOUND
                   - statement_terminator: ;
                   - keyword: END

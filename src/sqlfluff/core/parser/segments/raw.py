@@ -29,6 +29,22 @@ class RawSegment(BaseSegment):
     # to enable simple initialisation.
     _default_raw = ""
 
+    # NOTE: These are declared here (rather than solely via `self.x = value`
+    # in __init__) because __init__ writes most fields straight into
+    # self.__dict__ for performance (see the NOTE in __init__), which mypy
+    # can't use to infer instance attribute types the way it can a plain
+    # assignment.
+    _raw: str
+    _raw_upper: str
+    _raw_value: str
+    instance_types: tuple[str, ...]
+    trim_start: Optional[tuple[str, ...]]
+    trim_chars: Optional[tuple[str, ...]]
+    _source_fixes: Optional[list[SourceFix]]
+    quoted_value: Optional[tuple[str, Union[int, str]]]
+    escape_replacements: Optional[list[tuple[str, str]]]
+    casefold: Optional[Callable[[str], str]]
+
     def __init__(
         self,
         raw: Optional[str] = None,
@@ -51,35 +67,46 @@ class RawSegment(BaseSegment):
         If raw is not provided, we default to _default_raw if present.
         If pos_marker is not provided, it is assume that this will be
         inserted later as part of a reposition phase.
+
+        NOTE: This writes straight into ``self.__dict__`` rather than via
+        plain attribute assignment. RawSegment has no children, so none of
+        BaseSegment.__setattr__'s cache-invalidation machinery applies here,
+        but *any* class-level ``__setattr__`` override still forces every
+        ``self.x = y`` through a full Python-level call. This class is on
+        the lexer's hot path (one instantiation per raw token), so bypassing
+        the attribute protocol entirely is a meaningful win at that volume.
         """
-        if raw is not None:  # NB, raw *can* be an empty string and be valid
-            self._raw = raw
-        else:
-            self._raw = self._default_raw
-        self._raw_upper = self._raw.upper()
-        # pos marker is required here. We ignore the typing initially
-        # because it might *initially* be unset, but it will be reset
-        # later.
-        self.pos_marker: PositionMarker = pos_marker  # type: ignore
-        # Set the segments attribute to be an empty tuple.
-        self.segments = ()
-        self.instance_types: tuple[str, ...]
         if type:
             assert not instance_types, "Cannot set `type` and `instance_types`."
-            self.instance_types = (type,)
-        else:
-            self.instance_types = instance_types
+            instance_types = (type,)
+
+        _raw = raw if raw is not None else self._default_raw
+
+        # pos marker is required here. We ignore the typing initially
+        # because it might *initially* be unset, but it will be reset
+        # later. NOTE: Assigned normally (not via the __dict__ bypass below)
+        # because this annotated assignment is what tells mypy that, for a
+        # RawSegment specifically, pos_marker is non-Optional - several call
+        # sites downstream rely on that narrowing.
+        self.pos_marker: PositionMarker = pos_marker  # type: ignore
+
+        d = self.__dict__
+        d["_raw"] = _raw
+        d["_raw_upper"] = _raw.upper()
+        # Set the segments attribute to be an empty tuple.
+        d["segments"] = ()
+        d["instance_types"] = instance_types
         # What should we trim off the ends to get to content
-        self.trim_start = trim_start
-        self.trim_chars = trim_chars
+        d["trim_start"] = trim_start
+        d["trim_chars"] = trim_chars
         # Keep track of any source fixes
-        self._source_fixes = source_fixes
+        d["_source_fixes"] = source_fixes
         # Identifier for matching (a plain int, swift for comparisons).
-        self.uuid = uuid or get_next_id()
-        self.quoted_value = quoted_value
-        self.escape_replacements = escape_replacements
-        self.casefold = casefold
-        self._raw_value: str = self.normalize()
+        d["uuid"] = uuid or get_next_id()
+        d["quoted_value"] = quoted_value
+        d["escape_replacements"] = escape_replacements
+        d["casefold"] = casefold
+        d["_raw_value"] = self.normalize()
 
     @functools.cached_property
     def representation(self) -> str:
