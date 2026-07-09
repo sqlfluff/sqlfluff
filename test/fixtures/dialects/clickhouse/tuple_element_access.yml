@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 996cc66cb89609078d320152e41a281472f77721bbab2355cbdf058d3ac78932
+_hash: c5cf43bf9323d2252754bc305d9d5395d6de84ffef28e48f85aa6fefec997019
 file:
 - statement:
     select_statement:
@@ -89,4 +89,70 @@ file:
             column_reference:
               naked_identifier: test
               numeric_literal: '.2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: f
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                  end_bracket: )
+            tuple_element_access:
+              numeric_literal: '.2'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: arr
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '1'
+              end_square_bracket: ']'
+            tuple_element_access:
+              numeric_literal: '.2'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: a
+            - comma: ','
+            - column_reference:
+                naked_identifier: b
+            - end_bracket: )
+            tuple_element_access:
+              numeric_literal: '.1'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: f
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                  end_bracket: )
+            tuple_element_access:
+            - numeric_literal: '.1'
+            - numeric_literal: '.2'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
 - statement_terminator: ;
