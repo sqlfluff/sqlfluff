@@ -104,6 +104,36 @@ databricks_dialect.insert_lexer_matchers(
 )
 
 databricks_dialect.insert_lexer_matchers(
+    # Bare notebook magic in the first cell must consume the notebook header,
+    # because the lexer only matches against the remaining string slice.
+    [
+        RegexLexer(
+            "notebook_start_bare_magic_sql",
+            r"-- Databricks notebook source(?:\r?\n)%sql\b[^\r\n]*",
+            CommentSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+            trim_post_subdivide=RegexLexer(
+                "notebook_start", r"-- Databricks notebook source", CommentSegment
+            ),
+        ),
+        RegexLexer(
+            "notebook_start_bare_magic_cell",
+            r"(?s)-- Databricks notebook source(?:\r?\n)"
+            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
+            r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
+            r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+            CodeSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+            trim_post_subdivide=RegexLexer(
+                "notebook_start", r"-- Databricks notebook source", CommentSegment
+            ),
+        ),
+    ],
+    before="inline_comment",
+)
+
+
+databricks_dialect.insert_lexer_matchers(
     # Databricks Notebook Start:
     # needed to insert "so early" to avoid magic + notebook
     # start to be interpreted as inline comments
@@ -331,6 +361,9 @@ databricks_dialect.add(
     MagicStartGrammar=TypedParser("magic_start", CodeSegment, type="magic_start"),
     BareMagicCellGrammar=TypedParser(
         "bare_magic_cell", CodeSegment, type="bare_magic_cell"
+    ),
+    NotebookStartBareMagicCellGrammar=TypedParser(
+        "notebook_start_bare_magic_cell", CodeSegment, type="bare_magic_cell"
     ),
     VariableNameIdentifierSegment=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -2074,7 +2107,12 @@ class MagicCellStatementSegment(BaseSegment):
             ),
             Ref("MagicSingleLineGrammar", optional=True),
             # One `bare_magic_cell` token per line (see the lexer subdivider).
-            AnyNumberOf(Ref("BareMagicCellGrammar")),
+            AnyNumberOf(
+                OneOf(
+                    Ref("BareMagicCellGrammar"),
+                    Ref("NotebookStartBareMagicCellGrammar"),
+                )
+            ),
         ),
         terminators=[Ref("CommandCellSegment", optional=True)],
         reset_terminators=True,
