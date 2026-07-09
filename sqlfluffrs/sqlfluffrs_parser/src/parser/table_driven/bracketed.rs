@@ -210,25 +210,23 @@ impl Parser<'_> {
         *content_ids = content_ids_local; // Move instead of clone
         *content_idx = 0;
 
-        // Consume any leading Meta content elements inline.
+        // Consume any leading Meta content elements inline, WITHOUT emitting them.
         // Meta grammar elements must not be pushed as child frames - handle them directly
         // so the parser never hits the "Meta grammar should be consumed by a sequence or
         // bracketed" warning path in iterative.rs.
+        // Python parity: Bracketed.match (sequence.py) matches its content via
+        // Sequence.match and then propagates only `content_match.child_matches`,
+        // DROPPING the content sequence's top-level `insert_segments` — so
+        // Indent/Dedent/Conditional elements that are direct children of a
+        // Bracketed never appear in the native tree (e.g. sparksql
+        // PivotClauseSegment's `Bracketed(Indent, ..., Dedent)`).
         while *content_idx < content_ids.len()
             && self.grammar_ctx.variant(content_ids[*content_idx]) == GrammarVariant::Meta
         {
             vdebug!(
-                "Bracketed[table]: consuming leading Meta at content_idx={} inline",
+                "Bracketed[table]: dropping leading Meta at content_idx={} (Python parity)",
                 *content_idx
             );
-            if let Some(meta_seg) = self.grammar_id_to_meta_segment(content_ids[*content_idx]) {
-                let meta_match = MatchResult {
-                    matched_slice: self.pos..self.pos,
-                    insert_segments: vec![(self.pos, meta_seg)],
-                    ..Default::default()
-                };
-                child_matches.push(Arc::new(meta_match));
-            }
             *content_idx += 1;
         }
 
@@ -357,22 +355,16 @@ impl Parser<'_> {
             // More content elements remain - parse the next one
             *content_idx += 1;
 
-            // Consume consecutive Meta elements inline, same reasoning as above.
+            // Consume consecutive Meta elements inline, same reasoning (and same
+            // Python-parity DROP — see the leading-Meta comment above) as in
+            // `handle_bracketed_open_result`.
             while *content_idx < content_ids.len()
                 && self.grammar_ctx.variant(content_ids[*content_idx]) == GrammarVariant::Meta
             {
                 vdebug!(
-                    "Bracketed[table]: consuming Meta at content_idx={} inline",
+                    "Bracketed[table]: dropping Meta at content_idx={} (Python parity)",
                     *content_idx
                 );
-                if let Some(meta_seg) = self.grammar_id_to_meta_segment(content_ids[*content_idx]) {
-                    let meta_match = MatchResult {
-                        matched_slice: self.pos..self.pos,
-                        insert_segments: vec![(self.pos, meta_seg)],
-                        ..Default::default()
-                    };
-                    child_matches.push(Arc::new(meta_match));
-                }
                 *content_idx += 1;
             }
 
