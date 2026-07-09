@@ -668,3 +668,42 @@ def test__rust_parser__rs_tree_arena_navigation():
     assert any(
         leaf.raw.upper() == "FROM" and leaf.is_type(["keyword"]) for leaf in leaves
     )
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "method,is_datatype_method",
+    [
+        ("value", True),  # T-SQL data-type methods are case-SENSITIVE (lowercase)
+        ("query", True),
+        ("VALUE", False),  # upper/mixed case is NOT a data-type method
+        ("Value", False),
+        ("QUERY", False),
+    ],
+)
+def test__rust_parser__tsql_datatype_method_case_sensitive(method, is_datatype_method):
+    """Rust parser honors ``ignore_case=False``.
+
+    ``col.value(...)`` is a data-type method (case-sensitive, lowercase only);
+    ``col.VALUE(...)`` / ``col.Value(...)`` are not. The Rust parser must match
+    native here.
+    """
+    from sqlfluff.core import FluffConfig, Linter
+
+    src = f"SELECT col.{method}('/x', 'y') FROM t;\n"
+
+    def method_ids(rust: bool):
+        cfg = FluffConfig(
+            overrides={
+                "dialect": "tsql",
+                "use_rust_parser": rust,
+                "use_rust_engine": False,
+            }
+        )
+        tree = Linter(config=cfg).parse_string(src).tree
+        return [s.raw for s in tree.recursive_crawl("datatype_method_name_identifier")]
+
+    rust_ids = method_ids(True)
+    native_ids = method_ids(False)
+    assert rust_ids == native_ids  # parity with native
+    assert (method in rust_ids) is is_datatype_method
