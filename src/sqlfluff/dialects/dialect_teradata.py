@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    CommentSegment,
     ComparisonOperatorSegment,
     CompositeComparisonOperatorSegment,
     Dedent,
@@ -50,6 +51,20 @@ teradata_dialect.patch_lexer_matchers(
             CodeSegment,
         ),
     ]
+)
+
+# Add BTEQ meta-command lexer: treat dot-prefixed commands as comments
+# so the parser can skip them (similar to Postgres psql meta-commands).
+# Example: .RUN FILE=POSTING, .IF errorcode > 0 then .quit 2
+teradata_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "bteq_command",
+            r"\.[^\r\n]*",
+            CommentSegment,
+        )
+    ],
+    before="code",
 )
 
 # Remove unused keywords from the dialect.
