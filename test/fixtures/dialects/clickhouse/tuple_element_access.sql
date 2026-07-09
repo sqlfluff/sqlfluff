@@ -17,4 +17,3 @@ SELECT
     (a, b).1,
     f(x).1.2
 FROM t;
-
