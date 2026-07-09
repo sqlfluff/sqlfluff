@@ -318,6 +318,14 @@ clickhouse_dialect.replace(
         Ref("TupleElementAccessSegment"),
         ansi_dialect.get_grammar("Expression_D_Grammar"),
     ),
+    # Allow tuple element access (`.N`) as a postfix accessor alongside array
+    # subscripting, so it can follow any Expression_D base -- e.g. a function
+    # call `f(x).2`, a subscript `arr[1].2`, or a tuple literal `(a, b).1` --
+    # not just a bare/bracketed column reference.
+    AccessorGrammar=AnyNumberOf(
+        Ref("ArrayAccessorSegment"),
+        Ref("TupleElementAccessorSegment"),
+    ),
     # ClickHouse C-style ternary `cond ? then : else`; the lowest-precedence
     # operator, so the optional tail wraps the whole Expression_A condition.
     # https://clickhouse.com/docs/en/sql-reference/functions/conditional-functions#ternary-operator
@@ -2967,5 +2975,23 @@ class TupleElementAccessSegment(BaseSegment):
             min_times=1,
             allow_gaps=False,
         ),
+        allow_gaps=False,
+    )
+
+
+class TupleElementAccessorSegment(BaseSegment):
+    """A tuple element access postfix like the `.2` in `f(x).2`.
+
+    Used as an accessor (via ``AccessorGrammar``) so tuple element access can
+    follow any ``Expression_D`` base -- a function call, an array subscript, a
+    tuple literal, etc. The lexer tokenizes ``.2`` as a numeric literal rather
+    than a dot followed by an integer, so the postfix is a run of numeric
+    literals that must abut the preceding expression (``allow_gaps=False``).
+    """
+
+    type = "tuple_element_access"
+    match_grammar: Matchable = AnyNumberOf(
+        Ref("NumericLiteralSegment"),
+        min_times=1,
         allow_gaps=False,
     )
