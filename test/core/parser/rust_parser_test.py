@@ -546,7 +546,6 @@ _KNOWN_PYTHON_RUST_DIVERGENCES = {
     ("sparksql", "pivot_clause.sql"),
     ("sparksql", "unpivot_clause.sql"),
     ("snowflake", "create_catalog_integration.sql"),
-    ("tsql", "datatype_methods.sql"),
     ("tsql", "sqlcmd_command.sql"),
 }
 
@@ -999,26 +998,18 @@ def test__rust_parser__vs_python_snowflake_numeric_literal_mistyped():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: T-SQL's 'SomeSchema.Value(...)' (a datatype-method "
-        "call, e.g. an XML column's .value() method) is a genuine grammar "
-        "ambiguity - it can fully match either as a plain dotted function "
-        "call (FunctionSegment, function_name='SomeSchema.Value') or as a "
-        "column_reference with a DatatypeMethodSegment suffix "
-        "(ObjectReferenceSegment's AnyNumberOf(OneOf(Ref('DatatypeMethod"
-        "Segment'), ...)) in dialect_tsql.py:3565-3574). Both candidates "
-        "match the exact same span (a real longest-match TIE, not one "
-        "candidate being longer), so whichever wins depends purely on "
-        "alternative-evaluation order. Python's Parser picks the function "
-        "interpretation; RustParser picks the column_reference+datatype_"
-        "method interpretation - a structurally different tree for the "
-        "same SQL, not just a differently-typed leaf."
-    ),
-)
 def test__rust_parser__vs_python_tsql_datatype_method_oneof_ambiguity():
-    """RustParser resolves a genuine OneOf tie differently than Python.
+    """RustParser must agree with Python on T-SQL datatype-method SQL.
+
+    Regression guard: RustParser used to compile every RegexParser pattern
+    case-insensitively, ignoring ``ignore_case=False``. T-SQL's
+    DatatypeMethodNameIdentifierSegment regex is deliberately
+    case-sensitive (datatype methods are lowercase-only), and it is also
+    the ``exclude`` on T-SQL's FunctionNameIdentifierSegment - so
+    'SomeSchema.Value(...)' wrongly matched as a datatype method on the
+    Rust side while the function interpretation Python picks was excluded,
+    producing a structurally different tree. With case sensitivity
+    honoured, both parsers agree.
 
     Uses the real, already-shipped tsql/datatype_methods.sql fixture.
     """
