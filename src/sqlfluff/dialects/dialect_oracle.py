@@ -2817,7 +2817,11 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar", optional=True),
         "RETURN",
-        Ref("DatatypeSegment"),
+        OneOf(
+            Ref("ColumnTypeReferenceSegment"),
+            Ref("RowTypeReferenceSegment"),
+            Ref("DatatypeSegment"),
+        ),
         Ref("SharingClauseGrammar", optional=True),
         AnyNumberOf(
             Ref("DefaultCollationClauseGrammar"),
