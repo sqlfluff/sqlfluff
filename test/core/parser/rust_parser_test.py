@@ -535,44 +535,94 @@ def test__rust_parser__profiling_accumulates_and_resets():
 _FIXTURE_DIR = Path(__file__).resolve().parents[3] / "test" / "fixtures" / "dialects"
 _FIXTURE_SQL = sorted(_FIXTURE_DIR.glob("*/*.sql"))
 
+# Fixtures with a *known*, already-documented Python-vs-RustParser divergence
+# (see the dedicated xfail regressions above/below in this file). Three-way
+# parity below is expected to fail on exactly these until those bugs are
+# fixed; everywhere else in the corpus, all three tree-building paths must
+# agree.
+_KNOWN_PYTHON_RUST_DIVERGENCES = {
+    ("databricks", "pivot.sql"),
+    ("databricks", "unpivot.sql"),
+    ("sparksql", "pivot_clause.sql"),
+    ("sparksql", "unpivot_clause.sql"),
+    ("snowflake", "create_catalog_integration.sql"),
+    ("tsql", "datatype_methods.sql"),
+    ("tsql", "sqlcmd_command.sql"),
+}
+
+
+def _fixture_param(sqlfile: Path):
+    key = (sqlfile.parent.name, sqlfile.name)
+    if key in _KNOWN_PYTHON_RUST_DIVERGENCES:
+        return pytest.param(
+            sqlfile,
+            marks=pytest.mark.xfail(
+                strict=True,
+                reason=(
+                    "Known Python-vs-RustParser divergence on this fixture; "
+                    "see the dedicated test__rust_parser__vs_python_* "
+                    "regression for this file elsewhere in this module."
+                ),
+            ),
+        )
+    return pytest.param(sqlfile)
+
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 @pytest.mark.parametrize(
     "sqlfile",
-    _FIXTURE_SQL,
+    [_fixture_param(p) for p in _FIXTURE_SQL],
     ids=[str(p.relative_to(_FIXTURE_DIR)) for p in _FIXTURE_SQL],
 )
 def test__rust_parser__native_ast_parity(sqlfile):
-    """The fused builder must produce the same tree as convert+apply.
+    """All three tree-building paths must agree: Python, RustParser, fused.
 
-    For every dialect fixture, parse the same lexer output twice - once via the
-    legacy convert+apply path and once via the fused native builder - and assert
-    the resulting BaseSegment trees (or raised exceptions) are identical. Both
-    paths use the same config, so this isolates the tree-building difference.
+    For every dialect fixture, parse the same lexer output three ways - the
+    pure-Python Parser, RustParser's legacy convert+apply path, and
+    RustParser's fused native-AST builder - and assert the resulting
+    BaseSegment trees (or raised exceptions) are all identical. Fixtures with
+    an already-documented Python-vs-RustParser divergence are marked xfail
+    (see _KNOWN_PYTHON_RUST_DIVERGENCES); every other fixture must agree
+    across all three paths.
     """
     from sqlfluff.core import FluffConfig
-    from sqlfluff.core.parser import Lexer
+    from sqlfluff.core.parser import Lexer, Parser
     from sqlfluff.core.parser.rust_parser import set_native_ast
 
     config = FluffConfig(overrides={"dialect": sqlfile.parent.name})
     segments, _ = Lexer(config=config).lex(sqlfile.read_text(encoding="utf-8"))
 
-    def build(native: bool):
+    def result_for(tree):
+        return (
+            "tree",
+            tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
+            if tree
+            else None,
+        )
+
+    def build_rust(native: bool):
         set_native_ast(native)
         try:
             tree = RustParser(config=config).parse(segments, fname=str(sqlfile))
-            return (
-                "tree",
-                tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
-                if tree
-                else None,
-            )
+            return result_for(tree)
         except BaseException as err:  # PanicException is a BaseException
             return ("exc", type(err).__name__)
         finally:
             set_native_ast(False)
 
-    assert build(native=True) == build(native=False)
+    def build_python():
+        try:
+            tree = Parser(config=config).parse(segments, fname=str(sqlfile))
+            return result_for(tree)
+        except BaseException as err:
+            return ("exc", type(err).__name__)
+
+    python_result = build_python()
+    rust_default = build_rust(native=False)
+    rust_native = build_rust(native=True)
+
+    assert rust_native == rust_default, "native-AST path diverges from convert+apply"
+    assert python_result == rust_default, "RustParser diverges from Python Parser"
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
@@ -1024,7 +1074,7 @@ def test__rust_parser__vs_python_tsql_sqlcmd_command_loses_token_type():
         "escaping the raw text, and truncating to 9 characters plus a "
         "literal '...' marker when longer. The Rust lexer's equivalent "
         "(sqlfluffrs_lexer/src/lexer.rs:420-439, violations_from_tokens) "
-        "instead does format!(\"Unable to lex characters: {}\", "
+        'instead does format!("Unable to lex characters: {}", '
         "token.raw().chars().take(10).collect::<String>()) - embedding the "
         "raw characters directly with no quoting/escaping, no truncation "
         "marker, and a 10- vs 9-character cutoff. SQLLexError.from_rs_error "
