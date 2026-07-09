@@ -97,4 +97,4 @@ FUNCTION f_ex(
 
 FUNCTION f_ex(
     p_ex IN NUMBER
-) RETURN ex_tab.a%ROWTYPE;
+) RETURN ex_tab%ROWTYPE;
