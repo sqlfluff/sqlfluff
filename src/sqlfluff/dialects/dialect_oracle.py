@@ -476,7 +476,16 @@ oracle_dialect.add(
         ),
     ),
     ForUpdateGrammar=Sequence(
-        "FOR", "UPDATE", Sequence("OF", Ref("TableReferenceSegment"), optional=True)
+        "FOR",
+        "UPDATE",
+        Sequence("OF", Ref("TableReferenceSegment"), optional=True),
+        # Locking behaviour: NOWAIT | WAIT integer | SKIP LOCKED
+        OneOf(
+            "NOWAIT",
+            Sequence("WAIT", Ref("NumericLiteralSegment")),
+            Sequence("SKIP", "LOCKED"),
+            optional=True,
+        ),
     ),
     CompileClauseGrammar=Sequence(
         "COMPILE",
