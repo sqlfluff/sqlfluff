@@ -546,7 +546,6 @@ _KNOWN_PYTHON_RUST_DIVERGENCES = {
     ("sparksql", "pivot_clause.sql"),
     ("sparksql", "unpivot_clause.sql"),
     ("snowflake", "create_catalog_integration.sql"),
-    ("tsql", "datatype_methods.sql"),
     ("tsql", "sqlcmd_command.sql"),
 }
 
@@ -999,26 +998,18 @@ def test__rust_parser__vs_python_snowflake_numeric_literal_mistyped():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: T-SQL's 'SomeSchema.Value(...)' (a datatype-method "
-        "call, e.g. an XML column's .value() method) is a genuine grammar "
-        "ambiguity - it can fully match either as a plain dotted function "
-        "call (FunctionSegment, function_name='SomeSchema.Value') or as a "
-        "column_reference with a DatatypeMethodSegment suffix "
-        "(ObjectReferenceSegment's AnyNumberOf(OneOf(Ref('DatatypeMethod"
-        "Segment'), ...)) in dialect_tsql.py:3565-3574). Both candidates "
-        "match the exact same span (a real longest-match TIE, not one "
-        "candidate being longer), so whichever wins depends purely on "
-        "alternative-evaluation order. Python's Parser picks the function "
-        "interpretation; RustParser picks the column_reference+datatype_"
-        "method interpretation - a structurally different tree for the "
-        "same SQL, not just a differently-typed leaf."
-    ),
-)
 def test__rust_parser__vs_python_tsql_datatype_method_oneof_ambiguity():
-    """RustParser resolves a genuine OneOf tie differently than Python.
+    """RustParser must agree with Python on T-SQL datatype-method SQL.
+
+    Regression guard: RustParser used to compile every RegexParser pattern
+    case-insensitively, ignoring ``ignore_case=False``. T-SQL's
+    DatatypeMethodNameIdentifierSegment regex is deliberately
+    case-sensitive (datatype methods are lowercase-only), and it is also
+    the ``exclude`` on T-SQL's FunctionNameIdentifierSegment - so
+    'SomeSchema.Value(...)' wrongly matched as a datatype method on the
+    Rust side while the function interpretation Python picks was excluded,
+    producing a structurally different tree. With case sensitivity
+    honoured, both parsers agree.
 
     Uses the real, already-shipped tsql/datatype_methods.sql fixture.
     """
@@ -1194,3 +1185,42 @@ def test__rust_parser__rs_tree_arena_navigation():
     assert any(
         leaf.raw.upper() == "FROM" and leaf.is_type(["keyword"]) for leaf in leaves
     )
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "method,is_datatype_method",
+    [
+        ("value", True),  # T-SQL data-type methods are case-SENSITIVE (lowercase)
+        ("query", True),
+        ("VALUE", False),  # upper/mixed case is NOT a data-type method
+        ("Value", False),
+        ("QUERY", False),
+    ],
+)
+def test__rust_parser__tsql_datatype_method_case_sensitive(method, is_datatype_method):
+    """Rust parser honors ``ignore_case=False``.
+
+    ``col.value(...)`` is a data-type method (case-sensitive, lowercase only);
+    ``col.VALUE(...)`` / ``col.Value(...)`` are not. The Rust parser must match
+    native here.
+    """
+    from sqlfluff.core import FluffConfig, Linter
+
+    src = f"SELECT col.{method}('/x', 'y') FROM t;\n"
+
+    def method_ids(rust: bool):
+        cfg = FluffConfig(
+            overrides={
+                "dialect": "tsql",
+                "use_rust_parser": rust,
+                "use_rust_engine": False,
+            }
+        )
+        tree = Linter(config=cfg).parse_string(src).tree
+        return [s.raw for s in tree.recursive_crawl("datatype_method_name_identifier")]
+
+    rust_ids = method_ids(True)
+    native_ids = method_ids(False)
+    assert rust_ids == native_ids  # parity with native
+    assert (method in rust_ids) is is_datatype_method
