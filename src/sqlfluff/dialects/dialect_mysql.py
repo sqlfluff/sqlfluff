@@ -1433,7 +1433,9 @@ mysql_dialect.add(
                     Ref("ColumnReferenceSegment"),
                     Sequence(
                         Ref("ColumnReferenceSegment"),
-                        Bracketed(Ref("NumericLiteralSegment")),
+                        # Index prefix length, e.g. `col(10)`. Reuse the datatype
+                        # length segment so LT01 lets it touch, like `VARCHAR(255)`.
+                        Ref("BracketedArguments"),
                     ),
                     Bracketed(Ref("ExpressionSegment")),
                 ),
