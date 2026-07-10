@@ -756,6 +756,40 @@ def test__rust_parser__vs_python_stray_closing_bracket_terminator():
 @pytest.mark.xfail(
     strict=True,
     reason=(
+        "Known gap: greedy_match's stray-closing-bracket check "
+        "(sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs) "
+        "recognises brackets by a hardcoded raw-text match on '(', '[', "
+        "'{' and ')', ']', '}'. Python's equivalent, next_ex_bracket_match "
+        "(src/sqlfluff/core/parser/match_algorithms.py:469-529), instead "
+        "looks up the active dialect's bracket_pairs set, so it also "
+        "recognises dialect-specific bracket tokens such as Snowflake's "
+        "MATCH_RECOGNIZE exclude brackets '{-'/'-}' "
+        "(dialect_snowflake.py:128-130). On a stray '-}', Python aborts the "
+        "terminator search and claims the rest as unparsable, while Rust's "
+        "hardcoded check doesn't recognise '-}' as a bracket at all and "
+        "keeps scanning, finding the following FROM as a normal terminator. "
+        "Fixing it means threading the dialect's bracket set through "
+        "greedy_match instead of hardcoding ASCII brackets."
+    ),
+)
+def test__rust_parser__vs_python_stray_closing_bracket_hardcoded_set():
+    """RustParser's greedy_match only recognises a hardcoded ASCII bracket set.
+
+    Snowflake's MATCH_RECOGNIZE exclude brackets ('{-'/'-}') are part of the
+    dialect's bracket_pairs set, so Python treats a stray '-}' the same way
+    as a stray ')'. RustParser's hardcoded check doesn't recognise '-}' as a
+    bracket, so it keeps scanning past it instead of aborting.
+    """
+    rust_result, python_result = _compare_parser_vs_rust(
+        "SELECT 1 -} FROM t", dialect="snowflake"
+    )
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
         "Regression: Bracketed.match (src/sqlfluff/core/parser/grammar/"
         "sequence.py:541-562) only suppresses the hard "
         "'Couldn't find closing bracket' SQLParseError for "
