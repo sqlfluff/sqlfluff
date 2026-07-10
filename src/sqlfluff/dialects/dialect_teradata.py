@@ -64,7 +64,7 @@ teradata_dialect.insert_lexer_matchers(
             CommentSegment,
         )
     ],
-    before="code",
+    before="newline",
 )
 
 # Remove unused keywords from the dialect.
