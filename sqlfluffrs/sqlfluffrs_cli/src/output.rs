@@ -88,7 +88,7 @@ pub fn parse_output(
         OutputFormat::None => Ok(String::new()),
         OutputFormat::Human => {
             let mut out = String::new();
-            stringify_node(node, 0, &mut out);
+            stringify_node(node, 0, code_only, &mut out);
             Ok(out)
         }
         OutputFormat::Json | OutputFormat::Yaml => {
@@ -119,8 +119,13 @@ fn serialize<T: serde::Serialize>(value: &T, format: OutputFormat) -> Result<Str
 }
 
 /// Render a `Node` as an indented tree (human-readable; not byte-identical to
-/// Python's `stringify`).
-fn stringify_node(node: &Node, depth: usize, out: &mut String) {
+/// Python's `stringify`). As in Python's `stringify`, `code_only` skips
+/// non-code segments — whitespace, comments and metas — while `--include-meta`
+/// only affects the record (json/yaml) forms.
+fn stringify_node(node: &Node, depth: usize, code_only: bool, out: &mut String) {
+    if code_only && !node.is_code() {
+        return;
+    }
     let indent = "  ".repeat(depth);
     match node {
         Node::Raw {
@@ -136,7 +141,7 @@ fn stringify_node(node: &Node, depth: usize, out: &mut String) {
             let name = segment_type.clone().unwrap_or_else(|| "segment".into());
             out.push_str(&format!("{indent}[{name}]\n"));
             for child in children {
-                stringify_node(child, depth + 1, out);
+                stringify_node(child, depth + 1, code_only, out);
             }
         }
         Node::Meta { .. } => {
@@ -145,7 +150,7 @@ fn stringify_node(node: &Node, depth: usize, out: &mut String) {
         Node::Unparsable { children, .. } => {
             out.push_str(&format!("{indent}[unparsable]\n"));
             for child in children {
-                stringify_node(child, depth + 1, out);
+                stringify_node(child, depth + 1, code_only, out);
             }
         }
         Node::Empty => {}
