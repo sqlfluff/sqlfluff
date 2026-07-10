@@ -18,7 +18,7 @@ use std::process::ExitCode;
 use anyhow::{Context, Result};
 use clap::Parser as _;
 
-use cli::{Cli, Command, CoreArgs};
+use cli::{Cli, Command, CoreArgs, OutputFormat};
 use sqlfluffrs_engine::config::{ConfigMap, ConfigValue, ResolvedConfig};
 use sqlfluffrs_engine::{discovery, pipeline};
 
@@ -75,6 +75,11 @@ fn run(cli: &Cli) -> Result<u8> {
         None => None,
     };
 
+    // json/yaml results are collected per file and emitted as ONE document at
+    // the end — per-file documents (or `== [..] ==` headers) concatenated into
+    // the stream would not be valid json/yaml.
+    let mut machine_docs: Vec<output::MachineDoc> = Vec::new();
+
     for input in inputs {
         // Resolve config relative to the file, then apply inline directives.
         let file_config = ResolvedConfig::resolve(
@@ -85,7 +90,14 @@ fn run(cli: &Cli) -> Result<u8> {
         )?
         .with_inline_directives(&input.raw);
 
-        let code = match process(cli, &input, &file_config, multiple, out_file.as_mut()) {
+        let code = match process(
+            cli,
+            &input,
+            &file_config,
+            multiple,
+            out_file.as_mut(),
+            &mut machine_docs,
+        ) {
             Ok(code) => code,
             Err(e) => {
                 eprintln!("{}: error: {e:#}", input.fname);
@@ -95,7 +107,40 @@ fn run(cli: &Cli) -> Result<u8> {
         worst = worst.max(code);
     }
 
+    if let Some(body) = output::machine_output(machine_docs, machine_format(cli))? {
+        emit(&body, out_file.as_mut())?;
+    }
+
     Ok(worst)
+}
+
+/// The output format of the current command (`Human` for `render`, which has
+/// no format flag).
+fn machine_format(cli: &Cli) -> OutputFormat {
+    match &cli.command {
+        Command::Lex(a) => a.format,
+        Command::Parse(a) => a.format,
+        Command::Render(_) => OutputFormat::Human,
+    }
+}
+
+/// Write a complete output body to the `--write-output` file or stdout.
+fn emit(body: &str, out_file: Option<&mut std::fs::File>) -> Result<()> {
+    match out_file {
+        Some(f) => {
+            f.write_all(body.as_bytes())?;
+            if !body.ends_with('\n') && !body.is_empty() {
+                writeln!(f)?;
+            }
+        }
+        None => {
+            print!("{body}");
+            if !body.ends_with('\n') && !body.is_empty() {
+                println!();
+            }
+        }
+    }
+    Ok(())
 }
 
 /// Build the `{core: {...}}` override map from CLI flags.
@@ -176,13 +221,16 @@ fn gather_inputs(core: &CoreArgs, config: &ResolvedConfig, cwd: &Path) -> Result
     Ok(inputs)
 }
 
-/// Dispatch one input through the requested command.
+/// Dispatch one input through the requested command. Human-readable output is
+/// printed immediately; json/yaml results are pushed onto `machine_docs` for
+/// the caller to emit as one document.
 fn process(
     cli: &Cli,
     input: &Input,
     config: &ResolvedConfig,
     multiple: bool,
     mut out_file: Option<&mut std::fs::File>,
+    machine_docs: &mut Vec<output::MachineDoc>,
 ) -> Result<u8> {
     let templater_name = config.templater();
     let outcome = templating::template(&input.raw, &input.fname, &templater_name, config)?;
@@ -206,8 +254,19 @@ fn process(
             let variant = &outcome.variants[0];
             let (tokens, lex_errors) =
                 pipeline::lex_variant(variant, dialect, config.template_blocks_indent());
-            let body = output::lex_output(&tokens, args.format)?;
-            print_body(input, &body, multiple, out_file.as_deref_mut())?;
+            match args.format {
+                OutputFormat::Human => {
+                    let body = output::lex_human(&tokens);
+                    print_body(input, &body, multiple, out_file.as_deref_mut())?;
+                }
+                OutputFormat::Json | OutputFormat::Yaml => {
+                    machine_docs.push(output::MachineDoc::Lex {
+                        filepath: input.fname.clone(),
+                        tokens: output::lex_records(&tokens),
+                    });
+                }
+                OutputFormat::None => {}
+            }
             for err in lex_errors {
                 eprintln!("{}: lexing: {err}", input.fname);
                 exit = exit.max(EXIT_FAIL);
@@ -235,14 +294,21 @@ fn process(
                 eprintln!("{}: parsing: {err}", input.fname);
                 exit = exit.max(EXIT_FAIL);
             }
-            let body = output::parse_output(
-                &node,
-                &input.fname,
-                args.format,
-                args.code_only,
-                args.include_meta,
-            )?;
-            print_body(input, &body, multiple, out_file)?;
+            match args.format {
+                OutputFormat::Human => {
+                    let body = output::parse_human(&node, args.code_only);
+                    print_body(input, &body, multiple, out_file)?;
+                }
+                OutputFormat::Json | OutputFormat::Yaml => {
+                    machine_docs.push(output::MachineDoc::Parse(output::parse_record(
+                        &node,
+                        &input.fname,
+                        args.code_only,
+                        args.include_meta,
+                    )?));
+                }
+                OutputFormat::None => {}
+            }
         }
     }
 

@@ -111,33 +111,47 @@ fn ini_section_to_path(section: &str) -> Option<Vec<String>> {
 /// Parse INI-style config text (`.sqlfluff`, `setup.cfg`, `tox.ini`) into a
 /// nested [`ConfigMap`]. Only `sqlfluff`-prefixed sections are retained.
 /// Follows Python's `configparser` defaults: `=` and `:` both delimit
-/// key/value (whichever comes first), and indented lines continue the
-/// previous value (joined with `\n`).
+/// key/value (whichever comes first), and a non-blank line indented deeper
+/// than its option line continues that option's value (joined with `\n`,
+/// blank lines preserved, like `empty_lines_in_values=True`).
 pub fn parse_ini(text: &str) -> ConfigMap {
     let mut out = ConfigMap::new();
     let mut current_path: Option<Vec<String>> = None;
     // A key whose value may still grow via continuation lines.
-    let mut pending: Option<(Vec<String>, String)> = None;
+    let mut pending: Option<(Vec<String>, Vec<String>)> = None;
+    // Indent depth of the current option/section line — only deeper lines
+    // continue the pending value (mirrors configparser's `cur_indent_level`).
+    let mut indent_level = 0usize;
 
-    let flush = |out: &mut ConfigMap, pending: &mut Option<(Vec<String>, String)>| {
-        if let Some((full, value)) = pending.take() {
-            insert_path(out, &full, coerce_value(&value));
+    let flush = |out: &mut ConfigMap, pending: &mut Option<(Vec<String>, Vec<String>)>| {
+        if let Some((full, lines)) = pending.take() {
+            // configparser joins with `\n` and strips the result.
+            insert_path(out, &full, coerce_value(&lines.join("\n")));
         }
     };
 
     for raw_line in text.lines() {
         let line = raw_line.trim();
-        if line.is_empty() || line.starts_with('#') || line.starts_with(';') {
+        // Full-line comments are skipped entirely, even inside a value.
+        if line.starts_with('#') || line.starts_with(';') {
             continue;
         }
-        // An indented, non-blank line continues the previous value.
-        if raw_line.starts_with([' ', '\t']) {
-            if let Some((_, value)) = &mut pending {
-                value.push('\n');
-                value.push_str(line);
+        // Blank lines are preserved inside a pending value.
+        if line.is_empty() {
+            if let Some((_, lines)) = &mut pending {
+                lines.push(String::new());
             }
             continue;
         }
+        let cur_indent = raw_line.chars().take_while(|c| c.is_whitespace()).count();
+        if cur_indent > indent_level {
+            if let Some((_, lines)) = &mut pending {
+                lines.push(line.to_string());
+                continue;
+            }
+        }
+        // A new section or option line.
+        indent_level = cur_indent;
         if line.starts_with('[') && line.ends_with(']') {
             flush(&mut out, &mut pending);
             let section = line[1..line.len() - 1].trim();
@@ -154,7 +168,7 @@ pub fn parse_ini(text: &str) -> ConfigMap {
             flush(&mut out, &mut pending);
             let mut full = path.clone();
             full.push(line[..idx].trim().to_string());
-            pending = Some((full, line[idx + 1..].trim().to_string()));
+            pending = Some((full, vec![line[idx + 1..].trim().to_string()]));
         }
     }
     flush(&mut out, &mut pending);
@@ -485,6 +499,30 @@ mod tests {
             core.get("ignore_paths"),
             Some(&ConfigValue::Str("foo\nbar".to_string()))
         );
+    }
+
+    #[test]
+    fn ini_indent_semantics_match_configparser() {
+        // Pinned against Python configparser (empty_lines_in_values=True):
+        // - an indented key is a new entry when nothing is pending;
+        // - blank lines inside a value are preserved;
+        // - full-line comments inside a value are skipped;
+        // - a deeper-indented line is a continuation even if it looks like a
+        //   section header or key.
+        let cfg = parse_ini(
+            "[sqlfluff]\n    dialect = postgres\n[sqlfluff:a]\nk =\n    foo\n\n    # c\n    bar\n    x = y\n",
+        );
+        let rc = ResolvedConfig { map: cfg };
+        assert_eq!(rc.dialect().as_deref(), Some("postgres"));
+        let Some(ConfigValue::Section(a)) = rc.map.get("a") else {
+            panic!("no a section");
+        };
+        // configparser value is "\nfoo\n\nbar\nx = y"; coerce_value trims ends.
+        assert_eq!(
+            a.get("k"),
+            Some(&ConfigValue::Str("foo\n\nbar\nx = y".to_string()))
+        );
+        assert_eq!(a.get("x"), None);
     }
 
     #[test]
