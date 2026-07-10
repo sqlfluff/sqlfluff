@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5cf15fd073e80281505313679e4477ab849088e162756fe1ab070697638aa55
+_hash: 13e90d685982137f6dce3fd3075b5db9f306245d3ee5af17f28e1f749812bb2f
 file:
 - batch:
     statement:
@@ -14,7 +14,7 @@ file:
           row_type_reference:
             table_reference:
               naked_identifier: departments
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
           statement_terminator: ;
       - keyword: BEGIN
@@ -151,7 +151,7 @@ file:
           row_type_reference:
             table_reference:
               naked_identifier: t1
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
           statement_terminator: ;
       - keyword: BEGIN
@@ -304,7 +304,7 @@ file:
           row_type_reference:
             table_reference:
               naked_identifier: c
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
           statement_terminator: ;
       - keyword: BEGIN
@@ -440,7 +440,7 @@ file:
           row_type_reference:
             table_reference:
               naked_identifier: c2
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
           statement_terminator: ;
       - keyword: BEGIN
@@ -461,7 +461,7 @@ file:
           row_type_reference:
             table_reference:
               naked_identifier: t
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
           statement_terminator: ;
       - keyword: BEGIN
@@ -533,7 +533,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: first_name
-                binary_operator: '%'
+                attribute_indicator: '%'
                 keyword: TYPE
             - keyword: DEFAULT
             - expression:
@@ -545,7 +545,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: last_name
-                binary_operator: '%'
+                attribute_indicator: '%'
                 keyword: TYPE
             - keyword: DEFAULT
             - expression:
@@ -582,7 +582,7 @@ file:
         - row_type_reference:
             table_reference:
               naked_identifier: c
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -697,7 +697,7 @@ file:
             row_type_reference:
               table_reference:
                 naked_identifier: table_name
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: rowtype
             end_bracket: )
       - keyword: is

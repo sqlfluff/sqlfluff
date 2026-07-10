@@ -120,6 +120,23 @@ oracle_dialect.insert_lexer_matchers(
             r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
             CommentSegment,
         ),
+        RegexLexer(
+            "accept_command",
+            (
+                r"[aA][cC][cC](?:[eE][pP][tT])?"
+                r"[^\S\r\n]+(?:'(?:[^']|'')*'|[^;(\r\n)])*((?=\n)|(?=\r\n)|$)"
+            ),
+            CommentSegment,
+        ),
+        RegexLexer(
+            "remark_command",
+            (
+                r"[rR][eE][mM](?:[aA][rR][kK])?"
+                r"(?:[^\S\r\n]+"
+                r"(?:'(?:[^']|'')*'|[^;(\r\n)])*)?((?=\n)|(?=\r\n)|$)"
+            ),
+            CommentSegment,
+        ),
         StringLexer("at_sign", "@", CodeSegment),
     ],
     before="word",
@@ -161,6 +178,12 @@ oracle_dialect.add(
         ),
     ),
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
+    # `%` as an attribute indicator (%TYPE, %ROWTYPE, %FOUND, ...). Distinct
+    # from ModuloSegment so the global `spacing_within = touch` on
+    # "binary_operator" doesn't force spaces around it as if it were arithmetic.
+    AttributeIndicatorSegment=StringParser(
+        "%", SymbolSegment, type="attribute_indicator"
+    ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     # Colon prefix for bind variables (:var) and trigger pseudorecords
     # (:NEW, :OLD). Distinct from ColonSegment so the global
@@ -309,6 +332,7 @@ oracle_dialect.add(
     ),
     IterationBoundsGrammar=OneOf(
         Ref("NumericLiteralSegment"),
+        Ref("FunctionSegment"),
         Ref("SingleIdentifierGrammar"),
         Sequence(
             Ref("SingleIdentifierGrammar"),
@@ -388,7 +412,7 @@ oracle_dialect.add(
     ),
     ImplicitCursorAttributesGrammar=Sequence(
         Ref("SingleIdentifierGrammar"),
-        Ref("ModuloSegment"),
+        Ref("AttributeIndicatorSegment"),
         OneOf(
             "ISOPEN",
             "FOUND",
@@ -452,7 +476,16 @@ oracle_dialect.add(
         ),
     ),
     ForUpdateGrammar=Sequence(
-        "FOR", "UPDATE", Sequence("OF", Ref("TableReferenceSegment"), optional=True)
+        "FOR",
+        "UPDATE",
+        Sequence("OF", Ref("TableReferenceSegment"), optional=True),
+        # Locking behaviour: NOWAIT | WAIT integer | SKIP LOCKED
+        OneOf(
+            "NOWAIT",
+            Sequence("WAIT", Ref("NumericLiteralSegment")),
+            Sequence("SKIP", "LOCKED"),
+            optional=True,
+        ),
     ),
     CompileClauseGrammar=Sequence(
         "COMPILE",
@@ -1112,7 +1145,10 @@ class AlterTableConstraintClauses(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             "ADD",
-            Ref("TableConstraintSegment"),
+            OneOf(
+                Ref("TableConstraintSegment"),
+                Bracketed(Delimited(Ref("TableConstraintSegment"))),
+            ),
         ),
         # @TODO MODIFY
         # @TODO DROP
@@ -1406,7 +1442,10 @@ class BatchSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Delimited(
-                Ref("StatementSegment"),
+                OneOf(
+                    Ref("SqlplusSetStatementSegment"),
+                    Ref("StatementSegment"),
+                ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
                 allow_gaps=True,
                 allow_trailing=True,
@@ -1422,6 +1461,16 @@ class SlashBufferExecutorSegment(BaseSegment):
 
     type = "slash_buffer_executor"
     match_grammar = Ref("SlashSegment")
+
+
+class SqlplusSetStatementSegment(BaseSegment):
+    """A SQL*Plus `SET` command."""
+
+    type = "sqlplus_set_statement"
+
+    match_grammar = Sequence(
+        "SET", StringParser("SCAN", WordSegment, type="keyword"), OneOf("ON", "OFF")
+    )
 
 
 class CommentStatementSegment(BaseSegment):
@@ -2573,7 +2622,7 @@ class ColumnTypeReferenceSegment(BaseSegment):
     type = "column_type_reference"
 
     match_grammar = Sequence(
-        Ref("ColumnReferenceSegment"), Ref("ModuloSegment"), "TYPE"
+        Ref("ColumnReferenceSegment"), Ref("AttributeIndicatorSegment"), "TYPE"
     )
 
 
@@ -2586,7 +2635,7 @@ class RowTypeReferenceSegment(BaseSegment):
     type = "row_type_reference"
 
     match_grammar = Sequence(
-        Ref("TableReferenceSegment"), Ref("ModuloSegment"), "ROWTYPE"
+        Ref("TableReferenceSegment"), Ref("AttributeIndicatorSegment"), "ROWTYPE"
     )
 
 
@@ -2777,7 +2826,11 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar", optional=True),
         "RETURN",
-        Ref("DatatypeSegment"),
+        OneOf(
+            Ref("ColumnTypeReferenceSegment"),
+            Ref("RowTypeReferenceSegment"),
+            Ref("DatatypeSegment"),
+        ),
         Ref("SharingClauseGrammar", optional=True),
         AnyNumberOf(
             Ref("DefaultCollationClauseGrammar"),

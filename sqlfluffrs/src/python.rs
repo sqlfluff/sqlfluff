@@ -30,6 +30,8 @@ fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Arena tree (Rust-backed segment façade)
     m.add_class::<PyTree>()?;
     m.add_class::<PyHandle>()?;
+    // Experimental Rust-native lint rule bindings (owned by sqlfluffrs_rules)
+    sqlfluffrs_rules::python::register(m)?;
     // Add custom exception
     m.add("RsParseError", m.py().get_type::<RsParseError>())?;
     // Rust-driven orchestration entrypoints (discover → render → lex → parse).

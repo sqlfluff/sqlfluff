@@ -61,8 +61,8 @@ class Delimited(OneOf):
                 Defaults to ().
             reset_terminators (bool, optional): Flag indicating whether terminators
                 should be reset. Defaults to False.
-            min_delimiters (Optional[int], optional): Minimum number of delimiters to
-                match. Defaults to None.
+            min_delimiters (int, optional): Minimum number of delimiters to
+                match. Defaults to 0.
             bracket_pairs_set (str, optional): Name of the bracket pairs set. Defaults
                 to "bracket_pairs".
             allow_gaps (bool, optional): Flag indicating whether gaps between segments

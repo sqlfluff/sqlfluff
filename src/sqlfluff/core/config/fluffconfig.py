@@ -139,6 +139,9 @@ class FluffConfig:
 
         self._configs["core"]["templater_obj"] = self.get_templater()
 
+        # Guard against an impossible Rust configuration.
+        self._verify_rust_config()
+
     def _handle_comma_separated_values(self) -> None:
         for in_key, out_key in [
             ("ignore", "ignore"),
@@ -185,6 +188,38 @@ class FluffConfig:
                 f"{', '.join([d.label for d in dialect_readout()])}"
             )
 
+    def _verify_rust_config(self) -> None:
+        """Reject a contradictory Rust parser/rules configuration.
+
+        Rust-native rules read the parse arena, which only exists when the Rust
+        parser runs. Explicitly enabling ``use_rust_rules`` while the Rust
+        parser will not run (``use_rust_parser`` disabled) is contradictory —
+        the rules would silently do nothing — so raise instead.
+
+        ``auto`` degrades gracefully and is never an error: ``use_rust_rules``
+        is only "on" for the explicit truthy values, and the parser is
+        considered enabled for ``auto`` too (matching the linter's own logic).
+        """
+        core = self._configs["core"]
+        # Mirror the linter's parser-enable test (linter.py).
+        parser_enabled = core.get("use_rust_parser") in (
+            "auto",
+            "Auto",
+            "AUTO",
+            True,
+            "True",
+            "true",
+            1,
+        )
+        rules_forced_on = core.get("use_rust_rules") in (True, "True", "true", 1)
+        if rules_forced_on and not parser_enabled:
+            raise SQLFluffUserError(
+                "use_rust_rules is enabled but use_rust_parser is disabled. "
+                "Rust-native rules require the Rust parser (they read its parse "
+                "arena), so this combination does nothing. Set use_rust_parser "
+                "to 'auto' or 'True', or disable use_rust_rules."
+            )
+
     def __getstate__(self) -> dict[str, Any]:
         # Copy the object's state from self.__dict__ which contains
         # all our instance attributes. Always use the dict.copy()
@@ -225,16 +260,19 @@ class FluffConfig:
             :obj:`FluffConfig`: A shallow copy of this config object but with
             a deep copy of the internal ``_configs`` dict.
         """
-        configs_attribute_copy = deepcopy(self._configs)
+        core = self._configs["core"]
+        # `dialect_obj` and `templater_obj` are large, effectively immutable
+        # (never reassigned in place after construction) and safe to share
+        # across copies. `dialect_obj` in particular is a fully expanded
+        # grammar object graph, so deep-copying it on every `.copy()` call
+        # (i.e. on every parse) would dominate parse time. Seed deepcopy's
+        # memo so it reuses these references instead of duplicating them.
+        shared = (core.get("dialect_obj"), core.get("templater_obj"))
+        memo = {id(obj): obj for obj in shared if obj is not None}
+        configs_attribute_copy = deepcopy(self._configs, memo)
+
         config_copy = copy(self)
         config_copy._configs = configs_attribute_copy
-        # During the initial `.copy()`, we use the same `__reduce__()` method
-        # which is used during pickling. The `templater_obj` doesn't pickle
-        # well so is normally removed, but it's ok for us to just pass across
-        # the original object here as we're in the same process.
-        configs_attribute_copy["core"]["templater_obj"] = self._configs["core"][
-            "templater_obj"
-        ]
         return config_copy
 
     @classmethod
@@ -744,3 +782,5 @@ class FluffConfig:
                 self.process_inline_config(raw_line, fname)
         # Deal with potential list-like inputs.
         self._handle_comma_separated_values()
+        # Re-validate: inline config may have changed the rust parser/rules keys.
+        self._verify_rust_config()

@@ -211,6 +211,26 @@ postgres_dialect.insert_lexer_matchers(
             LiteralSegment,
         ),
         RegexLexer(
+            # Matches a `COPY ... FROM STDIN;` command followed by an inline data
+            # block terminated by a line containing only `\.` (the format emitted
+            # by pg_dump / psql). The raw data rows are not SQL, so the whole
+            # construct is lexed as a single token to keep it out of the parser.
+            # The pattern is self-anchored on the `COPY ... FROM STDIN;` prefix,
+            # so it stays context-free; a `COPY ... FROM STDIN` without a trailing
+            # `\.` data block does not match and parses as a normal statement.
+            # The header may span multiple lines (e.g. a column list or `WITH`
+            # options on their own lines). The scan toward the terminating `;`
+            # must also skip over quoted string literals so option values like
+            # `DELIMITER ';'` do not prematurely end the match. This still keeps
+            # the match bounded to one statement, so it cannot absorb a preceding
+            # statement to reach a later `FROM STDIN`.
+            # Approach originally proposed in #7759 by @RedZapdos123.
+            "postgres_copy_stdin_data_block",
+            r"(?i)COPY\b(?:[^;']|'(?:[^']|'')*')*?\bFROM\b\s+STDIN\b(?:[^;']|'(?:[^']|'')*')*?;[ \t]*\r?\n"
+            r"(?:[^\r\n]*\r?\n)*?\\\.[ \t]*(?=\r?\n|$)",
+            CodeSegment,
+        ),
+        RegexLexer(
             # Matches the psql \copy meta-command, including the form with a
             # parenthesized query that can span multiple lines.
             # https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-COPY
@@ -504,6 +524,11 @@ postgres_dialect.add(
     ),
     PsqlCopyMetaCommandSegment=TypedParser(
         "psql_copy_command", CodeSegment, type="psql_copy_command"
+    ),
+    PostgresCopyStdinDataSegment=TypedParser(
+        "postgres_copy_stdin_data_block",
+        CodeSegment,
+        type="postgres_copy_stdin_data_statement",
     ),
     PsqlSetMetaCommandSegment=TypedParser(
         "psql_set_command", CodeSegment, type="psql_set_command"
@@ -5853,7 +5878,12 @@ class CopyStatementSegment(BaseSegment):
     type = "copy_statement"
 
     _target_subset = OneOf(
-        Ref("QuotedLiteralSegment"), Sequence("PROGRAM", Ref("QuotedLiteralSegment"))
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "PROGRAM",
+            OneOf(Ref("QuotedLiteralSegment"), Ref("PsqlVariableGrammar")),
+        ),
+        Ref("PsqlVariableGrammar"),
     )
 
     _table_definition = Sequence(
@@ -5995,6 +6025,7 @@ class CopyStatementSegment(BaseSegment):
                 "FROM",
                 OneOf(
                     Ref("QuotedLiteralSegment"),
+                    Ref("PsqlVariableGrammar"),
                     Sequence("STDIN"),
                 ),
                 _postgres9_compatible_stdin_options,
@@ -6013,6 +6044,7 @@ class CopyStatementSegment(BaseSegment):
                 "TO",
                 OneOf(
                     Ref("QuotedLiteralSegment"),
+                    Ref("PsqlVariableGrammar"),
                     Sequence("STDOUT"),
                 ),
                 _postgres9_compatible_stdout_options,
@@ -7006,6 +7038,21 @@ class PsqlSetMetaCommandStatementSegment(BaseSegment):
     )
 
 
+class PostgresCopyStdinDataStatementSegment(BaseSegment):
+    r"""A `COPY ... FROM STDIN` command with an inline data block.
+
+    The command line and the raw data rows terminated by ``\.`` (as emitted by
+    ``pg_dump`` / ``psql``) are lexed as a single token, so the non-SQL data
+    does not surface as an unparsable section.
+    """
+
+    type = "postgres_copy_stdin_data_statement"
+
+    match_grammar = Sequence(
+        Ref("PostgresCopyStdinDataSegment"),
+    )
+
+
 class DropForeignTableStatement(BaseSegment):
     """A `DROP FOREIGN TABLE` Statement.
 
@@ -7292,6 +7339,7 @@ class FileSegment(BaseFileSegment):
     """
 
     match_grammar = AnyNumberOf(
+        Ref("PostgresCopyStdinDataStatementSegment"),
         Ref("PsqlCopyMetaCommandStatementSegment"),
         Ref("PsqlSetMetaCommandStatementSegment"),
         Delimited(

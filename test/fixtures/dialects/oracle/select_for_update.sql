@@ -19,3 +19,19 @@ SELECT employee_id FROM (SELECT * FROM employees)
 
 SELECT employee_id FROM (SELECT employee_id+1 AS employee_id FROM employees)
    FOR UPDATE;
+
+SELECT e.salary FROM employees e
+   WHERE e.employee_id = 100
+   FOR UPDATE NOWAIT;
+
+SELECT e.salary FROM employees e
+   WHERE e.employee_id = 100
+   FOR UPDATE OF e.salary NOWAIT;
+
+SELECT e.salary FROM employees e
+   WHERE e.employee_id = 100
+   FOR UPDATE OF e.salary WAIT 5;
+
+SELECT e.salary FROM employees e
+   WHERE e.employee_id = 100
+   FOR UPDATE SKIP LOCKED;

@@ -257,7 +257,7 @@ def test__config__invalid_prefer_quoted_keyword_style():
         }
     )
 
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(SQLFluffUserError) as exc_info:
         Linter(config=config).get_rulepack()
 
     assert "prefer_quoted_keyword_style" in str(exc_info.value)

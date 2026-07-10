@@ -255,7 +255,7 @@ class BaseGrammar(Matchable):
                 Elements are searched for individually.
             terminators (:obj:`list` of :obj:`str` or Matchable): New
                 terminators to add to the existing ones. Whether they
-                replace or append is controlled by `append_terminators`.
+                replace or append is controlled by `replace_terminators`.
                 :obj:`str` objects will be interpreted as keywords and
                 passed to `Ref.keyword()`.
             replace_terminators (:obj:`bool`, default False): When `True`

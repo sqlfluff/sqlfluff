@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
@@ -63,6 +64,11 @@ clickhouse_dialect.insert_lexer_matchers(
     before="newline",
 )
 
+clickhouse_dialect.insert_lexer_matchers(
+    [StringLexer("double_equals", "==", CodeSegment)],
+    before="equals",
+)
+
 clickhouse_dialect.patch_lexer_matchers(
     [
         RegexLexer(
@@ -94,6 +100,9 @@ clickhouse_dialect.add(
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question"),
+    RawDoubleEqualsSegment=StringParser(
+        "==", SymbolSegment, type="raw_comparison_operator"
+    ),
 )
 
 clickhouse_dialect.replace(
@@ -108,6 +117,17 @@ clickhouse_dialect.replace(
         Ref("ComparisonOperatorGrammar"),
         # Add Lambda Function
         Ref("LambdaFunctionSegment"),
+    ),
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("DoubleEqualsSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment"),
+        Ref("LikeOperatorSegment"),
+        Ref("IsDistinctFromGrammar"),
     ),
     # https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
     JoinTypeKeywordsGrammar=Sequence(
@@ -298,6 +318,14 @@ clickhouse_dialect.replace(
         Ref("TupleElementAccessSegment"),
         ansi_dialect.get_grammar("Expression_D_Grammar"),
     ),
+    # Allow tuple element access (`.N`) as a postfix accessor alongside array
+    # subscripting, so it can follow any Expression_D base -- e.g. a function
+    # call `f(x).2`, a subscript `arr[1].2`, or a tuple literal `(a, b).1` --
+    # not just a bare/bracketed column reference.
+    AccessorGrammar=AnyNumberOf(
+        Ref("ArrayAccessorSegment"),
+        Ref("TupleElementAccessorSegment"),
+    ),
     # ClickHouse C-style ternary `cond ? then : else`; the lowest-precedence
     # operator, so the optional tail wraps the whole Expression_A condition.
     # https://clickhouse.com/docs/en/sql-reference/functions/conditional-functions#ternary-operator
@@ -372,6 +400,12 @@ clickhouse_dialect.sets("datetime_units").update(
         "YY",
     ]
 )
+
+
+class DoubleEqualsSegment(CompositeComparisonOperatorSegment):
+    """Double equals operator."""
+
+    match_grammar: Matchable = Ref("RawDoubleEqualsSegment")
 
 
 class AccessPermissionSegment(ansi.AccessPermissionSegment):
@@ -730,6 +764,56 @@ class WithFillSegment(ansi.WithFillSegment):
     )
 
 
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """An `ORDER BY` clause with ClickHouse's trailing `INTERPOLATE`.
+
+    Unlike `WITH FILL`, which attaches to an individual sort key, `INTERPOLATE`
+    is a single clause that follows the whole comma-delimited `ORDER BY` list.
+
+    https://clickhouse.com/docs/sql-reference/statements/select/order-by
+    #filling-columns-with-interpolate
+    """
+
+    match_grammar: Matchable = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                Ref("WithFillSegment", optional=True),
+            ),
+            terminators=[
+                Ref("LimitClauseSegment"),
+                Ref("FrameClauseUnitGrammar"),
+                "INTERPOLATE",
+            ],
+        ),
+        Sequence(
+            "INTERPOLATE",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Sequence("AS", Ref("ExpressionSegment"), optional=True),
+                    ),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Dedent,
+    )
+
+
 class BracketedArguments(ansi.BracketedArguments):
     """A series of bracketed arguments.
 
@@ -811,6 +895,54 @@ class EnumArgumentsSegment(BaseSegment):
     )
 
 
+class JSONPathSegment(BaseSegment):
+    """A (possibly dotted) path inside a JSON type definition."""
+
+    type = "json_path"
+    match_grammar = Delimited(
+        Ref("SingleIdentifierGrammar"),
+        delimiter=Ref("DotSegment"),
+        allow_gaps=False,
+    )
+
+
+class JSONArgumentsSegment(BaseSegment):
+    """Arguments for the JSON type (params, typed paths, SKIP).
+
+    https://clickhouse.com/docs/sql-reference/data-types/newjson
+    """
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Delimited(
+            OneOf(
+                # max_dynamic_paths=N / max_dynamic_types=N
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                # SKIP path / SKIP REGEXP 'regexp'
+                Sequence(
+                    "SKIP",
+                    OneOf(
+                        Sequence(
+                            "REGEXP",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Ref("JSONPathSegment"),
+                    ),
+                ),
+                # Typed-path hint: some.path Type
+                Sequence(
+                    Ref("JSONPathSegment"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        )
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """Support complex Clickhouse data types.
 
@@ -865,8 +997,11 @@ class DatatypeSegment(BaseSegment):
             StringParser("NESTED", CodeSegment, type="data_type_identifier"),
             Ref("NestedArgumentsSegment"),
         ),
-        # JSON data type
-        StringParser("JSON", CodeSegment, type="data_type_identifier"),
+        # JSON(param=N, path Type, SKIP ...)
+        Sequence(
+            StringParser("JSON", CodeSegment, type="data_type_identifier"),
+            Ref("JSONArgumentsSegment", optional=True),
+        ),
         # Enum8('val1' = 1, 'val2' = 2)
         Sequence(
             OneOf(
@@ -2840,5 +2975,23 @@ class TupleElementAccessSegment(BaseSegment):
             min_times=1,
             allow_gaps=False,
         ),
+        allow_gaps=False,
+    )
+
+
+class TupleElementAccessorSegment(BaseSegment):
+    """A tuple element access postfix like the `.2` in `f(x).2`.
+
+    Used as an accessor (via ``AccessorGrammar``) so tuple element access can
+    follow any ``Expression_D`` base -- a function call, an array subscript, a
+    tuple literal, etc. The lexer tokenizes ``.2`` as a numeric literal rather
+    than a dot followed by an integer, so the postfix is a run of numeric
+    literals that must abut the preceding expression (``allow_gaps=False``).
+    """
+
+    type = "tuple_element_access"
+    match_grammar: Matchable = AnyNumberOf(
+        Ref("NumericLiteralSegment"),
+        min_times=1,
         allow_gaps=False,
     )

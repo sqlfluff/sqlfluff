@@ -2181,6 +2181,7 @@ dependencies = [
  "sqlfluffrs_lexer",
  "sqlfluffrs_parser",
  "sqlfluffrs_python",
+ "sqlfluffrs_rules",
  "sqlfluffrs_types",
  "uuid",
 ]
@@ -2293,6 +2294,14 @@ dependencies = [
  "serde",
  "sqlfluffrs_types",
  "uuid",
+]
+
+[[package]]
+name = "sqlfluffrs_rules"
+version = "4.2.2"
+dependencies = [
+ "pyo3",
+ "sqlfluffrs_parser",
 ]
 
 [[package]]

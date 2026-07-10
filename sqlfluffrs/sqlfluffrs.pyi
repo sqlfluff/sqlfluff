@@ -254,6 +254,19 @@ class RsParser:
         self, tokens: List[RsToken]
     ) -> RsMatchResult: ...
 
+def cp01_violations(
+    tree: RsTree,
+    policy: str,
+    ignore_words: List[str] = ...,
+    ignore_templated: bool = ...,
+) -> List[Tuple[int, str]]:
+    """Detect CP01 (keyword capitalisation) violations natively over the arena.
+
+    Returns ``(leaf_index, fixed_raw)`` pairs; ``leaf_index`` is 1:1 with the
+    parse tree's ``raw_segments`` order.
+    """
+    ...
+
 def engine_parse_paths(
     paths: list[str],
     config: "FluffConfig",

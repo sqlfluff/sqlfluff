@@ -5,6 +5,11 @@ use crate::slice::Slice;
 
 use super::fileslice::{RawFileSlice, TemplatedFileSlice};
 
+// `PartialEq` here is a full structural comparison across every field,
+// including `source_str` and `templated_str`. Callers holding an
+// `Arc<TemplatedFile>` should compare with `Arc::ptr_eq` instead of `==`
+// wherever the two markers are expected to originate from the same parse;
+// see `PositionMarker::from_points` in sqlfluffrs_types/src/marker.rs.
 #[derive(Debug, PartialEq, Clone, Hash)]
 pub struct TemplatedFile {
     pub source_str: String,

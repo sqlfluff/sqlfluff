@@ -62,18 +62,11 @@ class Rule_LT07(BaseRule):
             .segment.children(sp.is_type("common_table_expression"))
             .iterate_segments()
         ):
-            cte_start_bracket = (
-                cte.children()
-                .last(sp.is_type("bracketed"))
-                .children()
-                .first(sp.is_type("start_bracket"))
+            cte_bracketed = cte.children().last(sp.is_type("bracketed"))
+            cte_start_bracket = cte_bracketed.children().first(
+                sp.is_type("start_bracket")
             )
-            cte_end_bracket = (
-                cte.children()
-                .last(sp.is_type("bracketed"))
-                .children()
-                .last(sp.is_type("end_bracket"))
-            )
+            cte_end_bracket = cte_bracketed.children().last(sp.is_type("end_bracket"))
             if cte_start_bracket and cte_end_bracket:
                 self.logger.debug(
                     "Found CTE with brackets: %s & %s",
@@ -81,15 +74,25 @@ class Rule_LT07(BaseRule):
                     cte_end_bracket,
                 )
                 # Are they on the same line?
-                # NOTE: This assertion should be fairly safe because
-                # there aren't many reasons for an bracket to not yet
-                # be positioned.
-                assert cte_start_bracket[0].pos_marker
-                assert cte_end_bracket[0].pos_marker
-                if (
-                    cte_start_bracket[0].pos_marker.line_no
-                    == cte_end_bracket[0].pos_marker.line_no
-                ):
+                # NOTE: We deliberately inspect the tree structure for a
+                # newline between the brackets rather than comparing the
+                # position markers (`line_no`) of the brackets. During an
+                # in-progress fix pass another rule may have already inserted
+                # newlines into the CTE body without the position markers
+                # having been recomputed yet, so `line_no` can still report
+                # the brackets as being on the same line. Relying on it left
+                # `fix` non-idempotent: a CTE which *became* multi-line was
+                # not picked up until a second pass. A structural newline
+                # check reflects the current tree immediately.
+                spans_multiple_lines = any(
+                    elem.is_type("newline")
+                    or (
+                        elem.is_type("placeholder")
+                        and cast(TemplateSegment, elem).source_str == "\n"
+                    )
+                    for elem in cte_bracketed[0].raw_segments
+                )
+                if not spans_multiple_lines:
                     # Same line
                     self.logger.debug("Skipping because on same line.")
                     continue
