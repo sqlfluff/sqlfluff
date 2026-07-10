@@ -123,6 +123,11 @@ teradata_dialect.replace(
         ),
         OneOf("UPPERCASE", "UC"),
     ),
+    # A Teradata data-type attribute can be applied to an expression as a
+    # parenthesised postfix, e.g. 'TEST' (CASESPECIFIC), col (NOT CS),
+    # 'x' (UPPERCASE). This behaves like COLLATE in standard SQL, binding to
+    # the operand, so it works on either side of a comparison.
+    CollateGrammar=Bracketed(Ref("CharCharacterSetGrammar")),
     FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
         insert=[
             Sequence(
