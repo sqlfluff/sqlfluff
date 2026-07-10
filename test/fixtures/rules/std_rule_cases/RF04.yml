@@ -156,3 +156,10 @@ test_fail_keyword_as_column_name_postgres:
   configs:
     core:
       dialect: postgres
+
+test_pass_provider_not_keyword_postgres:
+  # provider is not a PostgreSQL keyword, should not be flagged by RF04
+  pass_str: CREATE TABLE test (provider TEXT NOT NULL)
+  configs:
+    core:
+      dialect: postgres
