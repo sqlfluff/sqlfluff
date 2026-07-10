@@ -376,6 +376,51 @@ impl Node {
         }
     }
 
+    /// Return one `SQLParseError`-style summary per unparsable section in the
+    /// tree. Mirrors Python's `iter_unparsables` (an unparsable segment yields
+    /// itself and is not recursed into) and the message format used by
+    /// `Linter._parse_tokens`. The table-driven parser materializes unparsable
+    /// sections as `Node::Segment` with an `UnparsableSegment` class, so both
+    /// that and the dedicated `Node::Unparsable` variant are detected.
+    pub fn unparsable_summaries(&self) -> Vec<String> {
+        let mut out = Vec::new();
+        self.collect_unparsable_summaries(&mut out);
+        out
+    }
+
+    fn collect_unparsable_summaries(&self, out: &mut Vec<String>) {
+        match self {
+            Node::Unparsable { pos_marker, .. } => {
+                out.push(Self::unparsable_summary(pos_marker.as_ref(), self.raw()));
+            }
+            Node::Segment {
+                segment_class,
+                pos_marker,
+                children,
+                ..
+            } => {
+                if segment_class == "UnparsableSegment" {
+                    out.push(Self::unparsable_summary(pos_marker.as_ref(), self.raw()));
+                } else {
+                    for child in children {
+                        child.collect_unparsable_summaries(out);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    fn unparsable_summary(pos_marker: Option<&PositionMarker>, raw: String) -> String {
+        let (line, pos) = pos_marker.map(|pm| pm.working_loc()).unwrap_or((0, 0));
+        let excerpt: String = if raw.chars().count() < 40 {
+            raw
+        } else {
+            format!("{}...", raw.chars().take(40).collect::<String>())
+        };
+        format!("Line {line}, Position {pos}: Found unparsable section: {excerpt:?}")
+    }
+
     /// Check if this node represents code (not whitespace or meta)
     pub fn is_code(&self) -> bool {
         match self {

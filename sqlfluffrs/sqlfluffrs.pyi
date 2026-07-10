@@ -276,12 +276,13 @@ def engine_parse_paths(
     stdin_filename: Optional[str] = None,
     code_only: bool = False,
     include_meta: bool = False,
-    parse_statistics: bool = False,
 ) -> list[dict[str, Any]]:
     """Rust-driven discover->render->lex->parse for the `parse` command.
 
     Returns one dict per file: `{fname, segments, templater_violations,
-    lex_errors, parse_errors}`.
+    lex_errors, parse_errors}`. Violations/errors are pre-filtered against
+    the config's `ignore`/`warnings` settings (inline `noqa` comments are
+    not yet honored), so raw counts can drive the exit code.
     """
     ...
 

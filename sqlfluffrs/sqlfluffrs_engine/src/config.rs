@@ -110,26 +110,54 @@ fn ini_section_to_path(section: &str) -> Option<Vec<String>> {
 
 /// Parse INI-style config text (`.sqlfluff`, `setup.cfg`, `tox.ini`) into a
 /// nested [`ConfigMap`]. Only `sqlfluff`-prefixed sections are retained.
+/// Follows Python's `configparser` defaults: `=` and `:` both delimit
+/// key/value (whichever comes first), and indented lines continue the
+/// previous value (joined with `\n`).
 pub fn parse_ini(text: &str) -> ConfigMap {
     let mut out = ConfigMap::new();
     let mut current_path: Option<Vec<String>> = None;
+    // A key whose value may still grow via continuation lines.
+    let mut pending: Option<(Vec<String>, String)> = None;
+
+    let flush = |out: &mut ConfigMap, pending: &mut Option<(Vec<String>, String)>| {
+        if let Some((full, value)) = pending.take() {
+            insert_path(out, &full, coerce_value(&value));
+        }
+    };
+
     for raw_line in text.lines() {
         let line = raw_line.trim();
         if line.is_empty() || line.starts_with('#') || line.starts_with(';') {
             continue;
         }
+        // An indented, non-blank line continues the previous value.
+        if raw_line.starts_with([' ', '\t']) {
+            if let Some((_, value)) = &mut pending {
+                value.push('\n');
+                value.push_str(line);
+            }
+            continue;
+        }
         if line.starts_with('[') && line.ends_with(']') {
+            flush(&mut out, &mut pending);
             let section = line[1..line.len() - 1].trim();
             current_path = ini_section_to_path(section);
             continue;
         }
         let Some(path) = &current_path else { continue };
-        if let Some((key, value)) = line.split_once('=') {
+        // Split on whichever delimiter appears first, like configparser.
+        let delim = match (line.find('='), line.find(':')) {
+            (Some(e), Some(c)) => Some(e.min(c)),
+            (e, c) => e.or(c),
+        };
+        if let Some(idx) = delim {
+            flush(&mut out, &mut pending);
             let mut full = path.clone();
-            full.push(key.trim().to_string());
-            insert_path(&mut out, &full, coerce_value(value));
+            full.push(line[..idx].trim().to_string());
+            pending = Some((full, line[idx + 1..].trim().to_string()));
         }
     }
+    flush(&mut out, &mut pending);
     out
 }
 
@@ -230,7 +258,13 @@ pub fn ignore_paths_from_file(path: &Path) -> Vec<String> {
         return Vec::new();
     };
     let map = if path.file_name().and_then(|n| n.to_str()) == Some("pyproject.toml") {
-        parse_pyproject(&text).unwrap_or_default()
+        // Don't fail the walk over one bad inner file, but don't silently
+        // drop its `ignore_paths` either (the main config resolution path,
+        // `load_config_file`, propagates this same error).
+        parse_pyproject(&text).unwrap_or_else(|e| {
+            eprintln!("Warning: skipping config in {}: {e:#}", path.display());
+            ConfigMap::new()
+        })
     } else {
         parse_ini(&text)
     };
@@ -432,6 +466,36 @@ mod tests {
         let rc = ResolvedConfig { map: cfg };
         assert_eq!(rc.dialect().as_deref(), Some("postgres"));
         assert_eq!(rc.indentation_bools().get("indented_joins"), Some(&true));
+    }
+
+    #[test]
+    fn ini_colon_delimiter_and_continuations() {
+        // configparser accepts `:` as a delimiter and indented continuation
+        // lines (joined with newlines).
+        let cfg = parse_ini(
+            "[sqlfluff]\ndialect: postgres\nignore_paths =\n    foo\n    bar\ntemplater = raw\n",
+        );
+        let rc = ResolvedConfig { map: cfg };
+        assert_eq!(rc.dialect().as_deref(), Some("postgres"));
+        assert_eq!(rc.templater(), "raw");
+        let Some(ConfigValue::Section(core)) = rc.map.get("core") else {
+            panic!("no core section");
+        };
+        assert_eq!(
+            core.get("ignore_paths"),
+            Some(&ConfigValue::Str("foo\nbar".to_string()))
+        );
+    }
+
+    #[test]
+    fn ini_first_delimiter_wins() {
+        // `=` before `:` splits at `=`, and vice versa — like configparser.
+        let cfg = parse_ini("[sqlfluff:x]\na = b:c\nd: e=f\n");
+        let Some(ConfigValue::Section(x)) = cfg.get("x") else {
+            panic!("no x section");
+        };
+        assert_eq!(x.get("a"), Some(&ConfigValue::Str("b:c".to_string())));
+        assert_eq!(x.get("d"), Some(&ConfigValue::Str("e=f".to_string())));
     }
 
     #[test]

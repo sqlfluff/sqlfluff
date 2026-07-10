@@ -66,6 +66,15 @@ fn run(cli: &Cli) -> Result<u8> {
     let multiple = inputs.len() > 1;
     let mut worst = EXIT_SUCCESS;
 
+    // Open `--write-output` once, up front, so multiple inputs append to the
+    // same file rather than each truncating the previous one's output.
+    let mut out_file = match cli.command.write_output() {
+        Some(path) => Some(
+            std::fs::File::create(path).with_context(|| format!("creating output file {path}"))?,
+        ),
+        None => None,
+    };
+
     for input in inputs {
         // Resolve config relative to the file, then apply inline directives.
         let file_config = ResolvedConfig::resolve(
@@ -76,7 +85,7 @@ fn run(cli: &Cli) -> Result<u8> {
         )?
         .with_inline_directives(&input.raw);
 
-        let code = match process(cli, &input, &file_config, multiple) {
+        let code = match process(cli, &input, &file_config, multiple, out_file.as_mut()) {
             Ok(code) => code,
             Err(e) => {
                 eprintln!("{}: error: {e:#}", input.fname);
@@ -168,7 +177,13 @@ fn gather_inputs(core: &CoreArgs, config: &ResolvedConfig, cwd: &Path) -> Result
 }
 
 /// Dispatch one input through the requested command.
-fn process(cli: &Cli, input: &Input, config: &ResolvedConfig, multiple: bool) -> Result<u8> {
+fn process(
+    cli: &Cli,
+    input: &Input,
+    config: &ResolvedConfig,
+    multiple: bool,
+    mut out_file: Option<&mut std::fs::File>,
+) -> Result<u8> {
     let templater_name = config.templater();
     let outcome = templating::template(&input.raw, &input.fname, &templater_name, config)?;
 
@@ -184,7 +199,7 @@ fn process(cli: &Cli, input: &Input, config: &ResolvedConfig, multiple: bool) ->
     match &cli.command {
         Command::Render(_) => {
             let body = output::render_output(&outcome.variants);
-            print_body(input, &body, multiple, None)?;
+            print_body(input, &body, multiple, out_file.as_deref_mut())?;
         }
         Command::Lex(args) => {
             let dialect = pipeline::resolve_dialect_by_name(config.dialect().as_deref())?;
@@ -192,7 +207,7 @@ fn process(cli: &Cli, input: &Input, config: &ResolvedConfig, multiple: bool) ->
             let (tokens, lex_errors) =
                 pipeline::lex_variant(variant, dialect, config.template_blocks_indent());
             let body = output::lex_output(&tokens, args.format)?;
-            print_body(input, &body, multiple, args.write_output.as_deref())?;
+            print_body(input, &body, multiple, out_file.as_deref_mut())?;
             for err in lex_errors {
                 eprintln!("{}: lexing: {err}", input.fname);
                 exit = exit.max(EXIT_FAIL);
@@ -213,6 +228,13 @@ fn process(cli: &Cli, input: &Input, config: &ResolvedConfig, multiple: bool) ->
                 config.indentation_bools(),
                 config.parse_limits(),
             )?;
+            // Grammar failures come back embedded as unparsable sections, not
+            // as `Err`, so surface them in the exit code (like Python's PRS
+            // violations).
+            for err in node.unparsable_summaries() {
+                eprintln!("{}: parsing: {err}", input.fname);
+                exit = exit.max(EXIT_FAIL);
+            }
             let body = output::parse_output(
                 &node,
                 &input.fname,
@@ -220,20 +242,30 @@ fn process(cli: &Cli, input: &Input, config: &ResolvedConfig, multiple: bool) ->
                 args.code_only,
                 args.include_meta,
             )?;
-            print_body(input, &body, multiple, args.write_output.as_deref())?;
+            print_body(input, &body, multiple, out_file)?;
         }
     }
 
     Ok(exit)
 }
 
-/// Emit a command's output, optionally to a file, with a per-file header when
-/// more than one input is being processed.
-fn print_body(input: &Input, body: &str, multiple: bool, write_output: Option<&str>) -> Result<()> {
-    if let Some(path) = write_output {
-        let mut f =
-            std::fs::File::create(path).with_context(|| format!("creating output file {path}"))?;
+/// Emit a command's output — to the shared `--write-output` file when one is
+/// open, otherwise stdout — with a per-file header when more than one input is
+/// being processed.
+fn print_body(
+    input: &Input,
+    body: &str,
+    multiple: bool,
+    out_file: Option<&mut std::fs::File>,
+) -> Result<()> {
+    if let Some(f) = out_file {
+        if multiple {
+            writeln!(f, "== [{}] ==", input.fname)?;
+        }
         f.write_all(body.as_bytes())?;
+        if !body.ends_with('\n') && !body.is_empty() {
+            writeln!(f)?;
+        }
         return Ok(());
     }
     if multiple {

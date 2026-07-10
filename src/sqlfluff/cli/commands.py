@@ -639,7 +639,9 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
         click.echo(payload)
 
 
-def _use_rust_engine(config: "FluffConfig", fmt: Optional[str]) -> bool:
+def _use_rust_engine(
+    config: "FluffConfig", fmt: Optional[str]
+) -> bool:  # pragma: no cover
     """Whether Rust should drive orchestration (discover/render/lex/parse).
 
     Gated by ``core.use_rust_engine`` (``False``/``auto``/``True``, default
@@ -1707,8 +1709,11 @@ def parse(
     # EXPERIMENTAL: let Rust drive discover→render→lex→parse for machine-readable
     # output. On success this exits directly; on failure under `auto` (for a path)
     # it falls through to the Python path below. `--include-meta` needs position
-    # info the Rust record path doesn't emit yet, so it stays on the Python path.
-    if _use_rust_engine(c, format) and not include_meta:
+    # info the Rust record path doesn't emit yet, and `--parse-statistics`
+    # timing isn't collected by the Rust path, so both stay on the Python path.
+    if (
+        _use_rust_engine(c, format) and not include_meta and not parse_statistics
+    ):  # pragma: no cover
         import sqlfluffrs
 
         force = str(c.get("use_rust_engine")) in ("True", "true", "1")
@@ -1727,7 +1732,6 @@ def parse(
                     stdin_filename=stdin_filename or "stdin",
                     code_only=code_only,
                     include_meta=include_meta,
-                    parse_statistics=parse_statistics,
                 )
             else:
                 results = sqlfluffrs.engine_parse_paths(
@@ -1736,7 +1740,6 @@ def parse(
                     formatter,
                     code_only=code_only,
                     include_meta=include_meta,
-                    parse_statistics=parse_statistics,
                 )
         except SQLFluffUserError as err:
             # Mirror PathAndUserErrorHandler: a user error (e.g. no dialect
@@ -1760,6 +1763,10 @@ def parse(
             parsed_strings_dict = [
                 {"filepath": d["fname"], "segments": d["segments"]} for d in results
             ]
+            # The violations in `results` have already been filtered against
+            # the `ignore`/`warnings` config settings Rust-side (mirroring
+            # `_get_filtered_parse_violations`), so raw counts drive the exit
+            # code. Inline `noqa` comments are not yet honored on this path.
             violations_count = sum(
                 len(d["templater_violations"])
                 + len(d["lex_errors"])
@@ -1929,7 +1936,7 @@ def render(
         # downstream print path is unchanged; on failure under `auto` we fall
         # back to the Python render.
         rendered: Any = None
-        if _use_rust_engine(c, None):
+        if _use_rust_engine(c, None):  # pragma: no cover
             from types import SimpleNamespace
 
             import sqlfluffrs

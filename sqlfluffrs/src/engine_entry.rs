@@ -44,6 +44,37 @@ fn read_str_list(config: &Bound<'_, PyAny>, key: &str) -> Vec<String> {
     Vec::new()
 }
 
+/// Apply the config's `ignore`/`warnings` settings to templater violation
+/// objects, keeping only the ones that should affect the exit code. Mirrors
+/// the start of the CLI's `_get_filtered_parse_violations`; inline `noqa`
+/// comments are not yet honored on this path.
+fn filter_templater_violations<'py>(
+    child: &Bound<'py, PyAny>,
+    violations: Bound<'py, PyList>,
+) -> PyResult<Bound<'py, PyList>> {
+    let ignore = child.call_method1("get", ("ignore",))?;
+    let warnings = child.call_method1("get", ("warnings",))?;
+    let out = PyList::empty(child.py());
+    for v in violations.iter() {
+        v.call_method1("ignore_if_in", (&ignore,))?;
+        v.call_method1("warning_if_in", (&warnings,))?;
+        if !v.getattr("ignore")?.is_truthy()? && !v.getattr("warning")?.is_truthy()? {
+            out.append(v)?;
+        }
+    }
+    Ok(out)
+}
+
+/// Whether error strings of the given category are filtered from the exit
+/// code by the config: the `ignore` list matches by identifier (`lexing`,
+/// `parsing`), the `warnings` list by rule code (`LXR`, `PRS`).
+fn errors_filtered_out(child: &Bound<'_, PyAny>, identifier: &str, code: &str) -> bool {
+    read_str_list(child, "ignore")
+        .iter()
+        .any(|i| i == identifier)
+        || read_str_list(child, "warnings").iter().any(|w| w == code)
+}
+
 /// `child.get(val, section=..)`, returned as an owned `String` when scalar.
 fn get_str<'py>(config: &Bound<'py, PyAny>, val: &str, section: Option<&str>) -> Option<String> {
     let kwargs = PyDict::new(config.py());
@@ -212,10 +243,14 @@ fn parse_variant_to_record<'py>(
 
     match parsed {
         Ok((lex_errors, Ok(node))) => {
+            // Grammar failures come back embedded as unparsable sections, not
+            // as `Err` — surface them as parse errors (Python's PRS
+            // violations) so they reach the exit code.
+            let parse_errors = node.unparsable_summaries();
             // `show_raw=true` matches the CLI `parse` record shape (leaves scalar).
             let pynode = Py::new(py, PyNode::from(node))?;
             let record = pynode.call_method1(py, "as_record", (code_only, true, include_meta))?;
-            Ok((Some(record), lex_errors, Vec::new()))
+            Ok((Some(record), lex_errors, parse_errors))
         }
         Ok((lex_errors, Err(e))) => Ok((None, lex_errors, vec![e.to_string()])),
         Err(_) => Ok((
@@ -230,10 +265,12 @@ fn parse_variant_to_record<'py>(
 ///
 /// Returns one dict per discovered file (in discovery order):
 /// `{fname, segments, templater_violations, lex_errors, parse_errors}`.
+/// Violations/errors are pre-filtered against the config's `ignore`/`warnings`
+/// settings (inline `noqa` comments are not yet honored), so the caller's raw
+/// counts can drive the exit code.
 #[pyfunction]
 #[pyo3(signature = (paths, config, formatter=None, *, stdin_content=None,
-        stdin_filename=None, code_only=false, include_meta=false,
-        parse_statistics=false))]
+        stdin_filename=None, code_only=false, include_meta=false))]
 #[allow(clippy::too_many_arguments)]
 pub fn engine_parse_paths<'py>(
     py: Python<'py>,
@@ -244,9 +281,7 @@ pub fn engine_parse_paths<'py>(
     stdin_filename: Option<String>,
     code_only: bool,
     include_meta: bool,
-    parse_statistics: bool,
 ) -> PyResult<Vec<Py<PyDict>>> {
-    let _ = parse_statistics; // reserved (timing/stats not surfaced yet)
     let is_stdin = paths.iter().any(|p| p == "-");
 
     // (fname, raw) work-list — Rust drives discovery / file reading.
@@ -284,14 +319,24 @@ pub fn engine_parse_paths<'py>(
         let child = child_config(&config, &fname, is_stdin, &raw)?;
         let (variants, templater_violations) =
             render_via_python(py, &child, &raw, &fname, formatter_ref)?;
+        // Only violations that survive the `ignore`/`warnings` config filters
+        // are returned, so the caller's raw counts drive the exit code the
+        // same way the Python path's filtered violations do.
+        let templater_violations = filter_templater_violations(&child, templater_violations)?;
 
         let dict = PyDict::new(py);
         dict.set_item("fname", &fname)?;
         dict.set_item("templater_violations", &templater_violations)?;
 
         if let Some(root) = variants.first() {
-            let (record, lex_errors, parse_errors) =
+            let (record, mut lex_errors, mut parse_errors) =
                 parse_variant_to_record(py, &child, root, code_only, include_meta)?;
+            if errors_filtered_out(&child, "lexing", "LXR") {
+                lex_errors.clear();
+            }
+            if errors_filtered_out(&child, "parsing", "PRS") {
+                parse_errors.clear();
+            }
             dict.set_item("segments", record)?;
             dict.set_item("lex_errors", lex_errors)?;
             dict.set_item("parse_errors", parse_errors)?;

@@ -126,4 +126,13 @@ impl Command {
             Command::Render(a) => &a.core,
         }
     }
+
+    /// The `--write-output` path, for the subcommands that support it.
+    pub fn write_output(&self) -> Option<&str> {
+        match self {
+            Command::Lex(a) => a.write_output.as_deref(),
+            Command::Parse(a) => a.write_output.as_deref(),
+            Command::Render(_) => None,
+        }
+    }
 }

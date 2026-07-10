@@ -91,11 +91,12 @@ mod bridge {
             call_kwargs
                 .set_item("formatter", py.None())
                 .map_err(py_err)?;
-            // Run the templating itself. A Python exception raised here is a
+            // Run the templating itself. A raised `SQLTemplaterError` is a
             // *templating failure* driven by the input (e.g. a Jinja syntax
             // error), which Python surfaces as a violation (exit FAIL) — not an
-            // internal error. So we catch it and report it as a templater error
-            // rather than propagating a hard failure.
+            // internal error — so it is downgraded to a templater error. Any
+            // other exception (e.g. a bridge/conversion bug) propagates as a
+            // hard failure, mirroring `Linter.render_string`.
             let mut variants = Vec::new();
             let mut errors = Vec::new();
             let mut run = || -> PyResult<()> {
@@ -119,7 +120,18 @@ mod bridge {
                 Ok(())
             };
             if let Err(e) = run() {
-                errors.push(e.to_string());
+                let templater_err_cls = py
+                    .import("sqlfluff.core.errors")
+                    .and_then(|m| m.getattr("SQLTemplaterError"))
+                    .map_err(py_err)?;
+                if e.value(py)
+                    .is_instance(&templater_err_cls)
+                    .map_err(py_err)?
+                {
+                    errors.push(e.to_string());
+                } else {
+                    return Err(py_err(e));
+                }
             }
             Ok(TemplateOutcome { variants, errors })
         })
@@ -135,11 +147,14 @@ mod bridge {
     /// editable installs) so `sqlfluff` and its templater deps resolve. Users of
     /// a non-activated environment can instead set `PYTHONPATH`.
     fn ensure_python_paths(py: Python<'_>) -> Result<()> {
-        use std::sync::Once;
-        static ONCE: Once = Once::new();
-        let mut result = Ok(());
-        ONCE.call_once(|| {
-            let code = c"
+        use std::sync::OnceLock;
+        // Store the first run's outcome so every caller observes the same
+        // result (a plain `Once` would return fresh `Ok(())`s after a failed
+        // initialization).
+        static RESULT: OnceLock<std::result::Result<(), String>> = OnceLock::new();
+        RESULT
+            .get_or_init(|| {
+                let code = c"
 import os, site, glob
 ve = os.environ.get('VIRTUAL_ENV')
 if ve:
@@ -149,11 +164,10 @@ if ve:
     if os.path.isdir(win):
         site.addsitedir(win)
 ";
-            if let Err(e) = py.run(code, None, None) {
-                result = Err(py_err(e));
-            }
-        });
-        result
+                py.run(code, None, None).map_err(|e| py_err(e).to_string())
+            })
+            .clone()
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Convert a Rust [`ConfigMap`] into a nested Python dict suitable for

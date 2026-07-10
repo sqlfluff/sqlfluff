@@ -85,7 +85,7 @@ fn glob_to_regex(pattern: &str) -> Option<Regex> {
                     re.push_str("[^/]*");
                 }
             }
-            '?' => re.push('.'),
+            '?' => re.push_str("[^/]"),
             '.' | '+' | '(' | ')' | '|' | '^' | '$' | '{' | '}' | '[' | ']' | '\\' => {
                 re.push('\\');
                 re.push(c);
@@ -121,16 +121,28 @@ pub fn discover_files(
             continue; // stdin handled by the caller
         }
         let p = Path::new(path);
-        if p.is_file() {
+        // Walk an absolutized path so every entry compares against the
+        // (absolute) ignore-spec bases; results are reported under the path
+        // as typed.
+        let abs = absolutize(p, working_dir);
+        if abs.is_file() {
             // Explicit files are always included.
             out.push(p.to_path_buf());
-        } else if p.is_dir() {
-            collect_dir(p, exts, &ignore_paths, &mut out)?;
+        } else if abs.is_dir() {
+            collect_dir(&abs, p, exts, &ignore_paths, &mut out)?;
         } else {
             anyhow::bail!("path does not exist: {}", path);
         }
     }
     Ok(out)
+}
+
+fn absolutize(path: &Path, working_dir: &Path) -> PathBuf {
+    if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        working_dir.join(path)
+    }
 }
 
 fn root_ignore_specs(root_ignore_paths: &[String], working_dir: &Path) -> Vec<IgnoreSpec> {
@@ -142,8 +154,12 @@ fn root_ignore_specs(root_ignore_paths: &[String], working_dir: &Path) -> Vec<Ig
     }
 }
 
+/// Walk `abs_dir` (absolute, so paths line up with the ignore-spec bases) and
+/// collect matching files, reported relative to `orig_dir` (the path as the
+/// caller typed it).
 fn collect_dir(
-    dir: &Path,
+    abs_dir: &Path,
+    orig_dir: &Path,
     exts: &[String],
     ignore_paths: &[IgnoreSpec],
     out: &mut Vec<PathBuf>,
@@ -151,8 +167,8 @@ fn collect_dir(
     // Load `.sqlfluffignore` files we encounter, applying them to their subtree.
     let mut specs: Vec<IgnoreSpec> = Vec::new();
 
-    for entry in WalkDir::new(dir).sort_by_file_name() {
-        let entry = entry.with_context(|| format!("walking {}", dir.display()))?;
+    for entry in WalkDir::new(abs_dir).sort_by_file_name() {
+        let entry = entry.with_context(|| format!("walking {}", abs_dir.display()))?;
         let path = entry.path();
 
         if entry.file_type().is_file()
@@ -185,7 +201,7 @@ fn collect_dir(
         if is_ignored(path, &specs) || is_ignored(path, ignore_paths) {
             continue;
         }
-        out.push(path.to_path_buf());
+        out.push(orig_dir.join(path.strip_prefix(abs_dir).unwrap_or(path)));
     }
     Ok(())
 }
@@ -226,10 +242,37 @@ mod tests {
     }
 
     #[test]
+    fn question_mark_does_not_cross_separators() {
+        let re = glob_to_regex("a?b.sql").unwrap();
+        assert!(re.is_match("axb.sql"));
+        assert!(!re.is_match("a/b.sql"));
+    }
+
+    #[test]
     fn anchored_glob() {
         let re = glob_to_regex("/build").unwrap();
         assert!(re.is_match("build/x.sql"));
         assert!(!re.is_match("src/build/x.sql"));
+    }
+
+    #[test]
+    fn relative_dir_honors_root_ignore_paths() {
+        // Regression: a relative input path used to bypass `core.ignore_paths`
+        // because the walked (relative) entries never matched the absolute
+        // ignore-spec base.
+        let base =
+            std::env::temp_dir().join(format!("sqlfluffrs_discovery_test_{}", std::process::id()));
+        let proj = base.join("proj");
+        std::fs::create_dir_all(proj.join("ignored")).unwrap();
+        std::fs::write(proj.join("keep.sql"), "select 1").unwrap();
+        std::fs::write(proj.join("ignored").join("skip.sql"), "select 1").unwrap();
+
+        let exts = vec![".sql".to_string()];
+        let ignore = vec!["ignored/".to_string()];
+        let found = discover_files(&["proj".to_string()], &exts, &ignore, &base).unwrap();
+        assert_eq!(found, vec![PathBuf::from("proj").join("keep.sql")]);
+
+        std::fs::remove_dir_all(&base).unwrap();
     }
 
     #[test]
