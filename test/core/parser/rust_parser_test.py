@@ -545,9 +545,7 @@ _KNOWN_PYTHON_RUST_DIVERGENCES = {
     ("databricks", "unpivot.sql"),
     ("sparksql", "pivot_clause.sql"),
     ("sparksql", "unpivot_clause.sql"),
-    ("snowflake", "create_catalog_integration.sql"),
     ("tsql", "datatype_methods.sql"),
-    ("tsql", "sqlcmd_command.sql"),
 }
 
 
