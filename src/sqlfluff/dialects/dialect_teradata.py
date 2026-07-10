@@ -60,7 +60,7 @@ teradata_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "bteq_command",
-            r"\.[^\r\n]*",
+            r"\.[a-zA-Z][^\r\n]*",
             CommentSegment,
         )
     ],
