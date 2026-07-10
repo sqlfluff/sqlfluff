@@ -149,6 +149,7 @@ teradata_dialect.replace(
         Ref("NotEqualToSegment_b"),
         Ref("NotEqualToSegment_c"),
         Ref("LikeOperatorSegment"),
+        Ref("OverlapsOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
@@ -1067,3 +1068,15 @@ class NotEqualToSegment_c(CompositeComparisonOperatorSegment):
     match_grammar = Sequence(
         Ref("BitwiseXorSegment"), Ref("RawEqualsSegment"), allow_gaps=False
     )
+
+
+class OverlapsOperatorSegment(CompositeComparisonOperatorSegment):
+    """The OVERLAPS period comparison operator.
+
+    Unlike the ANSI `overlaps_clause`, this binds two operands, so it also works
+    where a boolean is expected (e.g. inside CASE WHEN).
+
+    https://docs.teradata.com/r/kmuOwjp1zEYg98JsB8fu_A/3VIgdwHNVU~tsnNiIR1aEw
+    """
+
+    match_grammar = Sequence("OVERLAPS")
