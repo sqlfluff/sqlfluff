@@ -756,6 +756,43 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
     )
 
 
+class GroupByClauseSegment(BaseSegment):
+    """Enhance `GROUP BY` with ClickHouse `WITH ROLLUP` / `CUBE` / `TOTALS`.
+
+    ClickHouse allows the ``WITH ROLLUP``, ``WITH CUBE`` and ``WITH TOTALS``
+    modifiers to trail a ``GROUP BY`` clause. ``ROLLUP`` and ``CUBE`` are
+    mutually exclusive, and either may be combined with ``TOTALS``.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/group-by
+    """
+
+    type = "groupby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("NumericLiteralSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+            ),
+        ),
+        Sequence("WITH", OneOf("ROLLUP", "CUBE"), optional=True),
+        Sequence("WITH", "TOTALS", optional=True),
+        Dedent,
+    )
+
+
 class SetOperatorSegment(ansi.SetOperatorSegment):
     """A set operator such as Union, Minus, Except or Intersect.
 
