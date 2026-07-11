@@ -53,20 +53,6 @@ teradata_dialect.patch_lexer_matchers(
     ]
 )
 
-# Add BTEQ meta-command lexer: treat dot-prefixed commands as comments
-# so the parser can skip them (similar to Postgres psql meta-commands).
-# Example: .RUN FILE=POSTING, .IF errorcode > 0 then .quit 2
-teradata_dialect.insert_lexer_matchers(
-    [
-        RegexLexer(
-            "bteq_command",
-            r"\.(?i:IF|THEN|LOGON|ACTIVITYCOUNT|ERRORCODE|DATABASE|LABEL|GOTO|LOGOFF|IMPORT|EXPORT|RUN|QUIT)\b[^\r\n]*",
-            CommentSegment,
-        )
-    ],
-    before="newline",
-)
-
 # Remove unused keywords from the dialect.
 teradata_dialect.sets("unreserved_keywords").difference_update(
     [
