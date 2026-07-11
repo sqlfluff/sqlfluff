@@ -807,29 +807,20 @@ def test__rust_parser__vs_python_unclosed_greedy_bracket_raises():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: for a GREEDY-mode Bracketed's Delimited content, "
-        "trailing trivia (whitespace/comments) between a dangling trailing "
-        "comma and the closing bracket is merged into the unparsable "
-        "segment on the Rust side (sqlfluffrs_parser/src/parser/"
-        "table_driven/bracketed.rs:456-476, which builds the unparsable "
-        "span straight through to the closing bracket with no skip-back "
-        "for trailing trivia), whereas Python's Bracketed.match "
-        "(src/sqlfluff/core/parser/grammar/sequence.py:503-533) keeps that "
-        "trivia as a separate, untyped sibling gap outside the unparsable "
-        "class. Reproduces at any GREEDY Bracketed+Delimited site (IN-list, "
-        "USING-list, ...), not just the one used here."
-    ),
-)
 def test__rust_parser__vs_python_trailing_trivia_in_unparsable():
-    """RustParser merges trailing trivia into an unparsable span; Python doesn't.
+    """RustParser no longer merges trailing trivia into an unparsable span.
 
-    A dangling trailing comma inside a GREEDY-mode Delimited bracket (e.g.
-    an IN-list) is wrapped as unparsable by both engines, but they disagree
-    on whether the whitespace between the comma and the closing bracket is
-    part of that unparsable span or a sibling of it.
+    Regression test: for a GREEDY-mode Bracketed's Delimited content, the
+    trailing trivia (whitespace/comments) between a dangling trailing comma
+    and the closing bracket used to be merged into the unparsable segment
+    on the Rust side (Bracketed's own GREEDY-leftover detection built the
+    unparsable span straight through to the closing bracket with no
+    skip-back for trailing trivia), whereas Python's Bracketed.match keeps
+    that trivia as a separate, untyped sibling gap outside the unparsable
+    class. A dangling trailing comma inside a GREEDY-mode Delimited bracket
+    (e.g. an IN-list) is wrapped as unparsable by both engines; they now
+    agree on whether the whitespace between the comma and the closing
+    bracket is part of that unparsable span or a sibling of it.
     """
     rust_result, python_result = _compare_parser_vs_rust(
         "SELECT a FROM t WHERE a IN (1, )"
