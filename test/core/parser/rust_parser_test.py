@@ -730,30 +730,53 @@ def test__rust_parser__vs_python_partial_match_failure_drops_children():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_stray_closing_bracket_terminator():
+    """RustParser aborts its terminator search on a stray ')', matching Python.
+
+    Regression test: Python's greedy_match/next_ex_bracket_match
+    (src/sqlfluff/core/parser/match_algorithms.py:469-529) aborts the
+    terminator search entirely on an unexpected closing bracket, claiming
+    everything up to EOF as unparsable. RustParser's greedy_match
+    (sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs) now
+    replicates this: an unmatched ')'/']'/'}' encountered while scanning for
+    a terminator immediately aborts the search, rather than continuing on
+    to find a later terminator (e.g. FROM) as it previously did.
+    """
+    rust_result, python_result = _compare_parser_vs_rust("SELECT 1) FROM t")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 @pytest.mark.xfail(
     strict=True,
     reason=(
-        "Regression: Python's greedy_match/next_ex_bracket_match "
-        "(src/sqlfluff/core/parser/match_algorithms.py:469-529) aborts the "
-        "terminator search entirely on an unexpected closing bracket, "
-        "claiming everything up to EOF as unparsable. Rust's greedy_match "
-        "(sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs:"
-        "142-266) only special-cases *opening* brackets and has no "
-        "equivalent handling for a stray closing bracket, so it keeps "
-        "scanning and finds the next real terminator (e.g. FROM) instead. "
-        "Rust's behaviour is arguably more useful here, but it is a real, "
-        "deterministic structural divergence from the Python parser for "
-        "SQL containing an unbalanced closing bracket."
+        "Known gap: greedy_match's stray-closing-bracket check "
+        "(sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs) "
+        "recognises brackets by a hardcoded raw-text match on '(', '[', "
+        "'{' and ')', ']', '}'. Python's equivalent, next_ex_bracket_match "
+        "(src/sqlfluff/core/parser/match_algorithms.py:469-529), instead "
+        "looks up the active dialect's bracket_pairs set, so it also "
+        "recognises dialect-specific bracket tokens such as Snowflake's "
+        "MATCH_RECOGNIZE exclude brackets '{-'/'-}' "
+        "(dialect_snowflake.py:128-130). On a stray '-}', Python aborts the "
+        "terminator search and claims the rest as unparsable, while Rust's "
+        "hardcoded check doesn't recognise '-}' as a bracket at all and "
+        "keeps scanning, finding the following FROM as a normal terminator. "
+        "Fixing it means threading the dialect's bracket set through "
+        "greedy_match instead of hardcoding ASCII brackets."
     ),
 )
-def test__rust_parser__vs_python_stray_closing_bracket_terminator():
-    """RustParser recovers more of the tree than Python after a stray ')'.
+def test__rust_parser__vs_python_stray_closing_bracket_hardcoded_set():
+    """RustParser's greedy_match only recognises a hardcoded ASCII bracket set.
 
-    Python swallows everything up to EOF as unparsable once it hits an
-    unexpected closing bracket; RustParser instead keeps parsing and
-    recovers a proper from_clause sibling.
+    Snowflake's MATCH_RECOGNIZE exclude brackets ('{-'/'-}') are part of the
+    dialect's bracket_pairs set, so Python treats a stray '-}' the same way
+    as a stray ')'. RustParser's hardcoded check doesn't recognise '-}' as a
+    bracket, so it keeps scanning past it instead of aborting.
     """
-    rust_result, python_result = _compare_parser_vs_rust("SELECT 1) FROM t")
+    rust_result, python_result = _compare_parser_vs_rust(
+        "SELECT 1 -} FROM t", dialect="snowflake"
+    )
     assert rust_result == python_result
 
 
@@ -871,24 +894,18 @@ def test__rust_parser__vs_python_nested_bracket_mismatch_raises():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: a second instance of the 'stray closing bracket' bug "
-        "(sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs:"
-        "142-266 has no equivalent of Python's abort-to-EOF-on-unexpected-"
-        "closing-bracket rule in match_algorithms.py:469-529), this time at "
-        "UnorderedSelectStatementSegment's own terminator scan "
-        "(dialect_ansi.py:2755-2781) rather than SelectClauseSegment's. "
-        "This one is high-impact: with a stray ')' before a UNION, Python "
-        "discards the ENTIRE second arm of the set operation as unparsable "
-        "(') UNION SELECT c' all swallowed), while RustParser correctly "
-        "recovers a proper set_expression with both select_statement arms "
-        "intact and only the stray ')' marked unparsable."
-    ),
-)
 def test__rust_parser__vs_python_stray_bracket_swallows_union_arm():
-    """A stray ')' before UNION: Python discards the whole second arm, Rust doesn't."""
+    """A stray ')' before UNION: Rust now discards the second arm too, matching Python.
+
+    Regression test: a second instance of the stray-closing-bracket bug
+    (see test__rust_parser__vs_python_stray_closing_bracket_terminator),
+    this time at UnorderedSelectStatementSegment's own terminator scan
+    (dialect_ansi.py) rather than SelectClauseSegment's. Before the fix,
+    with a stray ')' before a UNION, Python discarded the ENTIRE second arm
+    of the set operation as unparsable while RustParser incorrectly
+    recovered a proper set_expression with both arms intact - now both
+    engines discard the second arm identically.
+    """
     rust_result, python_result = _compare_parser_vs_rust(
         "SELECT a FROM t) UNION SELECT c"
     )
