@@ -380,6 +380,10 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
 
     match_grammar = ansi.GroupByClauseSegment.match_grammar.copy(
         insert=[Sequence("WITH", "ROLLUP", optional=True)],
+        # Insert before ANSI's trailing ``Dedent`` so ``WITH ROLLUP`` stays
+        # inside the ``GROUP BY`` indentation block rather than escaping it and
+        # dedenting onto its own line (review feedback on #8066).
+        before=Dedent,
     )
 
 
