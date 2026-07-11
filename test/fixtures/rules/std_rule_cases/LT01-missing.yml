@@ -172,3 +172,47 @@ test_pass_oracle_substitution_variable_as_table:
   configs:
     core:
       dialect: oracle
+
+# psql client variable interpolation (:var, :'var', :"var") must not be
+# broken by LT01 - see https://github.com/sqlfluff/sqlfluff/issues/6686
+test_pass_postgres_psql_variable_naked:
+  pass_str: |
+    SELECT count(*)
+    FROM foo
+    WHERE status = :status;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_psql_variable_quoted_literal:
+  pass_str: |
+    SELECT count(*)
+    FROM foo
+    WHERE status = :'status';
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_psql_variable_quoted_identifier:
+  pass_str: |
+    SELECT count(*)
+    FROM foo
+    WHERE status = :"status";
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_psql_variable_excess_space_before_colon:
+  # Excess whitespace before the variable should be collapsed to a single
+  # space (as normal), while the colon and variable name must stay touching.
+  fail_str: |
+    SELECT count(*)
+    FROM foo
+    WHERE status =    :status;
+  fix_str: |
+    SELECT count(*)
+    FROM foo
+    WHERE status = :status;
+  configs:
+    core:
+      dialect: postgres
