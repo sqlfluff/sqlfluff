@@ -33,6 +33,7 @@ from jinja2.sandbox import SandboxedEnvironment
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.formatter import FormatterInterface
+from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.core.helpers.slice import is_zero_slice, slice_length
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -167,6 +168,7 @@ class JinjaTemplater(PythonTemplater):
         env: Environment,
         ctx: dict[str, Any],
         exclude_paths: Optional[list[str]] = None,
+        config_encoding: str = "autodetect",
     ) -> dict[str, DbtMacroWrapper]:
         """Take a path and extract macros from it.
 
@@ -175,6 +177,7 @@ class JinjaTemplater(PythonTemplater):
             env (Environment): The environment object.
             ctx (Dict): The context dictionary.
             exclude_paths (Optional[[List][str]]): A list of paths to exclude
+            config_encoding: The configured encoding or autodetect.
 
         Returns:
             dict: A dictionary containing the extracted macros.
@@ -196,7 +199,10 @@ class JinjaTemplater(PythonTemplater):
                     ):
                         continue
                 # It's a file. Extract macros from it.
-                with open(path_entry) as opened_file:
+                encoding = get_encoding(
+                    fname=path_entry, config_encoding=config_encoding
+                )
+                with open(path_entry, encoding=encoding) as opened_file:
                     template = opened_file.read()
                 # Update the context with macros from the file.
                 try:
@@ -221,6 +227,7 @@ class JinjaTemplater(PythonTemplater):
                                     env=env,
                                     ctx=ctx,
                                     exclude_paths=exclude_paths,
+                                    config_encoding=config_encoding,
                                 )
                             )
         return macro_ctx
@@ -276,12 +283,14 @@ class JinjaTemplater(PythonTemplater):
         macros_path = self._get_macros_path(config, "load_macros_from_path")
         exclude_macros_path = self._get_macros_path(config, "exclude_macros_from_path")
         if macros_path:
+            config_encoding: str = config.get("encoding", default="autodetect")
             macro_ctx.update(
                 self._extract_macros_from_path(
                     macros_path,
                     env=env,
                     ctx=ctx,
                     exclude_paths=exclude_macros_path,
+                    config_encoding=config_encoding,
                 )
             )
 
