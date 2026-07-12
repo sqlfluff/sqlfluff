@@ -1076,7 +1076,7 @@ def test__rust_parser__vs_python_bare_class_ref_preserves_class_types(dialect, s
     def leaves(tree):
         return [s for s in tree.recursive_crawl_all() if not s.segments]
 
-    for py_leaf, rs_leaf in zip(leaves(python_tree), leaves(rust_tree)):
+    for py_leaf, rs_leaf in zip(leaves(python_tree), leaves(rust_tree), strict=True):
         assert set(rs_leaf.class_types) == set(py_leaf.class_types), (
             f"class_types diverge for {py_leaf.raw!r}: "
             f"python={sorted(set(py_leaf.class_types))} "
