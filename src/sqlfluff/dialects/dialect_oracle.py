@@ -107,7 +107,7 @@ oracle_dialect.patch_lexer_matchers(
         ),
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<!\.)|(?=\b))",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             LiteralSegment,
         ),
     ]
