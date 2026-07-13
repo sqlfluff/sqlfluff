@@ -681,18 +681,21 @@ fn compute_bracket_pairs(tokens: &mut [Token]) {
             // be closed next, per LIFO nesting discipline. See the sibling
             // implementation in sqlfluffrs_lexer/src/lexer.rs::compute_bracket_pairs
             // for the full rationale (Python parity with resolve_bracket in
-            // match_algorithms.py): on a type mismatch, both the closer and
-            // the innermost opener stay unresolved, for the outer opener's own
-            // closer to match against later.
+            // match_algorithms.py).
             if let Some(&(open_idx, top_char)) = bracket_stack.last() {
                 if top_char == expected_open {
                     bracket_stack.pop();
                     // Set bidirectional pointers
                     tokens[open_idx].matching_bracket_idx = Some(idx);
                     tokens[idx].matching_bracket_idx = Some(open_idx);
+                } else {
+                    // A type mismatch is what Python's resolve_bracket raises
+                    // on, unwinding through every enclosing bracket's own
+                    // call. Clear the whole stack to match that: every
+                    // bracket still open at this point stays unresolved, so
+                    // none of them can later pair with a closer that follows.
+                    bracket_stack.clear();
                 }
-                // else: type mismatch - leave both this closer and the
-                // top-of-stack opener unresolved.
             }
             // If the stack is empty, there's no open bracket at all - leave as None.
         }
