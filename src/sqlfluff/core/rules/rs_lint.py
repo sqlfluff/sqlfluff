@@ -32,28 +32,51 @@ from typing import Any, Iterator, Optional, cast
 # time and `is` never matches (causing e.g. infinite recursion in alias analysis).
 _INTERN: "weakref.WeakValueDictionary[int, RsSegment]" = weakref.WeakValueDictionary()
 
-# Rules whose façade multi-pass source-patch FIX output is byte-identical to
-# native SQLFluff across every case in that rule's ``std_rule_cases`` fixture.
-# This is a *fix-output* guarantee, used by the self-guarding stdin-fix fast
-# path (which re-checks that no violations remain before committing to it).
+# Rules whose façade FIX output is byte-identical to native SQLFluff. Vetted
+# both per-rule across ``std_rule_cases`` AND — crucially — by the COMBINED
+# multi-rule fix over the whole ``test/fixtures/dialects/*`` corpus under each
+# fixture's CORRECT dialect (running everything as ``ansi`` produces unparsable
+# regions and spurious divergences that are pure harness artifacts). A rule is
+# only listed if adding it introduces zero new whole-corpus divergences over the
+# rest of the set. This is a *fix-output* guarantee, used by the self-guarding
+# stdin/path-fix fast path (which re-checks that no violations remain).
 #
-# NOTE: it is NOT a detection/lint guarantee. A few of these rules diverge on
-# raw *violation* reporting over the façade even though their fix output matches
-# — e.g. CP01 double-reports the sparksql ``div`` operator (nested keyword +
-# binary_operator in the arena), which is idempotent for fixing but wrong for
-# lint. Wiring `lint` over the façade must use a detection-verified subset
-# (currently the 31 rules that also match native violation-for-violation:
-# this set minus AL04, AL10, CP01, CV09, RF02, ST03 — the last group also
-# includes rules that use `isinstance` against concrete segment classes, which
-# a duck-type façade cannot satisfy).
+# NOTE: it is NOT a detection/lint guarantee — some rules over-report violations
+# over the façade (safe for the fix guard, wrong for lint), e.g. CP01
+# double-reports the sparksql ``div`` operator. Wiring `lint` needs the
+# detection-verified subset (this set minus the DETECTION_UNSAFE members below,
+# plus rules using ``isinstance`` on concrete classes a duck-type can't satisfy).
+#
+# RF06 was DROPPED from this set: it strips backtick quotes from
+# mysql/mariadb/tsql stored-procedure/function *names* that native LEAVES quoted.
+# Native reports the violation but its ``apply_fixes`` rejects the fix — unquoting
+# ``\`name\``` reparses as ``function_name_identifier`` not the ``naked_identifier``
+# the fix specifies, so ``validate_segment_with_reparse`` fails. The façade's
+# source-patch path skips that grammar validation (arena/materialised segments have
+# no ``match_grammar``), so it applies a fix native won't. Faithfully replicating
+# the validation needs full real-dialect-class materialisation (real leaves too),
+# which defeats the façade; deferring RF06 to the Python path is the safe fix.
+#
+# TQ02 was also DROPPED, for a *different* reason — a reparse-vs-mutate fixed-point
+# divergence, not a validation gap. On a tsql procedure body its fix reorders
+# BEGIN / SET NOCOUNT; native's apply_fixes re-fires it on the MUTATED tree every
+# pass (never stabilises) → hits runaway_limit → reverts to the ORIGINAL. The
+# façade re-crawls the REPARSED source, where the fix does NOT re-fire → it
+# stabilises after one pass and keeps the reorder. The façade reaches a stable
+# fixed point native's mutate-loop can't; matching native's give-up would require
+# running native's mutate-loop (defeating the façade). Loop-hardening can't help
+# (the façade stabilises); deferring TQ02 to Python is the safe fix.
 FACADE_SAFE_RULES_DETECTION_UNSAFE: frozenset[str] = frozenset(
     {"AL04", "AL10", "CP01", "CV09", "RF02", "ST03"}
 )
 FACADE_SAFE_RULES: frozenset[str] = frozenset(
     {
+        "AL01",
+        "AL02",
         "AL03",
         "AL04",
         "AL06",
+        "AL07",
         "AL08",
         "AL09",
         "AL10",
@@ -71,10 +94,16 @@ FACADE_SAFE_RULES: frozenset[str] = frozenset(
         "CP05",
         "CV01",
         "CV02",
+        "CV03",
         "CV04",
         "CV05",
+        "CV07",
         "CV08",
         "CV09",
+        "CV10",
+        "CV11",
+        "CV12",
+        "JJ01",
         "LT06",
         "LT11",
         "LT15",
@@ -82,11 +111,14 @@ FACADE_SAFE_RULES: frozenset[str] = frozenset(
         "PG01",
         "RF02",
         "RF04",
-        "RF06",
         "ST01",
         "ST03",
+        "ST04",
+        "ST06",
+        "ST07",
+        "ST08",
+        "ST09",
         "TQ01",
-        "TQ02",
         "TQ03",
     }
 )
