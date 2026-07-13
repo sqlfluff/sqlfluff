@@ -709,15 +709,87 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
-class SetExpressionSegment(ansi.SetExpressionSegment):
-    """Enhance set expression to include ClickHouse-specific clauses."""
+class UnorderedSetExpressionSegment(ansi.UnorderedSetExpressionSegment):
+    """Allow ``ORDER BY`` / ``LIMIT`` / ``SETTINGS`` on non-final union members.
 
-    match_grammar = ansi.SetExpressionSegment.match_grammar.copy(
+    Unlike ANSI - where a trailing ``ORDER BY`` / ``LIMIT`` binds to the whole
+    set - ClickHouse permits each member preceding a set operator to carry its
+    own ``ORDER BY``, ``LIMIT`` and ``SETTINGS`` clauses without being
+    parenthesised. Matching those clauses in the position between a member and
+    the following set operator keeps them attached to the (non-final) member,
+    while the clauses trailing the final member continue to bind to the whole
+    set expression.
+    """
+
+    match_grammar = Sequence(
+        Ref("NonSetSelectableGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("OrderByClauseSegment", optional=True),
+                Ref("LimitClauseSegment", optional=True),
+                Ref("SettingsClauseSegment", optional=True),
+                Ref("SetOperatorSegment"),
+                Ref("NonSetSelectableGrammar"),
+            ),
+            min_times=1,
+        ),
+    )
+
+
+class SetExpressionSegment(ansi.SetExpressionSegment):
+    """Enhance set expression to include ClickHouse-specific clauses.
+
+    Built from the ClickHouse ``UnorderedSetExpressionSegment`` so that
+    per-member ``ORDER BY`` / ``LIMIT`` / ``SETTINGS`` are recognised, while the
+    clauses trailing the final member bind to the whole set expression.
+    """
+
+    match_grammar = UnorderedSetExpressionSegment.match_grammar.copy(
         insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
             Ref("FormatClauseSegment", optional=True),
             Ref("SettingsClauseSegment", optional=True),
             Ref("IntoOutfileClauseSegment", optional=True),
         ],
+    )
+
+
+class GroupByClauseSegment(BaseSegment):
+    """Enhance `GROUP BY` with ClickHouse `WITH ROLLUP` / `CUBE` / `TOTALS`.
+
+    ClickHouse allows the ``WITH ROLLUP``, ``WITH CUBE`` and ``WITH TOTALS``
+    modifiers to trail a ``GROUP BY`` clause. ``ROLLUP`` and ``CUBE`` are
+    mutually exclusive, and either may be combined with ``TOTALS``.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/group-by
+    """
+
+    type = "groupby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("NumericLiteralSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+            ),
+        ),
+        Sequence("WITH", OneOf("ROLLUP", "CUBE"), optional=True),
+        Sequence("WITH", "TOTALS", optional=True),
+        Dedent,
     )
 
 
@@ -2817,7 +2889,8 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
                 "BY",
                 OneOf(
                     Ref("BracketedColumnReferenceListGrammar"),
-                    Ref("ColumnReferenceSegment"),
+                    # Unbracketed ``LIMIT n BY a, b`` accepts a list of columns.
+                    Delimited(Ref("ColumnReferenceSegment")),
                 ),
                 optional=True,
             ),

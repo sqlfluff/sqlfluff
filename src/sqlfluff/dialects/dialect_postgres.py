@@ -519,6 +519,14 @@ postgres_dialect.add(
     CreateForeignTableGrammar=Sequence("CREATE", "FOREIGN", "TABLE"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
+    # Colon prefix for psql variables (:var, :'var', :"var"). Distinct from
+    # ColonSegment so the global `spacing_before = touch` on type "colon"
+    # doesn't collapse the space before the variable (e.g. in
+    # `status = :status`, only the space *within* the variable should be
+    # removed, not the one before it).
+    PsqlVariableColonSegment=StringParser(
+        ":", SymbolSegment, type="psql_variable_colon"
+    ),
     MetaCommandQueryBufferSegment=TypedParser(
         "meta_command_query_buffer", SymbolSegment, type="meta_command"
     ),
@@ -987,10 +995,13 @@ class PsqlVariableGrammar(BaseSegment):
 
     match_grammar = Sequence(
         OptionallyBracketed(
-            Ref("ColonSegment"),
-            OneOf(
-                Ref("ParameterNameSegment"),
-                Ref("QuotedLiteralSegment"),
+            Sequence(
+                Ref("PsqlVariableColonSegment"),
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                allow_gaps=False,
             ),
         )
     )

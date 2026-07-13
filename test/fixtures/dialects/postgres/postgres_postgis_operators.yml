@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 12f503c0d1bc6b05ad3d58352ef3abc3ce719bb0670ba5dc109facbc7cf15f40
+_hash: ef6faa1e0184a8d320dd17d9da5f4ccd41ef9d8b7e4f96f89c0510ed2923c38a
 file:
 - statement:
     select_statement:
@@ -1451,7 +1451,7 @@ file:
                           - comma: ','
                           - expression:
                               psql_variable:
-                                colon: ':'
+                                psql_variable_colon: ':'
                                 parameter: qt
                           - end_bracket: )
                       alias_expression:
@@ -1471,7 +1471,7 @@ file:
                         naked_identifier: tr
                       binary_operator: '|=|'
                       psql_variable:
-                        colon: ':'
+                        psql_variable_colon: ':'
                         parameter: qt
                   limit_clause:
                     keyword: LIMIT

@@ -153,6 +153,30 @@ impl<'a> Parser<'a> {
         min_idx
     }
 
+    /// Move an index backward through tokens until tokens[index - 1] is code,
+    /// trimming trailing comments too. Matches Python's canonical
+    /// `skip_stop_index_backward_to_code` (src/sqlfluff/core/parser/
+    /// match_algorithms.py), which checks only `segments[_idx - 1].is_code`.
+    /// Use this (rather than `skip_stop_index_backward_to_code` above, which
+    /// keeps comments for `calculate_max_idx`) when trimming a GREEDY-mode
+    /// "leftover content" span before wrapping it as UnparsableSegment (e.g.
+    /// Bracketed.match's gap/leftover handling): a trailing comment there
+    /// should stay outside the unparsable span as its own sibling, the same
+    /// as trailing whitespace.
+    /// Returns the index after the last code token, or `min_idx` if none found.
+    pub(crate) fn skip_stop_index_backward_to_code_excluding_comments(
+        &self,
+        stop_idx: usize,
+        min_idx: usize,
+    ) -> usize {
+        for _idx in (min_idx..stop_idx).rev() {
+            if self.tokens[_idx].is_code() {
+                return _idx + 1;
+            }
+        }
+        min_idx
+    }
+
     /// Get the pre-computed matching bracket index for a token.
     /// This is a public wrapper for accessing pre-computed bracket pairs.
     /// Returns None if not a bracket, if matching bracket wasn't found during lexing,

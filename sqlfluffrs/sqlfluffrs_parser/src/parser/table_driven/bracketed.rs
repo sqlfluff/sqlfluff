@@ -421,23 +421,20 @@ impl Parser<'_> {
                 stack.push(frame);
                 Ok(TableFrameResult::Done)
             } else {
-                // GREEDY mode: Create parse error result for unclosed bracket
-                // Python parity: raises SQLParseError which gets caught and converted to violation
+                // GREEDY mode should hard-raise here, matching Python's
+                // Bracketed.match() (resolve_bracket in match_algorithms.py) and
+                // this module's own greedy_match. The error propagates through
+                // root_parse to RsParseError, which rust_parser.py converts back
+                // into the same SQLParseError Python raises.
                 vdebug!(
-                        "Bracketed[table] GREEDY mode: No closing bracket found at EOF, creating parse error result"
+                        "Bracketed[table] GREEDY mode: No closing bracket found at EOF, raising parse error"
                     );
 
-                // Create error result with position at opening bracket
-                // PYTHON PARITY: Message must match Python's SQLParseError message exactly
-                let error_match = MatchResult::with_error(
-                    frame.pos,
-                    self.pos,
+                Err(ParseError::with_context(
                     "Couldn't find closing bracket for opening bracket.".to_string(),
-                    frame.pos, // Error at opening bracket position
-                );
-
-                stack.insert_result(frame.frame_id, error_match, self.pos);
-                Ok(TableFrameResult::Done)
+                    Some(frame.pos), // Error at opening bracket position
+                    None,
+                ))
             }
         } else {
             // STRICT mode check: All content elements must end at the closing bracket position
@@ -455,23 +452,47 @@ impl Parser<'_> {
                         return Ok(TableFrameResult::Done);
                     } else {
                         // GREEDY mode: Create unparsable section for tokens between content end and closing bracket
-                        vdebug!(
-                                "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {})",
-                                check_pos, expected_close_pos, check_pos, expected_close_pos
+                        //
+                        // PYTHON PARITY: trim trailing non-code and comments off
+                        // the unparsable span (via the `_excluding_comments`
+                        // variant below), matching Python's Bracketed.match. Any
+                        // trimmed gap stays as untouched, raw sibling content
+                        // between here and the closing bracket.
+                        let unparsable_stop = self
+                            .skip_stop_index_backward_to_code_excluding_comments(
+                                expected_close_pos,
+                                check_pos,
                             );
 
-                        // Create an UnparsableSegment for the tokens we couldn't parse
-                        let unparsable_match = MatchResult {
-                            matched_slice: check_pos..expected_close_pos,
-                            matched_class: Some(MatchedClass::unparsable(
-                                "Nothing here.",
-                                expected_close_pos,
-                            )),
-                            ..Default::default()
-                        };
-                        child_matches.push(Arc::new(unparsable_match));
+                        // Guard against a zero-length span (mirrors sequence.rs's
+                        // analogous GREEDY-leftover handling in
+                        // handle_sequence_combining, `if _stop_idx > _idx`):
+                        // MatchResult::apply panics on a zero-length matched_slice
+                        // with matched_class set, so only create the unparsable
+                        // child when there's actually code left to wrap.
+                        if unparsable_stop > check_pos {
+                            vdebug!(
+                                    "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {})",
+                                    check_pos, unparsable_stop, check_pos, expected_close_pos
+                                );
 
-                        // Move position to the closing bracket
+                            // Create an UnparsableSegment for the tokens we couldn't parse
+                            let unparsable_match = MatchResult {
+                                matched_slice: check_pos..unparsable_stop,
+                                matched_class: Some(MatchedClass::unparsable(
+                                    "Nothing here.",
+                                    unparsable_stop,
+                                )),
+                                ..Default::default()
+                            };
+                            child_matches.push(Arc::new(unparsable_match));
+                        }
+
+                        // Move position to the closing bracket. Any gap between
+                        // unparsable_stop and expected_close_pos (the trimmed
+                        // trailing non-code) is left uncovered by any child here
+                        // and is filled in as raw, untouched content when the
+                        // tree is materialized.
                         self.pos = expected_close_pos;
                     }
                 } else {
@@ -540,25 +561,20 @@ impl Parser<'_> {
                 stack.push(frame);
                 return Ok(TableFrameResult::Done);
             } else {
-                // GREEDY mode: Closing bracket not found - raise parse error
-                // PYTHON PARITY: This matches Python's behavior where Bracketed.match()
-                // raises SQLParseError("Couldn't find closing bracket for opening bracket.")
+                // GREEDY mode should hard-raise here too, for the same reason as
+                // the sibling GREEDY-EOF branch in
+                // handle_bracketed_content_result above.
                 vdebug!(
                         "Bracketed[table] GREEDY mode: Couldn't find closing bracket for opening bracket at pos {}, frame_id={}",
                         frame.pos,
                         frame.frame_id
                     );
 
-                // Create error result with position at opening bracket
-                let error_match = MatchResult::with_error(
-                    frame.pos,
-                    self.pos,
+                return Err(ParseError::with_context(
                     "Couldn't find closing bracket for opening bracket.".to_string(),
-                    frame.pos, // Error at opening bracket position
-                );
-
-                stack.insert_result(frame.frame_id, error_match, self.pos);
-                return Ok(TableFrameResult::Done);
+                    Some(frame.pos), // Error at opening bracket position
+                    None,
+                ));
             }
         } else {
             child_matches.push(Arc::clone(child_match));
