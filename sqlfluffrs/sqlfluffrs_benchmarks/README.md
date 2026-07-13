@@ -18,6 +18,10 @@ cargo bench -p sqlfluffrs_benchmarks --features fetch
 cargo bench -p sqlfluffrs_benchmarks --features fetch -- tpch
 cargo bench -p sqlfluffrs_benchmarks --features fetch -- tpcds
 
+# Only the native AST path (root_parse: parse + materialise the Rust Node AST;
+# the parse_* benchmarks measure call_rule_as_root's MatchResult only):
+cargo bench -p sqlfluffrs_benchmarks --features fetch -- native_ast
+
 # Timing + parser-stats harness (per-query breakdown, then suite summaries):
 cargo run -p sqlfluffrs_benchmarks --example time_tpc --features fetch --release
 ```

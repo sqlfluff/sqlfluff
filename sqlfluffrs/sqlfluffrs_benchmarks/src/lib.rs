@@ -2,7 +2,7 @@
 //!
 //! The query fixtures are not committed to the repository; they are downloaded
 //! at build time by `build.rs` when the `fetch` feature is enabled and cached
-//! under `OUT_DIR`. [`FIXTURES_DIR`] points at that cache.
+//! under `<repo-root>/.cache/tpc-fixtures/`. [`FIXTURES_DIR`] points at that cache.
 
 use std::path::{Path, PathBuf};
 
