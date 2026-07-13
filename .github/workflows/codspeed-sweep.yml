@@ -106,6 +106,17 @@ jobs:
           path: sqlfluffrs/sqlfluffrs_dialects/src/dialect
           key: dialect-gen-${{ steps.dialect_hash.outputs.hash }}
 
+      - name: Refresh restored dialect file mtimes
+        if: steps.dialect_cache.outputs.cache-hit == 'true'
+        # actions/cache restores files with the mtimes they were cached
+        # with, while the checkout above writes the Python sources with the
+        # current time, so restored generated files always look stale to
+        # build.rs's Makefile-style mtime check. It would then regenerate
+        # them inside maturin's manylinux container, whose python3 doesn't
+        # have sqlfluff's dependencies. Touch the restored files so they
+        # count as newer than the checkout and the check passes.
+        run: find sqlfluffrs/sqlfluffrs_dialects/src/dialect -exec touch {} +
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
