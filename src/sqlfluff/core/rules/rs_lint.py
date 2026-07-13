@@ -493,6 +493,12 @@ class RsSegment:
     def path_to(self, other: "RsSegment") -> list[Any]:
         from sqlfluff.core.parser.segments.base import PathStep
 
+        # `other` may be a freshly-constructed segment (e.g. a reflow-created
+        # WhitespaceSegment) that isn't in the arena — it has no `_h`. Native
+        # path_to returns [] when `other` isn't found under self; match that
+        # rather than crashing.
+        if not isinstance(other, RsSegment):
+            return []
         return [
             PathStep(RsSegment(h), idx, ln, tuple(cidx))  # type: ignore[arg-type]
             for (h, idx, ln, cidx) in self._h.path_to(other._h)
@@ -711,43 +717,90 @@ def apply_source_fixes(source: str, fixes: list[Any]) -> Optional[str]:
     (templated) region or an unsupported edit type — signalling the caller to
     leave those to the Python path.
     """
-    edits: list[tuple[int, int, str]] = []
+    # (start, stop, repl, rank). `rank` breaks ties between edits at the SAME
+    # start offset, matching the order native reconstructs from the tree:
+    # create_after (0) attaches to the segment ending at the offset, so it comes
+    # before create_before (1, attaches to the segment starting there), which
+    # comes before replace/delete (2, modifies the segment starting there).
+    edits: list[tuple[int, int, str, int]] = []
     for fx in fixes:
         pm = fx.anchor.pos_marker
+        if pm is None:
+            # A freshly-constructed anchor with no source position (e.g. some
+            # reflow indent fixes) can't be source-patched — bail so the caller
+            # falls back to the Python tree-mutation path.
+            return None
         lit = pm.is_literal
+        sl = pm.source_slice
+        repl = "".join(e.raw for e in (fx.edit or []))
+        et = fx.edit_type
         if not (lit() if callable(lit) else lit):
-            # Templated (non-literal) region: the source change is described by
-            # the edit segments' `source_fixes` (SourceFix(edit, source_slice,
-            # …)) — e.g. JJ01 reformatting a `{% %}`/`{{ }}` tag. Apply those.
-            # (Bail if there are none, so the caller falls back to Python.)
+            # Templated (non-literal) anchor. Two safe cases:
+            # 1. The edit segments carry `source_fixes` (SourceFix(edit,
+            #    source_slice, …)) describing the exact source rewrite of a
+            #    `{% %}`/`{{ }}` tag (e.g. JJ01) — apply those.
+            # 2. A create_before/create_after inserts at the source *boundary*
+            #    (before/after the templated region) without touching the
+            #    template itself (e.g. LT12 appending a trailing newline).
+            # A replace/delete on templated content without source_fixes would
+            # corrupt the template → bail so the caller falls back to Python.
             src_fixes = [
                 sfx
                 for e in (fx.edit or [])
                 for sfx in (getattr(e, "source_fixes", None) or [])
             ]
-            if not src_fixes:
+            if src_fixes:
+                for sfx in src_fixes:
+                    ssl = sfx.source_slice
+                    edits.append((ssl.start, ssl.stop, sfx.edit, 2))
+            elif et == "create_before":
+                edits.append((sl.start, sl.start, repl, 1))
+            elif et == "create_after":
+                edits.append((sl.stop, sl.stop, repl, 0))
+            else:
                 return None
-            for sfx in src_fixes:
-                ssl = sfx.source_slice
-                edits.append((ssl.start, ssl.stop, sfx.edit))
             continue
-        sl = pm.source_slice
-        repl = "".join(e.raw for e in (fx.edit or []))
-        et = fx.edit_type
         if et == "replace":
-            edits.append((sl.start, sl.stop, repl))
+            edits.append((sl.start, sl.stop, repl, 2))
         elif et == "create_before":
-            edits.append((sl.start, sl.start, repl))
+            edits.append((sl.start, sl.start, repl, 1))
         elif et == "create_after":
-            edits.append((sl.stop, sl.stop, repl))
+            edits.append((sl.stop, sl.stop, repl, 0))
         elif et == "delete":
-            edits.append((sl.start, sl.stop, ""))
+            edits.append((sl.start, sl.stop, "", 2))
         else:
             return None
-    out = source
-    for start, stop, repl in sorted(edits, key=lambda t: t[0], reverse=True):
-        out = out[:start] + repl + out[stop:]
-    return out
+    # Native applies fixes to the tree hierarchically: deleting a parent segment
+    # removes its children too. In source coordinates a `delete` range therefore
+    # subsumes any nested edit — e.g. AL07 deletes an `alias_expression` while
+    # also "replacing" the alias identifier inside it. Drop non-delete edits
+    # fully contained in a delete's range so they don't conflict / double-apply.
+    delete_ranges = [(a, b) for (a, b, r, _rk) in edits if b > a and r == ""]
+    if delete_ranges:
+        edits = [
+            e
+            for e in edits
+            if (e[2] == "" and e[1] > e[0])  # keep the deletes themselves
+            or e[1] == e[0]  # keep zero-width inserts (create_before/after)
+            or not any(
+                da <= e[0] and e[1] <= db and (da, db) != (e[0], e[1])
+                for (da, db) in delete_ranges
+            )
+        ]
+    # Reconstruct left-to-right in ORIGINAL coordinates (a naive per-edit
+    # ``out[:start] + repl + out[stop:]`` shifts later edits' positions and
+    # corrupts adjacent edits at the same offset).
+    edits.sort(key=lambda e: (e[0], e[3], e[1]))
+    out_parts: list[str] = []
+    pos = 0
+    for start, stop, repl, _rank in edits:
+        if start < pos:  # genuinely overlapping edits — can't apply safely
+            return None
+        out_parts.append(source[pos:start])
+        out_parts.append(repl)
+        pos = stop
+    out_parts.append(source[pos:])
+    return "".join(out_parts)
 
 
 def facade_violations(
