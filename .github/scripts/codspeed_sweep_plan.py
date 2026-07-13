@@ -22,6 +22,10 @@ import subprocess
 
 SWEPT_PATH = ".github/codspeed-swept.json"
 
+# This fork carries no tags of its own, so the release tags (including the
+# 4.2.2 sweep floor used below) have to be fetched from upstream.
+UPSTREAM_URL = "https://github.com/sqlfluff/sqlfluff.git"
+
 # A commit is skippable only if *every* changed path matches one of these.
 # Dialect source + its tests/fixtures, plus docs/changelog/CI config, none
 # of which can move parse performance.
@@ -65,6 +69,11 @@ def main() -> None:
     commit_count = int(os.environ["COMMIT_COUNT"])
 
     swept = set(json.load(open(SWEPT_PATH))) if os.path.exists(SWEPT_PATH) else set()
+
+    subprocess.run(
+        ["git", "fetch", "--tags", "--quiet", UPSTREAM_URL],
+        check=True,
+    )
 
     requested = subprocess.run(
         ["git", "log", "-n", str(commit_count), "--format=%H", "4.2.2^..main"],
