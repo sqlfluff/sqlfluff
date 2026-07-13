@@ -46,6 +46,11 @@ class Rule_RF02(Rule_AL04):
     config_keywords = [
         "subqueries_ignore_external_references",
     ]
+    _dialects_with_row_references = [
+        "bigquery",
+        "postgres",
+        "redshift",
+    ]
 
     # Config type hints
     ignore_words_regex: str
@@ -95,6 +100,11 @@ class Rule_RF02(Rule_AL04):
             ignore_words_list = self._init_ignore_words_list()
 
         sql_variables = self._find_sql_variables(rule_context)
+        row_reference_aliases = (
+            {alias.segment.raw_normalized() for alias in table_aliases if alias.segment}
+            if rule_context.dialect.name in self._dialects_with_row_references
+            else set()
+        )
 
         # A buffer to keep any violations.
         violation_buff = []
@@ -131,6 +141,9 @@ class Rule_RF02(Rule_AL04):
                 # Allow columns defined as standalone aliases
                 # (e.g. value table functions from bigquery)
                 and r.raw not in [a.raw for a in standalone_aliases]
+                # Allow whole-row references to table aliases in dialects that
+                # support them.
+                and r.raw_normalized() not in row_reference_aliases
             ):
                 violation_buff.append(
                     LintResult(

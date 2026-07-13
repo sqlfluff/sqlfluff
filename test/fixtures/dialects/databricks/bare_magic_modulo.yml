@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 35c24239c4c6d346aa6155bc978b7a8d863a882b454cfd2b1790859482e6ffb9
+file:
+- statement_terminator: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+    - bare_magic_cell: '%python'
+    - bare_magic_cell: print("magic cell, not modulo")
+- statement_terminator: -- COMMAND ----------
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: a
+            binary_operator: '%'
+            numeric_literal: '2'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: m1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - binary_operator: '%'
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: m2
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - binary_operator: '%'
+          - column_reference:
+              naked_identifier: r
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: m3
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - binary_operator: '%'
+          - column_reference:
+              naked_identifier: md
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: m4
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;

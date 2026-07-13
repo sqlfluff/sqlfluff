@@ -282,7 +282,7 @@ def generate_source_patches(
     # Iterate patches, filtering and translating as we go:
     linter_logger.debug("### Beginning Patch Iteration.")
     filtered_source_patches = []
-    dedupe_buffer = []
+    dedupe_buffer: set[tuple[tuple[int, int], str]] = set()
     # We use enumerate so that we get an index for each patch. This is entirely
     # so when debugging logs we can find a given patch again!
     for idx, patch in enumerate(
@@ -292,10 +292,11 @@ def generate_source_patches(
         _log_hints(patch, templated_file)
 
         # Check for duplicates
-        if patch.dedupe_tuple() in dedupe_buffer:
+        dedupe_tuple = patch.dedupe_tuple()
+        if dedupe_tuple in dedupe_buffer:
             linter_logger.info(
                 "      - Skipping. Source space Duplicate: %s",
-                patch.dedupe_tuple(),
+                dedupe_tuple,
             )
             continue
 
@@ -315,14 +316,14 @@ def generate_source_patches(
                 "      * Keeping patch on new or literal-only section.",
             )
             filtered_source_patches.append(patch)
-            dedupe_buffer.append(patch.dedupe_tuple())
+            dedupe_buffer.add(dedupe_tuple)
         # Handle the easy case of an explicit source fix
         elif patch.patch_category == "source":
             linter_logger.info(
                 "      * Keeping explicit source fix patch.",
             )
             filtered_source_patches.append(patch)
-            dedupe_buffer.append(patch.dedupe_tuple())
+            dedupe_buffer.add(dedupe_tuple)
         # Is it a zero length patch.
         elif (
             patch.source_slice.start == patch.source_slice.stop
@@ -332,7 +333,7 @@ def generate_source_patches(
                 "      * Keeping insertion patch on slice boundary.",
             )
             filtered_source_patches.append(patch)
-            dedupe_buffer.append(patch.dedupe_tuple())
+            dedupe_buffer.add(dedupe_tuple)
         else:  # pragma: no cover
             # We've got a situation where the ends of our patch need to be
             # more carefully mapped. This used to happen with greedy template
