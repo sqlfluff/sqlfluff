@@ -77,6 +77,7 @@ class TableBuilder:
     FLAG_HAS_SIMPLE_HINT = 1 << 5
     FLAG_HAS_EXCLUDE = 1 << 6
     FLAG_IS_CONDITIONAL = 1 << 8  # For Meta - whether it's a Conditional Meta
+    FLAG_CASE_SENSITIVE = 1 << 9  # For RegexParser: Python ignore_case=False
 
     def __init__(self):
         # Core tables
@@ -233,6 +234,11 @@ class TableBuilder:
             flags |= self.FLAG_OPTIONAL_DELIMITER
         if getattr(grammar, "exclude", None) is not None:
             flags |= self.FLAG_HAS_EXCLUDE
+        # Python `RegexParser(ignore_case=False)`: The Rust RegexParser matcher
+        # defaults to case-insensitive, so flag the exceptions; only that handler
+        # reads this bit. Non-regex grammars have no `ignore_case` (default True).
+        if not getattr(grammar, "ignore_case", True):
+            flags |= self.FLAG_CASE_SENSITIVE
         return flags
 
     def _get_parse_mode(self, grammar) -> str:

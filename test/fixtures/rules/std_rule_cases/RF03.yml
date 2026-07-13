@@ -682,3 +682,89 @@ test_pass_whole_row_reference_mixed_qualification:
   # column reference (and so must not be "fixed" to `tbl.tbl`).
   # https://github.com/sqlfluff/sqlfluff/issues/6904
   pass_str: SELECT tbl, tbl.a FROM tbl
+
+test_pass_athena_struct_disabled_by_default:
+  # RF03 is disabled by default for Athena (like BigQuery/Hive/Redshift) due to
+  # historical false positives with STRUCT dot-access, so this passes even
+  # though `c.struct.val` would otherwise look like a qualified reference.
+  # https://github.com/sqlfluff/sqlfluff/issues/6250
+  pass_str: |
+    select
+        a,
+        b,
+        c.struct.val
+    from sch.t1
+  configs:
+    core:
+      dialect: athena
+    rules:
+      references.consistent:
+        single_table_references: consistent
+
+test_pass_athena_struct_field_access_consistent:
+  # With force_enable, `c.struct.val` is recognised as a struct field access
+  # (its leading part "c" is not the table alias "t1"), so it is treated as
+  # unqualified -- consistent with the other bare columns `a` and `b`.
+  # https://github.com/sqlfluff/sqlfluff/issues/6250
+  pass_str: |
+    select
+        a,
+        b,
+        c.struct.val
+    from sch.t1
+  configs:
+    core:
+      dialect: athena
+    rules:
+      references.consistent:
+        single_table_references: consistent
+        force_enable: true
+
+test_fail_athena_struct_field_access_genuine_inconsistency:
+  # A genuinely table-qualified reference (`t1.b`) alongside unqualified
+  # references and a struct field access should still be flagged: the struct
+  # access and `a` are both unqualified, but `t1.b` is genuinely qualified and
+  # inconsistent with them.
+  # https://github.com/sqlfluff/sqlfluff/issues/6250
+  fail_str: |
+    select
+        a,
+        t1.b,
+        c.struct.val
+    from sch.t1
+  fix_str: |
+    select
+        t1.a,
+        t1.b,
+        t1.c.struct.val
+    from sch.t1
+  configs:
+    core:
+      dialect: athena
+    rules:
+      references.consistent:
+        single_table_references: consistent
+        force_enable: true
+
+test_fail_athena_struct_field_access_qualified_config:
+  # With single_table_references=qualified and force_enable, the struct field
+  # access `c.struct.val` is recognised as unqualified (its leading part "c"
+  # is not the table alias "t1") and so must be qualified like the rest.
+  # https://github.com/sqlfluff/sqlfluff/issues/6250
+  fail_str: |
+    select
+        a,
+        c.struct.val
+    from sch.t1
+  fix_str: |
+    select
+        t1.a,
+        t1.c.struct.val
+    from sch.t1
+  configs:
+    core:
+      dialect: athena
+    rules:
+      references.consistent:
+        single_table_references: qualified
+        force_enable: true

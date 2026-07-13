@@ -70,6 +70,40 @@ fn try_match_grammar(
     }
 }
 
+/// Scan forward from `from_idx` for the first bracket-like token not already
+/// resolved by lexing (i.e. one whose `matching_bracket_idx` is `None`),
+/// skipping over any properly nested, already-resolved bracket pairs along
+/// the way (same technique as `greedy_match`'s own bracket-skip).
+///
+/// An unresolved token found this way must be a *closing* bracket of the
+/// wrong type: if it were the correct type for whatever opener is looking
+/// for it, lexing would already have paired them (see
+/// `sqlfluffrs_lexer::compute_bracket_pairs`). Returns `(index, raw_char)`
+/// for that mismatched closer, or `None` if genuinely nothing is found
+/// before `tokens.len()` (a real "unclosed to EOF" case) or another
+/// unresolved *opening* bracket is hit first (ambiguous - fall back to the
+/// generic message rather than guess).
+///
+/// Used to distinguish Python's two distinct bracket-resolution failures
+/// (`resolve_bracket`, match_algorithms.py): "Couldn't find closing bracket
+/// for opening bracket" (genuinely unclosed) vs. "Found unexpected end
+/// bracket!, was expecting X, but got Y" (closed by the wrong type).
+fn find_mismatched_closing_bracket(tokens: &[Token], from_idx: usize) -> Option<(usize, String)> {
+    let mut idx = from_idx;
+    while idx < tokens.len() {
+        let raw = tokens[idx].raw();
+        match raw {
+            "(" | "[" | "{" => match tokens[idx].matching_bracket_idx {
+                Some(matching_idx) => idx = matching_idx + 1,
+                None => return None,
+            },
+            ")" | "]" | "}" => return Some((idx, raw.to_string())),
+            _ => idx += 1,
+        }
+    }
+    None
+}
+
 pub(crate) fn skip_stop_index_backward_to_code(
     tokens: &[Token],
     start_idx: usize,
@@ -192,6 +226,32 @@ impl Parser<'_> {
                     i = matching_idx + 1;
                     continue;
                 } else {
+                    // PYTHON PARITY: mirror Python's resolve_bracket by raising
+                    // its specific "wrong bracket type" error when the closer
+                    // ahead is mismatched, keeping the generic "never closed"
+                    // message for the true unclosed-to-EOF case.
+                    if let Some((mismatch_idx, actual_close)) =
+                        find_mismatched_closing_bracket(tokens, i + 1)
+                    {
+                        let expected_close = match raw {
+                            "(" => ")",
+                            "[" => "]",
+                            "{" => "}",
+                            _ => unreachable!("raw already matched an opening bracket above"),
+                        };
+                        vdebug!(
+                            "[GREEDY_MATCH_TABLE] greedy_match: mismatched closing bracket '{}' at {} for opening bracket at {} (expected '{}')",
+                            actual_close, mismatch_idx, i, expected_close
+                        );
+                        return Err(ParseError::with_context(
+                            format!(
+                                "Found unexpected end bracket!, was expecting <StringParser: '{}'>, but got <StringParser: '{}'>",
+                                expected_close, actual_close
+                            ),
+                            Some(mismatch_idx),
+                            None,
+                        ));
+                    }
                     vdebug!(
                         "[GREEDY_MATCH_TABLE] greedy_match: no matching closing bracket for opening bracket at {}",
                         i
@@ -202,6 +262,22 @@ impl Parser<'_> {
                         None,
                     ));
                 }
+            }
+
+            // PYTHON PARITY: a closing bracket reached here is stray, not
+            // nested inside anything we're currently scanning past (an
+            // opening bracket's matching_bracket_idx skip would have
+            // consumed it otherwise). Mirror Python's next_ex_bracket_match
+            // (match_algorithms.py), which treats this as "unexpected end
+            // bracket! Return no match": abort the terminator search and
+            // claim everything through max_idx, rather than scan past the
+            // stray bracket to a later terminator like `FROM` or `UNION`.
+            if raw == ")" || raw == "]" || raw == "}" {
+                vdebug!(
+                    "[GREEDY_MATCH_TABLE] greedy_match: unexpected closing bracket at {} — aborting terminator search, claiming through {}",
+                    i, max_idx
+                );
+                return Ok((start_idx, max_idx));
             }
 
             for &term_id in terminators {
