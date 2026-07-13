@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 89bf0b7ec8c679c0b7910cdd8087d5aace4467aa4c5d927f34b74af4d5e7d807
+_hash: f5ad13f50e18d226122fc138a9d13a1e089ff50828a31e23e93257e565a79ecd
 file:
 - statement:
     select_statement:
@@ -26,8 +26,7 @@ file:
                       binary_operator: +
                       numeric_literal: '7'
                     end_bracket: )
-                - comparison_operator:
-                    keyword: OVERLAPS
+                - comparison_operator: OVERLAPS
                 - bracketed:
                   - start_bracket: (
                   - keyword: DATE
@@ -81,8 +80,7 @@ file:
           - column_reference:
               naked_identifier: end_date
           - end_bracket: )
-        - comparison_operator:
-            keyword: OVERLAPS
+        - comparison_operator: OVERLAPS
         - bracketed:
           - start_bracket: (
           - keyword: DATE
@@ -111,8 +109,7 @@ file:
         expression:
         - column_reference:
             naked_identifier: period1
-        - comparison_operator:
-            keyword: OVERLAPS
+        - comparison_operator: OVERLAPS
         - column_reference:
             naked_identifier: period2
 - statement_terminator: ;
