@@ -101,7 +101,7 @@ jobs:
         # is most of them. Skips ~105s of codegen (per local perf_sweep
         # timings) on a hit.
         id: dialect_cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: sqlfluffrs/sqlfluffrs_dialects/src/dialect
           key: dialect-gen-${{ steps.dialect_hash.outputs.hash }}
@@ -156,7 +156,7 @@ jobs:
           manylinux: auto
 
       - name: Upload wheel
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wheel-${{ matrix.sha }}
           path: dist
@@ -194,7 +194,7 @@ jobs:
         run: git checkout ${{ github.sha }} -- test/test_codspeed_tpc_parse.py
 
       - name: Download prebuilt wheel
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wheel-${{ matrix.sha }}
           path: dist
@@ -216,7 +216,7 @@ jobs:
       - name: Cache downloaded TPC fixtures
         # Keep this key's suffix in sync with _DORIS_SHA in
         # test/test_codspeed_tpc_parse.py.
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: test/.cache/tpc
           key: tpc-fixtures-3a2d9d55f1e8e2d74187179ef89c36c8562815fd
@@ -269,7 +269,7 @@ jobs:
         run: git checkout ${{ github.sha }} -- test/test_codspeed_tpc_parse.py
 
       - name: Download prebuilt wheel
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wheel-${{ matrix.sha }}
           path: dist
@@ -289,7 +289,7 @@ jobs:
             constraints/*.txt
 
       - name: Cache downloaded TPC fixtures
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: test/.cache/tpc
           key: tpc-fixtures-3a2d9d55f1e8e2d74187179ef89c36c8562815fd
