@@ -536,16 +536,12 @@ _FIXTURE_DIR = Path(__file__).resolve().parents[3] / "test" / "fixtures" / "dial
 _FIXTURE_SQL = sorted(_FIXTURE_DIR.glob("*/*.sql"))
 
 # Fixtures with a *known*, already-documented Python-vs-RustParser divergence
-# (see the dedicated xfail regressions above/below in this file). Three-way
-# parity below is expected to fail on exactly these until those bugs are
-# fixed; everywhere else in the corpus, all three tree-building paths must
-# agree.
-_KNOWN_PYTHON_RUST_DIVERGENCES = {
-    ("databricks", "pivot.sql"),
-    ("databricks", "unpivot.sql"),
-    ("sparksql", "pivot_clause.sql"),
-    ("sparksql", "unpivot_clause.sql"),
-}
+# (see the dedicated regression tests in this file). Three-way parity below
+# is expected to fail on exactly these until those bugs are fixed; everywhere
+# else in the corpus, all three tree-building paths must agree. Currently
+# empty: the pivot/unpivot divergences are fixed by this branch and the
+# snowflake/tsql ones were fixed on main.
+_KNOWN_PYTHON_RUST_DIVERGENCES: set = set()
 
 
 def _fixture_param(sqlfile: Path):
@@ -928,25 +924,15 @@ def _read_fixture(dialect: str, filename: str) -> str:
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: for a PIVOT clause whose aggregate expression is a "
-        "function call (e.g. SUM(sales)), RustParser inserts a spurious "
-        "extra Indent leaf inside PivotClauseSegment's Bracketed content "
-        "that Python's Parser doesn't produce, shifting every subsequent "
-        "leaf in the tree by one position for the rest of the file. "
-        "PivotClauseSegment.match_grammar (dialect_sparksql.py:2485-2495) "
-        "is `Sequence(Indent, 'PIVOT', Bracketed(Indent, Delimited(Sequence("
-        "BaseExpressionElementGrammar, AliasExpressionSegment(optional))), "
-        "...))` - the nested Bracketed's own leading Indent appears to be "
-        "emitted twice on the Rust side for this shape. Reproduces "
-        "identically in both databricks/pivot.sql and "
-        "sparksql/pivot_clause.sql (databricks inherits sparksql's grammar)."
-    ),
-)
 def test__rust_parser__vs_python_pivot_clause_indent_duplication():
-    """RustParser duplicates an Indent inside PIVOT's bracketed content.
+    """RustParser must not duplicate an Indent inside PIVOT's bracketed content.
+
+    Regression guard: RustParser used to emit the grammar-level Indent that
+    is a direct child of PivotClauseSegment's Bracketed (dialect_sparksql.py
+    `Bracketed(Indent, ...)`) in addition to Bracketed's own structural
+    Indent, where Python drops the grammar-level one - shifting every
+    subsequent leaf in the tree for the rest of the file. Fixed by dropping
+    direct-child metas in the Rust Bracketed handler.
 
     Uses the real, already-shipped databricks/pivot.sql fixture - this is
     valid SQL with a correct Python-generated .yml, not invented malformed
@@ -958,20 +944,13 @@ def test__rust_parser__vs_python_pivot_clause_indent_duplication():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: the same class of spurious extra Indent as the PIVOT "
-        "clause bug above, but inside UnpivotClauseSegment's bracketed "
-        "column-alias content instead of PivotClauseSegment's function-call "
-        "content - a second, distinct grammar site hitting the same "
-        "underlying Rust Bracketed/Indent duplication issue. Reproduces "
-        "identically in both databricks/unpivot.sql and "
-        "sparksql/unpivot_clause.sql."
-    ),
-)
 def test__rust_parser__vs_python_unpivot_clause_indent_duplication():
-    """RustParser duplicates an Indent inside UNPIVOT's bracketed content.
+    """RustParser must not duplicate an Indent inside UNPIVOT's bracketed content.
+
+    Regression guard: the same class of spurious extra Indent as the PIVOT
+    clause case above, but inside UnpivotClauseSegment's bracketed
+    column-alias content - a second, distinct grammar site of the same
+    Rust Bracketed direct-child-meta issue.
 
     Uses the real, already-shipped databricks/unpivot.sql fixture.
     """
