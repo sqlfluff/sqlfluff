@@ -34,12 +34,19 @@ type ArenaRef = Arc<Mutex<Arena>>;
 #[pyclass(name = "RsTree", module = "sqlfluffrs")]
 pub struct PyTree {
     inner: ArenaRef,
+    /// The Python `TemplatedFile` the engine rendered before parsing (the same
+    /// object the arena's pos_markers reference). Exposed so façade linting can
+    /// pass a `context.templated_file` consistent with the tree — rules like
+    /// CV10 read `raw_slices`, which needs it. `None` for trees built without an
+    /// engine render (e.g. `apply_as_tree`).
+    templated_file: Option<Py<PyAny>>,
 }
 
 impl PyTree {
     pub(crate) fn new(arena: Arena) -> Self {
         PyTree {
             inner: Arc::new(Mutex::new(arena)),
+            templated_file: None,
         }
     }
 
@@ -48,6 +55,17 @@ impl PyTree {
     /// crawlable `RsTree` façade without going through a `MatchResult`.
     pub fn from_node(node: &super::types::Node) -> Self {
         PyTree::new(Arena::from_node(node))
+    }
+
+    /// Like [`from_node`], but also carries the Python `TemplatedFile` used to
+    /// render the source (see the `templated_file` field).
+    pub fn from_node_with_templated_file(
+        node: &super::types::Node,
+        templated_file: Py<PyAny>,
+    ) -> Self {
+        let mut tree = PyTree::new(Arena::from_node(node));
+        tree.templated_file = Some(templated_file);
+        tree
     }
 
     fn handle(&self, node: NodeId) -> PyHandle {
@@ -77,6 +95,13 @@ impl PyTree {
     fn root(&self) -> PyHandle {
         let root = self.inner.lock().unwrap().root();
         self.handle(root)
+    }
+
+    /// The Python `TemplatedFile` used to render the source before parsing
+    /// (`None` if the tree wasn't built via an engine render).
+    #[getter]
+    fn templated_file(&self, py: Python) -> Option<Py<PyAny>> {
+        self.templated_file.as_ref().map(|t| t.clone_ref(py))
     }
 
     /// Number of nodes in the arena.

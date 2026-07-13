@@ -225,6 +225,10 @@ class RsTree:
     """Owner of a mutable arena parse tree, used by the ``RsSegment`` facade."""
 
     root: RsHandle
+    # The Python ``TemplatedFile`` the engine rendered before parsing (``None``
+    # if the tree was not built via an engine render). Passed as
+    # ``context.templated_file`` by the facade linting path.
+    templated_file: Optional[Any]
 
     def __len__(self) -> int: ...
     def node_by_uuid(self, uuid: int) -> Optional[RsHandle]: ...

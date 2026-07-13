@@ -410,6 +410,9 @@ pub fn engine_parse_to_tree<'py>(
 
     let pf: PySqlFluffTemplatedFile = root.extract()?;
     let templated: Arc<TemplatedFile> = pf.into();
+    // Keep the Python TemplatedFile so it can be attached to the tree — façade
+    // linting passes it as `context.templated_file` (rules like CV10 need it).
+    let tf_obj: Py<PyAny> = root.clone().unbind();
     child.call_method0("verify_dialect_specified")?;
     let dialect = pipeline::resolve_dialect_by_name(get_str(&child, "dialect", None).as_deref())
         .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
@@ -422,7 +425,10 @@ pub fn engine_parse_to_tree<'py>(
         pipeline::parse_tokens(&tokens, dialect, indent, limits)
     }));
     match parsed {
-        Ok(Ok(node)) => Ok(Some(Py::new(py, PyTree::from_node(&node))?)),
+        Ok(Ok(node)) => Ok(Some(Py::new(
+            py,
+            PyTree::from_node_with_templated_file(&node, tf_obj),
+        )?)),
         _ => Ok(None),
     }
 }
