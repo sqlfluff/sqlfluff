@@ -1,13 +1,16 @@
 """Cross-commit trend report over a perf_sweep output directory.
 
-Reads `manifest.jsonl` for commit order/identity and each commit's
-`meta.json` for its measurements (via `perf_summary.read_point`, the same
-per-commit parser cli.py already uses) - nothing here is pre-aggregated by
-the sweep itself, per README.md. Prints a terminal summary table and writes
-a self-contained HTML page with one line chart per (suite, metric).
+Reads `manifest.jsonl` for commit identity and each commit's `meta.json` for
+its measurements (via `perf_summary.read_point`, the same per-commit parser
+cli.py already uses) - nothing here is pre-aggregated by the sweep itself,
+per README.md. Commit order is derived from `--repo`'s actual git ancestry
+(manifest.jsonl's append order isn't reliable once a sweep has been re-run
+over more than one range). Prints a terminal summary table and writes a
+self-contained HTML page with one line chart per (suite, metric).
 
 Usage:
     python -m utils.perf_sweep.trend --output bench-results
+    python -m utils.perf_sweep.trend --output bench-results --repo /path/to/sqlfluff
     python -m utils.perf_sweep.trend --output bench-results --no-html
 """
 
@@ -18,8 +21,8 @@ import json
 from pathlib import Path
 from typing import Optional
 
+from . import gitrange, perf_summary
 from . import manifest as manifest_mod
-from . import perf_summary
 
 MODES = ["python", "rust_legacy", "rust_native_ast"]
 MODE_LABELS = {"python": "python", "rust_legacy": "legacy", "rust_native_ast": "native"}
@@ -36,18 +39,39 @@ class CommitRow:
         self.points = points  # {mode: {suite: Point}}
 
 
-def load_rows(output_dir: Path) -> list:
+def _order_by_ancestry(repo_dir: Path, shas: list) -> list:
+    """Sort shas oldest-first by real git ancestry, not by manifest append order.
+
+    manifest.jsonl's append order only matches chronology when the whole file
+    was produced by one contiguous resolve_commits() call. A sweep re-run over
+    a different or overlapping --start-ref/--end-ref appends its commits after
+    whatever is already there, regardless of where they actually sit in
+    history - so a later append can be an ancestor of an earlier one.
+    `git rev-list --topo-order --reverse` walks the real commit graph and is
+    the source of truth here.
+    """
+    if not shas:
+        return []
+    out = gitrange.run_git(
+        repo_dir, "rev-list", "--topo-order", "--reverse", *shas
+    ).stdout
+    wanted = set(shas)
+    ordered = [line for line in out.splitlines() if line in wanted]
+    # Any sha rev-list didn't surface (e.g. its history was rewritten/removed
+    # from repo_dir since the sweep ran) still needs to be reported somewhere.
+    missing = [s for s in shas if s not in ordered]
+    return ordered + missing
+
+
+def load_rows(output_dir: Path, repo_dir: Path) -> list:
     """Oldest-first list of CommitRow for every real commit in manifest.jsonl.
 
-    "Real" excludes skipped, dry-run, and build-failed commits. Dict
-    insertion order from manifest_mod.load_manifest already matches
-    manifest.jsonl's append order (oldest first, per gitrange.resolve_commits'
-    --reverse) - a later duplicate entry for the same sha updates the value in
-    place without moving its position, so a resumed sweep's manifest stays
-    chronological without re-sorting here.
+    "Real" excludes skipped, dry-run, and build-failed commits. Ordering is
+    derived from actual git ancestry via _order_by_ancestry(), not from
+    manifest.jsonl's append order - see its docstring for why that matters.
     """
     entries = manifest_mod.load_manifest(output_dir / "manifest.jsonl")
-    rows = []
+    row_by_sha = {}
     for sha, entry in entries.items():
         meta_path = output_dir / sha / "meta.json"
         if not meta_path.exists():
@@ -55,12 +79,12 @@ def load_rows(output_dir: Path) -> list:
         points = perf_summary.points_from_meta(json.loads(meta_path.read_text()))
         if points is None:
             continue
-        rows.append(
-            CommitRow(
-                sha, entry.get("subject", ""), entry.get("author_date", ""), points
-            )
+        row_by_sha[sha] = CommitRow(
+            sha, entry.get("subject", ""), entry.get("author_date", ""), points
         )
-    return rows
+
+    ordered_shas = _order_by_ancestry(repo_dir, list(row_by_sha.keys()))
+    return [row_by_sha[sha] for sha in ordered_shas]
 
 
 # ---------------------------------------------------------------------------
@@ -458,6 +482,12 @@ def main(argv=None) -> int:
         help="perf_sweep output directory",
     )
     p.add_argument(
+        "--repo",
+        type=Path,
+        default=Path("."),
+        help="Path to the sqlfluff git repo, used to order commits by ancestry",
+    )
+    p.add_argument(
         "--html",
         type=Path,
         default=None,
@@ -471,7 +501,7 @@ def main(argv=None) -> int:
     args = p.parse_args(argv)
 
     output_dir = args.output.resolve()
-    rows = load_rows(output_dir)
+    rows = load_rows(output_dir, args.repo.resolve())
     if not rows:
         print(f"No measured commits found under {output_dir}.")
         return 1
