@@ -104,24 +104,6 @@ fn find_mismatched_closing_bracket(tokens: &[Token], from_idx: usize) -> Option<
     None
 }
 
-pub(crate) fn skip_stop_index_backward_to_code(
-    tokens: &[Token],
-    start_idx: usize,
-    min_idx: usize,
-) -> usize {
-    let mut idx = start_idx;
-    while idx > min_idx {
-        idx -= 1;
-        // Here we would check if the token at idx is a "code" token.
-        // For this example, let's assume all tokens are code tokens.
-        let is_code_token = tokens[idx].is_code();
-        if is_code_token {
-            return idx;
-        }
-    }
-    min_idx
-}
-
 impl Parser<'_> {
     pub(crate) fn try_match_grammar(
         &mut self,
@@ -328,8 +310,8 @@ impl Parser<'_> {
                         term_id,
                         i
                     );
-                    let last_code_idx = skip_stop_index_backward_to_code(tokens, i, start_idx);
-                    return Ok((i, last_code_idx + 1));
+                    let stop_idx = self.skip_stop_index_backward_to_code(i, start_idx);
+                    return Ok((i, stop_idx));
                 }
             }
             i += 1;

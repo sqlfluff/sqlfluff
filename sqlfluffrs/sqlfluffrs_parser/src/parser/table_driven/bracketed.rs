@@ -454,15 +454,12 @@ impl Parser<'_> {
                         // GREEDY mode: Create unparsable section for tokens between content end and closing bracket
                         //
                         // PYTHON PARITY: trim trailing non-code and comments off
-                        // the unparsable span (via the `_excluding_comments`
-                        // variant below), matching Python's Bracketed.match. Any
+                        // the unparsable span (via `skip_stop_index_backward_to_code`,
+                        // the code-only variant), matching Python's Bracketed.match. Any
                         // trimmed gap stays as untouched, raw sibling content
                         // between here and the closing bracket.
-                        let unparsable_stop = self
-                            .skip_stop_index_backward_to_code_excluding_comments(
-                                expected_close_pos,
-                                check_pos,
-                            );
+                        let unparsable_stop =
+                            self.skip_stop_index_backward_to_code(expected_close_pos, check_pos);
 
                         // Guard against a zero-length span (mirrors sequence.rs's
                         // analogous GREEDY-leftover handling in
