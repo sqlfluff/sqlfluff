@@ -189,6 +189,21 @@ impl PyHandle {
         self.inner.lock().unwrap().escape_replacements(self.node)
     }
 
+    /// Prefix sequences stripped before `trim_chars` by `raw_trimmed`.
+    fn trim_start(&self) -> Option<Vec<String>> {
+        self.inner.lock().unwrap().trim_start(self.node)
+    }
+
+    /// Dialect casefold mode (`"upper"`/`"lower"`), or `None` if no fold.
+    fn casefold(&self) -> Option<String> {
+        self.inner.lock().unwrap().casefold(self.node)
+    }
+
+    /// `block_type` for a placeholder (Template) meta segment; else `None`.
+    fn block_type(&self) -> Option<String> {
+        self.inner.lock().unwrap().block_type(self.node)
+    }
+
     #[getter]
     fn segment_class(&self) -> Option<String> {
         self.inner.lock().unwrap().segment_class(self.node)

@@ -27,6 +27,7 @@ use std::cell::RefCell;
 use std::sync::Arc;
 
 use hashbrown::{HashMap, HashSet};
+use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::PositionMarker;
 
 use super::types::{MetaType, Node, RawSegmentKwargs};
@@ -436,6 +437,39 @@ impl Arena {
     pub fn escape_replacements(&self, id: NodeId) -> Option<Vec<(String, String)>> {
         match &self.node(id).kind {
             ArenaKind::Raw { kwargs, .. } => kwargs.escape_replacements.clone(),
+            _ => None,
+        }
+    }
+
+    /// Prefix sequences stripped before `trim_chars` by `raw_trimmed`.
+    pub(crate) fn trim_start(&self, id: NodeId) -> Option<Vec<String>> {
+        match &self.node(id).kind {
+            ArenaKind::Raw { kwargs, .. } => kwargs.trim_start.clone(),
+            _ => None,
+        }
+    }
+
+    /// The dialect casefold mode for a raw token, as a lowercase string
+    /// (`"upper"`/`"lower"`), or `None` when no fold applies. Mirrors the
+    /// per-segment `RawSegment.casefold` callable.
+    pub(crate) fn casefold(&self, id: NodeId) -> Option<String> {
+        match &self.node(id).kind {
+            ArenaKind::Raw { kwargs, .. } => match kwargs.casefold {
+                CaseFold::Upper => Some("upper".to_string()),
+                CaseFold::Lower => Some("lower".to_string()),
+                CaseFold::None => None,
+            },
+            _ => None,
+        }
+    }
+
+    /// The `block_type` of a placeholder (Template) meta segment
+    /// (e.g. `"block_start"`, `"comment"`); `None` for any other node.
+    pub(crate) fn block_type(&self, id: NodeId) -> Option<String> {
+        match &self.node(id).kind {
+            ArenaKind::Meta {
+                meta_type: MetaType::Template { block_type, .. },
+            } => Some(block_type.clone()),
             _ => None,
         }
     }

@@ -36,6 +36,7 @@ pub struct SegmentKwargs {
     /// ``None`` means hierarchy unknown; ``is_type()`` falls back to exact match only.
     pub class_types: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
+    pub trim_start: Option<Vec<String>>,
     pub casefold: CaseFold,
     pub quoted_value: Option<(String, RegexModeGroup)>,
     pub escape_replacement: Option<(String, String)>,
@@ -48,6 +49,7 @@ impl Default for SegmentKwargs {
             instance_types: None,
             class_types: None,
             trim_chars: None,
+            trim_start: None,
             casefold: CaseFold::None,
             quoted_value: None,
             escape_replacement: None,
@@ -619,8 +621,10 @@ impl MatchResult {
                         &raw_class_ct,
                         RawSegmentKwargs {
                             trim_chars: match_class.segment_kwargs.trim_chars,
+                            trim_start: match_class.segment_kwargs.trim_start,
                             quoted_value,
                             escape_replacements,
+                            casefold: match_class.segment_kwargs.casefold,
                         },
                     )];
                 }
@@ -743,6 +747,7 @@ pub fn segment_kwargs_from_token(
         instance_types: instance_types.or_else(|| Some(vec![token_type.to_string()])),
         casefold: casefold.unwrap_or_else(|| tok.casefold()),
         trim_chars: tok.trim_chars.clone(),
+        trim_start: tok.trim_start.clone(),
         escape_replacement: tok.escape_replacement().cloned(),
         quoted_value: tok.quoted_value().cloned(),
         ..Default::default()
@@ -822,6 +827,20 @@ fn token_to_node(tok: &Token) -> Node {
             .first()
             .map(|s| Cow::Owned(s.clone()))
             .unwrap_or_else(|| tok.token_type.clone());
+        // Carry normalize/trim metadata from the lexer token so façade
+        // accessors (raw_trimmed / raw_normalized) work on gap-filled raws
+        // such as comments (which have `trim_start`).
+        let quoted_value = tok.quoted_value().cloned().map(|(pattern, group)| {
+            let group_str = match group {
+                RegexModeGroup::Index(idx) => idx.to_string(),
+                RegexModeGroup::Name(name) => name,
+            };
+            (pattern, group_str)
+        });
+        let escape_replacements = tok
+            .escape_replacement()
+            .cloned()
+            .map(|(pattern, replacement)| vec![(pattern, replacement)]);
         Node::new_raw_with_class_types(
             tok.class_name.clone(),
             segment_type,
@@ -829,7 +848,13 @@ fn token_to_node(tok: &Token) -> Node {
             tok.pos_marker.clone(),
             tok.instance_types.clone(),
             &raw_class_ct,
-            RawSegmentKwargs::default(),
+            RawSegmentKwargs {
+                trim_chars: tok.trim_chars.clone(),
+                trim_start: tok.trim_start.clone(),
+                quoted_value,
+                escape_replacements,
+                casefold: tok.casefold(),
+            },
         )
     }
 }

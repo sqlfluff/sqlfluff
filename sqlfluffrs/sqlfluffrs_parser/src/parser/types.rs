@@ -2,6 +2,7 @@
 
 use hashbrown::HashSet;
 use serde_yaml_ng::{Mapping, Value};
+use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::{GrammarId, PositionMarker};
 use std::borrow::Cow;
 
@@ -33,8 +34,14 @@ pub enum MetaType {
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RawSegmentKwargs {
     pub trim_chars: Option<Vec<String>>,
+    /// Prefix sequences stripped by ``RawSegment.raw_trimmed`` before
+    /// ``trim_chars`` (e.g. inline-comment ``--``/``#`` markers).
+    pub trim_start: Option<Vec<String>>,
     pub quoted_value: Option<(String, String)>,
     pub escape_replacements: Option<Vec<(String, String)>>,
+    /// Per-segment fold applied by ``RawSegment.raw_normalized`` (dialect
+    /// identifier casing, e.g. ``str.upper``/``str.lower``).
+    pub casefold: CaseFold,
 }
 
 /// AST Node - represents parsed SQL structure

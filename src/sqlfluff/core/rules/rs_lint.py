@@ -20,7 +20,8 @@ Detection and fixing match native SQLFluff for the covered rules.
 
 from __future__ import annotations
 
-from typing import Any, Iterator, Optional
+import re
+from typing import Any, Iterator, Optional, cast
 
 # Rules whose façade multi-pass source-patch FIX output is byte-identical to
 # native SQLFluff across every case in that rule's ``std_rule_cases`` fixture.
@@ -122,6 +123,67 @@ class RsSegment:
     @property
     def raw_upper(self) -> str:
         return self._h.raw_upper
+
+    @property
+    def block_type(self) -> Optional[str]:
+        # A ``TemplateSegment`` (placeholder) attribute; ``None`` otherwise.
+        return self._h.block_type()
+
+    def normalize(self, value: Optional[str] = None) -> str:
+        # Mirrors ``RawSegment.normalize`` (parser/segments/raw.py): quote-strip
+        # via ``quoted_value`` then apply ``escape_replacements``.
+        raw_buff = value or self._h.raw
+        qv = self._h.quoted_value()
+        if qv:
+            _match = re.match(qv[0], raw_buff)
+            if _match:
+                group = qv[1]
+                # The arena stores the capture group as a string; a numeric
+                # index arrives as e.g. ``"1"`` and must be int for ``group``.
+                try:
+                    group = int(group)
+                except (TypeError, ValueError):
+                    pass
+                _group_match = _match.group(group)
+                if isinstance(_group_match, str):
+                    raw_buff = _group_match
+        for old, new in self._h.escape_replacements() or []:
+            raw_buff = re.sub(old, new, raw_buff)
+        return raw_buff
+
+    def raw_normalized(self, casefold: bool = True) -> str:
+        # Raw node: normalize then apply the dialect fold (``RawSegment``).
+        # Container: join children (mirrors ``BaseSegment.raw_normalized``).
+        if self._h.is_raw():
+            raw_buff = self.normalize()
+            fold = self._h.casefold()
+            if fold and casefold:
+                if fold == "upper":
+                    raw_buff = raw_buff.upper()
+                elif fold == "lower":
+                    raw_buff = raw_buff.lower()
+            return raw_buff
+        return "".join(s.raw_normalized(casefold) for s in self.get_raw_segments())
+
+    def raw_trimmed(self) -> str:
+        # Mirrors ``RawSegment.raw_trimmed``: strip ``trim_start`` prefixes,
+        # then ``trim_chars`` from both ends.
+        raw_buff = self._h.raw
+        trim_start = self._h.trim_start()
+        if trim_start:
+            for seq in trim_start:
+                if raw_buff.startswith(seq):
+                    raw_buff = raw_buff[len(seq) :]
+        trim_chars = self._h.trim_chars()
+        if trim_chars:
+            raw_buff = self._h.raw
+            for seq in trim_chars:
+                while raw_buff.startswith(seq):
+                    raw_buff = raw_buff[len(seq) :]
+                while raw_buff.endswith(seq):
+                    raw_buff = raw_buff[: -len(seq)]
+            return raw_buff
+        return raw_buff
 
     @property
     def type(self) -> str:
@@ -239,21 +301,63 @@ class RsSegment:
         recurse_into: bool = True,
         no_recursive_seg_type: Any = None,
         allow_self: bool = True,
-    ) -> list[RsSegment]:
+    ) -> Iterator[RsSegment]:
+        # Return an iterator (not a list) to match BaseSegment.recursive_crawl,
+        # so callers can `next(...)` on it (e.g. get_alias).
         if isinstance(no_recursive_seg_type, str):
             nr = [no_recursive_seg_type]
         else:
             nr = list(no_recursive_seg_type) if no_recursive_seg_type else []
-        return [
-            RsSegment(x)
-            for x in self._h.recursive_crawl(
-                list(seg_type), recurse_into, nr, allow_self
-            )
-        ]
+        return iter(
+            [
+                RsSegment(x)
+                for x in self._h.recursive_crawl(
+                    list(seg_type), recurse_into, nr, allow_self
+                )
+            ]
+        )
 
-    def recursive_crawl_all(self, reverse: bool = False) -> list[RsSegment]:
+    def recursive_crawl_all(self, reverse: bool = False) -> Iterator[RsSegment]:
         segs = [RsSegment(x) for x in self._h.recursive_crawl_all()]
-        return list(reversed(segs)) if reverse else segs
+        return iter(reversed(segs)) if reverse else iter(segs)
+
+    def get_alias(self) -> Any:
+        # Port of SelectClauseElementSegment.get_alias (dialect_ansi.py):
+        # navigation-only, so it works over the façade. Returns ColumnAliasInfo.
+        from sqlfluff.core.dialects.common import ColumnAliasInfo
+
+        alias_expression_segment = next(
+            self.recursive_crawl(
+                "alias_expression", no_recursive_seg_type="select_statement"
+            ),
+            None,
+        )
+        if alias_expression_segment is None:
+            return None
+        alias_identifier_segment = next(
+            (s for s in alias_expression_segment.segments if s.is_type("identifier")),
+            None,
+        )
+        if alias_identifier_segment is None:
+            return None
+        aliased_segment = next(
+            s
+            for s in self.segments
+            if not s.is_whitespace and not s.is_meta and s != alias_expression_segment
+        )
+        column_reference_segments = []
+        if aliased_segment.is_type("column_reference"):
+            column_reference_segments.append(aliased_segment)
+        else:
+            column_reference_segments.extend(
+                aliased_segment.recursive_crawl("column_reference")
+            )
+        # RsSegment duck-types BaseSegment; cast for the typed NamedTuple.
+        return ColumnAliasInfo(
+            alias_identifier_name=alias_identifier_segment.raw,
+            aliased_segment=cast(Any, aliased_segment),
+            column_reference_segments=cast(Any, column_reference_segments),
+        )
 
     def iter_segments(
         self, expanding: Any = None, pass_through: bool = False
