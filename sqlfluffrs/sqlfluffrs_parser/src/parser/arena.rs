@@ -772,6 +772,124 @@ impl Arena {
         }
         steps
     }
+
+    /// Bulk equivalent of `path_to(root, leaf)` for every leaf under `root`, in a
+    /// single DFS (O(n) total) instead of O(leaves * depth) separate walks. Each
+    /// returned entry is `(leaf, path_from_root_to_leaf)`, where the path matches
+    /// `path_to(root, leaf)` exactly. This is the reflow hot path
+    /// (`raw_segments_with_ancestors` / `DepthMap`).
+    pub(crate) fn raw_segments_with_ancestors(&self, root: NodeId) -> Vec<(NodeId, Vec<PathStep>)> {
+        let mut out = Vec::new();
+        let mut stack: Vec<PathStep> = Vec::new();
+        self.rwa_dfs(root, &mut stack, &mut out);
+        out
+    }
+
+    fn rwa_dfs(
+        &self,
+        node: NodeId,
+        stack: &mut Vec<PathStep>,
+        out: &mut Vec<(NodeId, Vec<PathStep>)>,
+    ) {
+        let kids: Vec<NodeId> = self.children(node).to_vec();
+        if kids.is_empty() {
+            out.push((node, stack.clone()));
+            return;
+        }
+        // Same PathStep shape as path_to: the ancestor `node`, the descended
+        // child index, the child count, and the code-child indices of `node`.
+        let code_idxs: Vec<usize> = kids
+            .iter()
+            .enumerate()
+            .filter(|(_, &s)| self.is_code(s))
+            .map(|(i, _)| i)
+            .collect();
+        let len = kids.len();
+        for (i, &child) in kids.iter().enumerate() {
+            stack.push(PathStep {
+                node,
+                idx: i,
+                len,
+                code_idxs: code_idxs.clone(),
+            });
+            self.rwa_dfs(child, stack, out);
+            stack.pop();
+        }
+    }
+
+    /// Fully arena-side depth-info for reflow's `DepthMap`. One DFS emits, per
+    /// leaf, its top-down stack of `(ancestor_uuid, idx, len, stack_pos)` — where
+    /// `stack_pos` is the interpreted `StackPosition.type` string ("", "solo",
+    /// "start", "end"), computed here exactly mirroring Python's
+    /// `_stack_pos_interpreter`. Ancestor `class_types` are deduped into the
+    /// second returned Vec (an ancestor appears in many leaves' paths, so its
+    /// class_types are marshalled once, keyed by uuid). This lets the Python
+    /// façade build `DepthInfo` objects directly with no per-step PathStep /
+    /// PyHandle marshalling.
+    #[allow(clippy::type_complexity)]
+    pub(crate) fn reflow_depth_info(
+        &self,
+        root: NodeId,
+    ) -> (
+        Vec<(u128, Vec<(u128, usize, usize, String)>)>,
+        Vec<(u128, Vec<String>)>,
+    ) {
+        let mut per_leaf: Vec<(u128, Vec<(u128, usize, usize, String)>)> = Vec::new();
+        let mut anc_cts: Vec<(u128, Vec<String>)> = Vec::new();
+        let mut seen: HashSet<u128> = HashSet::new();
+        let mut stack: Vec<(u128, usize, usize, String)> = Vec::new();
+        self.rdi_dfs(root, &mut stack, &mut per_leaf, &mut anc_cts, &mut seen);
+        (per_leaf, anc_cts)
+    }
+
+    #[allow(clippy::type_complexity)]
+    fn rdi_dfs(
+        &self,
+        node: NodeId,
+        stack: &mut Vec<(u128, usize, usize, String)>,
+        per_leaf: &mut Vec<(u128, Vec<(u128, usize, usize, String)>)>,
+        anc_cts: &mut Vec<(u128, Vec<String>)>,
+        seen: &mut HashSet<u128>,
+    ) {
+        let kids: Vec<NodeId> = self.children(node).to_vec();
+        if kids.is_empty() {
+            per_leaf.push((self.uuid(node), stack.clone()));
+            return;
+        }
+        // Code-child indices of this ancestor (`node`), used for stack_pos.
+        let code_idxs: Vec<usize> = kids
+            .iter()
+            .enumerate()
+            .filter(|(_, &s)| self.is_code(s))
+            .map(|(i, _)| i)
+            .collect();
+        let len = kids.len();
+        // Dedupe: marshal this ancestor's class_types once (it recurs across many
+        // leaf paths).
+        let node_uuid = self.uuid(node);
+        if seen.insert(node_uuid) {
+            anc_cts.push((node_uuid, self.class_types(node)));
+        }
+        for (i, &child) in kids.iter().enumerate() {
+            // Mirror _stack_pos_interpreter (depthmap.py): "" if no code children,
+            // "solo" if exactly one, "start"/"end" for the first/last code index,
+            // else "".
+            let stack_pos: String = if code_idxs.is_empty() {
+                String::new()
+            } else if code_idxs.len() == 1 {
+                "solo".to_string()
+            } else if i == code_idxs[0] {
+                "start".to_string()
+            } else if i == *code_idxs.last().unwrap() {
+                "end".to_string()
+            } else {
+                String::new()
+            };
+            stack.push((node_uuid, i, len, stack_pos));
+            self.rdi_dfs(child, stack, per_leaf, anc_cts, seen);
+            stack.pop();
+        }
+    }
 }
 
 fn meta_type_str(meta_type: &MetaType) -> &'static str {

@@ -154,36 +154,52 @@ class RsSegment:
     ``RawSegment`` for fix construction, but the arena itself is never mutated.
     """
 
-    __slots__ = ("_h", "_segments", "__weakref__")
+    # `_uid` caches the node uuid (fetched once for interning) so __hash__/uuid
+    # avoid an FFI call; `_ct` caches class_types (an interned wrapper is stable,
+    # so the arena node's type set never changes under it) so is_type/class_types
+    # become Python set operations instead of per-call FFI — the hot path in
+    # rule crawling.
+    __slots__ = ("_h", "_uid", "_segments", "_ct", "_rwa", "__weakref__")
     _h: Any
+    _uid: int
     _segments: Optional[tuple["RsSegment", ...]]
+    _ct: Optional[frozenset[str]]
+    _rwa: Optional[list[tuple["RsSegment", list[Any]]]]
 
     def __new__(cls, handle: Any) -> "RsSegment":
         # Intern by node uuid so the same node returns the same object (identity
         # stability). Field init happens here, not __init__, because __init__
         # still runs when __new__ returns a cached instance.
-        obj = _INTERN.get(handle.uuid)
+        uid = handle.uuid
+        obj = _INTERN.get(uid)
         if obj is None:
             obj = object.__new__(cls)
             obj._h = handle
+            obj._uid = uid
             obj._segments = None
-            _INTERN[handle.uuid] = obj
+            obj._ct = None
+            obj._rwa = None
+            _INTERN[uid] = obj
         return obj
 
-    def __init__(self, handle: Any) -> None:
-        # No-op: see __new__ (must not clobber a cached instance's state).
-        pass
+    # No __init__: all state is set in __new__. Defining a no-op __init__ would
+    # add a Python-frame dispatch to every wrapper creation (the hot path); with
+    # __new__ overridden and no __init__, object.__init__ ignores the argument.
 
     # -- identity ------------------------------------------------------------
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, RsSegment) and self._h == other._h
+        # Interning makes same-node wrappers identical; uuid compare covers the
+        # rare case where a wrapper was GC'd and re-created for the same node.
+        return self is other or (
+            isinstance(other, RsSegment) and self._uid == other._uid
+        )
 
     def __hash__(self) -> int:
-        return hash(self._h)
+        return self._uid
 
     @property
     def uuid(self) -> int:
-        return self._h.uuid
+        return self._uid
 
     # -- payload -------------------------------------------------------------
     @property
@@ -273,11 +289,21 @@ class RsSegment:
         return self._h.type
 
     def is_type(self, *seg_type: str) -> bool:
-        return self._h.is_type(list(seg_type))
+        # Membership in cached class_types — verified equivalent to the arena's
+        # is_type (class_types already includes the structural hierarchy).
+        ct = self._ct
+        if ct is None:
+            ct = self._ct = frozenset(self._h.class_types())
+        if len(seg_type) == 1:  # hot path — most callers pass one type
+            return seg_type[0] in ct
+        return not ct.isdisjoint(seg_type)
 
     @property
     def class_types(self) -> frozenset[str]:
-        return frozenset(self._h.class_types())
+        ct = self._ct
+        if ct is None:
+            ct = self._ct = frozenset(self._h.class_types())
+        return ct
 
     @property
     def instance_types(self) -> tuple[str, ...]:
@@ -388,10 +414,55 @@ class RsSegment:
     def raw_segments_with_ancestors(
         self,
     ) -> list[tuple[RsSegment, list[Any]]]:
-        out: list[tuple[RsSegment, list[Any]]] = []
-        for leaf_h in self._h.raw_segments():
-            leaf = RsSegment(leaf_h)
-            out.append((leaf, self.path_to(leaf)))
+        # Reflow hot path (DepthMap). Use the bulk arena traversal — one FFI call
+        # returning every leaf with its full path — instead of a path_to() FFI per
+        # leaf, and cache it (the arena is immutable, so successive reflow rules on
+        # the same root reuse it).
+        cached = self._rwa
+        if cached is not None:
+            return cached
+        from sqlfluff.core.parser.segments.base import PathStep
+
+        out: list[tuple[RsSegment, list[Any]]] = [
+            (
+                RsSegment(leaf_h),
+                [
+                    PathStep(RsSegment(h), idx, ln, tuple(cidx))  # type: ignore[arg-type]
+                    for (h, idx, ln, cidx) in steps
+                ],
+            )
+            for (leaf_h, steps) in self._h.raw_segments_with_ancestors()
+        ]
+        self._rwa = out
+        return out
+
+    def reflow_depth_info(self) -> dict[int, Any]:
+        # Reflow DepthMap fast path: build the {leaf_uuid: DepthInfo} map wholly
+        # from arena-side scalars (no PathStep/PyHandle marshalling). The arena
+        # emits, per leaf, its top-down stack of (anc_uuid, idx, len, stack_pos)
+        # plus the deduped (anc_uuid, class_types); we assemble DepthInfo directly.
+        # DepthInfo/StackPosition imported lazily to avoid an import cycle.
+        from sqlfluff.utils.reflow.depthmap import DepthInfo, StackPosition
+
+        per_leaf, anc_cts = self._h.reflow_depth_info()
+        ct_map = {u: frozenset(ct) for u, ct in anc_cts}
+        out: dict[int, Any] = {}
+        for leaf_uuid, steps in per_leaf:
+            # Mirror native `stack_hashes = tuple(hash(ps.segment) for ...)`:
+            # RsSegment.__hash__ returns the node uuid, and Python's hash() then
+            # reduces that u128 (Mersenne modulus) — so hash(au) is byte-identical
+            # to hash(RsSegment) for the same node.
+            hashes = tuple(hash(au) for (au, i, ln, sp) in steps)
+            out[leaf_uuid] = DepthInfo(
+                stack_depth=len(steps),
+                stack_hashes=hashes,
+                stack_hash_set=frozenset(hashes),
+                stack_class_types=tuple(ct_map[au] for (au, i, ln, sp) in steps),
+                stack_positions={
+                    hashes[k]: StackPosition(i, ln, sp)
+                    for k, (au, i, ln, sp) in enumerate(steps)
+                },
+            )
         return out
 
     def get_parent(self) -> Optional[tuple[RsSegment, int]]:
@@ -724,10 +795,15 @@ def facade_fix_loop(
         for loop in range(nloops):
             this = rules if (phase == "main" and loop == 0) else by_phase[phase]
             changed = False
+            # Parse once at the start of the loop and reuse that tree across rules
+            # that make no change; only re-parse when a fix actually rewrites the
+            # source (and reuse *that* parse as both the validity check and the
+            # current tree). This replaces the previous per-rule re-parse — the
+            # dominant cost — with 1 + (number of applied fixes) parses per loop.
+            rst = parse(source)
             for rule in this:
-                rst = parse(source)
                 if rst is None:
-                    continue
+                    break
                 _v, _r, fixes, _m = rule.crawl(
                     tree=RsSegment(rst.root),
                     dialect=dialect_obj,
@@ -742,13 +818,15 @@ def facade_fix_loop(
                 new_source = apply_source_fixes(source, fixes)
                 if new_source is None or new_source == source:
                     continue
-                if parse(new_source) is None:  # reject unparsable fix (~ _valid)
-                    continue
                 if new_source in seen:  # loop detected -> stop applying
+                    continue
+                new_rst = parse(new_source)  # single parse: validity + next tree
+                if new_rst is None:  # reject unparsable fix (~ _valid)
                     continue
                 source = new_source
                 seen.add(new_source)
                 changed = True
+                rst = new_rst
             if not changed:
                 break
     return source

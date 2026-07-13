@@ -135,6 +135,14 @@ class DepthMap:
         NOTE: This is the most efficient way to construct a DepthMap
         due to caching in the BaseSegment.
         """
+        # Fast path for the Rust arena façade (RsSegment): it can compute the
+        # whole depth-info map arena-side, avoiding per-leaf PathStep marshalling.
+        # Native BaseSegment has no `reflow_depth_info`, so it falls back unchanged.
+        fast = getattr(parent, "reflow_depth_info", None)
+        if fast is not None:
+            dm = cls.__new__(cls)
+            dm.depth_info = fast()
+            return dm
         return cls(raws_with_stack=parent.raw_segments_with_ancestors)
 
     @classmethod
