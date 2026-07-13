@@ -80,6 +80,11 @@ pub enum Node {
     Meta {
         meta_type: MetaType,
         pos_marker: Option<PositionMarker>,
+        /// Template-block identity (uuid as `u128`), carried from the lexer
+        /// token for template/indent/dedent metas so reflow reindent can group
+        /// indents by their originating template block.  `None` for structural
+        /// (parser-inserted) metas.
+        block_uuid: Option<u128>,
     },
 
     /// Parse errors
@@ -663,6 +668,7 @@ mod tests {
         let node = Node::Meta {
             meta_type: MetaType::Indent { is_implicit: false },
             pos_marker: None,
+            block_uuid: None,
         };
         let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
@@ -792,6 +798,7 @@ mod tests {
         let node = Node::Meta {
             meta_type: MetaType::Indent { is_implicit: false },
             pos_marker: None,
+            block_uuid: None,
         };
         let val = node.to_tuple(false, false, true);
         assert_eq!(
@@ -805,6 +812,7 @@ mod tests {
         let node = Node::Meta {
             meta_type: MetaType::Indent { is_implicit: false },
             pos_marker: None,
+            block_uuid: None,
         };
         let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("indent".to_string(), vec![]));

@@ -54,6 +54,37 @@ impl PyPositionMarker {
         (self.0.working_line_no, self.0.working_line_pos)
     }
 
+    /// Visual column (0-indexed) accounting for tab expansion, walking the
+    /// templated line content from the start and expanding tabs to tab stops.
+    /// Mirrors `PositionMarker.working_visual_column` (parser/markers.py).
+    #[pyo3(signature = (tab_space_size=4))]
+    pub fn working_visual_column(&self, tab_space_size: usize) -> usize {
+        let tf = &self.0.templated_file;
+        let start = self.0.templated_slice.start;
+        // Line start = one past the last templated newline before `start`.
+        let mut line_start_idx = 0usize;
+        for &nl in tf.templated_newlines() {
+            if nl >= start {
+                break;
+            }
+            line_start_idx = nl + 1;
+        }
+        // Codepoint indices (templated_newlines/templated_slice are codepoints).
+        let chars: Vec<char> = tf.templated_str.chars().collect();
+        let end = start.min(chars.len());
+        let mut visual_col = 0usize;
+        if line_start_idx <= end {
+            for &c in &chars[line_start_idx..end] {
+                if c == '\t' {
+                    visual_col = ((visual_col / tab_space_size) + 1) * tab_space_size;
+                } else {
+                    visual_col += 1;
+                }
+            }
+        }
+        visual_col
+    }
+
     pub fn start_point_marker(&self) -> Self {
         Self(self.0.start_point_marker())
     }

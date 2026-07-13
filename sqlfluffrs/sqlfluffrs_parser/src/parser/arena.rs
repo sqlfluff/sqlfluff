@@ -64,6 +64,9 @@ enum ArenaKind {
     },
     Meta {
         meta_type: MetaType,
+        /// Template-block identity (uuid as `u128`), carried from the lexer
+        /// token so reflow reindent can group indents by originating block.
+        block_uuid: Option<u128>,
     },
     Unparsable {
         expected: String,
@@ -223,9 +226,11 @@ impl Arena {
             Node::Meta {
                 meta_type,
                 pos_marker,
+                block_uuid,
             } => self.alloc(
                 ArenaKind::Meta {
                     meta_type: meta_type.clone(),
+                    block_uuid: *block_uuid,
                 },
                 pos_marker.clone(),
                 parent,
@@ -317,7 +322,7 @@ impl Arena {
             ArenaKind::Segment { segment_type, .. } => {
                 segment_type.as_deref().unwrap_or_default().to_string()
             }
-            ArenaKind::Meta { meta_type } => meta_type_str(meta_type).to_string(),
+            ArenaKind::Meta { meta_type, .. } => meta_type_str(meta_type).to_string(),
             ArenaKind::Unparsable { .. } => "unparsable".to_string(),
             ArenaKind::Empty => "empty".to_string(),
         }
@@ -339,6 +344,7 @@ impl Arena {
             // in the grammar tables and must be encoded here.
             ArenaKind::Meta {
                 meta_type: MetaType::Dedent { .. },
+                ..
             } => &["dedent", "indent", "meta", "raw", "base"],
             ArenaKind::Meta { .. } => &["meta", "raw", "base"],
             ArenaKind::Unparsable { .. } => &["unparsable", "base"],
@@ -415,6 +421,7 @@ impl Arena {
         match &self.node(id).kind {
             ArenaKind::Meta {
                 meta_type: MetaType::Indent { is_implicit } | MetaType::Dedent { is_implicit },
+                ..
             } => Some(*is_implicit),
             _ => None,
         }
@@ -472,7 +479,18 @@ impl Arena {
         match &self.node(id).kind {
             ArenaKind::Meta {
                 meta_type: MetaType::Template { block_type, .. },
+                ..
             } => Some(block_type.clone()),
+            _ => None,
+        }
+    }
+
+    /// The template-block identity (uuid as `u128`) of a meta segment, mirroring
+    /// `TemplateSegment.block_uuid`; `None` for structural metas and non-metas.
+    /// Used by reflow reindent to group indents by originating template block.
+    pub(crate) fn block_uuid(&self, id: NodeId) -> Option<u128> {
+        match &self.node(id).kind {
+            ArenaKind::Meta { block_uuid, .. } => *block_uuid,
             _ => None,
         }
     }
@@ -888,6 +906,7 @@ mod tests {
                 Node::Meta {
                     meta_type: MetaType::Indent { is_implicit: false },
                     pos_marker: None,
+                    block_uuid: None,
                 },
                 raw("WhitespaceSegment", "whitespace", " ", &["whitespace"]),
             ],

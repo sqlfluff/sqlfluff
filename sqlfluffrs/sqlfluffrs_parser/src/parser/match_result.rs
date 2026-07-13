@@ -811,6 +811,7 @@ fn token_to_node(tok: &Token) -> Node {
         Node::Meta {
             meta_type,
             pos_marker: tok.pos_marker.clone(),
+            block_uuid: tok.block_uuid.map(|u| u.as_u128()),
         }
     } else {
         // Populate class_types from the Token's own class_types (from lexer)
@@ -867,12 +868,14 @@ fn meta_to_node(meta_type: &MetaSegment, pos_marker: Option<PositionMarker>) -> 
                 is_implicit: *is_implicit,
             },
             pos_marker,
+            block_uuid: None,
         },
         MetaSegment::Dedent { is_implicit } => Node::Meta {
             meta_type: MetaType::Dedent {
                 is_implicit: *is_implicit,
             },
             pos_marker,
+            block_uuid: None,
         },
     }
 }

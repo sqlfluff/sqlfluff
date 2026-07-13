@@ -204,6 +204,12 @@ impl PyHandle {
         self.inner.lock().unwrap().block_type(self.node)
     }
 
+    /// `block_uuid` (as an int) for a meta segment; `None` for structural
+    /// metas and non-metas.  Mirrors `TemplateSegment.block_uuid`.
+    fn block_uuid(&self) -> Option<u128> {
+        self.inner.lock().unwrap().block_uuid(self.node)
+    }
+
     #[getter]
     fn segment_class(&self) -> Option<String> {
         self.inner.lock().unwrap().segment_class(self.node)
