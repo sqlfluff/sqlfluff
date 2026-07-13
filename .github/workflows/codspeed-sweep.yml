@@ -192,11 +192,13 @@ jobs:
   benchmark-walltime:
     name: walltime ${{ matrix.sha }}
     needs: [plan, build]
-    # always(): a build failure for one commit (fail-fast: false) reports
-    # the overall `build` job as failed, which would otherwise skip this
-    # job entirely for every commit. The download-artifact step below fails
-    # cleanly for whichever specific commit's build actually failed instead.
-    if: always() && needs.plan.outputs.has_work == 'true'
+    # !cancelled(): a build failure for one commit (fail-fast: false)
+    # reports the overall `build` job as failed, which would otherwise skip
+    # this job entirely for every commit. The download-artifact step below
+    # fails cleanly for whichever specific commit's build actually failed
+    # instead. Not always(): that would also run on a cancelled workflow,
+    # making cancellation impossible to deliver.
+    if: ${{ !cancelled() && needs.plan.outputs.has_work == 'true' }}
     runs-on: codspeed-macro
     # The full suite is ~2.5 min natively; walltime mode runs multiple
     # rounds plus the memory instrument. Queue time waiting for a
@@ -276,7 +278,7 @@ jobs:
   benchmark-simulation:
     name: simulation ${{ matrix.sha }} ${{ matrix.group.name }}
     needs: [plan, build]
-    if: always() && needs.plan.outputs.has_work == 'true'
+    if: ${{ !cancelled() && needs.plan.outputs.has_work == 'true' }}
     runs-on: ubuntu-24.04-arm
     # The whole unsharded suite took ~84 min under Valgrind; the slowest
     # shard (python-tpcds) is expected around 45-55 min.
@@ -363,7 +365,7 @@ jobs:
 
   finalize:
     needs: [plan, build, benchmark-walltime, benchmark-simulation]
-    if: always() && needs.plan.outputs.has_work == 'true'
+    if: ${{ !cancelled() && needs.plan.outputs.has_work == 'true' }}
     runs-on: ubuntu-latest
     # Runs in seconds; the timeout only guards against a hung API call
     # or git push.
