@@ -2,11 +2,11 @@
 
 Used by the `finalize` job in .github/workflows/codspeed-sweep.yml. Queries
 this workflow run's own jobs via the GitHub API and cross-checks, for each
-commit, that both the `walltime <sha>` and `simulation <sha>` matrix jobs
-succeeded (a commit only counts as done once both instrument types have
-uploaded, mirroring the local sweep's two-metrics-per-commit design). Merges
-the result into .github/codspeed-swept.json in place; the caller is
-responsible for committing the file if it changed.
+commit, that the `walltime <sha>` job and every `simulation <sha> <group>`
+shard job succeeded (a commit only counts as done once both instrument types
+have fully uploaded, mirroring the local sweep's two-metrics-per-commit
+design). Merges the result into .github/codspeed-swept.json in place; the
+caller is responsible for committing the file if it changed.
 """
 
 from __future__ import annotations
@@ -43,18 +43,25 @@ def main() -> None:
     ).stdout
     jobs = [json.loads(line) for line in out.splitlines() if line]
 
-    # Each matrix job's display name is "<kind> <sha>" (the `name:` field on
-    # benchmark-walltime/benchmark-simulation in the workflow).
-    succeeded = {"walltime": set(), "simulation": set()}
+    # Matrix job display names are "walltime <sha>" and
+    # "simulation <sha> <group>" (the `name:` fields on benchmark-walltime/
+    # benchmark-simulation in the workflow). A commit's simulation results
+    # are sharded across several group jobs, so a sha only counts for a kind
+    # once *every* job of that kind for it succeeded.
+    all_ok = {"walltime": {}, "simulation": {}}
     for job in jobs:
-        if job["conclusion"] != "success":
-            continue
-        for kind in succeeded:
+        for kind, shas in all_ok.items():
             prefix = f"{kind} "
             if job["name"].startswith(prefix):
-                succeeded[kind].add(job["name"][len(prefix) :])
+                sha = job["name"][len(prefix) :].split()[0]
+                ok = job["conclusion"] == "success"
+                shas[sha] = shas.get(sha, True) and ok
 
-    done = succeeded["walltime"] & succeeded["simulation"]
+    done = {
+        sha
+        for sha, ok in all_ok["walltime"].items()
+        if ok and all_ok["simulation"].get(sha)
+    }
 
     existing = set(json.load(open(SWEPT_PATH))) if os.path.exists(SWEPT_PATH) else set()
     updated = sorted(existing | done)

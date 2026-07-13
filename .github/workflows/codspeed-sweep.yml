@@ -23,11 +23,14 @@
 # codspeed-macro's separate underlying images) and both benchmark jobs
 # download that same artifact instead of each rebuilding it.
 #
-# CodSpeed does not support two runs for the same commit SHA (a duplicate
-# produces an error, not an aggregate), so re-dispatching this workflow must
-# skip commits already swept. `.github/codspeed-swept.json` tracks that,
-# committed back by the `finalize` job once both instrument types succeed
-# for a commit.
+# CodSpeed requires each benchmark to be measured only once per commit: it
+# aggregates disjoint shards uploaded from parallel jobs of the *same*
+# workflow run into one report (the benchmark-simulation matrix relies on
+# this), but re-measuring the same benchmarks in a later run produces an
+# error, not an aggregate. Re-dispatching this workflow must therefore skip
+# commits already swept. `.github/codspeed-swept.json` tracks that, committed
+# back by the `finalize` job once both instrument types fully succeed for a
+# commit.
 #
 # Prerequisites (not part of this workflow):
 #   - A CodSpeed project must exist for this repo, with CODSPEED_TOKEN added
@@ -241,15 +244,30 @@ jobs:
           run: pytest test/test_codspeed_tpc_parse.py --codspeed
 
   benchmark-simulation:
-    name: simulation ${{ matrix.sha }}
+    name: simulation ${{ matrix.sha }} ${{ matrix.group.name }}
     needs: [plan, build]
     if: always() && needs.plan.outputs.has_work == 'true'
     runs-on: ubuntu-24.04-arm
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 8
       matrix:
         sha: ${{ fromJson(needs.plan.outputs.all_shas) }}
+        # Valgrind instrumentation runs the suite ~30x slower than native, so
+        # one job per commit took ~80 minutes, dominated by the pure-Python
+        # parser benchmarks. CodSpeed supports sharding a suite across
+        # parallel jobs in the same workflow run and aggregates the shards
+        # into one report, as long as each benchmark runs exactly once per
+        # commit — these filters are disjoint and cover all 6 benchmarks.
+        # The python benchmarks get a shard each (they dominate the runtime);
+        # the cheap rust ones ride along per-suite rather than alone so that
+        # a shard can't end up all-skipped (and upload an empty run) on
+        # commits where the native_ast guard in the driver skips.
+        group:
+          - {name: rust-tpch, filter: "not python and tpch"}
+          - {name: rust-tpcds, filter: "not python and tpcds"}
+          - {name: python-tpch, filter: "python and tpch"}
+          - {name: python-tpcds, filter: "python and tpcds"}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -307,7 +325,7 @@ jobs:
         with:
           mode: simulation,memory
           token: ${{ secrets.CODSPEED_TOKEN }}
-          run: pytest test/test_codspeed_tpc_parse.py --codspeed
+          run: pytest test/test_codspeed_tpc_parse.py --codspeed --durations=0 -k "${{ matrix.group.filter }}"
 
   finalize:
     needs: [plan, build, benchmark-walltime, benchmark-simulation]
