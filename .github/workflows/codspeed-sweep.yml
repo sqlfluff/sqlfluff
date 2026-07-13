@@ -83,6 +83,14 @@ jobs:
       - name: Checkout target commit
         run: git checkout --force ${{ matrix.sha }}
 
+      - name: Restore the hash script from the dispatched ref
+        # codspeed_sweep_dialect_hash.py is fixed sweep tooling that hashes
+        # the target commit's worktree, not part of what's being measured.
+        # Restoring it from the ref that triggered this run (not matrix.sha)
+        # keeps it present even when matrix.sha predates this file's
+        # addition, same as the benchmark jobs do for the driver below.
+        run: git checkout ${{ github.sha }} -- .github/scripts/codspeed_sweep_dialect_hash.py
+
       - name: Compute dialect generation hash
         id: dialect_hash
         run: python .github/scripts/codspeed_sweep_dialect_hash.py
