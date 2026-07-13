@@ -26,7 +26,13 @@ impl PositionMarker {
     ) -> Self {
         let (working_line_no, working_line_pos) = match (working_line_no, working_line_pos) {
             (Some(working_line_no), Some(working_line_pos)) => (working_line_no, working_line_pos),
-            _ => templated_file.get_line_pos_of_char_pos(source_slice.start, false),
+            // Mirror Python's `PositionMarker.__post_init__`, which defaults the
+            // working position to `templated_position()` — i.e. the *templated*
+            // slice start against the templated newlines (see markers.py). Using
+            // `source_slice.start` here diverges for templated files where the
+            // source and templated offsets differ (e.g. a Jinja `{{ ... }}`
+            // placeholder), over-counting lines for segments after the placeholder.
+            _ => templated_file.get_line_pos_of_char_pos(templated_slice.start, false),
         };
 
         Self {
@@ -77,8 +83,10 @@ impl PositionMarker {
 
     #[must_use]
     pub fn templated_position(&self) -> (usize, usize) {
+        // Mirror Python `PositionMarker.templated_position`: the templated slice
+        // start against the templated newlines (markers.py).
         self.templated_file
-            .get_line_pos_of_char_pos(self.source_slice.start, false)
+            .get_line_pos_of_char_pos(self.templated_slice.start, false)
     }
 
     #[must_use]

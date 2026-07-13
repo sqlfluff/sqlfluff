@@ -264,7 +264,10 @@ class RsSegment:
 
     @property
     def type(self) -> str:
-        return self._h.type
+        # Native `BaseSegment.type` is the concrete class's `type` attribute
+        # (the class-level type), NOT the instance override.  `get_type()` below
+        # returns the instance type (`self._h.type`).
+        return self._h.class_type()
 
     def get_type(self) -> str:
         return self._h.type

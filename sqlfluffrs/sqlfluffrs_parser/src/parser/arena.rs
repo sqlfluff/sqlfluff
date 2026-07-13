@@ -52,6 +52,10 @@ enum ArenaKind {
     Raw {
         segment_class: Cow<'static, str>,
         segment_type: Cow<'static, str>,
+        /// Class-level type (native ``BaseSegment.type``); differs from
+        /// ``segment_type`` (native ``get_type()``) when a parser assigns an
+        /// instance override (e.g. class ``symbol`` vs. instance ``star``).
+        class_type: Cow<'static, str>,
         raw: String,
         instance_types: Vec<String>,
         class_types: Vec<String>,
@@ -159,6 +163,7 @@ impl Arena {
             Node::Raw {
                 segment_class,
                 segment_type,
+                class_type,
                 raw,
                 pos_marker,
                 instance_types,
@@ -168,6 +173,7 @@ impl Arena {
                 ArenaKind::Raw {
                     segment_class: segment_class.clone(),
                     segment_type: segment_type.clone(),
+                    class_type: class_type.clone(),
                     raw: raw.clone(),
                     instance_types: instance_types.clone(),
                     class_types: class_types.clone(),
@@ -319,6 +325,24 @@ impl Arena {
     pub fn get_type(&self, id: NodeId) -> String {
         match &self.node(id).kind {
             ArenaKind::Raw { segment_type, .. } => segment_type.to_string(),
+            ArenaKind::Segment { segment_type, .. } => {
+                segment_type.as_deref().unwrap_or_default().to_string()
+            }
+            ArenaKind::Meta { meta_type, .. } => meta_type_str(meta_type).to_string(),
+            ArenaKind::Unparsable { .. } => "unparsable".to_string(),
+            ArenaKind::Empty => "empty".to_string(),
+        }
+    }
+
+    /// Class-level type string (mirrors native `BaseSegment.type` — the concrete
+    /// class's `type` attribute).  For a Raw this is the stored `class_type`
+    /// (which differs from `get_type()` when a parser assigned an instance
+    /// override, e.g. class `symbol` vs. instance `star`).  For containers the
+    /// class type equals `segment_type` (no instance override), and metas carry
+    /// no override so it equals `get_type()`.
+    pub(crate) fn class_type(&self, id: NodeId) -> String {
+        match &self.node(id).kind {
+            ArenaKind::Raw { class_type, .. } => class_type.to_string(),
             ArenaKind::Segment { segment_type, .. } => {
                 segment_type.as_deref().unwrap_or_default().to_string()
             }

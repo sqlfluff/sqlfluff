@@ -159,6 +159,13 @@ impl PyHandle {
         self.inner.lock().unwrap().get_type(self.node)
     }
 
+    /// Class-level type (mirrors native `BaseSegment.type` — the concrete
+    /// class's `type` attr), as opposed to `type`/`get_type()` which returns the
+    /// per-instance override.
+    fn class_type(&self) -> String {
+        self.inner.lock().unwrap().class_type(self.node)
+    }
+
     fn is_type(&self, seg_type: Vec<String>) -> bool {
         let a = self.inner.lock().unwrap();
         seg_type.iter().any(|t| a.is_type(self.node, t))
