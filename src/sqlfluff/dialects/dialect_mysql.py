@@ -372,6 +372,21 @@ mysql_dialect.add(
 )
 
 
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
+    """A MySQL `GROUP BY` clause, adding the `WITH ROLLUP` modifier.
+
+    https://dev.mysql.com/doc/refman/8.0/en/group-by-modifiers.html
+    """
+
+    match_grammar = ansi.GroupByClauseSegment.match_grammar.copy(
+        insert=[Sequence("WITH", "ROLLUP", optional=True)],
+        # Insert before ANSI's trailing ``Dedent`` so ``WITH ROLLUP`` stays
+        # inside the ``GROUP BY`` indentation block rather than escaping it and
+        # dedenting onto its own line (review feedback on #8066).
+        before=Dedent,
+    )
+
+
 class TableReferenceSegment(ansi.TableReferenceSegment):
     """A reference to a table.
 
