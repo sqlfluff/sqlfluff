@@ -343,11 +343,17 @@ impl<'a, 'py> FromPyObject<'a, 'py> for PySqlFluffTemplatedFile {
                 .call1((obj.to_owned(), callback))?
                 .unbind())
         })();
+        let mut cache = PY_TEMPLATED_FILE_CACHE.lock().unwrap();
+        // Re-check under the lock: the extraction above runs arbitrary Python,
+        // so a nested/concurrent conversion of the same object may have cached
+        // an entry already. Return that Arc rather than overwriting it, so
+        // every conversion of one Python object yields the same allocation
+        // (markers pointer-compare templated files on the fast path).
+        if let Some((cached, _)) = cache.get(&key) {
+            return Ok(Self(PyTemplatedFile(cached.clone())));
+        }
         if let Ok(weakref) = weakref {
-            PY_TEMPLATED_FILE_CACHE
-                .lock()
-                .unwrap()
-                .insert(key, (tf.0 .0.clone(), weakref));
+            cache.insert(key, (tf.0 .0.clone(), weakref));
         }
         Ok(tf)
     }
