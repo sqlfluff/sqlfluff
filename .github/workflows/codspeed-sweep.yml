@@ -1,0 +1,321 @@
+#####################################
+## CodSpeed Historical Commit Sweep ##
+#####################################
+#
+# Manually-triggered sweep of the last N commits on `main` (not older than
+# v4.2.2, since rust_parser.py doesn't exist before it), benchmarking each with
+# pytest-codspeed (test/test_codspeed_tpc_parse.py) across all 3 parser
+# modes (python / rust_legacy / rust_native_ast) x 2 suites
+# (tpch / tpcds). This is the CI equivalent of the local utils/perf_sweep
+# tool, using CodSpeed's own noise mitigation instead of a hand-rolled
+# valgrind/adaptive-walltime harness.
+#
+# Two instrument types per commit:
+#   - walltime, on codspeed-macro (bare-metal ARM64): real elapsed time,
+#     needs dedicated hardware to be low-noise.
+#   - simulation + memory, on ubuntu-24.04-arm (standard GitHub-hosted
+#     ARM64): Valgrind-based Ir count, already deterministic, doesn't need
+#     bare metal.
+#
+# Both run on the same architecture (ARM64) on purpose: a `build` job
+# compiles the sqlfluffrs wheel once per commit (manylinux-compliant, via
+# PyO3/maturin-action, so it's portable between ubuntu-24.04-arm's and
+# codspeed-macro's separate underlying images) and both benchmark jobs
+# download that same artifact instead of each rebuilding it.
+#
+# CodSpeed does not support two runs for the same commit SHA (a duplicate
+# produces an error, not an aggregate), so re-dispatching this workflow must
+# skip commits already swept. `.github/codspeed-swept.json` tracks that,
+# committed back by the `finalize` job once both instrument types succeed
+# for a commit.
+#
+# Prerequisites (not part of this workflow):
+#   - A CodSpeed project must exist for this repo, with CODSPEED_TOKEN added
+#     as a secret here.
+#   - codspeed-macro must be enabled for this repo/org in CodSpeed's
+#     dashboard.
+#
+name: CodSpeed Historical Sweep
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_count:
+        description: Number of most recent commits on main to sweep (skips any already recorded in .github/codspeed-swept.json)
+        required: true
+        default: "10"
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      all_shas: ${{ steps.plan.outputs.all_shas }}
+      has_work: ${{ steps.plan.outputs.has_work }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Compute commits to sweep
+        id: plan
+        env:
+          COMMIT_COUNT: ${{ inputs.commit_count }}
+        run: python .github/scripts/codspeed_sweep_plan.py
+
+  build:
+    name: build ${{ matrix.sha }}
+    needs: plan
+    if: needs.plan.outputs.has_work == 'true'
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        sha: ${{ fromJson(needs.plan.outputs.all_shas) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Checkout target commit
+        run: git checkout --force ${{ matrix.sha }}
+
+      - name: Compute dialect generation hash
+        id: dialect_hash
+        run: python .github/scripts/codspeed_sweep_dialect_hash.py
+
+      - name: Cache generated Rust dialect files
+        # Architecture-independent text output, so this key is shared across
+        # commits in the sweep that don't touch dialect/grammar code, which
+        # is most of them. Skips ~105s of codegen (per local perf_sweep
+        # timings) on a hit.
+        id: dialect_cache
+        uses: actions/cache@v4
+        with:
+          path: sqlfluffrs/sqlfluffrs_dialects/src/dialect
+          key: dialect-gen-${{ steps.dialect_hash.outputs.hash }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            constraints/*.txt
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "sqlfluffrs"
+          cache-on-failure: true
+          # Not scoped to matrix.sha: shared across the whole sweep (and
+          # future ones), for real incremental builds.
+          key: ${{ runner.arch }}
+
+      - name: Install sqlfluff (needed for rustify.py's dialect introspection)
+        if: steps.dialect_cache.outputs.cache-hit != 'true'
+        run: uv pip install --system -e .
+
+      - name: Generate Rust dialect files
+        if: steps.dialect_cache.outputs.cache-hit != 'true'
+        run: python utils/rustify.py build
+
+      - name: Build the Rust extension (release, manylinux)
+        uses: PyO3/maturin-action@v1
+        with:
+          target: aarch64
+          args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
+          manylinux: auto
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.sha }}
+          path: dist
+
+  benchmark-walltime:
+    name: walltime ${{ matrix.sha }}
+    needs: [plan, build]
+    # always(): a build failure for one commit (fail-fast: false) reports
+    # the overall `build` job as failed, which would otherwise skip this
+    # job entirely for every commit. The download-artifact step below fails
+    # cleanly for whichever specific commit's build actually failed instead.
+    if: always() && needs.plan.outputs.has_work == 'true'
+    runs-on: codspeed-macro
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        sha: ${{ fromJson(needs.plan.outputs.all_shas) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Checkout target commit
+        run: git checkout --force ${{ matrix.sha }}
+
+      - name: Restore the benchmark driver from the dispatched ref
+        # test/test_codspeed_tpc_parse.py is the fixed driver this workflow
+        # runs, not part of what's being measured. Restoring it from the
+        # ref that triggered this run (not matrix.sha) keeps it present even
+        # when matrix.sha predates this file's addition, mirroring how the
+        # local perf_sweep tool keeps bench_runner.py fixed while only
+        # rolling a separate worktree back to the historical commit.
+        run: git checkout ${{ github.sha }} -- test/test_codspeed_tpc_parse.py
+
+      - name: Download prebuilt wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: wheel-${{ matrix.sha }}
+          path: dist
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            constraints/*.txt
+
+      - name: Cache downloaded TPC fixtures
+        # Keep this key's suffix in sync with _DORIS_SHA in
+        # test/test_codspeed_tpc_parse.py.
+        uses: actions/cache@v4
+        with:
+          path: test/.cache/tpc
+          key: tpc-fixtures-3a2d9d55f1e8e2d74187179ef89c36c8562815fd
+
+      - name: Install dependencies
+        # Only what test/test_codspeed_tpc_parse.py actually needs, not the
+        # full requirements_dev.txt (ruff, mypy[mypyc], doc8, ...), which
+        # this per-commit job would otherwise reinstall on every run for no
+        # benefit.
+        run: |
+          uv pip install --system -e .
+          uv pip install --system pytest pytest-codspeed
+
+      - name: Install the prebuilt sqlfluffrs wheel
+        run: python -m pip install --force-reinstall --no-deps --no-index --find-links=dist sqlfluffrs
+
+      - name: Run CodSpeed walltime benchmarks
+        uses: CodSpeedHQ/action@v4
+        with:
+          mode: walltime,memory
+          token: ${{ secrets.CODSPEED_TOKEN }}
+          run: pytest test/test_codspeed_tpc_parse.py --codspeed
+
+  benchmark-simulation:
+    name: simulation ${{ matrix.sha }}
+    needs: [plan, build]
+    if: always() && needs.plan.outputs.has_work == 'true'
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        sha: ${{ fromJson(needs.plan.outputs.all_shas) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Checkout target commit
+        run: git checkout --force ${{ matrix.sha }}
+
+      - name: Restore the benchmark driver from the dispatched ref
+        # test/test_codspeed_tpc_parse.py is the fixed driver this workflow
+        # runs, not part of what's being measured. Restoring it from the
+        # ref that triggered this run (not matrix.sha) keeps it present even
+        # when matrix.sha predates this file's addition, mirroring how the
+        # local perf_sweep tool keeps bench_runner.py fixed while only
+        # rolling a separate worktree back to the historical commit.
+        run: git checkout ${{ github.sha }} -- test/test_codspeed_tpc_parse.py
+
+      - name: Download prebuilt wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: wheel-${{ matrix.sha }}
+          path: dist
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements_dev.txt
+            pyproject.toml
+            constraints/*.txt
+
+      - name: Cache downloaded TPC fixtures
+        uses: actions/cache@v4
+        with:
+          path: test/.cache/tpc
+          key: tpc-fixtures-3a2d9d55f1e8e2d74187179ef89c36c8562815fd
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e .
+          uv pip install --system pytest pytest-codspeed
+
+      - name: Install the prebuilt sqlfluffrs wheel
+        run: python -m pip install --force-reinstall --no-deps --no-index --find-links=dist sqlfluffrs
+
+      - name: Run CodSpeed simulation/memory benchmarks
+        uses: CodSpeedHQ/action@v4
+        with:
+          mode: simulation,memory
+          token: ${{ secrets.CODSPEED_TOKEN }}
+          run: pytest test/test_codspeed_tpc_parse.py --codspeed
+
+  finalize:
+    needs: [plan, build, benchmark-walltime, benchmark-simulation]
+    if: always() && needs.plan.outputs.has_work == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      # Listing this run's own jobs (codspeed_sweep_finalize.py's `gh api
+      # .../jobs` call) needs actions: read. An explicit permissions block
+      # sets every unlisted scope to none, not a default read level, so this
+      # would otherwise 403 on every run.
+      actions: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Determine which commits fully succeeded and record them
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: python .github/scripts/codspeed_sweep_finalize.py
+
+      - name: Commit tracking file
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: python .github/scripts/codspeed_sweep_commit.py
