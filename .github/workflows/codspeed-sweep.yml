@@ -271,7 +271,11 @@ jobs:
         timeout-minutes: 80
         uses: CodSpeedHQ/action@v4
         with:
-          mode: walltime,memory
+          # walltime only: the memory instrument runs in the simulation
+          # shards. Measuring it here too would measure every benchmark
+          # twice per commit with the same instrument, which CodSpeed
+          # rejects as a duplicate.
+          mode: walltime
           token: ${{ secrets.CODSPEED_TOKEN }}
           run: pytest test/test_codspeed_tpc_parse.py --codspeed
 
