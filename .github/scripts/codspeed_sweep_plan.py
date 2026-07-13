@@ -7,23 +7,47 @@ module-level import would fail outright on anything older, a much older
 boundary than the native_ast skip guard in test_codspeed_tpc_parse.py,
 which covers commits *after* this floor but before PR #7983), drops any
 commit already recorded in .github/codspeed-swept.json, further drops any
-commit that utils/perf_sweep/gitrange.classify_skip would skip (dialect,
-rules, docs, tests, or similarly perf-irrelevant diffs, same reasoning as
-the local sweep tool), and writes `all_shas`/`has_work` to $GITHUB_OUTPUT.
+commit whose entire diff is perf-irrelevant (see SKIP_PATTERNS below, ported
+from the retired utils/perf_sweep tool's gitrange.classify_skip since that
+tool no longer exists in this repo), and writes `all_shas`/`has_work` to
+$GITHUB_OUTPUT.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from utils.perf_sweep.gitrange import classify_skip  # noqa: E402
 
 SWEPT_PATH = ".github/codspeed-swept.json"
+
+# A commit is skippable only if *every* changed path matches one of these.
+# Dialect source + its tests/fixtures, plus docs/changelog/CI config, none
+# of which can move parse performance.
+SKIP_PATTERNS = [
+    re.compile(r"^src/sqlfluff/dialects/"),
+    re.compile(r"^src/sqlfluff/rules/"),
+    re.compile(r"^src/sqlfluff/core/rules?/"),
+    re.compile(r"^src/sqlfluff/core/templaters/"),
+    re.compile(r"^test/"),
+    re.compile(r"^CHANGELOG\.md$"),
+    re.compile(r"(^|/)AGENTS\.md$"),
+    re.compile(r"^docs/"),
+    re.compile(r"^docsv/"),
+    re.compile(r"^plugins/"),
+    re.compile(r"^utils/"),
+    re.compile(r"^\.github/"),
+    re.compile(r"^pyproject\.toml$"),
+    re.compile(r"^sqlfluffrs/sqlfluffrs_benchmarks/"),
+    re.compile(r"^sqlfluffrs/tests?/"),
+]
+
+
+def _is_skippable(files: list) -> bool:
+    # An empty diff (e.g. a no-op merge commit) is skippable too, same as
+    # the retired tool's classify_skip.
+    return not files or all(any(p.match(f) for p in SKIP_PATTERNS) for f in files)
 
 
 def _changed_files(sha: str) -> list:
@@ -54,8 +78,7 @@ def main() -> None:
     benchmarkable = []
     skipped = 0
     for sha in remaining:
-        skip, _reason = classify_skip(_changed_files(sha))
-        if skip:
+        if _is_skippable(_changed_files(sha)):
             skipped += 1
         else:
             benchmarkable.append(sha)
