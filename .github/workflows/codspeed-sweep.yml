@@ -51,6 +51,8 @@ on:
 jobs:
   plan:
     runs-on: ubuntu-latest
+    # Runs in seconds; the timeout only guards against a hung git fetch.
+    timeout-minutes: 10
     outputs:
       all_shas: ${{ steps.plan.outputs.all_shas }}
       has_work: ${{ steps.plan.outputs.has_work }}
@@ -72,6 +74,9 @@ jobs:
     needs: plan
     if: needs.plan.outputs.has_work == 'true'
     runs-on: ubuntu-24.04-arm
+    # ~2 min with warm caches; a dialect-cache miss adds ~3 min and a cold
+    # Rust dependency cache means compiling the workspace from scratch.
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -171,6 +176,7 @@ jobs:
         run: python utils/rustify.py build
 
       - name: Build the Rust extension (release, manylinux)
+        timeout-minutes: 35
         uses: PyO3/maturin-action@v1
         with:
           target: aarch64
@@ -192,6 +198,10 @@ jobs:
     # cleanly for whichever specific commit's build actually failed instead.
     if: always() && needs.plan.outputs.has_work == 'true'
     runs-on: codspeed-macro
+    # The full suite is ~2.5 min natively; walltime mode runs multiple
+    # rounds plus the memory instrument. Queue time waiting for a
+    # codspeed-macro runner does not count towards this.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -256,6 +266,7 @@ jobs:
         run: python -m pip install --force-reinstall --no-deps --no-index --find-links=dist sqlfluffrs
 
       - name: Run CodSpeed walltime benchmarks
+        timeout-minutes: 80
         uses: CodSpeedHQ/action@v4
         with:
           mode: walltime,memory
@@ -267,6 +278,9 @@ jobs:
     needs: [plan, build]
     if: always() && needs.plan.outputs.has_work == 'true'
     runs-on: ubuntu-24.04-arm
+    # The whole unsharded suite took ~84 min under Valgrind; the slowest
+    # shard (python-tpcds) is expected around 45-55 min.
+    timeout-minutes: 75
     strategy:
       fail-fast: false
       max-parallel: 8
@@ -340,6 +354,7 @@ jobs:
         run: python -m pip install --force-reinstall --no-deps --no-index --find-links=dist sqlfluffrs
 
       - name: Run CodSpeed simulation/memory benchmarks
+        timeout-minutes: 70
         uses: CodSpeedHQ/action@v4
         with:
           mode: simulation,memory
@@ -350,6 +365,9 @@ jobs:
     needs: [plan, build, benchmark-walltime, benchmark-simulation]
     if: always() && needs.plan.outputs.has_work == 'true'
     runs-on: ubuntu-latest
+    # Runs in seconds; the timeout only guards against a hung API call
+    # or git push.
+    timeout-minutes: 10
     permissions:
       contents: write
       # Listing this run's own jobs (codspeed_sweep_finalize.py's `gh api
