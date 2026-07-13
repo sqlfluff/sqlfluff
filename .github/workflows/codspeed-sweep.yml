@@ -83,17 +83,36 @@ jobs:
       - name: Checkout target commit
         run: git checkout --force ${{ matrix.sha }}
 
-      - name: Restore the hash script from the dispatched ref
-        # codspeed_sweep_dialect_hash.py is fixed sweep tooling that hashes
-        # the target commit's worktree, not part of what's being measured.
-        # Restoring it from the ref that triggered this run (not matrix.sha)
-        # keeps it present even when matrix.sha predates this file's
-        # addition, same as the benchmark jobs do for the driver below.
-        run: git checkout ${{ github.sha }} -- .github/scripts/codspeed_sweep_dialect_hash.py
-
       - name: Compute dialect generation hash
         id: dialect_hash
-        run: python .github/scripts/codspeed_sweep_dialect_hash.py
+        # Content-addressed key for the dialect-codegen inputs, from git
+        # object IDs at the checked-out target commit (blob IDs for files,
+        # tree IDs for directories, so any change under a directory changes
+        # its ID). `utils/rustify.py build` regenerates the cached output
+        # from exactly these inputs. Paths absent at older commits key as
+        # "absent"; the guard only trips if there are no inputs at all,
+        # which would mean a broken checkout.
+        run: |
+          inputs=$(
+            for path in \
+              utils/rustify.py \
+              utils/build_dialect.py \
+              utils/build_lexers.py \
+              utils/build_parsers.py \
+              utils/build_dialects.py \
+              src/sqlfluff/core/dialects \
+              src/sqlfluff/core/parser \
+              src/sqlfluff/dialects
+            do
+              echo "$path $(git rev-parse --quiet --verify "HEAD:$path" || echo absent)"
+            done
+          )
+          echo "$inputs"
+          if ! echo "$inputs" | grep -qv 'absent$'; then
+            echo "none of the dialect-generation paths exist in this checkout" >&2
+            exit 1
+          fi
+          echo "hash=$(echo "$inputs" | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
       - name: Cache generated Rust dialect files
         # Architecture-independent text output, so this key is shared across
