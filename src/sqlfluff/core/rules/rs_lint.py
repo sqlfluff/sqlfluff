@@ -21,7 +21,16 @@ Detection and fixing match native SQLFluff for the covered rules.
 from __future__ import annotations
 
 import re
+import weakref
 from typing import Any, Iterator, Optional, cast
+
+# Interning cache so the same arena node always yields the same RsSegment object.
+# Keyed by node uuid (a globally-unique monotonic counter), held weakly so
+# wrappers are freed once no longer referenced. This makes identity (`x is y`)
+# comparisons — used across the rule engine — behave like they do on native
+# BaseSegment instances, without which navigation returns a fresh wrapper each
+# time and `is` never matches (causing e.g. infinite recursion in alias analysis).
+_INTERN: "weakref.WeakValueDictionary[int, RsSegment]" = weakref.WeakValueDictionary()
 
 # Rules whose façade multi-pass source-patch FIX output is byte-identical to
 # native SQLFluff across every case in that rule's ``std_rule_cases`` fixture.
@@ -98,11 +107,25 @@ class RsSegment:
     ``RawSegment`` for fix construction, but the arena itself is never mutated.
     """
 
-    __slots__ = ("_h", "_segments")
+    __slots__ = ("_h", "_segments", "__weakref__")
+    _h: Any
+    _segments: Optional[tuple["RsSegment", ...]]
+
+    def __new__(cls, handle: Any) -> "RsSegment":
+        # Intern by node uuid so the same node returns the same object (identity
+        # stability). Field init happens here, not __init__, because __init__
+        # still runs when __new__ returns a cached instance.
+        obj = _INTERN.get(handle.uuid)
+        if obj is None:
+            obj = object.__new__(cls)
+            obj._h = handle
+            obj._segments = None
+            _INTERN[handle.uuid] = obj
+        return obj
 
     def __init__(self, handle: Any) -> None:
-        self._h = handle
-        self._segments: Optional[tuple[RsSegment, ...]] = None
+        # No-op: see __new__ (must not clobber a cached instance's state).
+        pass
 
     # -- identity ------------------------------------------------------------
     def __eq__(self, other: object) -> bool:

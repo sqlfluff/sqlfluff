@@ -121,8 +121,11 @@ impl Arena {
     }
 
     fn next_uuid(&self) -> u128 {
-        // Random v4 uuid, mirroring Python's `uuid4().int` identity semantics.
-        uuid::Uuid::new_v4().as_u128()
+        // Monotonic tagged counter (same source as tokens, #7997). Node identity
+        // only needs per-arena uniqueness + stability — not randomness — so this
+        // avoids a CSPRNG draw per node (the arena mints one per segment). The
+        // RUST_TAG in `next_id` keeps these disjoint from Python-minted ids.
+        sqlfluffrs_types::identity::next_id()
     }
 
     fn alloc(
