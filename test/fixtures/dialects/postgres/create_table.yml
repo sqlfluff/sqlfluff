@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 38b09e8ec8aacea1a432798cbc2b874c94fdbf2b3ab4d7eeda65bcb4b11198db
+_hash: b18abb6574c720134a4a1fb94d742923fdf23a612ff691f5184af935367756cc
 file:
 - statement:
     create_table_statement:
@@ -2476,4 +2476,140 @@ file:
           data_type:
             keyword: bigint
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: virtual_generated
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            keyword: bigint
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: is_small
+          data_type:
+            keyword: boolean
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                  comparison_operator:
+                    raw_comparison_operator: <
+                  numeric_literal: '10'
+                end_bracket: )
+          - keyword: VIRTUAL
+      - comma: ','
+      - column_definition:
+          naked_identifier: full_name
+          data_type:
+            keyword: text
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                    naked_identifier: first_name
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: "' '"
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - column_reference:
+                    naked_identifier: last_name
+                end_bracket: )
+          - keyword: VIRTUAL
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: stored_generated
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            keyword: bigint
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: sum_col
+          data_type:
+            keyword: integer
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                    naked_identifier: a
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: b
+                end_bracket: )
+          - keyword: STORED
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bare_generated
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            keyword: bigint
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: flag
+          data_type:
+            keyword: boolean
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '0'
+                end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;
