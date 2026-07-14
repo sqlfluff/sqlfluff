@@ -902,6 +902,20 @@ def test__rust_parser__vs_python_crossed_bracket_after_mismatch_raises(sql):
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_unclosed_nested_bracket_error_position():
+    """An unclosed bracket nested inside another should be blamed, not its parent.
+
+    For brackets unclosed to EOF and nested two or more levels deep (e.g.
+    an unclosed '(' containing an unclosed '['), the "couldn't find closing
+    bracket" error should point at the innermost open bracket. This matches
+    Python's resolve_bracket, which recurses into each opening bracket and
+    raises from that recursive call once it reaches EOF.
+    """
+    rust_result, python_result = _compare_parser_vs_rust("SELECT a(b[1")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__vs_python_stray_bracket_swallows_union_arm():
     """A stray ')' before UNION: Rust now discards the second arm too, matching Python.
 
