@@ -52,17 +52,17 @@ class Rule_TQ04(BaseRule):
             return None
 
         if context.dialect.name != "tsql":
-            return None  # pragma: no cover
+            return None
 
         alias_expression = context.segment
         if not alias_expression.is_type("alias_expression"):  # pragma: no cover
             return None
 
         alias_operator = alias_expression.get_child("alias_operator")
-        if alias_operator is None:  # pragma: no cover
+        if alias_operator is None:
             return None
 
-        if getattr(alias_operator, "raw", None) != "=":
+        if alias_operator.raw != "=":
             return None
 
         select_clause_element = context.parent_stack[-1]
@@ -104,20 +104,40 @@ class Rule_TQ04(BaseRule):
             ]
             if seg.is_type("whitespace", "newline")
         ]
+        segments_before_expression = select_clause_segments[
+            alias_expression_idx + 1 : expression_segment_idx
+        ]
         whitespace_after_operator = [
             seg
-            for seg in select_clause_segments[
-                alias_expression_idx + 1 : expression_segment_idx
-            ]
+            for seg in segments_before_expression
             if seg.is_type("whitespace", "newline")
         ]
+        has_non_whitespace_before_expression = any(
+            not seg.is_type("whitespace", "newline")
+            for seg in segments_before_expression
+        )
+        expression_prefix_segments = (
+            segments_before_expression[1:]
+            if segments_before_expression
+            and segments_before_expression[0].is_type("whitespace", "newline")
+            and has_non_whitespace_before_expression
+            else segments_before_expression
+            if has_non_whitespace_before_expression
+            else []
+        )
+        expression_to_alias_spacing = (
+            [WhitespaceSegment()]
+            if has_non_whitespace_before_expression
+            else whitespace_after_operator or [WhitespaceSegment()]
+        )
 
         as_alias_operator_segment = AsAliasOperatorSegment(
             segments=(KeywordSegment("AS"),)
         )
         edit_segments: list[BaseSegment] = [
+            *expression_prefix_segments,
             expression_segment,
-            *(whitespace_after_operator or [WhitespaceSegment()]),
+            *expression_to_alias_spacing,
             as_alias_operator_segment,
             *(whitespace_before_operator or [WhitespaceSegment()]),
             alias_identifier,
@@ -129,7 +149,7 @@ class Rule_TQ04(BaseRule):
             fixes=[
                 LintFix.replace(
                     select_clause_element,
-                    edit_segments,
+                    [select_clause_element.copy(segments=tuple(edit_segments))],
                     source=select_clause_segments,
                 )
             ],
