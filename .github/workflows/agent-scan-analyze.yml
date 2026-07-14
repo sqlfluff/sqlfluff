@@ -1,0 +1,47 @@
+name: agent-scan-analyze
+
+on:
+  # DO NOT add action/checkout in this workflow as it use pull_request_target
+  pull_request:
+    types:
+      - opened
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run AgentScan classification
+        id: agentscan
+        uses: MatteoGabriele/agentscan-action@c7d61446e7aece6bdd3edcee4558bbfc0392615e # v2.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          mode: "labels"
+          trusted-author-associations: "owner, member"
+
+      - name: Write moderation payload
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          CLASSIFICATION: ${{ steps.agentscan.outputs.classification }}
+          COMMUNITY_FLAGGED: ${{ steps.agentscan.outputs.community-flagged }}
+        run: |
+          cat > moderation.json <<EOF
+          {
+            "pr_number": ${PR_NUMBER},
+            "classification": "${CLASSIFICATION}",
+            "community_flagged": ${COMMUNITY_FLAGGED}
+          }
+          EOF
+
+      - name: Upload moderation payload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # 7.0.1
+        with:
+          name: agentscan-result
+          path: moderation.json
+          if-no-files-found: error
+          retention-days: 1
