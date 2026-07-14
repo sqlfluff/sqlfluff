@@ -694,7 +694,7 @@ def _compare_parser_vs_rust(sql: str, dialect: str = "ansi"):
                 else None,
             )
         except BaseException as err:
-            return ("exc", type(err).__name__)
+            return ("exc", type(err).__name__, str(err))
 
     return build(True), build(False)
 

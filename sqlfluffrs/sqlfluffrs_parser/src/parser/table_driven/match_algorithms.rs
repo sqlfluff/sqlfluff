@@ -75,29 +75,38 @@ fn try_match_grammar(
 /// skipping over any properly nested, already-resolved bracket pairs along
 /// the way (same technique as `greedy_match`'s own bracket-skip).
 ///
-/// An unresolved token found this way must be a *closing* bracket of the
-/// wrong type: if it were the correct type for whatever opener is looking
-/// for it, lexing would already have paired them (see
-/// `sqlfluffrs_lexer::compute_bracket_pairs`). Returns `(index, raw_char)`
-/// for that mismatched closer, or `None` if genuinely nothing is found
-/// before `tokens.len()` (a real "unclosed to EOF" case) or another
-/// unresolved *opening* bracket is hit first (ambiguous - fall back to the
-/// generic message rather than guess).
+/// `open_char` tracks the innermost bracket type currently "active", to
+/// report the correct expected-closer type in the returned tuple. It
+/// starts as the opener at `from_idx - 1`, and updates to each further
+/// unresolved opener found along the way, matching Python's
+/// `resolve_bracket` recursing one level deeper for every bracket it opens.
+///
+/// Returns `(index, raw_char, expected_open)` for the mismatched closer,
+/// or `None` if genuinely nothing is found before `tokens.len()` (a real
+/// "unclosed to EOF" case).
 ///
 /// Used to distinguish Python's two distinct bracket-resolution failures
 /// (`resolve_bracket`, match_algorithms.py): "Couldn't find closing bracket
 /// for opening bracket" (genuinely unclosed) vs. "Found unexpected end
 /// bracket!, was expecting X, but got Y" (closed by the wrong type).
-fn find_mismatched_closing_bracket(tokens: &[Token], from_idx: usize) -> Option<(usize, String)> {
+fn find_mismatched_closing_bracket(
+    tokens: &[Token],
+    from_idx: usize,
+    open_char: char,
+) -> Option<(usize, String, char)> {
     let mut idx = from_idx;
+    let mut open_char = open_char;
     while idx < tokens.len() {
         let raw = tokens[idx].raw();
         match raw {
             "(" | "[" | "{" => match tokens[idx].matching_bracket_idx {
                 Some(matching_idx) => idx = matching_idx + 1,
-                None => return None,
+                None => {
+                    open_char = raw.chars().next().expect("bracket raw is non-empty");
+                    idx += 1;
+                }
             },
-            ")" | "]" | "}" => return Some((idx, raw.to_string())),
+            ")" | "]" | "}" => return Some((idx, raw.to_string(), open_char)),
             _ => idx += 1,
         }
     }
@@ -230,14 +239,15 @@ impl Parser<'_> {
                     // its specific "wrong bracket type" error when the closer
                     // ahead is mismatched, keeping the generic "never closed"
                     // message for the true unclosed-to-EOF case.
-                    if let Some((mismatch_idx, actual_close)) =
-                        find_mismatched_closing_bracket(tokens, i + 1)
+                    let open_char = raw.chars().next().expect("bracket raw is non-empty");
+                    if let Some((mismatch_idx, actual_close, innermost_open)) =
+                        find_mismatched_closing_bracket(tokens, i + 1, open_char)
                     {
-                        let expected_close = match raw {
-                            "(" => ")",
-                            "[" => "]",
-                            "{" => "}",
-                            _ => unreachable!("raw already matched an opening bracket above"),
+                        let expected_close = match innermost_open {
+                            '(' => ")",
+                            '[' => "]",
+                            '{' => "}",
+                            _ => unreachable!("open_char is always a bracket character"),
                         };
                         vdebug!(
                             "[GREEDY_MATCH_TABLE] greedy_match: mismatched closing bracket '{}' at {} for opening bracket at {} (expected '{}')",
