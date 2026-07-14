@@ -1,8 +1,8 @@
 """Implementation of Rule RF07."""
 
+from sqlfluff.core.dialects.common import qualification
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.select import get_select_statement_info
 
 
@@ -51,16 +51,28 @@ class Rule_RF07(BaseRule):
             if parent.is_type("select_statement"):
                 select_statement = parent
                 break
-        if select_statement is None:
+        if select_statement is None:  # pragma: no cover
             return None
 
         select_info = get_select_statement_info(select_statement, context.dialect)
         # Only relevant when the alias could collide with a column on another
         # table, i.e. when more than one table is referenced.
-        if not select_info or len(select_info.table_aliases) <= 1:
+        if not select_info:  # pragma: no cover
+            return None
+        if len(select_info.table_aliases) <= 1:
             return None
 
-        alias_names = {c.alias_identifier_name for c in select_info.col_aliases}
+        # Normalized names of the aliases declared in this SELECT.
+        alias_names = {
+            identifier.raw_normalized()
+            for element in select_statement.recursive_crawl(
+                "select_clause_element", no_recursive_seg_type="select_statement"
+            )
+            for alias_expression in element.recursive_crawl(
+                "alias_expression", no_recursive_seg_type="select_statement"
+            )
+            for identifier in alias_expression.recursive_crawl("identifier")
+        }
         if not alias_names:
             return None
 
@@ -71,11 +83,9 @@ class Rule_RF07(BaseRule):
             for reference in clause.recursive_crawl(
                 "column_reference", no_recursive_seg_type="select_statement"
             ):
-                if not isinstance(reference, ObjectReferenceSegment):
+                if qualification(reference, context.dialect.name) != "unqualified":
                     continue
-                if reference.qualification() != "unqualified":
-                    continue
-                if reference.raw in alias_names:
+                if reference.raw_normalized() in alias_names:
                     results.append(
                         LintResult(
                             anchor=reference,
