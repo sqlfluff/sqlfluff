@@ -1433,9 +1433,7 @@ mysql_dialect.add(
                     Ref("ColumnReferenceSegment"),
                     Sequence(
                         Ref("ColumnReferenceSegment"),
-                        # Index prefix length, e.g. `col(10)`. Reuse the datatype
-                        # length segment so LT01 lets it touch, like `VARCHAR(255)`.
-                        Ref("BracketedArguments"),
+                        Ref("IndexColumnPrefixLengthSegment"),
                     ),
                     Bracketed(Ref("ExpressionSegment")),
                 ),
@@ -1490,6 +1488,20 @@ mysql_dialect.insert_lexer_matchers(
     ],
     before="greater_than",
 )
+
+
+class IndexColumnPrefixLengthSegment(BaseSegment):
+    """A column prefix length in an index key part, e.g. `col(10)`.
+
+    Only a single numeric literal is valid here. Typed as `bracketed_arguments`
+    so LT01 lets it touch the column name like a data type length such as
+    `VARCHAR(255)`, rather than a plain bracket.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-index.html#create-index-column-prefixes
+    """
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(Ref("NumericLiteralSegment"))
 
 
 class RoleReferenceSegment(ansi.RoleReferenceSegment):
