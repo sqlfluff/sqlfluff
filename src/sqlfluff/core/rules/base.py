@@ -896,10 +896,11 @@ class BaseRule(metaclass=RuleMetaclass):
             if root_segment
             else None
         )
-        # If no path found (e.g., segment is in unparsable section), return
-        # the original segment. This will be filtered out later in
-        # _process_lint_result if it's in an unparsable section.
-        if not path:
+        # If no path found, return the original segment. This shouldn't
+        # happen in practice given a correctly-parented tree (the anchor
+        # is always a descendant of root_segment), but is kept as a
+        # defensive fallback rather than raising.
+        if not path:  # pragma: no cover
             linter_logger.debug(
                 "No path found from %s to %s. Segment may be in unparsable section. "
                 "Returning original segment as anchor.",

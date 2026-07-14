@@ -329,6 +329,22 @@ def test__parser__base_segments_parent_ref(DummySegment, raw_segments):
     assert seg.segments[0].get_parent()[0]
 
 
+def test__parser__base_segments_copy_segments_reparents_children(
+    DummySegment, raw_segments
+):
+    """Test that .copy(segments=...) reparents the provided children."""
+    old_seg = DummySegment(segments=raw_segments)
+    assert old_seg.segments[0].get_parent()[0] is old_seg
+
+    new_seg = old_seg.copy(segments=raw_segments)
+    assert new_seg is not old_seg
+    # The children should now report the *new* segment as their parent...
+    assert new_seg.segments[0].get_parent()[0] is new_seg
+    assert new_seg.segments[1].get_parent()[0] is new_seg
+    # ...rather than the old one.
+    assert old_seg.segments[0].get_parent()[0] is not old_seg
+
+
 def test__parser__raw_segment_raw_normalized():
     """Test comparison of raw segments."""
     template = TemplatedFile.from_string('"a"""."e"')
