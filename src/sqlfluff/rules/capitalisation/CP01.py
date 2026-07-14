@@ -1,6 +1,6 @@
 """Implementation of Rule CP01."""
 
-from typing import Optional
+from typing import Any, Callable, Optional
 
 import regex
 
@@ -86,23 +86,41 @@ class Rule_CP01(BaseRule):
         if not _HAS_SQLFLUFFRS:
             return None  # pragma: no cover
         # Only CP01 itself: this detection targets keyword/operator segments, so
-        # the subclasses (CP02-CP05 capitalise identifiers/functions/literals/
-        # types) must not use it — they fall back to Python until they get their
-        # own Rust path. CP04 in particular shares `capitalisation_policy`, so a
-        # policy check alone wouldn't exclude it.
+        # subclasses without their own _eval_rust (currently CP02/CP05) must not
+        # use it — they fall back to Python until they get their own Rust path.
+        # CP04 in particular shares `capitalisation_policy`, so a policy check
+        # alone wouldn't exclude it (it has its own override, see CP04.py).
         if self.name != "capitalisation.keywords":
             return None
+        if getattr(self, "ignore_words_regex", None):
+            return None
+        # CP01's capitalisation_policy is validated to one of these four values.
+        policy = str(getattr(self, "capitalisation_policy"))
+        return self._eval_rust_capitalisation(
+            context, sqlfluffrs.cp01_violations, policy
+        )
+
+    def _eval_rust_capitalisation(
+        self,
+        context: RuleContext,
+        violations_fn: Callable[[Any, str, list[str], bool], list[tuple[int, str]]],
+        policy: str,
+    ) -> Optional[list[LintResult]]:
+        """Shared Rust-dispatch plumbing for the capitalisation bundle.
+
+        Each rule with a Rust path (CP01/CP03/CP04) does its own guard checks
+        in its own ``_eval_rust`` (rule identity, arena presence via `None`
+        propagation, `ignore_words_regex`), then delegates here for the FFI
+        call and leaf-index -> segment mapping shared by all of them, keyed on
+        which native `*_violations` function and policy config key the rule
+        uses.
+        """
         root = context.segment
         rs_tree = getattr(root, "_rs_tree", None)
         if rs_tree is None:
             # Unreachable via dispatch (crawl() only calls this when the root
             # has an arena), but guard in case _eval_rust is called directly.
             return None  # pragma: no cover
-
-        if getattr(self, "ignore_words_regex", None):
-            return None
-        # CP01's capitalisation_policy is validated to one of these four values.
-        policy = str(getattr(self, "capitalisation_policy"))
 
         ignore_words_config = str(getattr(self, "ignore_words", None))
         if ignore_words_config and ignore_words_config != "None":
@@ -113,9 +131,7 @@ class Rule_CP01(BaseRule):
             ignore_words = []
         ignore_templated = bool(context.config.get("ignore_templated_areas"))
 
-        violations = sqlfluffrs.cp01_violations(
-            rs_tree, policy, ignore_words, ignore_templated
-        )
+        violations = violations_fn(rs_tree, policy, ignore_words, ignore_templated)
         if not violations:
             return []
 
