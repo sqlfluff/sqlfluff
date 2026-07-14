@@ -51,8 +51,8 @@ Typical reasons include:
   end).
 * The rule needs to traverse the parse tree in a non-standard way.
 
-These rules can override ``BaseRule``'s ``crawl_behaviour`` field, which
-controls how the parse tree is traversed. By default rules use a
+Each rule must provide a ``crawl_behaviour`` field, either directly or through
+inheritance, which controls how the parse tree is traversed. Most rules use a
 ``SegmentSeekerCrawler``, which calls ``_eval()`` for every segment of the
 given type(s). A rule that only needs to look at the whole file once can set
 ``crawl_behaviour = RootOnlyCrawler()`` instead, so that ``_eval()`` is only
