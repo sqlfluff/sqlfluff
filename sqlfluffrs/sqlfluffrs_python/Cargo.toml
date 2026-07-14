@@ -2,6 +2,7 @@
 name = "sqlfluffrs_python"
 version.workspace = true
 edition = "2021"
+rust-version.workspace = true
 
 [dependencies]
 # NOTE: Update the abi3 version as we deprecate old python versions.

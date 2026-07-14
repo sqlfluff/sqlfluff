@@ -178,7 +178,6 @@ jobs:
           target: x86_64
           args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: auto
-          rust-toolchain: "1.96"
         env:
           # Use all 4 cores for parallel Rust compilation
           CARGO_BUILD_JOBS: 4
@@ -229,7 +228,6 @@ jobs:
           target: ${{ matrix.target }}
           args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: auto
-          rust-toolchain: "1.96"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -282,7 +280,6 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: musllinux_1_2
-          rust-toolchain: "1.96"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -330,7 +327,6 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
-          rust-toolchain: "1.96"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -377,7 +373,6 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
-          rust-toolchain: "1.96"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4

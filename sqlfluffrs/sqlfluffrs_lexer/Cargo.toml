@@ -2,6 +2,7 @@
 name = "sqlfluffrs_lexer"
 version.workspace = true
 edition = "2021"
+rust-version.workspace = true
 
 [dependencies]
 env_logger = "0.11.9"

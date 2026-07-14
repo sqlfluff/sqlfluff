@@ -2,6 +2,7 @@
 name = "sqlfluffrs_dialects"
 version.workspace = true
 edition = "2021"
+rust-version.workspace = true
 
 [dependencies]
 hashbrown = "0.16.1"
