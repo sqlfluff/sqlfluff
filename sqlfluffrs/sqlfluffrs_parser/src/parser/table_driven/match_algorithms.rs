@@ -93,8 +93,8 @@ enum BracketScanResult {
 /// the way (same technique as `greedy_match`'s own bracket-skip).
 ///
 /// `open_idx` is the position of the opener already known to be unresolved
-/// (normally `from_idx - 1`), and `open_char` its type. Both track the
-/// innermost bracket currently "active", updating to each further
+/// (normally `from_idx - 1`). It, and the bracket type it opens with, track
+/// the innermost bracket currently "active", updating to each further
 /// unresolved opener found along the way, matching Python's
 /// `resolve_bracket` recursing one level deeper for every bracket it opens
 /// - so the position they end up at is always where Python's own
@@ -108,11 +108,14 @@ fn find_mismatched_closing_bracket(
     tokens: &[Token],
     from_idx: usize,
     open_idx: usize,
-    open_char: char,
 ) -> BracketScanResult {
     let mut idx = from_idx;
     let mut innermost_idx = open_idx;
-    let mut open_char = open_char;
+    let mut open_char = tokens[open_idx]
+        .raw()
+        .chars()
+        .next()
+        .expect("bracket raw is non-empty");
     while idx < tokens.len() {
         let raw = tokens[idx].raw();
         match raw {
@@ -265,8 +268,7 @@ impl Parser<'_> {
                     // message for the true unclosed-to-EOF case. Either way,
                     // blame the innermost still-open bracket, matching
                     // resolve_bracket's own recursive call.
-                    let open_char = raw.chars().next().expect("bracket raw is non-empty");
-                    match find_mismatched_closing_bracket(tokens, i + 1, i, open_char) {
+                    match find_mismatched_closing_bracket(tokens, i + 1, i) {
                         BracketScanResult::Mismatch {
                             idx: mismatch_idx,
                             actual_close,
