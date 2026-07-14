@@ -88,4 +88,3 @@ update set * except (last_updated)
 when not matched then
 insert * except (last_updated)
 ;
-
