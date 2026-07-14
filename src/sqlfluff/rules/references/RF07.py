@@ -57,22 +57,12 @@ class Rule_RF07(BaseRule):
         select_info = get_select_statement_info(select_statement, context.dialect)
         # Only relevant when the alias could collide with a column on another
         # table, i.e. when more than one table is referenced.
-        if not select_info:  # pragma: no cover
-            return None
-        if len(select_info.table_aliases) <= 1:
+        if not select_info or len(select_info.table_aliases) <= 1:
             return None
 
-        # Normalized names of the aliases declared in this SELECT.
-        alias_names = {
-            identifier.raw_normalized()
-            for element in select_statement.recursive_crawl(
-                "select_clause_element", no_recursive_seg_type="select_statement"
-            )
-            for alias_expression in element.recursive_crawl(
-                "alias_expression", no_recursive_seg_type="select_statement"
-            )
-            for identifier in alias_expression.recursive_crawl("identifier")
-        }
+        # Names of the aliases declared in this SELECT. Matched by raw spelling,
+        # consistent with how RF02 compares column aliases.
+        alias_names = {c.alias_identifier_name for c in select_info.col_aliases}
         if not alias_names:
             return None
 
@@ -85,7 +75,7 @@ class Rule_RF07(BaseRule):
             ):
                 if qualification(reference, context.dialect.name) != "unqualified":
                     continue
-                if reference.raw_normalized() in alias_names:
+                if reference.raw in alias_names:
                     results.append(
                         LintResult(
                             anchor=reference,

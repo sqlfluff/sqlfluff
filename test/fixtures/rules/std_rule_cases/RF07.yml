@@ -16,15 +16,6 @@ test_fail_alias_in_order_by:
     FROM t1
     LEFT JOIN t2 ON t1.col1 = t2.id
 
-test_fail_alias_case_insensitive:
-  # Unquoted identifiers are case-insensitive: AS ID and PARTITION BY id match.
-  fail_str: |
-    SELECT
-        t1.col1 AS ID,
-        ROW_NUMBER() OVER (PARTITION BY id ORDER BY t1.ts) AS rn
-    FROM t1
-    LEFT JOIN t2 ON t1.col1 = t2.id
-
 test_pass_no_select_aliases:
   # No select aliases means nothing for a window reference to shadow.
   pass_str: |
