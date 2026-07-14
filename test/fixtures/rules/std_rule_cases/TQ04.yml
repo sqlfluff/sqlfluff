@@ -60,6 +60,16 @@ test_pass_select_variable_assignment:
       tsql.prefer_as_alias:
         force_enable: true
 
+test_pass_implicit_alias_without_equals:
+  pass_str: |
+    SELECT 1 x
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.prefer_as_alias:
+        force_enable: true
+
 test_pass_force_enable_non_tsql_dialect:
   pass_str: |
     SELECT 1 x
