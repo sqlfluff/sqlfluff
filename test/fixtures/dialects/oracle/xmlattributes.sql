@@ -18,3 +18,11 @@ select
       , xmlattributes(id as "id", first_name || ' ' || last_name full_name)
    )
 from employees;
+
+-- The attribute name can be built dynamically with AS EVALNAME <expression>.
+select
+   xmlelement(
+      "rec"
+      , xmlattributes(val as evalname 'attr_' || col_name)
+   )
+from ex_tab;

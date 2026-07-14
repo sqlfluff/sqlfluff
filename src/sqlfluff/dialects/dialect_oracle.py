@@ -2153,8 +2153,9 @@ class XmlAttributesFunctionNameSegment(BaseSegment):
 class XmlAttributesFunctionContentsSegment(BaseSegment):
     """XMLATTRIBUTES function contents.
 
-    The attribute values take an optional alias, which the generic function
-    contents grammar rejects because it only allows ``AS <datatype>``.
+    Each attribute takes an optional alias, either a static ``[AS] c_alias`` or a
+    dynamic ``AS EVALNAME value_expr``. The generic function contents grammar
+    rejects both because it only allows ``AS <datatype>``.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/XMLATTRIBUTES.html
     """
@@ -2164,7 +2165,11 @@ class XmlAttributesFunctionContentsSegment(BaseSegment):
         Delimited(
             Sequence(
                 Ref("ExpressionSegment"),
-                Ref("AliasExpressionSegment", optional=True),
+                OneOf(
+                    Sequence("AS", "EVALNAME", Ref("ExpressionSegment")),
+                    Ref("AliasExpressionSegment"),
+                    optional=True,
+                ),
             ),
         ),
     )

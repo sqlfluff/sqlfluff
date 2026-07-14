@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd47876eba5c3679a06fdc35ed4e1d5f897dd44c26c2c7f64009c89c7b9a149c
+_hash: e28403799608a1b292395e5e4972aa6cfb9af18ec0a60e6ad24f67ac35d8be69
 file:
   batch:
   - statement:
@@ -104,4 +104,48 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: xmlelement
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      quoted_identifier: '"rec"'
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: xmlattributes
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: val
+                        - keyword: as
+                        - keyword: evalname
+                        - expression:
+                            quoted_literal: "'attr_'"
+                            binary_operator:
+                            - pipe: '|'
+                            - pipe: '|'
+                            column_reference:
+                              naked_identifier: col_name
+                        - end_bracket: )
+                - end_bracket: )
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: ex_tab
   - statement_terminator: ;
