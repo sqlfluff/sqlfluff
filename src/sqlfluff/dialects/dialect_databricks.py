@@ -1563,7 +1563,7 @@ class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     match_grammar: Matchable = Sequence(
         "INSERT",
         OneOf(
-            Ref("WildcardIdentifierSegment"),
+            Ref("WildcardExpressionSegment"),
             Sequence(
                 Indent,
                 Ref("BracketedColumnReferenceListGrammar"),
