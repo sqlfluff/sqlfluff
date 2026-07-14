@@ -4,6 +4,7 @@ import pickle
 
 import pytest
 
+from sqlfluff.core import Linter
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.rules.base import LintFix
@@ -181,6 +182,19 @@ def test__parser__base_segments_path_to(raw_segments, DummySegment, DummyAuxSegm
         PathStep(test_seg_b, 0, 1, (0,)),
         PathStep(test_seg_a, 1, 2, (0, 1)),
     ]
+
+
+def test__parser__base_segments_is_code_false_for_comment_only_file():
+    """Test .is_code() is False for a file containing only a comment.
+
+    `.is_code()` loops over `self.segments` and only reaches its final
+    `return False` once every child has been checked without finding any
+    code, so a real SQL file with no code content is needed to cover that
+    path.
+    """
+    linter = Linter(dialect="ansi")
+    tree = linter.parse_string("-- just a comment\n").tree
+    assert tree.is_code is False
 
 
 def test__parser__base_segments_stubs():

@@ -345,26 +345,34 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
 
     @cached_property
-    def is_comment(self) -> bool:  # pragma: no cover TODO?
+    def is_comment(self) -> bool:
         """Return True if this is entirely made of comments.
 
         NOTE: Plain loop, for the same stack-depth reason as is_code().
+
+        NOTE: The final `return True` is unreachable in practice, since no
+        dialect groups comment tokens into a container without some other
+        whitespace/newline/meta child alongside them.
         """
         for seg in self.segments:
             if not seg.is_comment:
                 return False
-        return True
+        return True  # pragma: no cover
 
     @cached_property
     def is_whitespace(self) -> bool:
         """Return True if this segment is entirely whitespace.
 
         NOTE: Plain loop, for the same stack-depth reason as is_code().
+
+        NOTE: The final `return True` is unreachable in practice, same as
+        is_comment() above, since e.g. the file root always ends with a
+        non-whitespace `end_of_file` meta.
         """
         for seg in self.segments:
             if not seg.is_whitespace:
                 return False
-        return True
+        return True  # pragma: no cover
 
     @cached_property
     def raw(self) -> str:
