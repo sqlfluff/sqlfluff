@@ -689,12 +689,26 @@ def _compare_parser_vs_rust(sql: str, dialect: str = "ansi"):
             tree = parser.parse(segments, fname="t.sql")
             return (
                 "tree",
-                tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
+                tree.to_tuple(
+                    code_only=False,
+                    show_raw=True,
+                    include_meta=True,
+                    include_position=True,
+                )
                 if tree
                 else None,
             )
         except BaseException as err:
-            return ("exc", type(err).__name__, str(err))
+            return (
+                "exc",
+                type(err).__name__,
+                str(err),
+                getattr(err, "line_no", None),
+                getattr(err, "line_pos", None),
+                getattr(err, "fatal", None),
+                getattr(err, "ignore", None),
+                getattr(err, "warning", None),
+            )
 
     return build(True), build(False)
 
