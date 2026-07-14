@@ -322,23 +322,9 @@ def _build_nested_segment(DummyAuxSegment, leaf_segments, depth):
 
 
 # ---------------------------------------------------------------------------
-# Deep-nesting regression tests: these BaseSegment properties/methods should
-# recurse via a plain loop rather than a generator expression or
-# comprehension, keeping one Python stack frame per nesting level instead of
-# two, so deep parse trees stay well within Python's default recursion limit
-# (1000). Same fix as the RustParser native_ast recursion-depth-asymmetry
-# regression in rust_parser.py's _convert_rs_match_result.
-#
-# Each test below generates its own fresh leaf segments and stays in its own
-# function, rather than sharing the module-scoped `raw_segments` fixture or a
-# tree across tests, to keep each test's available stack headroom
-# independent and representative of a single recursive call in isolation.
-# Wrapping the shared `raw_segments` fixture at these depths also left
-# test__parser__base_segments_parent_ref seeing a stale parent on
-# raw_segments[0]; fresh leaves avoid that too.
-#
-# Depths are chosen with a comfortable margin either side of where the
-# pre-fix implementation starts raising RecursionError.
+# Deep-nesting regression tests: guard against these methods regressing back
+# to a genexpr/comprehension, which costs an extra stack frame per nesting
+# level and can blow Python's recursion limit on deep parse trees.
 # ---------------------------------------------------------------------------
 
 
@@ -386,21 +372,10 @@ def test__parser__base_segments_deep_nesting_no_recursion_error(
 ):
     """Recursive BaseSegment methods/properties survive deep nesting.
 
-    Each should recurse via a plain loop rather than a generator expression
-    or comprehension, keeping one Python stack frame per nesting level
-    instead of two, so deep parse trees stay well within Python's default
-    recursion limit (1000). Same fix as the RustParser native_ast
-    recursion-depth-asymmetry regression in rust_parser.py's
-    _convert_rs_match_result.
-
-    Fresh leaf segments are generated per call (rather than reusing the
-    module-scoped `raw_segments` fixture) so each case's available stack
-    headroom is independent and representative of a single recursive call
-    in isolation, and so wrapping them at these depths doesn't leave
-    test__parser__base_segments_parent_ref seeing a stale parent.
-
-    Depths are chosen with a comfortable margin either side of where the
-    pre-fix implementation starts raising RecursionError.
+    Fresh leaf segments are generated per call, rather than reusing the
+    module-scoped `raw_segments` fixture, so wrapping them at these depths
+    doesn't leave test__parser__base_segments_parent_ref seeing a stale
+    parent.
     """
     leaf_segments = generate_test_segments(["foobar", ".barfoo"])
     depth, check = _DEEP_NESTING_CASES[name]
