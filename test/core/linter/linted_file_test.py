@@ -1,6 +1,7 @@
 """Tests covering the LintedFile class and it's methods."""
 
 import logging
+from unittest import mock
 
 import pytest
 
@@ -263,6 +264,46 @@ def test_safe_create_replace_file(case, tmp_path):
         pass
     actual = p.read_text(encoding=case["encoding"])
     assert case["expected"] == actual
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        # os.chmod failing (e.g. EPERM/EACCES on a restrictive/foreign target dir).
+        dict(target="os.chmod", exc=PermissionError("chmod denied")),
+        # shutil.move failing (e.g. read-only target, ENOSPC, cross-device edge).
+        dict(target="shutil.move", exc=OSError("move failed")),
+    ],
+    ids=lambda failure: failure["target"],
+)
+def test_safe_create_replace_file_cleans_up_on_failure(failure, tmp_path):
+    """A failure after the temp file is written must not orphan it.
+
+    ``_safe_create_replace_file`` writes to a temp file (created with
+    ``delete=False``) before replacing the target, so if chmod or move fails
+    afterwards the temp file must be removed rather than left next to the user's
+    file (where, sharing the .sql suffix, it looks like a real one).
+    """
+    p = tmp_path / "test.sql"
+    p.write_text("original")
+    target = f"sqlfluff.core.linter.linted_file.{failure['target']}"
+    with mock.patch(target, side_effect=failure["exc"]):
+        with pytest.raises(type(failure["exc"])):
+            LintedFile._safe_create_replace_file(str(p), str(p), "updated", "utf-8")
+    # The original file is untouched and no temp file was left behind.
+    assert p.read_text() == "original"
+    assert [entry.name for entry in tmp_path.iterdir()] == ["test.sql"]
+
+
+def test_safe_create_replace_file_cleans_up_on_encoding_error(tmp_path):
+    """An encoding failure while writing must not orphan the temp file."""
+    p = tmp_path / "test.sql"
+    p.write_text("original")
+    # A right-arrow is not representable in Windows-1252, so the write raises.
+    with pytest.raises(UnicodeEncodeError):
+        LintedFile._safe_create_replace_file(str(p), str(p), "\u2192", "Windows-1252")
+    assert p.read_text() == "original"
+    assert [entry.name for entry in tmp_path.iterdir()] == ["test.sql"]
 
 
 def test__linted_file__fix_string_generates_patches_when_not_precomputed():

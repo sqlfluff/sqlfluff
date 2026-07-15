@@ -210,25 +210,23 @@ impl Parser<'_> {
         *content_ids = content_ids_local; // Move instead of clone
         *content_idx = 0;
 
-        // Consume any leading Meta content elements inline.
+        // Consume any leading Meta content elements inline, WITHOUT emitting them.
         // Meta grammar elements must not be pushed as child frames - handle them directly
         // so the parser never hits the "Meta grammar should be consumed by a sequence or
         // bracketed" warning path in iterative.rs.
+        // Python parity: Bracketed.match (sequence.py) matches its content via
+        // Sequence.match and then propagates only `content_match.child_matches`,
+        // DROPPING the content sequence's top-level `insert_segments` — so
+        // Indent/Dedent/Conditional elements that are direct children of a
+        // Bracketed never appear in the native tree (e.g. sparksql
+        // PivotClauseSegment's `Bracketed(Indent, ..., Dedent)`).
         while *content_idx < content_ids.len()
             && self.grammar_ctx.variant(content_ids[*content_idx]) == GrammarVariant::Meta
         {
             vdebug!(
-                "Bracketed[table]: consuming leading Meta at content_idx={} inline",
+                "Bracketed[table]: dropping leading Meta at content_idx={} (Python parity)",
                 *content_idx
             );
-            if let Some(meta_seg) = self.grammar_id_to_meta_segment(content_ids[*content_idx]) {
-                let meta_match = MatchResult {
-                    matched_slice: self.pos..self.pos,
-                    insert_segments: vec![(self.pos, meta_seg)],
-                    ..Default::default()
-                };
-                child_matches.push(Arc::new(meta_match));
-            }
             *content_idx += 1;
         }
 
@@ -357,22 +355,16 @@ impl Parser<'_> {
             // More content elements remain - parse the next one
             *content_idx += 1;
 
-            // Consume consecutive Meta elements inline, same reasoning as above.
+            // Consume consecutive Meta elements inline, same reasoning (and same
+            // Python-parity DROP — see the leading-Meta comment above) as in
+            // `handle_bracketed_open_result`.
             while *content_idx < content_ids.len()
                 && self.grammar_ctx.variant(content_ids[*content_idx]) == GrammarVariant::Meta
             {
                 vdebug!(
-                    "Bracketed[table]: consuming Meta at content_idx={} inline",
+                    "Bracketed[table]: dropping Meta at content_idx={} (Python parity)",
                     *content_idx
                 );
-                if let Some(meta_seg) = self.grammar_id_to_meta_segment(content_ids[*content_idx]) {
-                    let meta_match = MatchResult {
-                        matched_slice: self.pos..self.pos,
-                        insert_segments: vec![(self.pos, meta_seg)],
-                        ..Default::default()
-                    };
-                    child_matches.push(Arc::new(meta_match));
-                }
                 *content_idx += 1;
             }
 
@@ -454,15 +446,12 @@ impl Parser<'_> {
                         // GREEDY mode: Create unparsable section for tokens between content end and closing bracket
                         //
                         // PYTHON PARITY: trim trailing non-code and comments off
-                        // the unparsable span (via the `_excluding_comments`
-                        // variant below), matching Python's Bracketed.match. Any
+                        // the unparsable span (via `skip_stop_index_backward_to_code`,
+                        // the code-only variant), matching Python's Bracketed.match. Any
                         // trimmed gap stays as untouched, raw sibling content
                         // between here and the closing bracket.
-                        let unparsable_stop = self
-                            .skip_stop_index_backward_to_code_excluding_comments(
-                                expected_close_pos,
-                                check_pos,
-                            );
+                        let unparsable_stop =
+                            self.skip_stop_index_backward_to_code(expected_close_pos, check_pos);
 
                         // Guard against a zero-length span (mirrors sequence.rs's
                         // analogous GREEDY-leftover handling in

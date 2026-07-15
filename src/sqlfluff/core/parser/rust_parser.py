@@ -571,7 +571,12 @@ try:
             result_segments_list: list[BaseSegment] = []
 
             # Zero-length match: only meta inserts are valid (mirrors apply()).
-            if start == stop:
+            # NOTE: Unreachable in practice since the Rust parser stopped
+            # emitting zero-length meta child matches (Bracketed now drops
+            # direct-child metas for Python parity). Kept as the defensive
+            # mirror of apply()'s zero-length branch, including its
+            # parse-node accounting.
+            if start == stop:  # pragma: no cover
                 for idx, seg in insert_segments:
                     assert idx == start, (
                         f"Tried to insert @{idx} outside of matched "

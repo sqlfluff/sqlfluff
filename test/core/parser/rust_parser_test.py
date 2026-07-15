@@ -536,16 +536,12 @@ _FIXTURE_DIR = Path(__file__).resolve().parents[3] / "test" / "fixtures" / "dial
 _FIXTURE_SQL = sorted(_FIXTURE_DIR.glob("*/*.sql"))
 
 # Fixtures with a *known*, already-documented Python-vs-RustParser divergence
-# (see the dedicated xfail regressions above/below in this file). Three-way
-# parity below is expected to fail on exactly these until those bugs are
-# fixed; everywhere else in the corpus, all three tree-building paths must
-# agree.
-_KNOWN_PYTHON_RUST_DIVERGENCES = {
-    ("databricks", "pivot.sql"),
-    ("databricks", "unpivot.sql"),
-    ("sparksql", "pivot_clause.sql"),
-    ("sparksql", "unpivot_clause.sql"),
-}
+# (see the dedicated regression tests in this file). Three-way parity below
+# is expected to fail on exactly these until those bugs are fixed; everywhere
+# else in the corpus, all three tree-building paths must agree. Currently
+# empty: the pivot/unpivot divergences are fixed by this branch and the
+# snowflake/tsql ones were fixed on main.
+_KNOWN_PYTHON_RUST_DIVERGENCES: set = set()
 
 
 def _fixture_param(sqlfile: Path):
@@ -693,12 +689,26 @@ def _compare_parser_vs_rust(sql: str, dialect: str = "ansi"):
             tree = parser.parse(segments, fname="t.sql")
             return (
                 "tree",
-                tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
+                tree.to_tuple(
+                    code_only=False,
+                    show_raw=True,
+                    include_meta=True,
+                    include_position=True,
+                )
                 if tree
                 else None,
             )
         except BaseException as err:
-            return ("exc", type(err).__name__)
+            return (
+                "exc",
+                type(err).__name__,
+                str(err),
+                getattr(err, "line_no", None),
+                getattr(err, "line_pos", None),
+                getattr(err, "fatal", None),
+                getattr(err, "ignore", None),
+                getattr(err, "warning", None),
+            )
 
     return build(True), build(False)
 
@@ -846,48 +856,63 @@ def test__rust_parser__vs_python_mismatched_bracket_type_error_message():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: a nested bracket-type mismatch (an unclosed '(' inside "
-        "'[...]' that gets 'closed' by the outer ']') makes Python's "
-        "resolve_bracket detect the mismatch directly and raise a specific "
-        "'Found unexpected end bracket!, was expecting ..., but got ...' "
-        "SQLParseError. RustParser's lexer-level bracket-pairer "
-        "(`compute_bracket_pairs` in sqlfluffrs_lexer/src/lexer.rs and its "
-        "duplicate in sqlfluffrs_parser/src/parser/python.rs) resolves a "
-        "closing bracket against the first same-type opener found anywhere "
-        "on the open-bracket stack, rather than requiring it to match the "
-        "innermost (top-of-stack) opener, violating LIFO nesting "
-        "discipline. That leaves the inner '(' permanently unmatched, "
-        "which a separate, unrelated check in greedy_match "
-        "(sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs) "
-        "then reports with the generic 'Couldn't find closing bracket for "
-        "opening bracket.' message instead. Both engines raise "
-        "SQLParseError, but with different text, so this test (which "
-        "compares full exception message, not just type) fails. Fixed by "
-        "requiring the top of the bracket stack to match the closer's "
-        "expected type in both `compute_bracket_pairs` implementations."
-    ),
-)
 def test__rust_parser__vs_python_nested_bracket_mismatch_raises():
-    """Python raises a specific message on a nested bracket-type mismatch; RustParser's differs."""
-    from sqlfluff.core import FluffConfig
-    from sqlfluff.core.parser import Lexer, Parser
+    """Python and RustParser agree on a nested bracket-type mismatch.
 
-    sql = "SELECT a[(1]"
-    config = FluffConfig(overrides={"dialect": "ansi"})
-    segments, _ = Lexer(config=config).lex(sql)
+    A nested bracket-type mismatch (e.g. an unclosed '(' inside '[...]'
+    that gets "closed" by the outer ']') should raise 'Found unexpected
+    end bracket!' (SQLParseError) in both engines: `compute_bracket_pairs`
+    requires a closer to match the innermost (top-of-stack) opener, per
+    LIFO nesting discipline, matching Python's recursive `resolve_bracket`,
+    which only ever resolves the innermost open bracket next.
 
-    def build(use_rust: bool):
-        parser = RustParser(config=config) if use_rust else Parser(config=config)
-        try:
-            parser.parse(segments, fname="t.sql")
-            return None
-        except BaseException as err:
-            return (type(err).__name__, str(err))
+    Both `compute_bracket_pairs` implementations enforce this:
+    `sqlfluffrs_lexer/src/lexer.rs` (used when sqlfluffrs does its own
+    lexing) and the duplicate in `sqlfluffrs_parser/src/parser/python.rs`
+    (used when RustParser re-derives bracket pairs from Python-lexed
+    tokens, e.g. via `Linter(use_rust_parser=True)` - the only publicly
+    observable path).
+    """
+    rust_result, python_result = _compare_parser_vs_rust("SELECT a[(1]")
+    assert rust_result == python_result
 
-    assert build(True) == build(False)
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT a[(1]) ]",
+        "SELECT a[[1)]]",
+    ],
+)
+def test__rust_parser__vs_python_crossed_bracket_after_mismatch_raises(sql):
+    """A later crossed bracket pair must not "recover" a mismatch, matching Python.
+
+    Once a bracket-type mismatch occurs, every bracket that was still open
+    at that point should stay unresolved, even if a later closer would
+    otherwise cross-match one of them. This mirrors Python's recursive
+    resolve_bracket: raising on the first mismatch unwinds through every
+    enclosing bracket's own call, so none of them can be validly resolved
+    afterwards. Both `compute_bracket_pairs` implementations enforce this
+    by clearing the entire bracket stack (not just the mismatched pair)
+    once a mismatch is found.
+    """
+    rust_result, python_result = _compare_parser_vs_rust(sql)
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_unclosed_nested_bracket_error_position():
+    """An unclosed bracket nested inside another should be blamed, not its parent.
+
+    For brackets unclosed to EOF and nested two or more levels deep (e.g.
+    an unclosed '(' containing an unclosed '['), the "couldn't find closing
+    bracket" error should point at the innermost open bracket. This matches
+    Python's resolve_bracket, which recurses into each opening bracket and
+    raises from that recursive call once it reaches EOF.
+    """
+    rust_result, python_result = _compare_parser_vs_rust("SELECT a(b[1")
+    assert rust_result == python_result
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
@@ -928,25 +953,15 @@ def _read_fixture(dialect: str, filename: str) -> str:
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: for a PIVOT clause whose aggregate expression is a "
-        "function call (e.g. SUM(sales)), RustParser inserts a spurious "
-        "extra Indent leaf inside PivotClauseSegment's Bracketed content "
-        "that Python's Parser doesn't produce, shifting every subsequent "
-        "leaf in the tree by one position for the rest of the file. "
-        "PivotClauseSegment.match_grammar (dialect_sparksql.py:2485-2495) "
-        "is `Sequence(Indent, 'PIVOT', Bracketed(Indent, Delimited(Sequence("
-        "BaseExpressionElementGrammar, AliasExpressionSegment(optional))), "
-        "...))` - the nested Bracketed's own leading Indent appears to be "
-        "emitted twice on the Rust side for this shape. Reproduces "
-        "identically in both databricks/pivot.sql and "
-        "sparksql/pivot_clause.sql (databricks inherits sparksql's grammar)."
-    ),
-)
 def test__rust_parser__vs_python_pivot_clause_indent_duplication():
-    """RustParser duplicates an Indent inside PIVOT's bracketed content.
+    """RustParser must not duplicate an Indent inside PIVOT's bracketed content.
+
+    Regression guard: RustParser used to emit the grammar-level Indent that
+    is a direct child of PivotClauseSegment's Bracketed (dialect_sparksql.py
+    `Bracketed(Indent, ...)`) in addition to Bracketed's own structural
+    Indent, where Python drops the grammar-level one - shifting every
+    subsequent leaf in the tree for the rest of the file. Fixed by dropping
+    direct-child metas in the Rust Bracketed handler.
 
     Uses the real, already-shipped databricks/pivot.sql fixture - this is
     valid SQL with a correct Python-generated .yml, not invented malformed
@@ -958,20 +973,13 @@ def test__rust_parser__vs_python_pivot_clause_indent_duplication():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: the same class of spurious extra Indent as the PIVOT "
-        "clause bug above, but inside UnpivotClauseSegment's bracketed "
-        "column-alias content instead of PivotClauseSegment's function-call "
-        "content - a second, distinct grammar site hitting the same "
-        "underlying Rust Bracketed/Indent duplication issue. Reproduces "
-        "identically in both databricks/unpivot.sql and "
-        "sparksql/unpivot_clause.sql."
-    ),
-)
 def test__rust_parser__vs_python_unpivot_clause_indent_duplication():
-    """RustParser duplicates an Indent inside UNPIVOT's bracketed content.
+    """RustParser must not duplicate an Indent inside UNPIVOT's bracketed content.
+
+    Regression guard: the same class of spurious extra Indent as the PIVOT
+    clause case above, but inside UnpivotClauseSegment's bracketed
+    column-alias content - a second, distinct grammar site of the same
+    Rust Bracketed direct-child-meta issue.
 
     Uses the real, already-shipped databricks/unpivot.sql fixture.
     """

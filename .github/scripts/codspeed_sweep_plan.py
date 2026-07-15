@@ -11,6 +11,12 @@ commit whose entire diff is perf-irrelevant (see SKIP_PATTERNS below, ported
 from the retired utils/perf_sweep tool's gitrange.classify_skip since that
 tool no longer exists in this repo), and writes `all_shas`/`has_work` to
 $GITHUB_OUTPUT.
+
+Alternatively, if COMMIT_SHA is set (non-empty), that single commit is
+selected instead of walking COMMIT_COUNT commits back from `main`. An
+explicitly-named commit bypasses the perf-irrelevance filter — the user
+asked for it, so they get it — but is still dropped if already recorded in
+.github/codspeed-swept.json, since CodSpeed errors on a duplicate SHA.
 """
 
 from __future__ import annotations
@@ -21,6 +27,10 @@ import re
 import subprocess
 
 SWEPT_PATH = ".github/codspeed-swept.json"
+
+# This fork carries no tags of its own, so the release tags (including the
+# 4.2.2 sweep floor used below) have to be fetched from upstream.
+UPSTREAM_URL = "https://github.com/sqlfluff/sqlfluff.git"
 
 # A commit is skippable only if *every* changed path matches one of these.
 # Dialect source + its tests/fixtures, plus docs/changelog/CI config, none
@@ -60,28 +70,59 @@ def _changed_files(sha: str) -> list:
     return [f for f in diff.splitlines() if f]
 
 
+def _resolve_commit(rev: str) -> str:
+    """Resolve a user-supplied revision to a full commit hash."""
+    result = subprocess.run(
+        ["git", "rev-parse", "--verify", f"{rev}^{{commit}}"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise SystemExit(f"commit_sha {rev!r} is not a known commit in this repo.")
+    return result.stdout.strip()
+
+
 def main() -> None:
     """Select the commits to sweep this run and write them to $GITHUB_OUTPUT."""
-    commit_count = int(os.environ["COMMIT_COUNT"])
+    commit_sha = os.environ.get("COMMIT_SHA", "").strip()
 
     swept = set(json.load(open(SWEPT_PATH))) if os.path.exists(SWEPT_PATH) else set()
 
-    requested = subprocess.run(
-        ["git", "log", "-n", str(commit_count), "--format=%H", "4.2.2^..main"],
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.split()
+    if commit_sha:
+        # No tag fetch needed here: an explicitly-named commit doesn't use
+        # the 4.2.2 floor, and the checkout already has the fork's full
+        # history.
+        requested = [_resolve_commit(commit_sha)]
+        # Explicitly-named commits bypass the perf-irrelevance filter; only
+        # the already-swept check applies (a duplicate SHA is a hard error on
+        # CodSpeed's side, not a wasted run).
+        remaining = [sha for sha in requested if sha not in swept]
+        benchmarkable = remaining
+        skipped = 0
+    else:
+        commit_count = int(os.environ["COMMIT_COUNT"])
 
-    remaining = [sha for sha in requested if sha not in swept]
+        subprocess.run(
+            ["git", "fetch", "--tags", "--quiet", UPSTREAM_URL],
+            check=True,
+        )
 
-    benchmarkable = []
-    skipped = 0
-    for sha in remaining:
-        if _is_skippable(_changed_files(sha)):
-            skipped += 1
-        else:
-            benchmarkable.append(sha)
+        requested = subprocess.run(
+            ["git", "log", "-n", str(commit_count), "--format=%H", "4.2.2^..main"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.split()
+
+        remaining = [sha for sha in requested if sha not in swept]
+
+        benchmarkable = []
+        skipped = 0
+        for sha in remaining:
+            if _is_skippable(_changed_files(sha)):
+                skipped += 1
+            else:
+                benchmarkable.append(sha)
 
     with open(os.environ["GITHUB_OUTPUT"], "a") as f:
         f.write(f"all_shas={json.dumps(benchmarkable)}\n")

@@ -3,7 +3,8 @@
 #####################################
 #
 # Manually-triggered sweep of the last N commits on `main` (not older than
-# v4.2.2, since rust_parser.py doesn't exist before it), benchmarking each with
+# v4.2.2, since rust_parser.py doesn't exist before it), or of a single
+# explicitly-named commit via the `commit_sha` input, benchmarking each with
 # pytest-codspeed (test/test_codspeed_tpc_parse.py) across all 3 parser
 # modes (python / rust_legacy / rust_native_ast) x 2 suites
 # (tpch / tpcds). This is the CI equivalent of the local utils/perf_sweep
@@ -23,11 +24,14 @@
 # codspeed-macro's separate underlying images) and both benchmark jobs
 # download that same artifact instead of each rebuilding it.
 #
-# CodSpeed does not support two runs for the same commit SHA (a duplicate
-# produces an error, not an aggregate), so re-dispatching this workflow must
-# skip commits already swept. `.github/codspeed-swept.json` tracks that,
-# committed back by the `finalize` job once both instrument types succeed
-# for a commit.
+# CodSpeed requires each benchmark to be measured only once per commit: it
+# aggregates disjoint shards uploaded from parallel jobs of the *same*
+# workflow run into one report (the benchmark-simulation matrix relies on
+# this), but re-measuring the same benchmarks in a later run produces an
+# error, not an aggregate. Re-dispatching this workflow must therefore skip
+# commits already swept. `.github/codspeed-swept.json` tracks that, committed
+# back by the `finalize` job once both instrument types fully succeed for a
+# commit.
 #
 # Prerequisites (not part of this workflow):
 #   - A CodSpeed project must exist for this repo, with CODSPEED_TOKEN added
@@ -41,13 +45,19 @@ on:
   workflow_dispatch:
     inputs:
       commit_count:
-        description: Number of most recent commits on main to sweep (skips any already recorded in .github/codspeed-swept.json)
-        required: true
+        description: Number of most recent commits on main to sweep (skips any already recorded in .github/codspeed-swept.json). Ignored if commit_sha is set.
+        required: false
         default: "10"
+      commit_sha:
+        description: A single commit hash to sweep instead of the most recent commits. Bypasses the perf-irrelevance filter, but still skips the commit if already recorded in .github/codspeed-swept.json.
+        required: false
+        default: ""
 
 jobs:
   plan:
     runs-on: ubuntu-latest
+    # Runs in seconds; the timeout only guards against a hung git fetch.
+    timeout-minutes: 10
     outputs:
       all_shas: ${{ steps.plan.outputs.all_shas }}
       has_work: ${{ steps.plan.outputs.has_work }}
@@ -62,6 +72,7 @@ jobs:
         id: plan
         env:
           COMMIT_COUNT: ${{ inputs.commit_count }}
+          COMMIT_SHA: ${{ inputs.commit_sha }}
         run: python .github/scripts/codspeed_sweep_plan.py
 
   build:
@@ -69,6 +80,9 @@ jobs:
     needs: plan
     if: needs.plan.outputs.has_work == 'true'
     runs-on: ubuntu-24.04-arm
+    # ~2 min with warm caches; a dialect-cache miss adds ~3 min and a cold
+    # Rust dependency cache means compiling the workspace from scratch.
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -85,7 +99,34 @@ jobs:
 
       - name: Compute dialect generation hash
         id: dialect_hash
-        run: python .github/scripts/codspeed_sweep_dialect_hash.py
+        # Content-addressed key for the dialect-codegen inputs, from git
+        # object IDs at the checked-out target commit (blob IDs for files,
+        # tree IDs for directories, so any change under a directory changes
+        # its ID). `utils/rustify.py build` regenerates the cached output
+        # from exactly these inputs. Paths absent at older commits key as
+        # "absent"; the guard only trips if there are no inputs at all,
+        # which would mean a broken checkout.
+        run: |
+          inputs=$(
+            for path in \
+              utils/rustify.py \
+              utils/build_dialect.py \
+              utils/build_lexers.py \
+              utils/build_parsers.py \
+              utils/build_dialects.py \
+              src/sqlfluff/core/dialects \
+              src/sqlfluff/core/parser \
+              src/sqlfluff/dialects
+            do
+              echo "$path $(git rev-parse --quiet --verify "HEAD:$path" || echo absent)"
+            done
+          )
+          echo "$inputs"
+          if ! echo "$inputs" | grep -qv 'absent$'; then
+            echo "none of the dialect-generation paths exist in this checkout" >&2
+            exit 1
+          fi
+          echo "hash=$(echo "$inputs" | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
       - name: Cache generated Rust dialect files
         # Architecture-independent text output, so this key is shared across
@@ -93,10 +134,21 @@ jobs:
         # is most of them. Skips ~105s of codegen (per local perf_sweep
         # timings) on a hit.
         id: dialect_cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: sqlfluffrs/sqlfluffrs_dialects/src/dialect
           key: dialect-gen-${{ steps.dialect_hash.outputs.hash }}
+
+      - name: Refresh restored dialect file mtimes
+        if: steps.dialect_cache.outputs.cache-hit == 'true'
+        # actions/cache restores files with the mtimes they were cached
+        # with, while the checkout above writes the Python sources with the
+        # current time, so restored generated files always look stale to
+        # build.rs's Makefile-style mtime check. It would then regenerate
+        # them inside maturin's manylinux container, whose python3 doesn't
+        # have sqlfluff's dependencies. Touch the restored files so they
+        # count as newer than the checkout and the check passes.
+        run: find sqlfluffrs/sqlfluffrs_dialects/src/dialect -exec touch {} +
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -130,6 +182,7 @@ jobs:
         run: python utils/rustify.py build
 
       - name: Build the Rust extension (release, manylinux)
+        timeout-minutes: 35
         uses: PyO3/maturin-action@v1
         with:
           target: aarch64
@@ -137,7 +190,7 @@ jobs:
           manylinux: auto
 
       - name: Upload wheel
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wheel-${{ matrix.sha }}
           path: dist
@@ -145,12 +198,18 @@ jobs:
   benchmark-walltime:
     name: walltime ${{ matrix.sha }}
     needs: [plan, build]
-    # always(): a build failure for one commit (fail-fast: false) reports
-    # the overall `build` job as failed, which would otherwise skip this
-    # job entirely for every commit. The download-artifact step below fails
-    # cleanly for whichever specific commit's build actually failed instead.
-    if: always() && needs.plan.outputs.has_work == 'true'
+    # !cancelled(): a build failure for one commit (fail-fast: false)
+    # reports the overall `build` job as failed, which would otherwise skip
+    # this job entirely for every commit. The download-artifact step below
+    # fails cleanly for whichever specific commit's build actually failed
+    # instead. Not always(): that would also run on a cancelled workflow,
+    # making cancellation impossible to deliver.
+    if: ${{ !cancelled() && needs.plan.outputs.has_work == 'true' }}
     runs-on: codspeed-macro
+    # The full suite is ~2.5 min natively; walltime mode runs multiple
+    # rounds plus the memory instrument. Queue time waiting for a
+    # codspeed-macro runner does not count towards this.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -175,7 +234,7 @@ jobs:
         run: git checkout ${{ github.sha }} -- test/test_codspeed_tpc_parse.py
 
       - name: Download prebuilt wheel
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wheel-${{ matrix.sha }}
           path: dist
@@ -197,7 +256,7 @@ jobs:
       - name: Cache downloaded TPC fixtures
         # Keep this key's suffix in sync with _DORIS_SHA in
         # test/test_codspeed_tpc_parse.py.
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: test/.cache/tpc
           key: tpc-fixtures-3a2d9d55f1e8e2d74187179ef89c36c8562815fd
@@ -215,22 +274,45 @@ jobs:
         run: python -m pip install --force-reinstall --no-deps --no-index --find-links=dist sqlfluffrs
 
       - name: Run CodSpeed walltime benchmarks
+        timeout-minutes: 80
         uses: CodSpeedHQ/action@v4
         with:
-          mode: walltime,memory
+          # walltime only: the memory instrument runs in the simulation
+          # shards. Measuring it here too would measure every benchmark
+          # twice per commit with the same instrument, which CodSpeed
+          # rejects as a duplicate.
+          mode: walltime
           token: ${{ secrets.CODSPEED_TOKEN }}
           run: pytest test/test_codspeed_tpc_parse.py --codspeed
 
   benchmark-simulation:
-    name: simulation ${{ matrix.sha }}
+    name: simulation ${{ matrix.sha }} ${{ matrix.group.name }}
     needs: [plan, build]
-    if: always() && needs.plan.outputs.has_work == 'true'
+    if: ${{ !cancelled() && needs.plan.outputs.has_work == 'true' }}
     runs-on: ubuntu-24.04-arm
+    # The whole unsharded suite took ~84 min under Valgrind; the slowest
+    # shard (python-tpcds) is expected around 45-55 min.
+    timeout-minutes: 75
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 8
       matrix:
         sha: ${{ fromJson(needs.plan.outputs.all_shas) }}
+        # Valgrind instrumentation runs the suite ~30x slower than native, so
+        # one job per commit took ~80 minutes, dominated by the pure-Python
+        # parser benchmarks. CodSpeed supports sharding a suite across
+        # parallel jobs in the same workflow run and aggregates the shards
+        # into one report, as long as each benchmark runs exactly once per
+        # commit — these filters are disjoint and cover all 6 benchmarks.
+        # The python benchmarks get a shard each (they dominate the runtime);
+        # the cheap rust ones ride along per-suite rather than alone so that
+        # a shard can't end up all-skipped (and upload an empty run) on
+        # commits where the native_ast guard in the driver skips.
+        group:
+          - {name: rust-tpch, filter: "not python and tpch"}
+          - {name: rust-tpcds, filter: "not python and tpcds"}
+          - {name: python-tpch, filter: "python and tpch"}
+          - {name: python-tpcds, filter: "python and tpcds"}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -250,7 +332,7 @@ jobs:
         run: git checkout ${{ github.sha }} -- test/test_codspeed_tpc_parse.py
 
       - name: Download prebuilt wheel
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wheel-${{ matrix.sha }}
           path: dist
@@ -270,7 +352,7 @@ jobs:
             constraints/*.txt
 
       - name: Cache downloaded TPC fixtures
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: test/.cache/tpc
           key: tpc-fixtures-3a2d9d55f1e8e2d74187179ef89c36c8562815fd
@@ -284,16 +366,20 @@ jobs:
         run: python -m pip install --force-reinstall --no-deps --no-index --find-links=dist sqlfluffrs
 
       - name: Run CodSpeed simulation/memory benchmarks
+        timeout-minutes: 70
         uses: CodSpeedHQ/action@v4
         with:
           mode: simulation,memory
           token: ${{ secrets.CODSPEED_TOKEN }}
-          run: pytest test/test_codspeed_tpc_parse.py --codspeed
+          run: pytest test/test_codspeed_tpc_parse.py --codspeed --durations=0 -k "${{ matrix.group.filter }}"
 
   finalize:
     needs: [plan, build, benchmark-walltime, benchmark-simulation]
-    if: always() && needs.plan.outputs.has_work == 'true'
+    if: ${{ !cancelled() && needs.plan.outputs.has_work == 'true' }}
     runs-on: ubuntu-latest
+    # Runs in seconds; the timeout only guards against a hung API call
+    # or git push.
+    timeout-minutes: 10
     permissions:
       contents: write
       # Listing this run's own jobs (codspeed_sweep_finalize.py's `gh api

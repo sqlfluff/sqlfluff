@@ -372,6 +372,21 @@ mysql_dialect.add(
 )
 
 
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
+    """A MySQL `GROUP BY` clause, adding the `WITH ROLLUP` modifier.
+
+    https://dev.mysql.com/doc/refman/8.0/en/group-by-modifiers.html
+    """
+
+    match_grammar = ansi.GroupByClauseSegment.match_grammar.copy(
+        insert=[Sequence("WITH", "ROLLUP", optional=True)],
+        # Insert before ANSI's trailing ``Dedent`` so ``WITH ROLLUP`` stays
+        # inside the ``GROUP BY`` indentation block rather than escaping it and
+        # dedenting onto its own line (review feedback on #8066).
+        before=Dedent,
+    )
+
+
 class TableReferenceSegment(ansi.TableReferenceSegment):
     """A reference to a table.
 
@@ -1433,7 +1448,7 @@ mysql_dialect.add(
                     Ref("ColumnReferenceSegment"),
                     Sequence(
                         Ref("ColumnReferenceSegment"),
-                        Bracketed(Ref("NumericLiteralSegment")),
+                        Ref("IndexColumnPrefixLengthSegment"),
                     ),
                     Bracketed(Ref("ExpressionSegment")),
                 ),
@@ -1488,6 +1503,20 @@ mysql_dialect.insert_lexer_matchers(
     ],
     before="greater_than",
 )
+
+
+class IndexColumnPrefixLengthSegment(BaseSegment):
+    """A column prefix length in an index key part, e.g. `col(10)`.
+
+    Only a single numeric literal is valid here. Typed as `bracketed_arguments`
+    so LT01 lets it touch the column name like a data type length such as
+    `VARCHAR(255)`, rather than a plain bracket.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-index.html#create-index-column-prefixes
+    """
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(Ref("NumericLiteralSegment"))
 
 
 class RoleReferenceSegment(ansi.RoleReferenceSegment):

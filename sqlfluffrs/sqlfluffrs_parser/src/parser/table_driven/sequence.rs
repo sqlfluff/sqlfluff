@@ -795,7 +795,7 @@ impl Parser<'_> {
             {
                 // Skip to code token position
                 let _idx = self.skip_start_index_forward_to_code(matched_idx, max_idx);
-                let _stop_idx = self.skip_stop_index_backward_to_code(max_idx, _idx);
+                let _stop_idx = self.skip_stop_index_backward_to_code_or_comment(max_idx, _idx);
 
                 if _stop_idx > _idx {
                     vdebug!(
