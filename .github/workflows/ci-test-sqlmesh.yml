@@ -1,0 +1,60 @@
+#############################
+## GitHub Actions CI Tests ##
+#############################
+#
+# This is a reusable workflow to make CI tests more modular.
+# See: https://docs.github.com/en/actions/using-workflows/reusing-workflows
+#
+# Called by ci-tests.yml
+# This one does the SQLMesh templater plugin tests.
+#
+
+name: Modular SQLFluff sqlmesh test workflow
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
+    secrets:
+      gh_token:
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}
+  cancel-in-progress: true
+
+jobs:
+  modular-python-test:
+    name: py${{ inputs.python-version }}-sqlmesh
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 1
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
+          requirements_dev.txt
+          pyproject.toml
+          constraints/*.txt
+
+    - name: Install dependencies
+      run: uv pip install --system tox tox-uv
+
+    # NOTE: The SQLMesh plugin is not part of the 100% core-coverage gate, so
+    # these tests run without coverage (see the dedicated [testenv:sqlmesh]).
+    - name: Run the tests
+      run: tox -e sqlmesh -- plugins/sqlfluff-templater-sqlmesh
