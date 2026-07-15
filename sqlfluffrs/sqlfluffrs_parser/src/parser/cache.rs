@@ -154,6 +154,11 @@ impl TableParseCache {
     pub fn len(&self) -> usize {
         self.cache.len()
     }
+
+    /// Iterate over cache entries (for analysis/debugging)
+    pub fn iter(&self) -> impl Iterator<Item = (&TableCacheKey, &TableCacheValue)> {
+        self.cache.iter()
+    }
 }
 
 impl Default for TableParseCache {
