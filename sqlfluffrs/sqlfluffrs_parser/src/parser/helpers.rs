@@ -139,7 +139,9 @@ impl<'a> Parser<'a> {
     /// Move an index backward through tokens until tokens[index - 1] is code or comment.
     /// Returns the index after the last code/comment token, or min_idx if none found.
     /// IMPORTANT: Comments are NOT skipped - they should be collected like code tokens!
-    pub(crate) fn skip_stop_index_backward_to_code(
+    /// Note: this keeps comments, unlike Python's `skip_stop_index_backward_to_code`,
+    /// so the name spells out what it actually keeps.
+    pub(crate) fn skip_stop_index_backward_to_code_or_comment(
         &self,
         stop_idx: usize,
         min_idx: usize,
@@ -157,14 +159,14 @@ impl<'a> Parser<'a> {
     /// trimming trailing comments too. Matches Python's canonical
     /// `skip_stop_index_backward_to_code` (src/sqlfluff/core/parser/
     /// match_algorithms.py), which checks only `segments[_idx - 1].is_code`.
-    /// Use this (rather than `skip_stop_index_backward_to_code` above, which
-    /// keeps comments for `calculate_max_idx`) when trimming a GREEDY-mode
+    /// Use this (rather than `skip_stop_index_backward_to_code_or_comment` above,
+    /// which keeps comments for `calculate_max_idx`) when trimming a GREEDY-mode
     /// "leftover content" span before wrapping it as UnparsableSegment (e.g.
     /// Bracketed.match's gap/leftover handling): a trailing comment there
     /// should stay outside the unparsable span as its own sibling, the same
     /// as trailing whitespace.
     /// Returns the index after the last code token, or `min_idx` if none found.
-    pub(crate) fn skip_stop_index_backward_to_code_excluding_comments(
+    pub(crate) fn skip_stop_index_backward_to_code(
         &self,
         stop_idx: usize,
         min_idx: usize,
@@ -273,7 +275,7 @@ impl<'a> Parser<'a> {
 
         // Trim backward to last code token
         if max_idx > 0 {
-            max_idx = self.skip_stop_index_backward_to_code(max_idx, start_idx);
+            max_idx = self.skip_stop_index_backward_to_code_or_comment(max_idx, start_idx);
         }
 
         // Apply parent's constraint

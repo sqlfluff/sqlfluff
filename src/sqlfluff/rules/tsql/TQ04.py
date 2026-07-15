@@ -1,0 +1,156 @@
+"""Implementation of Rule TQ04."""
+
+from typing import Optional
+
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.dialects.dialect_ansi import AsAliasOperatorSegment
+
+
+class Rule_TQ04(BaseRule):
+    """Prefer ANSI-style ``AS`` aliasing over ``alias = expression`` in T-SQL.
+
+    T-SQL supports an alternative alias form in ``SELECT`` clauses using
+    ``alias = expression``. This rule enforces the more ANSI-style
+    ``expression AS alias`` form instead.
+
+    This rule only applies to the ``tsql`` dialect and is disabled by
+    default. Enable it with the ``force_enable = True`` flag.
+
+    **Anti-pattern**
+
+    .. code-block:: sql
+       :force:
+
+        SELECT
+            help3 = 'hello',
+            help4 = CASE WHEN help = 'apple' THEN 'hello' END
+
+    **Best practice**
+
+    .. code-block:: sql
+       :force:
+
+        SELECT
+            'hello' AS help3,
+            CASE WHEN help = 'apple' THEN 'hello' END AS help4
+    """
+
+    name = "tsql.prefer_as_alias"
+    aliases = ()
+    groups = ("all", "tsql")
+    config_keywords = ["force_enable"]
+    crawl_behaviour = SegmentSeekerCrawler({"alias_expression"})
+    is_fix_compatible = True
+
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+        """Prefer ANSI-style ``AS`` aliasing over ``alias = expression``."""
+        self.force_enable: bool
+
+        if not self.force_enable:
+            return None
+
+        if context.dialect.name != "tsql":
+            return None
+
+        alias_expression = context.segment
+        if not alias_expression.is_type("alias_expression"):  # pragma: no cover
+            return None
+
+        alias_operator = alias_expression.get_child("alias_operator")
+        if alias_operator is None:
+            return None
+
+        if alias_operator.raw != "=":
+            return None
+
+        select_clause_element = context.parent_stack[-1]
+        if not select_clause_element.is_type(
+            "select_clause_element"
+        ):  # pragma: no cover
+            return None
+
+        alias_identifier = next(
+            (
+                seg
+                for seg in alias_expression.segments
+                if seg.is_code and seg is not alias_operator
+            ),
+            None,
+        )
+        expression_segment = next(
+            (
+                seg
+                for seg in select_clause_element.segments
+                if seg is not alias_expression and seg.is_code
+            ),
+            None,
+        )
+        if not alias_identifier or not expression_segment:
+            return None  # pragma: no cover
+
+        alias_expression_segments = list(alias_expression.segments)
+        select_clause_segments = list(select_clause_element.segments)
+        alias_identifier_idx = alias_expression_segments.index(alias_identifier)
+        alias_operator_idx = alias_expression_segments.index(alias_operator)
+        alias_expression_idx = select_clause_segments.index(alias_expression)
+        expression_segment_idx = select_clause_segments.index(expression_segment)
+
+        whitespace_before_operator = [
+            seg
+            for seg in alias_expression_segments[
+                alias_identifier_idx + 1 : alias_operator_idx
+            ]
+            if seg.is_type("whitespace", "newline")
+        ]
+        segments_before_expression = select_clause_segments[
+            alias_expression_idx + 1 : expression_segment_idx
+        ]
+        whitespace_after_operator = [
+            seg
+            for seg in segments_before_expression
+            if seg.is_type("whitespace", "newline")
+        ]
+        has_non_whitespace_before_expression = any(
+            not seg.is_type("whitespace", "newline")
+            for seg in segments_before_expression
+        )
+        expression_prefix_segments = (
+            segments_before_expression[1:]
+            if segments_before_expression
+            and segments_before_expression[0].is_type("whitespace", "newline")
+            and has_non_whitespace_before_expression
+            else segments_before_expression
+            if has_non_whitespace_before_expression
+            else []
+        )
+        expression_to_alias_spacing = (
+            [WhitespaceSegment()]
+            if has_non_whitespace_before_expression
+            else whitespace_after_operator or [WhitespaceSegment()]
+        )
+
+        as_alias_operator_segment = AsAliasOperatorSegment(
+            segments=(KeywordSegment("AS"),)
+        )
+        edit_segments: list[BaseSegment] = [
+            *expression_prefix_segments,
+            expression_segment,
+            *expression_to_alias_spacing,
+            as_alias_operator_segment,
+            *(whitespace_before_operator or [WhitespaceSegment()]),
+            alias_identifier,
+        ]
+
+        return LintResult(
+            anchor=alias_operator,
+            description="Use ANSI-style `AS` aliasing instead of `alias = expression`.",
+            fixes=[
+                LintFix.replace(
+                    select_clause_element,
+                    [select_clause_element.copy(segments=tuple(edit_segments))],
+                    source=select_clause_segments,
+                )
+            ],
+        )

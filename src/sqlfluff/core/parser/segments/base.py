@@ -982,6 +982,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # If segments were provided, use them.
         elif segments:
             new_segment.segments = segments
+            # Reset the parent references of the provided children.
+            new_segment.set_as_parent(recurse=False)
         # Otherwise we should handle recursive segment coping.
         # We use the native .copy() method (this method!) appropriately
         # so that the same logic is applied in recursion.
