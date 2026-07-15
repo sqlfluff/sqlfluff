@@ -43,7 +43,9 @@ class Rule_RF07(BaseRule):
 
     name = "references.window_alias"
     groups = ("all", "references")
-    crawl_behaviour = SegmentSeekerCrawler({"over_clause"})
+    # A window_specification holds the PARTITION BY/ORDER BY of both an inline
+    # OVER (...) and a named WINDOW ... AS (...) definition.
+    crawl_behaviour = SegmentSeekerCrawler({"window_specification"})
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         select_statement = None
@@ -60,9 +62,18 @@ class Rule_RF07(BaseRule):
         if not select_info or len(select_info.table_aliases) <= 1:
             return None
 
-        # Names of the aliases declared in this SELECT. Matched by raw spelling,
-        # consistent with how RF02 compares column aliases.
-        alias_names = {c.alias_identifier_name for c in select_info.col_aliases}
+        # Dialect-normalized names of the aliases declared in this SELECT, so
+        # that case variants of unquoted identifiers are matched.
+        alias_names = {
+            identifier.raw_normalized()
+            for element in select_statement.recursive_crawl(
+                "select_clause_element", no_recursive_seg_type="select_statement"
+            )
+            for alias_expression in element.recursive_crawl(
+                "alias_expression", no_recursive_seg_type="select_statement"
+            )
+            for identifier in alias_expression.recursive_crawl("identifier")
+        }
         if not alias_names:
             return None
 
@@ -75,7 +86,7 @@ class Rule_RF07(BaseRule):
             ):
                 if qualification(reference, context.dialect.name) != "unqualified":
                     continue
-                if reference.raw in alias_names:
+                if reference.raw_normalized() in alias_names:
                     results.append(
                         LintResult(
                             anchor=reference,

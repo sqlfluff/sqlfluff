@@ -16,6 +16,35 @@ test_fail_alias_in_order_by:
     FROM t1
     LEFT JOIN t2 ON t1.col1 = t2.id
 
+test_fail_alias_case_insensitive:
+  # Unquoted identifiers are case-insensitive, so AS ID and PARTITION BY id
+  # are the same name.
+  fail_str: |
+    SELECT
+        t1.col1 AS ID,
+        SUM(t2.v) OVER (PARTITION BY id ORDER BY t1.ts) AS s
+    FROM t1
+    JOIN t2 ON t1.col1 = t2.id
+
+test_fail_alias_in_named_window:
+  # The PARTITION BY of a named WINDOW definition is checked too.
+  fail_str: |
+    SELECT
+        t1.col1 AS id,
+        ROW_NUMBER() OVER w AS rn
+    FROM t1
+    JOIN t2 ON t1.col1 = t2.id
+    WINDOW w AS (PARTITION BY id ORDER BY t1.ts)
+
+test_pass_qualified_named_window:
+  pass_str: |
+    SELECT
+        t1.col1 AS id,
+        ROW_NUMBER() OVER w AS rn
+    FROM t1
+    JOIN t2 ON t1.col1 = t2.id
+    WINDOW w AS (PARTITION BY t1.col1 ORDER BY t1.ts)
+
 test_pass_no_select_aliases:
   # No select aliases means nothing for a window reference to shadow.
   pass_str: |
