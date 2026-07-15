@@ -232,6 +232,29 @@ impl<'a> Parser<'a> {
     // They work with GrammarId and use GrammarContext for
     // table access.
 
+    /// First-token hint gate for a single grammar.
+    ///
+    /// Returns true when `grammar`'s simple hint proves it cannot match at
+    /// the first code token at or after `pos` — the same invariant
+    /// `prune_options` applies to OneOf/AnyNumberOf candidate lists, applied
+    /// to one grammar. Callers may then skip frame allocation and treat the
+    /// child as an immediate empty match. Conservative: returns false when
+    /// the grammar has no hint or there is no code token to check.
+    #[inline]
+    pub(crate) fn simple_hint_rejects(&self, grammar: GrammarId, pos: usize) -> bool {
+        let tables = self.grammar_ctx.tables();
+        let Some(hint) = tables.get_simple_hint_for_grammar(grammar) else {
+            return false;
+        };
+        if hint.is_empty() {
+            return false;
+        }
+        let Some(tok) = self.tokens.iter().skip(pos).find(|t| t.is_code()) else {
+            return false;
+        };
+        !tables.hint_can_match(hint, tok.raw_upper(), &tok.instance_types, &tok.class_types)
+    }
+
     /// Combine parent and local terminators for table-driven parsing.
     ///
     /// The single source of truth for the reset-vs-combine rule, used by every compound
