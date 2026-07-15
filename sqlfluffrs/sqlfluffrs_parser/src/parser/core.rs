@@ -532,7 +532,7 @@ impl<'a> Parser<'a> {
         );
 
         match self.peek() {
-            Some(tok) if tok.raw().eq_ignore_ascii_case(&template) && tok.is_code() => {
+            Some(tok) if tok.raw().eq_ignore_ascii_case(template) && tok.is_code() => {
                 let token_pos = self.pos;
                 let configured_instance_types = configured_instance_type_ids
                     .iter()
@@ -654,7 +654,7 @@ impl<'a> Parser<'a> {
         );
 
         match self.peek() {
-            Some(tok) if tok.is_type(&[&template]) => {
+            Some(tok) if tok.is_type(&[template]) => {
                 // Capture all token-derived data before mutating self
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
@@ -705,7 +705,7 @@ impl<'a> Parser<'a> {
                     configured_instance_types.push(token_type.to_string());
                 }
 
-                let class_type = self.dialect.get_segment_type(&raw_class);
+                let class_type = self.dialect.get_segment_type(raw_class);
 
                 let (effective_segment_type, instance_types_vec) = if let Some(cls_type) =
                     class_type
@@ -719,7 +719,7 @@ impl<'a> Parser<'a> {
                     if !vec.iter().any(|t| t == cls_type) {
                         vec.push(cls_type.to_string());
                     }
-                    if template != cls_type && !vec.iter().any(|t| t == &template) {
+                    if template != cls_type && !vec.iter().any(|t| t == template) {
                         vec.push(template.to_string());
                     }
                     let effective_type = vec
@@ -1209,14 +1209,14 @@ impl<'a> Parser<'a> {
                 // Check anti-pattern first (if present, should NOT match)
                 if let Some(ref anti) = anti_pattern {
                     vdebug!("RegexParser[table] checking anti-pattern against '{}'", raw);
-                    if anti.is_match(&raw) {
+                    if anti.is_match(raw) {
                         vdebug!("RegexParser[table] anti-pattern matched, returning Empty");
                         return Ok(MatchResult::empty_at(self.pos));
                     }
                 }
 
                 // Check main pattern
-                if pattern.is_match(&raw) {
+                if pattern.is_match(raw) {
                     let token_pos = self.pos;
 
                     vdebug!(

@@ -2,23 +2,17 @@
 name = "sqlfluffrs_lexer"
 version.workspace = true
 edition = "2021"
+rust-version.workspace = true
 
 [dependencies]
-env_logger = "0.11.9"
-regex = { version = "1.12.3", features = ["perf"] }
-fancy-regex = "0.17.0"
-hashbrown = "0.16.1"
-log = "0.4.28"
-itertools = "0.14.0"
-serde = { version = "1.0.228", features = ["derive"] }
-uuid = { version = "1.22.0", features = ["v4"] }
+hashbrown.workspace = true
+log.workspace = true
+itertools.workspace = true
+uuid.workspace = true
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }
 sqlfluffrs_dialects = { path = "../sqlfluffrs_dialects" }
 sqlfluffrs_python = { path = "../sqlfluffrs_python", optional = true }
-# NOTE: Update the abi3 version as we deprecate old python versions.
-# It should match the oldest currently supported python version.
-pyo3 = { version = "0.29.0", optional = true, features = ["abi3-py310", "hashbrown", "extension-module", "uuid"] }
-pyo3-log = { version = "0.13.4", optional = true }
+pyo3 = { workspace = true, optional = true }
 
 [features]
 unicode = []
