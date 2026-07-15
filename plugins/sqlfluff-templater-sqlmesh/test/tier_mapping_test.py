@@ -62,6 +62,16 @@ def test_find_macro_spans_ignores_strings_and_comments():
     assert SQLMeshTemplater._find_macro_spans(body) == []
 
 
+def test_has_jinja_detects_and_ignores_strings():
+    """Jinja markers are detected; braces inside string literals are not."""
+    assert SQLMeshTemplater._has_jinja("SELECT {{ x }} FROM t")
+    assert SQLMeshTemplater._has_jinja("SELECT {% if x %}1{% endif %} FROM t")
+    assert SQLMeshTemplater._has_jinja("JINJA_QUERY_BEGIN;\nSELECT 1;\nJINJA_END")
+    # braces inside a string literal must not count as Jinja
+    assert not SQLMeshTemplater._has_jinja("SELECT '{{ not jinja }}' AS a FROM t")
+    assert not SQLMeshTemplater._has_jinja("SELECT 1 AS a FROM t")
+
+
 # ---------------------------------------------------------------------------
 # TemplatedFile assembly invariants (no SQLMesh required).
 # ---------------------------------------------------------------------------
@@ -230,6 +240,28 @@ def test_tier3_structural_macro_is_coarse(fixture_dir, sqlmesh_config):
     assert all(s.slice_type == "templated" for s in tf.sliced_file)
     assert "@" not in tf.templated_str
     _assert_coverage(tf)
+
+
+def test_jinja_model_is_rendered_not_leaked(fixture_dir, sqlmesh_config):
+    """A SQLMesh Jinja model is rendered, not passed through raw (no parse error).
+
+    Its ``JINJA_QUERY_BEGIN ... {{ }} ... JINJA_END`` block isn't SQL, so it
+    must be rendered to valid SQL rather than fed to SQLFluff's parser.
+    """
+    pytest.importorskip("sqlmesh")
+    tf, errs = _process(fixture_dir, sqlmesh_config, "jinja_model.sql")
+    assert errs == []
+    assert "JINJA" not in tf.templated_str and "{{" not in tf.templated_str
+    assert tf.templated_str.lstrip().upper().startswith("SELECT")
+    assert all(s.slice_type == "templated" for s in tf.sliced_file)
+    _assert_coverage(tf)
+
+    # End-to-end: linting must not raise a parse (PRS) or templater (TMP) error.
+    linter = Linter(config=FluffConfig(configs=sqlmesh_config))
+    path = fixture_dir / "models" / "jinja_model.sql"
+    linted = linter.lint_path(str(path)).files[0]
+    bad = [v for v in linted.get_violations() if v.rule_code() in ("PRS", "TMP")]
+    assert bad == [], bad
 
 
 def test_tier1_positions_are_accurate_end_to_end(fixture_dir, sqlmesh_config):

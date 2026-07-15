@@ -356,10 +356,12 @@ class SQLMeshTemplater(JinjaTemplater):
         header_end = self._find_model_block_end(in_str)
         body = in_str[header_end or 0 :]
 
-        # T1: a body with no macros is linted verbatim. This needs no SQLMesh
-        # context at all, so plain-SQL models (and stdin buffers) "just work".
+        # T1: a body with no macros and no Jinja is linted verbatim. This needs
+        # no SQLMesh context at all, so plain-SQL models (and stdin buffers)
+        # "just work". Jinja models are excluded here — their ``{{ }}`` / Jinja
+        # blocks aren't SQL, so they must be rendered rather than passed through.
         macro_spans = self._find_macro_spans(body)
-        if not macro_spans:
+        if not macro_spans and not self._has_jinja(body):
             return self._passthrough_file(fname, in_str, header_end)
 
         # Macros are present, so we need the model to resolve them against.
@@ -457,8 +459,17 @@ class SQLMeshTemplater(JinjaTemplater):
         qtext = source_str[qs:qe]
         macro_spans = self._find_macro_spans(qtext)
 
-        if not macro_spans:
-            query_regions: list[Region] = [("literal", qs, qe, 0, len(qtext))]
+        if self._has_jinja(qtext):
+            # A Jinja query (e.g. JINJA_QUERY_BEGIN ... {{ }} ... JINJA_END) has
+            # no literal-slice relationship to the source and can't be parsed as
+            # SQL, so render it whole and map it as one coarse templated region.
+            templater_logger.debug(
+                "Coarse templated mapping for the Jinja query of %s (tier 3).", fname
+            )
+            templated = self._render_body(model)
+            query_regions: list[Region] = [("templated", qs, qe, 0, len(templated))]
+        elif not macro_spans:
+            query_regions = [("literal", qs, qe, 0, len(qtext))]
             templated = qtext
         else:
             replacements = self._resolve_macro_spans(model, qtext, macro_spans)
@@ -712,6 +723,31 @@ class SQLMeshTemplater(JinjaTemplater):
             else:
                 i += 1
         return spans
+
+    @staticmethod
+    def _has_jinja(text: str) -> bool:
+        """True if the text contains Jinja (a SQLMesh Jinja model).
+
+        Looks for ``{{`` / ``{%`` outside string literals and comments, or the
+        ``JINJA_QUERY_BEGIN`` / ``JINJA_STATEMENT_BEGIN`` block markers. Such
+        queries aren't SQL, so they must be rendered rather than linted raw.
+        """
+        i, n = 0, len(text)
+        while i < n:
+            ch = text[i]
+            if ch in ("'", '"'):
+                i = SQLMeshTemplater._skip_string(text, i)
+            elif ch == "-" and text[i + 1 : i + 2] == "-":
+                nl = text.find("\n", i)
+                i = n if nl == -1 else nl
+            elif ch == "/" and text[i + 1 : i + 2] == "*":
+                end = text.find("*/", i + 2)
+                i = n if end == -1 else end + 2
+            elif ch == "{" and text[i + 1 : i + 2] in ("{", "%"):
+                return True
+            else:
+                i += 1
+        return "JINJA_QUERY_BEGIN" in text or "JINJA_STATEMENT_BEGIN" in text
 
     # -- T2: positioned macro substitution ------------------------------------
 
