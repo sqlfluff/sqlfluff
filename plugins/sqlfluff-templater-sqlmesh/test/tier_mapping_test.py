@@ -208,3 +208,59 @@ def test_tier1_positions_are_accurate_end_to_end(fixture_dir, sqlmesh_config):
     al09 = [v for v in linted.get_violations() if v.rule_code() == "AL09"]
     assert al09, [v.rule_code() for v in linted.get_violations()]
     assert al09[0].line_no == 7
+
+
+def test_pre_statement_is_not_leaked_into_query(fixture_dir, sqlmesh_config):
+    """Statement segmentation keeps a @DEF pre-statement out of the linted SQL.
+
+    ``pre_statement_model.sql`` has a ``@DEF(local_flag, TRUE);`` pre-statement
+    before its query. The regex body split would feed that ``@DEF`` into the SQL
+    SQLFluff parses; SQLMesh's statement segmentation maps it as a source-only
+    region so only the query is linted.
+    """
+    pytest.importorskip("sqlmesh")
+    tf, errs = _process(fixture_dir, sqlmesh_config, "pre_statement_model.sql")
+    assert errs == []
+    # The pre-statement never reaches the SQL SQLFluff parses...
+    assert "@DEF" not in tf.templated_str
+    assert tf.templated_str.lstrip().startswith("SELECT")
+    # ...but the trailing newline is preserved (final-newline rule still works).
+    assert tf.templated_str.endswith("\n")
+    _assert_coverage(tf)
+
+
+def test_pre_statement_query_is_linted_at_real_positions(fixture_dir, sqlmesh_config):
+    """The query after a pre-statement is still linted with real positions.
+
+    The self-alias ``id AS id`` sits on line 9 (after the MODEL block and the
+    @DEF pre-statement) and must be flagged there, not collapsed to L1.
+    """
+    pytest.importorskip("sqlmesh")
+    linter = Linter(config=FluffConfig(configs=sqlmesh_config))
+    path = fixture_dir / "models" / "pre_statement_model.sql"
+    linted = linter.lint_path(str(path)).files[0]
+    al09 = [v for v in linted.get_violations() if v.rule_code() == "AL09"]
+    assert al09, [v.rule_code() for v in linted.get_violations()]
+    assert al09[0].line_no == 9
+
+
+def test_locate_query_span_skips_non_query_statements(fixture_dir, sqlmesh_config):
+    """_locate_query_span returns the query span, excluding pre-statements."""
+    pytest.importorskip("sqlmesh")
+    templater = SQLMeshTemplater()
+    config = FluffConfig(configs=sqlmesh_config)
+    templater.sqlfluff_config = config
+    templater.project_dir = str(fixture_dir)
+    path = fixture_dir / "models" / "pre_statement_model.sql"
+    source = path.read_text()
+    model = templater._resolve_model(
+        str(path), templater._get_model_name_from_path(str(path))
+    )
+    span = templater._locate_query_span(source, model)
+    assert span is not None
+    qs, qe = span
+    # The span starts at the query's SELECT, after the @DEF pre-statement.
+    assert source[qs:].lstrip().startswith("SELECT")
+    assert "@DEF" not in source[qs:qe]
+    # And it extends to end-of-file (no post-statements), capturing the newline.
+    assert qe == len(source)

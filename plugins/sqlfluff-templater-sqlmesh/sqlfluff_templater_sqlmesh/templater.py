@@ -351,27 +351,120 @@ class SQLMeshTemplater(JinjaTemplater):
             )
             return self._passthrough_file(fname, in_str, header_end)
 
-        # T2: try to resolve every macro span to a single inline expression and
-        # splice it into the verbatim source, keeping non-macro SQL literal.
+        # Prefer authoritative segmentation: SQLMesh has already parsed this
+        # model, so its statements tell us exactly where the query is. This is
+        # more robust than the regex header split and, crucially, keeps
+        # non-query statements (the MODEL block, ``@DEF`` pre-statements, post
+        # statements) out of the SQL SQLFluff parses. Only the query is linted.
+        query_span = self._locate_query_span(in_str, model)
+        if query_span is not None:
+            return self._build_query_file(fname, in_str, model, query_span)
+
+        # Fallback (query text not locatable): use the regex header split and
+        # treat the whole body as the query.
+        templater_logger.debug(
+            "Statement segmentation unavailable for %s; using regex body split.",
+            fname,
+        )
         replacements = self._resolve_macro_spans(model, body, macro_spans)
         if replacements is not None:
-            templater_logger.debug(
-                "Substituting %d SQLMesh macro(s) in %s (tier 2).",
-                len(macro_spans),
-                fname,
-            )
             return self._substitute_file(
                 fname, in_str, header_end, macro_spans, replacements
             )
-
-        # T3: structural or unresolved macros. Render the model whole and map
-        # the body as one coarse templated region (suppressed by default, but
-        # never collapsed to the start of the file).
-        templater_logger.debug(
-            "Falling back to coarse templated mapping for %s (tier 3).", fname
-        )
         rendered_sql = self._render_body(model)
         return self._coarse_templated_file(fname, in_str, header_end, rendered_sql)
+
+    def _locate_query_span(
+        self, source_str: str, model: Any
+    ) -> Optional[tuple[int, int]]:
+        """Locate the model's query in the source via SQLMesh's parsed statements.
+
+        Returns ``(start, end)`` source offsets covering the query and any
+        trailing whitespace up to the next statement (so file-level rules such
+        as the final-newline check still apply), or ``None`` if the file can't
+        be segmented this way (the caller then falls back to the regex split).
+
+        Only reachable in tiers 2/3, where the model has already parsed
+        successfully — so this never has to cope with a broken file.
+        """
+        query = getattr(model, "query", None)
+        query_meta = getattr(query, "meta", None) if query is not None else None
+        if not query_meta or not query_meta.get("sql"):
+            return None
+
+        pre = list(getattr(model, "pre_statements", []) or [])
+        post = list(getattr(model, "post_statements", []) or [])
+        ordered = [*pre, query, *post]
+
+        # Each statement's ``meta['sql']`` is its verbatim source text; recover
+        # offsets by locating them in order.
+        cursor = 0
+        located: list[tuple[int, int, bool]] = []
+        for node in ordered:
+            meta = getattr(node, "meta", None)
+            text = meta.get("sql") if meta else None
+            if not text:
+                return None
+            idx = source_str.find(text, cursor)
+            if idx < 0:
+                return None
+            end = idx + len(text)
+            located.append((idx, end, node is query))
+            cursor = end
+
+        for i, (start, _end, is_query) in enumerate(located):
+            if is_query:
+                next_start = (
+                    located[i + 1][0] if i + 1 < len(located) else len(source_str)
+                )
+                return (start, next_start)
+        return None
+
+    def _build_query_file(
+        self, fname: str, source_str: str, model: Any, span: tuple[int, int]
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
+        """Map a segmented file: only the query span is linted.
+
+        Everything before the query (MODEL header, ``@DEF`` pre-statements) and
+        after it (post statements) is emitted as a source-only, zero-length
+        templated region. The query itself is handled per tier: verbatim when
+        it has no macros, macro-substituted when they all resolve inline
+        (tier 2), or coarse-rendered otherwise (tier 3).
+        """
+        qs, qe = span
+        qtext = source_str[qs:qe]
+        macro_spans = self._find_macro_spans(qtext)
+
+        if not macro_spans:
+            query_regions: list[Region] = [("literal", qs, qe, 0, len(qtext))]
+            templated = qtext
+        else:
+            replacements = self._resolve_macro_spans(model, qtext, macro_spans)
+            if replacements is not None:
+                templater_logger.debug(
+                    "Substituting %d macro(s) in the query of %s (tier 2).",
+                    len(macro_spans),
+                    fname,
+                )
+                query_regions, templated = self._substitute_regions(
+                    source_str, qs, qe, macro_spans, replacements
+                )
+            else:
+                templater_logger.debug(
+                    "Coarse templated mapping for the query of %s (tier 3).", fname
+                )
+                templated = self._render_body(model)
+                query_regions = [("templated", qs, qe, 0, len(templated))]
+
+        regions: list[Region] = []
+        if qs > 0:
+            regions.append(("templated", 0, qs, 0, 0))
+        regions.extend(query_regions)
+        if qe < len(source_str):
+            regions.append(
+                ("templated", qe, len(source_str), len(templated), len(templated))
+            )
+        return self._make_file(fname, source_str, templated, regions)
 
     # -- Model resolution -----------------------------------------------------
 
@@ -738,6 +831,41 @@ class SQLMeshTemplater(JinjaTemplater):
         regions.append(("literal", body_start, len(source_str), 0, len(body)))
         return self._make_file(fname, source_str, body, regions)
 
+    def _substitute_regions(
+        self,
+        source_str: str,
+        start: int,
+        end: int,
+        spans: list[tuple[int, int]],
+        replacements: list[str],
+    ) -> tuple[list[Region], str]:
+        """Splice replacements into ``source_str[start:end]``.
+
+        ``spans`` are offsets relative to that slice. Returns the regions
+        (with absolute source offsets) and the resulting templated string.
+        Literal runs between macros keep their exact source positions.
+        """
+        segment = source_str[start:end]
+        regions: list[Region] = []
+        parts: list[str] = []
+        t = 0  # running offset within the templated string
+        cursor = 0  # running offset within the segment
+        for (s, e), text in zip(spans, replacements):
+            if s > cursor:  # literal run preceding this macro
+                lit = segment[cursor:s]
+                regions.append(("literal", start + cursor, start + s, t, t + len(lit)))
+                parts.append(lit)
+                t += len(lit)
+            regions.append(("templated", start + s, start + e, t, t + len(text)))
+            parts.append(text)
+            t += len(text)
+            cursor = e
+        if cursor < len(segment):  # trailing literal
+            lit = segment[cursor:]
+            regions.append(("literal", start + cursor, end, t, t + len(lit)))
+            parts.append(lit)
+        return regions, "".join(parts)
+
     def _substitute_file(
         self,
         fname: str,
@@ -748,34 +876,12 @@ class SQLMeshTemplater(JinjaTemplater):
     ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
         """Tier 2: splice resolved macro text into the verbatim source body."""
         body_start = header_end or 0
-        body = source_str[body_start:]
-        regions: list[Region] = []
-        parts: list[str] = []
+        regions, templated = self._substitute_regions(
+            source_str, body_start, len(source_str), spans, replacements
+        )
         if header_end:
-            regions.append(("templated", 0, body_start, 0, 0))
-        t = 0  # running offset within the templated string
-        cursor = 0  # running offset within the body
-        for (s, e), text in zip(spans, replacements):
-            if s > cursor:  # literal run preceding this macro
-                lit = body[cursor:s]
-                regions.append(
-                    ("literal", body_start + cursor, body_start + s, t, t + len(lit))
-                )
-                parts.append(lit)
-                t += len(lit)
-            regions.append(
-                ("templated", body_start + s, body_start + e, t, t + len(text))
-            )
-            parts.append(text)
-            t += len(text)
-            cursor = e
-        if cursor < len(body):  # trailing literal
-            lit = body[cursor:]
-            regions.append(
-                ("literal", body_start + cursor, len(source_str), t, t + len(lit))
-            )
-            parts.append(lit)
-        return self._make_file(fname, source_str, "".join(parts), regions)
+            regions.insert(0, ("templated", 0, body_start, 0, 0))
+        return self._make_file(fname, source_str, templated, regions)
 
     def _coarse_templated_file(
         self,
