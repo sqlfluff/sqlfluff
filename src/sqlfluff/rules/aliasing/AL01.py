@@ -98,9 +98,9 @@ class Rule_AL01(BaseRule):
                 )
                 # if the pre sibling has already a leading whitespace at it's tail
                 # we do not need an additional leading whitespace
-                has_leading_whitespace = context.siblings_pre and isinstance(
-                    context.siblings_pre[-1], WhitespaceSegment
-                )
+                has_leading_whitespace = bool(
+                    context.siblings_pre
+                ) and context.siblings_pre[-1].is_type("whitespace")
                 if has_leading_whitespace:
                     edit_segments = [as_alias_operator_segment, WhitespaceSegment()]
                 else:

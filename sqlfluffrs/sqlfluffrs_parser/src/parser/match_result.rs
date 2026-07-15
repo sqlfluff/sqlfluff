@@ -476,7 +476,7 @@ impl MatchResult {
             trigger_map
                 .entry(*idx)
                 .or_default()
-                .push(TriggerItem::Meta(meta_type.clone()));
+                .push(TriggerItem::Meta(*meta_type));
         }
 
         // Add child matches — store Arc directly, avoid deep clone
@@ -693,7 +693,7 @@ impl MatchResult {
             if !leading.is_empty() {
                 let leading_nodes: Vec<Node> = leading.iter().map(token_to_node).collect();
                 let mut new_children = leading_nodes;
-                new_children.extend(children.drain(..));
+                new_children.append(children);
                 *children = new_children;
             }
             // The original match didn't cover the prepended leading / appended

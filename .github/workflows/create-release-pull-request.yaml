@@ -35,7 +35,7 @@ jobs:
           pip install requests click pyyaml ghapi
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.96
 
       - name: Prepare release
         run: |

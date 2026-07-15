@@ -108,7 +108,7 @@ jobs:
             constraints/*.txt
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.96
         with:
           components: rustfmt, clippy
 
@@ -129,13 +129,9 @@ jobs:
         working-directory: sqlfluffrs
         run: cargo fmt --all --check
 
-      - name: Clippy (informational)
-        # Advisory for now: surfaces lints in the log without failing the
-        # build. Flip to `-- -D warnings` once the existing warning
-        # surface is cleaned up.
+      - name: Clippy
         working-directory: sqlfluffrs
-        continue-on-error: true
-        run: cargo clippy --workspace --all-targets
+        run: cargo clippy --workspace --all-targets --features python -- -D warnings
 
       - name: Run unit tests
         working-directory: sqlfluffrs
