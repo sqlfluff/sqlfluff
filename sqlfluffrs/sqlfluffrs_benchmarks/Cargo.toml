@@ -18,14 +18,14 @@ fetch = []
 bench = false
 
 [dependencies]
-hashbrown = "0.16.1"
+hashbrown.workspace = true
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }
 sqlfluffrs_lexer = { path = "../sqlfluffrs_lexer" }
 sqlfluffrs_dialects = { path = "../sqlfluffrs_dialects" }
 sqlfluffrs_parser = { path = "../sqlfluffrs_parser" }
 
 [dev-dependencies]
-criterion = "0.8.2"
+criterion.workspace = true
 
 [build-dependencies]
 # Lightweight, blocking HTTP client (rustls, no OpenSSL) used only to fetch
