@@ -1,9 +1,23 @@
 """Implementation of Rule RF07."""
 
 from sqlfluff.core.dialects.common import qualification
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.analysis.select import get_select_statement_info
+
+
+def _identifier_key(identifier: BaseSegment) -> tuple[bool, str]:
+    """Return a comparison key of quoting style and normalized name.
+
+    Unquoted identifiers fold case according to the dialect, so they compare
+    case-insensitively with each other. A quoted identifier keeps its exact
+    spelling and only compares equal to another quoted identifier with the
+    same spelling, mirroring ANSI quoted identifier semantics.
+    """
+    if identifier.is_type("quoted_identifier"):
+        return (True, identifier.raw_normalized(casefold=False))
+    return (False, identifier.raw_normalized())
 
 
 class Rule_RF07(BaseRule):
@@ -14,6 +28,10 @@ class Rule_RF07(BaseRule):
     which happens to match an alias does not resolve to that alias. When more
     than one table is in scope it silently resolves to a real column on one of
     them instead, changing the result without any error.
+
+    .. note::
+       This rule is disabled by default. Enable it with the
+       ``force_enable = True`` flag.
 
     **Anti-pattern**
 
@@ -43,11 +61,16 @@ class Rule_RF07(BaseRule):
 
     name = "references.window_alias"
     groups = ("all", "references")
+    config_keywords = ["force_enable"]
     # A window_specification holds the PARTITION BY/ORDER BY of both an inline
     # OVER (...) and a named WINDOW ... AS (...) definition.
     crawl_behaviour = SegmentSeekerCrawler({"window_specification"})
 
     def _eval(self, context: RuleContext) -> EvalResultType:
+        self.force_enable: bool
+        if not self.force_enable:
+            return None
+
         select_statement = None
         for parent in reversed(context.parent_stack):
             if parent.is_type("select_statement"):
@@ -62,10 +85,10 @@ class Rule_RF07(BaseRule):
         if not select_info or len(select_info.table_aliases) <= 1:
             return None
 
-        # Dialect-normalized names of the aliases declared in this SELECT, so
-        # that case variants of unquoted identifiers are matched.
+        # Comparison keys of the aliases declared in this SELECT: case variants
+        # of unquoted identifiers match, quoted identifiers match exactly.
         alias_names = {
-            identifier.raw_normalized()
+            _identifier_key(identifier)
             for element in select_statement.recursive_crawl(
                 "select_clause_element", no_recursive_seg_type="select_statement"
             )
@@ -86,7 +109,11 @@ class Rule_RF07(BaseRule):
             ):
                 if qualification(reference, context.dialect.name) != "unqualified":
                     continue
-                if reference.raw_normalized() in alias_names:
+                # An unqualified reference contains a single identifier.
+                identifier = next(reference.recursive_crawl("identifier"), None)
+                if identifier is None:  # pragma: no cover
+                    continue
+                if _identifier_key(identifier) in alias_names:
                     results.append(
                         LintResult(
                             anchor=reference,
