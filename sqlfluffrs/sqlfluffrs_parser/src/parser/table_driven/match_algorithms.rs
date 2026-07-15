@@ -98,7 +98,7 @@ enum BracketScanResult {
 /// unresolved opener found along the way, matching Python's
 /// `resolve_bracket` recursing one level deeper for every bracket it opens
 /// - so the position they end up at is always where Python's own
-/// recursive call would raise from.
+///   recursive call would raise from.
 ///
 /// Used to distinguish Python's two distinct bracket-resolution failures
 /// (`resolve_bracket`, match_algorithms.py): "Couldn't find closing bracket
