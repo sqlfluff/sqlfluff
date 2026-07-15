@@ -3,7 +3,8 @@
 #####################################
 #
 # Manually-triggered sweep of the last N commits on `main` (not older than
-# v4.2.2, since rust_parser.py doesn't exist before it), benchmarking each with
+# v4.2.2, since rust_parser.py doesn't exist before it), or of a single
+# explicitly-named commit via the `commit_sha` input, benchmarking each with
 # pytest-codspeed (test/test_codspeed_tpc_parse.py) across all 3 parser
 # modes (python / rust_legacy / rust_native_ast) x 2 suites
 # (tpch / tpcds). This is the CI equivalent of the local utils/perf_sweep
@@ -44,9 +45,13 @@ on:
   workflow_dispatch:
     inputs:
       commit_count:
-        description: Number of most recent commits on main to sweep (skips any already recorded in .github/codspeed-swept.json)
-        required: true
+        description: Number of most recent commits on main to sweep (skips any already recorded in .github/codspeed-swept.json). Ignored if commit_sha is set.
+        required: false
         default: "10"
+      commit_sha:
+        description: A single commit hash to sweep instead of the most recent commits. Bypasses the perf-irrelevance filter, but still skips the commit if already recorded in .github/codspeed-swept.json.
+        required: false
+        default: ""
 
 jobs:
   plan:
@@ -67,6 +72,7 @@ jobs:
         id: plan
         env:
           COMMIT_COUNT: ${{ inputs.commit_count }}
+          COMMIT_SHA: ${{ inputs.commit_sha }}
         run: python .github/scripts/codspeed_sweep_plan.py
 
   build:
