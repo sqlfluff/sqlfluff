@@ -677,14 +677,27 @@ fn compute_bracket_pairs(tokens: &mut [Token]) {
             "}" => Some('{'),
             _ => None,
         } {
-            // Try to match with the most recent opening bracket of the same type
-            if let Some(pos) = bracket_stack.iter().rposition(|(_, c)| *c == expected_open) {
-                let (open_idx, _) = bracket_stack.remove(pos);
-                // Set bidirectional pointers
-                tokens[open_idx].matching_bracket_idx = Some(idx);
-                tokens[idx].matching_bracket_idx = Some(open_idx);
+            // Only the most-recently-opened bracket (the top of the stack) may
+            // be closed next, per LIFO nesting discipline. See the sibling
+            // implementation in sqlfluffrs_lexer/src/lexer.rs::compute_bracket_pairs
+            // for the full rationale (Python parity with resolve_bracket in
+            // match_algorithms.py).
+            if let Some(&(open_idx, top_char)) = bracket_stack.last() {
+                if top_char == expected_open {
+                    bracket_stack.pop();
+                    // Set bidirectional pointers
+                    tokens[open_idx].matching_bracket_idx = Some(idx);
+                    tokens[idx].matching_bracket_idx = Some(open_idx);
+                } else {
+                    // A type mismatch is what Python's resolve_bracket raises
+                    // on, unwinding through every enclosing bracket's own
+                    // call. Clear the whole stack to match that: every
+                    // bracket still open at this point stays unresolved, so
+                    // none of them can later pair with a closer that follows.
+                    bracket_stack.clear();
+                }
             }
-            // If no matching opening bracket, leave as None (syntax error)
+            // If the stack is empty, there's no open bracket at all - leave as None.
         }
     }
     // Any remaining opening brackets on the stack are unmatched - leave as None

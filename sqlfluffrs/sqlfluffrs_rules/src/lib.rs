@@ -1,6 +1,7 @@
 //! Rust-native lint rules, run over the parse arena's public read API.
 //!
-//! ## STATUS: early — one experimental rule (CP01), gated by `core.use_rust_rules`
+//! ## STATUS: early — the capitalisation bundle's CP01/CP03/CP04 are wired up
+//! (CP02/CP05 still Python-only), gated by `core.use_rust_rules`
 //!
 //! Each rule's *detection* runs entirely in Rust over [`sqlfluffrs_parser::Arena`]
 //! (read-only) and returns a compact result; *fix application* stays on the
@@ -11,7 +12,10 @@
 //! `python` feature, and is registered on the module by [`python::register`].
 //! Rule *detection* stays pure Rust (no feature needed) and unit-testable.
 
+pub mod capitalisation;
 pub mod cp01;
+pub mod cp03;
+pub mod cp04;
 
 #[cfg(feature = "python")]
 pub mod python;

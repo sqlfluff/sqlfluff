@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ea6327f25ad6d1824bfb39a6994aaffbda61fcd1ab2e0b6b85854ab8cd52d3bc
+_hash: 3ffd50a7c2e12273b3f820d4d2e08e2bdfdf324b3c3ad6cc2f7f80f086e86d51
 file:
 - statement:
     meta_command_statement:
@@ -175,7 +175,7 @@ file:
           keyword: SELECT
           select_clause_element:
             psql_variable:
-              colon: ':'
+              psql_variable_colon: ':'
               quoted_literal: "'my_psql_var'"
 - statement_terminator: ;
 - statement:

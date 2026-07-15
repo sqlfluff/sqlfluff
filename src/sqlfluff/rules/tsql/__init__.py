@@ -20,5 +20,6 @@ def get_rules() -> list[type[BaseRule]]:
     from sqlfluff.rules.tsql.TQ01 import Rule_TQ01
     from sqlfluff.rules.tsql.TQ02 import Rule_TQ02
     from sqlfluff.rules.tsql.TQ03 import Rule_TQ03
+    from sqlfluff.rules.tsql.TQ04 import Rule_TQ04
 
-    return [Rule_TQ01, Rule_TQ02, Rule_TQ03]
+    return [Rule_TQ01, Rule_TQ02, Rule_TQ03, Rule_TQ04]

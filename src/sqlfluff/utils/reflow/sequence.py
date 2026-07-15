@@ -492,9 +492,9 @@ class ReflowSequence:
                 `reindent` or `reflow` methods.
             filter (:obj:`str`): Optionally filter which reflow points
                 to respace. Default configuration is `all`. Other options
-                are `line_break` which only respaces points containing
+                are `newline` which only respaces points containing
                 a `newline` or followed by an `end_of_file` marker, or
-                `inline` which is the inverse of `line_break`. This is
+                `inline` which is the inverse of `newline`. This is
                 most useful for filtering between trailing whitespace
                 and fixes between content on a line.
 

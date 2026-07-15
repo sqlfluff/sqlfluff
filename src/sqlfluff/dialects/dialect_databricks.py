@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     IdentifierSegment,
     Indent,
     Matchable,
+    NewlineSegment,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -103,6 +104,36 @@ databricks_dialect.insert_lexer_matchers(
 )
 
 databricks_dialect.insert_lexer_matchers(
+    # Bare notebook magic in the first cell must consume the notebook header,
+    # because the lexer only matches against the remaining string slice.
+    [
+        RegexLexer(
+            "notebook_start_bare_magic_sql",
+            r"-- Databricks notebook source(?:\r?\n)%sql\b[^\r\n]*",
+            CommentSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+            trim_post_subdivide=RegexLexer(
+                "notebook_start", r"-- Databricks notebook source", CommentSegment
+            ),
+        ),
+        RegexLexer(
+            "notebook_start_bare_magic_cell",
+            r"(?s)-- Databricks notebook source(?:\r?\n)"
+            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
+            r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
+            r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+            CodeSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+            trim_post_subdivide=RegexLexer(
+                "notebook_start", r"-- Databricks notebook source", CommentSegment
+            ),
+        ),
+    ],
+    before="inline_comment",
+)
+
+
+databricks_dialect.insert_lexer_matchers(
     # Databricks Notebook Start:
     # needed to insert "so early" to avoid magic + notebook
     # start to be interpreted as inline comments
@@ -118,6 +149,33 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer("magic_line", r"(-- MAGIC)( [^%]{1})([^\n]*)", CodeSegment),
         RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})(\r?\n)", CodeSegment),
+        RegexLexer(
+            "bare_magic_sql",
+            r"(\r?\n)+-- COMMAND ----------(\r?\n)+%sql\b[^\r\n]*",
+            CommentSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+            trim_post_subdivide=RegexLexer(
+                "command", r"-- COMMAND ----------", CodeSegment
+            ),
+        ),
+        RegexLexer(
+            "bare_magic_cell",
+            r"(?s)(\r?\n)+-- COMMAND ----------(\r?\n)+"
+            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
+            r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
+            r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+            CodeSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+            trim_post_subdivide=RegexLexer(
+                "command", r"-- COMMAND ----------", CodeSegment
+            ),
+        ),
+        RegexLexer(
+            "command",
+            r"(\r?\n){2}-- COMMAND ----------(\r?\n)",
+            CodeSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+        ),
     ],
     before="inline_comment",
 )
@@ -301,6 +359,12 @@ databricks_dialect.add(
     ),
     MagicLineGrammar=TypedParser("magic_line", CodeSegment, type="magic_line"),
     MagicStartGrammar=TypedParser("magic_start", CodeSegment, type="magic_start"),
+    BareMagicCellGrammar=TypedParser(
+        "bare_magic_cell", CodeSegment, type="bare_magic_cell"
+    ),
+    NotebookStartBareMagicCellGrammar=TypedParser(
+        "notebook_start_bare_magic_cell", CodeSegment, type="bare_magic_cell"
+    ),
     VariableNameIdentifierSegment=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
@@ -2042,6 +2106,13 @@ class MagicCellStatementSegment(BaseSegment):
                 AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
             ),
             Ref("MagicSingleLineGrammar", optional=True),
+            # One `bare_magic_cell` token per line (see the lexer subdivider).
+            AnyNumberOf(
+                OneOf(
+                    Ref("BareMagicCellGrammar"),
+                    Ref("NotebookStartBareMagicCellGrammar"),
+                )
+            ),
         ),
         terminators=[Ref("CommandCellSegment", optional=True)],
         reset_terminators=True,

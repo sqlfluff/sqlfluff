@@ -397,14 +397,29 @@ impl Lexer {
                 "}" => Some('{'),
                 _ => None,
             } {
-                // Try to match with the most recent opening bracket of the same type
-                if let Some(pos) = bracket_stack.iter().rposition(|(_, c)| *c == expected_open) {
-                    let (open_idx, _) = bracket_stack.remove(pos);
-                    // Set bidirectional pointers
-                    tokens[open_idx].matching_bracket_idx = Some(idx);
-                    tokens[idx].matching_bracket_idx = Some(open_idx);
+                // Only the most-recently-opened bracket (the top of the stack)
+                // may be closed next, per LIFO nesting discipline. This matches
+                // Python's resolve_bracket (match_algorithms.py), which recurses
+                // into a freshly-opened bracket and only returns once that
+                // specific bracket is resolved.
+                if let Some(&(open_idx, top_char)) = bracket_stack.last() {
+                    if top_char == expected_open {
+                        bracket_stack.pop();
+                        // Set bidirectional pointers
+                        tokens[open_idx].matching_bracket_idx = Some(idx);
+                        tokens[idx].matching_bracket_idx = Some(open_idx);
+                    } else {
+                        // A type mismatch (e.g. `a[(1]`) is what Python's
+                        // resolve_bracket raises on, unwinding through every
+                        // enclosing bracket's own call. Clear the whole stack
+                        // to match that: every bracket still open at this
+                        // point stays unresolved, so none of them can later
+                        // pair with a closer that follows.
+                        bracket_stack.clear();
+                    }
                 }
-                // If no matching opening bracket, leave as None (syntax error)
+                // If the stack is empty, there's no open bracket at all -
+                // leave as None (syntax error).
             }
         }
         // Any remaining opening brackets on the stack are unmatched - leave as None

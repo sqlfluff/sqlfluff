@@ -178,6 +178,7 @@ UNRESERVED_KEYWORDS = [
     "INF",
     "INJECTIVE",
     "INSERT",
+    "INTERPOLATE",
     "INTERVAL",
     "INTO",
     "IS",

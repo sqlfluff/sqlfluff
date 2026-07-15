@@ -535,44 +535,578 @@ def test__rust_parser__profiling_accumulates_and_resets():
 _FIXTURE_DIR = Path(__file__).resolve().parents[3] / "test" / "fixtures" / "dialects"
 _FIXTURE_SQL = sorted(_FIXTURE_DIR.glob("*/*.sql"))
 
+# Fixtures with a *known*, already-documented Python-vs-RustParser divergence
+# (see the dedicated regression tests in this file). Three-way parity below
+# is expected to fail on exactly these until those bugs are fixed; everywhere
+# else in the corpus, all three tree-building paths must agree. Currently
+# empty: the pivot/unpivot divergences are fixed by this branch and the
+# snowflake/tsql ones were fixed on main.
+_KNOWN_PYTHON_RUST_DIVERGENCES: set = set()
+
+
+def _fixture_param(sqlfile: Path):
+    key = (sqlfile.parent.name, sqlfile.name)
+    if key in _KNOWN_PYTHON_RUST_DIVERGENCES:
+        return pytest.param(
+            sqlfile,
+            marks=pytest.mark.xfail(
+                strict=True,
+                reason=(
+                    "Known Python-vs-RustParser divergence on this fixture; "
+                    "see the dedicated test__rust_parser__vs_python_* "
+                    "regression for this file elsewhere in this module."
+                ),
+            ),
+        )
+    return pytest.param(sqlfile)
+
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 @pytest.mark.parametrize(
     "sqlfile",
-    _FIXTURE_SQL,
+    [_fixture_param(p) for p in _FIXTURE_SQL],
     ids=[str(p.relative_to(_FIXTURE_DIR)) for p in _FIXTURE_SQL],
 )
 def test__rust_parser__native_ast_parity(sqlfile):
-    """The fused builder must produce the same tree as convert+apply.
+    """All three tree-building paths must agree: Python, RustParser, fused.
 
-    For every dialect fixture, parse the same lexer output twice - once via the
-    legacy convert+apply path and once via the fused native builder - and assert
-    the resulting BaseSegment trees (or raised exceptions) are identical. Both
-    paths use the same config, so this isolates the tree-building difference.
+    For every dialect fixture, parse the same lexer output three ways - the
+    pure-Python Parser, RustParser's legacy convert+apply path, and
+    RustParser's fused native-AST builder - and assert the resulting
+    BaseSegment trees (or raised exceptions) are all identical. Fixtures with
+    an already-documented Python-vs-RustParser divergence are marked xfail
+    (see _KNOWN_PYTHON_RUST_DIVERGENCES); every other fixture must agree
+    across all three paths.
     """
     from sqlfluff.core import FluffConfig
-    from sqlfluff.core.parser import Lexer
+    from sqlfluff.core.parser import Lexer, Parser
     from sqlfluff.core.parser.rust_parser import set_native_ast
 
     config = FluffConfig(overrides={"dialect": sqlfile.parent.name})
     segments, _ = Lexer(config=config).lex(sqlfile.read_text(encoding="utf-8"))
 
-    def build(native: bool):
+    def result_for(tree):
+        return (
+            "tree",
+            tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
+            if tree
+            else None,
+        )
+
+    def build_rust(native: bool):
         set_native_ast(native)
         try:
             tree = RustParser(config=config).parse(segments, fname=str(sqlfile))
-            return (
-                "tree",
-                tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
-                if tree
-                else None,
-            )
+            return result_for(tree)
         except BaseException as err:  # PanicException is a BaseException
             return ("exc", type(err).__name__)
         finally:
             set_native_ast(False)
 
+    def build_python():
+        try:
+            tree = Parser(config=config).parse(segments, fname=str(sqlfile))
+            return result_for(tree)
+        except BaseException as err:
+            return ("exc", type(err).__name__)
+
+    python_result = build_python()
+    rust_default = build_rust(native=False)
+    rust_native = build_rust(native=True)
+
+    assert rust_native == rust_default, "native-AST path diverges from convert+apply"
+    assert python_result == rust_default, "RustParser diverges from Python Parser"
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: _convert_rs_match_result (the native_ast=False tree "
+        "builder) recurses through an extra generator-expression stack frame "
+        "per nesting level that _apply_rs_match_result (the fused "
+        "native_ast=True builder) doesn't have, so the legacy path blows the "
+        "Python call stack roughly twice as early as the fused path for the "
+        "same deeply-nested input. Only reachable when max_parse_depth is "
+        "raised above its default (600): at the default, the depth guard "
+        "fires first on both paths identically, masking the divergence."
+    ),
+)
+def test__rust_parser__native_ast_recursion_depth_asymmetry():
+    """native_ast=True tolerates deeper bracket nesting than native_ast=False.
+
+    Minimal repro for a real (if narrow) correctness divergence: with the
+    depth guard raised out of the way, the two AST-building paths do not
+    fail at the same input size for identical SQL and identical config.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+    from sqlfluff.core.parser.rust_parser import set_native_ast
+
+    sql = "SELECT " + "(" * 70 + "1" + ")" * 70
+    config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 2000})
+    segments, _ = Lexer(config=config).lex(sql)
+
+    def build(native):
+        set_native_ast(native)
+        try:
+            tree = RustParser(config=config).parse(segments, fname="t.sql")
+            return (
+                "tree",
+                tree.to_tuple(code_only=False, show_raw=True, include_meta=True),
+            )
+        except BaseException as err:  # PanicException/RecursionError, etc.
+            return ("exc", type(err).__name__)
+        finally:
+            set_native_ast(False)
+
     assert build(native=True) == build(native=False)
+
+
+# ---------------------------------------------------------------------------
+# RustParser vs. pure-Python Parser parity on malformed/error-recovery SQL
+#
+# Unlike the native_ast checks above (which compare RustParser against
+# itself), these compare RustParser's Rust grammar-matching engine against
+# the ground-truth pure-Python Parser, on malformed ANSI SQL that exercises
+# GREEDY/GREEDY_ONCE_STARTED error-recovery paths. All 208 well-formed ANSI
+# fixtures already parse identically between the two; these regressions only
+# surface on malformed input, which is why they were previously undetected.
+# ---------------------------------------------------------------------------
+
+
+def _compare_parser_vs_rust(sql: str, dialect: str = "ansi"):
+    """Parse the same SQL with the pure-Python Parser and RustParser."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer, Parser
+
+    config = FluffConfig(overrides={"dialect": dialect})
+    segments, _ = Lexer(config=config).lex(sql)
+
+    def build(use_rust: bool):
+        try:
+            parser = RustParser(config=config) if use_rust else Parser(config=config)
+            tree = parser.parse(segments, fname="t.sql")
+            return (
+                "tree",
+                tree.to_tuple(
+                    code_only=False,
+                    show_raw=True,
+                    include_meta=True,
+                    include_position=True,
+                )
+                if tree
+                else None,
+            )
+        except BaseException as err:
+            return (
+                "exc",
+                type(err).__name__,
+                str(err),
+                getattr(err, "line_no", None),
+                getattr(err, "line_pos", None),
+                getattr(err, "fatal", None),
+                getattr(err, "ignore", None),
+                getattr(err, "warning", None),
+            )
+
+    return build(True), build(False)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_partial_match_failure_drops_children():
+    """RustParser preserves keyword typing when a GREEDY_ONCE_STARTED match fails.
+
+    Regression test: when a GREEDY_ONCE_STARTED Sequence (e.g.
+    SelectClauseSegment) fails partway through, the already-matched
+    children (e.g. the SELECT keyword) must stay typed siblings, with only
+    the unmatched tail wrapped as UnparsableSegment - matching Python's
+    Sequence.match "handle the case of a partial match" behaviour.
+
+    Previously, RustParser's "failed after partial match" branch in
+    sqlfluffrs_parser/src/parser/table_driven/sequence.rs built its error
+    MatchResult with `..Default::default()`, which silently dropped
+    child_matches/insert_segments accumulated before the failure, so the
+    already-matched SELECT keyword fell back to a raw, untyped `word`
+    segment. This wasn't just cosmetic: it made rule ST05 raise an
+    unhandled AssertionError('Keyword not found.') on input like
+    'SELECT CASE' under use_rust_parser=True, where the pure-Python path
+    just reported a normal parse violation.
+    """
+    rust_result, python_result = _compare_parser_vs_rust("SELECT CASE")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_stray_closing_bracket_terminator():
+    """RustParser aborts its terminator search on a stray ')', matching Python.
+
+    Regression test: Python's greedy_match/next_ex_bracket_match
+    (src/sqlfluff/core/parser/match_algorithms.py:469-529) aborts the
+    terminator search entirely on an unexpected closing bracket, claiming
+    everything up to EOF as unparsable. RustParser's greedy_match
+    (sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs) now
+    replicates this: an unmatched ')'/']'/'}' encountered while scanning for
+    a terminator immediately aborts the search, rather than continuing on
+    to find a later terminator (e.g. FROM) as it previously did.
+    """
+    rust_result, python_result = _compare_parser_vs_rust("SELECT 1) FROM t")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Known gap: greedy_match's stray-closing-bracket check "
+        "(sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs) "
+        "recognises brackets by a hardcoded raw-text match on '(', '[', "
+        "'{' and ')', ']', '}'. Python's equivalent, next_ex_bracket_match "
+        "(src/sqlfluff/core/parser/match_algorithms.py:469-529), instead "
+        "looks up the active dialect's bracket_pairs set, so it also "
+        "recognises dialect-specific bracket tokens such as Snowflake's "
+        "MATCH_RECOGNIZE exclude brackets '{-'/'-}' "
+        "(dialect_snowflake.py:128-130). On a stray '-}', Python aborts the "
+        "terminator search and claims the rest as unparsable, while Rust's "
+        "hardcoded check doesn't recognise '-}' as a bracket at all and "
+        "keeps scanning, finding the following FROM as a normal terminator. "
+        "Fixing it means threading the dialect's bracket set through "
+        "greedy_match instead of hardcoding ASCII brackets."
+    ),
+)
+def test__rust_parser__vs_python_stray_closing_bracket_hardcoded_set():
+    """RustParser's greedy_match only recognises a hardcoded ASCII bracket set.
+
+    Snowflake's MATCH_RECOGNIZE exclude brackets ('{-'/'-}') are part of the
+    dialect's bracket_pairs set, so Python treats a stray '-}' the same way
+    as a stray ')'. RustParser's hardcoded check doesn't recognise '-}' as a
+    bracket, so it keeps scanning past it instead of aborting.
+    """
+    rust_result, python_result = _compare_parser_vs_rust(
+        "SELECT 1 -} FROM t", dialect="snowflake"
+    )
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_unclosed_greedy_bracket_raises():
+    """Python and RustParser now agree: an unclosed GREEDY-mode bracket raises.
+
+    Regression test for bracketed.rs: for ParseMode.GREEDY (used by
+    CTEDefinitionSegment and the VALUES tuple in ValuesClauseSegment),
+    Python's Bracketed.match() always raises SQLParseError when no closing
+    bracket is found before EOF, so RustParser should raise too rather than
+    quietly recovering an unparsable tree.
+    """
+    rust_result, python_result = _compare_parser_vs_rust("WITH a AS (SELECT 1")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_trailing_trivia_in_unparsable():
+    """RustParser no longer merges trailing trivia into an unparsable span.
+
+    Regression test: for a GREEDY-mode Bracketed's Delimited content, the
+    trailing trivia (whitespace/comments) between a dangling trailing comma
+    and the closing bracket used to be merged into the unparsable segment
+    on the Rust side (Bracketed's own GREEDY-leftover detection built the
+    unparsable span straight through to the closing bracket with no
+    skip-back for trailing trivia), whereas Python's Bracketed.match keeps
+    that trivia as a separate, untyped sibling gap outside the unparsable
+    class. A dangling trailing comma inside a GREEDY-mode Delimited bracket
+    (e.g. an IN-list) is wrapped as unparsable by both engines; they now
+    agree on whether the whitespace between the comma and the closing
+    bracket is part of that unparsable span or a sibling of it.
+    """
+    rust_result, python_result = _compare_parser_vs_rust(
+        "SELECT a FROM t WHERE a IN (1, )"
+    )
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_mismatched_bracket_type_error_message():
+    """RustParser now raises the same specific error as Python for a wrong-bracket-type close.
+
+    Regression test: on a mismatched bracket type (e.g. '[' closed by ')'),
+    Python's bracket-matching immediately detects the mismatch and raises a
+    specific 'Found unexpected end bracket!, was expecting ..., but got
+    ...' SQLParseError. RustParser's greedy_match used to fall through to
+    the generic 'Couldn't find closing bracket for opening bracket.' error
+    instead, as if the bracket were simply never closed - it now scans
+    forward to distinguish a genuinely-unclosed bracket from one closed by
+    the wrong type, matching Python's specific message.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer, Parser
+
+    sql = "SELECT a[)"
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    segments, _ = Lexer(config=config).lex(sql)
+
+    def build(use_rust: bool):
+        parser = RustParser(config=config) if use_rust else Parser(config=config)
+        try:
+            parser.parse(segments, fname="t.sql")
+            return None
+        except BaseException as err:
+            return (type(err).__name__, str(err))
+
+    assert build(True) == build(False)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_nested_bracket_mismatch_raises():
+    """Python and RustParser agree on a nested bracket-type mismatch.
+
+    A nested bracket-type mismatch (e.g. an unclosed '(' inside '[...]'
+    that gets "closed" by the outer ']') should raise 'Found unexpected
+    end bracket!' (SQLParseError) in both engines: `compute_bracket_pairs`
+    requires a closer to match the innermost (top-of-stack) opener, per
+    LIFO nesting discipline, matching Python's recursive `resolve_bracket`,
+    which only ever resolves the innermost open bracket next.
+
+    Both `compute_bracket_pairs` implementations enforce this:
+    `sqlfluffrs_lexer/src/lexer.rs` (used when sqlfluffrs does its own
+    lexing) and the duplicate in `sqlfluffrs_parser/src/parser/python.rs`
+    (used when RustParser re-derives bracket pairs from Python-lexed
+    tokens, e.g. via `Linter(use_rust_parser=True)` - the only publicly
+    observable path).
+    """
+    rust_result, python_result = _compare_parser_vs_rust("SELECT a[(1]")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT a[(1]) ]",
+        "SELECT a[[1)]]",
+    ],
+)
+def test__rust_parser__vs_python_crossed_bracket_after_mismatch_raises(sql):
+    """A later crossed bracket pair must not "recover" a mismatch, matching Python.
+
+    Once a bracket-type mismatch occurs, every bracket that was still open
+    at that point should stay unresolved, even if a later closer would
+    otherwise cross-match one of them. This mirrors Python's recursive
+    resolve_bracket: raising on the first mismatch unwinds through every
+    enclosing bracket's own call, so none of them can be validly resolved
+    afterwards. Both `compute_bracket_pairs` implementations enforce this
+    by clearing the entire bracket stack (not just the mismatched pair)
+    once a mismatch is found.
+    """
+    rust_result, python_result = _compare_parser_vs_rust(sql)
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_unclosed_nested_bracket_error_position():
+    """An unclosed bracket nested inside another should be blamed, not its parent.
+
+    For brackets unclosed to EOF and nested two or more levels deep (e.g.
+    an unclosed '(' containing an unclosed '['), the "couldn't find closing
+    bracket" error should point at the innermost open bracket. This matches
+    Python's resolve_bracket, which recurses into each opening bracket and
+    raises from that recursive call once it reaches EOF.
+    """
+    rust_result, python_result = _compare_parser_vs_rust("SELECT a(b[1")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_stray_bracket_swallows_union_arm():
+    """A stray ')' before UNION: Rust now discards the second arm too, matching Python.
+
+    Regression test: a second instance of the stray-closing-bracket bug
+    (see test__rust_parser__vs_python_stray_closing_bracket_terminator),
+    this time at UnorderedSelectStatementSegment's own terminator scan
+    (dialect_ansi.py) rather than SelectClauseSegment's. Before the fix,
+    with a stray ')' before a UNION, Python discarded the ENTIRE second arm
+    of the set operation as unparsable while RustParser incorrectly
+    recovered a proper set_expression with both arms intact - now both
+    engines discard the second arm identically.
+    """
+    rust_result, python_result = _compare_parser_vs_rust(
+        "SELECT a FROM t) UNION SELECT c"
+    )
+    assert rust_result == python_result
+
+
+# ---------------------------------------------------------------------------
+# RustParser vs. pure-Python Parser divergences on well-formed, already-shipped
+# dialect fixtures.
+#
+# Unlike the malformed-SQL cases above, these reproduce on VALID SQL that's
+# already checked into the repo as a dialect fixture with a Python-generated
+# .yml ground truth - i.e. RustParser disagrees with the fixture's own
+# checked-in expected output, on input nobody had to invent. Found by running
+# Parser vs RustParser over every fixture in every dialect (not just ansi);
+# unlike ansi (0 mismatches across 208 fixtures), other dialects' fixtures
+# turned up 7 mismatches across 4 dialects.
+# ---------------------------------------------------------------------------
+
+
+def _read_fixture(dialect: str, filename: str) -> str:
+    return (_FIXTURE_DIR / dialect / filename).read_text(encoding="utf-8")
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_pivot_clause_indent_duplication():
+    """RustParser must not duplicate an Indent inside PIVOT's bracketed content.
+
+    Regression guard: RustParser used to emit the grammar-level Indent that
+    is a direct child of PivotClauseSegment's Bracketed (dialect_sparksql.py
+    `Bracketed(Indent, ...)`) in addition to Bracketed's own structural
+    Indent, where Python drops the grammar-level one - shifting every
+    subsequent leaf in the tree for the rest of the file. Fixed by dropping
+    direct-child metas in the Rust Bracketed handler.
+
+    Uses the real, already-shipped databricks/pivot.sql fixture - this is
+    valid SQL with a correct Python-generated .yml, not invented malformed
+    input.
+    """
+    sql = _read_fixture("databricks", "pivot.sql")
+    rust_result, python_result = _compare_parser_vs_rust(sql, dialect="databricks")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_unpivot_clause_indent_duplication():
+    """RustParser must not duplicate an Indent inside UNPIVOT's bracketed content.
+
+    Regression guard: the same class of spurious extra Indent as the PIVOT
+    clause case above, but inside UnpivotClauseSegment's bracketed
+    column-alias content - a second, distinct grammar site of the same
+    Rust Bracketed direct-child-meta issue.
+
+    Uses the real, already-shipped databricks/unpivot.sql fixture.
+    """
+    sql = _read_fixture("databricks", "unpivot.sql")
+    rust_result, python_result = _compare_parser_vs_rust(sql, dialect="databricks")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_snowflake_numeric_literal_mistyped():
+    """RustParser now types this numeric literal as numeric_literal, matching Python.
+
+    Regression test: `Ref("LiteralSegment")` (dialect_snowflake.py) targets
+    a bare segment class with no dialect-specific match_grammar, so
+    Python's isinstance fast path returns the already-lexed "10" token
+    unwrapped, preserving its lex-time "numeric_literal" type.
+    RustParser's `handle_ref_combining` (ref_grammar.rs) computed that same
+    preserved type, but only fed it into `MatchedClass.segment_type` -
+    which feeds Rust's internal Node tree, not the Python-facing tree
+    RustParser.parse() actually builds. That builder reads the override
+    from `segment_kwargs["instance_types"]` instead, so the correct type
+    was silently dropped in favor of the generic "literal" default.
+
+    Fixed by also setting `segment_kwargs.instance_types` whenever the
+    isinstance-override applies.
+
+    Uses the real, already-shipped snowflake/create_catalog_integration.sql
+    fixture.
+    """
+    sql = _read_fixture("snowflake", "create_catalog_integration.sql")
+    rust_result, python_result = _compare_parser_vs_rust(sql, dialect="snowflake")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_tsql_datatype_method_oneof_ambiguity():
+    """RustParser must agree with Python on T-SQL datatype-method SQL.
+
+    Regression guard: RustParser used to compile every RegexParser pattern
+    case-insensitively, ignoring ``ignore_case=False``. T-SQL's
+    DatatypeMethodNameIdentifierSegment regex is deliberately
+    case-sensitive (datatype methods are lowercase-only), and it is also
+    the ``exclude`` on T-SQL's FunctionNameIdentifierSegment - so
+    'SomeSchema.Value(...)' wrongly matched as a datatype method on the
+    Rust side while the function interpretation Python picks was excluded,
+    producing a structurally different tree. With case sensitivity
+    honoured, both parsers agree.
+
+    Uses the real, already-shipped tsql/datatype_methods.sql fixture.
+    """
+    sql = _read_fixture("tsql", "datatype_methods.sql")
+    rust_result, python_result = _compare_parser_vs_rust(sql, dialect="tsql")
+    assert rust_result == python_result
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__vs_python_tsql_sqlcmd_command_loses_token_type():
+    """RustParser now preserves word/double_quote token typing inside sqlcmd_command_segment.
+
+    Regression test: inside T-SQL's sqlcmd_command_segment (:setvar-style
+    sqlcmd commands), RustParser used to lose the original lexer-assigned
+    token type for its content - a bare word and a double-quoted string
+    both came out as a generic 'raw' segment instead of
+    'word'/'double_quote' respectively, as Python's Parser preserves.
+
+    Same root cause and fix as
+    test__rust_parser__vs_python_snowflake_numeric_literal_mistyped: a
+    `Ref` to a bare segment class hits Python's isinstance fast path,
+    and the preserved type now gets threaded through
+    `segment_kwargs.instance_types` so RustParser.parse()'s Python-side
+    tree builder picks it up too.
+
+    Uses the real, already-shipped tsql/sqlcmd_command.sql fixture.
+    """
+    sql = _read_fixture("tsql", "sqlcmd_command.sql")
+    rust_result, python_result = _compare_parser_vs_rust(sql, dialect="tsql")
+    assert rust_result == python_result
+
+
+# ---------------------------------------------------------------------------
+# PyLexer vs. PyRsLexer (the Rust-backed lexer) divergences.
+#
+# A separate investigation from the parser-layer bugs above: this compares
+# tokenization itself, not grammar matching. The lexer port turned out to be
+# extremely faithful (zero token-stream divergences across ~900 combined
+# adversarial cases: position markers, dialect-specific quoting, unlexable/
+# error boundaries). The one confirmed, deterministic divergence is in
+# SQLLexError's message text, not the tokens themselves.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Regression: for an unlexable character run, PyLexer's "
+        "violations_from_segments (src/sqlfluff/core/parser/lexer.py:"
+        "838-847) builds the SQLLexError description via "
+        "'Unable to lex characters: {!r}'.format(...) - repr()-quoting and "
+        "escaping the raw text, and truncating to 9 characters plus a "
+        "literal '...' marker when longer. The Rust lexer's equivalent "
+        "(sqlfluffrs_lexer/src/lexer.rs:420-439, violations_from_tokens) "
+        'instead does format!("Unable to lex characters: {}", '
+        "token.raw().chars().take(10).collect::<String>()) - embedding the "
+        "raw characters directly with no quoting/escaping, no truncation "
+        "marker, and a 10- vs 9-character cutoff. SQLLexError.from_rs_error "
+        "(src/sqlfluff/core/errors.py:190-200) passes the Rust description "
+        "through verbatim, so real lint/parse output can contain literal "
+        "unescaped control bytes or unicode where the Python lexer would "
+        "have produced a safely quoted repr()-style string."
+    ),
+)
+def test__rust_parser__vs_python_lexer_unlexable_error_message():
+    """PyRsLexer's SQLLexError text differs from PyLexer's for unlexable input.
+
+    Uses a non-ASCII character that neither lexer can tokenize, forcing the
+    <unlexable> fallback path on both sides.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser.lexer import PyLexer, PyRsLexer
+
+    sql = "SELECT \xa1 FROM t"
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    _, py_errs = PyLexer(config=config).lex(sql)
+    _, rs_errs = PyRsLexer(config=config).lex(sql)
+
+    assert [str(e) for e in py_errs] == [str(e) for e in rs_errs]
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
@@ -668,3 +1202,42 @@ def test__rust_parser__rs_tree_arena_navigation():
     assert any(
         leaf.raw.upper() == "FROM" and leaf.is_type(["keyword"]) for leaf in leaves
     )
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "method,is_datatype_method",
+    [
+        ("value", True),  # T-SQL data-type methods are case-SENSITIVE (lowercase)
+        ("query", True),
+        ("VALUE", False),  # upper/mixed case is NOT a data-type method
+        ("Value", False),
+        ("QUERY", False),
+    ],
+)
+def test__rust_parser__tsql_datatype_method_case_sensitive(method, is_datatype_method):
+    """Rust parser honors ``ignore_case=False``.
+
+    ``col.value(...)`` is a data-type method (case-sensitive, lowercase only);
+    ``col.VALUE(...)`` / ``col.Value(...)`` are not. The Rust parser must match
+    native here.
+    """
+    from sqlfluff.core import FluffConfig, Linter
+
+    src = f"SELECT col.{method}('/x', 'y') FROM t;\n"
+
+    def method_ids(rust: bool):
+        cfg = FluffConfig(
+            overrides={
+                "dialect": "tsql",
+                "use_rust_parser": rust,
+                "use_rust_engine": False,
+            }
+        )
+        tree = Linter(config=cfg).parse_string(src).tree
+        return [s.raw for s in tree.recursive_crawl("datatype_method_name_identifier")]
+
+    rust_ids = method_ids(True)
+    native_ids = method_ids(False)
+    assert rust_ids == native_ids  # parity with native
+    assert (method in rust_ids) is is_datatype_method

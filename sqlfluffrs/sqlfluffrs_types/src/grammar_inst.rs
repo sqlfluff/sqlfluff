@@ -82,7 +82,8 @@ impl GrammarFlags {
     pub const HAS_EXCLUDE: u16 = 1 << 6; // Whether exclude_idx is valid
     pub const HAS_ANTI_TEMPLATE: u16 = 1 << 7; // For RegexParser
     pub const IS_CONDITIONAL: u16 = 1 << 8; // For Meta - whether it's a Conditional Meta
-                                            // Bits 9-15 reserved for future use
+    pub const CASE_SENSITIVE: u16 = 1 << 9; // For RegexParser: match case-sensitively (Python `ignore_case=False`)
+                                            // Bits 10-15 reserved for future use
 
     /// Create empty flags
     #[inline]
@@ -129,6 +130,12 @@ impl GrammarFlags {
     #[inline]
     pub const fn reset_terminators(self) -> bool {
         self.has(Self::RESET_TERMINATORS)
+    }
+
+    /// RegexParser only: whether to match case-sensitively.
+    #[inline]
+    pub const fn case_sensitive(self) -> bool {
+        self.has(Self::CASE_SENSITIVE)
     }
 
     #[inline]
