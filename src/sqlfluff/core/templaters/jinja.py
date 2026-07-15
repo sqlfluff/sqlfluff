@@ -6,6 +6,7 @@ import importlib.util
 import logging
 import os.path
 import pkgutil
+import re
 import sys
 from collections.abc import Iterable, Iterator
 from functools import reduce
@@ -749,6 +750,23 @@ class JinjaTemplater(PythonTemplater):
                 "For the jinja templater, the `process()` method requires a config "
                 "object."
             )
+
+        # Fast path: a file with no Jinja markers renders to itself, so skip
+        # environment construction, Jinja parsing, rendering and tracing
+        # entirely. The environment always uses the standard Jinja delimiters
+        # (see `_get_jinja_env`) and `keep_trailing_newline=True`, so if none
+        # of `{{`, `{%` or `{#` appear then the rendered output is exactly the
+        # input, there can be no undefined variables, and the file is a single
+        # literal slice (matching what `slice_file` would return). We only
+        # skip when no macro loading is configured, because loading macros
+        # (from config or from a path) is validated at construction time and
+        # can raise user-facing errors which we must preserve.
+        if (
+            not re.search(r"\{[{%#]", in_str)
+            and not self._get_macros_path(config, "load_macros_from_path")
+            and not config.get_section((self.templater_selector, self.name, "macros"))
+        ):
+            return TemplatedFile(in_str, fname=fname), []
 
         env, live_context, render_func = self.construct_render_func(
             fname=fname, config=config
