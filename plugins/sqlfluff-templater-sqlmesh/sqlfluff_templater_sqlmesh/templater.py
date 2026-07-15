@@ -822,7 +822,7 @@ class SQLMeshTemplater(JinjaTemplater):
         source location in this file.
         """
         try:
-            rendered = self.sqlmesh_context.render(model, expand=False, no_format=True)
+            rendered = self.sqlmesh_context.render(model, expand=False)
         except Exception as err:
             if is_sqlmesh_exception(err) or isinstance(
                 err, (AttributeError, TypeError, ValueError)
