@@ -16,7 +16,7 @@ def _identifier_key(identifier: BaseSegment) -> tuple[bool, str]:
     same spelling, mirroring ANSI quoted identifier semantics.
     """
     if identifier.is_type("quoted_identifier"):
-        return (True, identifier.raw_normalized(casefold=False))
+        return (True, identifier.raw_normalized())
     return (False, identifier.raw_normalized())
 
 
