@@ -85,13 +85,13 @@ SELECT 1 as test_column"""
         assert templated_file is not None
         assert violations == []
         assert templated_file.source_str == content
-        # The templated_str should be the rendered SQL from SQLMesh (ignores in_str, uses model from fname)
-        # This is correct SQLMesh behavior - it renders by model name, not inline content
+        # The inline body has no macros, so tier 1 lints it verbatim: the
+        # MODEL(...) header is stripped (mapped to a zero-length templated
+        # slice) and the templated string is the buffer's own SQL body. This
+        # is what makes editor/stdin buffers lintable rather than silently
+        # rendering the on-disk model instead.
         assert "MODEL" not in templated_file.templated_str
-        assert "SELECT" in templated_file.templated_str
-        assert "simple_model" in str(
-            templated_file.templated_str
-        ) or "source_table" in str(templated_file.templated_str)
+        assert templated_file.templated_str == "SELECT 1 as test_column"
 
     def test_non_model_file_falls_back_to_literal(self, sqlmesh_config, fixture_dir):
         """Non-model files in the project tree fall back to literal templating.

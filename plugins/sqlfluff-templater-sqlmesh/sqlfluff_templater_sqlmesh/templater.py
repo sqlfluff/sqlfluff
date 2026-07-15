@@ -9,7 +9,6 @@ such, all imports of the SQLMesh libraries are contained within the
 SQLMeshTemplater class and so are only imported when necessary.
 """
 
-import difflib
 import logging
 import os
 import os.path
@@ -41,6 +40,9 @@ if TYPE_CHECKING:  # pragma: no cover
 templater_logger = logging.getLogger("sqlfluff.templater")
 
 ERROR_PREAMBLE = "Error received from SQLMesh during project compilation. "
+
+# A source region description: (slice_type, src_start, src_end, tmpl_start, tmpl_end).
+Region = tuple[str, int, int, int, int]
 
 
 def is_sqlmesh_exception(exception: Optional[BaseException]) -> bool:
@@ -121,7 +123,26 @@ def handle_sqlmesh_errors(
 
 
 class SQLMeshTemplater(JinjaTemplater):
-    """A templater using SQLMesh."""
+    """A templater using SQLMesh.
+
+    SQLMesh renders models through SQLGlot (AST expansion + re-serialisation)
+    rather than by Jinja-style substitution, so the rendered SQL has no
+    literal-slice relationship to the source. Rather than reconstruct a map
+    from a text diff (which classifies almost everything as "templated" and
+    hides violations), the templater dispatches across four tiers, cheapest
+    first, so that as much of the file as possible is mapped as real,
+    lintable ``literal`` SQL:
+
+    * **T0** - split the ``MODEL (...)`` header (source-only) from the SQL body.
+    * **T1** - a body with no ``@`` macros is linted verbatim, with exact
+      positions and no SQLMesh context loaded at all.
+    * **T2** - a body whose macros all resolve to a single inline expression is
+      substituted into the *verbatim* source, so non-macro SQL keeps exact
+      positions (this mirrors how the Jinja templater traces substitutions).
+    * **T3** - anything else (structural or unresolved macros) is rendered whole
+      and mapped as one coarse ``templated`` region. It is suppressed by
+      default but, crucially, never collapses positions to the start of file.
+    """
 
     name = "sqlmesh"
     templates_in_worker = False
@@ -132,7 +153,6 @@ class SQLMeshTemplater(JinjaTemplater):
         self.sqlfluff_config = None
         self.formatter = None
         self.project_dir = None
-        self.working_dir = os.getcwd()
         super().__init__(override_context=override_context)
 
     def config_pairs(self) -> list[tuple[str, str]]:
@@ -211,6 +231,15 @@ class SQLMeshTemplater(JinjaTemplater):
         return self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "gateway")
         )
+
+    def _get_dialect(self) -> Optional[str]:
+        """Get the configured SQLFluff dialect (used to seed SQLGlot parsing)."""
+        if self.sqlfluff_config is None:
+            return None
+        try:
+            return self.sqlfluff_config.get("dialect")
+        except Exception:  # pragma: no cover - defensive
+            return None
 
     @cached_property
     def sqlmesh_version(self):
@@ -293,92 +322,58 @@ class SQLMeshTemplater(JinjaTemplater):
         in_str: Optional[str] = None,
         config: Optional["FluffConfig"] = None,
     ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
-        """Process a file with SQLMesh, without error handling."""
+        """Process a file with SQLMesh, without error handling.
+
+        Implements the T0-T3 dispatch described on the class docstring.
+        """
         if in_str is None:
             with open(fname, "r", encoding="utf-8") as f:
                 in_str = f.read()
 
-        # Get the model name from the file path
-        model_name = self._get_model_name_from_path(fname)
+        # T0: separate the MODEL(...) header (source-only) from the SQL body.
+        header_end = self._find_model_block_end(in_str)
+        body = in_str[header_end or 0 :]
 
-        if not model_name:
-            # The file is outside the project directory (or the project dir is
-            # invalid), so it cannot map to a SQLMesh model. Fall back to
-            # literal templating without touching the SQLMesh context.
-            templater_logger.debug(
-                "Could not determine SQLMesh model name for %s. "
-                "Falling back to literal templating (no SQLMesh rendering).",
-                fname,
-            )
-            return self._create_literal_templated_file(
-                fname, in_str, source_content=in_str
-            )
+        # T1: a body with no macros is linted verbatim. This needs no SQLMesh
+        # context at all, so plain-SQL models (and stdin buffers) "just work".
+        macro_spans = self._find_macro_spans(body)
+        if not macro_spans:
+            return self._passthrough_file(fname, in_str, header_end)
 
-        # The file lives within the project tree, but not every such file is a
-        # renderable model: ``macros/``, ``tests/``, ``seeds/``, ``audits/`` and
-        # similar files share the project directory but are not models.
-        # Resolving against the loaded models lets us skip SQLMesh rendering for
-        # those files instead of crashing when ``Context.render`` calls
-        # ``get_model(..., raise_if_missing=True)``.
-        model = self._resolve_model(fname, model_name)
-
+        # Macros are present, so we need the model to resolve them against.
+        model = self._resolve_model(fname, self._get_model_name_from_path(fname))
         if model is None:
+            # A non-model file (macros/, tests/, ...) that happens to contain an
+            # '@'. There is nothing to render it against, so pass it through.
             templater_logger.debug(
-                "No SQLMesh model is registered for %s. "
-                "Falling back to literal templating (no SQLMesh rendering).",
+                "No SQLMesh model registered for %s; passing through literally.",
                 fname,
             )
-            return self._create_literal_templated_file(
-                fname, in_str, source_content=in_str
-            )
+            return self._passthrough_file(fname, in_str, header_end)
 
-        # Use SQLMesh Context.render() to get the rendered SQL
-        templater_logger.debug("Rendering SQLMesh model: %s", model.name)
-
-        try:
-            rendered_ast = self.sqlmesh_context.render(
-                model,
-                expand=True,  # Expand all macros and dependencies
-                no_format=True,  # Don't format, let SQLFluff handle that
-            )
-            # Convert SQLGlot AST to SQL string
-            rendered_sql = (
-                rendered_ast.sql()
-                if hasattr(rendered_ast, "sql")
-                else str(rendered_ast)
-            )
+        # T2: try to resolve every macro span to a single inline expression and
+        # splice it into the verbatim source, keeping non-macro SQL literal.
+        replacements = self._resolve_macro_spans(model, body, macro_spans)
+        if replacements is not None:
             templater_logger.debug(
-                "Successfully rendered SQLMesh model: %s", model.name
+                "Substituting %d SQLMesh macro(s) in %s (tier 2).",
+                len(macro_spans),
+                fname,
             )
-            templater_logger.debug("Rendered SQL: %s", rendered_sql)
-        except Exception as err:
-            if is_sqlmesh_exception(err) or isinstance(
-                err, (AttributeError, TypeError, ValueError)
-            ):
-                raise SQLTemplaterError(
-                    f"SQLMesh rendering failed for model '{model.name}': {err}. "
-                    "Check your SQLMesh model syntax and project configuration."
-                ) from None
-            raise
+            return self._substitute_file(
+                fname, in_str, header_end, macro_spans, replacements
+            )
 
-        # Build accurate source-to-rendered position mappings.
-        #
-        # NOTE: We cannot reuse the inherited Jinja ``slice_file`` here because
-        # SQLMesh renders models through SQLGlot rather than Jinja substitution.
-        # The rendered SQL has no literal-slice relationship to the source, so
-        # the Jinja tracer collapses every position to the start of the file.
-        # Instead we align the source SQL body with the rendered SQL using a
-        # difflib diff, which yields real per-segment positions.
-        raw_sliced, sliced_file = self._build_source_mapping(in_str, rendered_sql)
-
-        templated_file = TemplatedFile(
-            source_str=in_str,
-            templated_str=rendered_sql,
-            fname=fname,
-            sliced_file=sliced_file,
-            raw_sliced=raw_sliced,
+        # T3: structural or unresolved macros. Render the model whole and map
+        # the body as one coarse templated region (suppressed by default, but
+        # never collapsed to the start of the file).
+        templater_logger.debug(
+            "Falling back to coarse templated mapping for %s (tier 3).", fname
         )
-        return templated_file, []
+        rendered_sql = self._render_body(model)
+        return self._coarse_templated_file(fname, in_str, header_end, rendered_sql)
+
+    # -- Model resolution -----------------------------------------------------
 
     def _resolve_model(self, fname: str, model_name: Optional[str]) -> Any:
         """Resolve the SQLMesh model for a file, or None if it isn't a model.
@@ -448,24 +443,45 @@ class SQLMeshTemplater(JinjaTemplater):
             )
             return None
 
+    # -- T0: MODEL header detection -------------------------------------------
+
+    @staticmethod
+    def _skip_leading_trivia(source: str) -> int:
+        """Return the index of the first non-whitespace, non-comment char."""
+        i, n = 0, len(source)
+        while i < n:
+            ch = source[i]
+            if ch in " \t\r\n":
+                i += 1
+            elif ch == "-" and source[i + 1 : i + 2] == "-":
+                nl = source.find("\n", i)
+                i = n if nl == -1 else nl + 1
+            elif ch == "/" and source[i + 1 : i + 2] == "*":
+                end = source.find("*/", i + 2)
+                i = n if end == -1 else end + 2
+            else:
+                break
+        return i
+
     @staticmethod
     def _find_model_block_end(source: str) -> Optional[int]:
         """Find the end of the MODEL (...); block in a SQLMesh source file.
 
-        Handles nested parentheses (e.g. INCREMENTAL_BY_TIME_RANGE(...))
-        and string literals within the MODEL block.
+        Handles leading comments before the ``MODEL`` DDL (SQLMesh allows them),
+        nested parentheses (e.g. INCREMENTAL_BY_TIME_RANGE(...)) and string
+        literals within the MODEL block.
 
         Returns the index just past the MODEL block including any trailing
         whitespace, or None if no MODEL block is found.
         """
-        match = re.match(r"\s*MODEL\s*\(", source, re.IGNORECASE)
-        if not match:
+        start = SQLMeshTemplater._skip_leading_trivia(source)
+        if not re.match(r"MODEL\s*\(", source[start:], re.IGNORECASE):
             return None
 
         depth = 0
         in_string = False
         string_char = None
-        i = match.start()
+        i = start
 
         while i < len(source):
             ch = source[i]
@@ -505,127 +521,276 @@ class SQLMeshTemplater(JinjaTemplater):
 
         return None
 
+    # -- Macro scanning -------------------------------------------------------
+
     @staticmethod
-    def _coalesce_diff_opcodes(
-        opcodes: list[tuple[str, int, int, int, int]],
-    ) -> list[tuple[str, int, int, int, int]]:
-        """Merge diff opcodes so that no ``delete`` or ``insert`` stands alone.
-
-        ``difflib.SequenceMatcher`` can split a single macro expansion like
-        ``@if(@DEV, 'dev', 'prod')`` into ``delete + equal('dev') + delete``
-        because the literal ``'dev'`` is a common substring. Those isolated
-        ``delete`` opcodes would produce zero-length template slices that
-        confuse SQLFluff's position-mapping logic.
-
-        This method coalesces every run of non-``equal`` opcodes (and any
-        ``equal`` opcodes sandwiched between them) into a single ``replace``.
-        """
-        if not opcodes:
-            return opcodes
-
-        result: list[tuple[str, int, int, int, int]] = []
-        i = 0
-        while i < len(opcodes):
-            tag = opcodes[i][0]
-            if tag == "equal":
-                result.append(opcodes[i])
-                i += 1
-                continue
-
-            # Start of a non-equal run — accumulate until we find a
-            # standalone equal (one not followed by another non-equal).
-            _, run_i1, run_i2, run_j1, run_j2 = opcodes[i]
-            i += 1
-            while i < len(opcodes):
-                next_tag = opcodes[i][0]
-                if next_tag != "equal":
-                    run_i2 = opcodes[i][2]
-                    run_j2 = opcodes[i][4]
-                    i += 1
-                elif i + 1 < len(opcodes) and opcodes[i + 1][0] != "equal":
-                    # Equal sandwiched between non-equals — absorb both.
-                    run_i2 = opcodes[i + 1][2]
-                    run_j2 = opcodes[i + 1][4]
+    def _skip_string(s: str, i: int) -> int:
+        """Return the index just past a string literal starting at ``i``."""
+        quote = s[i]
+        i += 1
+        n = len(s)
+        while i < n:
+            if s[i] == quote:
+                if i + 1 < n and s[i + 1] == quote:  # '' / "" escape
                     i += 2
-                else:
-                    break
+                    continue
+                return i + 1
+            i += 1
+        return n
 
-            result.append(("replace", run_i1, run_i2, run_j1, run_j2))
+    @staticmethod
+    def _skip_balanced_parens(s: str, i: int) -> int:
+        """Return the index past the ``)`` matching the ``(`` at ``i``."""
+        depth = 0
+        n = len(s)
+        while i < n:
+            c = s[i]
+            if c in ("'", '"'):
+                i = SQLMeshTemplater._skip_string(s, i)
+                continue
+            if c == "(":
+                depth += 1
+            elif c == ")":
+                depth -= 1
+                if depth == 0:
+                    return i + 1
+            i += 1
+        return n
 
-        return result
+    @staticmethod
+    def _find_macro_spans(body: str) -> list[tuple[int, int]]:
+        """Locate SQLMesh ``@macro`` spans in a SQL body.
 
-    def _build_source_mapping(
-        self,
-        source_str: str,
-        rendered_sql: str,
-    ) -> tuple[list[RawFileSlice], list[TemplatedFileSlice]]:
-        """Build accurate source-to-rendered position mappings.
-
-        Splits the source at the MODEL block boundary, then uses
-        ``difflib.SequenceMatcher`` to align the SQL body with the rendered
-        output. Returns ``(raw_sliced, sliced_file)`` conforming to the
-        ``TemplatedFile`` contract.
+        Skips string literals and comments so an ``@`` inside a string (e.g. an
+        email literal) is not mistaken for a macro. Recognises ``@name``,
+        ``@name(...)`` and ``@{ ... }``.
         """
+        spans: list[tuple[int, int]] = []
+        i, n = 0, len(body)
+        while i < n:
+            ch = body[i]
+            if ch in ("'", '"'):
+                i = SQLMeshTemplater._skip_string(body, i)
+            elif ch == "-" and body[i + 1 : i + 2] == "-":
+                nl = body.find("\n", i)
+                i = n if nl == -1 else nl
+            elif ch == "/" and body[i + 1 : i + 2] == "*":
+                end = body.find("*/", i + 2)
+                i = n if end == -1 else end + 2
+            elif (
+                ch == "@"
+                and i + 1 < n
+                and (body[i + 1] == "{" or body[i + 1].isalpha() or body[i + 1] == "_")
+            ):
+                start = i
+                if body[i + 1] == "{":
+                    close = body.find("}", i + 2)
+                    i = n if close == -1 else close + 1
+                else:
+                    j = i + 1
+                    while j < n and (body[j].isalnum() or body[j] == "_"):
+                        j += 1
+                    if j < n and body[j] == "(":  # macro call: consume args
+                        j = SQLMeshTemplater._skip_balanced_parens(body, j)
+                    i = j
+                spans.append((start, i))
+            else:
+                i += 1
+        return spans
+
+    # -- T2: positioned macro substitution ------------------------------------
+
+    def _build_macro_evaluator(self, model: Any):
+        """Build a MacroEvaluator seeded the way SQLMesh seeds it for a model.
+
+        The model's ``python_env`` carries user-defined variables (via
+        ``__sqlmesh__vars__``) and macro definitions; ``date_dict`` supplies the
+        temporal macro variables (``@start_ds``, ``@end_ds``, ...). The exact
+        time window is irrelevant to linting — only that the tokens resolve to
+        literals so the SQL parses and positions map.
+        """
+        from sqlmesh.core.macros import MacroEvaluator
+        from sqlmesh.utils.date import date_dict, to_datetime
+        from sqlmesh.utils.metaprogramming import prepare_env
+
+        evaluator = MacroEvaluator(dialect=self._get_dialect() or "")
+        prepare_env(dict(getattr(model, "python_env", {}) or {}), evaluator.locals)
+        anchor = to_datetime(getattr(model, "start", None) or "1970-01-01")
+        evaluator.locals.update(date_dict(anchor, anchor, anchor))
+        return evaluator
+
+    def _resolve_macro_spans(
+        self, model: Any, body: str, spans: list[tuple[int, int]]
+    ) -> Optional[list[str]]:
+        """Resolve each macro span to a single inline SQL string.
+
+        Returns replacements aligned with ``spans``, or ``None`` if any span is
+        structural (expands to multiple expressions, e.g. ``@EACH``) or cannot
+        be resolved — in which case the caller safely defers to tier 3.
+        """
+        import sqlglot
+
+        try:
+            evaluator = self._build_macro_evaluator(model)
+        except Exception as err:  # pragma: no cover - defensive
+            templater_logger.debug("Could not build a SQLMesh macro evaluator: %s", err)
+            return None
+
+        dialect = self._get_dialect()
+        replacements: list[str] = []
+        for start, end in spans:
+            text = body[start:end]
+            parsed = None
+            for candidate in (dialect, None):
+                try:
+                    parsed = sqlglot.parse_one(text, dialect=candidate)
+                    break
+                except Exception:
+                    continue
+            if parsed is None:
+                templater_logger.debug("Macro %r could not be parsed.", text)
+                return None
+            try:
+                out = evaluator.transform(parsed)
+            except Exception as err:
+                templater_logger.debug("Macro %r did not resolve inline: %s", text, err)
+                return None
+            # A list/tuple means a structural macro that splices multiple
+            # expressions into its parent — not a single-span substitution.
+            if out is None or isinstance(out, (list, tuple)) or not hasattr(out, "sql"):
+                return None
+            replacements.append(out.sql(dialect=dialect) if dialect else out.sql())
+        return replacements
+
+    # -- T3: coarse fallback rendering ----------------------------------------
+
+    def _render_body(self, model: Any) -> str:
+        """Render a model's own query to a SQL string.
+
+        ``expand=False`` avoids inlining upstream models, whose SQL has no
+        source location in this file.
+        """
+        try:
+            rendered = self.sqlmesh_context.render(model, expand=False, no_format=True)
+        except Exception as err:
+            if is_sqlmesh_exception(err) or isinstance(
+                err, (AttributeError, TypeError, ValueError)
+            ):
+                raise SQLTemplaterError(
+                    f"SQLMesh rendering failed for model '{model.name}': {err}. "
+                    "Check your SQLMesh model syntax and project configuration."
+                ) from None
+            raise
+        return rendered.sql() if hasattr(rendered, "sql") else str(rendered)
+
+    # -- TemplatedFile assembly -----------------------------------------------
+
+    def _make_file(
+        self,
+        fname: str,
+        source_str: str,
+        templated_str: str,
+        regions: list[Region],
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
+        """Assemble a TemplatedFile from contiguous source/templated regions."""
         raw_sliced: list[RawFileSlice] = []
         sliced_file: list[TemplatedFileSlice] = []
-
-        # Identify the MODEL block boundary.
-        model_block_end = self._find_model_block_end(source_str)
-
-        if model_block_end:
-            model_block = source_str[:model_block_end]
-            sql_body = source_str[model_block_end:]
-            source_offset = model_block_end
-
-            # MODEL block is source-only (not present in rendered output).
+        for stype, s0, s1, t0, t1 in regions:
             raw_sliced.append(
                 RawFileSlice(
-                    raw=model_block,
-                    slice_type="block_start",
-                    source_idx=0,
+                    raw=source_str[s0:s1],
+                    slice_type=stype,
+                    source_idx=s0,
                     block_idx=0,
                 )
             )
             sliced_file.append(
                 TemplatedFileSlice(
-                    slice_type="block_start",
-                    source_slice=slice(0, model_block_end),
-                    templated_slice=slice(0, 0),
+                    slice_type=stype,
+                    source_slice=slice(s0, s1),
+                    templated_slice=slice(t0, t1),
                 )
             )
-        else:
-            sql_body = source_str
-            source_offset = 0
+        return (
+            TemplatedFile(
+                source_str=source_str,
+                templated_str=templated_str,
+                fname=fname,
+                sliced_file=sliced_file,
+                raw_sliced=raw_sliced,
+            ),
+            [],
+        )
 
-        # Use difflib to align the SQL body with the rendered SQL, then
-        # coalesce so that no delete/insert produces a zero-length slice.
-        block_idx = 1 if model_block_end else 0
-        matcher = difflib.SequenceMatcher(None, sql_body, rendered_sql, autojunk=False)
-        opcodes = self._coalesce_diff_opcodes(list(matcher.get_opcodes()))
+    def _passthrough_file(
+        self, fname: str, source_str: str, header_end: Optional[int]
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
+        """Tiers 0/1: MODEL header (if any) → zero-length templated; body → literal.
 
-        for tag, i1, i2, j1, j2 in opcodes:
-            src_start = i1 + source_offset
-            src_end = i2 + source_offset
-            source_text = source_str[src_start:src_end]
-            slice_type = "literal" if tag == "equal" else "templated"
+        The templated string is the body only, so the DDL header is never parsed
+        as SQL and the body keeps exact source positions.
+        """
+        body_start = header_end or 0
+        body = source_str[body_start:]
+        regions: list[Region] = []
+        if header_end:
+            regions.append(("templated", 0, body_start, 0, 0))
+        regions.append(("literal", body_start, len(source_str), 0, len(body)))
+        return self._make_file(fname, source_str, body, regions)
 
-            raw_sliced.append(
-                RawFileSlice(
-                    raw=source_text,
-                    slice_type=slice_type,
-                    source_idx=src_start,
-                    block_idx=block_idx,
+    def _substitute_file(
+        self,
+        fname: str,
+        source_str: str,
+        header_end: Optional[int],
+        spans: list[tuple[int, int]],
+        replacements: list[str],
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
+        """Tier 2: splice resolved macro text into the verbatim source body."""
+        body_start = header_end or 0
+        body = source_str[body_start:]
+        regions: list[Region] = []
+        parts: list[str] = []
+        if header_end:
+            regions.append(("templated", 0, body_start, 0, 0))
+        t = 0  # running offset within the templated string
+        cursor = 0  # running offset within the body
+        for (s, e), text in zip(spans, replacements):
+            if s > cursor:  # literal run preceding this macro
+                lit = body[cursor:s]
+                regions.append(
+                    ("literal", body_start + cursor, body_start + s, t, t + len(lit))
                 )
+                parts.append(lit)
+                t += len(lit)
+            regions.append(
+                ("templated", body_start + s, body_start + e, t, t + len(text))
             )
-            sliced_file.append(
-                TemplatedFileSlice(
-                    slice_type=slice_type,
-                    source_slice=slice(src_start, src_end),
-                    templated_slice=slice(j1, j2),
-                )
+            parts.append(text)
+            t += len(text)
+            cursor = e
+        if cursor < len(body):  # trailing literal
+            lit = body[cursor:]
+            regions.append(
+                ("literal", body_start + cursor, len(source_str), t, t + len(lit))
             )
+            parts.append(lit)
+        return self._make_file(fname, source_str, "".join(parts), regions)
 
-        return raw_sliced, sliced_file
+    def _coarse_templated_file(
+        self,
+        fname: str,
+        source_str: str,
+        header_end: Optional[int],
+        rendered_sql: str,
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
+        """Tier 3: whole body → one templated region. Safe, never collapses."""
+        body_start = header_end or 0
+        regions: list[Region] = []
+        if header_end:
+            regions.append(("templated", 0, body_start, 0, 0))
+        regions.append(("templated", body_start, len(source_str), 0, len(rendered_sql)))
+        return self._make_file(fname, source_str, rendered_sql, regions)
 
     def _create_literal_templated_file(
         self,
