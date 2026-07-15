@@ -17,9 +17,6 @@ on:
       python-version:
         required: true
         type: string
-    secrets:
-      gh_token:
-        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}

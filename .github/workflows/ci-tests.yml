@@ -492,8 +492,6 @@ jobs:
     uses: ./.github/workflows/ci-test-sqlmesh.yml
     with:
       python-version: ${{ matrix.python-version }}
-    secrets:
-      gh_token: ${{ secrets.github_token }}
 
   dialect-tests:
     name: Dialect ${{ matrix.marks }}${{ matrix.with-rust }}
