@@ -65,6 +65,19 @@ impl<'a> Parser<'a> {
             );
             println!("  Avg options per call: {:.1}", total as f64 / calls as f64);
         }
+
+        // Print single-grammar hint-gate stats (Sequence/Delimited child skips)
+        let gate_calls = self.metrics.hint_gate_calls.get();
+        let gate_rejections = self.metrics.hint_gate_rejections.get();
+        if gate_calls > 0 {
+            println!("SimpleHint Gate Statistics:");
+            println!("  Gate calls: {}", gate_calls);
+            println!(
+                "  Child frames skipped: {} ({:.1}%)",
+                gate_rejections,
+                100.0 * gate_rejections as f64 / gate_calls as f64
+            );
+        }
     }
 
     /// Peek at the current token without consuming it
@@ -232,6 +245,16 @@ impl<'a> Parser<'a> {
     // They work with GrammarId and use GrammarContext for
     // table access.
 
+    /// Find the first code token at or after `pos`.
+    ///
+    /// Shared by `prune_options` and `simple_hint_rejects`, both of which
+    /// need the token whose raw/type values are checked against a grammar's
+    /// simple hint.
+    #[inline]
+    fn first_code_token_at(&self, pos: usize) -> Option<&Token> {
+        self.tokens.iter().skip(pos).find(|t| t.is_code())
+    }
+
     /// First-token hint gate for a single grammar.
     ///
     /// Returns true when `grammar`'s simple hint proves it cannot match at
@@ -242,6 +265,12 @@ impl<'a> Parser<'a> {
     /// the grammar has no hint or there is no code token to check.
     #[inline]
     pub(crate) fn simple_hint_rejects(&self, grammar: GrammarId, pos: usize) -> bool {
+        // Not a real grammar id (terminator sentinel) - never index the
+        // grammar tables with it. Mirrors the guard `prune_options` applies
+        // for the same reason.
+        if grammar == GrammarId::NONCODE {
+            return false;
+        }
         let tables = self.grammar_ctx.tables();
         let Some(hint) = tables.get_simple_hint_for_grammar(grammar) else {
             return false;
@@ -249,10 +278,20 @@ impl<'a> Parser<'a> {
         if hint.is_empty() {
             return false;
         }
-        let Some(tok) = self.tokens.iter().skip(pos).find(|t| t.is_code()) else {
+        let Some(tok) = self.first_code_token_at(pos) else {
             return false;
         };
-        !tables.hint_can_match(hint, tok.raw_upper(), &tok.instance_types, &tok.class_types)
+        self.metrics
+            .hint_gate_calls
+            .set(self.metrics.hint_gate_calls.get() + 1);
+        let rejects =
+            !tables.hint_can_match(hint, tok.raw_upper(), &tok.instance_types, &tok.class_types);
+        if rejects {
+            self.metrics
+                .hint_gate_rejections
+                .set(self.metrics.hint_gate_rejections.get() + 1);
+        }
+        rejects
     }
 
     /// Combine parent and local terminators for table-driven parsing.
@@ -327,7 +366,7 @@ impl<'a> Parser<'a> {
             .set(self.metrics.pruning_total.get() + options.len());
 
         // Find first code token
-        let first_code_token = self.tokens.iter().skip(self.pos).find(|t| t.is_code());
+        let first_code_token = self.first_code_token_at(self.pos);
 
         // If no code token found, can't prune - return all options
         let Some(first_token) = first_code_token else {

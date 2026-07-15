@@ -140,14 +140,15 @@ impl Parser<'_> {
         }
 
         // First-token hint gate: when the element's simple hint rules out a
-        // match at this position, skip the frame and feed an empty result to
-        // the waiting handler (identical to what the frame would return).
+        // match at this position, skip creating a real child frame (see
+        // simple_hint_rejects / TableParseFrameStack::gate_child_and_wait).
         if self.simple_hint_rejects(elements[current_element_idx], child_start_pos) {
-            frame.state = FrameState::WaitingForChild {
-                child_index: current_element_idx,
-            };
-            let arc = Arc::new(MatchResult::empty_at(child_start_pos));
-            return self.handle_sequence_waiting_for_child(frame, &arc, &child_start_pos, stack);
+            return Ok(stack.gate_child_and_wait(
+                frame,
+                GrammarVariant::Sequence,
+                current_element_idx,
+                child_start_pos,
+            ));
         }
 
         // Create child frame with potentially new element after meta buffering
@@ -399,15 +400,13 @@ impl Parser<'_> {
             // First-token hint gate (see simple_hint_rejects): skip the frame
             // when the element provably cannot match at this position.
             if self.simple_hint_rejects(elements[next_element_idx], child_start_pos) {
-                {
-                    let ctx = frame.context.as_sequence_mut().unwrap();
-                    ctx.current_element_idx = next_element_idx;
-                }
-                frame.state = FrameState::WaitingForChild {
-                    child_index: next_element_idx,
-                };
-                let arc = Arc::new(MatchResult::empty_at(child_start_pos));
-                return self.handle_sequence_waiting_for_child(frame, &arc, &child_start_pos, stack);
+                frame.context.as_sequence_mut().unwrap().current_element_idx = next_element_idx;
+                return Ok(stack.gate_child_and_wait(
+                    frame,
+                    GrammarVariant::Sequence,
+                    next_element_idx,
+                    child_start_pos,
+                ));
             }
 
             let child_frame_id = stack.frame_id_counter;
@@ -646,15 +645,13 @@ impl Parser<'_> {
             if self.grammar_ctx.is_optional(next_element) {
                 // First-token hint gate (see simple_hint_rejects).
                 if self.simple_hint_rejects(next_element, matched_idx) {
-                    {
-                        let ctx = frame.context.as_sequence_mut().unwrap();
-                        ctx.current_element_idx = current_idx;
-                    }
-                    frame.state = FrameState::WaitingForChild {
-                        child_index: current_idx,
-                    };
-                    let arc = Arc::new(MatchResult::empty_at(matched_idx));
-                    return self.handle_sequence_waiting_for_child(frame, &arc, &matched_idx, stack);
+                    frame.context.as_sequence_mut().unwrap().current_element_idx = current_idx;
+                    return Ok(stack.gate_child_and_wait(
+                        frame,
+                        GrammarVariant::Sequence,
+                        current_idx,
+                        matched_idx,
+                    ));
                 }
 
                 // PYTHON PARITY: Use parent terminators (without Sequence's own) for children
@@ -721,15 +718,13 @@ impl Parser<'_> {
 
         // First-token hint gate (see simple_hint_rejects).
         if self.simple_hint_rejects(next_element, child_start_pos) {
-            {
-                let ctx = frame.context.as_sequence_mut().unwrap();
-                ctx.current_element_idx = current_idx;
-            }
-            frame.state = FrameState::WaitingForChild {
-                child_index: current_idx,
-            };
-            let arc = Arc::new(MatchResult::empty_at(child_start_pos));
-            return self.handle_sequence_waiting_for_child(frame, &arc, &child_start_pos, stack);
+            frame.context.as_sequence_mut().unwrap().current_element_idx = current_idx;
+            return Ok(stack.gate_child_and_wait(
+                frame,
+                GrammarVariant::Sequence,
+                current_idx,
+                child_start_pos,
+            ));
         }
 
         // Create child frame for next element

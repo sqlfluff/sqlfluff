@@ -97,6 +97,12 @@ pub struct ParserMetrics {
     pub pruning_hinted: std::cell::Cell<usize>,
     /// Options that returned None (too complex to hint).
     pub pruning_complex: std::cell::Cell<usize>,
+    /// Number of `simple_hint_rejects` calls that had a usable hint and
+    /// code token to check (the single-grammar counterpart of `pruning_total`).
+    pub hint_gate_calls: std::cell::Cell<usize>,
+    /// Number of `simple_hint_rejects` calls that actually rejected the
+    /// grammar, letting the caller skip creating a child frame.
+    pub hint_gate_rejections: std::cell::Cell<usize>,
     /// Match attempts (mirrors Python's `longest_match` accounting).
     pub match_attempts: std::cell::Cell<usize>,
     /// Successful matches.
@@ -118,6 +124,11 @@ impl ParserMetrics {
         m.insert("pruning_kept".to_string(), self.pruning_kept.get());
         m.insert("pruning_hinted".to_string(), self.pruning_hinted.get());
         m.insert("pruning_complex".to_string(), self.pruning_complex.get());
+        m.insert("hint_gate_calls".to_string(), self.hint_gate_calls.get());
+        m.insert(
+            "hint_gate_rejections".to_string(),
+            self.hint_gate_rejections.get(),
+        );
         m.insert("match_attempts".to_string(), self.match_attempts.get());
         m.insert("match_successes".to_string(), self.match_successes.get());
         m.insert(
