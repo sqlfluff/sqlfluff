@@ -175,7 +175,9 @@ impl TableParseFrameStack {
     ) -> TableFrameResult {
         let virtual_child_id = self.frame_id_counter;
         self.increment_frame_id_counter();
-        parent.context.set_last_child_id(context_type, virtual_child_id);
+        parent
+            .context
+            .set_last_child_id(context_type, virtual_child_id);
         parent.state = FrameState::WaitingForChild { child_index };
         self.insert_empty_result(virtual_child_id, pos);
         self.push(parent);
