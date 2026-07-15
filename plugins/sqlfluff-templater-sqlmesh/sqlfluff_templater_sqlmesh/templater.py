@@ -153,6 +153,7 @@ class SQLMeshTemplater(JinjaTemplater):
         self.sqlfluff_config = None
         self.formatter = None
         self.project_dir = None
+        self._context_key: Optional[tuple[Any, Any, Any]] = None
         super().__init__(override_context=override_context)
 
     def config_pairs(self) -> list[tuple[str, str]]:
@@ -163,25 +164,46 @@ class SQLMeshTemplater(JinjaTemplater):
         """Clear cached SQLMesh context when runtime configuration changes."""
         self.__dict__.pop("sqlmesh_context", None)
 
+    def _sqlmesh_context_key(
+        self, config: Optional["FluffConfig"]
+    ) -> tuple[Any, Any, Any]:
+        """Inputs that determine the SQLMesh context: (project_dir, config, gateway).
+
+        The context depends only on these, not on the identity of the
+        ``FluffConfig`` object. SQLFluff hands each file in a directory lint its
+        own child config, so keying the cache on object identity would rebuild
+        the (expensive) SQLMesh context for every file.
+        """
+        project_dir = self._get_project_dir(config)
+        cfg_name = gateway = None
+        if config is not None:
+            cfg_name = config.get_section(
+                (self.templater_selector, self.name, "config")
+            )
+            gateway = config.get_section(
+                (self.templater_selector, self.name, "gateway")
+            )
+        return (project_dir, cfg_name, gateway)
+
     def _update_runtime_context(
         self,
         *,
         config: Optional["FluffConfig"],
         formatter: Optional["OutputStreamFormatter"],
     ) -> None:
-        """Update runtime state for this templating request."""
-        project_dir = self._get_project_dir(config)
-        runtime_changed = (
-            config is not self.sqlfluff_config
-            or formatter is not self.formatter
-            or project_dir != self.project_dir
-        )
+        """Update runtime state for this templating request.
+
+        The cached SQLMesh context is only rebuilt when the inputs that define
+        it (project dir, config name, gateway) actually change — not merely
+        because SQLFluff passed a different (per-file child) config object.
+        """
+        new_key = self._sqlmesh_context_key(config)
+        if new_key != self._context_key:
+            self._clear_cached_sqlmesh_context()
+            self._context_key = new_key
         self.sqlfluff_config = config
         self.formatter = formatter
-        if project_dir != self.project_dir:
-            self.project_dir = project_dir
-        if runtime_changed:
-            self._clear_cached_sqlmesh_context()
+        self.project_dir = new_key[0]
 
     def _get_project_dir(self, config: Optional["FluffConfig"] = None) -> str:
         """Get the SQLMesh project directory from the configuration.

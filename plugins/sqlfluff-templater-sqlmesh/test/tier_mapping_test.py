@@ -124,6 +124,44 @@ def test_coarse_templated_file_never_collapses():
 
 
 # ---------------------------------------------------------------------------
+# Context caching (a child config per file must not rebuild the context).
+# ---------------------------------------------------------------------------
+
+
+def test_context_not_rebuilt_for_child_configs(tmp_path):
+    """A per-file child config with the same settings keeps the cached context.
+
+    SQLFluff hands each file in a directory lint its own child FluffConfig, so
+    keying the cache on config object identity would reload the (expensive)
+    SQLMesh context for every file.
+    """
+    proj = str(tmp_path)
+
+    def make_config(project_dir):
+        return FluffConfig(
+            configs={
+                "core": {"templater": "sqlmesh", "dialect": "duckdb"},
+                "templater": {"sqlmesh": {"project_dir": project_dir}},
+            }
+        )
+
+    t = SQLMeshTemplater()
+    t._update_runtime_context(config=make_config(proj), formatter=None)
+    # Simulate a loaded context.
+    t.__dict__["sqlmesh_context"] = "SENTINEL"
+
+    # A different config object with identical settings must NOT clear it.
+    t._update_runtime_context(config=make_config(proj), formatter=None)
+    assert t.__dict__.get("sqlmesh_context") == "SENTINEL"
+
+    # A genuinely different project dir DOES clear it.
+    other = str(tmp_path / "other")
+    (tmp_path / "other").mkdir()
+    t._update_runtime_context(config=make_config(other), formatter=None)
+    assert "sqlmesh_context" not in t.__dict__
+
+
+# ---------------------------------------------------------------------------
 # End-to-end tier behaviour against real SQLMesh fixtures.
 # ---------------------------------------------------------------------------
 
