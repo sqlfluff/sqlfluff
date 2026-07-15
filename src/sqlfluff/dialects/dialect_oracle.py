@@ -107,7 +107,9 @@ oracle_dialect.patch_lexer_matchers(
         ),
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<!\.)|(?=\b))",
+            # Same shape as ANSI, but without a bare leading-dot form (.\d+).
+            # The (?<=\.) branch allows trailing-dot numerics such as 1. (#8110).
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             LiteralSegment,
         ),
     ]
