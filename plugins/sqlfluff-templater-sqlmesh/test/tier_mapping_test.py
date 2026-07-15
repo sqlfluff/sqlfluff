@@ -231,6 +231,32 @@ def test_tier2_scalar_macros_keep_literal_positions(fixture_dir, sqlmesh_config)
     _assert_coverage(tf)
 
 
+def test_python_macro_model_resolves_to_tier2(fixture_dir, sqlmesh_config):
+    """A project-defined Python macro resolves inline (tier 2), not coarse T3.
+
+    The evaluator must be seeded with the model's ``python_env`` so the macro
+    registry is initialised; otherwise ``@to_upper(...)`` fails to resolve and
+    the whole query falls back to tier 3 (suppressed).
+    """
+    pytest.importorskip("sqlmesh")
+    tf, errs = _process(fixture_dir, sqlmesh_config, "python_macro_model.sql")
+    assert errs == []
+    types = {s.slice_type for s in tf.sliced_file}
+    assert "literal" in types and "templated" in types  # mixed == tier 2
+    assert "@to_upper" not in tf.templated_str  # the macro was substituted
+    assert "UPPER(name)" in tf.templated_str
+
+    _assert_coverage(tf)
+
+    # The self-alias in the literal region is flagged at its real position.
+    linter = Linter(config=FluffConfig(configs=sqlmesh_config))
+    path = fixture_dir / "models" / "python_macro_model.sql"
+    linted = linter.lint_path(str(path)).files[0]
+    al09 = [v for v in linted.get_violations() if v.rule_code() == "AL09"]
+    assert al09, [v.rule_code() for v in linted.get_violations()]
+    assert al09[0].line_no == 7
+
+
 def test_tier3_structural_macro_is_coarse(fixture_dir, sqlmesh_config):
     """A model with a structural macro (@EACH) falls back to coarse mapping."""
     pytest.importorskip("sqlmesh")

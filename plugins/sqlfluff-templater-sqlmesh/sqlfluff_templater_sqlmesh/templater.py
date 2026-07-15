@@ -754,18 +754,22 @@ class SQLMeshTemplater(JinjaTemplater):
     def _build_macro_evaluator(self, model: Any):
         """Build a MacroEvaluator seeded the way SQLMesh seeds it for a model.
 
-        The model's ``python_env`` carries user-defined variables (via
-        ``__sqlmesh__vars__``) and macro definitions; ``date_dict`` supplies the
-        temporal macro variables (``@start_ds``, ``@end_ds``, ...). The exact
-        time window is irrelevant to linting — only that the tokens resolve to
-        literals so the SQL parses and positions map.
+        Passing the model's ``python_env`` to the constructor initialises both
+        the macro registry (so project-defined Python macros like
+        ``@my_macro(...)`` resolve) *and* the local variables (user vars via
+        ``__sqlmesh__vars__``). Without it, a model using a Python macro would
+        fail to resolve and fall all the way back to tier 3. ``date_dict``
+        supplies the temporal macro variables (``@start_ds``, ``@end_ds``, ...);
+        the exact window is irrelevant to linting — only that the tokens resolve
+        to literals so the SQL parses and positions map.
         """
         from sqlmesh.core.macros import MacroEvaluator
         from sqlmesh.utils.date import date_dict, to_datetime
-        from sqlmesh.utils.metaprogramming import prepare_env
 
-        evaluator = MacroEvaluator(dialect=self._get_dialect() or "")
-        prepare_env(dict(getattr(model, "python_env", {}) or {}), evaluator.locals)
+        python_env = dict(getattr(model, "python_env", {}) or {})
+        evaluator = MacroEvaluator(
+            dialect=self._get_dialect() or "", python_env=python_env
+        )
         anchor = to_datetime(getattr(model, "start", None) or "1970-01-01")
         evaluator.locals.update(date_dict(anchor, anchor, anchor))
         return evaluator
