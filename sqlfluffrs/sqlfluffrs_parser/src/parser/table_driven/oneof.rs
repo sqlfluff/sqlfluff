@@ -160,6 +160,15 @@ impl Parser<'_> {
         // Move terminators into frame (no clone)
         frame.table_terminators = all_terminators;
 
+        // Inline fast path: terminal candidates need no frame machinery.
+        // Feed the result straight into the shared candidate-handling logic.
+        self.pos = post_skip_pos;
+        if let Some(mr) = self.try_terminal_inline(first_child)? {
+            let end_pos = self.pos;
+            let arc = Arc::new(mr);
+            return self.handle_oneof_waiting_for_child(frame, &arc, &end_pos, stack);
+        }
+
         // Create table-driven child frame (copy terminators from frame)
         let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
@@ -178,6 +187,36 @@ impl Parser<'_> {
 
         // Transition: push child and wait
         Ok(stack.push_child_and_wait(frame, child_frame, 0))
+    }
+
+    /// Try to match a terminal (frame-less) grammar candidate inline.
+    ///
+    /// OneOf candidates are dominated by synchronous terminal parsers
+    /// (keywords and typed/token matchers) which succeed or fail on a single
+    /// token comparison. Routing each of them through the frame machine cost
+    /// a frame allocation, two stack transitions and an empty-result Arc per
+    /// failed candidate. This evaluates them directly instead.
+    ///
+    /// Returns `Ok(None)` when the candidate is not a synchronous terminal
+    /// variant (the caller falls back to the frame path). On `Ok(Some(..))`
+    /// the parser position has been advanced past the match on success, or
+    /// left at the candidate position on a failed match, exactly as the
+    /// frame-based handlers do. Terminal variants are never frame-cached
+    /// (see `parity::is_frame_cacheable`), so no cache semantics are lost.
+    fn try_terminal_inline(
+        &mut self,
+        grammar_id: GrammarId,
+    ) -> Result<Option<MatchResult>, ParseError> {
+        use sqlfluffrs_types::GrammarVariant;
+        let res = match self.grammar_ctx.variant(grammar_id) {
+            GrammarVariant::StringParser => self.handle_string_parser(grammar_id),
+            GrammarVariant::TypedParser => self.typed_parser_match(grammar_id),
+            GrammarVariant::MultiStringParser => self.handle_multi_string_parser(grammar_id),
+            GrammarVariant::RegexParser => self.handle_regex_parser(grammar_id),
+            GrammarVariant::Token => self.handle_token(grammar_id),
+            _ => return Ok(None),
+        };
+        res.map(Some)
     }
 
     /// Handle OneOf WaitingForChild state using table-driven approach
@@ -342,6 +381,15 @@ impl Parser<'_> {
                 "OneOf[table]: Trying next child grammar_id={}",
                 next_child.0
             );
+
+            // Inline fast path for terminal candidates (see
+            // try_terminal_inline); recursion depth is bounded by the
+            // candidate count of this OneOf.
+            if let Some(mr) = self.try_terminal_inline(next_child)? {
+                let end_pos = self.pos;
+                let arc = Arc::new(mr);
+                return self.handle_oneof_waiting_for_child(frame, &arc, &end_pos, stack);
+            }
 
             frame.state = FrameState::WaitingForChild { child_index: 0 };
 
