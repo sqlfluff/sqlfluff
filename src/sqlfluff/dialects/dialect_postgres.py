@@ -3975,7 +3975,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                 "GENERATED",
                 "ALWAYS",
                 "AS",
-                Ref("ExpressionSegment"),
+                Bracketed(Ref("ExpressionSegment")),
                 OneOf("STORED", "VIRTUAL", optional=True),
             ),
             Sequence(
@@ -4067,7 +4067,7 @@ class ForeignTableColumnConstraintSegment(ansi.ColumnConstraintSegment):
                 "GENERATED",
                 "ALWAYS",
                 "AS",
-                Ref("ExpressionSegment"),
+                Bracketed(Ref("ExpressionSegment")),
                 OneOf("STORED", "VIRTUAL", optional=True),
             ),
         ),
