@@ -146,20 +146,6 @@ impl Parser<'_> {
             );
         }
 
-        // Build the child frame from the still-local child_terminators (this
-        // copies them into the new frame's own SmallVec), so the fallback
-        // path below doesn't need to borrow them back out of frame.context
-        // after the move a few lines down.
-        // Pass child_terminators to allow the element matcher to try all candidates
-        // without early termination from local terminators (e.g., ObjectReferenceTerminator).
-        let child_frame = TableParseFrame::new_child(
-            stack.frame_id_counter,
-            elements_id,
-            start_pos,
-            &child_terminators,
-            Some(max_idx),
-        );
-
         // Store context for the element/delimiter phase loop.
         frame.context = FrameContext::Delimited(DelimitedState {
             grammar_id,
@@ -184,6 +170,21 @@ impl Parser<'_> {
             let arc = Arc::new(mr);
             return self.handle_delimited_waiting_for_child(frame, &arc, &end_pos, stack);
         }
+
+        // Pass child_terminators to allow the element matcher to try all candidates
+        // without early termination from local terminators (e.g., ObjectReferenceTerminator).
+        let child_frame = {
+            let FrameContext::Delimited(state) = &frame.context else {
+                unreachable!("Delimited context was just set");
+            };
+            TableParseFrame::new_child(
+                stack.frame_id_counter,
+                elements_id,
+                start_pos,
+                &state.child_terminators,
+                Some(max_idx),
+            )
+        };
 
         // Push child to match element(s).
         Ok(stack.push_child_and_wait(frame, child_frame, 0))
