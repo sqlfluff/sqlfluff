@@ -354,8 +354,6 @@ impl Parser<'_> {
         grammar_id: GrammarId,
         parent_max_idx: Option<usize>,
     ) -> Result<Option<MatchResult>, ParseError> {
-        use sqlfluffrs_types::GrammarVariant;
-
         // Excludes can be compound grammars; leave those to the frame path.
         if self.grammar_ctx.exclude(grammar_id).is_some() {
             return Ok(None);
@@ -366,15 +364,7 @@ impl Parser<'_> {
             return Ok(Some(MatchResult::empty_at(start_pos)));
         };
         let child_variant = self.grammar_ctx.variant(child_id);
-        let is_terminal = matches!(
-            child_variant,
-            GrammarVariant::StringParser
-                | GrammarVariant::TypedParser
-                | GrammarVariant::MultiStringParser
-                | GrammarVariant::RegexParser
-                | GrammarVariant::Token
-        );
-        if !is_terminal {
+        if !Self::is_terminal_variant(child_variant) {
             return Ok(None);
         }
         // Python parity: beyond the parent's ceiling a Ref returns Empty.
@@ -392,14 +382,7 @@ impl Parser<'_> {
             start_pos
         };
         self.pos = child_start_pos;
-        let mr = match child_variant {
-            GrammarVariant::StringParser => self.handle_string_parser(child_id)?,
-            GrammarVariant::TypedParser => self.typed_parser_match(child_id)?,
-            GrammarVariant::MultiStringParser => self.handle_multi_string_parser(child_id)?,
-            GrammarVariant::RegexParser => self.handle_regex_parser(child_id)?,
-            GrammarVariant::Token => self.handle_token(child_id)?,
-            _ => unreachable!(),
-        };
+        let mr = self.dispatch_terminal_match(child_variant, child_id)?;
         if mr.is_empty() {
             // Failed child: extent and position are the post-skip position
             // (handle_ref_waiting_for_child's original_pos semantics), while

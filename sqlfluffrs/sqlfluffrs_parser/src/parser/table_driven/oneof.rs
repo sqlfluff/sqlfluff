@@ -215,18 +215,57 @@ impl Parser<'_> {
         parent_max_idx: Option<usize>,
     ) -> Result<Option<MatchResult>, ParseError> {
         use sqlfluffrs_types::GrammarVariant;
-        let res = match self.grammar_ctx.variant(grammar_id) {
+        let variant = self.grammar_ctx.variant(grammar_id);
+        // Refs resolving to a terminal target (e.g. keyword segments) are
+        // evaluated frame-free too, including the Ref wrapping.
+        if matches!(variant, GrammarVariant::Ref) {
+            return self.try_ref_terminal_inline(grammar_id, parent_max_idx);
+        }
+        if !Self::is_terminal_variant(variant) {
+            return Ok(None);
+        }
+        self.dispatch_terminal_match(variant, grammar_id).map(Some)
+    }
+
+    /// The set of `GrammarVariant`s that can be evaluated frame-free by
+    /// [`Self::dispatch_terminal_match`]: single-token parsers with no
+    /// sub-grammar of their own. Shared by `try_terminal_inline` and
+    /// `try_ref_terminal_inline`'s own terminal-target check so the two
+    /// "is this variant terminal" answers cannot drift.
+    #[inline]
+    pub(crate) fn is_terminal_variant(variant: sqlfluffrs_types::GrammarVariant) -> bool {
+        use sqlfluffrs_types::GrammarVariant;
+        matches!(
+            variant,
+            GrammarVariant::StringParser
+                | GrammarVariant::TypedParser
+                | GrammarVariant::MultiStringParser
+                | GrammarVariant::RegexParser
+                | GrammarVariant::Token
+        )
+    }
+
+    /// Dispatch a single-token terminal match for `grammar_id`, given its
+    /// already-known `variant` (one of [`Self::is_terminal_variant`]'s set).
+    /// Shared by `try_terminal_inline` and `try_ref_terminal_inline` so the
+    /// two "which handler for which variant" mappings cannot drift.
+    #[inline]
+    pub(crate) fn dispatch_terminal_match(
+        &mut self,
+        variant: sqlfluffrs_types::GrammarVariant,
+        grammar_id: GrammarId,
+    ) -> Result<MatchResult, ParseError> {
+        use sqlfluffrs_types::GrammarVariant;
+        match variant {
             GrammarVariant::StringParser => self.handle_string_parser(grammar_id),
             GrammarVariant::TypedParser => self.typed_parser_match(grammar_id),
             GrammarVariant::MultiStringParser => self.handle_multi_string_parser(grammar_id),
             GrammarVariant::RegexParser => self.handle_regex_parser(grammar_id),
             GrammarVariant::Token => self.handle_token(grammar_id),
-            // Refs resolving to a terminal target (e.g. keyword segments)
-            // are evaluated frame-free too, including the Ref wrapping.
-            GrammarVariant::Ref => return self.try_ref_terminal_inline(grammar_id, parent_max_idx),
-            _ => return Ok(None),
-        };
-        res.map(Some)
+            other => {
+                unreachable!("dispatch_terminal_match called with non-terminal variant {other:?}")
+            }
+        }
     }
 
     /// Handle OneOf WaitingForChild state using table-driven approach
