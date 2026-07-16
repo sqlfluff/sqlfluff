@@ -146,8 +146,9 @@ class DepthMap:
             # pragma when that lands.
             per_leaf, anc_cts = fast()
             ct_map = {u: frozenset(ct) for u, ct in anc_cts}
-            dm = cls.__new__(cls)
-            dm.depth_info = {}
+            # Constructed with no raws (rather than ``cls.__new__``, which
+            # mypyc-compiled native classes don't support) and filled below.
+            dm = cls(raws_with_stack=[])
             for leaf_uuid, steps in per_leaf:
                 # Mirror native `stack_hashes = tuple(hash(ps.segment) for ...)`:
                 # RsSegment.__hash__ returns the node uuid, and Python's hash()
