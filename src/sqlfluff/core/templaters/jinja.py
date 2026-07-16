@@ -1136,6 +1136,13 @@ class JinjaTemplater(PythonTemplater):
             "Uncovered literals correspond to slices %s", uncovered_literal_idxs
         )
 
+        # If every literal is already covered, there's no unreached code to
+        # find, so there are no variants beyond the one already yielded above.
+        # Skip building a render function entirely in that case (e.g. a
+        # literal-only file handled by the fast path in `process()`).
+        if not uncovered_literal_idxs:
+            return
+
         # NOTE: No validation required as all validation done in the `.process()`
         # call above.
         _, _, render_func = self.construct_render_func(fname=fname, config=config)
