@@ -3284,7 +3284,7 @@ class MergeUpdateClauseSegment(ansi.MergeUpdateClauseSegment):
     match_grammar: Matchable = Sequence(
         "UPDATE",
         OneOf(
-            Sequence("SET", Ref("WildcardIdentifierSegment")),
+            Sequence("SET", Ref("WildcardExpressionSegment")),
             Sequence(
                 Indent,
                 Ref("SetClauseListSegment"),
@@ -3301,7 +3301,7 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
     match_grammar: Matchable = Sequence(
         "INSERT",
         OneOf(
-            Ref("WildcardIdentifierSegment"),
+            Ref("WildcardExpressionSegment"),
             Sequence(
                 Indent,
                 Ref("BracketedColumnReferenceListGrammar"),
@@ -3591,12 +3591,18 @@ class ConstraintStatementSegment(BaseSegment):
 
 
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
-    """An extension of the star expression for Databricks."""
+    """An extension of the star expression for SparkSQL.
+
+    Adds support for the optional ``EXCEPT`` clause, which prunes columns
+    from the referenceable set of columns identified in the star clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-star.html
+    """
 
     match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
         insert=[
             # Optional EXCEPT clause
-            # https://docs.databricks.com/release-notes/runtime/9.0.html#exclude-columns-in-select--public-preview
+            # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-star.html
             Ref("ExceptClauseSegment", optional=True),
         ]
     )

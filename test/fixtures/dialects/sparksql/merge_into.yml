@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fbae8c3b1cba41f10d2316a3fb0c2726ae16fb4283fe600c9d19c8c005f4cf3d
+_hash: d2960f8fdc0b2169491ace5fc16a69c9520aa015fe75218ff96fa0327d955199
 file:
 - statement:
     merge_statement:
@@ -330,8 +330,9 @@ file:
         - merge_update_clause:
           - keyword: UPDATE
           - keyword: SET
-          - wildcard_identifier:
-              star: '*'
+          - wildcard_expression:
+              wildcard_identifier:
+                star: '*'
         merge_when_not_matched_clause:
         - keyword: WHEN
         - keyword: NOT
@@ -339,8 +340,9 @@ file:
         - keyword: THEN
         - merge_insert_clause:
             keyword: INSERT
-            wildcard_identifier:
-              star: '*'
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
 - statement_terminator: ;
 - statement:
     merge_statement:
@@ -573,4 +575,237 @@ file:
         - keyword: THEN
         - merge_delete_clause:
             keyword: DELETE
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: u
+    - join_on_condition:
+        keyword: 'ON'
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: b
+          end_bracket: )
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+          - keyword: UPDATE
+          - keyword: SET
+          - wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+              select_except_clause:
+                keyword: EXCEPT
+                bracketed:
+                  start_bracket: (
+                  column_reference:
+                    naked_identifier: col1
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: u
+    - join_on_condition:
+        keyword: 'ON'
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: b
+          end_bracket: )
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+          - keyword: UPDATE
+          - keyword: SET
+          - wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+              select_except_clause:
+                keyword: EXCEPT
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: col1
+                - comma: ','
+                - column_reference:
+                    naked_identifier: col2
+                - comma: ','
+                - column_reference:
+                    naked_identifier: col3
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: u
+    - join_on_condition:
+        keyword: 'ON'
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: b
+          end_bracket: )
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+              select_except_clause:
+                keyword: EXCEPT
+                bracketed:
+                  start_bracket: (
+                  column_reference:
+                    naked_identifier: col1
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: u
+    - join_on_condition:
+        keyword: 'ON'
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: b
+          end_bracket: )
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+              select_except_clause:
+                keyword: EXCEPT
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: col1
+                - comma: ','
+                - column_reference:
+                    naked_identifier: col2
+                - comma: ','
+                - column_reference:
+                    naked_identifier: col3
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: u
+    - join_on_condition:
+        keyword: 'ON'
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: key
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: key
+          end_bracket: )
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+          - keyword: UPDATE
+          - keyword: SET
+          - wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+              select_except_clause:
+                keyword: EXCEPT
+                bracketed:
+                  start_bracket: (
+                  column_reference:
+                    naked_identifier: last_updated
+                  end_bracket: )
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+              select_except_clause:
+                keyword: EXCEPT
+                bracketed:
+                  start_bracket: (
+                  column_reference:
+                    naked_identifier: last_updated
+                  end_bracket: )
 - statement_terminator: ;
