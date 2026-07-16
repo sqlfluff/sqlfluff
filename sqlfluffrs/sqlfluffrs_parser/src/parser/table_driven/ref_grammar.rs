@@ -110,30 +110,24 @@ impl Parser<'_> {
         // If the explicit child grammar allows gaps, collect leading transparent
         // tokens so child parsing starts at the next non-transparent token.
         let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
-        let this_type = self.grammar_ctx.segment_type(grammar_id);
         let child_start_pos = if child_allows_gaps {
             self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
         } else {
             start_pos
         };
 
-        // Determine the segment_class (Python class name) from tables
-        // This is what gets stored in matched_class for Python lookup
-        // e.g., "ProcedureDefinitionGrammar", "SelectStatementSegment", etc.
-        let table_segment_class = self.grammar_ctx.segment_class(grammar_id);
-
+        // name/segment_class/segment_type are pure functions of grammar_id,
+        // so build_ref_wrap looks them up itself rather than RefState
+        // storing a redundant copy here.
         vdebug!(
             "Ref[table]: rule_name='{}', table_segment_class={:?}",
             rule_name,
-            table_segment_class
+            self.grammar_ctx.segment_class(grammar_id)
         );
 
         // Store context with collected leading transparent tokens
         frame.context = FrameContext::Ref(RefState {
             grammar_id,
-            name: rule_name,
-            segment_class_name: table_segment_class,
-            segment_type: this_type,
             saved_pos: child_start_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             child_grammar_id,
@@ -241,22 +235,10 @@ impl Parser<'_> {
         let final_pos = frame.end_pos.unwrap_or(frame.pos);
         let result_match = if let Some(ref_match_result) = &state.match_result {
             let child = Arc::clone(ref_match_result);
-            let name = state.name;
             let grammar_id = state.grammar_id;
             let child_grammar_id = state.child_grammar_id;
-            let segment_class_name = state.segment_class_name.take();
-            let segment_type = state.segment_type;
             let saved_pos = state.saved_pos;
-            self.build_ref_wrap(
-                name,
-                grammar_id,
-                child_grammar_id,
-                segment_class_name,
-                segment_type,
-                saved_pos,
-                final_pos,
-                &child,
-            )
+            self.build_ref_wrap(grammar_id, child_grammar_id, saved_pos, final_pos, &child)
         } else {
             MatchResult::empty_at(frame.pos)
         };
@@ -273,19 +255,24 @@ impl Parser<'_> {
     /// entirely for a bare Token target, mirroring Python's isinstance
     /// path) and produce the final `ref_match`. Shared by the frame-based
     /// combining handler and the frame-free Ref fast path.
-    #[allow(clippy::too_many_arguments)]
+    ///
+    /// `name`/`segment_class_name`/`segment_type` are pure functions of
+    /// `grammar_id` (looked up here, not taken as separate parameters) -
+    /// both call sites would otherwise have to fetch and thread through
+    /// values already fully determined by `grammar_id`.
     pub(crate) fn build_ref_wrap(
         &mut self,
-        name: &'static str,
         grammar_id: GrammarId,
         child_grammar_id: GrammarId,
-        segment_class_name: Option<&'static str>,
-        segment_type: Option<&'static str>,
         saved_pos: usize,
         final_pos: usize,
         ref_match_result: &Arc<MatchResult>,
     ) -> MatchResult {
         {
+            let name = self.grammar_ctx.ref_name(grammar_id);
+            let segment_class_name = self.grammar_ctx.segment_class(grammar_id);
+            let segment_type = self.grammar_ctx.segment_type(grammar_id);
+
             // Debug: print accumulated children to inspect whether typed tokens are present
             vdebug!(
                 "Ref[table] Combining DEBUG: accumulated nodes={:?}",
@@ -392,20 +379,8 @@ impl Parser<'_> {
             return Ok(Some(MatchResult::empty_at(start_pos)));
         }
         let final_pos = self.pos;
-        let rule_name = self.grammar_ctx.ref_name(grammar_id);
-        let segment_class_name = self.grammar_ctx.segment_class(grammar_id);
-        let segment_type = self.grammar_ctx.segment_type(grammar_id);
         let child = Arc::new(mr);
-        let wrapped = self.build_ref_wrap(
-            rule_name,
-            grammar_id,
-            child_id,
-            segment_class_name,
-            segment_type,
-            child_start_pos,
-            final_pos,
-            &child,
-        );
+        let wrapped = self.build_ref_wrap(grammar_id, child_id, child_start_pos, final_pos, &child);
         self.pos = final_pos;
         Ok(Some(wrapped))
     }
