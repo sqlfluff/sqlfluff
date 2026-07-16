@@ -112,6 +112,16 @@ pub(crate) struct PathStep {
     pub(crate) code_idxs: Vec<usize>,
 }
 
+// Reflow `DepthMap` walker shapes (see `Arena::reflow_depth_info`). Plain tuples
+// rather than structs so PyO3 marshals them straight into the Python tuples the
+// façade unpacks.
+/// One ancestor step in a leaf's reflow stack: `(anc_uuid, idx, len, stack_pos)`.
+pub(crate) type ReflowStep = (u128, usize, usize, String);
+/// A leaf's top-down ancestor stack: `(leaf_uuid, steps)`.
+pub(crate) type LeafReflowStack = (u128, Vec<ReflowStep>);
+/// Deduped ancestor class-types entry: `(anc_uuid, class_types)`.
+pub(crate) type AncestorClassTypes = (u128, Vec<String>);
+
 impl Arena {
     // -- construction --------------------------------------------------------
 
@@ -826,29 +836,24 @@ impl Arena {
     /// class_types are marshalled once, keyed by uuid). This lets the Python
     /// façade build `DepthInfo` objects directly with no per-step PathStep /
     /// PyHandle marshalling.
-    #[allow(clippy::type_complexity)]
     pub(crate) fn reflow_depth_info(
         &self,
         root: NodeId,
-    ) -> (
-        Vec<(u128, Vec<(u128, usize, usize, String)>)>,
-        Vec<(u128, Vec<String>)>,
-    ) {
-        let mut per_leaf: Vec<(u128, Vec<(u128, usize, usize, String)>)> = Vec::new();
-        let mut anc_cts: Vec<(u128, Vec<String>)> = Vec::new();
+    ) -> (Vec<LeafReflowStack>, Vec<AncestorClassTypes>) {
+        let mut per_leaf: Vec<LeafReflowStack> = Vec::new();
+        let mut anc_cts: Vec<AncestorClassTypes> = Vec::new();
         let mut seen: HashSet<u128> = HashSet::new();
-        let mut stack: Vec<(u128, usize, usize, String)> = Vec::new();
+        let mut stack: Vec<ReflowStep> = Vec::new();
         self.rdi_dfs(root, &mut stack, &mut per_leaf, &mut anc_cts, &mut seen);
         (per_leaf, anc_cts)
     }
 
-    #[allow(clippy::type_complexity)]
     fn rdi_dfs(
         &self,
         node: NodeId,
-        stack: &mut Vec<(u128, usize, usize, String)>,
-        per_leaf: &mut Vec<(u128, Vec<(u128, usize, usize, String)>)>,
-        anc_cts: &mut Vec<(u128, Vec<String>)>,
+        stack: &mut Vec<ReflowStep>,
+        per_leaf: &mut Vec<LeafReflowStack>,
+        anc_cts: &mut Vec<AncestorClassTypes>,
         seen: &mut HashSet<u128>,
     ) {
         let kids: Vec<NodeId> = self.children(node).to_vec();

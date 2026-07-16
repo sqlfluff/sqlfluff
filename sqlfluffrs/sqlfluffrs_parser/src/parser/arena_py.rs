@@ -20,7 +20,7 @@ use pyo3::prelude::*;
 
 use sqlfluffrs_python::marker::PyPositionMarker;
 
-use super::arena::{Arena, NodeId};
+use super::arena::{AncestorClassTypes, Arena, LeafReflowStack, NodeId};
 
 /// The arena is shared behind `Arc<Mutex<…>>` rather than `Rc<RefCell<…>>` so
 /// that `RsTree`/`RsHandle` are `Send` — the linter moves the parse tree (which
@@ -29,6 +29,9 @@ use super::arena::{Arena, NodeId};
 /// GIL-bound and single-threaded in practice, so the mutex is uncontended; no
 /// lock is ever held across a call back into Python.
 type ArenaRef = Arc<Mutex<Arena>>;
+
+/// A `PathStep` marshalled for Python: `(ancestor, idx, len, code_idxs)`.
+type PyPathStep = (PyHandle, usize, usize, Vec<usize>);
 
 /// Owner of an arena tree.  Dropping the last `RsTree`/`RsHandle` frees it.
 #[pyclass(name = "RsTree", module = "sqlfluffrs")]
@@ -387,10 +390,7 @@ impl PyHandle {
     /// Bulk `(leaf, path_from_here_to_leaf)` for every leaf under this node, in
     /// one arena traversal + one lock — the reflow hot path. Replaces per-leaf
     /// `path_to` calls (each an FFI round-trip) with a single call.
-    #[allow(clippy::type_complexity)]
-    fn raw_segments_with_ancestors(
-        &self,
-    ) -> Vec<(PyHandle, Vec<(PyHandle, usize, usize, Vec<usize>)>)> {
+    fn raw_segments_with_ancestors(&self) -> Vec<(PyHandle, Vec<PyPathStep>)> {
         let arena = self.inner.lock().unwrap();
         arena
             .raw_segments_with_ancestors(self.node)
@@ -426,13 +426,7 @@ impl PyHandle {
     /// its `(leaf_uuid, [(anc_uuid, idx, len, stack_pos)])` stack, plus the deduped
     /// `(anc_uuid, class_types)` list. The façade builds `DepthInfo` from these
     /// directly, avoiding per-step PathStep/StackPosition marshalling.
-    #[allow(clippy::type_complexity)]
-    fn reflow_depth_info(
-        &self,
-    ) -> (
-        Vec<(u128, Vec<(u128, usize, usize, String)>)>,
-        Vec<(u128, Vec<String>)>,
-    ) {
+    fn reflow_depth_info(&self) -> (Vec<LeafReflowStack>, Vec<AncestorClassTypes>) {
         self.inner.lock().unwrap().reflow_depth_info(self.node)
     }
 
