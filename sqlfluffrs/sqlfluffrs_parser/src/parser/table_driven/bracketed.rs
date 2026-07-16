@@ -34,7 +34,7 @@ impl Parser<'_> {
             &frame.table_terminators,
             reset_terminators,
         );
-        let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
+        let all_children: &[GrammarId] = self.grammar_ctx.children_ids_slice(grammar_id);
         vdebug!(
             "Bracketed[table] children count={}, children={:?}",
             all_children.len(),
@@ -120,7 +120,7 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         // Work with MatchResult directly (Python parity)
         let child_is_empty = child_match.is_empty();
-        let all_children: Vec<GrammarId> = self.grammar_ctx.children(frame.grammar_id).collect();
+        let all_children: &[GrammarId] = self.grammar_ctx.children_ids_slice(frame.grammar_id);
         let (start_bracket_idx, end_bracket_idx) =
             self.grammar_ctx.bracketed_config(frame.grammar_id);
         let close_bracket_id = all_children[end_bracket_idx];
@@ -296,7 +296,7 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         // Work with MatchResult directly (Python parity)
         let child_is_empty = child_match.is_empty();
-        let all_children: Vec<GrammarId> = self.grammar_ctx.children(frame.grammar_id).collect();
+        let all_children: &[GrammarId] = self.grammar_ctx.children_ids_slice(frame.grammar_id);
         let FrameContext::Bracketed(BracketedState {
             grammar_id,
             phase: bracket_state,

@@ -139,6 +139,20 @@ impl Parser<'_> {
             return Ok(stack.transition_to_combining(frame, Some(frame_pos)));
         }
 
+        // Inline fast path: terminal first elements need no frame machinery
+        // (see try_terminal_inline). The context cursor is already at
+        // current_element_idx; mirror push_child_and_wait's state transition
+        // and feed the result straight to the waiting handler.
+        self.pos = child_start_pos;
+        if let Some(mr) = self.try_terminal_inline(elements[current_element_idx])? {
+            frame.state = FrameState::WaitingForChild {
+                child_index: current_element_idx,
+            };
+            let end_pos = self.pos;
+            let arc = Arc::new(mr);
+            return self.handle_sequence_waiting_for_child(frame, &arc, &end_pos, stack);
+        }
+
         // Create child frame with potentially new element after meta buffering
         // PYTHON PARITY: Pass only parent terminators to children (not Sequence's own).
         let child_terms = Self::sequence_child_terminators(&mut frame);
@@ -205,7 +219,7 @@ impl Parser<'_> {
             .parse_mode_override
             .unwrap_or_else(|| self.grammar_ctx.inst(seq_grammar_id).parse_mode);
         let allow_gaps = self.grammar_ctx.inst(seq_grammar_id).flags.allow_gaps();
-        let elements: Vec<GrammarId> = self.grammar_ctx.children(seq_grammar_id).collect();
+        let elements: &[GrammarId] = self.grammar_ctx.children_ids_slice(seq_grammar_id);
         let current_element_grammar_id = elements[current_element_idx];
         let current_element_optional = self.grammar_ctx.is_optional(current_element_grammar_id);
 
@@ -235,7 +249,7 @@ impl Parser<'_> {
                 start_idx,
                 max_idx,
                 allow_gaps,
-                &elements,
+                elements,
                 stack,
             );
         }
@@ -247,7 +261,7 @@ impl Parser<'_> {
             *child_end_pos,
             allow_gaps,
             parse_mode,
-            &elements,
+            elements,
             stack,
         )
     }
@@ -383,6 +397,22 @@ impl Parser<'_> {
                 let end_pos = unparsable_match.end();
                 stack.insert_result(frame.frame_id, unparsable_match, end_pos);
                 return Ok(TableFrameResult::Done);
+            }
+
+            // Inline fast path for terminal elements (see try_terminal_inline);
+            // mirrors update_sequence_parent_and_push_child's cursor updates.
+            self.pos = child_start_pos;
+            if let Some(mr) = self.try_terminal_inline(elements[next_element_idx])? {
+                {
+                    let ctx = frame.context.as_sequence_mut().unwrap();
+                    ctx.current_element_idx = next_element_idx;
+                }
+                frame.state = FrameState::WaitingForChild {
+                    child_index: next_element_idx,
+                };
+                let end_pos = self.pos;
+                let arc = Arc::new(mr);
+                return self.handle_sequence_waiting_for_child(frame, &arc, &end_pos, stack);
             }
 
             let child_frame_id = stack.frame_id_counter;
@@ -619,6 +649,21 @@ impl Parser<'_> {
         if child_start_pos >= max_idx {
             // Check if next element is optional - if so, create child frame for it
             if self.grammar_ctx.is_optional(next_element) {
+                // Inline fast path for terminal elements (see try_terminal_inline).
+                self.pos = matched_idx;
+                if let Some(mr) = self.try_terminal_inline(next_element)? {
+                    {
+                        let ctx = frame.context.as_sequence_mut().unwrap();
+                        ctx.current_element_idx = current_idx;
+                    }
+                    frame.state = FrameState::WaitingForChild {
+                        child_index: current_idx,
+                    };
+                    let end_pos = self.pos;
+                    let arc = Arc::new(mr);
+                    return self.handle_sequence_waiting_for_child(frame, &arc, &end_pos, stack);
+                }
+
                 // PYTHON PARITY: Use parent terminators (without Sequence's own) for children
                 let child_terms = Self::sequence_child_terminators(&mut frame);
                 let child_frame_id = stack.frame_id_counter;
@@ -679,6 +724,21 @@ impl Parser<'_> {
             let end_pos = unparsable_match.end();
             stack.insert_result(frame.frame_id, unparsable_match, end_pos);
             return Ok(TableFrameResult::Done);
+        }
+
+        // Inline fast path for terminal elements (see try_terminal_inline).
+        self.pos = child_start_pos;
+        if let Some(mr) = self.try_terminal_inline(next_element)? {
+            {
+                let ctx = frame.context.as_sequence_mut().unwrap();
+                ctx.current_element_idx = current_idx;
+            }
+            frame.state = FrameState::WaitingForChild {
+                child_index: current_idx,
+            };
+            let end_pos = self.pos;
+            let arc = Arc::new(mr);
+            return self.handle_sequence_waiting_for_child(frame, &arc, &end_pos, stack);
         }
 
         // Create child frame for next element

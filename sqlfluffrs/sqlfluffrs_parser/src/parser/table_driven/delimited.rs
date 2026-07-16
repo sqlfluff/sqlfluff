@@ -38,7 +38,7 @@ impl Parser<'_> {
         );
 
         // Get children: [elements_or_oneof, delimiter]
-        let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
+        let all_children: &[GrammarId] = self.grammar_ctx.children_ids_slice(grammar_id);
         if all_children.len() != 2 {
             vdebug!(
                 "Delimited[table]: Expected exactly 2 children (elements + delimiter), got {}",
@@ -706,7 +706,7 @@ impl Parser<'_> {
     /// Layout contract: a Delimited grammar has exactly 2 children,
     /// `[elements_or_oneof, delimiter]`.
     fn delimited_frame_config(&self, grammar_id: GrammarId) -> DelimitedFrameConfig {
-        let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
+        let all_children: &[GrammarId] = self.grammar_ctx.children_ids_slice(grammar_id);
         if all_children.len() != 2 {
             panic!(
                 "Delimited[table]: Expected exactly 2 children (elements + delimiter), got {}",

@@ -203,7 +203,7 @@ impl Parser<'_> {
     /// left at the candidate position on a failed match, exactly as the
     /// frame-based handlers do. Terminal variants are never frame-cached
     /// (see `parity::is_frame_cacheable`), so no cache semantics are lost.
-    fn try_terminal_inline(
+    pub(crate) fn try_terminal_inline(
         &mut self,
         grammar_id: GrammarId,
     ) -> Result<Option<MatchResult>, ParseError> {
