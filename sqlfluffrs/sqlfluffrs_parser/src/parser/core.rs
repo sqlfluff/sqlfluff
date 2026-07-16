@@ -107,6 +107,11 @@ pub struct ParserMetrics {
     pub terminator_checks: std::cell::Cell<usize>,
     /// Terminator hits (early exits caused by a terminator).
     pub terminator_hits: std::cell::Cell<usize>,
+    /// `try_terminal_inline` calls that matched a terminal variant frame-free.
+    pub terminal_fast_path_hits: std::cell::Cell<usize>,
+    /// `try_terminal_inline` calls that fell back to the frame-based path
+    /// (candidate was not a synchronous terminal variant).
+    pub terminal_fast_path_misses: std::cell::Cell<usize>,
 }
 
 impl ParserMetrics {
@@ -129,6 +134,14 @@ impl ParserMetrics {
             self.terminator_checks.get(),
         );
         m.insert("terminator_hits".to_string(), self.terminator_hits.get());
+        m.insert(
+            "terminal_fast_path_hits".to_string(),
+            self.terminal_fast_path_hits.get(),
+        );
+        m.insert(
+            "terminal_fast_path_misses".to_string(),
+            self.terminal_fast_path_misses.get(),
+        );
         m
     }
 }

@@ -36,6 +36,8 @@ struct RunStats {
     complete_match_early_exits: usize,
     terminator_checks: usize,
     terminator_hits: usize,
+    terminal_fast_path_hits: usize,
+    terminal_fast_path_misses: usize,
 }
 
 impl RunStats {
@@ -55,6 +57,8 @@ impl RunStats {
             complete_match_early_exits: m.complete_match_early_exits.get(),
             terminator_checks: m.terminator_checks.get(),
             terminator_hits: m.terminator_hits.get(),
+            terminal_fast_path_hits: m.terminal_fast_path_hits.get(),
+            terminal_fast_path_misses: m.terminal_fast_path_misses.get(),
         }
     }
 }
@@ -73,6 +77,8 @@ struct Avg {
     early_exits: f64,
     term_checks: f64,
     term_hit_pct: f64,
+    fast_path_hits: f64,
+    fast_path_hit_pct: f64,
 }
 
 fn avg(runs: &[RunStats]) -> Avg {
@@ -92,6 +98,8 @@ fn avg(runs: &[RunStats]) -> Avg {
     let successes = stat(|r| r.match_successes);
     let t_checks = stat(|r| r.terminator_checks);
     let t_hits = stat(|r| r.terminator_hits);
+    let fp_hits = stat(|r| r.terminal_fast_path_hits);
+    let fp_misses = stat(|r| r.terminal_fast_path_misses);
     Avg {
         mean,
         min: runs
@@ -117,6 +125,12 @@ fn avg(runs: &[RunStats]) -> Avg {
         term_checks: t_checks,
         term_hit_pct: if t_checks > 0.0 {
             t_hits / t_checks * 100.0
+        } else {
+            0.0
+        },
+        fast_path_hits: fp_hits,
+        fast_path_hit_pct: if (fp_hits + fp_misses) > 0.0 {
+            fp_hits / (fp_hits + fp_misses) * 100.0
         } else {
             0.0
         },
@@ -147,6 +161,10 @@ fn print_avg(label: &str, a: &Avg) {
     println!(
         "    Terminators   {:.0} checks  {:.1}% hit",
         a.term_checks, a.term_hit_pct,
+    );
+    println!(
+        "    Fast path     {:.0} hits  {:.1}% of terminal-inline probes",
+        a.fast_path_hits, a.fast_path_hit_pct,
     );
 }
 
@@ -194,6 +212,8 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
             let mut early_exits = 0;
             let mut term_checks = 0;
             let mut term_hits = 0;
+            let mut fast_path_hits = 0;
+            let mut fast_path_misses = 0;
             for tokens in all_tokens {
                 let mut p = Parser::new(tokens, Dialect::Ansi, hashbrown::HashMap::new());
                 p.call_rule_as_root().expect("Parse failed");
@@ -210,6 +230,8 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
                 early_exits += m.complete_match_early_exits.get();
                 term_checks += m.terminator_checks.get();
                 term_hits += m.terminator_hits.get();
+                fast_path_hits += m.terminal_fast_path_hits.get();
+                fast_path_misses += m.terminal_fast_path_misses.get();
             }
             RunStats {
                 duration_secs: t0.elapsed().as_secs_f64(),
@@ -224,6 +246,8 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
                 complete_match_early_exits: early_exits,
                 terminator_checks: term_checks,
                 terminator_hits: term_hits,
+                terminal_fast_path_hits: fast_path_hits,
+                terminal_fast_path_misses: fast_path_misses,
             }
         })
         .collect()

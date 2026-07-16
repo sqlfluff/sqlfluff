@@ -218,13 +218,25 @@ impl Parser<'_> {
         let variant = self.grammar_ctx.variant(grammar_id);
         // Refs resolving to a terminal target (e.g. keyword segments) are
         // evaluated frame-free too, including the Ref wrapping.
-        if matches!(variant, GrammarVariant::Ref) {
-            return self.try_ref_terminal_inline(grammar_id, parent_max_idx);
+        let result = if matches!(variant, GrammarVariant::Ref) {
+            self.try_ref_terminal_inline(grammar_id, parent_max_idx)
+        } else if !Self::is_terminal_variant(variant) {
+            Ok(None)
+        } else {
+            self.dispatch_terminal_match(variant, grammar_id).map(Some)
+        };
+        match result {
+            Ok(Some(_)) => self
+                .metrics
+                .terminal_fast_path_hits
+                .set(self.metrics.terminal_fast_path_hits.get() + 1),
+            Ok(None) => self
+                .metrics
+                .terminal_fast_path_misses
+                .set(self.metrics.terminal_fast_path_misses.get() + 1),
+            Err(_) => {}
         }
-        if !Self::is_terminal_variant(variant) {
-            return Ok(None);
-        }
-        self.dispatch_terminal_match(variant, grammar_id).map(Some)
+        result
     }
 
     /// The set of `GrammarVariant`s that can be evaluated frame-free by
