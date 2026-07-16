@@ -201,8 +201,14 @@ impl Parser<'_> {
     /// variant (the caller falls back to the frame path). On `Ok(Some(..))`
     /// the parser position has been advanced past the match on success, or
     /// left at the candidate position on a failed match, exactly as the
-    /// frame-based handlers do. Terminal variants are never frame-cached
-    /// (see `parity::is_frame_cacheable`), so no cache semantics are lost.
+    /// frame-based handlers do. The StringParser/TypedParser/MultiStringParser/
+    /// RegexParser/Token variants are never frame-cached (see
+    /// `parity::is_frame_cacheable`), so no cache semantics are lost for
+    /// them. `Ref` IS listed as frame-cacheable there, and a `Ref` resolving
+    /// to a terminal target loses that memoization by going through this
+    /// path instead of the frame path's cache check - accepted here because
+    /// the underlying match is a single-token comparison, cheap enough that
+    /// a cache lookup is unlikely to be a net win anyway.
     pub(crate) fn try_terminal_inline(
         &mut self,
         grammar_id: GrammarId,

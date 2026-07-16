@@ -304,8 +304,7 @@ impl Parser<'_> {
             );
             let matched_class = if is_token_target {
                 None
-            } else if segment_type.is_some_and(|t| !t.is_empty()) || segment_class_name.is_some()
-            {
+            } else if segment_type.is_some_and(|t| !t.is_empty()) || segment_class_name.is_some() {
                 // `segment_type` is `Option<&'static str>` (Copy), so
                 // binding by value keeps the `'static` lifetime — this
                 // borrows the grammar-table string into the node with no
