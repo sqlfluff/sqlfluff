@@ -169,7 +169,7 @@ fn render_via_python<'py>(
     kwargs.set_item("in_str", raw)?;
     kwargs.set_item("fname", fname)?;
     kwargs.set_item("config", child)?;
-    kwargs.set_item("formatter", formatter.map(|f| f.clone()))?;
+    kwargs.set_item("formatter", formatter.cloned())?;
 
     let violations = PyList::empty(py);
     let mut variants = Vec::new();
@@ -207,6 +207,10 @@ fn render_via_python<'py>(
     Ok((variants, violations))
 }
 
+/// A parsed variant: the `segments` record (`None` if lex/parse failed), the
+/// lex-error strings, and the parse-error strings.
+type ParsedVariantRecord = (Option<Py<PyAny>>, Vec<String>, Vec<String>);
+
 /// Build the `segments` record from a templated variant by lexing + parsing it
 /// natively and calling `PyNode::as_record` (the parity-verified path Python's
 /// `parse` uses). Returns the record object (or `None`) plus lex-error strings.
@@ -216,7 +220,7 @@ fn parse_variant_to_record<'py>(
     tf_obj: &Bound<'py, PyAny>,
     code_only: bool,
     include_meta: bool,
-) -> PyResult<(Option<Py<PyAny>>, Vec<String>, Vec<String>)> {
+) -> PyResult<ParsedVariantRecord> {
     let pf: PySqlFluffTemplatedFile = tf_obj.extract()?;
     let templated: Arc<TemplatedFile> = pf.into();
 

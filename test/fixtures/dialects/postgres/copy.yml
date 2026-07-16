@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e828edfa2f9b8f132796188d0568a6face270dee9bd9f5d86e8b2bd7c260a60a
+_hash: 4cb6a08731a239c76f532de4ddb0a900fd8f49607913104a4916aaa85fdc00ff
 file:
 - statement:
     copy_statement:
@@ -1448,7 +1448,7 @@ file:
         naked_identifier: tmp_table
     - keyword: FROM
     - psql_variable:
-        colon: ':'
+        psql_variable_colon: ':'
         parameter: source
 - statement_terminator: ;
 - statement:
@@ -1458,7 +1458,7 @@ file:
         naked_identifier: my_table
     - keyword: FROM
     - psql_variable:
-        colon: ':'
+        psql_variable_colon: ':'
         parameter: source
     - keyword: WITH
     - bracketed:
@@ -1477,7 +1477,7 @@ file:
         naked_identifier: my_table
     - keyword: TO
     - psql_variable:
-        colon: ':'
+        psql_variable_colon: ':'
         parameter: dest
     - keyword: WITH
     - bracketed:
@@ -1493,7 +1493,7 @@ file:
         naked_identifier: my_table
     - keyword: FROM
     - psql_variable:
-        colon: ':'
+        psql_variable_colon: ':'
         quoted_literal: "'fname'"
 - statement_terminator: ;
 - statement:
@@ -1503,7 +1503,7 @@ file:
         naked_identifier: my_table
     - keyword: TO
     - psql_variable:
-        colon: ':'
+        psql_variable_colon: ':'
         parameter: '"out"'
 - statement_terminator: ;
 - statement:
@@ -1514,7 +1514,7 @@ file:
     - keyword: FROM
     - keyword: PROGRAM
     - psql_variable:
-        colon: ':'
+        psql_variable_colon: ':'
         quoted_literal: "'gen_cmd'"
 - statement_terminator: ;
 - statement:
@@ -1525,6 +1525,6 @@ file:
     - keyword: TO
     - keyword: PROGRAM
     - psql_variable:
-        colon: ':'
+        psql_variable_colon: ':'
         parameter: dest_cmd
 - statement_terminator: ;

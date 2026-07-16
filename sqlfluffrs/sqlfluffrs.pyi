@@ -267,6 +267,31 @@ def cp01_violations(
     """
     ...
 
+def cp03_violations(
+    tree: RsTree,
+    policy: str,
+    ignore_words: List[str] = ...,
+    ignore_templated: bool = ...,
+) -> List[Tuple[int, str]]:
+    """Detect CP03 (function-name capitalisation) violations natively over the arena.
+
+    Same contract as ``cp01_violations``; ``policy`` additionally accepts
+    ``pascal``/``camel``/``snake``.
+    """
+    ...
+
+def cp04_violations(
+    tree: RsTree,
+    policy: str,
+    ignore_words: List[str] = ...,
+    ignore_templated: bool = ...,
+) -> List[Tuple[int, str]]:
+    """Detect CP04 (boolean/null literal capitalisation) violations natively over the arena.
+
+    Same contract as ``cp01_violations``.
+    """
+    ...
+
 def engine_parse_paths(
     paths: list[str],
     config: "FluffConfig",

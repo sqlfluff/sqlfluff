@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bfb1a1991e553e932bdb4d70cc5871ef1bec789eb542a3da37739661335c4c54
+_hash: b5bb0d989dcc7437d8698dc1aef56b0dd600db28da3397967a40aa8c6bbdf55e
 file:
 - statement:
     with_compound_statement:
@@ -207,4 +207,107 @@ file:
           - column_reference:
               naked_identifier: name
           - end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: toto
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                numeric_literal: '1'
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                quoted_literal: "'test'"
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: name
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: toto
+        limit_clause:
+        - keyword: LIMIT
+        - limit_clause_component:
+            numeric_literal: '1'
+        - keyword: by
+        - column_reference:
+            naked_identifier: id
+        - comma: ','
+        - column_reference:
+            naked_identifier: name
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: toto
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                numeric_literal: '1'
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                quoted_literal: "'test'"
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: name
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: toto
+        limit_clause:
+        - keyword: LIMIT
+        - limit_clause_component:
+            numeric_literal: '2'
+        - keyword: OFFSET
+        - limit_clause_component:
+            numeric_literal: '1'
+        - keyword: by
+        - column_reference:
+            naked_identifier: id
+        - comma: ','
+        - column_reference:
+            naked_identifier: name
 - statement_terminator: ;

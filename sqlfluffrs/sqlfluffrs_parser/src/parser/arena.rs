@@ -17,6 +17,11 @@
 //! uuid through `apply_as_root` is deferred to the fixing milestone where
 //! cross-reingest identity matters for `LintFix` anchoring.
 
+// Milestone 1 scaffolding: `ArenaKind`, `PathStep`, `Arena::from_node`, `Arena::path_to`,
+// and their construction helpers aren't wired up outside this module's own tests yet
+// (see module docs above).
+#![allow(dead_code)]
+
 use std::borrow::Cow;
 use std::cell::RefCell;
 use std::sync::Arc;

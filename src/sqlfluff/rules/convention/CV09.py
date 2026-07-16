@@ -67,7 +67,11 @@ class Rule_CV09(BaseRule):
         if not self.blocked_words and not self.blocked_regex:
             return None
 
-        if context.segment.type == "comment":
+        # Use is_type (class_types) rather than `.type ==`: the latter compares
+        # the class-level type, which the RsSegment arena façade reports as the
+        # *instance* type (e.g. "inline_comment"); is_type("comment") matches
+        # both paths (comments carry "comment" in class_types).
+        if context.segment.is_type("comment"):
             return None
 
         # Get the ignore list configuration and cache it

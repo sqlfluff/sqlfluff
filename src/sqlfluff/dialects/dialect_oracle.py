@@ -2138,6 +2138,43 @@ class JsonTableFunctionNameSegment(BaseSegment):
     )
 
 
+class XmlAttributesFunctionNameSegment(BaseSegment):
+    """XMLATTRIBUTES function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "XMLATTRIBUTES", WordSegment, type="function_name_identifier"
+    )
+
+
+class XmlAttributesFunctionContentsSegment(BaseSegment):
+    """XMLATTRIBUTES function contents.
+
+    Each attribute takes an optional alias, either a static ``[AS] c_alias`` or a
+    dynamic ``AS EVALNAME value_expr``. The generic function contents grammar
+    rejects both because it only allows ``AS <datatype>``.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/XMLATTRIBUTES.html
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("ExpressionSegment"),
+                OneOf(
+                    Sequence("AS", "EVALNAME", Ref("ExpressionSegment")),
+                    Ref("AliasExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function with Oracle-specific JSON_TABLE support."""
 
@@ -2146,6 +2183,10 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 Ref("JsonTableFunctionNameSegment"),
                 Ref("JsonTableFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("XmlAttributesFunctionNameSegment"),
+                Ref("XmlAttributesFunctionContentsSegment"),
             ),
         ],
         at=0,

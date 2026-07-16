@@ -4,6 +4,7 @@ import logging
 from dataclasses import dataclass
 from typing import Callable, Optional, Union
 
+from sqlfluff.core.config.ini import coerce_value
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     NestedStringDict,
@@ -15,6 +16,30 @@ from sqlfluff.core.types import ConfigMappingType, ConfigValueOrListType
 
 # Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")
+
+
+def _translate_allow_implicit_indents(
+    value: ConfigValueOrListType,
+) -> ConfigValueOrListType:
+    """Translate a deprecated ``allow_implicit_indents`` value.
+
+    The old value was a boolean, where ``true`` maps to ``allow`` and
+    ``false`` maps to ``forbid``. Ini config values are already coerced to
+    real booleans before they reach here, but toml preserves the written
+    type, so a quoted boolean (e.g. ``allow_implicit_indents = "false"``)
+    arrives as a string. Coerce string values the same way ini does before
+    testing them, so that a quoted ``"false"`` still maps to ``forbid``
+    rather than being treated as a truthy string.
+
+    Args:
+        value: The deprecated config value.
+
+    Returns:
+        ``"allow"`` for truthy values, otherwise ``"forbid"``.
+    """
+    if isinstance(value, str):
+        value = coerce_value(value)
+    return "allow" if value else "forbid"
 
 
 @dataclass
@@ -165,7 +190,7 @@ REMOVED_CONFIGS = [
             "Use 'forbid' (was false), 'allow' (was true), or 'require' instead."
         ),
         ("indentation", "implicit_indents"),
-        lambda x: "allow" if x else "forbid",
+        _translate_allow_implicit_indents,
     ),
 ]
 
