@@ -79,3 +79,21 @@ CREATE DYNAMIC TABLE tagged_product (
   WAREHOUSE = mywh
   AS
     SELECT product_id FROM staging_table;
+
+CREATE DYNAMIC TABLE IF NOT EXISTS my_db.my_schema.my_table
+  TARGET_LAG = '5 minutes'
+  WAREHOUSE = 'my_warehouse'
+  INITIALIZATION_WAREHOUSE = 'my__initialization_warehouse'
+  REFRESH_MODE = ADAPTIVE
+  CLUSTER BY (a, d)
+    AS
+    SELECT
+        a,
+        s,
+        l,
+        c,
+        n,
+        d,
+        b
+    FROM my_db.my_source_schema.my_source_table
+    WHERE d > DATEADD('months', -18, CURRENT_DATE);

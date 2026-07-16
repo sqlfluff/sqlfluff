@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e2e00be7f5e9d2f2cb18b390da3b61fd754972121145891d84cdb1af1f84c9a
+_hash: 454ee483f863a081ce638bae2ab438fbbefd4e58f7089141f912d731f8dd30ff
 file:
 - statement:
     create_table_statement:
@@ -502,4 +502,113 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: staging_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'5 minutes'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_warehouse'"
+      - keyword: INITIALIZATION_WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my__initialization_warehouse'"
+      - keyword: REFRESH_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ADAPTIVE
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: a
+          - comma: ','
+          - column_reference:
+              naked_identifier: d
+          - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: s
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: c
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: n
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: d
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: my_db
+                - dot: .
+                - naked_identifier: my_source_schema
+                - dot: .
+                - naked_identifier: my_source_table
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: d
+            comparison_operator:
+              raw_comparison_operator: '>'
+            function:
+              function_name:
+                function_name_identifier: DATEADD
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'months'"
+                - comma: ','
+                - expression:
+                    numeric_literal:
+                      sign_indicator: '-'
+                      numeric_literal: '18'
+                - comma: ','
+                - expression:
+                    bare_function: CURRENT_DATE
+                - end_bracket: )
 - statement_terminator: ;
