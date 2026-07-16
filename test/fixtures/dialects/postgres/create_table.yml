@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b18abb6574c720134a4a1fb94d742923fdf23a612ff691f5184af935367756cc
+_hash: d5a6173033c7aa06874524e8ab8886df5e14c9654f44f9db86af393b804c5e45
 file:
 - statement:
     create_table_statement:
@@ -2501,16 +2501,15 @@ file:
           - keyword: GENERATED
           - keyword: ALWAYS
           - keyword: AS
-          - expression:
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: id
-                  comparison_operator:
-                    raw_comparison_operator: <
-                  numeric_literal: '10'
-                end_bracket: )
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: id
+                comparison_operator:
+                  raw_comparison_operator: <
+                numeric_literal: '10'
+              end_bracket: )
           - keyword: VIRTUAL
       - comma: ','
       - column_definition:
@@ -2521,22 +2520,21 @@ file:
           - keyword: GENERATED
           - keyword: ALWAYS
           - keyword: AS
-          - expression:
-              bracketed:
-                start_bracket: (
-                expression:
-                - column_reference:
-                    naked_identifier: first_name
-                - binary_operator:
-                  - pipe: '|'
-                  - pipe: '|'
-                - quoted_literal: "' '"
-                - binary_operator:
-                  - pipe: '|'
-                  - pipe: '|'
-                - column_reference:
-                    naked_identifier: last_name
-                end_bracket: )
+          - bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: first_name
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  naked_identifier: last_name
+              end_bracket: )
           - keyword: VIRTUAL
       - end_bracket: )
 - statement_terminator: ;
@@ -2564,16 +2562,15 @@ file:
           - keyword: GENERATED
           - keyword: ALWAYS
           - keyword: AS
-          - expression:
-              bracketed:
-                start_bracket: (
-                expression:
-                - column_reference:
-                    naked_identifier: a
-                - binary_operator: +
-                - column_reference:
-                    naked_identifier: b
-                end_bracket: )
+          - bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: a
+              - binary_operator: +
+              - column_reference:
+                  naked_identifier: b
+              end_bracket: )
           - keyword: STORED
       - end_bracket: )
 - statement_terminator: ;
@@ -2601,15 +2598,14 @@ file:
           - keyword: GENERATED
           - keyword: ALWAYS
           - keyword: AS
-          - expression:
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: id
-                  comparison_operator:
-                    raw_comparison_operator: '>'
-                  numeric_literal: '0'
-                end_bracket: )
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: id
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '0'
+              end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
