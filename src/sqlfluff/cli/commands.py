@@ -1167,7 +1167,10 @@ def _try_facade_stdin_fix(
         return None
 
 
-def _try_facade_paths_fix(
+# No coverage: only reachable end-to-end with ``use_rust_engine`` on, which no
+# test env forces yet. The forced-engine env (stack-05) runs the full CLI suite
+# through this path — drop the pragma when it lands.
+def _try_facade_paths_fix(  # pragma: no cover
     linter: Linter,
     formatter: OutputStreamFormatter,
     paths,

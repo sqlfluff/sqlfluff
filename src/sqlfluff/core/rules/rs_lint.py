@@ -442,8 +442,11 @@ class RsSegment:
                 buff.append(seg)
         return buff
 
+    # No coverage: reflow (DepthMap) entry points, unreachable until an LT rule
+    # joins FACADE_SAFE_RULES / the forced-engine env (stack-05) exercises reflow
+    # over the façade — drop the pragmas when that lands.
     @property
-    def raw_segments_with_ancestors(
+    def raw_segments_with_ancestors(  # pragma: no cover
         self,
     ) -> list[tuple[RsSegment, list[Any]]]:
         # Reflow hot path (DepthMap). Use the bulk arena traversal — one FFI call
@@ -468,7 +471,7 @@ class RsSegment:
         self._rwa = out
         return out
 
-    def reflow_depth_info(self) -> dict[int, Any]:
+    def reflow_depth_info(self) -> dict[int, Any]:  # pragma: no cover
         # Reflow DepthMap fast path: build the {leaf_uuid: DepthInfo} map wholly
         # from arena-side scalars (no PathStep/PyHandle marshalling). The arena
         # emits, per leaf, its top-down stack of (anc_uuid, idx, len, stack_pos)
