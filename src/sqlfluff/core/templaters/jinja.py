@@ -760,9 +760,14 @@ class JinjaTemplater(PythonTemplater):
         # literal slice (matching what `slice_file` would return). We only
         # skip when no macro loading is configured, because loading macros
         # (from config or from a path) is validated at construction time and
-        # can raise user-facing errors which we must preserve.
+        # can raise user-facing errors which we must preserve. An empty
+        # `in_str` is excluded because `TemplatedFile`'s default single-slice
+        # construction produces a zero-length literal slice, which the
+        # coverage check in `process_with_variants` treats as "uncovered" and
+        # uses to synthesise a spurious extra variant.
         if (
-            not re.search(r"\{[{%#]", in_str)
+            in_str
+            and not re.search(r"\{[{%#]", in_str)
             and not self._get_macros_path(config, "load_macros_from_path")
             and not config.get_section((self.templater_selector, self.name, "macros"))
         ):
