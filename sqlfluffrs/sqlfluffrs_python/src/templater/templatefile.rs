@@ -34,8 +34,10 @@ type TemplatedFileCacheEntry = (Arc<TemplatedFile>, Py<PyAny>);
 /// source object is garbage collected (the ref must be kept alive for the
 /// callback to fire) — so the cache is bounded by LIVE TemplatedFiles and a
 /// recycled object address can never hit a stale entry.
-static PY_TEMPLATED_FILE_CACHE: Lazy<Mutex<HashMap<usize, TemplatedFileCacheEntry>>> =
-    Lazy::new(|| Mutex::new(HashMap::new()));
+type TemplatedFileCacheEntry = (Arc<TemplatedFile>, Py<PyAny>);
+type TemplatedFileCache = Lazy<Mutex<HashMap<usize, TemplatedFileCacheEntry>>>;
+
+static PY_TEMPLATED_FILE_CACHE: TemplatedFileCache = Lazy::new(|| Mutex::new(HashMap::new()));
 
 /// Weakref callback target: drop one conversion-cache entry. Bound to its key
 /// with `functools.partial`; the weakref machinery passes the (dead) ref as a
