@@ -272,7 +272,12 @@ impl<'a> Parser<'a> {
     /// caller has no narrower window (e.g. a child unconstrained by the
     /// parent's terminators, such as a Delimited delimiter).
     #[inline]
-    pub(crate) fn simple_hint_rejects(&self, grammar: GrammarId, pos: usize, max_idx: usize) -> bool {
+    pub(crate) fn simple_hint_rejects(
+        &self,
+        grammar: GrammarId,
+        pos: usize,
+        max_idx: usize,
+    ) -> bool {
         // Not a real grammar id (terminator sentinel) - never index the
         // grammar tables with it. Mirrors the guard `prune_options` applies
         // for the same reason.
