@@ -245,14 +245,17 @@ impl<'a> Parser<'a> {
     // They work with GrammarId and use GrammarContext for
     // table access.
 
-    /// Find the first code token at or after `pos`.
+    /// Find the first code token in `[pos, max_idx)`.
     ///
     /// Shared by `prune_options` and `simple_hint_rejects`, both of which
     /// need the token whose raw/type values are checked against a grammar's
-    /// simple hint.
+    /// simple hint. Bounded by `max_idx` so callers with a narrow parse
+    /// window (e.g. a local terminator) don't pay for a scan across the
+    /// rest of the token stream.
     #[inline]
-    fn first_code_token_at(&self, pos: usize) -> Option<&Token> {
-        self.tokens.iter().skip(pos).find(|t| t.is_code())
+    fn first_code_token_at(&self, pos: usize, max_idx: usize) -> Option<&Token> {
+        let end = max_idx.min(self.tokens.len());
+        self.tokens.get(pos..end)?.iter().find(|t| t.is_code())
     }
 
     /// First-token hint gate for a single grammar.
@@ -263,8 +266,13 @@ impl<'a> Parser<'a> {
     /// to one grammar. Callers may then skip frame allocation and treat the
     /// child as an immediate empty match. Conservative: returns false when
     /// the grammar has no hint or there is no code token to check.
+    ///
+    /// `max_idx` bounds the scan for the first code token to the caller's
+    /// effective parse window (exclusive) - pass `self.tokens.len()` if the
+    /// caller has no narrower window (e.g. a child unconstrained by the
+    /// parent's terminators, such as a Delimited delimiter).
     #[inline]
-    pub(crate) fn simple_hint_rejects(&self, grammar: GrammarId, pos: usize) -> bool {
+    pub(crate) fn simple_hint_rejects(&self, grammar: GrammarId, pos: usize, max_idx: usize) -> bool {
         // Not a real grammar id (terminator sentinel) - never index the
         // grammar tables with it. Mirrors the guard `prune_options` applies
         // for the same reason.
@@ -278,7 +286,7 @@ impl<'a> Parser<'a> {
         if hint.is_empty() {
             return false;
         }
-        let Some(tok) = self.first_code_token_at(pos) else {
+        let Some(tok) = self.first_code_token_at(pos, max_idx) else {
             return false;
         };
         self.metrics
@@ -366,7 +374,7 @@ impl<'a> Parser<'a> {
             .set(self.metrics.pruning_total.get() + options.len());
 
         // Find first code token
-        let first_code_token = self.first_code_token_at(self.pos);
+        let first_code_token = self.first_code_token_at(self.pos, self.tokens.len());
 
         // If no code token found, can't prune - return all options
         let Some(first_token) = first_code_token else {

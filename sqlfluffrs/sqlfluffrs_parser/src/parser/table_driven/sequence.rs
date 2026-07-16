@@ -142,7 +142,7 @@ impl Parser<'_> {
         // First-token hint gate: when the element's simple hint rules out a
         // match at this position, skip creating a real child frame (see
         // simple_hint_rejects / TableParseFrameStack::gate_child_and_wait).
-        if self.simple_hint_rejects(elements[current_element_idx], child_start_pos) {
+        if self.simple_hint_rejects(elements[current_element_idx], child_start_pos, max_idx) {
             return Ok(stack.gate_child_and_wait(
                 frame,
                 GrammarVariant::Sequence,
@@ -399,7 +399,7 @@ impl Parser<'_> {
 
             // First-token hint gate (see simple_hint_rejects): skip the frame
             // when the element provably cannot match at this position.
-            if self.simple_hint_rejects(elements[next_element_idx], child_start_pos) {
+            if self.simple_hint_rejects(elements[next_element_idx], child_start_pos, max_idx) {
                 frame.context.as_sequence_mut().unwrap().current_element_idx = next_element_idx;
                 return Ok(stack.gate_child_and_wait(
                     frame,
@@ -644,7 +644,7 @@ impl Parser<'_> {
             // Check if next element is optional - if so, create child frame for it
             if self.grammar_ctx.is_optional(next_element) {
                 // First-token hint gate (see simple_hint_rejects).
-                if self.simple_hint_rejects(next_element, matched_idx) {
+                if self.simple_hint_rejects(next_element, matched_idx, max_idx) {
                     frame.context.as_sequence_mut().unwrap().current_element_idx = current_idx;
                     return Ok(stack.gate_child_and_wait(
                         frame,
@@ -717,7 +717,7 @@ impl Parser<'_> {
         }
 
         // First-token hint gate (see simple_hint_rejects).
-        if self.simple_hint_rejects(next_element, child_start_pos) {
+        if self.simple_hint_rejects(next_element, child_start_pos, max_idx) {
             frame.context.as_sequence_mut().unwrap().current_element_idx = current_idx;
             return Ok(stack.gate_child_and_wait(
                 frame,
