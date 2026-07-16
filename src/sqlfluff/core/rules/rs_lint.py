@@ -22,7 +22,10 @@ from __future__ import annotations
 
 import re
 import weakref
-from typing import Any, Iterator, Optional, cast
+from typing import TYPE_CHECKING, Any, Iterator, Optional, Union, cast
+
+if TYPE_CHECKING:
+    from sqlfluffrs import RsHandle
 
 # Interning cache so the same arena node always yields the same RsSegment object.
 # Keyed by node uuid (a globally-unique monotonic counter), held weakly so
@@ -192,7 +195,7 @@ class RsSegment:
     # become Python set operations instead of per-call FFI — the hot path in
     # rule crawling.
     __slots__ = ("_h", "_uid", "_segments", "_ct", "_rwa", "__weakref__")
-    _h: Any
+    _h: "RsHandle"
     _uid: int
     _segments: Optional[tuple["RsSegment", ...]]
     _ct: Optional[frozenset[str]]
@@ -262,7 +265,7 @@ class RsSegment:
         if qv:
             _match = re.match(qv[0], raw_buff)
             if _match:
-                group = qv[1]
+                group: Union[str, int] = qv[1]
                 # The arena stores the capture group as a string; a numeric
                 # index arrives as e.g. ``"1"`` and must be int for ``group``.
                 try:
@@ -402,10 +405,13 @@ class RsSegment:
         return self._h.pos_marker
 
     def get_start_loc(self) -> tuple[int, int]:
-        return self._h.pos_marker.working_loc
+        pm = self._h.pos_marker
+        assert pm, f"{self} has no PositionMarker"
+        return pm.working_loc
 
     def get_end_loc(self) -> tuple[int, int]:
         pm = self._h.pos_marker
+        assert pm, f"{self} has no PositionMarker"
         return pm.working_loc_after(self._h.raw)
 
     # -- navigation ----------------------------------------------------------
@@ -649,7 +655,7 @@ class RsSegment:
 
         h = self._h
         cls = _synth_segment_class(
-            h.segment_class, h.type, self.class_types, h.is_raw()
+            h.segment_class or "", h.type, self.class_types, h.is_raw()
         )
 
         if h.is_raw():
@@ -661,7 +667,7 @@ class RsSegment:
             # numeric index arrives as e.g. "1" and must be an int for
             # ``re.Match.group`` (a numeric string is treated as a group *name*).
             # This mirrors the conversion in ``RsSegment.normalize``.
-            quoted_value = h.quoted_value()
+            quoted_value: Optional[tuple[str, Union[str, int]]] = h.quoted_value()
             if quoted_value:
                 pattern, group = quoted_value
                 try:
