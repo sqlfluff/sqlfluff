@@ -695,6 +695,11 @@ snowflake_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("ReferencedVariableNameSegment"),
+            # Snowflake Scripting bind variables, e.g. :my_variable. These are
+            # usable wherever a literal value is expected (VALUES lists, WHERE
+            # clauses, etc.).
+            # https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables#using-a-variable-in-a-sql-statement-binding
+            Ref("BindVariableSegment"),
         ]
     ),
     AccessorGrammar=AnyNumberOf(
