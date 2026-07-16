@@ -124,10 +124,11 @@ class Rule_CV12(BaseRule):
             ]
 
             if any(
-                kw.raw_upper in ("CROSS", "POSITIONAL", "USING", "APPLY")
+                kw.raw_upper in ("CROSS", "NATURAL", "POSITIONAL", "USING", "APPLY")
                 for kw in join_clause_keywords
             ):
                 # If explicit CROSS JOIN is used, disregard lack of condition
+                # If NATURAL JOIN is used, disregard lack of condition
                 # If explicit POSITIONAL JOIN is used, disregard lack of condition
                 # If explicit JOIN USING is used, disregard lack of condition
                 # If explicit CROSS/OUTER APPLY is used, disregard lack of condition
