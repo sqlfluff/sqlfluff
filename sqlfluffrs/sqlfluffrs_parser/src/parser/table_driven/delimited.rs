@@ -146,16 +146,6 @@ impl Parser<'_> {
             );
         }
 
-        // Pass child_terminators to allow the element matcher to try all candidates
-        // without early termination from local terminators (e.g., ObjectReferenceTerminator).
-        let child_frame = TableParseFrame::new_child(
-            stack.frame_id_counter,
-            elements_id,
-            start_pos,
-            &child_terminators,
-            Some(max_idx),
-        );
-
         // Store context for the element/delimiter phase loop.
         frame.context = FrameContext::Delimited(DelimitedState {
             grammar_id,
@@ -170,6 +160,31 @@ impl Parser<'_> {
             child_terminators, // Move, no clone
             working_match: Arc::new(MatchResult::empty_at(start_pos)),
         });
+
+        // Inline fast path: a terminal element (e.g. a Ref to an identifier
+        // parser) needs no frame machinery. Feed the result straight into the
+        // element-phase handler.
+        self.pos = start_pos;
+        if let Some(mr) = self.try_terminal_inline(elements_id, Some(max_idx))? {
+            let end_pos = self.pos;
+            let arc = Arc::new(mr);
+            return self.handle_delimited_waiting_for_child(frame, &arc, &end_pos, stack);
+        }
+
+        // Pass child_terminators to allow the element matcher to try all candidates
+        // without early termination from local terminators (e.g., ObjectReferenceTerminator).
+        let child_frame = {
+            let FrameContext::Delimited(state) = &frame.context else {
+                unreachable!("Delimited context was just set");
+            };
+            TableParseFrame::new_child(
+                stack.frame_id_counter,
+                elements_id,
+                start_pos,
+                &state.child_terminators,
+                Some(max_idx),
+            )
+        };
 
         // Push child to match element(s).
         Ok(stack.push_child_and_wait(frame, child_frame, 0))
@@ -384,6 +399,21 @@ impl Parser<'_> {
 
         // Transition to MatchingDelimiter
         *delim_state = DelimitedPhase::MatchingDelimiter;
+        let delimiter_pos = *working_idx;
+
+        frame.state = FrameState::WaitingForChild { child_index: 0 };
+
+        // Inline fast path: comma-style delimiters are terminal parsers
+        // (usually a Ref to a StringParser) and need no frame machinery.
+        // Feed the result straight into the delimiter-phase handler; that
+        // handler always pushes a frame or finalizes, so recursion depth
+        // stays bounded.
+        self.pos = delimiter_pos;
+        if let Some(mr) = self.try_terminal_inline(delimiter_id, None)? {
+            let end_pos = self.pos;
+            let arc = Arc::new(mr);
+            return self.handle_delimited_delimiter_result(frame, &arc, &end_pos, stack);
+        }
 
         // IMPORTANT: Don't pass max_idx to delimiter frame!
         // The delimiter should be matchable at the current position even if
@@ -392,12 +422,10 @@ impl Parser<'_> {
         let delimiter_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             delimiter_id,
-            *working_idx,
+            delimiter_pos,
             &frame.table_terminators,
             None, // Don't constrain delimiter by max_idx
         );
-
-        frame.state = FrameState::WaitingForChild { child_index: 0 };
 
         stack.push_child_and_update_parent(frame, delimiter_frame, GrammarVariant::Delimited);
         Ok(TableFrameResult::Done)

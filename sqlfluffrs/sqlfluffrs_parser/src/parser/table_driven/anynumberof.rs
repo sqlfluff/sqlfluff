@@ -189,6 +189,15 @@ impl Parser<'_> {
         // Move terminators into frame (no clone)
         frame.table_terminators = all_terminators;
 
+        // Inline fast path: terminal candidates need no frame machinery.
+        // Feed the result straight into the shared candidate-handling logic.
+        self.pos = start_pos;
+        if let Some(mr) = self.try_terminal_inline(first_element, Some(max_idx))? {
+            let end_pos = self.pos;
+            let arc = Arc::new(mr);
+            return self.handle_anynumberof_waiting_for_child(frame, &arc, &end_pos, stack);
+        }
+
         // Create initial child frame for the first element candidate and
         // let the WaitingForChild handler iterate remaining candidates.
         let child_frame = TableParseFrame::new_child(
@@ -298,12 +307,28 @@ impl Parser<'_> {
             .expect("Expected AnyNumberOf context");
         let next_element_idx = ctx.tried_elements;
         let next_candidate = ctx.pruned_children[next_element_idx];
+        let working_idx = ctx.working_idx;
+        let max_idx = ctx.max_idx;
 
         vdebug!(
             "AnyNumberOf[table]: Trying next element candidate idx={} gid={}",
             next_element_idx,
             next_candidate.0
         );
+
+        // Inline fast path for terminal candidates (see try_terminal_inline);
+        // recursion depth is bounded by the candidate count of this grammar.
+        self.pos = working_idx;
+        if let Some(mr) = self.try_terminal_inline(next_candidate, Some(max_idx))? {
+            let end_pos = self.pos;
+            let arc = Arc::new(mr);
+            return self.handle_anynumberof_waiting_for_child(frame, &arc, &end_pos, stack);
+        }
+
+        let ctx = frame
+            .context
+            .as_anynumberof_mut()
+            .expect("Expected AnyNumberOf context");
 
         // Create and push child frame
         let child_frame = TableParseFrame::new_child(
