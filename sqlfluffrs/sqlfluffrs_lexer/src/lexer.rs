@@ -4,10 +4,10 @@ use log::debug;
 
 use sqlfluffrs_types::{
     marker::PositionMarker,
-    matcher::{LexMatcher, LexedElement},
+    matcher::{LexMatcher, LexMatcherConfig, LexedElement},
     slice::Slice,
     templater::{fileslice::TemplatedFileSlice, templatefile::TemplatedFile},
-    token::{CaseFold, Token},
+    token::Token,
 };
 
 use hashbrown::{HashMap, HashSet};
@@ -230,17 +230,10 @@ impl Lexer {
                 // dialect,
                 "<unlexable>",
                 r#"[^\t\n\ ]*"#,
-                Token::unlexable_token_compat,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                CaseFold::None,
+                Token::unlexable_token,
                 None,
                 |_| true,
-                None,
+                LexMatcherConfig::default(),
             )
         });
         Self {

@@ -98,7 +98,7 @@ enum BracketScanResult {
 /// unresolved opener found along the way, matching Python's
 /// `resolve_bracket` recursing one level deeper for every bracket it opens
 /// - so the position they end up at is always where Python's own
-/// recursive call would raise from.
+///   recursive call would raise from.
 ///
 /// Used to distinguish Python's two distinct bracket-resolution failures
 /// (`resolve_bracket`, match_algorithms.py): "Couldn't find closing bracket
@@ -138,24 +138,6 @@ fn find_mismatched_closing_bracket(
         }
     }
     BracketScanResult::Unclosed { idx: innermost_idx }
-}
-
-pub(crate) fn skip_stop_index_backward_to_code(
-    tokens: &[Token],
-    start_idx: usize,
-    min_idx: usize,
-) -> usize {
-    let mut idx = start_idx;
-    while idx > min_idx {
-        idx -= 1;
-        // Here we would check if the token at idx is a "code" token.
-        // For this example, let's assume all tokens are code tokens.
-        let is_code_token = tokens[idx].is_code();
-        if is_code_token {
-            return idx;
-        }
-    }
-    min_idx
 }
 
 impl Parser<'_> {
@@ -372,8 +354,8 @@ impl Parser<'_> {
                         term_id,
                         i
                     );
-                    let last_code_idx = skip_stop_index_backward_to_code(tokens, i, start_idx);
-                    return Ok((i, last_code_idx + 1));
+                    let stop_idx = self.skip_stop_index_backward_to_code(i, start_idx);
+                    return Ok((i, stop_idx));
                 }
             }
             i += 1;

@@ -70,6 +70,37 @@ def test__validate_configs_precedence_same_file():
 
 
 @pytest.mark.parametrize(
+    "old_value,expected",
+    [
+        # Booleans, as produced by ini configs and native toml booleans.
+        (False, "forbid"),
+        (True, "allow"),
+        # Quoted booleans, as preserved by toml (e.g. `= "false"`). These must
+        # coerce like ini values so that a quoted "false" still maps to "forbid"
+        # rather than being treated as a truthy string.
+        ("false", "forbid"),
+        ("true", "allow"),
+        ("False", "forbid"),
+        ("True", "allow"),
+    ],
+)
+def test__validate_configs_allow_implicit_indents_translation(old_value, expected):
+    """Test translation of the deprecated allow_implicit_indents config."""
+    old_key = ("indentation", "allow_implicit_indents")
+    new_key = ("indentation", "implicit_indents")
+    # Confirm this key is still translated (guards against the test drifting).
+    assert any(
+        k.old_path == old_key and k.new_path == new_key for k in REMOVED_CONFIGS
+    ), (
+        "This test depends on this key still being removed. Update the test to "
+        "one that is if this one isn't."
+    )
+    config = records_to_nested_dict([(old_key, old_value)])
+    validate_config_dict_for_removed(config, "<test>")
+    assert config == {"indentation": {"implicit_indents": expected}}
+
+
+@pytest.mark.parametrize(
     "config_dict,config_warning",
     [
         ({"layout": "foo"}, "Found value 'foo' instead of a valid layout section"),

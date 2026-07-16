@@ -66,28 +66,3 @@ impl TokenConfig {
         self
     }
 }
-
-/// Helper to extract individual fields for backward compatibility
-impl TokenConfig {
-    pub fn into_parts(
-        self,
-    ) -> (
-        HashSet<String>,
-        Vec<String>,
-        Option<Vec<String>>,
-        Option<Vec<String>>,
-        Option<(String, RegexModeGroup)>,
-        Option<(String, String)>,
-        CaseFold,
-    ) {
-        (
-            self.class_types,
-            self.instance_types,
-            self.trim_start,
-            self.trim_chars,
-            self.quoted_value,
-            self.escape_replacement,
-            self.casefold,
-        )
-    }
-}

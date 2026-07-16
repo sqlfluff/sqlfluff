@@ -4,7 +4,7 @@ from typing import Optional
 
 import regex
 
-from sqlfluff.core.parser import LiteralSegment, PositionMarker
+from sqlfluff.core.parser import LiteralSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, rsp
@@ -111,8 +111,10 @@ class Rule_CV10(BaseRule):
         )
         for raw_slice in templated_raw_slices:
             pos_marker = context.segment.pos_marker
-            # This is to make mypy happy.
-            assert isinstance(pos_marker, PositionMarker)
+            # Narrow Optional[PositionMarker] to non-None (for mypy). Use `is not
+            # None` rather than isinstance so it also holds for the RsSegment
+            # arena façade, whose pos_marker is a duck-typed marker object.
+            assert pos_marker is not None
 
             # Check whether the quote characters are inside the template.
             # For the leading quote we need to account for string prefix characters.

@@ -1,4 +1,3 @@
-pub mod compat;
 pub mod config;
 pub mod construction;
 mod eq;

@@ -89,7 +89,7 @@ impl Parser<'_> {
                     .next()
                     .or_else(|| {
                         self.dialect
-                            .get_segment_grammar(&rule_name)
+                            .get_segment_grammar(rule_name)
                             .map(|root| root.grammar_id)
                     });
                 self.ref_child_cache
@@ -245,102 +245,39 @@ impl Parser<'_> {
                 "Ref[table] Combining DEBUG: accumulated nodes={:?}",
                 ref_match_result
             );
-            // TODO: make this cleaner
-            // Python parity for leaf token grammars (CodeSegment, WordSegment etc.):
-            // When `Ref("CodeSegment")` resolves to Token("raw") and matches a token,
-            // Python uses isinstance() which preserves the token's original class.
-            // A WordSegment token matched by CodeSegment stays a WordSegment (type="word"),
-            // not gets retyped to "raw".
-            //
-            // We detect this "isinstance path" when:
-            //   1. The resolved segment_type matches a "base" class type like "raw" (= CodeSegment.type)
-            //   2. The child match is a bare token match (no matched_class, exactly 1 token)
-            //
-            // In that case, use the actual token's effective type (instance_types[0] or token_type).
-            // `state.segment_type` is `Option<&'static str>` (Copy), so binding by
-            // value keeps the `'static` lifetime — the common case borrows the
-            // grammar-table string into the node with no allocation. Only the
-            // isinstance override (a runtime token type) takes the owned branch.
-            // Holds the token's full instance type list when the isinstance
-            // path below overrides the grammar-table segment_type, so
-            // `segment_kwargs.instance_types` (below) can carry every type the
-            // token is an instance of - not just the effective/leaf one -
-            // matching Python's `RawSegment.class_types` (instance_types ∪
-            // class_types), which RustParser.parse()'s Python-side tree
-            // builder reads its type override from.
-            let mut isinstance_override: Option<Vec<String>> = None;
-            let effective_segment_type: Cow<'static, str> = if let Some(seg_type) =
-                state.segment_type
-            {
-                // Check if the child match is a bare single-token match (no matched_class)
-                // by looking at the match_result's matched_class and slice length
-                let is_bare_token_match = ref_match_result.matched_class.is_none()
-                    && ref_match_result.matched_slice.len() == 1
-                    && ref_match_result.child_matches.is_empty();
-
-                if is_bare_token_match {
-                    let token_idx = ref_match_result.matched_slice.start;
-                    if let Some(tok) = self.tokens.get(token_idx) {
-                        // Get effective type as &str WITHOUT cloning first so the common
-                        // case (types already match) pays no allocation cost.
-                        // Python RawSegment.get_type() = instance_types[0] if set else class.type
-                        let effective = tok
-                            .instance_types
-                            .first()
-                            .map(String::as_str)
-                            .unwrap_or(tok.token_type.as_ref());
-
-                        if effective != seg_type {
-                            vdebug!(
-                                "Ref[table] isinstance-path: preserving token type '{}' over segment_type '{}' for token '{}'",
-                                effective,
-                                seg_type,
-                                tok.raw()
-                            );
-                            isinstance_override = Some(if tok.instance_types.is_empty() {
-                                vec![effective.to_string()]
-                            } else {
-                                tok.instance_types.clone()
-                            });
-                            Cow::Owned(effective.to_string())
-                        } else {
-                            Cow::Borrowed(seg_type)
-                        }
-                    } else {
-                        Cow::Borrowed(seg_type)
-                    }
-                } else {
-                    Cow::Borrowed(seg_type)
-                }
-            } else {
-                Cow::Borrowed(state.segment_type.unwrap_or_default())
-            };
+            // A Ref to a bare (match_grammar-less) class mirrors native
+            // BaseSegment.match's isinstance path: consume the matched token
+            // unchanged, no class wrap, so its lexed type/class chain survives.
+            let is_token_target = self.grammar_ctx.variant(state.child_grammar_id)
+                == sqlfluffrs_types::GrammarVariant::Token;
 
             vdebug!(
-                "Ref[table] Combining: name='{}', effective_segment_type='{}', creating ref_match",
+                "Ref[table] Combining: name='{}', is_token_target={}, creating ref_match",
                 state.name,
-                effective_segment_type
+                is_token_target
             );
-            let matched_class = if !effective_segment_type.is_empty()
+            let matched_class = if is_token_target {
+                None
+            } else if state.segment_type.is_some_and(|t| !t.is_empty())
                 || state.segment_class_name.is_some()
             {
+                // `state.segment_type` is `Option<&'static str>` (Copy), so
+                // binding by value keeps the `'static` lifetime — this
+                // borrows the grammar-table string into the node with no
+                // allocation.
+                let segment_type: Cow<'static, str> =
+                    Cow::Borrowed(state.segment_type.unwrap_or_default());
                 // Look up the Python _class_types hierarchy for this grammar from codegen tables.
                 let class_types = self.grammar_ctx.segment_class_types(state.grammar_id);
-                // rust_parser.py's tree builder (_rs_match_fields/
-                // _apply_rs_match_result) reads its type override from
-                // `segment_kwargs["instance_types"]`; `MatchedClass.segment_type`
-                // only feeds Rust's internal Node tree.
-                let instance_types = isinstance_override;
                 Some(MatchedClass {
                     // take() instead of clone() + unwrap — frame context is not read
                     // again after this point (state transitions to Complete).
                     // segment_class_name is Option<&'static str> (PR #8002), so
                     // borrow the grammar-table class name straight into the node.
                     class_name: Cow::Borrowed(state.segment_class_name.take().unwrap_or_default()),
-                    segment_type: Some(effective_segment_type),
+                    segment_type: Some(segment_type),
                     segment_kwargs: SegmentKwargs {
                         class_types,
-                        instance_types,
                         ..Default::default()
                     },
                 })

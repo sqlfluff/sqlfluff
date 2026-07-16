@@ -83,7 +83,7 @@ fn avg(runs: &[RunStats]) -> Avg {
         .map(|r| (r.duration_secs - mean).powi(2))
         .sum::<f64>()
         / n;
-    let stat = |f: fn(&RunStats) -> usize| runs.iter().map(|r| f(r)).sum::<usize>() as f64 / n;
+    let stat = |f: fn(&RunStats) -> usize| runs.iter().map(&f).sum::<usize>() as f64 / n;
     let hits = stat(|r| r.cache_hits);
     let misses = stat(|r| r.cache_misses);
     let kept = stat(|r| r.pruning_kept);

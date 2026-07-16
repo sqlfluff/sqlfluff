@@ -27,6 +27,7 @@ from sqlfluff.core.parser.parsers import (
 )
 from sqlfluff.core.parser.segments.base import BaseSegment, SegmentMetaclass
 from sqlfluff.core.parser.segments.meta import MetaSegment
+from sqlfluff.core.parser.segments.raw import RawSegment
 
 
 @dataclass
@@ -1298,8 +1299,33 @@ class TableBuilder:
         )
 
     def _handle_token(self, grammar, parse_context) -> GrammarInstData:
-        """Convert Token (BaseSegment without match_grammar) to GrammarInst."""
+        """Convert Token (BaseSegment without match_grammar) to GrammarInst.
+
+        Aux block: ``[type_id, class_name_id, flags, ct_count, ct_ids...]``.
+        A bare class matches iff the token is already an ``isinstance`` (kept
+        unchanged), reproduced as ``_class_types`` ⊆ the token's class chain
+        plus, for RawSegment subclasses, ``is_code``/``is_comment``/
+        ``is_whitespace`` equality (flags word: bit3 = raw-target valid,
+        bit0/1/2 = is_code/is_comment/is_whitespace). The flags are needed
+        because ``CodeSegment``'s chain is only ``{base, raw}``.
+        """
         type_id = self._add_string(grammar.type)
+        class_id = self._add_string(grammar.__name__)
+        class_types = sorted(getattr(grammar, "_class_types", frozenset()))
+        flags = 0
+        if issubclass(grammar, RawSegment):
+            flags = (
+                0b1000
+                | (0b0001 if grammar._is_code else 0)
+                | (0b0010 if grammar._is_comment else 0)
+                | (0b0100 if grammar._is_whitespace else 0)
+            )
+        aux_offset = len(self.aux_data)
+        self.aux_data.append(type_id)
+        self.aux_data.append(class_id)
+        self.aux_data.append(flags)
+        self.aux_data.append(len(class_types))
+        self.aux_data.extend(self._add_string(t) for t in class_types)
         return GrammarInstData(
             variant="Token",
             flags=0,
@@ -1309,7 +1335,7 @@ class TableBuilder:
             min_times=0,
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
-            aux_data_offset=type_id,
+            aux_data_offset=aux_offset,
             simple_hint_idx=0,
             comment=f'Token("{grammar.type}")',
         )

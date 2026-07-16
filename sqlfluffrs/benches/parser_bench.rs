@@ -88,7 +88,8 @@ fn fixture_path(filename: &str) -> std::path::PathBuf {
 
 fn bench_expression_recursion(c: &mut Criterion) {
     let path = fixture_path("expression_recursion.sql");
-    let sql = fs::read_to_string(&path).expect(&format!("Failed to read {}", path.display()));
+    let sql =
+        fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path.display()));
     let input = LexInput::String(sql);
     let dialect = Dialect::Ansi;
     let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
@@ -103,7 +104,8 @@ fn bench_expression_recursion(c: &mut Criterion) {
 
 fn bench_expression_recursion_2(c: &mut Criterion) {
     let path = fixture_path("expression_recursion_2.sql");
-    let sql = fs::read_to_string(&path).expect(&format!("Failed to read {}", path.display()));
+    let sql =
+        fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path.display()));
     let input = LexInput::String(sql);
     let dialect = Dialect::Ansi;
     let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
