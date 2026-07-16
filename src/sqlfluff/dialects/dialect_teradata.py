@@ -66,8 +66,6 @@ teradata_dialect.sets("unreserved_keywords").update(
     [
         "AUTOINCREMENT",
         "ACTIVITYCOUNT",
-        "CASESPECIFIC",
-        "CS",
         "DAYS",
         "DEL",
         "DUAL",
@@ -103,13 +101,25 @@ teradata_dialect.sets("unreserved_keywords").update(
         "STATISTICS",
         "SUMMARY",
         "THRESHOLD",
-        "UC",
-        "UPPERCASE",
     ]
 )
 
 teradata_dialect.sets("reserved_keywords").update(
-    ["LOCKING", "UNION", "REPLACE", "TIMESTAMP"]
+    [
+        "LOCKING",
+        "UNION",
+        "REPLACE",
+        "TIMESTAMP",
+        # The data-type attribute keywords are reserved words in Teradata.
+        # Keeping them reserved also ensures that an attribute postfix such as
+        # `col (UPPERCASE)` or `col (NOT CS)` is parsed as an expression with a
+        # data-type attribute, rather than as a function call `col(...)` with
+        # a column argument named UPPERCASE/CS.
+        "CASESPECIFIC",
+        "CS",
+        "UC",
+        "UPPERCASE",
+    ]
 )
 
 teradata_dialect.sets("bare_functions").update(["DATE"])
@@ -474,7 +484,9 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(  # FORMAT 'YYYY-MM-DD',
             "FORMAT", Ref("QuotedLiteralSegment"), optional=True
         ),
-        Ref("CharCharacterSetGrammar", optional=True),
+        # Data attributes may be chained, e.g.
+        # VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC
+        AnyNumberOf(Ref("CharCharacterSetGrammar")),
     )
 
 
