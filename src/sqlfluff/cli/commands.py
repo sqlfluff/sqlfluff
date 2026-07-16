@@ -1137,11 +1137,8 @@ def _try_facade_stdin_fix(
     correct for anything the façade doesn't fully cover.
     """
     try:
-        from sqlfluff.core.rules.rs_lint import (
-            FACADE_SAFE_RULES,
-            facade_fix_loop,
-            facade_violations,
-        )
+        from sqlfluff.core.linter.rs_fix import facade_fix_loop, facade_violations
+        from sqlfluff.core.rules.rs_lint import FACADE_SAFE_RULES
 
         config = linter.config
         if stdin_filename:
@@ -1196,12 +1193,8 @@ def _try_facade_paths_fix(  # pragma: no cover
     try:
         from sqlfluff.core.linter.discovery import paths_from_path
         from sqlfluff.core.linter.linted_file import LintedFile
-        from sqlfluff.core.rules.rs_lint import (
-            FACADE_SAFE_RULES,
-            RsSegment,
-            facade_fix_loop,
-            facade_violations,
-        )
+        from sqlfluff.core.linter.rs_fix import facade_fix_loop, facade_violations
+        from sqlfluff.core.rules.rs_lint import FACADE_SAFE_RULES, RsSegment
 
         # GATE: only engage for the write-in-place, engine-enabled case.
         if fixed_suffix:

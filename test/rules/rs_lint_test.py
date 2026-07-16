@@ -20,7 +20,8 @@ except ImportError:  # pragma: no cover
     _HAS_ENGINE = False
 
 from sqlfluff.core import Linter
-from sqlfluff.core.rules.rs_lint import FACADE_SAFE_RULES, facade_fix_loop
+from sqlfluff.core.linter.rs_fix import facade_fix_loop
+from sqlfluff.core.rules.rs_lint import FACADE_SAFE_RULES
 from sqlfluff.utils.testing.rules import _setup_config, load_test_cases
 
 _CASE_DIR = "test/fixtures/rules/std_rule_cases"
