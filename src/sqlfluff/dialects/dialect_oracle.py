@@ -107,12 +107,10 @@ oracle_dialect.patch_lexer_matchers(
         ),
         RegexLexer(
             "numeric_literal",
-            # Like ANSI, but:
-            # - no bare leading-dot form (.\d+)
-            # - no trailing (?=\b) gate (that blocked Oracle size suffixes
-            #   such as 256K). Trailing-dot numerics like 1. are allowed by
-            #   the \d+\.(?![\.\w]) alternative (#8110).
-            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?",
+            # Like ANSI, but no bare leading-dot form (.\d+). Allow trailing-dot
+            # numerics (1.) via \d+\.(?![\.\w]), keep (?=\b) for digit/identifier
+            # splits, and also allow Oracle size suffixes (256K) (#8110).
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b)|(?=[KMGTkmg]\b))",
             LiteralSegment,
         ),
     ]
