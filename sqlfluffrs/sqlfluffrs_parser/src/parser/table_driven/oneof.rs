@@ -163,7 +163,7 @@ impl Parser<'_> {
         // Inline fast path: terminal candidates need no frame machinery.
         // Feed the result straight into the shared candidate-handling logic.
         self.pos = post_skip_pos;
-        if let Some(mr) = self.try_terminal_inline(first_child)? {
+        if let Some(mr) = self.try_terminal_inline(first_child, Some(max_idx))? {
             let end_pos = self.pos;
             let arc = Arc::new(mr);
             return self.handle_oneof_waiting_for_child(frame, &arc, &end_pos, stack);
@@ -206,6 +206,7 @@ impl Parser<'_> {
     pub(crate) fn try_terminal_inline(
         &mut self,
         grammar_id: GrammarId,
+        parent_max_idx: Option<usize>,
     ) -> Result<Option<MatchResult>, ParseError> {
         use sqlfluffrs_types::GrammarVariant;
         let res = match self.grammar_ctx.variant(grammar_id) {
@@ -214,6 +215,9 @@ impl Parser<'_> {
             GrammarVariant::MultiStringParser => self.handle_multi_string_parser(grammar_id),
             GrammarVariant::RegexParser => self.handle_regex_parser(grammar_id),
             GrammarVariant::Token => self.handle_token(grammar_id),
+            // Refs resolving to a terminal target (e.g. keyword segments)
+            // are evaluated frame-free too, including the Ref wrapping.
+            GrammarVariant::Ref => return self.try_ref_terminal_inline(grammar_id, parent_max_idx),
             _ => return Ok(None),
         };
         res.map(Some)
@@ -385,7 +389,7 @@ impl Parser<'_> {
             // Inline fast path for terminal candidates (see
             // try_terminal_inline); recursion depth is bounded by the
             // candidate count of this OneOf.
-            if let Some(mr) = self.try_terminal_inline(next_child)? {
+            if let Some(mr) = self.try_terminal_inline(next_child, Some(*max_idx))? {
                 let end_pos = self.pos;
                 let arc = Arc::new(mr);
                 return self.handle_oneof_waiting_for_child(frame, &arc, &end_pos, stack);

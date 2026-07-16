@@ -216,14 +216,13 @@ impl Parser<'_> {
                 "[GREEDY_MATCH_TABLE] greedy_match: checking immediate terminator match for {:?} at {}",
                 term_id, start_idx
             );
-            if let Ok(end_pos) = self.try_match_grammar(term_id, start_idx, terminators) {
-                if end_pos > start_idx {
-                    vdebug!(
-                        "[GREEDY_MATCH_TABLE] greedy_match: immediate terminator {:?} matched at {}",
-                        term_id, start_idx
-                    );
-                    return Ok((start_idx, start_idx));
-                }
+            if self.terminator_matches_at(term_id, start_idx, terminators) {
+                vdebug!(
+                    "[GREEDY_MATCH_TABLE] greedy_match: immediate terminator {:?} matched at {}",
+                    term_id,
+                    start_idx
+                );
+                return Ok((start_idx, start_idx));
             }
         }
 
@@ -321,10 +320,9 @@ impl Parser<'_> {
                 let matched = if let Some(hit) = cached {
                     hit
                 } else {
-                    let result = self
-                        .try_match_grammar(term_id, i, terminators)
-                        .map(|end_pos| end_pos > i)
-                        .unwrap_or(false);
+                    // Frame-free for terminal terminators (see
+                    // terminator_matches_at); full sub-parse otherwise.
+                    let result = self.terminator_matches_at(term_id, i, terminators);
                     self.terminator_match_cache.insert(cache_key, result);
                     result
                 };

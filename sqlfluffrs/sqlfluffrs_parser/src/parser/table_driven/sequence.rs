@@ -144,7 +144,7 @@ impl Parser<'_> {
         // current_element_idx; mirror push_child_and_wait's state transition
         // and feed the result straight to the waiting handler.
         self.pos = child_start_pos;
-        if let Some(mr) = self.try_terminal_inline(elements[current_element_idx])? {
+        if let Some(mr) = self.try_terminal_inline(elements[current_element_idx], Some(max_idx))? {
             frame.state = FrameState::WaitingForChild {
                 child_index: current_element_idx,
             };
@@ -402,7 +402,7 @@ impl Parser<'_> {
             // Inline fast path for terminal elements (see try_terminal_inline);
             // mirrors update_sequence_parent_and_push_child's cursor updates.
             self.pos = child_start_pos;
-            if let Some(mr) = self.try_terminal_inline(elements[next_element_idx])? {
+            if let Some(mr) = self.try_terminal_inline(elements[next_element_idx], Some(max_idx))? {
                 {
                     let ctx = frame.context.as_sequence_mut().unwrap();
                     ctx.current_element_idx = next_element_idx;
@@ -651,7 +651,7 @@ impl Parser<'_> {
             if self.grammar_ctx.is_optional(next_element) {
                 // Inline fast path for terminal elements (see try_terminal_inline).
                 self.pos = matched_idx;
-                if let Some(mr) = self.try_terminal_inline(next_element)? {
+                if let Some(mr) = self.try_terminal_inline(next_element, Some(max_idx))? {
                     {
                         let ctx = frame.context.as_sequence_mut().unwrap();
                         ctx.current_element_idx = current_idx;
@@ -728,7 +728,7 @@ impl Parser<'_> {
 
         // Inline fast path for terminal elements (see try_terminal_inline).
         self.pos = child_start_pos;
-        if let Some(mr) = self.try_terminal_inline(next_element)? {
+        if let Some(mr) = self.try_terminal_inline(next_element, Some(max_idx))? {
             {
                 let ctx = frame.context.as_sequence_mut().unwrap();
                 ctx.current_element_idx = current_idx;

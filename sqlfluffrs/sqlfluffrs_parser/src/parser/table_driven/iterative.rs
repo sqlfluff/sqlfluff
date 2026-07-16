@@ -806,7 +806,7 @@ impl Parser<'_> {
     /// Backed by `ref_child_cache` (shared with `handle_ref_initial`) so the
     /// by-name dialect lookup runs at most once per Ref.
     #[inline]
-    fn resolve_ref_target(&mut self, grammar_id: GrammarId) -> Option<GrammarId> {
+    pub(crate) fn resolve_ref_target(&mut self, grammar_id: GrammarId) -> Option<GrammarId> {
         if let Some(&cached) = self.ref_child_cache.get(&grammar_id.0) {
             return cached.map(GrammarId);
         }
