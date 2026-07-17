@@ -115,9 +115,10 @@ class Rule_CV12(BaseRule):
                 # If UNNEST function is used, disregard lack of condition
                 continue
 
-            encountered_references.add(
-                self._get_from_expression_element_alias(join_table_reference)
+            this_join_reference = self._get_from_expression_element_alias(
+                join_table_reference
             )
+            encountered_references.add(this_join_reference)
 
             join_clause_keywords = [
                 seg for seg in join_clause.segments if seg.type == "keyword"
@@ -155,13 +156,24 @@ class Rule_CV12(BaseRule):
                         )
                         if "dot" in col_ref.descendant_type_set
                     ]
-                    if len(qualified_column_references) > 1 and all(
-                        col_ref.raw_upper.startswith(
-                            tuple(
-                                f"{table_ref}." for table_ref in encountered_references
+                    if (
+                        len(qualified_column_references) > 1
+                        and all(
+                            col_ref.raw_upper.startswith(
+                                tuple(
+                                    f"{table_ref}."
+                                    for table_ref in encountered_references
+                                )
                             )
+                            for col_ref in qualified_column_references
                         )
-                        for col_ref in qualified_column_references
+                        # A condition that doesn't reference this join's own
+                        # table belongs to an earlier join, and moving it here
+                        # would change the query's semantics.
+                        and any(
+                            col_ref.raw_upper.startswith(f"{this_join_reference}.")
+                            for col_ref in qualified_column_references
+                        )
                     ):
                         this_join_clause_subexpressions.add(subexpr_idx)
                         consumed_subexpressions.add(subexpr_idx)
