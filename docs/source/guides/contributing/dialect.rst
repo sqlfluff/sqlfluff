@@ -828,7 +828,7 @@ remember :code:`Ref` always picks the dialect-specific grammar first -->
 :code:`ansi.BaseExpressionElementGrammar` -->
 :code:`ansi.ExpressionSegment` --> :code:`ansi.Expression_A_Grammar` -->
 :code:`ansi.Expression_C_Grammar` --> :code:`ansi.Expression_D_Grammar` -->
-notice this at the end of the sequence --> :code:`postgres.Accessor_Grammar`
+notice this at the end of the sequence --> :code:`postgres.AccessorGrammar`
 --> :code:`postgres.ArrayAccessorSegment`. As you navigate, always remember to
 check for dialect-specific grammar before falling back to the inherited grammar
 (e.g. ANSI). Finally, we have found the part of the grammar that corresponds to
