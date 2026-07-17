@@ -30,6 +30,9 @@ COMMA_SEPARATED_PATH_KEYS = (
     "exclude_macros_from_path",
 )
 RESOLVE_PATH_SUFFIXES = ("_path", "_dir")
+# Values in this section are arbitrary user data for templating, so the path
+# heuristics below must not be applied to them.
+OPAQUE_SECTION_KEY_PATH = ("templater", "jinja", "context")
 
 
 def _load_raw_file_as_dict(filepath: str) -> ConfigMappingType:
@@ -58,7 +61,10 @@ def _resolve_path(filepath: str, val: str) -> list[str]:
 
 
 def _resolve_paths_in_config(
-    config: ConfigMappingType, filepath: str, logging_reference: Optional[str] = None
+    config: ConfigMappingType,
+    filepath: str,
+    logging_reference: Optional[str] = None,
+    key_path: tuple[str, ...] = (),
 ) -> None:
     """Attempt to resolve any paths found in the config file.
 
@@ -69,7 +75,13 @@ def _resolve_paths_in_config(
     for key, val in config.items():
         # If it's a dict, recurse.
         if isinstance(val, dict):
-            _resolve_paths_in_config(val, filepath, logging_reference=logging_reference)
+            if key_path + (key.lower(),) != OPAQUE_SECTION_KEY_PATH:
+                _resolve_paths_in_config(
+                    val,
+                    filepath,
+                    logging_reference=logging_reference,
+                    key_path=key_path + (key.lower(),),
+                )
         # If it's a potential multi-path, split, resolve and join
         if key.lower() in COMMA_SEPARATED_PATH_KEYS:
             assert isinstance(val, str), (
