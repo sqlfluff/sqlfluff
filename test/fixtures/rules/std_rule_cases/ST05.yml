@@ -501,6 +501,21 @@ issue_3572_correlated_subquery_3:
          from events as ce
          where ce.name = person_dates.name)
 
+correlated_subquery_in_later_set_expression_branch:
+  # The correlation is in the second branch of the set expression; issue_3572
+  # above only covers a plain select, where it happens to be the first.
+  pass_str: |
+    select
+        pd.*
+    from person_dates as pd
+    join
+        (select name
+         from events as ce
+         union all
+         select name
+         from events2 as ce2
+         where ce2.name = pd.name)
+
 issue_3598_avoid_looping_1:
   fail_str: |
     WITH cte1 AS (
