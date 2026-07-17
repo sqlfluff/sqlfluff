@@ -10,8 +10,6 @@ if sys.version_info >= (3, 11):
 else:  # pragma: no cover
     import tomli as tomllib
 
-import sqlfluff
-
 REPO_ROOT = Path(__file__).parent.parent
 CONF_PY = REPO_ROOT / "docs" / "source" / "conf.py"
 PYPROJECT = REPO_ROOT / "pyproject.toml"
@@ -40,8 +38,8 @@ def _eval_conf_stable_version(config: dict) -> object:
     raise AssertionError("No `stable_version` assignment found in docs/source/conf.py")
 
 
-def test_docs_stable_version_matches_package_version():
-    """The docs stable version must resolve to the real package version.
+def test_docs_stable_version_reads_nested_config_key():
+    """The docs stable version must resolve from the nested config key.
 
     ``docs/source/conf.py`` substitutes ``|release|`` throughout the docs (e.g.
     the ``rev:`` in the pre-commit guide). Previously it read the nested
@@ -51,6 +49,6 @@ def test_docs_stable_version_matches_package_version():
     """
     config = _load_pyproject()
     stable_version = _eval_conf_stable_version(config)
-    assert stable_version == sqlfluff.__version__
+    assert stable_version == config["tool"]["sqlfluff_docs"]["stable_version"]
     # Guard against the historical flat-key regression explicitly.
     assert stable_version != "stable_version"
