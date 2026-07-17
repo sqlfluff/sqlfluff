@@ -325,8 +325,16 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ PUBLIC PROPERTIES
     @cached_property
     def is_code(self) -> bool:
-        """Return True if this segment contains any code."""
-        return any(seg.is_code for seg in self.segments)
+        """Return True if this segment contains any code.
+
+        NOTE: Written as a plain loop rather than any() over a generator
+        expression, so each nesting level costs one Python stack frame
+        instead of two, keeping the safe tree depth as high as possible.
+        """
+        for seg in self.segments:
+            if seg.is_code:
+                return True
+        return False
 
     @cached_property
     def _code_indices(self) -> tuple[int, ...]:
@@ -337,19 +345,47 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
 
     @cached_property
-    def is_comment(self) -> bool:  # pragma: no cover TODO?
-        """Return True if this is entirely made of comments."""
-        return all(seg.is_comment for seg in self.segments)
+    def is_comment(self) -> bool:
+        """Return True if this is entirely made of comments.
+
+        NOTE: Plain loop, for the same stack-depth reason as is_code().
+
+        NOTE: The final `return True` is unreachable in practice, since no
+        dialect groups comment tokens into a container without some other
+        whitespace/newline/meta child alongside them.
+        """
+        for seg in self.segments:
+            if not seg.is_comment:
+                return False
+        return True  # pragma: no cover
 
     @cached_property
     def is_whitespace(self) -> bool:
-        """Return True if this segment is entirely whitespace."""
-        return all(seg.is_whitespace for seg in self.segments)
+        """Return True if this segment is entirely whitespace.
+
+        NOTE: Plain loop, for the same stack-depth reason as is_code().
+
+        NOTE: The final `return True` is unreachable in practice, same as
+        is_comment() above, since e.g. the file root always ends with a
+        non-whitespace `end_of_file` meta.
+        """
+        for seg in self.segments:
+            if not seg.is_whitespace:
+                return False
+        return True  # pragma: no cover
 
     @cached_property
     def raw(self) -> str:
-        """Make a string from the segments of this segment."""
-        return "".join(seg.raw for seg in self.segments)
+        """Make a string from the segments of this segment.
+
+        NOTE: Plain loop, for the same stack-depth reason as is_code().
+        Worth keeping in mind here especially, since `.raw` is one of the
+        most frequently accessed properties in the codebase.
+        """
+        parts = []
+        for seg in self.segments:
+            parts.append(seg.raw)
+        return "".join(parts)
 
     @property
     def class_types(self) -> frozenset[str]:
@@ -366,12 +402,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         This is used for rule crawling.
 
         NOTE: Does not include the types of the parent segment itself.
+
+        NOTE: Plain loop, for the same stack-depth reason as is_code().
         """
-        return frozenset(
-            chain.from_iterable(
-                seg.descendant_type_set | seg.class_types for seg in self.segments
-            )
-        )
+        result: set[str] = set()
+        for seg in self.segments:
+            result.update(seg.descendant_type_set)
+            result.update(seg.class_types)
+        return frozenset(result)
 
     @cached_property
     def direct_descendant_type_set(self) -> set[str]:
@@ -390,14 +428,29 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     @cached_property
     def raw_segments(self) -> list[RawSegment]:
-        """Returns a list of raw segments in this segment."""
-        return self.get_raw_segments()
+        """Returns a list of raw segments in this segment.
+
+        NOTE: Plain loop, for the same stack-depth reason as is_code().
+        Recurses directly into each child's `raw_segments` (rather than
+        through `get_raw_segments()`, which now just delegates back to
+        this cached_property) so that every descendant's `raw_segments`
+        stays cached as a side effect of computing this one, same as
+        before, without paying for an extra pass-through frame per level.
+        """
+        result: list[RawSegment] = []
+        for seg in self.segments:
+            result.extend(seg.raw_segments)
+        return result
 
     @cached_property
     def raw_segments_with_ancestors(
         self,
     ) -> list[tuple[RawSegment, list[PathStep]]]:
-        """Returns a list of raw segments in this segment with the ancestors."""
+        """Returns a list of raw segments in this segment with the ancestors.
+
+        NOTE: The recursive branch below is a plain loop, for the same
+        stack-depth reason as is_code().
+        """
         buffer = []
         for idx, seg in enumerate(self.segments):
             # If it's a raw, yield it with this segment as the parent
@@ -406,18 +459,20 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 buffer.append((cast("RawSegment", seg), new_step))
             # If it's not, recurse - prepending self to the ancestor stack
             else:
-                buffer.extend(
-                    [
-                        (raw_seg, new_step + stack)
-                        for raw_seg, stack in seg.raw_segments_with_ancestors
-                    ]
-                )
+                for raw_seg, stack in seg.raw_segments_with_ancestors:
+                    buffer.append((raw_seg, new_step + stack))
         return buffer
 
     @cached_property
     def source_fixes(self) -> list[SourceFix]:
-        """Return any source fixes as list."""
-        return list(chain.from_iterable(s.source_fixes for s in self.segments))
+        """Return any source fixes as list.
+
+        NOTE: Plain loop, for the same stack-depth reason as is_code().
+        """
+        fixes: list[SourceFix] = []
+        for seg in self.segments:
+            fixes.extend(seg.source_fixes)
+        return fixes
 
     @cached_property
     def first_non_whitespace_segment_raw_upper(self) -> Optional[str]:
@@ -799,12 +854,15 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return self.type
 
     def count_segments(self, raw_only: bool = False) -> int:
-        """Returns the number of segments in this segment."""
+        """Returns the number of segments in this segment.
+
+        NOTE: Plain loop, for the same stack-depth reason as is_code().
+        """
         if self.segments:
-            self_count = 0 if raw_only else 1
-            return self_count + sum(
-                seg.count_segments(raw_only=raw_only) for seg in self.segments
-            )
+            total = 0 if raw_only else 1
+            for seg in self.segments:
+                total += seg.count_segments(raw_only=raw_only)
+            return total
         else:
             return 1
 
@@ -894,7 +952,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         include_meta: bool = False,
         include_position: bool = False,
     ) -> TupleSerialisedSegment:
-        """Return a tuple structure from this segment."""
+        """Return a tuple structure from this segment.
+
+        NOTE: The child tuples are built with plain loops, for the same
+        stack-depth reason as is_code().
+        """
         # works for both base and raw
 
         # Build the base tuple (2 elements)
@@ -905,33 +967,31 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if show_raw and not self.segments:
             base_tuple = (self.get_type(), self.raw)
         elif code_only:
-            base_tuple = (
-                self.get_type(),
-                tuple(
-                    seg.to_tuple(
-                        code_only=code_only,
-                        show_raw=show_raw,
-                        include_meta=include_meta,
-                        include_position=include_position,
+            child_tuples = []
+            for seg in self.segments:
+                if seg.is_code and not seg.is_meta:
+                    child_tuples.append(
+                        seg.to_tuple(
+                            code_only=code_only,
+                            show_raw=show_raw,
+                            include_meta=include_meta,
+                            include_position=include_position,
+                        )
                     )
-                    for seg in self.segments
-                    if seg.is_code and not seg.is_meta
-                ),
-            )
+            base_tuple = (self.get_type(), tuple(child_tuples))
         else:
-            base_tuple = (
-                self.get_type(),
-                tuple(
-                    seg.to_tuple(
-                        code_only=code_only,
-                        show_raw=show_raw,
-                        include_meta=include_meta,
-                        include_position=include_position,
+            child_tuples = []
+            for seg in self.segments:
+                if include_meta or not seg.is_meta:
+                    child_tuples.append(
+                        seg.to_tuple(
+                            code_only=code_only,
+                            show_raw=show_raw,
+                            include_meta=include_meta,
+                            include_position=include_position,
+                        )
                     )
-                    for seg in self.segments
-                    if include_meta or not seg.is_meta
-                ),
-            )
+            base_tuple = (self.get_type(), tuple(child_tuples))
 
         # Add position as third element only if requested
         if include_position and self.pos_marker:
@@ -989,11 +1049,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # so that the same logic is applied in recursion.
         # We set the parent for children directly on the copy method
         # to ensure those line up properly.
+        #
+        # NOTE: Built with a plain loop, for the same stack-depth reason
+        # as is_code() above.
         else:
-            new_segment.segments = tuple(
-                seg.copy(parent=new_segment, parent_idx=idx)
-                for idx, seg in enumerate(self.segments)
-            )
+            copied_segments = []
+            for idx, seg in enumerate(self.segments):
+                copied_segments.append(seg.copy(parent=new_segment, parent_idx=idx))
+            new_segment.segments = tuple(copied_segments)
 
         return new_segment
 
@@ -1006,8 +1069,19 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return self.structural_simplify(self.to_tuple(**kwargs))
 
     def get_raw_segments(self) -> list[RawSegment]:
-        """Iterate raw segments, mostly for searching."""
-        return [item for s in self.segments for item in s.raw_segments]
+        """Iterate raw segments, mostly for searching.
+
+        NOTE: Delegates to the `raw_segments` cached_property, which does
+        the actual (plain-loop) recursion. This used to be the other way
+        round, with `raw_segments` delegating here - but that made every
+        level of recursion pay for this method's own frame *on top of*
+        the cached_property descriptor's frame, doubling the stack cost
+        this whole module works to avoid. Keeping the recursion inside
+        `raw_segments` itself matches the pattern used by is_code() et
+        al., and still lets every descendant's `raw_segments` end up
+        cached as a side effect, same as before.
+        """
+        return self.raw_segments
 
     def raw_normalized(self, casefold: bool = True) -> str:
         """Iterate raw segments, return normalized value."""

@@ -619,25 +619,29 @@ def test__rust_parser__native_ast_parity(sqlfile):
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: _convert_rs_match_result (the native_ast=False tree "
-        "builder) recurses through an extra generator-expression stack frame "
-        "per nesting level that _apply_rs_match_result (the fused "
-        "native_ast=True builder) doesn't have, so the legacy path blows the "
-        "Python call stack roughly twice as early as the fused path for the "
-        "same deeply-nested input. Only reachable when max_parse_depth is "
-        "raised above its default (600): at the default, the depth guard "
-        "fires first on both paths identically, masking the divergence."
-    ),
-)
 def test__rust_parser__native_ast_recursion_depth_asymmetry():
-    """native_ast=True tolerates deeper bracket nesting than native_ast=False.
+    """native_ast=True and native_ast=False now tolerate the same bracket nesting depth.
 
-    Minimal repro for a real (if narrow) correctness divergence: with the
-    depth guard raised out of the way, the two AST-building paths do not
-    fail at the same input size for identical SQL and identical config.
+    _convert_rs_match_result (native_ast=False) and _apply_rs_match_result
+    (native_ast=True) should fail at the same input size for identical SQL
+    and config, since they should cost the same number of Python stack
+    frames per nesting level. With max_parse_depth raised well above its
+    default (600) so the depth guard doesn't mask the difference first,
+    this checks the two paths stay in parity.
+
+    NOTE: at this depth (70) both paths simply succeed - the interesting
+    parity holds deeper too, confirmed manually: from ~140 bracket levels
+    both raise a clean RecursionError (Python's own recursion-limit check,
+    inside _apply_rs_match_result/_convert_rs_match_result), and from ~400
+    both raise SQLParseError (the Rust matcher's own counted max_parse_depth
+    check). There is also a narrow band (~120-140 bracket levels, with
+    max_parse_depth raised this high) where the shared Rust grammar matcher
+    overflows its native call stack and hard-crashes the process for both
+    settings alike - unprotected by either language's recursion guard. That
+    band isn't asserted here since its exact location is native-stack-size
+    dependent (platform/OS/Rust build), not a stable cross-platform value;
+    under the shipped default max_parse_depth (600) it's unreachable, since
+    the counted guard trips at a much shallower physical depth first.
     """
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
