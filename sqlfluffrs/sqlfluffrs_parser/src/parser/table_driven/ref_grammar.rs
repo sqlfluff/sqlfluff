@@ -361,13 +361,22 @@ impl Parser<'_> {
             }
         }
         // Skip leading non-code when the target allows gaps (mirrors
-        // handle_ref_initial's child_start_pos).
+        // handle_ref_initial's child_start_pos). Bounded by the parent's
+        // ceiling so a gap that runs up to (or past) the terminator can't
+        // push the child start beyond what the enclosing Sequence allows.
         let child_allows_gaps = self.grammar_ctx.inst(child_id).flags.allow_gaps();
+        let skip_bound = parent_max_idx.unwrap_or(self.tokens.len());
         let child_start_pos = if child_allows_gaps {
-            self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
+            self.skip_start_index_forward_to_code(start_pos, skip_bound)
         } else {
             start_pos
         };
+        if let Some(parent_max) = parent_max_idx {
+            if child_start_pos >= parent_max {
+                self.pos = child_start_pos;
+                return Ok(Some(MatchResult::empty_at(start_pos)));
+            }
+        }
         self.pos = child_start_pos;
         let mr = self.dispatch_terminal_match(child_variant, child_id)?;
         if mr.is_empty() {
