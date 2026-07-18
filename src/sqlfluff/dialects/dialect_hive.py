@@ -301,6 +301,41 @@ hive_dialect.replace(
 )
 
 
+class ValuesClauseSegment(ansi.ValuesClauseSegment):
+    """A `VALUES` clause like in `INSERT` and `SELECT`."""
+
+    match_grammar: Matchable = Sequence(
+        "VALUES",
+        # First row allows AliasExpressionSegment
+        Bracketed(
+            Delimited(
+                "DEFAULT",
+                Sequence(
+                    OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
+                    Ref("AliasExpressionSegment"),
+                ),
+                Ref("LiteralGrammar"),
+                Ref("ExpressionSegment"),
+            ),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        # Subsequent rows no AliasExpressionSegment
+        AnyNumberOf(
+            Sequence(
+                Ref("CommaSegment"),
+                Bracketed(
+                    Delimited(
+                        "DEFAULT",
+                        Ref("LiteralGrammar"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    parse_mode=ParseMode.GREEDY,
+                ),
+            ),
+        ),
+    )
+
+
 class ArrayTypeSegment(ansi.ArrayTypeSegment):
     """Prefix for array literals specifying the type."""
 
