@@ -118,6 +118,21 @@ class Rule_ST07(BaseRule):
         if len(table_aliases) < 2:
             return unfixable_result
 
+        using_cols = _extract_cols_from_using(segment, using_anchor)
+
+        # A USING join de-duplicates the join columns, so unqualified
+        # references to them elsewhere in the query (e.g. in the SELECT
+        # clause) are unambiguous. Rewriting to an ON condition would make
+        # those references ambiguous and so produce invalid SQL. In that
+        # case, flag the USING clause but don't try to fix it.
+        # https://github.com/sqlfluff/sqlfluff/issues/7230
+        using_cols_upper = {col.upper() for col in using_cols}
+        if select_info and any(
+            not ref.is_qualified() and ref.raw_upper in using_cols_upper
+            for ref in select_info.reference_buffer
+        ):
+            return unfixable_result
+
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
 
         table_a, table_b = table_aliases[:2]
@@ -127,7 +142,7 @@ class Rule_ST07(BaseRule):
         ] + _generate_join_conditions(
             table_a.ref_str,
             table_b.ref_str,
-            _extract_cols_from_using(segment, using_anchor),
+            using_cols,
         )
 
         assert table_a.segment
