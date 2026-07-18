@@ -84,35 +84,48 @@ class Selectable:
             # source), see the "Examples" section of the Postgres docs page:
             # (https://www.postgresql.org/docs/8.2/sql-values.html).
             values = Segments(self.selectable)
-            alias_expression = values.children().first(sp.is_type("alias_expression"))
-            if not alias_expression:
-                # In some dialects (e.g. MySQL), the target table of an
-                # UPDATE statement is parsed as a from_expression, so any
-                # alias is nested inside a from_expression_element rather
-                # than being a direct child of the statement.
+            alias_expressions = values.children(sp.is_type("alias_expression"))
+            if not alias_expressions:
+                # In some dialects (e.g. MySQL), the target table(s) of an
+                # UPDATE statement are parsed as a from_expression, so any
+                # aliases are nested inside from_expression_elements
+                # (including inside join clauses for multi-table updates)
+                # rather than being direct children of the statement.
                 # https://github.com/sqlfluff/sqlfluff/issues/6147
-                alias_expression = (
-                    values.children(sp.is_type("from_expression"))
-                    .children(sp.is_type("from_expression_element"))
-                    .first()
-                    .children()
-                    .first(sp.is_type("alias_expression"))
+                from_expressions = values.children(sp.is_type("from_expression"))
+                target_elements = from_expressions.children(
+                    sp.is_type("from_expression_element")
+                ) + from_expressions.children(sp.is_type("join_clause")).children(
+                    sp.is_type("from_expression_element")
                 )
-            name = alias_expression.children().first(
-                sp.is_type("naked_identifier", "quoted_identifier")
-            )
-            alias_info = AliasInfo(
-                name[0].raw if name else "",
-                name[0] if name else None,
-                bool(name),
-                self.selectable,
-                alias_expression[0] if alias_expression else None,
-                None,
-            )
+                alias_expressions = target_elements.children(
+                    sp.is_type("alias_expression")
+                )
+            table_aliases = []
+            for alias_expression in alias_expressions:
+                name = (
+                    Segments(alias_expression)
+                    .children()
+                    .first(sp.is_type("naked_identifier", "quoted_identifier"))
+                )
+                table_aliases.append(
+                    AliasInfo(
+                        name[0].raw if name else "",
+                        name[0] if name else None,
+                        bool(name),
+                        self.selectable,
+                        alias_expression,
+                        None,
+                    )
+                )
+            if not table_aliases:
+                # Preserve the longstanding behavior of always registering
+                # one (possibly anonymous) alias for the DML target.
+                table_aliases = [AliasInfo("", None, False, self.selectable, None, None)]
 
             return SelectStatementColumnsAndTables(
                 select_statement=self.selectable,
-                table_aliases=[alias_info],
+                table_aliases=table_aliases,
                 standalone_aliases=[],
                 reference_buffer=[],
                 select_targets=[],

@@ -878,3 +878,19 @@ test_pass_mysql_update_alias_correlated_subquery:
   configs:
     core:
       dialect: mysql
+
+test_pass_mysql_multi_table_update_alias_correlated_subquery:
+  # https://github.com/sqlfluff/sqlfluff/issues/6147
+  # Aliases of every target of a multi-table UPDATE (including joined
+  # tables) should resolve from correlated subqueries.
+  pass_str: |
+    UPDATE t1 AS a
+    INNER JOIN t2 AS b ON a.id = b.id
+    SET a.x = (
+        SELECT SUM(c.v)
+        FROM t3 AS c
+        WHERE c.k = b.id
+    );
+  configs:
+    core:
+      dialect: mysql
