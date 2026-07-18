@@ -560,6 +560,10 @@ class FunctionSegment(ansi.FunctionSegment):
                 Ref("JsonValueFunctionNameSegment"),
                 Ref("JsonValueFunctionContentsSegment"),
             ),
+            Sequence(
+                Ref("ConvertFunctionNameSegment"),
+                Ref("ConvertFunctionContentsSegment"),
+            ),
         ],
         at=0,
     )
@@ -3015,6 +3019,37 @@ class JsonValueFunctionContentsSegment(BaseSegment):
                 OneOf("EMPTY", "ERROR"),
             ),
             max_times=2,
+        ),
+    )
+
+
+class ConvertFunctionNameSegment(BaseSegment):
+    """CONVERT function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "CONVERT", KeywordSegment, type="function_name_identifier"
+    )
+
+
+class ConvertFunctionContentsSegment(BaseSegment):
+    """CONVERT function contents.
+
+    CONVERT(expr, type)
+    CONVERT(expr USING transcoding_name)
+
+    https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_convert
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        OneOf(
+            Sequence(Ref("CommaSegment"), Ref("DatatypeSegment")),
+            Sequence("USING", Ref("NakedIdentifierSegment")),
         ),
     )
 
