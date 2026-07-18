@@ -2,6 +2,7 @@
 
 from typing import Optional
 
+from sqlfluff.core.dialects.common import iter_raw_references
 from sqlfluff.core.parser import (
     BaseSegment,
     IdentifierSegment,
@@ -120,18 +121,26 @@ class Rule_ST07(BaseRule):
 
         using_cols = _extract_cols_from_using(segment, using_anchor)
 
-        # A USING join de-duplicates the join columns, so unqualified
-        # references to them elsewhere in the query (e.g. in the SELECT
-        # clause) are unambiguous. Rewriting to an ON condition would make
-        # those references ambiguous and so produce invalid SQL. In that
-        # case, flag the USING clause but don't try to fix it.
+        # A USING join de-duplicates the join columns, so references to them
+        # that aren't qualified with a table name (e.g. ``field_1`` in the
+        # SELECT clause, or a struct access like ``field_1.nested_field``)
+        # are unambiguous. Rewriting to an ON condition would make those
+        # references ambiguous and so produce invalid SQL. In that case,
+        # flag the USING clause but don't try to fix it.
         # https://github.com/sqlfluff/sqlfluff/issues/7230
         using_cols_upper = {col.upper() for col in using_cols}
-        if select_info and any(
-            not ref.is_qualified() and ref.raw_upper in using_cols_upper
-            for ref in select_info.reference_buffer
-        ):
-            return unfixable_result
+        table_names_upper = {ta.ref_str.upper() for ta in table_aliases}
+        if select_info:
+            for ref in select_info.reference_buffer:
+                first_part = next(
+                    iter_raw_references(ref, context.dialect.name), None
+                )
+                if (
+                    first_part
+                    and first_part.part.upper() in using_cols_upper
+                    and first_part.part.upper() not in table_names_upper
+                ):
+                    return unfixable_result
 
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
 
