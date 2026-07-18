@@ -550,3 +550,33 @@ def test_resolve_paths_in_config_no_matches_fallback(tmp_path):
     # Should keep original pattern when no matches
     resolved_path = test_config["templater:jinja"]["load_macros_from_path"]
     assert resolved_path == "empty/*.sql, nonexistent/*.sql"
+
+
+def test_resolve_paths_in_config_skips_jinja_context(tmp_path):
+    """Test that _resolve_paths_in_config leaves the jinja context alone.
+
+    Values in the jinja context are arbitrary user data, so the `_path`/`_dir`
+    suffix heuristics must not be applied to them. The inline config route
+    already guarantees this (see the `my_path` case in
+    test_process_inline_config), and the file route should match it.
+    """
+    from sqlfluff.core.config.file import _resolve_paths_in_config
+
+    (tmp_path / "data").mkdir()
+
+    test_config = {
+        "templater": {
+            "jinja": {
+                "context": {
+                    "tbl_path": "data",
+                    "is_dir": True,
+                },
+            },
+        },
+    }
+
+    _resolve_paths_in_config(test_config, str(tmp_path / ".sqlfluff"))
+
+    context = test_config["templater"]["jinja"]["context"]
+    assert context["tbl_path"] == "data"
+    assert context["is_dir"] is True
