@@ -121,3 +121,12 @@ test_pass_fix_when_refs_table_qualified:
     select table_a.field_1, table_b.field_2
     from table_a
     inner join table_b ON table_a.field_1 = table_b.field_1
+
+test_fail_no_fix_when_using_col_name_matches_table_name:
+  # A bare reference to the USING column is a column reference even when a
+  # joined table shares its name, so the rewrite would still make it
+  # ambiguous.
+  fail_str: |
+    select field_1, table_a.field_2
+    from table_a
+    inner join field_1 using (field_1)

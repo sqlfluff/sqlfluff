@@ -132,14 +132,18 @@ class Rule_ST07(BaseRule):
         table_names_upper = {ta.ref_str.upper() for ta in table_aliases}
         if select_info:
             for ref in select_info.reference_buffer:
-                first_part = next(
-                    iter_raw_references(ref, context.dialect.name), None
-                )
-                if (
-                    first_part
-                    and first_part.part.upper() in using_cols_upper
-                    and first_part.part.upper() not in table_names_upper
-                ):
+                parts = list(iter_raw_references(ref, context.dialect.name))
+                if not parts:  # pragma: no cover
+                    continue
+                first_part = parts[0].part.upper()
+                if first_part not in using_cols_upper:
+                    continue
+                # A single-part reference is always a column reference, even
+                # if a table shares the USING column's name. A multi-part
+                # reference is only at risk when its first identifier isn't
+                # actually one of the joined tables (e.g. a struct access
+                # like ``field_1.nested_field``).
+                if len(parts) == 1 or first_part not in table_names_upper:
                     return unfixable_result
 
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
