@@ -20,7 +20,7 @@ use pyo3::prelude::*;
 
 use sqlfluffrs_python::marker::PyPositionMarker;
 
-use super::arena::{Arena, NodeId};
+use super::arena::{AncestorClassTypes, Arena, LeafReflowStack, NodeId};
 
 /// The arena is shared behind `Arc<Mutex<…>>` rather than `Rc<RefCell<…>>` so
 /// that `RsTree`/`RsHandle` are `Send` — the linter moves the parse tree (which
@@ -30,23 +30,53 @@ use super::arena::{Arena, NodeId};
 /// lock is ever held across a call back into Python.
 type ArenaRef = Arc<Mutex<Arena>>;
 
+/// A `PathStep` marshalled for Python: `(ancestor, idx, len, code_idxs)`.
+type PyPathStep = (PyHandle, usize, usize, Vec<usize>);
+
 /// Owner of an arena tree.  Dropping the last `RsTree`/`RsHandle` frees it.
 #[pyclass(name = "RsTree", module = "sqlfluffrs")]
 pub struct PyTree {
     inner: ArenaRef,
+    /// The Python `TemplatedFile` the engine rendered before parsing (the same
+    /// object the arena's pos_markers reference). Exposed so façade linting can
+    /// pass a `context.templated_file` consistent with the tree — rules like
+    /// CV10 read `raw_slices`, which needs it. `None` for trees built without an
+    /// engine render (e.g. `apply_as_tree`).
+    templated_file: Option<Py<PyAny>>,
 }
 
 impl PyTree {
     pub(crate) fn new(arena: Arena) -> Self {
         PyTree {
             inner: Arc::new(Mutex::new(arena)),
+            templated_file: None,
         }
     }
 
+    /// Build an arena tree directly from a parsed [`Node`]. Used by the
+    /// Rust-driven engine (which parses to a `Node`) to hand Python a
+    /// crawlable `RsTree` façade without going through a `MatchResult`.
+    pub fn from_node(node: &super::types::Node) -> Self {
+        PyTree::new(Arena::from_node(node))
+    }
+
+    /// Like [`from_node`], but also carries the Python `TemplatedFile` used to
+    /// render the source (see the `templated_file` field).
+    pub fn from_node_with_templated_file(
+        node: &super::types::Node,
+        templated_file: Py<PyAny>,
+    ) -> Self {
+        let mut tree = PyTree::new(Arena::from_node(node));
+        tree.templated_file = Some(templated_file);
+        tree
+    }
+
     fn handle(&self, node: NodeId) -> PyHandle {
+        let uuid = self.inner.lock().unwrap().uuid(node);
         PyHandle {
             inner: self.inner.clone(),
             node,
+            uuid,
         }
     }
 
@@ -68,6 +98,13 @@ impl PyTree {
     fn root(&self) -> PyHandle {
         let root = self.inner.lock().unwrap().root();
         self.handle(root)
+    }
+
+    /// The Python `TemplatedFile` used to render the source before parsing
+    /// (`None` if the tree wasn't built via an engine render).
+    #[getter]
+    fn templated_file(&self, py: Python) -> Option<Py<PyAny>> {
+        self.templated_file.as_ref().map(|t| t.clone_ref(py))
     }
 
     /// Number of nodes in the arena.
@@ -93,18 +130,31 @@ impl PyTree {
 pub struct PyHandle {
     inner: ArenaRef,
     node: NodeId,
+    // Cached node uuid so uuid()/__hash__/__eq__ (very hot during rule crawling)
+    // are field reads, not per-call arena locks. Populated once at handle
+    // creation; wrap_many amortizes the lock over a whole navigation result.
+    uuid: u128,
 }
 
 impl PyHandle {
     fn wrap(&self, node: NodeId) -> PyHandle {
+        let uuid = self.inner.lock().unwrap().uuid(node);
         PyHandle {
             inner: self.inner.clone(),
             node,
+            uuid,
         }
     }
 
     fn wrap_many(&self, ids: Vec<NodeId>) -> Vec<PyHandle> {
-        ids.into_iter().map(|n| self.wrap(n)).collect()
+        let arena = self.inner.lock().unwrap();
+        ids.into_iter()
+            .map(|n| PyHandle {
+                inner: self.inner.clone(),
+                node: n,
+                uuid: arena.uuid(n),
+            })
+            .collect()
     }
 }
 
@@ -114,24 +164,18 @@ impl PyHandle {
 
     #[getter]
     fn uuid(&self) -> u128 {
-        self.inner.lock().unwrap().uuid(self.node)
+        self.uuid
     }
 
     fn __eq__(&self, other: &PyHandle) -> bool {
-        // Same arena + same uuid.  (Handles into different arenas are never
-        // equal even if uuids collided, which they don't in practice.)
-        // Lock once: `Mutex` is not re-entrant, so comparing two handles into
-        // the same arena must not take the lock twice.
-        if !Arc::ptr_eq(&self.inner, &other.inner) {
-            return false;
-        }
-        let arena = self.inner.lock().unwrap();
-        arena.uuid(self.node) == arena.uuid(other.node)
+        // Same arena + same (cached) uuid. Handles into different arenas are
+        // never equal even if uuids collided, which they don't in practice.
+        Arc::ptr_eq(&self.inner, &other.inner) && self.uuid == other.uuid
     }
 
     fn __hash__(&self) -> u64 {
-        // Lower 64 bits of the uuid; matches the façade's `__hash__`.
-        self.inner.lock().unwrap().uuid(self.node) as u64
+        // Lower 64 bits of the (cached) uuid; matches the façade's `__hash__`.
+        self.uuid as u64
     }
 
     // -- payload -------------------------------------------------------------
@@ -150,6 +194,13 @@ impl PyHandle {
     #[pyo3(name = "type")]
     fn get_type(&self) -> String {
         self.inner.lock().unwrap().get_type(self.node)
+    }
+
+    /// Class-level type (mirrors native `BaseSegment.type` — the concrete
+    /// class's `type` attr), as opposed to `type`/`get_type()` which returns the
+    /// per-instance override.
+    fn class_type(&self) -> String {
+        self.inner.lock().unwrap().class_type(self.node)
     }
 
     fn is_type(&self, seg_type: Vec<String>) -> bool {
@@ -180,6 +231,27 @@ impl PyHandle {
 
     fn escape_replacements(&self) -> Option<Vec<(String, String)>> {
         self.inner.lock().unwrap().escape_replacements(self.node)
+    }
+
+    /// Prefix sequences stripped before `trim_chars` by `raw_trimmed`.
+    fn trim_start(&self) -> Option<Vec<String>> {
+        self.inner.lock().unwrap().trim_start(self.node)
+    }
+
+    /// Dialect casefold mode (`"upper"`/`"lower"`), or `None` if no fold.
+    fn casefold(&self) -> Option<String> {
+        self.inner.lock().unwrap().casefold(self.node)
+    }
+
+    /// `block_type` for a placeholder (Template) meta segment; else `None`.
+    fn block_type(&self) -> Option<String> {
+        self.inner.lock().unwrap().block_type(self.node)
+    }
+
+    /// `block_uuid` (as an int) for a meta segment; `None` for structural
+    /// metas and non-metas.  Mirrors `TemplateSegment.block_uuid`.
+    fn block_uuid(&self) -> Option<u128> {
+        self.inner.lock().unwrap().block_uuid(self.node)
     }
 
     #[getter]
@@ -313,6 +385,49 @@ impl PyHandle {
             .into_iter()
             .map(|s| (self.wrap(s.node), s.idx, s.len, s.code_idxs))
             .collect()
+    }
+
+    /// Bulk `(leaf, path_from_here_to_leaf)` for every leaf under this node, in
+    /// one arena traversal + one lock — the reflow hot path. Replaces per-leaf
+    /// `path_to` calls (each an FFI round-trip) with a single call.
+    fn raw_segments_with_ancestors(&self) -> Vec<(PyHandle, Vec<PyPathStep>)> {
+        let arena = self.inner.lock().unwrap();
+        arena
+            .raw_segments_with_ancestors(self.node)
+            .into_iter()
+            .map(|(leaf, steps)| {
+                let leaf_h = PyHandle {
+                    inner: self.inner.clone(),
+                    node: leaf,
+                    uuid: arena.uuid(leaf),
+                };
+                let steps_out = steps
+                    .into_iter()
+                    .map(|s| {
+                        (
+                            PyHandle {
+                                inner: self.inner.clone(),
+                                node: s.node,
+                                uuid: arena.uuid(s.node),
+                            },
+                            s.idx,
+                            s.len,
+                            s.code_idxs,
+                        )
+                    })
+                    .collect();
+                (leaf_h, steps_out)
+            })
+            .collect()
+    }
+
+    /// Fully arena-side reflow `DepthMap` data. One traversal + one lock returns
+    /// `(per_leaf, anc_class_types)` as plain scalars (no PyHandles): per leaf,
+    /// its `(leaf_uuid, [(anc_uuid, idx, len, stack_pos)])` stack, plus the deduped
+    /// `(anc_uuid, class_types)` list. The façade builds `DepthInfo` from these
+    /// directly, avoiding per-step PathStep/StackPosition marshalling.
+    fn reflow_depth_info(&self) -> (Vec<LeafReflowStack>, Vec<AncestorClassTypes>) {
+        self.inner.lock().unwrap().reflow_depth_info(self.node)
     }
 
     fn __repr__(&self) -> String {

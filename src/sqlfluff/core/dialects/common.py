@@ -444,7 +444,10 @@ def get_join_clause_aliases(
     for join_clause in segment.recursive_crawl(
         "join_clause", no_recursive_seg_type="select_statement"
     ):
-        if join_clause is segment:
+        # Compare by uuid rather than object identity (`is`): identity holds for
+        # native segment instances but not for the arena façade, which yields a
+        # fresh wrapper per crawl. uuid is exact on both.
+        if join_clause.uuid == segment.uuid:
             # If the starting segment itself matches the list of types we're
             # searching for, recursive_crawl() will return it. Skip that.
             continue

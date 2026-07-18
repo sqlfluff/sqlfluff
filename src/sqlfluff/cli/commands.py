@@ -1125,6 +1125,193 @@ def _handle_unparsable(
     return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 
 
+def _try_facade_stdin_fix(
+    linter: Linter, source: str, stdin_filename: Optional[str]
+) -> Optional[str]:
+    """EXPERIMENTAL fast path: fix stdin over the Rust arena façade.
+
+    Only taken when ``core.use_rust_engine`` is enabled, *every* selected rule is
+    façade-safe, the source parses via the engine, contains no ``noqa`` directive,
+    and the façade fully fixes it (no violations remain). Otherwise returns
+    ``None`` so the caller falls back to the Python path — keeping behaviour
+    correct for anything the façade doesn't fully cover.
+    """
+    try:
+        from sqlfluff.core.linter.rs_fix import facade_fix_loop, facade_violations
+        from sqlfluff.core.rules.rs_lint import FACADE_SAFE_RULES
+
+        config = linter.config
+        if stdin_filename:
+            config = config.make_child_from_path(stdin_filename, require_dialect=False)
+        if not _use_rust_engine(config, None):
+            return None
+        if "noqa" in source.lower():
+            return None  # ignore masks not applied on the façade path
+        rules = list(linter.get_rulepack(config=config).rules)
+        if not rules or any(r.code not in FACADE_SAFE_RULES for r in rules):
+            return None
+        import sqlfluffrs
+
+        if sqlfluffrs.engine_parse_to_tree(source, "stdin", config, None, True) is None:
+            return None  # unparsable / templater error -> let Python handle it
+        limit = int(config.get("runaway_limit"))
+        fixed = facade_fix_loop(source, "stdin", config, rules, limit)
+        remaining = facade_violations(fixed, "stdin", config, rules)
+        if remaining is None or remaining:
+            return None  # unfixable violations remain -> defer to Python
+        return fixed
+    except Exception:  # noqa: BLE001
+        return None
+
+
+# No coverage: the happy path is wired-tested (``test/cli/rs_engine_fix_test.py``
+# enables the engine per-invocation), but the many per-file fallback branches
+# below are only exercised end-to-end by the forced-engine env
+# (``tox -e py311-rust-engine``), which CI's coverage combine doesn't include —
+# so the function-level pragma stays until the stack folds that env in.
+def _try_facade_paths_fix(  # pragma: no cover
+    linter: Linter,
+    formatter: OutputStreamFormatter,
+    paths,
+    fixed_suffix: str,
+    ignore_files: bool,
+) -> tuple[Optional[list[str]], int]:
+    """EXPERIMENTAL fast path: fix discovered files over the Rust arena façade.
+
+    Mirrors :func:`_try_facade_stdin_fix` but for the file-based ``fix`` command.
+    Files that are *fully & safely* fixable over the façade (every selected rule
+    is façade-safe, no ``noqa`` directive, the engine parses them, and no
+    violations remain after fixing) are fixed and written in place; every other
+    file is handed back to the native path unchanged.
+
+    Returns ``(remaining_paths, num_facade_fixable)`` where ``num_facade_fixable``
+    is the count of fixable violations the façade fixed (used only to render the
+    summary line). ``remaining_paths`` is either the concrete list of files the
+    native ``lint_paths`` should still process, or ``None`` — the sentinel for
+    "the façade did nothing, run native over the original ``paths`` unchanged"
+    (distinct from an empty list, which means the façade handled *everything*).
+    """
+    bail: tuple[Optional[list[str]], int] = (None, 0)
+    try:
+        from sqlfluff.core.linter.discovery import paths_from_path
+        from sqlfluff.core.linter.linted_file import LintedFile
+        from sqlfluff.core.linter.rs_fix import facade_fix_loop, facade_violations
+        from sqlfluff.core.rules.rs_lint import FACADE_SAFE_RULES, RsSegment
+
+        # GATE: only engage for the write-in-place, engine-enabled case.
+        if fixed_suffix:
+            return bail  # suffixed output not handled on the façade path yet
+        if "-" in paths:
+            return bail  # stdin mixed in -> leave everything to native
+        if not _use_rust_engine(linter.config, None):
+            return bail
+
+        import sqlfluffrs
+
+        # Discover the concrete SQL files exactly as ``Linter.lint_paths`` does.
+        sql_exts = linter.config.get("sql_file_exts", default=".sql").lower().split(",")
+        discovered: list[str] = []
+        seen_files: set[str] = set()
+        for path in paths:
+            for fname in paths_from_path(
+                path,
+                ignore_non_existent_files=False,
+                ignore_files=ignore_files,
+                target_file_exts=sql_exts,
+            ):
+                if fname not in seen_files:
+                    seen_files.add(fname)
+                    discovered.append(fname)
+
+        remaining: list[str] = []
+        handled_any = False
+        num_facade_fixable = 0
+        limit = int(linter.config.get("runaway_limit"))
+
+        for fname in discovered:
+            try:
+                # Read the source + resolve the per-file config/encoding exactly
+                # as the native linter does (identical newline/encoding/large-file
+                # handling), so any written output matches native byte-for-byte.
+                raw_file, cfg, encoding = Linter.load_raw_file_and_config(
+                    fname, linter.config
+                )
+                if not _use_rust_engine(cfg, None):
+                    remaining.append(fname)
+                    continue
+                if "noqa" in raw_file.lower():
+                    remaining.append(fname)  # ignore masks not applied here
+                    continue
+                if cfg.get("warnings"):
+                    # ``sqlfluff:warnings:`` demotes matching violations to
+                    # warnings; the façade crawl can't apply that -> native.
+                    remaining.append(fname)
+                    continue
+                rules = list(linter.get_rulepack(config=cfg).rules)
+                if not rules or any(r.code not in FACADE_SAFE_RULES for r in rules):
+                    remaining.append(fname)
+                    continue
+                rst = sqlfluffrs.engine_parse_to_tree(raw_file, fname, cfg, None, True)
+                if rst is None:
+                    remaining.append(fname)  # unparsable / templater error
+                    continue
+                # Route anything with a parse error (an ``unparsable`` section) to
+                # native: the arena still yields a tree for these, but native
+                # treats them as PRS errors (non-zero exit, no fix) and we must
+                # not silently swallow them.
+                root = RsSegment(rst.root)
+                if next(root.recursive_crawl("unparsable"), None) is not None:
+                    remaining.append(fname)
+                    continue
+                # Likewise route any *templated* file to native: the façade path
+                # can't observe templater (TMP) violations here, so we only handle
+                # files whose source is literal (source == templated).
+                tf = rst.templated_file
+                if tf is None or getattr(tf, "source_str", None) != getattr(
+                    tf, "templated_str", None
+                ):
+                    remaining.append(fname)
+                    continue
+                # Count the fixable violations *before* fixing (this is what the
+                # native summary reports) and use it as the parse/validity gate.
+                pre = facade_violations(raw_file, fname, cfg, rules)
+                if pre is None:
+                    remaining.append(fname)
+                    continue
+                fixed = facade_fix_loop(raw_file, fname, cfg, rules, limit)
+                post = facade_violations(fixed, fname, cfg, rules)
+                if post is None or post:
+                    remaining.append(fname)  # unfixable violations remain
+                    continue
+                # Emit the per-file violations exactly as native's runner does
+                # (``dispatch_file_violations`` with ``only_fixable=True``), so the
+                # CLI output matches. Clean files produce an empty (suppressed)
+                # block.
+                if formatter.verbosity >= 0:
+                    if formatter.show_lint_violations:
+                        shown = list(pre)
+                    else:
+                        shown = [v for v in pre if getattr(v, "fixes", None)]
+                    formatter._dispatch(formatter._format_file_violations(fname, shown))
+                # Fully & safely fixable: write in place (only when changed) using
+                # the native atomic/encoding-preserving writer.
+                if fixed != raw_file:
+                    LintedFile._safe_create_replace_file(fname, fname, fixed, encoding)
+                    formatter.dispatch_persist_filename(filename=fname, result="FIXED")
+                num_facade_fixable += sum(1 for v in pre if getattr(v, "fixes", None))
+                handled_any = True
+            except Exception:  # noqa: BLE001
+                remaining.append(fname)  # any uncertainty -> native handles it
+
+        if not handled_any:
+            # The façade contributed nothing; signal "run native over the
+            # original paths" so behaviour is exactly as it is today.
+            return bail
+        return remaining, num_facade_fixable
+    except Exception:  # noqa: BLE001
+        return bail
+
+
 def _stdin_fix(
     linter: Linter,
     formatter: OutputStreamFormatter,
@@ -1134,6 +1321,13 @@ def _stdin_fix(
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()
+
+    # EXPERIMENTAL: Rust-engine façade fast path (falls back to Python if it
+    # can't fully & safely handle the requested rules).
+    _facade_fixed = _try_facade_stdin_fix(linter, stdin, stdin_filename)
+    if _facade_fixed is not None:
+        click.echo(_facade_fixed, nl=False)
+        sys.exit(EXIT_SUCCESS)
 
     result = linter.lint_string_wrapped(
         stdin, fname="stdin", fix=True, stdin_filename=stdin_filename
@@ -1193,9 +1387,41 @@ def _paths_fix(
         click.echo("==== finding fixable violations ====")
     exit_code = EXIT_SUCCESS
 
+    # EXPERIMENTAL: Rust-engine façade fast path. Fix (and write) every file it can
+    # fully & safely handle, and hand the rest back to the native path below. Only
+    # engaged when not in --check mode (fixes are applied immediately here).
+    # ``facade_remaining is None`` means the façade did nothing -> run native over
+    # the original ``paths`` unchanged; a list means the façade engaged and native
+    # only needs to process those leftovers ([] => the façade handled everything).
+    facade_remaining: Optional[list[str]] = None
+    num_facade_fixable = 0
+    # Skip the fast path for --check (fixes deferred to the end) and for --bench /
+    # --persist-timing (which rely on native's per-file timing records).
+    if not check and not bench and not persist_timing:
+        try:
+            facade_remaining, num_facade_fixable = _try_facade_paths_fix(
+                linter, formatter, paths, fixed_suffix, ignore_files
+            )
+        except Exception:  # noqa: BLE001
+            facade_remaining, num_facade_fixable = None, 0
+
+    if facade_remaining is None:
+        remaining_paths: list[str] = list(paths)
+    elif not facade_remaining:
+        # The façade fully handled every file; synthesise the same summary native
+        # prints and exit without touching the native path.
+        if num_facade_fixable > 0:
+            click.echo(f"{num_facade_fixable} fixable linting violations found")
+        elif formatter.verbosity >= 0:
+            click.echo("==== no fixable linting violations found ====")
+            formatter.completion_message()
+        sys.exit(EXIT_SUCCESS)
+    else:
+        remaining_paths = facade_remaining
+
     with PathAndUserErrorHandler(formatter):
         result: LintingResult = linter.lint_paths(
-            paths,
+            tuple(remaining_paths),
             fix=True,
             ignore_non_existent_files=False,
             ignore_files=ignore_files,
@@ -1221,6 +1447,10 @@ def _paths_fix(
         for rec in violation_records
         for v in rec["violations"]
     )
+    # Account for anything already fixed by the façade fast path above (those
+    # files were fixed & written, and so are not in ``result``). A façade-fixed
+    # file is a success, never a failure.
+    num_fixable += num_facade_fixable
 
     if num_fixable > 0:
         if check and formatter.verbosity >= 0:

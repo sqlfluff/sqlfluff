@@ -158,6 +158,13 @@ impl TemplatedFile {
         }
     }
 
+    /// Codepoint indices of newlines in the templated string (used by
+    /// `PositionMarker.working_visual_column`).
+    #[must_use]
+    pub fn templated_newlines(&self) -> &[usize] {
+        &self.templated_newlines
+    }
+
     pub fn raw_slices_spanning_source_slice(&self, source_slice: Slice) -> Vec<RawFileSlice> {
         // Special case: The source_slice is at the end of the file.
         let last_raw_slice = self.raw_sliced.last().unwrap();

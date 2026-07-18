@@ -135,6 +135,36 @@ class DepthMap:
         NOTE: This is the most efficient way to construct a DepthMap
         due to caching in the BaseSegment.
         """
+        # Fast path for the Rust arena façade (RsSegment): it computes the whole
+        # depth-info map arena-side (raw scalars, no per-leaf PathStep
+        # marshalling) and we assemble DepthInfo objects here. Native
+        # BaseSegment has no `reflow_depth_data`, so it falls back unchanged.
+        fast = getattr(parent, "reflow_depth_data", None)
+        if fast is not None:  # pragma: no cover
+            # No coverage: reachable only once reflow runs over the façade,
+            # i.e. when the LT fix rules join FACADE_SAFE_RULES (stack-04).
+            per_leaf, anc_cts = fast()
+            ct_map = {u: frozenset(ct) for u, ct in anc_cts}
+            # Constructed with no raws (rather than ``cls.__new__``, which
+            # mypyc-compiled native classes don't support) and filled below.
+            dm = cls(raws_with_stack=[])
+            for leaf_uuid, steps in per_leaf:
+                # Mirror native `stack_hashes = tuple(hash(ps.segment) for ...)`:
+                # RsSegment.__hash__ returns the node uuid, and Python's hash()
+                # then reduces that u128 (Mersenne modulus) — so hash(au) is
+                # byte-identical to hash(RsSegment) for the same node.
+                hashes = tuple(hash(au) for (au, i, ln, sp) in steps)
+                dm.depth_info[leaf_uuid] = DepthInfo(
+                    stack_depth=len(steps),
+                    stack_hashes=hashes,
+                    stack_hash_set=frozenset(hashes),
+                    stack_class_types=tuple(ct_map[au] for (au, i, ln, sp) in steps),
+                    stack_positions={
+                        hashes[k]: StackPosition(i, ln, sp)
+                        for k, (au, i, ln, sp) in enumerate(steps)
+                    },
+                )
+            return dm
         return cls(raws_with_stack=parent.raw_segments_with_ancestors)
 
     @classmethod

@@ -27,6 +27,7 @@ use std::cell::RefCell;
 use std::sync::Arc;
 
 use hashbrown::{HashMap, HashSet};
+use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::PositionMarker;
 
 use super::types::{MetaType, Node, RawSegmentKwargs};
@@ -51,6 +52,10 @@ enum ArenaKind {
     Raw {
         segment_class: Cow<'static, str>,
         segment_type: Cow<'static, str>,
+        /// Class-level type (native ``BaseSegment.type``); differs from
+        /// ``segment_type`` (native ``get_type()``) when a parser assigns an
+        /// instance override (e.g. class ``symbol`` vs. instance ``star``).
+        class_type: Cow<'static, str>,
         raw: String,
         instance_types: Vec<String>,
         class_types: Vec<String>,
@@ -63,6 +68,9 @@ enum ArenaKind {
     },
     Meta {
         meta_type: MetaType,
+        /// Template-block identity (uuid as `u128`), carried from the lexer
+        /// token so reflow reindent can group indents by originating block.
+        block_uuid: Option<u128>,
     },
     Unparsable {
         expected: String,
@@ -104,6 +112,16 @@ pub(crate) struct PathStep {
     pub(crate) code_idxs: Vec<usize>,
 }
 
+// Reflow `DepthMap` walker shapes (see `Arena::reflow_depth_info`). Plain tuples
+// rather than structs so PyO3 marshals them straight into the Python tuples the
+// façade unpacks.
+/// One ancestor step in a leaf's reflow stack: `(anc_uuid, idx, len, stack_pos)`.
+pub(crate) type ReflowStep = (u128, usize, usize, String);
+/// A leaf's top-down ancestor stack: `(leaf_uuid, steps)`.
+pub(crate) type LeafReflowStack = (u128, Vec<ReflowStep>);
+/// Deduped ancestor class-types entry: `(anc_uuid, class_types)`.
+pub(crate) type AncestorClassTypes = (u128, Vec<String>);
+
 impl Arena {
     // -- construction --------------------------------------------------------
 
@@ -120,8 +138,11 @@ impl Arena {
     }
 
     fn next_uuid(&self) -> u128 {
-        // Random v4 uuid, mirroring Python's `uuid4().int` identity semantics.
-        uuid::Uuid::new_v4().as_u128()
+        // Monotonic tagged counter (same source as tokens, #7997). Node identity
+        // only needs per-arena uniqueness + stability — not randomness — so this
+        // avoids a CSPRNG draw per node (the arena mints one per segment). The
+        // RUST_TAG in `next_id` keeps these disjoint from Python-minted ids.
+        sqlfluffrs_types::identity::next_id()
     }
 
     fn alloc(
@@ -152,6 +173,7 @@ impl Arena {
             Node::Raw {
                 segment_class,
                 segment_type,
+                class_type,
                 raw,
                 pos_marker,
                 instance_types,
@@ -161,6 +183,7 @@ impl Arena {
                 ArenaKind::Raw {
                     segment_class: segment_class.clone(),
                     segment_type: segment_type.clone(),
+                    class_type: class_type.clone(),
                     raw: raw.clone(),
                     instance_types: instance_types.clone(),
                     class_types: class_types.clone(),
@@ -219,9 +242,11 @@ impl Arena {
             Node::Meta {
                 meta_type,
                 pos_marker,
+                block_uuid,
             } => self.alloc(
                 ArenaKind::Meta {
                     meta_type: meta_type.clone(),
+                    block_uuid: *block_uuid,
                 },
                 pos_marker.clone(),
                 parent,
@@ -313,7 +338,25 @@ impl Arena {
             ArenaKind::Segment { segment_type, .. } => {
                 segment_type.as_deref().unwrap_or_default().to_string()
             }
-            ArenaKind::Meta { meta_type } => meta_type_str(meta_type).to_string(),
+            ArenaKind::Meta { meta_type, .. } => meta_type_str(meta_type).to_string(),
+            ArenaKind::Unparsable { .. } => "unparsable".to_string(),
+            ArenaKind::Empty => "empty".to_string(),
+        }
+    }
+
+    /// Class-level type string (mirrors native `BaseSegment.type` — the concrete
+    /// class's `type` attribute).  For a Raw this is the stored `class_type`
+    /// (which differs from `get_type()` when a parser assigned an instance
+    /// override, e.g. class `symbol` vs. instance `star`).  For containers the
+    /// class type equals `segment_type` (no instance override), and metas carry
+    /// no override so it equals `get_type()`.
+    pub(crate) fn class_type(&self, id: NodeId) -> String {
+        match &self.node(id).kind {
+            ArenaKind::Raw { class_type, .. } => class_type.to_string(),
+            ArenaKind::Segment { segment_type, .. } => {
+                segment_type.as_deref().unwrap_or_default().to_string()
+            }
+            ArenaKind::Meta { meta_type, .. } => meta_type_str(meta_type).to_string(),
             ArenaKind::Unparsable { .. } => "unparsable".to_string(),
             ArenaKind::Empty => "empty".to_string(),
         }
@@ -335,6 +378,7 @@ impl Arena {
             // in the grammar tables and must be encoded here.
             ArenaKind::Meta {
                 meta_type: MetaType::Dedent { .. },
+                ..
             } => &["dedent", "indent", "meta", "raw", "base"],
             ArenaKind::Meta { .. } => &["meta", "raw", "base"],
             ArenaKind::Unparsable { .. } => &["unparsable", "base"],
@@ -411,6 +455,7 @@ impl Arena {
         match &self.node(id).kind {
             ArenaKind::Meta {
                 meta_type: MetaType::Indent { is_implicit } | MetaType::Dedent { is_implicit },
+                ..
             } => Some(*is_implicit),
             _ => None,
         }
@@ -436,6 +481,50 @@ impl Arena {
     pub fn escape_replacements(&self, id: NodeId) -> Option<Vec<(String, String)>> {
         match &self.node(id).kind {
             ArenaKind::Raw { kwargs, .. } => kwargs.escape_replacements.clone(),
+            _ => None,
+        }
+    }
+
+    /// Prefix sequences stripped before `trim_chars` by `raw_trimmed`.
+    pub(crate) fn trim_start(&self, id: NodeId) -> Option<Vec<String>> {
+        match &self.node(id).kind {
+            ArenaKind::Raw { kwargs, .. } => kwargs.trim_start.clone(),
+            _ => None,
+        }
+    }
+
+    /// The dialect casefold mode for a raw token, as a lowercase string
+    /// (`"upper"`/`"lower"`), or `None` when no fold applies. Mirrors the
+    /// per-segment `RawSegment.casefold` callable.
+    pub(crate) fn casefold(&self, id: NodeId) -> Option<String> {
+        match &self.node(id).kind {
+            ArenaKind::Raw { kwargs, .. } => match kwargs.casefold {
+                CaseFold::Upper => Some("upper".to_string()),
+                CaseFold::Lower => Some("lower".to_string()),
+                CaseFold::None => None,
+            },
+            _ => None,
+        }
+    }
+
+    /// The `block_type` of a placeholder (Template) meta segment
+    /// (e.g. `"block_start"`, `"comment"`); `None` for any other node.
+    pub(crate) fn block_type(&self, id: NodeId) -> Option<String> {
+        match &self.node(id).kind {
+            ArenaKind::Meta {
+                meta_type: MetaType::Template { block_type, .. },
+                ..
+            } => Some(block_type.clone()),
+            _ => None,
+        }
+    }
+
+    /// The template-block identity (uuid as `u128`) of a meta segment, mirroring
+    /// `TemplateSegment.block_uuid`; `None` for structural metas and non-metas.
+    /// Used by reflow reindent to group indents by originating template block.
+    pub(crate) fn block_uuid(&self, id: NodeId) -> Option<u128> {
+        match &self.node(id).kind {
+            ArenaKind::Meta { block_uuid, .. } => *block_uuid,
             _ => None,
         }
     }
@@ -693,6 +782,119 @@ impl Arena {
         }
         steps
     }
+
+    /// Bulk equivalent of `path_to(root, leaf)` for every leaf under `root`, in a
+    /// single DFS (O(n) total) instead of O(leaves * depth) separate walks. Each
+    /// returned entry is `(leaf, path_from_root_to_leaf)`, where the path matches
+    /// `path_to(root, leaf)` exactly. This is the reflow hot path
+    /// (`raw_segments_with_ancestors` / `DepthMap`).
+    pub(crate) fn raw_segments_with_ancestors(&self, root: NodeId) -> Vec<(NodeId, Vec<PathStep>)> {
+        let mut out = Vec::new();
+        let mut stack: Vec<PathStep> = Vec::new();
+        self.rwa_dfs(root, &mut stack, &mut out);
+        out
+    }
+
+    fn rwa_dfs(
+        &self,
+        node: NodeId,
+        stack: &mut Vec<PathStep>,
+        out: &mut Vec<(NodeId, Vec<PathStep>)>,
+    ) {
+        let kids: Vec<NodeId> = self.children(node).to_vec();
+        if kids.is_empty() {
+            out.push((node, stack.clone()));
+            return;
+        }
+        // Same PathStep shape as path_to: the ancestor `node`, the descended
+        // child index, the child count, and the code-child indices of `node`.
+        let code_idxs: Vec<usize> = kids
+            .iter()
+            .enumerate()
+            .filter(|(_, &s)| self.is_code(s))
+            .map(|(i, _)| i)
+            .collect();
+        let len = kids.len();
+        for (i, &child) in kids.iter().enumerate() {
+            stack.push(PathStep {
+                node,
+                idx: i,
+                len,
+                code_idxs: code_idxs.clone(),
+            });
+            self.rwa_dfs(child, stack, out);
+            stack.pop();
+        }
+    }
+
+    /// Fully arena-side depth-info for reflow's `DepthMap`. One DFS emits, per
+    /// leaf, its top-down stack of `(ancestor_uuid, idx, len, stack_pos)` — where
+    /// `stack_pos` is the interpreted `StackPosition.type` string ("", "solo",
+    /// "start", "end"), computed here exactly mirroring Python's
+    /// `_stack_pos_interpreter`. Ancestor `class_types` are deduped into the
+    /// second returned Vec (an ancestor appears in many leaves' paths, so its
+    /// class_types are marshalled once, keyed by uuid). This lets the Python
+    /// façade build `DepthInfo` objects directly with no per-step PathStep /
+    /// PyHandle marshalling.
+    pub(crate) fn reflow_depth_info(
+        &self,
+        root: NodeId,
+    ) -> (Vec<LeafReflowStack>, Vec<AncestorClassTypes>) {
+        let mut per_leaf: Vec<LeafReflowStack> = Vec::new();
+        let mut anc_cts: Vec<AncestorClassTypes> = Vec::new();
+        let mut seen: HashSet<u128> = HashSet::new();
+        let mut stack: Vec<ReflowStep> = Vec::new();
+        self.rdi_dfs(root, &mut stack, &mut per_leaf, &mut anc_cts, &mut seen);
+        (per_leaf, anc_cts)
+    }
+
+    fn rdi_dfs(
+        &self,
+        node: NodeId,
+        stack: &mut Vec<ReflowStep>,
+        per_leaf: &mut Vec<LeafReflowStack>,
+        anc_cts: &mut Vec<AncestorClassTypes>,
+        seen: &mut HashSet<u128>,
+    ) {
+        let kids: Vec<NodeId> = self.children(node).to_vec();
+        if kids.is_empty() {
+            per_leaf.push((self.uuid(node), stack.clone()));
+            return;
+        }
+        // Code-child indices of this ancestor (`node`), used for stack_pos.
+        let code_idxs: Vec<usize> = kids
+            .iter()
+            .enumerate()
+            .filter(|(_, &s)| self.is_code(s))
+            .map(|(i, _)| i)
+            .collect();
+        let len = kids.len();
+        // Dedupe: marshal this ancestor's class_types once (it recurs across many
+        // leaf paths).
+        let node_uuid = self.uuid(node);
+        if seen.insert(node_uuid) {
+            anc_cts.push((node_uuid, self.class_types(node)));
+        }
+        for (i, &child) in kids.iter().enumerate() {
+            // Mirror _stack_pos_interpreter (depthmap.py): "" if no code children,
+            // "solo" if exactly one, "start"/"end" for the first/last code index,
+            // else "".
+            let stack_pos: String = if code_idxs.is_empty() {
+                String::new()
+            } else if code_idxs.len() == 1 {
+                "solo".to_string()
+            } else if i == code_idxs[0] {
+                "start".to_string()
+            } else if i == *code_idxs.last().unwrap() {
+                "end".to_string()
+            } else {
+                String::new()
+            };
+            stack.push((node_uuid, i, len, stack_pos));
+            self.rdi_dfs(child, stack, per_leaf, anc_cts, seen);
+            stack.pop();
+        }
+    }
 }
 
 fn meta_type_str(meta_type: &MetaType) -> &'static str {
@@ -851,6 +1053,7 @@ mod tests {
                 Node::Meta {
                     meta_type: MetaType::Indent { is_implicit: false },
                     pos_marker: None,
+                    block_uuid: None,
                 },
                 raw("WhitespaceSegment", "whitespace", " ", &["whitespace"]),
             ],

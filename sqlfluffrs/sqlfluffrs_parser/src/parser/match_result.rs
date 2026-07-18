@@ -36,6 +36,7 @@ pub struct SegmentKwargs {
     /// ``None`` means hierarchy unknown; ``is_type()`` falls back to exact match only.
     pub class_types: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
+    pub trim_start: Option<Vec<String>>,
     pub casefold: CaseFold,
     pub quoted_value: Option<(String, RegexModeGroup)>,
     pub escape_replacement: Option<(String, String)>,
@@ -48,6 +49,7 @@ impl Default for SegmentKwargs {
             instance_types: None,
             class_types: None,
             trim_chars: None,
+            trim_start: None,
             casefold: CaseFold::None,
             quoted_value: None,
             escape_replacement: None,
@@ -60,6 +62,14 @@ impl Default for SegmentKwargs {
 pub struct MatchedClass {
     pub class_name: Cow<'static, str>,
     pub segment_type: Option<Cow<'static, str>>,
+    /// Class-level type of the matched segment class (mirrors native
+    /// ``BaseSegment.type`` — the concrete class's ``type`` attr), as opposed to
+    /// ``segment_type`` which holds the per-instance override (``get_type()``).
+    /// Only meaningful for the base-parser single-token raw path where an
+    /// instance override makes the two differ (e.g. class ``symbol`` vs. the
+    /// ``star`` instance).  ``None`` means "unknown" — callers fall back to
+    /// ``segment_type``.
+    pub class_type: Option<Cow<'static, str>>,
     pub segment_kwargs: SegmentKwargs,
 }
 
@@ -68,6 +78,7 @@ impl MatchedClass {
         MatchedClass {
             class_name: Cow::Borrowed("Root"),
             segment_type: Some(Cow::Borrowed("file")),
+            class_type: Some(Cow::Borrowed("file")),
             segment_kwargs: SegmentKwargs {
                 class_types: Some(vec!["base".to_string(), "file".to_string()]),
                 ..Default::default()
@@ -79,6 +90,7 @@ impl MatchedClass {
         MatchedClass {
             class_name: Cow::Borrowed("UnparsableSegment"),
             segment_type: Some(Cow::Borrowed("unparsable")),
+            class_type: Some(Cow::Borrowed("unparsable")),
             segment_kwargs: SegmentKwargs {
                 parse_error: Some((message.to_string(), error_pos)),
                 class_types: Some(vec!["base".to_string(), "unparsable".to_string()]),
@@ -241,6 +253,7 @@ impl MatchResult {
             Some(MatchedClass {
                 class_name: Cow::Borrowed("BracketedSegment"),
                 segment_type: Some(Cow::Borrowed("bracketed")),
+                class_type: Some(Cow::Borrowed("bracketed")),
                 segment_kwargs: SegmentKwargs {
                     class_types: Some(vec!["base".to_string(), "bracketed".to_string()]),
                     ..Default::default()
@@ -592,6 +605,18 @@ impl MatchResult {
                         .or_else(|| instance_types.first().map(|s| Cow::Owned(s.clone())))
                         .unwrap_or(Cow::Borrowed("raw"));
 
+                    // Class-level type of the matched segment class (native
+                    // `.type`).  `segment_type`/`effective_segment_type` above is
+                    // the per-instance override (`get_type()`); when a parser
+                    // assigns an instance type (e.g. `star`) the class type
+                    // (`symbol`) differs and is carried on `match_class.class_type`
+                    // (resolved from the raw_class name in `core.rs`).  Fall back
+                    // to the instance type when unknown.
+                    let effective_class_type: Cow<'static, str> = match_class
+                        .class_type
+                        .clone()
+                        .unwrap_or_else(|| effective_segment_type.clone());
+
                     let raw_class_ct = match_class.segment_kwargs.class_types.unwrap_or_default();
 
                     let quoted_value =
@@ -613,16 +638,76 @@ impl MatchResult {
                     return vec![Node::new_raw_with_class_types(
                         match_class.class_name,
                         effective_segment_type,
+                        effective_class_type,
                         raw,
                         pos_marker,
                         instance_types,
                         &raw_class_ct,
                         RawSegmentKwargs {
                             trim_chars: match_class.segment_kwargs.trim_chars,
+                            trim_start: match_class.segment_kwargs.trim_start,
                             quoted_value,
                             escape_replacements,
+                            casefold: match_class.segment_kwargs.casefold,
                         },
                     )];
+                }
+            }
+
+            // PYTHON PARITY: RawSegment-subclass "containers" collapse to a single
+            // raw. In pure-Python a segment class deriving from RawSegment (e.g.
+            // sparksql's `DivBinaryOperatorSegment`, whose `match_grammar` is a
+            // bare `Ref.keyword("DIV")`) builds its node via
+            // `RawSegment.from_result_segments`, which asserts exactly one child
+            // and folds it into a single raw segment carrying the OUTER class's
+            // identity — not a `binary_operator` container wrapping a `keyword`.
+            // Rust's `apply` would otherwise build a `Node::Segment` below,
+            // leaving an extra keyword child the native / pure-Python trees lack
+            // (double-reporting in CP01 over the façade).
+            //
+            // We detect a raw-class the same way `Node::to_tuple` already does —
+            // `"raw"` present in the codegen `class_types` (genuine containers such
+            // as `ColumnIndexSegment` lack it) — and only collapse when the match
+            // folds to exactly one raw child, mirroring the `from_result_segments`
+            // `len == 1` assert. This keeps YAML parity identical (to_tuple's own
+            // collapse simply becomes a no-op on the already-raw node).
+            if !match_class.is_unparsable()
+                && result_nodes.len() == 1
+                && matches!(result_nodes.first(), Some(Node::Raw { .. }))
+                && match_class
+                    .segment_kwargs
+                    .class_types
+                    .as_ref()
+                    .is_some_and(|ct| ct.iter().any(|t| t == "raw"))
+            {
+                if let Some(Node::Raw {
+                    raw,
+                    pos_marker,
+                    segment_kwargs,
+                    ..
+                }) = result_nodes.pop()
+                {
+                    let segment_type = match_class
+                        .segment_type
+                        .clone()
+                        .unwrap_or(Cow::Borrowed("raw"));
+                    // RawSegment-subclass collapse (e.g. `DivBinaryOperatorSegment`)
+                    // carries no instance override (instance_types is empty below),
+                    // so the class-level type equals `segment_type`.
+                    let class_type = segment_type.clone();
+                    return vec![Node::Raw {
+                        segment_class: match_class.class_name,
+                        segment_type,
+                        class_type,
+                        raw,
+                        pos_marker,
+                        // Mirror Python: a freshly-built RawSegment subclass has no
+                        // instance_types (they come from base parsers, not Refs),
+                        // so get_type() falls back to the class's segment_type.
+                        instance_types: vec![],
+                        class_types: match_class.segment_kwargs.class_types.unwrap_or_default(),
+                        segment_kwargs,
+                    }];
                 }
             }
 
@@ -743,6 +828,7 @@ pub fn segment_kwargs_from_token(
         instance_types: instance_types.or_else(|| Some(vec![token_type.to_string()])),
         casefold: casefold.unwrap_or_else(|| tok.casefold()),
         trim_chars: tok.trim_chars.clone(),
+        trim_start: tok.trim_start.clone(),
         escape_replacement: tok.escape_replacement().cloned(),
         quoted_value: tok.quoted_value().cloned(),
         ..Default::default()
@@ -806,6 +892,7 @@ fn token_to_node(tok: &Token) -> Node {
         Node::Meta {
             meta_type,
             pos_marker: tok.pos_marker.clone(),
+            block_uuid: tok.block_uuid.map(|u| u.as_u128()),
         }
     } else {
         // Populate class_types from the Token's own class_types (from lexer)
@@ -822,14 +909,38 @@ fn token_to_node(tok: &Token) -> Node {
             .first()
             .map(|s| Cow::Owned(s.clone()))
             .unwrap_or_else(|| tok.token_type.clone());
+        // Carry normalize/trim metadata from the lexer token so façade
+        // accessors (raw_trimmed / raw_normalized) work on gap-filled raws
+        // such as comments (which have `trim_start`).
+        let quoted_value = tok.quoted_value().cloned().map(|(pattern, group)| {
+            let group_str = match group {
+                RegexModeGroup::Index(idx) => idx.to_string(),
+                RegexModeGroup::Name(name) => name,
+            };
+            (pattern, group_str)
+        });
+        let escape_replacements = tok
+            .escape_replacement()
+            .cloned()
+            .map(|(pattern, replacement)| vec![(pattern, replacement)]);
         Node::new_raw_with_class_types(
             tok.class_name.clone(),
             segment_type,
+            // The lexer token's `token_type` is the class-level type (e.g.
+            // "comment"/"literal"/"symbol"), while `instance_types` carries the
+            // per-instance override.  A gap-filled leaf keeps its lexer class.
+            tok.token_type.clone(),
             tok.raw().to_owned(),
             tok.pos_marker.clone(),
             tok.instance_types.clone(),
             &raw_class_ct,
-            RawSegmentKwargs::default(),
+            RawSegmentKwargs {
+                trim_chars: tok.trim_chars.clone(),
+                trim_start: tok.trim_start.clone(),
+                quoted_value,
+                escape_replacements,
+                casefold: tok.casefold(),
+            },
         )
     }
 }
@@ -842,12 +953,14 @@ fn meta_to_node(meta_type: &MetaSegment, pos_marker: Option<PositionMarker>) -> 
                 is_implicit: *is_implicit,
             },
             pos_marker,
+            block_uuid: None,
         },
         MetaSegment::Dedent { is_implicit } => Node::Meta {
             meta_type: MetaType::Dedent {
                 is_implicit: *is_implicit,
             },
             pos_marker,
+            block_uuid: None,
         },
     }
 }

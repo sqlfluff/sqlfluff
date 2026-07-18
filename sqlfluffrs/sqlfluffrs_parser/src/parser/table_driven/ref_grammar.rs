@@ -275,6 +275,11 @@ impl Parser<'_> {
                     // segment_class_name is Option<&'static str> (PR #8002), so
                     // borrow the grammar-table class name straight into the node.
                     class_name: Cow::Borrowed(state.segment_class_name.take().unwrap_or_default()),
+                    // A Ref wraps its inner match as a child, so it never reaches
+                    // the base-parser single-raw path where `class_type` diverges
+                    // from `segment_type`; for the RawSegment-subclass collapse the
+                    // consumer reads `segment_type`.  Mirror `segment_type` here.
+                    class_type: Some(segment_type.clone()),
                     segment_type: Some(segment_type),
                     segment_kwargs: SegmentKwargs {
                         class_types,

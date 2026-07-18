@@ -37,6 +37,9 @@ class RsPositionMarker:
     templated_file: RsTemplatedFile
     working_line_no: int
     working_line_pos: int
+    working_loc: tuple[int, int]
+
+    def working_loc_after(self, raw: str) -> tuple[int, int]: ...
 
 class RsToken:
     raw: str
@@ -198,9 +201,14 @@ class RsHandle:
 
     def is_type(self, seg_type: List[str]) -> bool: ...
     def is_raw(self) -> bool: ...
+    def class_type(self) -> str: ...
     def class_types(self) -> List[str]: ...
     def instance_types(self) -> List[str]: ...
     def is_implicit(self) -> Optional[bool]: ...
+    def block_type(self) -> Optional[str]: ...
+    def block_uuid(self) -> Optional[int]: ...
+    def casefold(self) -> Optional[str]: ...
+    def trim_start(self) -> Optional[List[str]]: ...
     def trim_chars(self) -> Optional[List[str]]: ...
     def quoted_value(self) -> Optional[tuple[str, str]]: ...
     def escape_replacements(self) -> Optional[List[tuple[str, str]]]: ...
@@ -220,11 +228,24 @@ class RsHandle:
     def path_to(
         self, other: "RsHandle"
     ) -> List[tuple["RsHandle", int, int, List[int]]]: ...
+    def raw_segments_with_ancestors(
+        self,
+    ) -> List[tuple["RsHandle", List[tuple["RsHandle", int, int, List[int]]]]]: ...
+    def reflow_depth_info(
+        self,
+    ) -> tuple[
+        List[tuple[int, List[tuple[int, int, int, str]]]],
+        List[tuple[int, List[str]]],
+    ]: ...
 
 class RsTree:
     """Owner of a mutable arena parse tree, used by the ``RsSegment`` facade."""
 
     root: RsHandle
+    # The Python ``TemplatedFile`` the engine rendered before parsing (``None``
+    # if the tree was not built via an engine render). Passed as
+    # ``context.templated_file`` by the facade linting path.
+    templated_file: Optional[Any]
 
     def __len__(self) -> int: ...
     def node_by_uuid(self, uuid: int) -> Optional[RsHandle]: ...
@@ -320,5 +341,19 @@ def engine_render_string(
     """Rust-driven render for the `render` command.
 
     Returns `{templated_variants, templater_violations}`.
+    """
+    ...
+
+def engine_parse_to_tree(
+    raw_sql: str,
+    fname: str,
+    config: "FluffConfig",
+    formatter: Any = None,
+    direct_config: bool = False,
+) -> Optional["RsTree"]:
+    """Rust-driven parse of one file to a crawlable arena tree (`RsTree`).
+
+    Built from the native `Node` via `Arena::from_node`, for linting the Python
+    rules over an `RsSegment` façade. `None` if render/parse produced no tree.
     """
     ...

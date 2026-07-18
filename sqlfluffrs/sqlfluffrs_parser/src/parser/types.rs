@@ -2,6 +2,7 @@
 
 use hashbrown::HashSet;
 use serde_yaml_ng::{Mapping, Value};
+use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::{GrammarId, PositionMarker};
 use std::borrow::Cow;
 
@@ -33,8 +34,14 @@ pub enum MetaType {
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RawSegmentKwargs {
     pub trim_chars: Option<Vec<String>>,
+    /// Prefix sequences stripped by ``RawSegment.raw_trimmed`` before
+    /// ``trim_chars`` (e.g. inline-comment ``--``/``#`` markers).
+    pub trim_start: Option<Vec<String>>,
     pub quoted_value: Option<(String, String)>,
     pub escape_replacements: Option<Vec<(String, String)>>,
+    /// Per-segment fold applied by ``RawSegment.raw_normalized`` (dialect
+    /// identifier casing, e.g. ``str.upper``/``str.lower``).
+    pub casefold: CaseFold,
 }
 
 /// AST Node - represents parsed SQL structure
@@ -44,7 +51,13 @@ pub enum Node {
     Raw {
         segment_class: Cow<'static, str>, // "KeywordSegment", "LiteralSegment"
         segment_type: Cow<'static, str>,  // "keyword", "literal", "whitespace"
-        raw: String,                      // Actual text
+        /// Class-level type (mirrors native ``BaseSegment.type`` — the concrete
+        /// class's ``type`` attribute), as opposed to ``segment_type`` which
+        /// holds the per-instance override (``get_type()``, e.g.
+        /// ``numeric_literal``).  For a raw with no override the two are equal;
+        /// with an override ``class_type`` stays the base kind (``literal``).
+        class_type: Cow<'static, str>,
+        raw: String, // Actual text
         pos_marker: Option<PositionMarker>,
         instance_types: Vec<String>, // ["keyword"], ["numeric_literal", "literal"]
         /// Full class type hierarchy (mirrors Python's ``class_types`` property).
@@ -73,6 +86,11 @@ pub enum Node {
     Meta {
         meta_type: MetaType,
         pos_marker: Option<PositionMarker>,
+        /// Template-block identity (uuid as `u128`), carried from the lexer
+        /// token for template/indent/dedent metas so reflow reindent can group
+        /// indents by their originating template block.  `None` for structural
+        /// (parser-inserted) metas.
+        block_uuid: Option<u128>,
     },
 
     /// Parse errors
@@ -106,9 +124,13 @@ impl Node {
         let segment_class = segment_class.into();
         let segment_type = segment_type.into();
         let class_types = Self::build_class_types(&segment_type, &instance_types, &[]);
+        // Synthetic/test nodes have no separate instance override, so the
+        // class-level type equals the segment_type.
+        let class_type = segment_type.clone();
         Node::Raw {
             segment_class,
             segment_type,
+            class_type,
             raw,
             pos_marker,
             instance_types,
@@ -122,9 +144,11 @@ impl Node {
     ///
     /// ``class_types`` is computed as
     /// ``instance_types ∪ {segment_type} ∪ raw_class_class_types``.
+    #[allow(clippy::too_many_arguments)]
     pub fn new_raw_with_class_types(
         segment_class: impl Into<Cow<'static, str>>,
         segment_type: impl Into<Cow<'static, str>>,
+        class_type: impl Into<Cow<'static, str>>,
         raw: String,
         pos_marker: Option<PositionMarker>,
         instance_types: Vec<String>,
@@ -133,11 +157,13 @@ impl Node {
     ) -> Self {
         let segment_class = segment_class.into();
         let segment_type = segment_type.into();
+        let class_type = class_type.into();
         let class_types =
             Self::build_class_types(&segment_type, &instance_types, raw_class_class_types);
         Node::Raw {
             segment_class,
             segment_type,
+            class_type,
             raw,
             pos_marker,
             instance_types,
@@ -656,6 +682,7 @@ mod tests {
         let node = Node::Meta {
             meta_type: MetaType::Indent { is_implicit: false },
             pos_marker: None,
+            block_uuid: None,
         };
         let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
@@ -785,6 +812,7 @@ mod tests {
         let node = Node::Meta {
             meta_type: MetaType::Indent { is_implicit: false },
             pos_marker: None,
+            block_uuid: None,
         };
         let val = node.to_tuple(false, false, true);
         assert_eq!(
@@ -798,6 +826,7 @@ mod tests {
         let node = Node::Meta {
             meta_type: MetaType::Indent { is_implicit: false },
             pos_marker: None,
+            block_uuid: None,
         };
         let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("indent".to_string(), vec![]));
