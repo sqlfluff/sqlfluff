@@ -862,3 +862,19 @@ test_pass_tsql_containstable_join_arguments:
   configs:
     core:
       dialect: tsql
+
+test_pass_mysql_update_alias_correlated_subquery:
+  # https://github.com/sqlfluff/sqlfluff/issues/6147
+  # In MySQL the target table of an UPDATE is parsed as a from_expression,
+  # so the alias `p` is nested inside a from_expression_element. References
+  # to that alias inside a correlated subquery should still resolve.
+  pass_str: |
+    UPDATE llx_product AS p
+    SET p.stock = (
+        SELECT SUM(ps.reel)
+        FROM llx_product_stock AS ps
+        WHERE ps.fk_product = p.rowid
+    );
+  configs:
+    core:
+      dialect: mysql

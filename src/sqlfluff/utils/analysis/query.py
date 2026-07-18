@@ -85,6 +85,19 @@ class Selectable:
             # (https://www.postgresql.org/docs/8.2/sql-values.html).
             values = Segments(self.selectable)
             alias_expression = values.children().first(sp.is_type("alias_expression"))
+            if not alias_expression:
+                # In some dialects (e.g. MySQL), the target table of an
+                # UPDATE statement is parsed as a from_expression, so any
+                # alias is nested inside a from_expression_element rather
+                # than being a direct child of the statement.
+                # https://github.com/sqlfluff/sqlfluff/issues/6147
+                alias_expression = (
+                    values.children(sp.is_type("from_expression"))
+                    .children(sp.is_type("from_expression_element"))
+                    .first()
+                    .children()
+                    .first(sp.is_type("alias_expression"))
+                )
             name = alias_expression.children().first(
                 sp.is_type("naked_identifier", "quoted_identifier")
             )
