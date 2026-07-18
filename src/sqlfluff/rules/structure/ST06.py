@@ -80,6 +80,22 @@ class Rule_ST06(BaseRule):
                             for seg in child.recursive_crawl("index_column_definition")
                         ):
                             return True
+                        # BigQuery represents the view column list with
+                        # column_definition segments instead
+                        if any(
+                            seg.is_type("column_definition")
+                            for seg in child.recursive_crawl("column_definition")
+                        ):
+                            return True
+                        # ClickHouse lists the columns as bare identifiers
+                        # directly in the brackets. Only the column list holds
+                        # them at the top level -- a parenthesized `AS (SELECT
+                        # ...)` body wraps them in a select_statement instead --
+                        # so check the bracket's direct children.
+                        if any(
+                            seg.is_type("naked_identifier") for seg in child.segments
+                        ):
+                            return True
                 # Found a CREATE VIEW but no explicit column list
                 return False
         return False

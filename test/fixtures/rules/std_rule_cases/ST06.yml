@@ -379,3 +379,27 @@ test_fail_create_view_without_explicit_columns_tsql:
       e.department,
       TRY_CAST(e.id AS INT) AS employee_id
     FROM employees e
+
+test_pass_create_view_with_explicit_columns_bigquery:
+  configs:
+    core:
+      dialect: bigquery
+  pass_str: |
+    CREATE VIEW v (nm, i, d) AS
+    SELECT
+      e.name,
+      TRY_CAST(e.id AS INT) AS eid,
+      e.dept
+    FROM employees e
+
+test_pass_create_view_with_explicit_columns_clickhouse:
+  configs:
+    core:
+      dialect: clickhouse
+  pass_str: |
+    CREATE VIEW v (nm, i, d) AS
+    SELECT
+      e.name,
+      TRY_CAST(e.id AS INT) AS eid,
+      e.dept
+    FROM employees e
