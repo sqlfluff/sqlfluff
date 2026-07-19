@@ -3049,7 +3049,7 @@ class ConvertFunctionContentsSegment(BaseSegment):
         Ref("ExpressionSegment"),
         OneOf(
             Sequence(Ref("CommaSegment"), Ref("DatatypeSegment")),
-            Sequence("USING", Ref("NakedIdentifierSegment")),
+            Sequence("USING", OneOf("BINARY", Ref("NakedIdentifierSegment"))),
         ),
     )
 
