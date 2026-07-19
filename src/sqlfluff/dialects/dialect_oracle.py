@@ -109,8 +109,9 @@ oracle_dialect.patch_lexer_matchers(
             "numeric_literal",
             # Like ANSI, but no bare leading-dot form (.\d+). Allow trailing-dot
             # numerics (1.) via \d+\.(?![\.\w]), keep (?=\b) for digit/identifier
-            # splits, and also allow Oracle size suffixes (256K) (#8110).
-            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b)|(?=[KMGTkmg]\b))",
+            # splits, and also allow Oracle size suffixes (256K / 10P / 10E)
+            # matching SizeClauseGrammar's K/M/G/T/P/E (case-insensitive) (#8110).
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b)|(?=[KMGTPEkmgtpe]\b))",
             LiteralSegment,
         ),
     ]
