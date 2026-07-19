@@ -29,6 +29,7 @@ RESERVED_KEYWORDS = [
     "DATE",
     "DEC",
     "DECIMAL",
+    "DEFAULT",
     "DELETE",
     "DESCRIBE",
     "DISTINCT",
