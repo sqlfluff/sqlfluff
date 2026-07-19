@@ -677,3 +677,12 @@ test_pass_placeholder_templater_explicit_columns:
       placeholder:
         param_style: dollar
         CATALOG: my_catalog
+
+test_pass_resolvable_wildcard_in_non_first_union_branch:
+  # A resolvable wildcard in a non-first UNION branch must not be flagged: the
+  # number of result columns is known (previously AM04 resolved every branch's
+  # wildcard against the first branch only).
+  pass_str: |
+    SELECT a, b FROM t
+    UNION
+    SELECT * FROM (SELECT c, d FROM tbl2)
