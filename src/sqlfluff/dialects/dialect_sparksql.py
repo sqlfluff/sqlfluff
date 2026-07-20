@@ -2933,6 +2933,16 @@ class SetStatementSegment(BaseSegment):
         "SET",
         Ref("SQLConfPropertiesSegment", optional=True),
         OneOf(
+            # Allow expression values (e.g. CURRENT_DATE()) in addition to the
+            # stricter PropertyListGrammar used for TBLPROPERTIES / OPTIONS.
+            # https://github.com/sqlfluff/sqlfluff/issues/4218
+            Delimited(
+                Sequence(
+                    Ref("PropertyNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
             Ref("PropertyListGrammar"),
             Ref("PropertyNameSegment"),
             optional=True,
