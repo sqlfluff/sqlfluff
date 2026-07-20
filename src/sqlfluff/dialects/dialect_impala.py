@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Sequence,
     StringParser,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_hive as hive
 from sqlfluff.dialects.dialect_impala_keywords import (
     RESERVED_KEYWORDS,
@@ -257,7 +258,7 @@ class InsertStatementSegment(BaseSegment):
                 ),
                 OneOf(
                     Ref("SelectableGrammar"),
-                    Ref("ValuesClauseSegment"),
+                    ansi.ValuesClauseSegment,
                 ),
             ),
         ),

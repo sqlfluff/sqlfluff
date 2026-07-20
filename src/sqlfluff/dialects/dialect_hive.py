@@ -174,41 +174,6 @@ hive_dialect.add(
 )
 
 
-class SelectValuesClauseSegment(ansi.ValuesClauseSegment):
-    """A `VALUES` clause for SELECT statements, no DEFAULT, aliases only in first row."""
-
-    type = "values_clause"
-    match_grammar: Matchable = Sequence(
-        "VALUES",
-        # First row, allows AliasExpressionSegment, no DEFAULT
-        Bracketed(
-            Delimited(
-                Sequence(
-                    OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
-                    Ref("AliasExpressionSegment"),
-                ),
-                Ref("LiteralGrammar"),
-                Ref("ExpressionSegment"),
-            ),
-            parse_mode=ParseMode.GREEDY,
-        ),
-        # Subsequent rows, no AliasExpressionSegment, no DEFAULT
-        AnyNumberOf(
-            Sequence(
-                Ref("CommaSegment"),
-                Bracketed(
-                    Delimited(
-                        OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
-                        Ref("LiteralGrammar"),
-                        Ref("ExpressionSegment"),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
-            ),
-        ),
-    )
-
-
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
 hive_dialect.replace(
     JoinKeywordsGrammar=Sequence(Sequence("SEMI", optional=True), "JOIN"),
@@ -334,8 +299,42 @@ hive_dialect.replace(
     LikeGrammar=OneOf(
         "LIKE", "RLIKE", "ILIKE", "REGEXP", "IREGEXP"
     ),  # Impala dialect uses REGEXP and IREGEXP
-    ValuesClauseSegment=SelectValuesClauseSegment,
 )
+
+
+class ValuesClauseSegment(ansi.ValuesClauseSegment):
+    """A `VALUES` clause for SELECT statements, no DEFAULT, aliases only in first row."""
+
+    type = "values_clause"
+    match_grammar: Matchable = Sequence(
+        "VALUES",
+        # First row, allows AliasExpressionSegment, no DEFAULT
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
+                    Ref("AliasExpressionSegment"),
+                ),
+                Ref("LiteralGrammar"),
+                Ref("ExpressionSegment"),
+            ),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        # Subsequent rows, no AliasExpressionSegment, no DEFAULT
+        AnyNumberOf(
+            Sequence(
+                Ref("CommaSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
+                        Ref("LiteralGrammar"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    parse_mode=ParseMode.GREEDY,
+                ),
+            ),
+        ),
+    )
 
 
 class InsertValuesClauseSegment(ansi.ValuesClauseSegment):
