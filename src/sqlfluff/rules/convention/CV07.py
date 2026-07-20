@@ -104,7 +104,12 @@ class Rule_CV07(BaseRule):
                 .reversed()
             )
             self.logger.debug("Trailing: %s", trailing)
-            lift_nodes = set(leading + trailing)
+            # Order-preserving dedupe (leading and trailing can overlap when
+            # everything inside the brackets is liftable). A ``set`` here made
+            # the DELETE fix order — and therefore the serialised lint record
+            # — depend on segment hashes, which are PYTHONHASHSEED-salted,
+            # i.e. nondeterministic across runs.
+            lift_nodes = list(dict.fromkeys(leading + trailing))
             fixes = []
             if lift_nodes:
                 fixes.append(LintFix.create_before(parent, list(leading)))

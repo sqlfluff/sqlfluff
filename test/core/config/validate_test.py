@@ -8,9 +8,11 @@ from sqlfluff.core.config.removed import (
 )
 from sqlfluff.core.config.validate import (
     _validate_indentation_config,
+    _validate_int_config,
     _validate_layout_config,
     _validate_max_parse_depth_config,
     _validate_max_parse_nodes_config,
+    validate_config_dict,
 )
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
@@ -254,4 +256,83 @@ def test__validate_max_parse_nodes_invalid(config_dict, config_warning):
     """Test invalid max_parse_nodes values are rejected."""
     with pytest.raises(SQLFluffUserError) as excinfo:
         _validate_max_parse_nodes_config(config_dict, "<test>")
+    assert config_warning in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "config_dict",
+    [
+        {"core": {"render_variant_limit": 1}},
+        {"core": {"runaway_limit": 10}},
+        {"core": {}},  # missing key should be ok
+        {},  # no core section should be ok
+    ],
+)
+def test__validate_int_config_valid(config_dict):
+    """Test valid integer core config values are accepted."""
+    # Should not raise for either key.
+    _validate_int_config(config_dict, "render_variant_limit", 1, "<test>")
+    _validate_int_config(config_dict, "runaway_limit", 1, "<test>")
+
+
+@pytest.mark.parametrize(
+    "config_dict,key,config_warning",
+    [
+        (
+            {"core": {"render_variant_limit": "lots"}},
+            "render_variant_limit",
+            "set an invalid value for `render_variant_limit`: 'lots'",
+        ),
+        (
+            {"core": {"render_variant_limit": True}},
+            "render_variant_limit",
+            "set an invalid value for `render_variant_limit`: True",
+        ),
+        (
+            {"core": {"render_variant_limit": 0}},
+            "render_variant_limit",
+            "set an invalid value for `render_variant_limit`: 0",
+        ),
+        (
+            {"core": {"runaway_limit": "lots"}},
+            "runaway_limit",
+            "set an invalid value for `runaway_limit`: 'lots'",
+        ),
+        (
+            {"core": {"runaway_limit": -1}},
+            "runaway_limit",
+            "set an invalid value for `runaway_limit`: -1",
+        ),
+    ],
+)
+def test__validate_int_config_invalid(config_dict, key, config_warning):
+    """Test invalid integer core config values are rejected."""
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        _validate_int_config(config_dict, key, 1, "<test>")
+    assert config_warning in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "config_dict,config_warning",
+    [
+        (
+            {"core": {"render_variant_limit": "lots"}},
+            "set an invalid value for `render_variant_limit`: 'lots'",
+        ),
+        (
+            {"core": {"runaway_limit": "lots"}},
+            "set an invalid value for `runaway_limit`: 'lots'",
+        ),
+    ],
+)
+def test__validate_config_dict_rejects_bad_int_limits(config_dict, config_warning):
+    """A non-integer render_variant_limit/runaway_limit raises a clean error.
+
+    Previously these flowed unchecked to numeric-use sites: a bad
+    render_variant_limit crashed `sqlfluff lint` with an uncaught TypeError, and
+    a bad runaway_limit was swallowed as an 'internal error' during
+    `sqlfluff fix`. They should behave like their validated siblings.
+    """
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        validate_config_dict(config_dict, "<test>")
     assert config_warning in str(excinfo.value)

@@ -4,6 +4,7 @@ import pickle
 
 import pytest
 
+from sqlfluff.core import Linter
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.rules.base import LintFix
@@ -183,6 +184,19 @@ def test__parser__base_segments_path_to(raw_segments, DummySegment, DummyAuxSegm
     ]
 
 
+def test__parser__base_segments_is_code_false_for_comment_only_file():
+    """Test .is_code() is False for a file containing only a comment.
+
+    `.is_code()` loops over `self.segments` and only reaches its final
+    `return False` once every child has been checked without finding any
+    code, so a real SQL file with no code content is needed to cover that
+    path.
+    """
+    linter = Linter(dialect="ansi")
+    tree = linter.parse_string("-- just a comment\n").tree
+    assert tree.is_code is False
+
+
 def test__parser__base_segments_stubs():
     """Test stub methods that have no implementation in base class."""
     template = TemplatedFile.from_string("foobar")
@@ -307,6 +321,80 @@ def test__parser__base_segments_copy_isolation(DummySegment, raw_segments):
     for s in fix.edit:
         assert not s.pos_marker
     assert b_seg.pos_marker
+
+
+def _build_nested_segment(DummyAuxSegment, leaf_segments, depth):
+    """Build a segment nested `depth` levels deep, wrapping `leaf_segments`.
+
+    Built iteratively (no recursion here) so the test setup itself never
+    contributes to the recursion depth being probed.
+    """
+    node = DummyAuxSegment(leaf_segments)
+    for _ in range(depth):
+        node = DummyAuxSegment((node,))
+    return node
+
+
+# ---------------------------------------------------------------------------
+# Deep-nesting regression tests: guard against these methods regressing back
+# to a genexpr/comprehension, which costs an extra stack frame per nesting
+# level and can blow Python's recursion limit on deep parse trees.
+# ---------------------------------------------------------------------------
+
+
+def _check_count_segments(tree, leaf_segments, depth):
+    # +1 for the innermost DummyAuxSegment directly wrapping the leaves,
+    # plus one more DummyAuxSegment per nesting level.
+    assert tree.count_segments() == depth + 1 + len(leaf_segments)
+
+
+def _check_copy(tree, leaf_segments, depth):
+    assert tree.copy().raw == tree.raw
+
+
+def _check_descendant_type_set(tree, leaf_segments, depth):
+    assert "raw" in tree.descendant_type_set
+
+
+# Each entry maps a recursive method/property to (depth, check). `check` just
+# needs to call the accessor and confirm it doesn't raise RecursionError;
+# a handful also assert a value, where that's cheap to do. Return shapes are
+# already covered by the non-deep-nesting tests elsewhere in this file.
+_DEEP_NESTING_CASES = {
+    "count_segments": (400, _check_count_segments),
+    "copy": (400, _check_copy),
+    "to_tuple": (400, lambda tree, leaf_segments, depth: tree.to_tuple()),
+    "descendant_type_set": (350, _check_descendant_type_set),
+    "is_code": (400, lambda tree, leaf_segments, depth: tree.is_code),
+    "is_comment": (400, lambda tree, leaf_segments, depth: tree.is_comment),
+    "is_whitespace": (400, lambda tree, leaf_segments, depth: tree.is_whitespace),
+    "raw_segments_with_ancestors": (
+        400,
+        lambda tree, leaf_segments, depth: tree.raw_segments_with_ancestors,
+    ),
+    "source_fixes": (400, lambda tree, leaf_segments, depth: tree.source_fixes),
+    "get_raw_segments": (
+        400,
+        lambda tree, leaf_segments, depth: tree.get_raw_segments(),
+    ),
+}
+
+
+@pytest.mark.parametrize("name", list(_DEEP_NESTING_CASES))
+def test__parser__base_segments_deep_nesting_no_recursion_error(
+    generate_test_segments, DummyAuxSegment, name
+):
+    """Recursive BaseSegment methods/properties survive deep nesting.
+
+    Fresh leaf segments are generated per call, rather than reusing the
+    module-scoped `raw_segments` fixture, so wrapping them at these depths
+    doesn't leave test__parser__base_segments_parent_ref seeing a stale
+    parent.
+    """
+    leaf_segments = generate_test_segments(["foobar", ".barfoo"])
+    depth, check = _DEEP_NESTING_CASES[name]
+    tree = _build_nested_segment(DummyAuxSegment, leaf_segments, depth)
+    check(tree, leaf_segments, depth)
 
 
 def test__parser__base_segments_parent_ref(DummySegment, raw_segments):

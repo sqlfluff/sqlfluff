@@ -433,7 +433,7 @@ impl Lexer {
                 SQLLexError::new(
                     Some(format!(
                         "Unable to lex characters: {}",
-                        token.raw().chars().take(10).collect::<String>()
+                        python_repr_str(&truncate_like_python(token.raw()))
                     )),
                     token.pos_marker.clone(),
                     None,
@@ -445,6 +445,65 @@ impl Lexer {
             })
             .collect()
     }
+}
+
+/// Truncates to match Python's `segment.raw[:10] + "..." if
+/// len(segment.raw) > 9 else segment.raw` (lexer.py's
+/// `violations_from_segments`), counting and slicing by Unicode codepoint
+/// so multi-byte characters truncate the same way Python's `len` and
+/// slicing do.
+fn truncate_like_python(raw: &str) -> String {
+    if raw.chars().count() > 9 {
+        let mut truncated: String = raw.chars().take(10).collect();
+        truncated.push_str("...");
+        truncated
+    } else {
+        raw.to_string()
+    }
+}
+
+/// Quotes and escapes a string the way Python's `repr()` would, so the
+/// `SQLLexError` description (`"Unable to lex characters:
+/// {!r}".format(...)` in lexer.py's `violations_from_segments`) reads the
+/// same from both lexers even when the unlexable text carries control
+/// characters.
+///
+/// Escapes ASCII/C1 control characters and non-space Unicode whitespace,
+/// which covers the punctuation and symbols that typically show up in
+/// unlexable input. Format (Cf), private-use (Co), and unassigned (Cn)
+/// codepoints are printed as-is for now; extend the match below if
+/// real-world input needs them escaped too.
+fn python_repr_str(s: &str) -> String {
+    let use_double_quotes = s.contains('\'') && !s.contains('"');
+    let quote_char = if use_double_quotes { '"' } else { '\'' };
+
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push(quote_char);
+    for c in s.chars() {
+        match c {
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if c == quote_char => {
+                out.push('\\');
+                out.push(c);
+            }
+            c if c.is_control() || (c.is_whitespace() && c != ' ') => {
+                let cp = c as u32;
+                if cp <= 0xff {
+                    out.push_str(&format!("\\x{cp:02x}"));
+                } else if cp <= 0xffff {
+                    out.push_str(&format!("\\u{cp:04x}"));
+                } else {
+                    out.push_str(&format!("\\U{cp:08x}"));
+                }
+            }
+            c => out.push(c),
+        }
+    }
+    out.push(quote_char);
+    out
 }
 
 fn iter_tokens(

@@ -523,14 +523,18 @@ try:
             # Convert child matches recursively
             # Note: Transparent grammar nodes are now flattened on the Rust side,
             # so we don't need to do it here anymore
-            child_matches = (
-                tuple(
+            #
+            # NOTE: Keep this a plain loop rather than a generator expression:
+            # a genexpr would add its own stack frame per nesting level on top
+            # of this recursive call, which halves the safe recursion depth.
+            # Matches _apply_rs_match_result's plain for loop below, so both
+            # AST-building paths tolerate the same nesting depth.
+            child_matches_list = []
+            for child in rs_match.child_matches:
+                child_matches_list.append(
                     self._convert_rs_match_result(child, segments, depth + 1)
-                    for child in rs_match.child_matches
                 )
-                if rs_match.child_matches
-                else ()
-            )
+            child_matches = tuple(child_matches_list)
 
             return MatchResult(
                 matched_slice=slice(start, stop),
