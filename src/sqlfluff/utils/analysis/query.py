@@ -121,7 +121,9 @@ class Selectable:
             if not table_aliases:
                 # Preserve the longstanding behavior of always registering
                 # one (possibly anonymous) alias for the DML target.
-                table_aliases = [AliasInfo("", None, False, self.selectable, None, None)]
+                table_aliases = [
+                    AliasInfo("", None, False, self.selectable, None, None)
+                ]
 
             return SelectStatementColumnsAndTables(
                 select_statement=self.selectable,
