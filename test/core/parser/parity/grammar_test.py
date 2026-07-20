@@ -22,7 +22,7 @@ def _iter_grammar(g, seen):
     for attr in ("_elements", "terminators"):
         for child in getattr(g, attr, ()) or ():
             yield from _iter_grammar(child, seen)
-    for attr in ("exclude", "delimiter"):
+    for attr in ("exclude", "delimiter", "start_bracket", "end_bracket"):
         child = getattr(g, attr, None)
         if child is not None:
             yield from _iter_grammar(child, seen)

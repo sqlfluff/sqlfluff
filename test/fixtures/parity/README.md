@@ -19,6 +19,10 @@ Every comparison captures at **maximal** strictness:
 - the raw round-trip,
 - per-segment normalization kwargs
   (`quoted_value` / `escape_replacements` / `trim_chars` / `casefold`),
+- every leaf segment's full `class_types` set, not just its primary type
+  (`to_tuple()`/`stringify()` only ever show the primary type; a bare-class
+  `Ref` that wraps a token in an ancestor class can get the primary type
+  right while still losing class-level types from the token's own lineage),
 - for raised exceptions: type, message, and `SQLBaseError`
   position/flag attributes (`PanicException` included),
 - for lexer cases: token class, raw, type, class_types, position marker and

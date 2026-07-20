@@ -1,0 +1,17 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Regressions that only show up in a leaf segment's full class_types set,
+# not its primary get_type() - i.e. cases that a to_tuple()/stringify()-only
+# comparison would silently pass even when the engines disagree (#8138).
+
+tsql_setvar_numeric_value_ancestor_class_types:
+  sql: ":setvar count 10"
+  dialect: tsql
+  pins: A bare-class Ref (Ref("CodeSegment")) matching :setvar's content wraps
+    a numeric LiteralSegment token whose class chain is an ANCESTOR of the
+    matched token's own class. RustParser used to rebuild the token as the
+    ancestor class, threading only instance_types through - correct
+    get_type() ("numeric_literal") but a class_types set missing the
+    token's own class-level type ("literal"), invisible to a
+    to_tuple()/stringify() comparison alone (#8138).

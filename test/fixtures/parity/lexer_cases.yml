@@ -99,8 +99,8 @@ bigquery_double_at_system_variable:
     lex as a single token stream identical to Python's."
 unlexable_error_message_format:
   sql: SELECT ¡ FROM t
-  pins: SQLLexError message formatting for unlexable characters (fixed upstream in
-    #8147; both engines now agree on the repr-quoted, truncated format).
+  pins: "SQLLexError message formatting for unlexable characters (fixed upstream in
+    #8147; both engines now agree on the repr-quoted, truncated format)."
 flink_multiple_escape_replacements:
   sql: SELECT 'esc''aped'
   dialect: flink

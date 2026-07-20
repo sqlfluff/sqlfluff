@@ -73,7 +73,8 @@ materialize_curly_cross_silent_recovery:
     python_vs_rust: "Known rust-core gap: a stray opening '{' crossed with ')'
       raises 'Found unexpected end bracket!' in Python but Rust quietly recovers
       a tree."
-  pins: Fuzz-derived minimized repro.
+  pins: A stray opening '{' crossed with ')' raises 'Found unexpected end bracket!'
+    in Python but Rust used to quietly recover a tree.
 materialize_webhook_overlapping_matches:
   sql: "(\n ) ( );\nCREATE SOURCE my_webhook_source IN CLUSTER my_cluster FROM WEBHOOK\n\
     \ BODY FORMAT JSON\n (\n (\n my_webhook_share"
@@ -83,4 +84,6 @@ materialize_webhook_overlapping_matches:
       for this input, so the Python-side builder raises its internal 'Segment skip
       ahead error' ValueError instead of Python's SQLParseError. See also the invariants
       case invariants.yml:materialize_webhook_overlap."
-  pins: Fuzz-derived minimized repro.
+  pins: The core emits OVERLAPPING child matches for this input, so the Python-side
+    builder raises its internal 'Segment skip ahead error' ValueError instead of
+    Python's SQLParseError.

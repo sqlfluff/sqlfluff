@@ -50,7 +50,8 @@ sqlite_nothing_here_expected_message:
   xfail:
     python_vs_rust: "Known rust-core gap: the unparsable 'Expected:' message says
       'Nothing here.' where Python names the expected grammar element."
-  pins: Fuzz-derived minimized repro.
+  pins: For unparsable 'Expected:' messages, Rust says 'Nothing here.' where
+    Python names the expected grammar element.
 depth_guard_error_position:
   sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
     CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN

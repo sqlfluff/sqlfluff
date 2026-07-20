@@ -10,6 +10,8 @@ strictness:
 * the raw round-trip,
 * the normalization kwargs carried by every segment
   (quoted_value / escape_replacements / trim_chars / casefold),
+* the full ``class_types`` chain of every leaf segment (not just its
+  primary ``get_type()``, which is all ``to_tuple()``/``stringify()`` see),
 * whether the tree contains an ``UnparsableSegment`` anywhere,
 * or, for a raised exception, its type, message and ``SQLBaseError``
   position/flag attributes (``PanicException`` is a BaseException, so every
@@ -95,6 +97,25 @@ def _segment_kwargs_fingerprint(tree):
     return fingerprint
 
 
+def _class_types_fingerprint(tree):
+    """Full ``class_types`` set of every leaf segment.
+
+    ``to_tuple()`` and ``stringify()`` only record ``get_type()`` - a
+    segment's *primary* type. A bare-class ``Ref`` that wraps a matched
+    token in an ANCESTOR class (e.g. ``Ref("CodeSegment")`` over a
+    ``LiteralSegment`` value) can produce the right primary type via
+    ``instance_types`` while still losing class-level types from the
+    token's own lineage (e.g. ``literal``) that only appear in the full
+    ``class_types`` set - invisible to a ``to_tuple()``/``stringify()``
+    comparison alone (#8138).
+    """
+    return [
+        (seg.raw, tuple(sorted(seg.class_types)))
+        for seg in tree.recursive_crawl_all()
+        if not seg.segments
+    ]
+
+
 def _exception_capture(err):
     return (
         "exc",
@@ -116,6 +137,7 @@ def _tree_capture(tree):
         tree.raw,
         _segment_kwargs_fingerprint(tree),
         any(tree.recursive_crawl("unparsable")),
+        _class_types_fingerprint(tree),
     )
 
 
@@ -151,9 +173,10 @@ def parse_capture(engine, config, segments, fname="t.sql"):
     native-AST path).
     """
     from sqlfluff.core.parser import Parser
-    from sqlfluff.core.parser.rust_parser import set_native_ast
+    from sqlfluff.core.parser.rust_parser import get_native_ast, set_native_ast
 
     parser_cls = Parser if engine == "python" else RustParser
+    previous_native_ast = get_native_ast()
     if engine == "rust-native":
         set_native_ast(True)
     try:
@@ -161,7 +184,7 @@ def parse_capture(engine, config, segments, fname="t.sql"):
     except BaseException as err:  # PanicException is a BaseException
         return _exception_capture(err)
     finally:
-        set_native_ast(False)
+        set_native_ast(previous_native_ast)
     if tree is None:
         return ("none",)
     return _tree_capture(tree)
@@ -179,7 +202,7 @@ def linted_parse_capture(engine, sql, dialect="ansi", configs=None, context=None
     import re
 
     from sqlfluff.core import Linter
-    from sqlfluff.core.parser.rust_parser import set_native_ast
+    from sqlfluff.core.parser.rust_parser import get_native_ast, set_native_ast
 
     config = build_config(
         dialect=dialect,
@@ -193,12 +216,15 @@ def linted_parse_capture(engine, sql, dialect="ansi", configs=None, context=None
     for key, value in (context or {}).items():
         config.set_value(["templater", "jinja", "context", key], value)
 
+    previous_native_ast = get_native_ast()
     if engine == "rust-native":
         set_native_ast(True)
     try:
         parsed = Linter(config=config).parse_string(sql, fname="t.sql")
+    except BaseException as err:  # PanicException is a BaseException
+        return {"violations": [], "tree": None, "exc": _exception_capture(err)}
     finally:
-        set_native_ast(False)
+        set_native_ast(previous_native_ast)
 
     # A template that fails to render yields no parsed variants, and the
     # .tree property asserts on that - treat it as tree=None (the violations
@@ -216,6 +242,7 @@ def linted_parse_capture(engine, sql, dialect="ansi", configs=None, context=None
         capture["raw"] = tree.raw
         capture["segment_kwargs"] = _segment_kwargs_fingerprint(tree)
         capture["has_unparsable"] = any(tree.recursive_crawl("unparsable"))
+        capture["class_types"] = _class_types_fingerprint(tree)
     return capture
 
 
@@ -225,6 +252,8 @@ def _linted_capture_as_tuple(capture):
     Lets templated cases share the same expectation checks as plain parser
     cases.
     """
+    if capture.get("exc") is not None:
+        return capture["exc"]
     if capture["tree"] is None:
         message = "; ".join(msg for _, msg in capture["violations"])
         return ("exc", "TemplateOrParseFailure", message, None, None, None, None, None)
@@ -235,6 +264,7 @@ def _linted_capture_as_tuple(capture):
         capture["raw"],
         capture["segment_kwargs"],
         capture["has_unparsable"],
+        capture["class_types"],
     )
 
 

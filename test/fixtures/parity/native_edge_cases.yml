@@ -281,4 +281,5 @@ tsql_cast_structure:
   xfail:
     python_vs_rust: 'Known rust-core gap: structural divergence - Python parses the
       malformed CAST content as column_reference, Rust as function.'
-  pins: Fuzz-derived minimized repro.
+  pins: Structural divergence in malformed CAST content - Python parses it as
+    column_reference, Rust as function.
