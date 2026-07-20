@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ed4960348e96325dd5a4e302dd3016d53d6fc215645738473703a23ef88c18a7
+_hash: b69491eeb30a90ecd2d4ddeeb37ba2eea0e9d237e36fe309b6f3fc4c13b93a35
 file:
 - batch:
     statement:
@@ -23,7 +23,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: last_name
-                binary_operator: '%'
+                attribute_indicator: '%'
                 keyword: TYPE
             - comma: ','
             - naked_identifier: salary
@@ -32,7 +32,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: salary
-                binary_operator: '%'
+                attribute_indicator: '%'
                 keyword: TYPE
             - end_bracket: )
         - statement_terminator: ;
@@ -46,7 +46,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: salary
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: TYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -165,7 +165,7 @@ file:
             - naked_identifier: employees_temp
             - dot: .
             - naked_identifier: employee_id
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: TYPE
         - assignment_operator: :=
         - expression:
@@ -177,7 +177,7 @@ file:
             - naked_identifier: employees_temp
             - dot: .
             - naked_identifier: first_name
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: TYPE
         - assignment_operator: :=
         - expression:
@@ -189,7 +189,7 @@ file:
             - naked_identifier: employees_temp
             - dot: .
             - naked_identifier: last_name
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: TYPE
         - assignment_operator: :=
         - expression:
@@ -330,7 +330,7 @@ file:
               - naked_identifier: employees
               - dot: .
               - naked_identifier: employee_id
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: enums
@@ -348,7 +348,7 @@ file:
               - naked_identifier: employees
               - dot: .
               - naked_identifier: last_name
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: names
@@ -402,7 +402,7 @@ file:
                   - pipe: '|'
                   - pipe: '|'
                 - naked_identifier: SQL
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: ROWCOUNT
                 - binary_operator:
                   - pipe: '|'
@@ -491,7 +491,7 @@ file:
               - naked_identifier: employees
               - dot: .
               - naked_identifier: salary
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: old_sals
@@ -513,7 +513,7 @@ file:
               - naked_identifier: employees
               - dot: .
               - naked_identifier: last_name
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: names
@@ -580,7 +580,7 @@ file:
                   - pipe: '|'
                   - pipe: '|'
                 - naked_identifier: SQL
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: ROWCOUNT
                 - binary_operator:
                   - pipe: '|'
@@ -712,7 +712,7 @@ file:
               - naked_identifier: employees
               - dot: .
               - naked_identifier: employee_id
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: e_ids
@@ -730,7 +730,7 @@ file:
               - naked_identifier: employees
               - dot: .
               - naked_identifier: department_id
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: d_ids
@@ -805,7 +805,7 @@ file:
                   - pipe: '|'
                   - pipe: '|'
                 - naked_identifier: SQL
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: ROWCOUNT
                 - binary_operator:
                   - pipe: '|'
@@ -894,7 +894,7 @@ file:
               - naked_identifier: t1
               - dot: .
               - naked_identifier: description
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - collection_type:
@@ -908,7 +908,7 @@ file:
               - naked_identifier: t1
               - dot: .
               - naked_identifier: id
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - collection_type:
@@ -922,7 +922,7 @@ file:
               - naked_identifier: t1
               - dot: .
               - naked_identifier: description
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: l_desc_tab
@@ -1093,7 +1093,7 @@ file:
               - naked_identifier: emp
               - dot: .
               - naked_identifier: sal
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - collection_type:
@@ -1107,7 +1107,7 @@ file:
               - naked_identifier: emp
               - dot: .
               - naked_identifier: empno
-              binary_operator: '%'
+              attribute_indicator: '%'
               keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: l_empno

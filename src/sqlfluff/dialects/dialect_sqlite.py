@@ -1209,3 +1209,24 @@ class StatementSegment(ansi.StatementSegment):
         Ref("UpdateStatementSegment"),
         Bracketed(Ref("StatementSegment")),
     )
+
+
+class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
+    """A CTE Definition from a WITH statement.
+
+    https://sqlite.org/lang_with.html
+
+    Data-Modifying Statements (INSERT, UPDATE, DELETE) in WITH are
+    matched by ansi.SelectableGrammar > NonWithSelectableGrammar.
+    """
+
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("CTEColumnList", optional=True),
+        "AS",
+        Sequence(Ref.keyword("NOT", optional=True), "MATERIALIZED", optional=True),
+        Bracketed(
+            Ref("SelectableGrammar"),
+            parse_mode=ParseMode.GREEDY,
+        ),
+    )

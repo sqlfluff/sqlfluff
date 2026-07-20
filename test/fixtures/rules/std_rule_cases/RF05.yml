@@ -502,3 +502,25 @@ test_pass_pivot_snowflake_complex:
   configs:
     core:
       dialect: snowflake
+
+test_pass_tsql_single_quoted_alias:
+  # https://github.com/sqlfluff/sqlfluff/issues/6733
+  # The quote delimiters of a single-quoted alias are not special characters
+  # in the identifier itself.
+  pass_str: |
+    select
+        r.c.value('column[1]', 'varchar(10)') as 'Value'
+    from @xml.nodes('/rows/row') as r (c);
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_single_quoted_alias_special_chars:
+  # A genuinely special character inside a single-quoted alias still fails.
+  fail_str: |
+    select
+        r.c.value('column[1]', 'varchar(10)') as 'Va lue'
+    from @xml.nodes('/rows/row') as r (c);
+  configs:
+    core:
+      dialect: tsql

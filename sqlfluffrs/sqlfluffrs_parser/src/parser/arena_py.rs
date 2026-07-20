@@ -49,6 +49,16 @@ impl PyTree {
             node,
         }
     }
+
+    /// Run a closure with read access to the underlying arena.
+    ///
+    /// This is the bridge for out-of-crate consumers (e.g. the rules crate's
+    /// PyO3 bindings): it locks the arena once and hands a `&Arena` to `f`,
+    /// keeping the `Arc<Mutex<…>>` encapsulated here.
+    pub fn with_arena<R>(&self, f: impl FnOnce(&Arena) -> R) -> R {
+        let guard = self.inner.lock().unwrap();
+        f(&guard)
+    }
 }
 
 #[pymethods]

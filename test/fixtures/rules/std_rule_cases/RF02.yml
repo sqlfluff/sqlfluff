@@ -223,6 +223,28 @@ test_fail_unqualified_references_multi_table_statements_mysql:
     core:
       dialect: mysql
 
+test_pass_bigquery_normalized_whole_row_alias_references:
+  pass_str: |
+    SELECT FORMAT('%t', s1), s2.id
+    FROM main AS S1
+    JOIN secondary AS s2 ON S1.id = s2.id;
+
+    SELECT FORMAT('%t', `s1`), s2.id
+    FROM main AS `s1`
+    JOIN secondary AS s2 ON `s1`.id = s2.id
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_mysql_alias_named_unqualified_column:
+  fail_str: |
+    SELECT o, s.id
+    FROM orders AS o
+    JOIN shipments AS s ON o.id = s.order_id
+  configs:
+    core:
+      dialect: mysql
+
 test_fail_column_and_alias_same_name_mysql:
   # See issue #2169
   fail_str: |

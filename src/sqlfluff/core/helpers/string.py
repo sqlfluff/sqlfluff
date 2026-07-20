@@ -46,6 +46,10 @@ def split_colon_separated_string(in_str: str) -> tuple[tuple[str, ...], str]:
     (('foo', 'bar'), '{"k":"v"}')
     >>> split_colon_separated_string('foo:bar:[{"k":"v"}]')
     (('foo', 'bar'), '[{"k":"v"}]')
+
+    A two-character value ending in a colon is not a Windows path.
+    >>> split_colon_separated_string("foo:a:")
+    (('foo', 'a'), '')
     """
     config_path: list[str] = []
     leftover = in_str
@@ -65,7 +69,7 @@ def split_colon_separated_string(in_str: str) -> tuple[tuple[str, ...], str]:
 
 def should_split_on_colon(value: str) -> bool:
     """Heuristic for legit values containing comma."""
-    if len(value) >= 2 and value[1] == ":" and value[2] == "\\":
+    if len(value) >= 3 and value[1] == ":" and value[2] == "\\":
         # Likely a Windows path
         return False
     if len(value) >= 2 and (value[0] == "[" and value[-1] == "]"):

@@ -8,6 +8,11 @@ use crate::parser::{FrameContext, FrameState, MatchResult};
 use crate::vdebug;
 
 /// Result of frame processing - either finished or needs to push frame back
+// `Push(TableParseFrame)` is constructed and matched on every main-loop step of
+// the iterative parser; boxing it to shrink the enum would trade that for a heap
+// allocation per push on this hot path, which isn't worth it just to silence the
+// size lint.
+#[allow(clippy::large_enum_variant)]
 pub enum TableFrameResult {
     /// Frame processing is complete, don't push back
     Done,

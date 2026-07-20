@@ -71,3 +71,22 @@ test_pass_mysql_bracketed_data_types:
   configs:
     core:
       dialect: mysql
+
+test_pass_mysql_index_prefix_length:
+  # A column prefix length in an index shouldn't be spaced, same as a data type
+  # length. https://github.com/sqlfluff/sqlfluff/issues/4541
+  pass_str: |
+    CREATE TABLE test (blob_col BLOB, INDEX (blob_col(10)));
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mysql_index_prefix_length:
+  # The rule still enforces touch spacing on the prefix length.
+  fail_str: |
+    CREATE TABLE test (blob_col BLOB, INDEX (blob_col (10)));
+  fix_str: |
+    CREATE TABLE test (blob_col BLOB, INDEX (blob_col(10)));
+  configs:
+    core:
+      dialect: mysql

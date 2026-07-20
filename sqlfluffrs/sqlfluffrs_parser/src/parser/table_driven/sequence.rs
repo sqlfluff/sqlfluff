@@ -411,13 +411,18 @@ impl Parser<'_> {
         }
 
         // GREEDY modes with partial match - create UnparsableSegment
+        //
+        // NOTE: pass current_element_grammar_id here, the element that just
+        // failed to match, not the next element. Python's equivalent
+        // (skip_start_index_forward_to_code in grammar/sequence.py) always
+        // skips forward over any gap before the failed element, regardless of
+        // what comes after it, so mirroring that keeps trailing whitespace as
+        // a sibling gap even when the next element happens to be a Meta
+        // (e.g. Dedent).
         let child_start_pos = self.calculate_sequence_child_start_position(
             matched_idx,
             allow_gaps,
-            elements
-                .get(next_element_idx)
-                .copied()
-                .unwrap_or(current_element_grammar_id),
+            current_element_grammar_id,
             max_idx,
         );
 
@@ -458,9 +463,32 @@ impl Parser<'_> {
             element_desc, last_matched_token, error_token
         );
 
-        let unparsable_match = MatchResult {
+        // Keep the children/inserts already matched before this element
+        // failed as typed siblings (mirrors Python's Sequence.match "handle
+        // the case of a partial match"); only the unmatched tail becomes its
+        // own UnparsableSegment child appended alongside them.
+        //
+        // Deliberately not flushing `ctx.meta_buffer` here, unlike the
+        // sibling "ran out of tokens" branch above: Python's equivalent
+        // branch (grammar/sequence.py) has no such flush either, so a meta
+        // queued right before the failed element is dropped the same way.
+        let (insert_segments, mut child_matches) = {
+            let ctx = frame.context.as_sequence_mut().unwrap();
+            (
+                std::mem::take(&mut ctx.insert_segments),
+                std::mem::take(&mut ctx.child_matches),
+            )
+        };
+        child_matches.push(Arc::new(MatchResult {
             matched_slice: child_start_pos..max_idx,
             matched_class: Some(MatchedClass::unparsable(&error_message, child_start_pos)),
+            ..Default::default()
+        }));
+
+        let unparsable_match = MatchResult {
+            matched_slice: start_idx..max_idx,
+            insert_segments,
+            child_matches,
             ..Default::default()
         };
         let end_pos = unparsable_match.end();
@@ -767,7 +795,7 @@ impl Parser<'_> {
             {
                 // Skip to code token position
                 let _idx = self.skip_start_index_forward_to_code(matched_idx, max_idx);
-                let _stop_idx = self.skip_stop_index_backward_to_code(max_idx, _idx);
+                let _stop_idx = self.skip_stop_index_backward_to_code_or_comment(max_idx, _idx);
 
                 if _stop_idx > _idx {
                     vdebug!(

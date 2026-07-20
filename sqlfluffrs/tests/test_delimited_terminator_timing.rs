@@ -1,7 +1,7 @@
-/// Test cases to verify terminator timing behavior in Delimited grammar
-///
-/// This test suite explores the difference between Python's approach (check terminators
-/// BEFORE attempting match) vs Rust's approach (check terminators AFTER successful match).
+//! Test cases to verify terminator timing behavior in Delimited grammar
+//!
+//! This test suite explores the difference between Python's approach (check terminators
+//! BEFORE attempting match) vs Rust's approach (check terminators AFTER successful match).
 
 #[cfg(test)]
 mod delimited_terminator_tests {

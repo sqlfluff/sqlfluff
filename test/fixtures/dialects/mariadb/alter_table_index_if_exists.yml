@@ -1,0 +1,506 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 82feedabcad2cf59586287e4dfb67c4adec62c58f146d1c002ecf9d5a3d3727e
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        quoted_identifier: '`idx_old`'
+    - comma: ','
+    - keyword: ADD
+    - table_constraint:
+        keyword: INDEX
+        index_reference:
+          quoted_identifier: '`idx_new`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`a`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`b`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: INDEX
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - index_reference:
+          quoted_identifier: '`idx_new`'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`a`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`b`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: KEY
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - index_reference:
+          quoted_identifier: '`idx_new`'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`a`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`b`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: INDEX
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`a`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`b`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        quoted_identifier: '`idx_old`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: KEY
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        quoted_identifier: '`idx_old`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - column_definition:
+        quoted_identifier: '`c`'
+        data_type:
+          data_type_identifier: INT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - column_definition:
+        quoted_identifier: '`c`'
+        data_type:
+          data_type_identifier: INT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+        quoted_identifier: '`c`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+        quoted_identifier: '`c`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+        quoted_identifier: '`c`'
+    - column_definition:
+        quoted_identifier: '`d`'
+        data_type:
+          data_type_identifier: INT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: CHANGE
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+        quoted_identifier: '`c`'
+    - column_definition:
+        quoted_identifier: '`d`'
+        data_type:
+          data_type_identifier: INT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - column_definition:
+        quoted_identifier: '`c`'
+        data_type:
+          data_type_identifier: BIGINT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: MODIFY
+    - keyword: IF
+    - keyword: EXISTS
+    - column_definition:
+        quoted_identifier: '`c`'
+        data_type:
+          data_type_identifier: BIGINT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`a`'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '`pk`'
+      - keyword: PRIMARY
+      - keyword: KEY
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`a`'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: UNIQUE
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - index_reference:
+          quoted_identifier: '`uq`'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`a`'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: UNIQUE
+      - keyword: INDEX
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - index_reference:
+          quoted_identifier: '`uq`'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`a`'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '`uq`'
+      - keyword: UNIQUE
+      - keyword: KEY
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`a`'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: FOREIGN
+      - keyword: KEY
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - index_reference:
+          quoted_identifier: '`fk`'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`a`'
+          end_bracket: )
+      - keyword: REFERENCES
+      - column_reference:
+          quoted_identifier: '`y`'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`b`'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '`fk`'
+      - keyword: FOREIGN
+      - keyword: KEY
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`a`'
+          end_bracket: )
+      - keyword: REFERENCES
+      - column_reference:
+          quoted_identifier: '`y`'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`b`'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - index_reference:
+          quoted_identifier: '`ft`'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`a`'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: SPATIAL
+      - keyword: KEY
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - index_reference:
+          quoted_identifier: '`sp`'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`a`'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: FOREIGN
+    - keyword: KEY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        quoted_identifier: '`fk`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: CONSTRAINT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        quoted_identifier: '`chk`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ALTER
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        quoted_identifier: '`idx`'
+    - keyword: IGNORED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ALTER
+    - keyword: KEY
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        quoted_identifier: '`idx`'
+    - keyword: NOT
+    - keyword: IGNORED
+- statement_terminator: ;

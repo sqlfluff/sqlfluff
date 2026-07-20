@@ -27,7 +27,7 @@ sys.path.append(os.path.abspath("./_ext"))
 # (we use the config file to avoid actually loading any python here)
 with open("../../pyproject.toml", "rb") as config_file:
     config = tomllib.load(config_file)
-stable_version = config.get("tool.sqlfluff_docs", "stable_version")
+stable_version = config["tool"]["sqlfluff_docs"]["stable_version"]
 
 # -- Project information -----------------------------------------------------
 

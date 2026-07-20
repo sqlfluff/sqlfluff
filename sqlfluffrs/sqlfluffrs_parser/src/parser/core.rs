@@ -155,7 +155,9 @@ pub struct Parser<'a> {
     /// Used by conditional meta segments (e.g., indented_joins=true enables Indent/Dedent)
     pub(crate) indent_config: hashbrown::HashMap<&'static str, bool>,
     // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
-    regex_cache: hashbrown::HashMap<String, std::sync::Arc<RegexMode>>,
+    // Keyed by (pattern, case_insensitive): a RegexParser with `ignore_case=False`
+    // compiles the same pattern case-sensitively.
+    regex_cache: hashbrown::HashMap<(String, bool), std::sync::Arc<RegexMode>>,
     /// Memoizes a Ref's resolved child grammar (ref grammar_id -> child grammar_id).
     /// The resolution (element children / by-name dialect lookup) depends only on
     /// the Ref's grammar_id, but the same Ref is hit thousands of times per parse,
@@ -530,7 +532,7 @@ impl<'a> Parser<'a> {
         );
 
         match self.peek() {
-            Some(tok) if tok.raw().eq_ignore_ascii_case(&template) && tok.is_code() => {
+            Some(tok) if tok.raw().eq_ignore_ascii_case(template) && tok.is_code() => {
                 let token_pos = self.pos;
                 let configured_instance_types = configured_instance_type_ids
                     .iter()
@@ -652,7 +654,7 @@ impl<'a> Parser<'a> {
         );
 
         match self.peek() {
-            Some(tok) if tok.is_type(&[&template]) => {
+            Some(tok) if tok.is_type(&[template]) => {
                 // Capture all token-derived data before mutating self
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
@@ -703,7 +705,7 @@ impl<'a> Parser<'a> {
                     configured_instance_types.push(token_type.to_string());
                 }
 
-                let class_type = self.dialect.get_segment_type(&raw_class);
+                let class_type = self.dialect.get_segment_type(raw_class);
 
                 let (effective_segment_type, instance_types_vec) = if let Some(cls_type) =
                     class_type
@@ -717,7 +719,7 @@ impl<'a> Parser<'a> {
                     if !vec.iter().any(|t| t == cls_type) {
                         vec.push(cls_type.to_string());
                     }
-                    if template != cls_type && !vec.iter().any(|t| t == &template) {
+                    if template != cls_type && !vec.iter().any(|t| t == template) {
                         vec.push(template.to_string());
                     }
                     let effective_type = vec
@@ -1163,11 +1165,18 @@ impl<'a> Parser<'a> {
             }
         }
 
+        // Case-sensitive matching for `RegexParser(ignore_case=False)`.
+        // Default is case-insensitive; the template AND the
+        // anti-template share the parser's case mode.
+        let case_insensitive = !self.grammar_ctx.inst(grammar_id).flags.case_sensitive();
+
         let pattern = {
             let comp_key = normalize_for_compile(&pattern_str).to_string();
             self.regex_cache
-                .entry(comp_key.clone())
-                .or_insert_with(|| std::sync::Arc::new(RegexMode::new(&comp_key)))
+                .entry((comp_key.clone(), case_insensitive))
+                .or_insert_with(|| {
+                    std::sync::Arc::new(RegexMode::new_with_flags(&comp_key, case_insensitive))
+                })
                 .clone()
         };
 
@@ -1175,8 +1184,10 @@ impl<'a> Parser<'a> {
             let comp_key = normalize_for_compile(anti_str).to_string();
             Some(
                 self.regex_cache
-                    .entry(comp_key.clone())
-                    .or_insert_with(|| std::sync::Arc::new(RegexMode::new(&comp_key)))
+                    .entry((comp_key.clone(), case_insensitive))
+                    .or_insert_with(|| {
+                        std::sync::Arc::new(RegexMode::new_with_flags(&comp_key, case_insensitive))
+                    })
                     .clone(),
             )
         } else {
@@ -1198,14 +1209,14 @@ impl<'a> Parser<'a> {
                 // Check anti-pattern first (if present, should NOT match)
                 if let Some(ref anti) = anti_pattern {
                     vdebug!("RegexParser[table] checking anti-pattern against '{}'", raw);
-                    if anti.is_match(&raw) {
+                    if anti.is_match(raw) {
                         vdebug!("RegexParser[table] anti-pattern matched, returning Empty");
                         return Ok(MatchResult::empty_at(self.pos));
                     }
                 }
 
                 // Check main pattern
-                if pattern.is_match(&raw) {
+                if pattern.is_match(raw) {
                     let token_pos = self.pos;
 
                     vdebug!(
@@ -1358,10 +1369,21 @@ impl<'a> Parser<'a> {
         // Extract token_type from tables
         let tables = self.grammar_ctx.tables();
 
-        // Token stores token_type string id in aux_data at the instruction's
-        // aux_data_offsets index (the generator emits the type id there).
-        let token_type_id = tables.aux_data_offsets[grammar_id.get() as usize];
-        let token_type = tables.get_string(token_type_id).to_string();
+        // Token aux block: [type_id, class_name_id, flags, ct_count, ct_ids...].
+        // A bare class matches iff the token is already an isinstance, and is
+        // then kept unchanged (no re-mint). isinstance = class's _class_types ⊆
+        // token's class chain, plus is_code/is_comment/is_whitespace equality
+        // for raw targets (flags bit3): CodeSegment's chain is only {base,raw},
+        // so without the flags a whitespace/comment token passes the subset.
+        let (aux_start, aux_end) = aux_block_bounds(tables, grammar_id);
+        #[cfg(feature = "verbose-debug")]
+        let token_type = tables.get_string(tables.aux_data[aux_start]).to_string();
+        let class_flags = if aux_start + 2 < aux_end {
+            tables.aux_data[aux_start + 2]
+        } else {
+            0
+        };
+        let class_type_ids = read_string_ids_from_aux(tables, aux_start + 3, aux_end);
 
         vdebug!(
             "Token[table]: pos={}, token_type='{}'",
@@ -1369,24 +1391,40 @@ impl<'a> Parser<'a> {
             token_type
         );
 
+        let is_instance = |tok: &sqlfluffrs_types::Token| -> bool {
+            let chain = &tok.class_types;
+            if !class_type_ids
+                .iter()
+                .all(|id| chain.contains(tables.get_string(*id)))
+            {
+                return false;
+            }
+            if class_flags & 0b1000 != 0 {
+                tok.is_code() == (class_flags & 0b0001 != 0)
+                    && tok.is_comment() == (class_flags & 0b0010 != 0)
+                    && tok.is_whitespace() == (class_flags & 0b0100 != 0)
+            } else {
+                true
+            }
+        };
+
         match self.peek() {
-            Some(tok) if tok.is_type(&[&token_type]) => {
+            Some(tok) if is_instance(tok) => {
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
                 let raw = tok.raw().to_owned();
                 self.bump();
 
                 vdebug!(
-                    "Token[table] MATCHED: type='{}', raw='{}' at pos={}",
+                    "Token[table] MATCHED (instance, kept unchanged): type='{}', raw='{}' at pos={}",
                     token_type,
                     raw,
                     token_pos
                 );
 
-                // Return MatchResult spanning this single token
-                // The apply() method will retrieve token data from the tokens array
                 Ok(MatchResult {
                     matched_slice: token_pos..token_pos + 1,
+                    matched_class: None,
                     ..Default::default()
                 })
             }

@@ -253,3 +253,41 @@ class RsParser:
     def parse_match_result_from_tokens(
         self, tokens: List[RsToken]
     ) -> RsMatchResult: ...
+
+def cp01_violations(
+    tree: RsTree,
+    policy: str,
+    ignore_words: List[str] = ...,
+    ignore_templated: bool = ...,
+) -> List[Tuple[int, str]]:
+    """Detect CP01 (keyword capitalisation) violations natively over the arena.
+
+    Returns ``(leaf_index, fixed_raw)`` pairs; ``leaf_index`` is 1:1 with the
+    parse tree's ``raw_segments`` order.
+    """
+    ...
+
+def cp03_violations(
+    tree: RsTree,
+    policy: str,
+    ignore_words: List[str] = ...,
+    ignore_templated: bool = ...,
+) -> List[Tuple[int, str]]:
+    """Detect CP03 (function-name capitalisation) violations natively over the arena.
+
+    Same contract as ``cp01_violations``; ``policy`` additionally accepts
+    ``pascal``/``camel``/``snake``.
+    """
+    ...
+
+def cp04_violations(
+    tree: RsTree,
+    policy: str,
+    ignore_words: List[str] = ...,
+    ignore_templated: bool = ...,
+) -> List[Tuple[int, str]]:
+    """Detect CP04 (boolean/null literal capitalisation) violations natively over the arena.
+
+    Same contract as ``cp01_violations``.
+    """
+    ...

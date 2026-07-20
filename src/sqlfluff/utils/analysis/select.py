@@ -65,7 +65,7 @@ def _get_struct_alias_refs(segment: BaseSegment) -> set[int]:
                 # Collect all object_reference descendants - they are alias
                 # names, not real column references.
                 for ref in seg.recursive_crawl("object_reference"):
-                    struct_alias_ids.add(id(ref))
+                    struct_alias_ids.add(ref.uuid)
                 prev_was_index = False
     return struct_alias_ids
 
@@ -86,7 +86,7 @@ def _get_select_except_refs(segment: BaseSegment) -> set[int]:
         no_recursive_seg_type=["select_statement", "merge_statement"],
     ):
         for ref in except_clause.recursive_crawl("object_reference"):
-            except_ref_ids.add(id(ref))
+            except_ref_ids.add(ref.uuid)
     return except_ref_ids
 
 
@@ -105,12 +105,16 @@ def _get_hint_refs(segment: BaseSegment) -> set[int]:
         no_recursive_seg_type=["select_statement", "merge_statement"],
     ):
         for ref in hint.recursive_crawl("object_reference"):
-            hint_ref_ids.add(id(ref))
+            hint_ref_ids.add(ref.uuid)
     return hint_ref_ids
 
 
 def _get_object_references(
     segment: BaseSegment,
+    # Segment uuids to exclude (hint/struct-alias/except refs). Keyed by uuid,
+    # not id(): the RsSegment arena façade yields a fresh wrapper per crawl, so
+    # object identity isn't stable across the two crawls — uuid is (and it's
+    # exact per node on the native path too).
     exclude_ids: Optional[set[int]] = None,
 ) -> list[ObjectReferenceSegment]:
     return list(
@@ -123,7 +127,7 @@ def _get_object_references(
         # but should not be treated as column/table references for linting purposes
         if not _seg.is_type("collation_reference")
         # Exclude references that are aliases inside STRUCT() functions
-        and (exclude_ids is None or id(_seg) not in exclude_ids)
+        and (exclude_ids is None or _seg.uuid not in exclude_ids)
     )
 
 
@@ -244,7 +248,9 @@ def get_aliases_from_select(
     if not fc:
         # If there's no from clause then just abort.
         return None, None
-    assert isinstance(fc, (FromClauseSegment, JoinClauseSegment))
+    # Duck-type-safe check: works for both a native ``BaseSegment`` and the
+    # Rust-arena ``RsSegment`` façade (which is not an instance of these classes).
+    assert fc.is_type(FromClauseSegment.type, JoinClauseSegment.type)
     dialect_name = dialect.name if dialect else None
     aliases = get_from_clause_aliases(fc, dialect_name)
 

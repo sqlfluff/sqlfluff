@@ -43,10 +43,12 @@ teradata_dialect = ansi_dialect.copy_as(
 
 teradata_dialect.patch_lexer_matchers(
     [
-        # so it also matches 1.
+        # Match the ansi numeric literal form so scientific notation
+        # (1E10, 1.5e3) and leading-dot decimals (.5) lex as one token,
+        # while still matching a trailing dot (1.).
         RegexLexer(
             "numeric_literal",
-            r"([0-9]+(\.[0-9]*)?)",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             CodeSegment,
         ),
     ]
@@ -149,6 +151,7 @@ teradata_dialect.replace(
         Ref("NotEqualToSegment_b"),
         Ref("NotEqualToSegment_c"),
         Ref("LikeOperatorSegment"),
+        Ref("OverlapsOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
@@ -168,6 +171,10 @@ teradata_dialect.add(
     NotEqualToSegment_a=StringParser("NE", ComparisonOperatorSegment),
     NotEqualToSegment_b=StringParser("NOT=", ComparisonOperatorSegment),
     NotEqualToSegment_c=StringParser("^=", ComparisonOperatorSegment),
+    # Unlike the ANSI `overlaps_clause`, this binds two operands, so it also
+    # works where a boolean is expected (e.g. inside CASE WHEN).
+    # https://docs.teradata.com/r/kmuOwjp1zEYg98JsB8fu_A/3VIgdwHNVU~tsnNiIR1aEw
+    OverlapsOperatorSegment=StringParser("OVERLAPS", ComparisonOperatorSegment),
 )
 
 

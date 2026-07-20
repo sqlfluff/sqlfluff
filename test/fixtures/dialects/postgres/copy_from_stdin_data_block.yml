@@ -1,0 +1,27 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 506b3fa98eb678a444b699f3a11f97d35e3db9e1bc8bcd07137eec027502ac1b
+file:
+- postgres_copy_stdin_data_statement:
+    postgres_copy_stdin_data_statement: "COPY my_table (col1, col2) FROM stdin;\n\
+      1\tfoo\n2\tbar\n\\."
+- postgres_copy_stdin_data_statement:
+    postgres_copy_stdin_data_statement: "COPY public.bookshelves_books (username,\
+      \ work_id, bookshelf_id) FROM stdin;\nopenlibrary\t15298516\t1\nopenlibrary\t\
+      45310\t3\n\\."
+- postgres_copy_stdin_data_statement:
+    postgres_copy_stdin_data_statement: "COPY my_table (\n    col1,\n    col2\n)\n\
+      FROM STDIN\nWITH (FORMAT text);\n1\tfoo\n2\tbar\n\\."
+- postgres_copy_stdin_data_statement:
+    postgres_copy_stdin_data_statement: "COPY my_table FROM STDIN WITH (DELIMITER\
+      \ ';');\n1\tfoo\n2\tbar\n\\."
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+- statement_terminator: ;
