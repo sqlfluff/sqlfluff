@@ -8002,7 +8002,7 @@ class CreateStreamStatementSegment(BaseSegment):
                 "DYNAMIC",
                 "TABLE",
                 Ref("ObjectReferenceSegment"),
-            )
+            ),
         ),
         Ref("CommentEqualsClauseSegment", optional=True),
     )
