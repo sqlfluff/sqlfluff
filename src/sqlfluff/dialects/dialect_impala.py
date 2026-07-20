@@ -80,6 +80,23 @@ impala_dialect.replace(
             optional=True,
         ),
     ),
+    # Impala extends Hive file formats with Kudu (also used by SET FILEFORMAT).
+    FileFormatGrammar=OneOf(
+        "SEQUENCEFILE",
+        "TEXTFILE",
+        "RCFILE",
+        "ORC",
+        "PARQUET",
+        "AVRO",
+        "JSONFILE",
+        "KUDU",
+        Sequence(
+            "INPUTFORMAT",
+            Ref("QuotedLiteralSegment"),
+            "OUTPUTFORMAT",
+            Ref("QuotedLiteralSegment"),
+        ),
+    ),
 )
 
 impala_dialect.add(
