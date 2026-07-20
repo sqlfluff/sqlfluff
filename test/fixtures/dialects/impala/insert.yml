@@ -1,0 +1,109 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6a901b0a6669f3cb92d9f6fde8827c21f884a9e5feb71ff59793ed77a65b2579
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - start_square_bracket: '['
+    - keyword: SHUFFLE
+    - end_square_bracket: ']'
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: year
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '2024'
+        end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: src
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: t1
+    - start_square_bracket: '['
+    - keyword: NOSHUFFLE
+    - end_square_bracket: ']'
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: src
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: t1
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          comma: ','
+          quoted_literal: "'a'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '2'
+          comma: ','
+          quoted_literal: "'b'"
+          end_bracket: )
+- statement_terminator: ;

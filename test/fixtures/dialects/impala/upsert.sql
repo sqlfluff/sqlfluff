@@ -1,0 +1,4 @@
+UPSERT [SHUFFLE] INTO TABLE db.t1 (col1)
+  SELECT col1 FROM db.src;
+
+UPSERT INTO db.t1 VALUES (1, 'a');

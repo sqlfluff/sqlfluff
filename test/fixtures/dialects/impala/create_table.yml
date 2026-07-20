@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 31109752b72e9e04185357c787940f20b3a9e350e5d532c5b0cac132c1687c27
+_hash: fc12c92e8a0634cd1fbb19075f873761902039cb3fa222774ffacc65b2586530
 file:
 - statement:
     create_table_statement:
@@ -73,4 +73,61 @@ file:
             primitive_type:
               keyword: INT
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: kudu_t
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: val
+          data_type:
+            primitive_type:
+              keyword: STRING
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: HASH
+    - bracketed:
+        start_bracket: (
+        naked_identifier: id
+        end_bracket: )
+    - keyword: PARTITIONS
+    - numeric_literal: '4'
+    - keyword: STORED
+    - keyword: AS
+    - keyword: KUDU
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: like_t
+    - keyword: LIKE
+    - keyword: PARQUET
+    - quoted_literal: "'/data/sample.parquet'"
+    - keyword: CACHED
+    - keyword: IN
+    - quoted_literal: "'default_pool'"
 - statement_terminator: ;

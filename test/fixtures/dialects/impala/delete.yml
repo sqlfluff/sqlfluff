@@ -1,0 +1,73 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 33e6f7328107488183a0e4acb4f311eb3392e7963b8b62c08590441121b5869e
+file:
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: t1
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - table_reference:
+        naked_identifier: t1
+    - keyword: FROM
+    - from_expression:
+        from_expression_element:
+          table_expression:
+            table_reference:
+            - naked_identifier: db
+            - dot: .
+            - naked_identifier: t1
+          alias_expression:
+            naked_identifier: t1
+        join_clause:
+          keyword: JOIN
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: db
+              - dot: .
+              - naked_identifier: t2
+            alias_expression:
+              naked_identifier: t2
+          join_on_condition:
+            keyword: 'ON'
+            expression:
+            - column_reference:
+              - naked_identifier: t1
+              - dot: .
+              - naked_identifier: id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: t2
+              - dot: .
+              - naked_identifier: id
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: t2
+          - dot: .
+          - naked_identifier: active
+          comparison_operator:
+            raw_comparison_operator: '='
+          boolean_literal: 'true'
+- statement_terminator: ;

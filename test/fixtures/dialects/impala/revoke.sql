@@ -1,0 +1,3 @@
+REVOKE SELECT ON TABLE db.t1 FROM USER alice;
+
+REVOKE ROLE analyst FROM GROUP data_team;

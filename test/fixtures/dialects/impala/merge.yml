@@ -1,0 +1,87 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 68a071369bd3d3b40ff79fb62f93d5dc8c86305fd10be3529dfd30d9793dc313
+file:
+  statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: target
+    - alias_expression:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: source
+    - alias_expression:
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+              - column_reference:
+                  naked_identifier: val
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: s
+                - dot: .
+                - naked_identifier: val
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: id
+            - comma: ','
+            - column_reference:
+                naked_identifier: val
+            - end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: id
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: val
+              - end_bracket: )
+  statement_terminator: ;

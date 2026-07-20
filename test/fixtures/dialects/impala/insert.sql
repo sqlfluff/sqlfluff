@@ -1,0 +1,8 @@
+INSERT [SHUFFLE] INTO TABLE db.t1 (col1, col2)
+  PARTITION (year=2024)
+  SELECT col1, col2 FROM db.src;
+
+INSERT OVERWRITE TABLE db.t1 [NOSHUFFLE]
+  SELECT * FROM db.src;
+
+INSERT INTO db.t1 VALUES (1, 'a'), (2, 'b');
