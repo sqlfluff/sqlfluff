@@ -1,0 +1,39 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Repros for the Rust dialect-table codegen identity-cache collision:
+# build_parsers.py deduplicated grammars by id() without keeping the objects
+# alive, so a GC'd transient grammar's slot could be inherited by an
+# unrelated grammar at the same address, wiring a semantically wrong
+# subgrammar into the generated Rust tables (nondeterministically per build).
+# Each pins names the specific site covered.
+
+oracle_attribute_indicator_not_modulo:
+  sql: "DECLARE\n  v_x employees.employee_id%TYPE;\nBEGIN\n  NULL;\nEND;\n/\n"
+  dialect: oracle
+  pins: "oracle's Ref('AttributeIndicatorSegment') (the '%' in '%TYPE') picked
+    up a dead Ref('ModuloSegment') entry, typing '%' as binary_operator."
+oracle_cursor_attribute_indicator:
+  sql: "BEGIN\n  IF SQL%FOUND THEN\n    NULL;\n  END IF;\nEND;\n/\n"
+  dialect: oracle
+  pins: Cursor-attribute site of the oracle '%' collision.
+postgres_psql_variable_colon:
+  sql: SELECT :myvar
+  dialect: postgres
+  pins: "Ref('PsqlVariableColonSegment') collapsed to the plain colon."
+postgres_psql_variable_quoted:
+  sql: SELECT :'quoted_var'
+  dialect: postgres
+  pins: Quoted-variable site of the postgres colon collision.
+mysql_index_keypart_bracketed_arguments:
+  sql: 'CREATE INDEX idx ON t (c1(10));
+
+    '
+  dialect: mysql
+  pins: The index key-part length lost its bracketed_arguments wrapper class.
+mariadb_index_keypart_bracketed_arguments:
+  sql: 'CREATE INDEX idx ON t (c1(10));
+
+    '
+  dialect: mariadb
+  pins: mariadb inherits the mysql key-part grammar.

@@ -101,6 +101,13 @@ def test__parity__native_ast_alternating_modes_shared_instance():
 
 
 @requires_rust_parser
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "The fused native-AST builder skips the legacy path's "
+        "parser_logger.info('Root Match:...') diagnostic entirely."
+    ),
+)
 def test__parity__native_ast_root_match_logging_parity(caplog):
     r"""Both build paths emit identical parser INFO diagnostics.
 

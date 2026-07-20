@@ -1,0 +1,86 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Bracket resolution and GREEDY error-recovery parity (mostly issues #8116-#8121).
+
+partial_match_failure_keeps_children:
+  sql: SELECT CASE
+  xfail:
+    python_vs_rust: 'A GREEDY_ONCE_STARTED Sequence failing partway drops the already-matched children (the SELECT keyword) instead of keeping them typed, wrapping only the unmatched tail as unparsable - the Rust side drops accumulated child_matches/insert_segments in its error MatchResult, crashing rule ST05 (#8116).'
+  pins: GREEDY_ONCE_STARTED Sequence failing partway must keep the already-matched
+    children typed (the SELECT keyword), wrapping only the unmatched tail as unparsable
+    - the Rust side used to drop accumulated child_matches/insert_segments in its
+    error MatchResult, crashing rule ST05 (#8116).
+stray_closing_bracket_aborts_terminator_scan:
+  sql: SELECT 1) FROM t
+  pins: Python's next_ex_bracket_match aborts the terminator search entirely on an
+    unexpected closing bracket, claiming everything to EOF as unparsable; Rust greedy_match
+    used to keep scanning and find FROM as a terminator (#8117).
+stray_closing_bracket_dialect_bracket_set:
+  sql: SELECT 1 -} FROM t
+  dialect: snowflake
+  pins: A stray dialect-specific closing bracket (snowflake's MATCH_RECOGNIZE '-}')
+    must abort the terminator scan exactly like a stray ')'.
+  xfail:
+    python_vs_rust: "Known gap: greedy_match's stray-closing-bracket check (sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs)
+      recognises brackets by a hardcoded raw-text match on ASCII brackets, while
+      Python's next_ex_bracket_match looks up the dialect's bracket_pairs set -
+      so it misses dialect-specific brackets such as snowflake's MATCH_RECOGNIZE
+      exclude bracket '-}' and keeps scanning instead of aborting the terminator
+      search. Fixing it means threading the dialect's bracket set through greedy_match."
+unclosed_greedy_bracket_raises:
+  sql: WITH a AS (SELECT 1
+  pins: For ParseMode.GREEDY (CTE definitions, VALUES tuples) Python's Bracketed.match
+    always raises SQLParseError when no closing bracket arrives before EOF; Rust
+    used to quietly recover an unparsable tree (#8121).
+trailing_trivia_outside_unparsable:
+  sql: SELECT a FROM t WHERE a IN (1, )
+  pins: Trivia between a dangling trailing comma and the closing bracket of a GREEDY-mode
+    Delimited bracket stays a sibling outside the unparsable span, as Python keeps
+    it - Rust used to absorb it into the unparsable segment (#8118).
+mismatched_bracket_type_error_message:
+  sql: SELECT a[)
+  pins: A bracket closed by the wrong type ('[' closed by ')') raises Python's specific
+    'Found unexpected end bracket!' message, not the generic "Couldn't find closing
+    bracket" Rust used to give (#8119).
+nested_bracket_mismatch_raises:
+  sql: SELECT a[(1]
+  pins: "A nested bracket-type mismatch (unclosed '(' inside '[...]' closed by
+    ']') must raise 'Found unexpected end bracket!' in both engines: closers
+    must match the innermost opener, per Python's recursive resolve_bracket (#8120)."
+crossed_bracket_after_mismatch_a:
+  sql: SELECT a[(1]) ]
+  pins: Once a bracket-type mismatch occurs, every bracket still open at that point
+    stays unresolved even if a later closer would cross-match one of them - mirroring
+    resolve_bracket's raise unwinding through every enclosing bracket.
+crossed_bracket_after_mismatch_b:
+  sql: SELECT a[[1)]]
+  pins: Second shape of crossed_bracket_after_mismatch_a.
+unclosed_nested_bracket_error_position:
+  sql: SELECT a(b[1
+  pins: For brackets unclosed to EOF and nested two-plus levels deep, the "couldn't
+    find closing bracket" error must blame the innermost open bracket, matching resolve_bracket's
+    recursion.
+stray_bracket_discards_union_arm:
+  sql: SELECT a FROM t) UNION SELECT c
+  pins: "A stray ')' before UNION: Python discards the entire second arm of the
+    set operation as unparsable at UnorderedSelectStatementSegment's terminator
+    scan; Rust used to recover a proper set_expression with both arms."
+materialize_curly_cross_silent_recovery:
+  sql: COPY t FROM STDIN (FORMAT {-
+  dialect: materialize
+  xfail:
+    python_vs_rust: "Known rust-core gap: a stray opening '{' crossed with ')'
+      raises 'Found unexpected end bracket!' in Python but Rust quietly recovers
+      a tree."
+  pins: Fuzz-derived minimized repro.
+materialize_webhook_overlapping_matches:
+  sql: "(\n ) ( );\nCREATE SOURCE my_webhook_source IN CLUSTER my_cluster FROM WEBHOOK\n\
+    \ BODY FORMAT JSON\n (\n (\n my_webhook_share"
+  dialect: materialize
+  xfail:
+    python_vs_rust: "Known rust-core bug: the core emits OVERLAPPING child matches
+      for this input, so the Python-side builder raises its internal 'Segment skip
+      ahead error' ValueError instead of Python's SQLParseError. See also the invariants
+      case invariants.yml:materialize_webhook_overlap."
+  pins: Fuzz-derived minimized repro.

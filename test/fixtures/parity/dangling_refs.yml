@@ -1,0 +1,43 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# SQL-reachable repros for known dangling grammar refs (see also
+# grammar_test.py): Python's Ref raises RuntimeError the moment the branch is
+# attempted, while the generated Rust tables resolve the missing name to
+# Empty and silently fail the branch - identical SQL crashes one engine and
+# quietly produces an unparsable tree on the other. Each pins names the
+# specific site covered.
+
+ansi_grant_all_masking_policies:
+  sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
+  expect: error
+  xfail:
+    python_vs_rust: "Ansi grammar references the POLICIES keyword without registering it - Python's Ref raises RuntimeError the moment the branch is attempted, while Rust resolves the missing name to Empty and silently fails the branch."
+  pins: ansi grammar references the POLICIES keyword without registering it.
+ansi_grant_future_masking_policies:
+  sql: GRANT SELECT ON FUTURE MASKING POLICIES IN SCHEMA s TO r
+  expect: error
+  xfail:
+    python_vs_rust: 'FUTURE variant of the same POLICIES keyword gap.'
+  pins: FUTURE variant of the POLICIES keyword gap.
+ansi_grant_all_file_formats:
+  sql: GRANT SELECT ON ALL FILE FORMATS IN SCHEMA s TO r
+  expect: error
+  xfail:
+    python_vs_rust: 'Ansi grammar references the FORMATS keyword without registering it, the same dangling-ref class as the POLICIES gap.'
+  pins: ansi grammar references the FORMATS keyword without registering it.
+mysql_exchange_partition_table_reference:
+  sql: ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2 WITH VALIDATION
+  dialect: mysql
+  expect: error
+  xfail:
+    python_vs_rust: "Mysql EXCHANGE PARTITION grammar has Ref('TableReference') - a typo for TableReferenceSegment."
+  pins: "mysql EXCHANGE PARTITION has Ref('TableReference') - a typo for TableReferenceSegment."
+postgres_alter_foreign_table_column_keyword:
+  sql: ALTER FOREIGN TABLE ft ALTER COLUMN c OPTIONS (ADD opt 'v')
+  dialect: postgres
+  expect: error
+  xfail:
+    python_vs_rust: 'Postgres ALTER FOREIGN TABLE ... ALTER COLUMN grammar has a dangling keyword reference.'
+  pins: "postgres ALTER FOREIGN TABLE has Ref('COLUMN') - a segment ref where the
+    COLUMN keyword was intended."

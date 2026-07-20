@@ -1,0 +1,24 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Config plumbing that must reach both engines identically.
+
+int_typed_indentation_config:
+  sql: SELECT a FROM t JOIN u USING (a)
+  configs:
+    indentation.indented_joins: 1
+  expect: tree
+  xfail:
+    python_vs_rust: 'The ini config layer stores indented_joins=1 as int, not bool; RustParser.__init__ filters indentation config with isinstance(v, bool), silently dropping truthy int-typed settings so Conditional Indent/Dedent placement diverges for identical configuration.'
+  pins: The ini config layer stores indented_joins=1 as int, not bool. Python's ParseContext
+    coerces every indentation value with bool(); RustParser.__init__ filtered with
+    isinstance(v, bool), silently DROPPING truthy int-typed settings so Conditional
+    Indent/Dedent placement diverged for identical configuration. See also special_cases_test.py::test__parity__int_typed_indentation_config_stays_int.
+quoted_value_normalization_kwargs:
+  sql: SELECT CAST('RC Cola' AS varchar) AS brand FROM t
+  expect:
+  - tree
+  - quoted_kwargs
+  pins: "Quoted literals carry quoted_value/escape_replacement kwargs that rules
+    like RF06 consume; both build paths and both engines must thread identical values
+    (these lines were once wrongly marked 'pragma: no cover' as unreachable)."

@@ -1,0 +1,284 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Malformed / no-code / torture inputs outside the well-formed dialect corpus,
+# swept across the native-vs-legacy build-path pair (each pins names the
+# specific edge shape covered).
+
+unclosed_bracket_raises:
+  sql: SELECT (1 + 2
+  pins: Unclosed bracket raising SQLParseError.
+dangling_binary_operator:
+  sql: SELECT 1 +
+  pins: Partial expression wrapped as unparsable.
+bare_select:
+  sql: SELECT
+  pins: Single-keyword partial statement.
+bare_from:
+  sql: FROM t
+  pins: Statement starting mid-grammar.
+pure_token_soup:
+  sql: '!!!! ???'
+  pins: Fully unparsable input.
+soup_between_statements:
+  sql: SELECT 1; !!!! ; SELECT 2
+  pins: Unparsable statement between parsable ones.
+empty_file:
+  sql: ''
+  pins: Empty input (early-return path).
+whitespace_only:
+  sql: "   \n\t\n"
+  pins: Whitespace-only input.
+comment_only:
+  sql: '-- just a comment
+
+    '
+  pins: Comment-only input.
+lone_semicolon:
+  sql: ;
+  pins: Single statement terminator.
+semicolons_only:
+  sql: ;;;
+  pins: Empty statements.
+trailing_trivia_after_statement:
+  sql: "SELECT 1   \n-- comment\n   "
+  pins: Trailing non-code kept outside any unparsable wrap.
+comments_interleaved:
+  sql: /* c */ SELECT /* c2 */ 1 /* c3 */
+  pins: Block comments interleaved with code.
+empty_function_call:
+  sql: SELECT count() FROM t
+  pins: Zero-length bracket content (function args).
+empty_insert_columns_and_values:
+  sql: INSERT INTO t () VALUES ()
+  pins: Zero-length bracket content (insert).
+empty_over_clause:
+  sql: SELECT rank() OVER () FROM t
+  pins: Zero-length bracket content (window).
+empty_cte_body:
+  sql: WITH a AS () SELECT 1
+  pins: Zero-length bracket content (CTE).
+empty_cast_type:
+  sql: SELECT CAST(a AS ) FROM t
+  pins: Missing element inside brackets.
+empty_values_tuple:
+  sql: VALUES ()
+  pins: Zero-length bracket content (values).
+empty_select_parens:
+  sql: SELECT ()
+  pins: Empty parenthesised expression.
+empty_from_subquery:
+  sql: SELECT * FROM ()
+  pins: Empty subquery brackets.
+empty_create_table_columns:
+  sql: CREATE TABLE t ()
+  pins: Empty column definition list.
+crlf_line_endings:
+  sql: "SELECT a,\r\n b\r\nFROM t\r\n"
+  pins: CRLF newlines in position accounting.
+bare_cr_line_ending:
+  sql: "SELECT 1\rFROM t"
+  pins: Bare carriage return.
+unicode_identifiers:
+  sql: SELECT "héllo", "日本語" FROM t
+  pins: Multi-byte identifiers.
+emoji_literal:
+  sql: SELECT '🔥💥' FROM t
+  pins: Astral-plane characters in literals.
+wide_select_list:
+  sql: SELECT c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15,
+    c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26, c27, c28, c29, c30, c31,
+    c32, c33, c34, c35, c36, c37, c38, c39, c40, c41, c42, c43, c44, c45, c46, c47,
+    c48, c49, c50, c51, c52, c53, c54, c55, c56, c57, c58, c59, c60, c61, c62, c63,
+    c64, c65, c66, c67, c68, c69, c70, c71, c72, c73, c74, c75, c76, c77, c78, c79,
+    c80, c81, c82, c83, c84, c85, c86, c87, c88, c89, c90, c91, c92, c93, c94, c95,
+    c96, c97, c98, c99, c100, c101, c102, c103, c104, c105, c106, c107, c108, c109,
+    c110, c111, c112, c113, c114, c115, c116, c117, c118, c119, c120, c121, c122,
+    c123, c124, c125, c126, c127, c128, c129, c130, c131, c132, c133, c134, c135,
+    c136, c137, c138, c139, c140, c141, c142, c143, c144, c145, c146, c147, c148,
+    c149, c150, c151, c152, c153, c154, c155, c156, c157, c158, c159, c160, c161,
+    c162, c163, c164, c165, c166, c167, c168, c169, c170, c171, c172, c173, c174,
+    c175, c176, c177, c178, c179, c180, c181, c182, c183, c184, c185, c186, c187,
+    c188, c189, c190, c191, c192, c193, c194, c195, c196, c197, c198, c199 FROM t
+  pins: 200-element select list.
+many_statements:
+  sql: SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT
+    1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT
+    1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT
+    1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT
+    1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT
+    1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT
+    1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT
+    1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT
+    1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT
+    1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT 1;SELECT
+    1;SELECT 1;
+  pins: 100 statements in one file.
+many_union_arms:
+  sql: SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL
+    SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT
+    1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1
+    UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION
+    ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL
+    SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT
+    1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1
+    UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION
+    ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL
+    SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT
+    1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1
+    UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1
+  pins: 50-arm set expression.
+wide_in_list:
+  sql: SELECT 1 WHERE x IN (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199)
+  pins: 200-element IN list.
+wide_in_list_unclosed_trailing_comma:
+  sql: SELECT 1 WHERE x IN (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,
+  pins: Unclosed wide IN list with dangling comma.
+nested_case_closed:
+  sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE
+    WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE
+    WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN 0 END END END END END END END END
+    END END END END END END END END END END END END END END END END END END END END
+    END END
+  pins: 30-deep nested CASE.
+nested_case_unclosed:
+  sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE
+    WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE
+    WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN 0
+  pins: 30-deep nested CASE left unclosed.
+  xfail:
+    python_vs_rust: 'Known rust-core gap (found when this battery gained the python_vs_rust
+      leg): on an unclosed 30-deep nested CASE the Rust core burns through its maximum
+      iteration limit (3,000,000) and panics with PanicException, where Python recovers
+      an unparsable tree in ~0.1s - an error-recovery iteration blowup in the table-driven
+      matcher.'
+operator_soup:
+  sql: + - * / = < >
+  pins: Operators with nothing to bind.
+empty_bracket_pairs_soup:
+  sql: ()[]()[]
+  pins: Adjacent empty bracket pairs.
+crossed_bracket_soup:
+  sql: ([)](])([
+  pins: Crossed and unclosed brackets.
+tsql_batch_separators:
+  sql: 'SELECT 1
+
+    GO
+
+    SELECT 2
+
+    GO'
+  dialect: tsql
+  pins: Batch separators.
+tsql_go_soup:
+  sql: GO GO GO
+  dialect: tsql
+  pins: Batch separators with no batches.
+bigquery_typed_struct:
+  sql: SELECT STRUCT<a INT64>(1)
+  dialect: bigquery
+  pins: Typed struct constructor.
+bigquery_typed_struct_unclosed:
+  sql: SELECT STRUCT<a INT64(1)
+  dialect: bigquery
+  xfail:
+    python_vs_rust: "Same known gap as error_messages.yml:sequence_found_message_no_trailing_period: Rust appends a trailing period to 'Found <...>.' that Python's format doesn't have."
+  pins: Typed struct with unclosed angle bracket.
+snowflake_stage_and_positional:
+  sql: SELECT $1, $2 FROM @stage
+  dialect: snowflake
+  pins: Stage references and positional columns.
+postgres_unclosed_dollar_quote:
+  sql: SELECT $tag$unclosed
+  dialect: postgres
+  pins: Unclosed dollar-quoted literal.
+mysql_delimiter_command:
+  sql: 'DELIMITER //
+
+    SELECT 1//'
+  dialect: mysql
+  pins: Client DELIMITER command.
+duckdb_lambda:
+  sql: SELECT list_transform([1,2], x -> x + 1)
+  dialect: duckdb
+  pins: Lambda arrow syntax.
+sparksql_hint:
+  sql: SELECT /*+ BROADCAST(t) */ a FROM t
+  dialect: sparksql
+  pins: Optimizer hint comment.
+multi_statement_middle_garbage:
+  sql: 'SELECT 1;
+
+    GARBAGE HERE;
+
+    SELECT 2;
+
+    '
+  pins: Unparsable middle statement.
+multi_statement_middle_partial:
+  sql: 'SELECT 1;
+
+    SELECT CASE;
+
+    SELECT 2'
+  xfail:
+    python_vs_rust: "Same known gap as error_messages.yml:sequence_found_message_no_trailing_period: Rust appends a trailing period to 'Found <...>.' that Python's format doesn't have."
+  pins: Partially-matching middle statement.
+tsql_multi_batch_bad_middle:
+  sql: 'SELECT 1
+
+    GO
+
+    TOTALLY BAD )
+
+    GO
+
+    SELECT 2'
+  dialect: tsql
+  pins: Bad batch between good batches.
+bigquery_multi_statement_bad_middle:
+  sql: SELECT 1; SELECT STRUCT<a INT64(1); SELECT 2;
+  dialect: bigquery
+  xfail:
+    python_vs_rust: "Same known gap as error_messages.yml:sequence_found_message_no_trailing_period: Rust appends a trailing period to 'Found <...>.' that Python's format doesn't have."
+  pins: Unclosed struct in middle statement.
+snowflake_multi_statement_stray_exclude_bracket:
+  sql: SELECT 1; SELECT 1 -} FROM t; SELECT 2;
+  dialect: snowflake
+  pins: Stray dialect bracket in middle statement.
+  xfail:
+    python_vs_rust: "Known gap: greedy_match's stray-closing-bracket check (sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs)
+      recognises brackets by a hardcoded raw-text match on ASCII brackets, while
+      Python's next_ex_bracket_match looks up the dialect's bracket_pairs set -
+      so it misses dialect-specific brackets such as snowflake's MATCH_RECOGNIZE
+      exclude bracket '-}' and keeps scanning instead of aborting the terminator
+      search. Fixing it means threading the dialect's bracket set through greedy_match.
+      (Multi-statement site of bracket_recovery.yml:stray_closing_bracket_dialect_bracket_set.)"
+oracle_multi_statement_bad_middle:
+  sql: SELECT 1 FROM dual; BAD BAD (; SELECT 2 FROM dual;
+  dialect: oracle
+  pins: Garbage with unclosed bracket mid-file.
+clickhouse_multi_statement_bad_middle:
+  sql: SELECT 1; [[; SELECT 2;
+  dialect: clickhouse
+  pins: Unclosed square brackets mid-file.
+redshift_multi_statement_bad_middle:
+  sql: SELECT 1; (((; SELECT 2;
+  dialect: redshift
+  pins: Unclosed round brackets mid-file.
+tsql_cast_structure:
+  sql: select CAST(0X0 uniqueidentifier);
+  dialect: tsql
+  xfail:
+    python_vs_rust: 'Known rust-core gap: structural divergence - Python parses the
+      malformed CAST content as column_reference, Rust as function.'
+  pins: Fuzz-derived minimized repro.

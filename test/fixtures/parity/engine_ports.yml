@@ -1,0 +1,17 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Cases that pin a genuine Python-vs-Rust divergence uncovered while porting
+# sqlfluffrs/tests/*.rs coverage over; single-engine "does it parse" checks
+# from that pass live in the Rust suite itself (sqlfluffrs/tests/) and aren't
+# duplicated here.
+
+bigquery_exception_block_system_variable:
+  sql: "BEGIN\n  SELECT 100/0;\nEXCEPTION WHEN ERROR THEN\n  RAISE USING MESSAGE\
+    \ = FORMAT(\"Something went wrong: %s\", @@error.message);\nEND;"
+  dialect: bigquery
+  expect: clean_tree
+  xfail:
+    python_vs_rust: 'The Rust engine diverges from Python parsing a BigQuery EXCEPTION block that references the @@error.message system variable.'
+  pins: 'EXCEPTION block with @@error.message system variable
+    (see sqlfluffrs/tests/test_handle_exception.rs for the single-engine lex check).'

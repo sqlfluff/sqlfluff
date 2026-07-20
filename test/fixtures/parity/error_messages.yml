@@ -1,0 +1,71 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Parse-error message bytes and parser-created segment kwargs parity.
+
+container_segment_instance_types_crash:
+  sql: "CREATE OR REPLACE SCRIPT aschema.hello AS\n 'HELLO'\n/\n--\n"
+  dialect: exasol
+  pins: The ref-combining isinstance path attached the token's instance_types to
+    a CONTAINER class (ScriptContentSegment), which BaseSegment.__init__ rejects
+    - RustParser crashed with TypeError while Python parsed fine.
+found_token_class_name:
+  sql: SELECT ] FROM t
+  dialect: flink
+  xfail:
+    python_vs_rust: "'Found <...>' parse-error messages must display code-matched tokens as CodeSegment as Python does - Rust renders RawSegment instead."
+  pins: "'Found <...>' parse-error messages must display code-matched tokens as
+    CodeSegment as Python does - Rust rendered RawSegment."
+found_token_repr_quoting:
+  sql: SELECT '
+  xfail:
+    python_vs_rust: "Token raws in error messages must follow Python's repr() quote-selection rules - Rust uses escape_debug quoting instead."
+  pins: Token raws in error messages follow Python's repr() quote-selection rules
+    - Rust used escape_debug quoting.
+expected_message_curtailment:
+  sql: SELECT AS x
+  dialect: databricks
+  xfail:
+    python_vs_rust: "'Expected: <...>' grammar reprs must be curtailed like Python's (40 chars per element, 100 for the joined list) - Rust renders them in full."
+  pins: "'Expected: <...>' grammar reprs are curtailed like Python's - 40 chars
+    per element, 100 for the joined list - where Rust rendered them in full."
+parser_created_segments_drop_token_trim_chars:
+  sql: SET @errmsg = 'x';
+  dialect: mysql
+  xfail:
+    python_vs_rust: "Parser-created segments must inherit only quoted_value/escape_replacements/casefold from the lexed token, not trim_chars, matching RawSegment.from_result_segments - Rust forwards the token's trim_chars ('@',) instead."
+  pins: Parser-created segments inherit only quoted_value/escape_replacements/casefold
+    from the lexed token - NOT trim_chars - matching RawSegment.from_result_segments;
+    Rust used to forward the token's trim_chars ('@',).
+sequence_found_message_no_trailing_period:
+  sql: SELECT STRUCT<a INT64(1)
+  dialect: bigquery
+  xfail:
+    python_vs_rust: "Sequence error messages - Rust appends a trailing period to 'Found <...>.' that Python's format doesn't have."
+  pins: "Sequence error messages: Rust appended a trailing period to 'Found <...>.'
+    that Python's format doesn't have."
+sqlite_nothing_here_expected_message:
+  sql: "WITH cte AS (\n t\n)\nSELECT"
+  dialect: sqlite
+  xfail:
+    python_vs_rust: "Known rust-core gap: the unparsable 'Expected:' message says
+      'Nothing here.' where Python names the expected grammar element."
+  pins: Fuzz-derived minimized repro.
+depth_guard_error_position:
+  sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE
+    WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE
+    WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN 0 END END END END END
+    END END END END END END END END END END END END END END END END END END END END
+    END END END END END END END END END END END END END
+  xfail:
+    python_vs_rust: 'Known gap: for depth/complexity guard errors, the RustParser
+      pipeline anchors the SQLParseError at the token where the limit tripped (line/pos
+      set), while the pure-Python parser raises from ParseContext.deeper_match with
+      no segment anchor, so line_no/line_pos stay 0. Same exception type and message;
+      only the position attributes differ.'
+  pins: Depth-guard SQLParseError position anchoring difference.

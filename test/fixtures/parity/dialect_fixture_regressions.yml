@@ -1,0 +1,36 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Divergences found on well-formed, already-shipped dialect fixtures (sql_fixture points into test/fixtures/dialects/).
+
+databricks_pivot_indent_duplication:
+  sql_fixture: databricks/pivot.sql
+  dialect: databricks
+  pins: RustParser used to emit the grammar-level Indent that is a direct child of
+    PivotClauseSegment's Bracketed in addition to Bracketed's own structural Indent
+    (Python drops the grammar-level one), shifting every subsequent leaf (#8108).
+databricks_unpivot_indent_duplication:
+  sql_fixture: databricks/unpivot.sql
+  dialect: databricks
+  pins: Same Bracketed direct-child-meta issue as the pivot case, at UnpivotClauseSegment's
+    bracketed column-alias content.
+snowflake_numeric_literal_instance_type:
+  sql_fixture: snowflake/create_catalog_integration.sql
+  dialect: snowflake
+  pins: Ref('LiteralSegment') hits Python's isinstance fast path, preserving the
+    lexed token's numeric_literal type; Rust computed the override but only fed its
+    internal Node tree, not segment_kwargs.instance_types which the Python-facing
+    builder reads (#8122).
+tsql_datatype_method_case_sensitivity:
+  sql_fixture: tsql/datatype_methods.sql
+  dialect: tsql
+  pins: RustParser used to compile every RegexParser pattern case-insensitively,
+    ignoring ignore_case=False - tsql's lowercase-only DatatypeMethodNameIdentifierSegment
+    is also the exclude on FunctionNameIdentifierSegment, so case-mismatched names
+    matched the wrong branch.
+tsql_sqlcmd_command_token_types:
+  sql_fixture: tsql/sqlcmd_command.sql
+  dialect: tsql
+  pins: Inside sqlcmd_command_segment, word and double_quote tokens must keep their
+    lexer-assigned types - same instance_types-threading root cause as snowflake_numeric_literal_instance_type
+    (#8122).

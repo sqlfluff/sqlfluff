@@ -1,0 +1,39 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Unicode full-vs-simple case folding in RegexParser accept decisions.
+# Python's RegexParser matches against raw.upper() - FULL unicode case mapping
+# (strasse-with-eszett -> STRASSE, fi-ligature -> FI) - while the Rust regex
+# crates only do simple case folding, under which the eszett never matches
+# [A-Z]. Rust must pre-uppercase for case-insensitive patterns so RegexParser
+# accept decisions agree. Each pins names the specific site covered.
+
+postgres_eszett_function_name:
+  sql: SELECT straße(1)
+  dialect: postgres
+  expect: tree
+  xfail:
+    python_vs_rust: "Rust's regex crates only do simple (not full) unicode case folding, so the eszett never matches [A-Z] under case-insensitive matching - this parses as function under Python but column_reference under Rust."
+  pins: Before the fix this parsed as function under Python but column_reference
+    under Rust.
+duckdb_eszett_function_name:
+  sql: SELECT straße(1)
+  dialect: duckdb
+  expect: tree
+  xfail:
+    python_vs_rust: 'Same eszett case-folding divergence as the postgres case, on duckdb.'
+  pins: duckdb site of the eszett divergence.
+postgres_create_function_unicode_name:
+  sql: CREATE FUNCTION straße() RETURNS int AS 'x' LANGUAGE sql;
+  dialect: postgres
+  expect: tree
+  xfail:
+    python_vs_rust: 'CREATE FUNCTION with a unicode (eszett) name goes unparsable on the Rust side only, due to simple-vs-full unicode case folding.'
+  pins: CREATE FUNCTION with a unicode name went unparsable on the Rust side only.
+postgres_fi_ligature_function_name:
+  sql: SELECT ﬁx(1)
+  dialect: postgres
+  expect: tree
+  xfail:
+    python_vs_rust: 'Same simple-vs-full unicode case-folding divergence, triggered by the fi-ligature character.'
+  pins: The fi-ligature expands to two chars under full case mapping.

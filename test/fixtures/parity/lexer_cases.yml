@@ -1,0 +1,114 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# PyLexer vs PyRsLexer token-stream parity: pyo3 getters returned lists where
+# Python carries tuples, and six dialects configured trim_start as a bare
+# string (sparksql/flink '--') or parenthesised string (db2/exasol/postgres/
+# tsql '--') which the Rust codegen faithfully char-split instead of treating
+# as one marker. Each pins names the specific site covered.
+
+_meta:
+  kind: lexer
+ansi_inline_comment_trim_start:
+  sql: '-- a comment
+
+    SELECT 1'
+  xfail:
+    lexer: 'Pyo3 getters return lists for trim_start/trim_chars where Python carries tuples, so RawSegment construction disagrees between engines.'
+  pins: Baseline tuple-configured trim_start.
+mysql_hash_comment:
+  sql: '# hash comment
+
+    SELECT 1'
+  dialect: mysql
+  xfail:
+    lexer: "Same trim_start list-vs-tuple bridging gap, on mysql's multi-marker inline comment."
+  pins: Multi-marker inline comments (mysql '#').
+snowflake_slash_comment:
+  sql: '// slash comment
+
+    SELECT 1'
+  dialect: snowflake
+  xfail:
+    lexer: "Same trim_start list-vs-tuple bridging gap, on snowflake's multi-marker inline comment."
+  pins: Multi-marker inline comments (snowflake '//').
+sparksql_bare_string_trim_start:
+  sql: '-- c
+
+    SELECT 1'
+  dialect: sparksql
+  xfail:
+    lexer: "Sparksql configures trim_start as a bare string '--', which the Rust codegen faithfully char-splits instead of treating as one marker."
+  pins: Configured as bare string '--'.
+flink_bare_string_trim_start:
+  sql: '-- c
+
+    SELECT 1'
+  dialect: flink
+  xfail:
+    lexer: "Flink configures trim_start as a bare string '--', which the Rust codegen faithfully char-splits instead of treating as one marker."
+  pins: Configured as bare string '--'.
+db2_parenthesised_trim_start:
+  sql: '-- c
+
+    SELECT 1'
+  dialect: db2
+  xfail:
+    lexer: "Db2 configures trim_start as a parenthesised string ('--'), which the Rust codegen faithfully char-splits instead of treating as one marker."
+  pins: Configured as parenthesised string ('--').
+exasol_parenthesised_trim_start:
+  sql: '-- c
+
+    SELECT 1'
+  dialect: exasol
+  xfail:
+    lexer: "Exasol configures trim_start as a parenthesised string ('--'), which the Rust codegen faithfully char-splits instead of treating as one marker."
+  pins: Configured as parenthesised string ('--').
+postgres_parenthesised_trim_start:
+  sql: '-- c
+
+    SELECT 1'
+  dialect: postgres
+  xfail:
+    lexer: "Postgres configures trim_start as a parenthesised string ('--'), which the Rust codegen faithfully char-splits instead of treating as one marker."
+  pins: Configured as parenthesised string ('--').
+tsql_parenthesised_trim_start:
+  sql: '-- c
+
+    SELECT 1'
+  dialect: tsql
+  xfail:
+    lexer: "Tsql configures trim_start as a parenthesised string ('--'), which the Rust codegen faithfully char-splits instead of treating as one marker."
+  pins: Configured as parenthesised string ('--').
+bigquery_quoted_identifier_and_param:
+  sql: SELECT `col`, @param FROM t
+  dialect: bigquery
+  xfail:
+    lexer: 'trim_chars-carrying tokens bridge as lists instead of tuples between engines.'
+  pins: trim_chars-carrying tokens.
+snowflake_positional_and_stage:
+  sql: SELECT $1 FROM @stage
+  dialect: snowflake
+  pins: trim_chars-carrying tokens.
+bigquery_double_at_system_variable:
+  sql: '@@error.message'
+  dialect: bigquery
+  xfail:
+    lexer: "'@@' system variables do not yet lex as a single token stream identical to Python's."
+  pins: "Ported from sqlfluffrs/tests/test_double_at.rs: '@@' system variables
+    lex as a single token stream identical to Python's."
+unlexable_error_message_format:
+  sql: SELECT ¡ FROM t
+  pins: SQLLexError message formatting for unlexable characters (fixed upstream in
+    #8147; both engines now agree on the repr-quoted, truncated format).
+flink_multiple_escape_replacements:
+  sql: SELECT 'esc''aped'
+  dialect: flink
+  xfail:
+    lexer: "Known gap: the Rust lexer models quoted-literal escapes as a single pair
+      - utils/build_lexers.py takes escape_replacements[0] and drops the rest, and
+      the whole Rust pipeline (Token, RsMatchResult.escape_replacement) is singular.
+      Flink's single_quote lexer configures TWO replacement pairs, so Rust-lexed
+      string tokens lose the backslash-escape pair and quote normalization (rule
+      RF06) sees different data depending on the lexer."
+  pins: Plural escape_replacements must survive the Rust bridge.

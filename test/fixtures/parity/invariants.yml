@@ -1,0 +1,59 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Structural well-formedness of raw RsMatchResults (bounds, ordering, overlap,
+# zero-length rules) over the raw match result. Each pins names the specific
+# shape covered.
+
+_meta:
+  kind: invariants
+wellformed_select:
+  sql: SELECT a, b FROM t WHERE x = 1
+  pins: Well-formed baseline.
+partial_match:
+  sql: SELECT CASE
+  pins: Partial match shapes.
+stray_closing_bracket:
+  sql: SELECT 1) FROM t
+  pins: Stray-bracket recovery shapes.
+dangling_trailing_comma:
+  sql: SELECT a FROM t WHERE a IN (1, )
+  pins: GREEDY bracket leftover shapes.
+soup_between_statements:
+  sql: SELECT 1; !!!! ; SELECT 2
+  pins: Unparsable interleaving shapes.
+snowflake_stray_exclude_bracket:
+  sql: SELECT 1 -} FROM t
+  dialect: snowflake
+  pins: Dialect-specific bracket recovery shapes.
+tsql_go_soup:
+  sql: GO GO GO
+  dialect: tsql
+  pins: Batch separators with no batches.
+postgres_unicode_function:
+  sql: SELECT straße(1)
+  dialect: postgres
+  pins: Unicode case-folding parse path.
+materialize_webhook_overlap:
+  sql: "(\n ) ( );\nCREATE SOURCE s IN CLUSTER c FROM WEBHOOK\n BODY FORMAT JSON\n\
+    \ (\n"
+  dialect: materialize
+  xfail:
+    invariants: "Known rust-core bug: bracketed/script-content error recovery emits
+      OVERLAPPING child matches (the same token claimed as both the opening and closing
+      bracket child), found by invariant-fuzzing. Downstream this surfaces as
+      MatchResult.apply's 'Segment skip ahead error' ValueError instead of a parse error."
+  pins: Minimized overlap emission (bracketed recovery).
+exasol_script_overlap:
+  sql: 'CREATE SCRIPT s AS
+
+    (
+
+    '
+  dialect: exasol
+  xfail:
+    invariants: "Known rust-core bug: bracketed/script-content error recovery emits
+      OVERLAPPING child matches (the same token claimed as both the opening and closing
+      bracket child), found by invariant-fuzzing. Downstream this surfaces as
+      MatchResult.apply's 'Segment skip ahead error' ValueError instead of a parse error."
+  pins: Minimized overlap emission (script content).

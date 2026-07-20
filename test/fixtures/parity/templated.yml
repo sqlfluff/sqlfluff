@@ -1,0 +1,91 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Jinja-templated sources: TemplateSegment placeholder tokens and the
+# Linter-driven parse path. Each pins names the specific templating shape
+# covered.
+
+substituted_variables:
+  sql: SELECT {{ col }} FROM {{ table }}
+  templater: jinja
+  context: &id001
+    col: a
+    table: t
+  pins: Plain variable substitution.
+if_block_placeholder:
+  sql: SELECT a{% if true %}, b{% endif %} FROM t
+  templater: jinja
+  context: *id001
+  pins: Block placeholders with block_uuid metadata.
+for_loop_repetition:
+  sql: SELECT {% for c in ['a','b'] %}{{ c }},{% endfor %} d FROM t
+  templater: jinja
+  context: *id001
+  pins: Loop repetition in the source map.
+comment_only_template:
+  sql: '{# note #}SELECT 1'
+  templater: jinja
+  context: *id001
+  pins: Template comment before code.
+set_only_template:
+  sql: '{% set x = 1 %}'
+  templater: jinja
+  context: *id001
+  pins: Template that renders to no code.
+malformed_rendered_sql:
+  sql: SELECT {{ col }} FROM
+  templater: jinja
+  context: *id001
+  pins: Rendered SQL is malformed.
+unclosed_if_block:
+  sql: SELECT a {% if x %} FROM t
+  templater: jinja
+  context: *id001
+  pins: Unclosed block (templating violation).
+unclosed_for_block:
+  sql: '{% for i in range(3) %}SELECT {{ i }};'
+  templater: jinja
+  context: *id001
+  pins: Unclosed loop (templating violation).
+jinja_syntax_error:
+  sql: SELECT {{ 1 + }} FROM t
+  templater: jinja
+  context: *id001
+  pins: Jinja syntax error (no tree at all).
+undefined_variable:
+  sql: SELECT {{ undefined_var }} FROM t
+  templater: jinja
+  context: *id001
+  pins: Undefined variable renders empty.
+empty_block_mid_statement:
+  sql: SELECT 1{% if true %}{% endif %}
+  templater: jinja
+  context: *id001
+  pins: Block rendering to nothing mid-statement.
+empty_block_only:
+  sql: '{% if true %}{% endif %}'
+  templater: jinja
+  context: *id001
+  pins: Whole source renders to nothing.
+raw_block_survives:
+  sql: '{% raw %}SELECT {{ not_a_var }}{% endraw %} FROM t'
+  templater: jinja
+  context: *id001
+  xfail:
+    python_vs_rust: "Same known gap as error_messages.yml:found_token_class_name: 'Found <...>' parse-error messages must display code-matched tokens as CodeSegment as Python does - Rust renders RawSegment instead."
+  pins: 'Raw block: template syntax surviving into SQL.'
+escaped_block_marker:
+  sql: '{{ ''{%'' }} SELECT 1'
+  templater: jinja
+  context: *id001
+  pins: Escaped block marker in output.
+macro_expansion:
+  sql: '{% macro m(x) %}{{ x }} + 1{% endmacro %}SELECT {{ m(2) }}'
+  templater: jinja
+  context: *id001
+  pins: Macro definition and call.
+loop_multi_statement:
+  sql: '{% for i in range(3) %}SELECT {{ i }};{% endfor %}'
+  templater: jinja
+  context: *id001
+  pins: Loop expanding to multi-statement SQL.

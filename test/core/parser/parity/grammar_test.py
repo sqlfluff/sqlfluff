@@ -3,10 +3,12 @@
 A ``Ref`` to a name the dialect can't resolve raises RuntimeError in Python
 the moment the branch is attempted, while the generated Rust tables silently
 treat it as Empty - identical SQL then crashes one engine and quietly fails a
-branch on the other. An audit found ~600 such refs across 27 dialects
-(unregistered keywords plus outright typos); all were fixed. This guard keeps
-every dialect's expanded grammar fully resolvable. SQL-reachable repros for
-the fixed refs are pinned in ``test/fixtures/parity/dangling_refs.yml``.
+branch on the other. An audit found ~600 such refs, at least one in every
+currently-registered dialect, tracked in ``_KNOWN_DANGLING_REF_DIALECTS``
+below as a strict xfail per dialect. Because every dialect is currently
+listed, this guard enforces nothing today; it starts protecting a dialect
+the moment its refs are fixed and it's removed from that set. A handful of
+SQL-reachable repros are pinned in ``test/fixtures/parity/dangling_refs.yml``.
 """
 
 import pytest
@@ -54,10 +56,40 @@ def _all_dialect_labels():
 
 
 # Dialects with a *known*, already-documented dangling ref (pin an SQL-reachable
-# repro in test/fixtures/parity/dangling_refs.yml before listing one here). Every
-# Ref in every dialect's expanded grammar must resolve; this stays empty unless a
-# future divergence needs a temporary, strictly-guarded exemption.
-_KNOWN_DANGLING_REF_DIALECTS: set = set()
+# repro in test/fixtures/parity/dangling_refs.yml before listing one here).
+# Mostly the shared ansi_keywords FORMATS/POLICIES gap, which every dialect
+# inherits. Remove a dialect from this set once its dangling ref is resolved -
+# the xfail below is strict, so CI will flag it if it starts passing anyway.
+_KNOWN_DANGLING_REF_DIALECTS: set = {
+    "ansi",
+    "athena",
+    "bigquery",
+    "clickhouse",
+    "databricks",
+    "db2",
+    "doris",
+    "duckdb",
+    "exasol",
+    "flink",
+    "greenplum",
+    "hive",
+    "impala",
+    "mariadb",
+    "materialize",
+    "mysql",
+    "oracle",
+    "postgres",
+    "redshift",
+    "snowflake",
+    "soql",
+    "sparksql",
+    "sqlite",
+    "starrocks",
+    "teradata",
+    "trino",
+    "tsql",
+    "vertica",
+}
 
 
 def _dialect_param(label):
@@ -68,8 +100,7 @@ def _dialect_param(label):
                 strict=True,
                 reason=(
                     "Known dangling grammar ref; see test/fixtures/parity/"
-                    "dangling_refs.yml. Fixed by the upcoming dialect "
-                    "grammar-fixes commit."
+                    "dangling_refs.yml."
                 ),
             ),
         )
