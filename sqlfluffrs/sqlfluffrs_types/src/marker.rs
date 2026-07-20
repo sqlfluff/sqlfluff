@@ -177,7 +177,15 @@ impl PositionMarker {
 
     #[must_use]
     pub fn from_points(start_marker: &PositionMarker, end_marker: &PositionMarker) -> Self {
-        if start_marker.templated_file != end_marker.templated_file {
+        // Markers within one parse almost always share the same underlying
+        // `Arc` allocation, so check that cheaply first. Only fall back to
+        // `TemplatedFile`'s derived `PartialEq` (an O(file size) comparison)
+        // when the pointers differ, so two markers backed by distinct but
+        // content-identical `Arc<TemplatedFile>` allocations still compare
+        // equal, matching the pre-pointer-comparison behavior.
+        if !Arc::ptr_eq(&start_marker.templated_file, &end_marker.templated_file)
+            && start_marker.templated_file != end_marker.templated_file
+        {
             panic!("Markers must refer to the same templated file.");
         }
 
@@ -205,11 +213,16 @@ impl PositionMarker {
             templated_start = templated_start.min(marker.templated_slice.start);
             templated_stop = templated_stop.max(marker.templated_slice.stop);
 
-            if templated_file.is_none() {
-                templated_file = Some(marker.templated_file.clone());
-            }
-            if templated_file.as_ref() != Some(&marker.templated_file) {
-                panic!("Markers must refer to the same templated file.");
+            match &templated_file {
+                None => templated_file = Some(marker.templated_file.clone()),
+                // Pointer-eq fast path with value-eq fallback: see the
+                // comment in `from_points` above.
+                Some(tf)
+                    if !Arc::ptr_eq(tf, &marker.templated_file) && *tf != marker.templated_file =>
+                {
+                    panic!("Markers must refer to the same templated file.");
+                }
+                Some(_) => {}
             }
         }
 

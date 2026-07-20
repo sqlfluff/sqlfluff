@@ -2960,3 +2960,18 @@ test_pass_issue_7543_indentation:
       indented_using_on: true
       template_blocks_indent: true
       implicit_indents: require
+
+test_pass_mysql_group_by_with_rollup_indented:
+  # `WITH ROLLUP` stays inside the GROUP BY indentation block (#8066); it must
+  # not be dedented onto its own line.
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM t
+    GROUP BY
+        a,
+        b WITH ROLLUP
+  configs:
+    core:
+      dialect: mysql

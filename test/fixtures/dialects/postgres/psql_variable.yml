@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c720fe8f98cdb0a19156a0c598ca590f1acc80bc7e6c9d6fa120243035cf06a1
+_hash: 331d86274fee652e2a25d23ba94cb8a30073ee0d7e891a8d6a6c3a9301d7478f
 file:
 - statement:
     select_statement:
@@ -88,7 +88,7 @@ file:
               start_bracket: (
               expression:
                 psql_variable:
-                  colon: ':'
+                  psql_variable_colon: ':'
                   parameter: m1
               end_bracket: )
             casting_operator: '::'
@@ -113,7 +113,7 @@ file:
                       start_bracket: (
                       expression:
                         psql_variable:
-                          colon: ':'
+                          psql_variable_colon: ':'
                           parameter: a
                       end_bracket: )
                     casting_operator: '::'
@@ -206,7 +206,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - psql_variable:
-            colon: ':'
+            psql_variable_colon: ':'
             quoted_literal: "'m1'"
         - binary_operator: AND
         - column_reference:
@@ -223,7 +223,7 @@ file:
               - start_bracket: (
               - expression:
                   psql_variable:
-                    colon: ':'
+                    psql_variable_colon: ':'
                     quoted_literal: "'a'"
               - comma: ','
               - expression:

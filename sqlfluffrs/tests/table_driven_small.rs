@@ -28,7 +28,7 @@ fn parse_and_find(sql: &str, grammar_name: &str, expected: &str) -> bool {
     let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let mr = parser
         .parse_table_iterative_match_result(segment_grammar.grammar_id, &[])
-        .expect("parse_table_driven_iterative should not error");
+        .expect("parse_iterative should not error");
 
     println!("PARSE_MR for '{}': {}", sql, mr);
 

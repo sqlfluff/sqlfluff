@@ -1,5 +1,7 @@
 """Implementation of Rule ST04."""
 
+from typing import cast
+
 from sqlfluff.core.parser import BaseSegment, Indent, NewlineSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -180,9 +182,12 @@ class Rule_ST04(BaseRule):
         if (
             seg_indent
             and (segment_indent := seg_indent.get())
-            and isinstance(segment_indent, Indent)
+            and segment_indent.is_type("indent")
         ):
-            indent_level = segment_indent.indent_val + 1
+            # is_type("indent") matches both Indent and Dedent (Dedent subclasses
+            # Indent); the cast is for typing only — `indent_val` exists on both
+            # `Indent` and the RsSegment façade at runtime.
+            indent_level = cast(Indent, segment_indent).indent_val + 1
         indent_str = (
             "".join(seg.raw for seg in leading_whitespace)
             if leading_whitespace

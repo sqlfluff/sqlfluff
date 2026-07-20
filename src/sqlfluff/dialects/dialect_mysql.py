@@ -36,6 +36,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_mysql_keywords import (
@@ -371,6 +372,21 @@ mysql_dialect.add(
 )
 
 
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
+    """A MySQL `GROUP BY` clause, adding the `WITH ROLLUP` modifier.
+
+    https://dev.mysql.com/doc/refman/8.0/en/group-by-modifiers.html
+    """
+
+    match_grammar = ansi.GroupByClauseSegment.match_grammar.copy(
+        insert=[Sequence("WITH", "ROLLUP", optional=True)],
+        # Insert before ANSI's trailing ``Dedent`` so ``WITH ROLLUP`` stays
+        # inside the ``GROUP BY`` indentation block rather than escaping it and
+        # dedenting onto its own line (review feedback on #8066).
+        before=Dedent,
+    )
+
+
 class TableReferenceSegment(ansi.TableReferenceSegment):
     """A reference to a table.
 
@@ -437,6 +453,119 @@ class CurrentTimestampLikeFunctionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("CurrentTimestampLikeFunctionNameSegment"),
         Ref("CurrentTimestampLikeFunctionContentsSegment"),
+    )
+
+
+class JsonTableColumnsClauseSegment(BaseSegment):
+    """The COLUMNS clause in a JSON_TABLE function.
+
+    The column names defined here describe the shape of the table produced by
+    JSON_TABLE; they are not references to columns of an outer table, so they
+    are modelled as identifiers rather than column references.
+
+    https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html
+    """
+
+    type = "json_table_columns_clause"
+
+    # A single column definition. Defined locally because it is only used
+    # inside this clause; the NESTED branch recurses through the clause itself.
+    _column_definition: Matchable = OneOf(
+        # name FOR ORDINALITY
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            "FOR",
+            "ORDINALITY",
+        ),
+        # NESTED [PATH] path COLUMNS (...)
+        Sequence(
+            "NESTED",
+            Ref.keyword("PATH", optional=True),
+            Ref("QuotedLiteralSegment"),
+            Ref("JsonTableColumnsClauseSegment"),
+        ),
+        # name type [EXISTS] PATH path [on_empty] [on_error]
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment"),
+            OneOf(
+                Sequence("EXISTS", "PATH", Ref("QuotedLiteralSegment")),
+                Sequence(
+                    "PATH",
+                    Ref("QuotedLiteralSegment"),
+                    # on_empty / on_error handlers, in either order
+                    AnyNumberOf(
+                        Sequence(
+                            OneOf(
+                                "NULL",
+                                "ERROR",
+                                Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
+                            ),
+                            "ON",
+                            OneOf("EMPTY", "ERROR"),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "COLUMNS",
+        Bracketed(
+            Delimited(
+                _column_definition,
+            ),
+        ),
+    )
+
+
+class JsonTableFunctionContentsSegment(BaseSegment):
+    """JSON_TABLE function contents.
+
+    https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("QuotedLiteralSegment"),
+        Ref("JsonTableColumnsClauseSegment"),
+    )
+
+
+class JsonTableFunctionNameSegment(BaseSegment):
+    """JSON_TABLE function name segment.
+
+    Specified as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "JSON_TABLE", WordSegment, type="function_name_identifier"
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function, with JSON_TABLE and JSON_VALUE support."""
+
+    match_grammar = ansi.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("JsonTableFunctionNameSegment"),
+                Ref("JsonTableFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("JsonValueFunctionNameSegment"),
+                Ref("JsonValueFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("ConvertFunctionNameSegment"),
+                Ref("ConvertFunctionContentsSegment"),
+            ),
+        ],
+        at=0,
     )
 
 
@@ -1323,7 +1452,7 @@ mysql_dialect.add(
                     Ref("ColumnReferenceSegment"),
                     Sequence(
                         Ref("ColumnReferenceSegment"),
-                        Bracketed(Ref("NumericLiteralSegment")),
+                        Ref("IndexColumnPrefixLengthSegment"),
                     ),
                     Bracketed(Ref("ExpressionSegment")),
                 ),
@@ -1378,6 +1507,20 @@ mysql_dialect.insert_lexer_matchers(
     ],
     before="greater_than",
 )
+
+
+class IndexColumnPrefixLengthSegment(BaseSegment):
+    """A column prefix length in an index key part, e.g. `col(10)`.
+
+    Only a single numeric literal is valid here. Typed as `bracketed_arguments`
+    so LT01 lets it touch the column name like a data type length such as
+    `VARCHAR(255)`, rather than a plain bracket.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-index.html#create-index-column-prefixes
+    """
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(Ref("NumericLiteralSegment"))
 
 
 class RoleReferenceSegment(ansi.RoleReferenceSegment):
@@ -2833,6 +2976,80 @@ class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
                 OneOf("DEFAULT", "NONE", "SHARED", "EXCLUSIVE"),
             ),
             optional=True,
+        ),
+    )
+
+
+class JsonValueFunctionNameSegment(BaseSegment):
+    """JSON_VALUE function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "JSON_VALUE", KeywordSegment, type="function_name_identifier"
+    )
+
+
+class JsonValueFunctionContentsSegment(BaseSegment):
+    """JSON_VALUE function contents.
+
+    JSON_VALUE(json_doc, path [RETURNING type] [on_empty] [on_error])
+
+    https://dev.mysql.com/doc/refman/8.4/en/json-search-functions.html#function_json-value
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),
+        Sequence(
+            "RETURNING",
+            Ref("DatatypeSegment"),
+            Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment"), optional=True),
+            optional=True,
+        ),
+        # [on_empty] [on_error]: {NULL | ERROR | DEFAULT value} ON {EMPTY | ERROR}
+        AnyNumberOf(
+            Sequence(
+                OneOf("NULL", "ERROR", Sequence("DEFAULT", Ref("ExpressionSegment"))),
+                "ON",
+                OneOf("EMPTY", "ERROR"),
+            ),
+            max_times=2,
+        ),
+    )
+
+
+class ConvertFunctionNameSegment(BaseSegment):
+    """CONVERT function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "CONVERT", KeywordSegment, type="function_name_identifier"
+    )
+
+
+class ConvertFunctionContentsSegment(BaseSegment):
+    """CONVERT function contents.
+
+    CONVERT(expr, type)
+    CONVERT(expr USING transcoding_name)
+
+    https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_convert
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        OneOf(
+            Sequence(Ref("CommaSegment"), Ref("DatatypeSegment")),
+            Sequence("USING", OneOf("BINARY", Ref("NakedIdentifierSegment"))),
         ),
     )
 

@@ -43,10 +43,12 @@ teradata_dialect = ansi_dialect.copy_as(
 
 teradata_dialect.patch_lexer_matchers(
     [
-        # so it also matches 1.
+        # Match the ansi numeric literal form so scientific notation
+        # (1E10, 1.5e3) and leading-dot decimals (.5) lex as one token,
+        # while still matching a trailing dot (1.).
         RegexLexer(
             "numeric_literal",
-            r"([0-9]+(\.[0-9]*)?)",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             CodeSegment,
         ),
     ]
@@ -149,6 +151,7 @@ teradata_dialect.replace(
         Ref("NotEqualToSegment_b"),
         Ref("NotEqualToSegment_c"),
         Ref("LikeOperatorSegment"),
+        Ref("OverlapsOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
@@ -168,6 +171,10 @@ teradata_dialect.add(
     NotEqualToSegment_a=StringParser("NE", ComparisonOperatorSegment),
     NotEqualToSegment_b=StringParser("NOT=", ComparisonOperatorSegment),
     NotEqualToSegment_c=StringParser("^=", ComparisonOperatorSegment),
+    # Unlike the ANSI `overlaps_clause`, this binds two operands, so it also
+    # works where a boolean is expected (e.g. inside CASE WHEN).
+    # https://docs.teradata.com/r/kmuOwjp1zEYg98JsB8fu_A/3VIgdwHNVU~tsnNiIR1aEw
+    OverlapsOperatorSegment=StringParser("OVERLAPS", ComparisonOperatorSegment),
 )
 
 
@@ -212,6 +219,24 @@ class BteqKeyWordSegment(BaseSegment):
     )
 
 
+class BteqFilePathSegment(BaseSegment):
+    """An unquoted file path used by BTEQ commands such as ``.RUN FILE=``.
+
+    BTEQ accepts bare file paths (e.g. ``POSTING``, ``reports/out.sql``,
+    ``../posting.sql``) as well as quoted ones. Model the unquoted form from
+    existing tokens rather than lexing paths as a single token.
+    """
+
+    type = "bteq_file_path"
+    match_grammar = AnyNumberOf(
+        Ref("SingleIdentifierGrammar"),
+        Ref("DotSegment"),
+        Ref("SlashSegment"),
+        min_times=1,
+        allow_gaps=False,
+    )
+
+
 class BteqStatementSegment(BaseSegment):
     """Bteq statements start with a dot, followed by a Keyword.
 
@@ -220,6 +245,7 @@ class BteqStatementSegment(BaseSegment):
     # BTEQ commands
     .if errorcode > 0 then .quit 2
     .IF ACTIVITYCOUNT = 0 THEN .QUIT
+    .RUN FILE=POSTING
     """
 
     type = "bteq_statement"
@@ -228,6 +254,12 @@ class BteqStatementSegment(BaseSegment):
         Ref("BteqKeyWordSegment"),
         AnyNumberOf(
             Ref("BteqKeyWordSegment"),
+            # FILE=<path> argument, e.g. `.RUN FILE=POSTING`.
+            Sequence(
+                "FILE",
+                Ref("EqualsSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("BteqFilePathSegment")),
+            ),
             # if ... then: the ...
             Sequence(
                 Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar"), optional=True

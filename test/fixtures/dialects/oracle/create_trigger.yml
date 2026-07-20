@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 025c8c0c73784ba02bb8f842d4dc97e3d18559669916ca1a6241767d81023e49
+_hash: f4ae9f6bbb34e4cae76e4bc6f58042b9cb9d00e8ebb29a32732373b2de629ce5
 file:
 - batch:
     statement:
@@ -437,7 +437,7 @@ file:
             - row_type_reference:
                 table_reference:
                   naked_identifier: employee_salaries
-                binary_operator: '%'
+                attribute_indicator: '%'
                 keyword: ROWTYPE
             - keyword: INDEX
             - keyword: BY

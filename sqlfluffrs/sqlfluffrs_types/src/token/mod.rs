@@ -1,12 +1,14 @@
-pub mod compat;
 pub mod config;
 pub mod construction;
 mod eq;
 pub mod fix;
 mod fmt;
 pub mod path;
+mod raw_string;
+pub(crate) use raw_string::RawString;
 
 use std::{
+    borrow::Cow,
     fmt::Write,
     sync::{Arc, Weak},
 };
@@ -37,19 +39,19 @@ pub enum TupleSerialisedSegment {
 
 #[derive(Debug, Clone)]
 pub struct Token {
-    pub token_type: String,
-    pub class_name: String,
+    pub token_type: Cow<'static, str>,
+    pub class_name: Cow<'static, str>,
     pub instance_types: Vec<String>,
-    pub class_types: HashSet<String>,
+    pub class_types: Arc<HashSet<String>>,
     pub comment_separate: bool,
     pub is_meta: bool,
     pub allow_empty: bool,
     pub pos_marker: Option<PositionMarker>,
-    pub raw: String,
+    raw: RawString,
     is_whitespace: bool,
     is_code: bool,
     is_comment: bool,
-    _default_raw: String,
+    _default_raw: Cow<'static, str>,
     pub indent_value: i32,
     pub is_templated: bool,
     pub block_uuid: Option<Uuid>,
@@ -58,17 +60,12 @@ pub struct Token {
     parent: Option<Weak<Token>>,
     parent_idx: Option<usize>,
     pub segments: Vec<Token>,
-    preface_modifier: String,
-    suffix: String,
+    preface_modifier: Cow<'static, str>,
+    suffix: Cow<'static, str>,
     pub uuid: u128,
     pub source_fixes: Option<Vec<SourceFix>>,
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
-    quoted_value: Option<(String, RegexModeGroup)>,
-    escape_replacement: Option<(String, String)>,
-    pub casefold: CaseFold,
-    #[allow(dead_code)]
-    raw_value: String,
     /// Pre-computed index of matching bracket for O(1) lookup during parsing.
     /// For opening brackets like '(', '[', '{', this points to the matching closing bracket.
     /// For closing brackets like ')', ']', '}', this points back to the matching opening bracket.
@@ -124,39 +121,45 @@ impl Token {
         }
     }
 
-    pub fn raw(&self) -> String {
-        self.raw.clone()
+    pub fn raw(&self) -> &str {
+        self.raw.as_str()
     }
 
-    pub fn raw_upper(&self) -> String {
-        self.raw.to_uppercase()
+    pub fn raw_upper(&self) -> &str {
+        self.raw.upper()
     }
 
     /// Get the quoted_value pattern for this token (if any)
     pub fn quoted_value(&self) -> Option<&(String, RegexModeGroup)> {
-        self.quoted_value.as_ref()
+        self.raw.quoted_value()
     }
 
     /// Get the escape_replacement pattern for this token (if any)
     pub fn escape_replacement(&self) -> Option<&(String, String)> {
-        self.escape_replacement.as_ref()
+        self.raw.escape_replacement()
+    }
+
+    /// Get the casefold mode for this token (`CaseFold::None` if unset)
+    pub fn casefold(&self) -> CaseFold {
+        self.raw.casefold()
     }
 
     pub fn normalize(
         value: &str,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
+        quoted_value: Option<&(String, RegexModeGroup)>,
+        escape_replacement: Option<&(String, String)>,
     ) -> String {
         let mut str_buffer = value.to_string();
 
-        if let Some((ref regex_str, idx)) = quoted_value {
-            if let Some(captured) = RegexMode::new(regex_str).capture(idx, value) {
+        if let Some((regex_str, idx)) = quoted_value {
+            if let Some(captured) = RegexMode::cached(regex_str).capture(idx.clone(), value) {
                 str_buffer = captured
             }
         }
 
-        if let Some((ref regex_str, ref replacement)) = escape_replacement {
-            str_buffer = RegexMode::new(regex_str).replace_all(&str_buffer, replacement.as_str());
+        if let Some((regex_str, replacement)) = escape_replacement {
+            str_buffer =
+                RegexMode::cached(regex_str).replace_all(&str_buffer, replacement.as_str());
         }
 
         str_buffer
@@ -177,7 +180,7 @@ impl Token {
     /// Adds the surrogate type for raw segments.
     pub fn class_types(&self) -> HashSet<String> {
         let mut full_types = self.instance_types.iter().cloned().collect::<HashSet<_>>();
-        full_types.extend(self.class_types.clone());
+        full_types.extend(self.class_types.iter().cloned());
         full_types
     }
 
@@ -217,8 +220,9 @@ impl Token {
 
     pub fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
         self.raw_segments().iter().find_map(|seg| {
-            if !seg.raw_upper().trim().is_empty() {
-                Some(seg.raw_upper().clone())
+            let upper = seg.raw_upper();
+            if !upper.trim().is_empty() {
+                Some(upper.to_owned())
             } else {
                 None
             }
@@ -231,7 +235,7 @@ impl Token {
     }
 
     pub fn get_type(&self) -> String {
-        self.token_type.clone()
+        self.token_type.to_string()
     }
 
     /// Get all types for this token (instance_types + class_types)
@@ -244,7 +248,7 @@ impl Token {
     }
 
     pub fn preface_modifier(&self) -> String {
-        self.preface_modifier.clone()
+        self.preface_modifier.to_string()
     }
 
     pub fn is_type(&self, seg_types: &[&str]) -> bool {
@@ -263,7 +267,7 @@ impl Token {
     }
 
     pub fn raw_trimmed(&self) -> String {
-        let mut raw_buff = self.raw.clone();
+        let mut raw_buff = self.raw.as_str().to_owned();
 
         // Trim start sequences
         if let Some(trim_start) = &self.trim_start {
@@ -274,7 +278,7 @@ impl Token {
 
         // Trim specified characters from both ends
         if let Some(trim_chars) = &self.trim_chars {
-            raw_buff = self.raw.clone(); // Reset raw_buff before trimming chars
+            raw_buff = self.raw.as_str().to_owned(); // Reset raw_buff before trimming chars
 
             for seq in trim_chars {
                 while raw_buff.starts_with(seq) {
@@ -289,12 +293,13 @@ impl Token {
         raw_buff
     }
 
-    fn _raw_normalized(&self) -> String {
-        todo!()
-    }
-
+    /// The normalized form of this token's raw value: the quoted value extracted
+    /// and escape sequences replaced, per this token's dialect config.
+    ///
+    /// Computed lazily and cached, so tokens never inspected by a rule pay
+    /// nothing, and the common case (no transform spec) avoids all regex work.
     pub fn raw_normalized(&self) -> String {
-        todo!()
+        self.raw.normalized().to_owned()
     }
 
     pub fn stringify(&self, ident: usize, tabsize: usize, code_only: bool) -> String {
@@ -331,10 +336,17 @@ impl Token {
     }
 
     pub fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Self {
+        let new_raw = raw.unwrap_or_else(|| self.raw.as_str().to_owned());
         Self {
-            raw: raw.unwrap_or(self.raw.clone()),
+            // Carry over the transform spec so the edited raw normalizes the same way.
+            raw: RawString::new(
+                new_raw,
+                self.raw.quoted_value().cloned(),
+                self.raw.escape_replacement().cloned(),
+                self.raw.casefold(),
+            ),
             source_fixes: Some(source_fixes.unwrap_or(self.source_fixes())),
-            uuid: Uuid::new_v4().as_u128(),
+            uuid: crate::identity::next_id(),
             ..self.clone()
         }
     }
@@ -418,7 +430,7 @@ impl Token {
 
         // Recursively process child segments
         for seg in &self.segments {
-            if no_recursive_set.contains(seg.token_type.as_str()) {
+            if no_recursive_set.contains(seg.token_type.as_ref()) {
                 continue;
             }
             results.extend(seg.recursive_crawl(
@@ -530,7 +542,7 @@ impl Token {
         self.pos_marker
             .clone()
             .expect("PositionMarker unset")
-            .working_loc_after(&self.raw)
+            .working_loc_after(self.raw.as_str())
     }
 
     pub fn recursive_crawl_all(&self, reverse: bool) -> Box<dyn Iterator<Item = &Token> + '_> {
@@ -583,7 +595,7 @@ impl Token {
         let include_meta = include_meta.unwrap_or_default();
         // If `show_raw` is true and there are no child segments, return (type, raw)
         if show_raw && self.segments.is_empty() {
-            return TupleSerialisedSegment::Str(self.get_type(), self.raw.clone());
+            return TupleSerialisedSegment::Str(self.get_type(), self.raw.as_str().to_owned());
         }
 
         // Determine filtering criteria for child segments
@@ -675,7 +687,7 @@ impl Token {
             let new_position = new_position.expect("Position should be assigned");
             let new_position = new_position.with_working_position(line_no, line_pos);
             let (new_line_no, new_line_pos) =
-                new_position.infer_next_position(&segment.raw, line_no, line_pos);
+                new_position.infer_next_position(segment.raw.as_str(), line_no, line_pos);
             line_no = new_line_no;
             line_pos = new_line_pos;
 

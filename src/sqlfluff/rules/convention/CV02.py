@@ -54,6 +54,12 @@ class Rule_CV02(BaseRule):
         if context.segment.raw_upper not in {"IFNULL", "NVL"}:
             return None
 
+        # A qualified function_name (i.e. with more than one part) is a user
+        # defined function that merely shares the name, not the builtin.
+        parent = context.parent_stack[-1] if context.parent_stack else None
+        if parent and parent.is_type("function_name") and len(parent.segments) != 1:
+            return None
+
         # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.
         fix = LintFix.replace(
             context.segment,

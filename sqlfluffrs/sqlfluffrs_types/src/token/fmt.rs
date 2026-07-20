@@ -8,7 +8,7 @@ impl Display for Token {
             "<{}: ({}) '{}'>",
             self.class_name.clone(),
             self.pos_marker.clone().expect("PositionMarker unset"),
-            self.raw.escape_debug(),
+            self.raw.as_str().escape_debug(),
         )
     }
 }

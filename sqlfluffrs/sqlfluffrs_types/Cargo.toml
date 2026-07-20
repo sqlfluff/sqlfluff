@@ -2,16 +2,16 @@
 name = "sqlfluffrs_types"
 version.workspace = true
 edition = "2021"
+rust-version.workspace = true
 
 [dependencies]
-hashbrown = "0.16.1"
-regex = { version = "1.12.3", features = ["perf"] }
-log = "0.4.29"
-serde = { version = "1.0.228", features = ["derive"] }
-uuid = { version = "1.22.0", features = ["v4"] }
-fancy-regex = "0.17.0"
-bincode = "1.1.3"
-once_cell = "1.21.4"
+hashbrown.workspace = true
+regex.workspace = true
+log.workspace = true
+serde.workspace = true
+uuid.workspace = true
+fancy-regex.workspace = true
+once_cell.workspace = true
 
 [features]
 unicode = []

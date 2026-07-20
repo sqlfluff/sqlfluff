@@ -25,6 +25,29 @@ test_noop_crossjoin:
   pass_str: |
     SELECT foo.a, bar.b FROM foo CROSS JOIN bar WHERE bar.x > 3
 
+test_noop_natural_join:
+  # A NATURAL JOIN cannot take an ON clause, so there is nothing to move
+  # the WHERE condition into.
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo NATURAL JOIN bar WHERE bar.x > 3
+
+test_fail_natural_join_mixed_with_later_join:
+  # The NATURAL JOIN is skipped, but its predicate (a.k = b.k) must not be
+  # hoisted into the following LEFT JOIN's ON clause: only conditions that
+  # reference the joined table itself may be moved.
+  fail_str: |
+    SELECT * FROM a NATURAL JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+  fix_str: |
+    SELECT * FROM a NATURAL JOIN b LEFT JOIN c ON a.m = c.m WHERE a.k = b.k
+
+test_fail_cross_join_mixed_with_later_join:
+  # Same as above for a skipped CROSS JOIN: a.k = b.k references neither the
+  # LEFT JOIN's table nor an ON-able join, so it stays in the WHERE clause.
+  fail_str: |
+    SELECT * FROM a CROSS JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+  fix_str: |
+    SELECT * FROM a CROSS JOIN b LEFT JOIN c ON a.m = c.m WHERE a.k = b.k
+
 test_noop_using:
   pass_str: |
     SELECT foo.id, bar.id FROM foo LEFT JOIN bar USING (id)

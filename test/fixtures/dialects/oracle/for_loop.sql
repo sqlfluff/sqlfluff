@@ -125,3 +125,17 @@ BEGIN
   CLOSE c1;
 END;
 /
+
+BEGIN
+  FOR i IN 1..LENGTH(v_str) LOOP
+    DBMS_OUTPUT.PUT_LINE(i);
+  END LOOP;
+END;
+/
+
+BEGIN
+  FOR i IN 1..v_arr.COUNT() LOOP
+    DBMS_OUTPUT.PUT_LINE(i);
+  END LOOP;
+END;
+/

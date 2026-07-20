@@ -1,0 +1,181 @@
+rule: RF07
+
+test_pass_disabled_by_default:
+  # The rule is opt-in: without force_enable it stays quiet even for
+  # SQL it would otherwise flag.
+  pass_str: |
+    SELECT
+        t1.col1 AS id,
+        ROW_NUMBER() OVER (PARTITION BY id ORDER BY t1.ts) AS rn
+    FROM t1
+    LEFT JOIN t2 ON t1.col1 = t2.id
+
+test_fail_alias_in_partition_by:
+  fail_str: |
+    SELECT
+        t1.col1 AS id,
+        ROW_NUMBER() OVER (PARTITION BY id ORDER BY t1.ts) AS rn
+    FROM t1
+    LEFT JOIN t2 ON t1.col1 = t2.id
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_fail_alias_in_order_by:
+  fail_str: |
+    SELECT
+        t1.col1 AS id,
+        ROW_NUMBER() OVER (PARTITION BY t1.grp ORDER BY id) AS rn
+    FROM t1
+    LEFT JOIN t2 ON t1.col1 = t2.id
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_fail_alias_case_insensitive:
+  # Unquoted identifiers are case-insensitive, so AS ID and PARTITION BY id
+  # are the same name.
+  fail_str: |
+    SELECT
+        t1.col1 AS ID,
+        SUM(t2.v) OVER (PARTITION BY id ORDER BY t1.ts) AS s
+    FROM t1
+    JOIN t2 ON t1.col1 = t2.id
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_fail_alias_in_named_window:
+  # The PARTITION BY of a named WINDOW definition is checked too.
+  fail_str: |
+    SELECT
+        t1.col1 AS id,
+        ROW_NUMBER() OVER w AS rn
+    FROM t1
+    JOIN t2 ON t1.col1 = t2.id
+    WINDOW w AS (PARTITION BY id ORDER BY t1.ts)
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_fail_quoted_alias_quoted_reference:
+  # A quoted alias matches a quoted reference with the same spelling.
+  fail_str: |
+    SELECT
+        t1.col1 AS "id",
+        SUM(t2.v) OVER (PARTITION BY "id" ORDER BY t1.ts) AS s
+    FROM t1
+    JOIN t2 ON t1.col1 = t2.id
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_pass_quoted_alias_unquoted_reference:
+  # A quoted alias preserves its case, so it is not the same identifier
+  # as an unquoted (case-folded) reference.
+  pass_str: |
+    SELECT
+        t1.col1 AS "ID",
+        SUM(t2.v) OVER (PARTITION BY id ORDER BY t1.ts) AS s
+    FROM t1
+    JOIN t2 ON t1.col1 = t2.id
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_pass_quoted_alias_quoted_reference_case_mismatch:
+  # Quoted identifiers are case-sensitive, so "ID" and "id" differ.
+  pass_str: |
+    SELECT
+        t1.col1 AS "ID",
+        SUM(t2.v) OVER (PARTITION BY "id" ORDER BY t1.ts) AS s
+    FROM t1
+    JOIN t2 ON t1.col1 = t2.id
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_pass_qualified_named_window:
+  pass_str: |
+    SELECT
+        t1.col1 AS id,
+        ROW_NUMBER() OVER w AS rn
+    FROM t1
+    JOIN t2 ON t1.col1 = t2.id
+    WINDOW w AS (PARTITION BY t1.col1 ORDER BY t1.ts)
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_pass_no_select_aliases:
+  # No select aliases means nothing for a window reference to shadow.
+  pass_str: |
+    SELECT
+        t1.col1,
+        ROW_NUMBER() OVER (PARTITION BY t2.grp ORDER BY t1.ts)
+    FROM t1
+    LEFT JOIN t2 ON t1.col1 = t2.id
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_pass_qualified_window_reference:
+  pass_str: |
+    SELECT
+        t1.col1 AS id,
+        ROW_NUMBER() OVER (PARTITION BY t1.col1 ORDER BY t1.ts) AS rn
+    FROM t1
+    LEFT JOIN t2 ON t1.col1 = t2.id
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_pass_unqualified_reference_that_is_not_an_alias:
+  # A plain unqualified reference is RF02's concern, not RF07's.
+  pass_str: |
+    SELECT
+        t1.col1 AS id,
+        LAG(t1.c) OVER (PARTITION BY t1.col1 ORDER BY dt) AS v
+    FROM t1
+    LEFT JOIN t2 ON t1.col1 = t2.id
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_pass_single_table:
+  # With a single table there is no ambiguity to flag.
+  pass_str: |
+    SELECT
+        col1 AS id,
+        ROW_NUMBER() OVER (PARTITION BY id ORDER BY ts) AS rn
+    FROM t1
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true
+
+test_pass_window_in_subquery_scope:
+  # The window belongs to the subquery, whose aliases differ from the outer query.
+  pass_str: |
+    SELECT
+        t1.col1 AS id,
+        (
+            SELECT MAX(x) OVER (PARTITION BY sid) FROM s
+        ) AS mx
+    FROM t1
+    LEFT JOIN t2 ON t1.col1 = t2.id
+  configs:
+    rules:
+      references.window_alias:
+        force_enable: true

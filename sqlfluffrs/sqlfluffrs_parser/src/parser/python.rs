@@ -66,7 +66,7 @@ impl PyNode {
     fn segment_class(&self) -> Option<String> {
         match &self.0 {
             Node::Raw { segment_class, .. } | Node::Segment { segment_class, .. } => {
-                Some(segment_class.clone())
+                Some(segment_class.to_string())
             }
             _ => None,
         }
@@ -75,7 +75,7 @@ impl PyNode {
     /// Get raw text of this node (recursively joins children for containers)
     #[getter]
     fn raw(&self) -> String {
-        self.0.raw()
+        self.0.raw().to_owned()
     }
 
     /// Check if node is empty
@@ -270,7 +270,10 @@ impl PyMatchResult {
     /// Get the matched class type as a string (or None)
     #[getter]
     fn matched_class(&self) -> Option<String> {
-        self.0.matched_class.as_ref().map(|s| s.class_name.clone())
+        self.0
+            .matched_class
+            .as_ref()
+            .map(|s| s.class_name.to_string())
     }
 
     /// Get child matches as a list of PyMatchResult objects
@@ -308,7 +311,7 @@ impl PyMatchResult {
             .0
             .matched_class
             .as_ref()
-            .map(|s| s.segment_kwargs.casefold.clone())
+            .map(|s| s.segment_kwargs.casefold)
             .unwrap_or_default()
         {
             sqlfluffrs_types::token::CaseFold::None => None,
@@ -414,22 +417,23 @@ impl PyMatchResult {
         )
     }
 
-    /// Build the full AST as an `RsNode` from this MatchResult and tokens.
+    /// Build the mutable arena tree (`RsTree`) from this MatchResult and tokens.
     ///
     /// Applies the match result against the provided tokens to construct the
-    /// complete Rust-side AST which can be used by Rust linting rules
-    /// (e.g., respace/LT01) without round-tripping through Python's segment
-    /// tree. Optionally prepend `leading` and append `trailing` non-code
-    /// tokens to the root.
+    /// immutable [`Node`] tree, then ingests it into the id-addressable arena
+    /// that backs the Rust-side segment façade (`RsTree`/`RsHandle`) used by
+    /// linting and (in later milestones) fixing — so per-node navigation never
+    /// round-trips through Python's segment tree. Optionally prepend `leading`
+    /// and append `trailing` non-code tokens to the root.
     ///
-    /// This is the single PyO3 entry-point for node construction.
+    /// This is the single PyO3 entry-point for tree construction.
     #[pyo3(signature = (tokens, leading=vec![], trailing=vec![]))]
-    fn apply_as_node(
+    fn apply_as_tree(
         &self,
         tokens: Vec<PyToken>,
         leading: Vec<PyToken>,
         trailing: Vec<PyToken>,
-    ) -> PyNode {
+    ) -> super::arena_py::PyTree {
         let rust_leading: Vec<Token> = leading.into_iter().map(|t| t.into()).collect();
         let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
         let rust_trailing: Vec<Token> = trailing.into_iter().map(|t| t.into()).collect();
@@ -437,7 +441,7 @@ impl PyMatchResult {
             .0
             .clone()
             .apply_as_root(&rust_tokens, &rust_leading, &rust_trailing);
-        PyNode(node)
+        super::arena_py::PyTree::new(super::arena::Arena::from_node(&node))
     }
 }
 
@@ -576,22 +580,8 @@ impl PyParser {
         stats.insert("cache_hits".to_string(), cache_hits);
         stats.insert("cache_misses".to_string(), cache_misses);
         stats.insert("cache_entries".to_string(), cache_entries);
-        stats.insert("pruning_calls".to_string(), parser.pruning_calls.get());
-        stats.insert("pruning_total".to_string(), parser.pruning_total.get());
-        stats.insert("pruning_kept".to_string(), parser.pruning_kept.get());
-        stats.insert("pruning_hinted".to_string(), parser.pruning_hinted.get());
-        stats.insert("pruning_complex".to_string(), parser.pruning_complex.get());
-        stats.insert("match_attempts".to_string(), parser.match_attempts.get());
-        stats.insert("match_successes".to_string(), parser.match_successes.get());
-        stats.insert(
-            "complete_match_early_exits".to_string(),
-            parser.complete_match_early_exits.get(),
-        );
-        stats.insert(
-            "terminator_checks".to_string(),
-            parser.terminator_checks.get(),
-        );
-        stats.insert("terminator_hits".to_string(), parser.terminator_hits.get());
+        // Diagnostic counters are owned by the parser; pull them as a unit.
+        stats.extend(parser.diagnostics());
 
         Ok((PyMatchResult(match_result), stats))
     }
@@ -672,7 +662,7 @@ fn compute_bracket_pairs(tokens: &mut [Token]) {
         let raw = tokens[idx].raw();
 
         // Check if this is an opening bracket
-        if let Some(open_char) = match raw.as_str() {
+        if let Some(open_char) = match raw {
             "(" => Some('('),
             "[" => Some('['),
             "{" => Some('{'),
@@ -681,20 +671,33 @@ fn compute_bracket_pairs(tokens: &mut [Token]) {
             bracket_stack.push((idx, open_char));
         }
         // Check if this is a closing bracket
-        else if let Some(expected_open) = match raw.as_str() {
+        else if let Some(expected_open) = match raw {
             ")" => Some('('),
             "]" => Some('['),
             "}" => Some('{'),
             _ => None,
         } {
-            // Try to match with the most recent opening bracket of the same type
-            if let Some(pos) = bracket_stack.iter().rposition(|(_, c)| *c == expected_open) {
-                let (open_idx, _) = bracket_stack.remove(pos);
-                // Set bidirectional pointers
-                tokens[open_idx].matching_bracket_idx = Some(idx);
-                tokens[idx].matching_bracket_idx = Some(open_idx);
+            // Only the most-recently-opened bracket (the top of the stack) may
+            // be closed next, per LIFO nesting discipline. See the sibling
+            // implementation in sqlfluffrs_lexer/src/lexer.rs::compute_bracket_pairs
+            // for the full rationale (Python parity with resolve_bracket in
+            // match_algorithms.py).
+            if let Some(&(open_idx, top_char)) = bracket_stack.last() {
+                if top_char == expected_open {
+                    bracket_stack.pop();
+                    // Set bidirectional pointers
+                    tokens[open_idx].matching_bracket_idx = Some(idx);
+                    tokens[idx].matching_bracket_idx = Some(open_idx);
+                } else {
+                    // A type mismatch is what Python's resolve_bracket raises
+                    // on, unwinding through every enclosing bracket's own
+                    // call. Clear the whole stack to match that: every
+                    // bracket still open at this point stays unresolved, so
+                    // none of them can later pair with a closer that follows.
+                    bracket_stack.clear();
+                }
             }
-            // If no matching opening bracket, leave as None (syntax error)
+            // If the stack is empty, there's no open bracket at all - leave as None.
         }
     }
     // Any remaining opening brackets on the stack are unmatched - leave as None

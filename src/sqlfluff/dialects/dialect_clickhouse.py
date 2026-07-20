@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
@@ -63,6 +64,11 @@ clickhouse_dialect.insert_lexer_matchers(
     before="newline",
 )
 
+clickhouse_dialect.insert_lexer_matchers(
+    [StringLexer("double_equals", "==", CodeSegment)],
+    before="equals",
+)
+
 clickhouse_dialect.patch_lexer_matchers(
     [
         RegexLexer(
@@ -93,6 +99,10 @@ clickhouse_dialect.add(
         type="quoted_identifier",
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question"),
+    RawDoubleEqualsSegment=StringParser(
+        "==", SymbolSegment, type="raw_comparison_operator"
+    ),
 )
 
 clickhouse_dialect.replace(
@@ -107,6 +117,17 @@ clickhouse_dialect.replace(
         Ref("ComparisonOperatorGrammar"),
         # Add Lambda Function
         Ref("LambdaFunctionSegment"),
+    ),
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("DoubleEqualsSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment"),
+        Ref("LikeOperatorSegment"),
+        Ref("IsDistinctFromGrammar"),
     ),
     # https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
     JoinTypeKeywordsGrammar=Sequence(
@@ -297,6 +318,27 @@ clickhouse_dialect.replace(
         Ref("TupleElementAccessSegment"),
         ansi_dialect.get_grammar("Expression_D_Grammar"),
     ),
+    # Allow tuple element access (`.N`) as a postfix accessor alongside array
+    # subscripting, so it can follow any Expression_D base -- e.g. a function
+    # call `f(x).2`, a subscript `arr[1].2`, or a tuple literal `(a, b).1` --
+    # not just a bare/bracketed column reference.
+    AccessorGrammar=AnyNumberOf(
+        Ref("ArrayAccessorSegment"),
+        Ref("TupleElementAccessorSegment"),
+    ),
+    # ClickHouse C-style ternary `cond ? then : else`; the lowest-precedence
+    # operator, so the optional tail wraps the whole Expression_A condition.
+    # https://clickhouse.com/docs/en/sql-reference/functions/conditional-functions#ternary-operator
+    Expression_A_Grammar=Sequence(
+        ansi_dialect.get_grammar("Expression_A_Grammar"),
+        Sequence(
+            Ref("QuestionMarkSegment"),
+            Ref("ExpressionSegment"),
+            Ref("ColonSegment"),
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+    ),
 )
 
 # Set the datetime units
@@ -358,6 +400,12 @@ clickhouse_dialect.sets("datetime_units").update(
         "YY",
     ]
 )
+
+
+class DoubleEqualsSegment(CompositeComparisonOperatorSegment):
+    """Double equals operator."""
+
+    match_grammar: Matchable = Ref("RawDoubleEqualsSegment")
 
 
 class AccessPermissionSegment(ansi.AccessPermissionSegment):
@@ -661,15 +709,87 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
-class SetExpressionSegment(ansi.SetExpressionSegment):
-    """Enhance set expression to include ClickHouse-specific clauses."""
+class UnorderedSetExpressionSegment(ansi.UnorderedSetExpressionSegment):
+    """Allow ``ORDER BY`` / ``LIMIT`` / ``SETTINGS`` on non-final union members.
 
-    match_grammar = ansi.SetExpressionSegment.match_grammar.copy(
+    Unlike ANSI - where a trailing ``ORDER BY`` / ``LIMIT`` binds to the whole
+    set - ClickHouse permits each member preceding a set operator to carry its
+    own ``ORDER BY``, ``LIMIT`` and ``SETTINGS`` clauses without being
+    parenthesised. Matching those clauses in the position between a member and
+    the following set operator keeps them attached to the (non-final) member,
+    while the clauses trailing the final member continue to bind to the whole
+    set expression.
+    """
+
+    match_grammar = Sequence(
+        Ref("NonSetSelectableGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("OrderByClauseSegment", optional=True),
+                Ref("LimitClauseSegment", optional=True),
+                Ref("SettingsClauseSegment", optional=True),
+                Ref("SetOperatorSegment"),
+                Ref("NonSetSelectableGrammar"),
+            ),
+            min_times=1,
+        ),
+    )
+
+
+class SetExpressionSegment(ansi.SetExpressionSegment):
+    """Enhance set expression to include ClickHouse-specific clauses.
+
+    Built from the ClickHouse ``UnorderedSetExpressionSegment`` so that
+    per-member ``ORDER BY`` / ``LIMIT`` / ``SETTINGS`` are recognised, while the
+    clauses trailing the final member bind to the whole set expression.
+    """
+
+    match_grammar = UnorderedSetExpressionSegment.match_grammar.copy(
         insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
             Ref("FormatClauseSegment", optional=True),
             Ref("SettingsClauseSegment", optional=True),
             Ref("IntoOutfileClauseSegment", optional=True),
         ],
+    )
+
+
+class GroupByClauseSegment(BaseSegment):
+    """Enhance `GROUP BY` with ClickHouse `WITH ROLLUP` / `CUBE` / `TOTALS`.
+
+    ClickHouse allows the ``WITH ROLLUP``, ``WITH CUBE`` and ``WITH TOTALS``
+    modifiers to trail a ``GROUP BY`` clause. ``ROLLUP`` and ``CUBE`` are
+    mutually exclusive, and either may be combined with ``TOTALS``.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/group-by
+    """
+
+    type = "groupby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("NumericLiteralSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+            ),
+        ),
+        Sequence("WITH", OneOf("ROLLUP", "CUBE"), optional=True),
+        Sequence("WITH", "TOTALS", optional=True),
+        Dedent,
     )
 
 
@@ -713,6 +833,56 @@ class WithFillSegment(ansi.WithFillSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """An `ORDER BY` clause with ClickHouse's trailing `INTERPOLATE`.
+
+    Unlike `WITH FILL`, which attaches to an individual sort key, `INTERPOLATE`
+    is a single clause that follows the whole comma-delimited `ORDER BY` list.
+
+    https://clickhouse.com/docs/sql-reference/statements/select/order-by
+    #filling-columns-with-interpolate
+    """
+
+    match_grammar: Matchable = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                Ref("WithFillSegment", optional=True),
+            ),
+            terminators=[
+                Ref("LimitClauseSegment"),
+                Ref("FrameClauseUnitGrammar"),
+                "INTERPOLATE",
+            ],
+        ),
+        Sequence(
+            "INTERPOLATE",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Sequence("AS", Ref("ExpressionSegment"), optional=True),
+                    ),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Dedent,
     )
 
 
@@ -797,6 +967,54 @@ class EnumArgumentsSegment(BaseSegment):
     )
 
 
+class JSONPathSegment(BaseSegment):
+    """A (possibly dotted) path inside a JSON type definition."""
+
+    type = "json_path"
+    match_grammar = Delimited(
+        Ref("SingleIdentifierGrammar"),
+        delimiter=Ref("DotSegment"),
+        allow_gaps=False,
+    )
+
+
+class JSONArgumentsSegment(BaseSegment):
+    """Arguments for the JSON type (params, typed paths, SKIP).
+
+    https://clickhouse.com/docs/sql-reference/data-types/newjson
+    """
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        Delimited(
+            OneOf(
+                # max_dynamic_paths=N / max_dynamic_types=N
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                # SKIP path / SKIP REGEXP 'regexp'
+                Sequence(
+                    "SKIP",
+                    OneOf(
+                        Sequence(
+                            "REGEXP",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Ref("JSONPathSegment"),
+                    ),
+                ),
+                # Typed-path hint: some.path Type
+                Sequence(
+                    Ref("JSONPathSegment"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        )
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """Support complex Clickhouse data types.
 
@@ -851,8 +1069,11 @@ class DatatypeSegment(BaseSegment):
             StringParser("NESTED", CodeSegment, type="data_type_identifier"),
             Ref("NestedArgumentsSegment"),
         ),
-        # JSON data type
-        StringParser("JSON", CodeSegment, type="data_type_identifier"),
+        # JSON(param=N, path Type, SKIP ...)
+        Sequence(
+            StringParser("JSON", CodeSegment, type="data_type_identifier"),
+            Ref("JSONArgumentsSegment", optional=True),
+        ),
         # Enum8('val1' = 1, 'val2' = 2)
         Sequence(
             OneOf(
@@ -2668,7 +2889,8 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
                 "BY",
                 OneOf(
                     Ref("BracketedColumnReferenceListGrammar"),
-                    Ref("ColumnReferenceSegment"),
+                    # Unbracketed ``LIMIT n BY a, b`` accepts a list of columns.
+                    Delimited(Ref("ColumnReferenceSegment")),
                 ),
                 optional=True,
             ),
@@ -2826,5 +3048,23 @@ class TupleElementAccessSegment(BaseSegment):
             min_times=1,
             allow_gaps=False,
         ),
+        allow_gaps=False,
+    )
+
+
+class TupleElementAccessorSegment(BaseSegment):
+    """A tuple element access postfix like the `.2` in `f(x).2`.
+
+    Used as an accessor (via ``AccessorGrammar``) so tuple element access can
+    follow any ``Expression_D`` base -- a function call, an array subscript, a
+    tuple literal, etc. The lexer tokenizes ``.2`` as a numeric literal rather
+    than a dot followed by an integer, so the postfix is a run of numeric
+    literals that must abut the preceding expression (``allow_gaps=False``).
+    """
+
+    type = "tuple_element_access"
+    match_grammar: Matchable = AnyNumberOf(
+        Ref("NumericLiteralSegment"),
+        min_times=1,
         allow_gaps=False,
     )

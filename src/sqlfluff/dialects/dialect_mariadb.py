@@ -465,6 +465,337 @@ class CreateIndexStatementSegment(mysql.CreateIndexStatementSegment):
     )
 
 
+class AlterTableConstraintSegment(mysql.TableConstraintSegment):
+    """A table constraint as used by ``ALTER TABLE ... ADD``.
+
+    This is the MySQL ``TableConstraintSegment`` with MariaDB's ``IF NOT EXISTS``
+    conditional clause added on each index/constraint variant. It is kept
+    separate from the shared ``TableConstraintSegment`` (used by ``CREATE
+    TABLE``) on purpose: ``IF NOT EXISTS`` is only valid on the ``ADD`` action of
+    ``ALTER TABLE``, so ``CREATE TABLE`` still rejects it. The clause is strictly
+    optional, so every ``ALTER TABLE`` that parsed before still parses
+    identically.
+
+    https://mariadb.com/docs/server/reference/sql-statements/data-definition/alter/alter-table
+    """
+
+    type = "table_constraint"
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(  # [ CONSTRAINT <Constraint name> ]
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment", optional=True),
+                optional=True,
+            ),
+            OneOf(
+                # UNIQUE [INDEX | KEY] [IF NOT EXISTS] [index_name] [index_type]
+                # (key_part,...) [index_option] ...
+                Sequence(
+                    "UNIQUE",
+                    OneOf("INDEX", "KEY", optional=True),
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("IndexReferenceSegment", optional=True),
+                    Ref("IndexTypeGrammar", optional=True),
+                    Ref("BracketedKeyPartListGrammar"),
+                    Ref("IndexOptionsSegment", optional=True),
+                ),
+                # PRIMARY KEY [IF NOT EXISTS] [index_type] (key_part,...)
+                # [index_option] ...
+                Sequence(
+                    Ref("PrimaryKeyGrammar"),
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("IndexTypeGrammar", optional=True),
+                    # Columns making up PRIMARY KEY constraint
+                    Ref("BracketedKeyPartListGrammar"),
+                    Ref("IndexOptionsSegment", optional=True),
+                ),
+                # FOREIGN KEY [IF NOT EXISTS] [index_name] (col_name,...)
+                # reference_definition
+                Sequence(
+                    # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                    Ref("ForeignKeyGrammar"),
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("IndexReferenceSegment", optional=True),
+                    # Local columns making up FOREIGN KEY constraint
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    "REFERENCES",
+                    Ref("ColumnReferenceSegment"),
+                    # Foreign columns making up FOREIGN KEY constraint
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    AnyNumberOf(
+                        Sequence(
+                            "ON",
+                            OneOf("DELETE", "UPDATE"),
+                            OneOf(
+                                "RESTRICT",
+                                "CASCADE",
+                                Sequence("SET", "NULL"),
+                                Sequence("NO", "ACTION"),
+                                Sequence("SET", "DEFAULT"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
+                # CHECK (expr) [[NOT] ENFORCED]
+                Sequence(
+                    "CHECK",
+                    Bracketed(Ref("ExpressionSegment")),
+                    OneOf(
+                        "ENFORCED",
+                        Sequence("NOT", "ENFORCED"),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+        # {INDEX | KEY} [IF NOT EXISTS] [index_name] [index_type] (key_part,...)
+        # [index_option] ...
+        Sequence(
+            OneOf("INDEX", "KEY"),
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("IndexReferenceSegment", optional=True),
+            Ref("IndexTypeGrammar", optional=True),
+            Ref("BracketedKeyPartListGrammar"),
+            Ref("IndexOptionsSegment", optional=True),
+        ),
+        # {FULLTEXT | SPATIAL} [INDEX | KEY] [IF NOT EXISTS] [index_name]
+        # (key_part,...) [index_option] ...
+        Sequence(
+            OneOf("FULLTEXT", "SPATIAL"),
+            OneOf("INDEX", "KEY", optional=True),
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("IndexReferenceSegment", optional=True),
+            Ref("BracketedKeyPartListGrammar"),
+            Ref("IndexOptionsSegment", optional=True),
+        ),
+    )
+
+
+class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
+    """An `ALTER TABLE` statement.
+
+    Overriding MySQL to add MariaDB's ``IF [NOT] EXISTS`` conditional clauses on
+    the ``ADD`` / ``DROP`` / ``CHANGE`` / ``MODIFY`` / ``ALTER {INDEX|KEY}``
+    actions. The ``ADD`` index/constraint clauses pick up ``IF NOT EXISTS`` via
+    the ALTER-only `AlterTableConstraintSegment`; the remaining actions are
+    handled here. Every added clause is strictly optional, so previously valid
+    statements parse identically. MySQL does not support these clauses, so the
+    change is confined to the MariaDB dialect.
+
+    https://mariadb.com/docs/server/reference/sql-statements/data-definition/alter/alter-table
+    """
+
+    type = "alter_table_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Delimited(
+            OneOf(
+                # Table options
+                Ref("TableOptionsSegment"),
+                # Online DDL options
+                Ref("AlterTableOnlineDDLOptionSegment"),
+                # Dialect-specific ALTER TABLE actions.
+                Ref("AddDropSystemVersioningGrammar"),
+                # Add column
+                Sequence(
+                    "ADD",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        "FIRST",
+                        Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                        # Bracketed Version of the same
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        optional=True,
+                    ),
+                ),
+                # Alter Column
+                Sequence(
+                    "ALTER",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    AnySetOf(
+                        OneOf(
+                            Sequence(
+                                "SET",
+                                "DEFAULT",
+                                OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
+                            ),
+                            Sequence("DROP", "DEFAULT"),
+                        ),
+                        Sequence("SET", OneOf("INVISIBLE", "VISIBLE")),
+                        min_times=1,
+                    ),
+                ),
+                # Modify Column
+                Sequence(
+                    "MODIFY",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        "FIRST",
+                        Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                        # Bracketed Version of the same
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        optional=True,
+                    ),
+                ),
+                # Add constraint. Uses an ALTER-only constraint grammar so that
+                # `IF NOT EXISTS` is accepted here but not in CREATE TABLE.
+                Sequence(
+                    "ADD",
+                    Ref("AlterTableConstraintSegment"),
+                ),
+                # Change column
+                Sequence(
+                    "CHANGE",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        Sequence(
+                            OneOf(
+                                "FIRST",
+                                Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                # Drop column
+                Sequence(
+                    "DROP",
+                    OneOf(
+                        Sequence(
+                            Ref.keyword("COLUMN", optional=True),
+                            Ref("IfExistsGrammar", optional=True),
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                        Sequence(
+                            OneOf("INDEX", "KEY", optional=True),
+                            Ref("IfExistsGrammar", optional=True),
+                            Ref("IndexReferenceSegment"),
+                        ),
+                        Ref("PrimaryKeyGrammar"),
+                        Sequence(
+                            Ref("ForeignKeyGrammar"),
+                            Ref("IfExistsGrammar", optional=True),
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                        Sequence(
+                            OneOf("CHECK", "CONSTRAINT"),
+                            Ref("IfExistsGrammar", optional=True),
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                    ),
+                ),
+                # Alter constraint
+                Sequence(
+                    "ALTER",
+                    OneOf("CHECK", "CONSTRAINT"),
+                    Ref("ObjectReferenceSegment"),
+                    OneOf(
+                        "ENFORCED",
+                        Sequence("NOT", "ENFORCED"),
+                    ),
+                ),
+                # Alter index
+                Sequence(
+                    "ALTER",
+                    OneOf("INDEX", "KEY"),
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("IndexReferenceSegment"),
+                    OneOf(
+                        "VISIBLE",
+                        "INVISIBLE",
+                        "IGNORED",
+                        Sequence("NOT", "IGNORED"),
+                    ),
+                ),
+                # Rename
+                Sequence(
+                    "RENAME",
+                    OneOf(
+                        # Rename table
+                        Sequence(
+                            OneOf("AS", "TO", optional=True),
+                            Ref("TableReferenceSegment"),
+                        ),
+                        # Rename index
+                        Sequence(
+                            OneOf("INDEX", "KEY"),
+                            Ref("IndexReferenceSegment"),
+                            "TO",
+                            Ref("IndexReferenceSegment"),
+                        ),
+                        # Rename column
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "TO",
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                ),
+                # Enable/Disable updating nonunique indexes
+                Sequence(
+                    OneOf("DISABLE", "ENABLE"),
+                    "KEYS",
+                ),
+                # CONVERT TO CHARACTER SET charset_name [COLLATE collation_name]
+                Sequence("CONVERT", "TO", AnyNumberOf(Ref("AlterOptionSegment"))),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            OneOf(
+                "ADD",
+                "DROP",
+                "DISCARD",
+                "IMPORT",
+                "TRUNCATE",
+                "COALESCE",
+                "REORGANIZE",
+                "EXCHANGE",
+                "ANALYZE",
+                "CHECK",
+                "OPTIMIZE",
+                "REBUILD",
+                "REPAIR",
+                "REMOVE",
+            ),
+            OneOf("PARTITION", "PARTITIONING"),
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("NumericLiteralSegment"),
+                "ALL",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+            ),
+            Ref.keyword("TABLESPACE", optional=True),
+            Sequence(
+                "WITH",
+                "TABLE",
+                Ref("TableReference"),
+                OneOf("WITH", "WITHOUT"),
+                "VALIDATION",
+                optional=True,
+            ),
+            Sequence(
+                "INTO",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
 class CreateProcedureStatementSegment(mysql.CreateProcedureStatementSegment):
     """A `CREATE PROCEDURE` statement.
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d1b8a38170f9796a60169e55d24db976a846bd274bc0b31250a47bf523733b6e
+_hash: df8eed5761739e44aa5233d6dbcd299c488f66c371c1bafac196128cf6ca8179
 file:
 - batch:
     statement:
@@ -177,7 +177,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: first_name
-                binary_operator: '%'
+                attribute_indicator: '%'
                 keyword: TYPE
             - comma: ','
             - naked_identifier: last
@@ -186,7 +186,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: last_name
-                binary_operator: '%'
+                attribute_indicator: '%'
                 keyword: TYPE
             - end_bracket: )
         - statement_terminator: ;
@@ -207,7 +207,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: phone_number
-                binary_operator: '%'
+                attribute_indicator: '%'
                 keyword: TYPE
             - end_bracket: )
         - statement_terminator: ;
@@ -352,7 +352,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: phone_number
-                binary_operator: '%'
+                attribute_indicator: '%'
                 keyword: TYPE
             - end_bracket: )
         - statement_terminator: ;

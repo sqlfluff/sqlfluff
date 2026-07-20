@@ -1,6 +1,6 @@
 """Implementation of Rule CP01."""
 
-from typing import Optional
+from typing import Any, Callable, Optional
 
 import regex
 
@@ -8,6 +8,13 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+
+try:
+    import sqlfluffrs
+
+    _HAS_SQLFLUFFRS = True
+except ImportError:  # pragma: no cover
+    _HAS_SQLFLUFFRS = False
 
 
 def is_capitalizable(character: str) -> bool:
@@ -65,6 +72,91 @@ class Rule_CP01(BaseRule):
     config_keywords = ["capitalisation_policy", "ignore_words", "ignore_words_regex"]
     # Human readable target elem for description
     _description_elem = "Keywords"
+
+    def _eval_rust(self, context: RuleContext) -> Optional[list[LintResult]]:
+        """Rust-native CP01 detection over the arena.
+
+        Runs the whole detection in Rust (`sqlfluffrs.cp01_violations` over
+        `root._rs_tree`) and maps each `(leaf_index, fixed_raw)` back to its
+        Python segment to emit a standard `LintFix`. Returns ``None`` (Python
+        fallback) when the Rust extension/arena is unavailable, or for any
+        config the native path doesn't implement (a non-keyword policy or a
+        regex word-ignore). See ``BaseRule._eval_rust``.
+        """
+        if not _HAS_SQLFLUFFRS:
+            return None  # pragma: no cover
+        # Only CP01 itself: this detection targets keyword/operator segments, so
+        # subclasses without their own _eval_rust (currently CP02/CP05) must not
+        # use it — they fall back to Python until they get their own Rust path.
+        # CP04 in particular shares `capitalisation_policy`, so a policy check
+        # alone wouldn't exclude it (it has its own override, see CP04.py).
+        if self.name != "capitalisation.keywords":
+            return None
+        if getattr(self, "ignore_words_regex", None):
+            return None
+        # CP01's capitalisation_policy is validated to one of these four values.
+        policy = str(getattr(self, "capitalisation_policy"))
+        return self._eval_rust_capitalisation(
+            context, sqlfluffrs.cp01_violations, policy
+        )
+
+    def _eval_rust_capitalisation(
+        self,
+        context: RuleContext,
+        violations_fn: Callable[[Any, str, list[str], bool], list[tuple[int, str]]],
+        policy: str,
+    ) -> Optional[list[LintResult]]:
+        """Shared Rust-dispatch plumbing for the capitalisation bundle.
+
+        Each rule with a Rust path (CP01/CP03/CP04) does its own guard checks
+        in its own ``_eval_rust`` (rule identity, arena presence via `None`
+        propagation, `ignore_words_regex`), then delegates here for the FFI
+        call and leaf-index -> segment mapping shared by all of them, keyed on
+        which native `*_violations` function and policy config key the rule
+        uses.
+        """
+        root = context.segment
+        rs_tree = getattr(root, "_rs_tree", None)
+        if rs_tree is None:
+            # Unreachable via dispatch (crawl() only calls this when the root
+            # has an arena), but guard in case _eval_rust is called directly.
+            return None  # pragma: no cover
+
+        ignore_words_config = str(getattr(self, "ignore_words", None))
+        if ignore_words_config and ignore_words_config != "None":
+            ignore_words = self.split_comma_separated_string(
+                ignore_words_config.lower()
+            )
+        else:
+            ignore_words = []
+        ignore_templated = bool(context.config.get("ignore_templated_areas"))
+
+        violations = violations_fn(rs_tree, policy, ignore_words, ignore_templated)
+        if not violations:
+            return []
+
+        raw_segments = root.raw_segments
+        policy_text = self._policy_description(policy)
+        results: list[LintResult] = []
+        for leaf_idx, fixed_raw in violations:
+            segment = raw_segments[leaf_idx]
+            results.append(
+                LintResult(
+                    anchor=segment,
+                    fixes=[self._get_fix(segment, fixed_raw)],
+                    description=f"{self._description_elem} must be {policy_text}",
+                )
+            )
+        return results
+
+    @staticmethod
+    def _policy_description(policy: str) -> str:
+        """Human-readable policy text for a Rust-path violation description."""
+        if policy == "capitalise":
+            return "capitalised."
+        if policy == "consistent":
+            return "consistent."
+        return f"{policy} case."
 
     def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Inconsistent capitalisation of keywords.

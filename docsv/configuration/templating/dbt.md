@@ -66,7 +66,18 @@ In *.sqlfluff*:
 ```ini
 [sqlfluff]
 templater = dbt
+encoding = utf-8
 ```
+
+::: tip
+Setting `encoding = utf-8` is recommended for dbt projects where *SQLFluff*
+may write files, for example when running `sqlfluff fix`.
+The dbt templater uses dbt to read project files during compilation, while
+*SQLFluff* writes fixed files using its configured encoding. Setting the
+encoding explicitly avoids relying on autodetection and can prevent
+`UnicodeDecodeError` failures when dbt reads files after they have been
+fixed by *SQLFluff*.
+:::
 
 In *.sqlfluffignore*:
 

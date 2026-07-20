@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1923d4143d82b238d9a9640c783855710552440dc24016aa5c5fd2726044fd81
+_hash: a0959e6f5dadb7733c9e7a718b62ac8302c204c7960f1857c6af822142c2c688
 file:
 - batch:
     statement:
@@ -20,7 +20,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: last_name
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: v_jobid
@@ -29,7 +29,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: job_id
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: query_2
@@ -49,7 +49,7 @@ file:
         - row_type_reference:
             table_reference:
               naked_identifier: employees
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -116,7 +116,7 @@ file:
               - keyword: WHEN
               - expression:
                   naked_identifier: cv
-                  binary_operator: '%'
+                  attribute_indicator: '%'
                   keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -192,7 +192,7 @@ file:
               - keyword: WHEN
               - expression:
                   naked_identifier: cv
-                  binary_operator: '%'
+                  attribute_indicator: '%'
                   keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -392,7 +392,7 @@ file:
         - row_type_reference:
             table_reference:
               naked_identifier: employees
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: ROWTYPE
         - statement_terminator: ;
         - naked_identifier: v_stmt_str
@@ -410,7 +410,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: job_id
-            binary_operator: '%'
+            attribute_indicator: '%'
             keyword: TYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -448,7 +448,7 @@ file:
               - keyword: WHEN
               - expression:
                   naked_identifier: v_emp_cursor
-                  binary_operator: '%'
+                  attribute_indicator: '%'
                   keyword: NOTFOUND
           - statement_terminator: ;
           - keyword: END

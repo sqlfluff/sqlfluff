@@ -2,6 +2,7 @@ pub mod config;
 pub mod grammar_api;
 pub mod grammar_inst;
 pub mod grammar_tables;
+pub mod identity;
 pub mod marker;
 pub mod matcher;
 pub mod parser;
@@ -16,7 +17,7 @@ pub use grammar_tables::{
     ChildrenIter, GrammarInstExt, GrammarTables, SimpleHintData, TableMemoryStats, TerminatorsIter,
 };
 pub use marker::PositionMarker;
-pub use matcher::LexMatcher;
+pub use matcher::{LexMatcher, LexMatcherConfig};
 pub use parser::{ParseMode, RootGrammar, SimpleHint};
 pub use regex::{RegexMode, RegexModeGroup};
 pub use slice::Slice;

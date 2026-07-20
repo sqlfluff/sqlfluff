@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fc66dcd892c616fe6d48a210ed8fb2b87c96c76ba40b6aeacdd74de1ba46f314
+_hash: c153c69f134fe0d1534d7504a1ec01a54793b92c32cffacff26a3965ff958ca4
 file:
   batch:
   - statement:
@@ -116,6 +116,80 @@ file:
               column_reference:
                 naked_identifier: other_column_name
               end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_constraint_clauses:
+          keyword: ADD
+          bracketed:
+            start_bracket: (
+            table_constraint:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: constraint_name
+            - keyword: FOREIGN
+            - keyword: KEY
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  naked_identifier: column_name
+                end_bracket: )
+            - keyword: REFERENCES
+            - table_reference:
+                naked_identifier: other_table_name
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  naked_identifier: other_column_name
+                end_bracket: )
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_constraint_clauses:
+          keyword: ADD
+          bracketed:
+          - start_bracket: (
+          - table_constraint:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: pk_name
+            - keyword: PRIMARY
+            - keyword: KEY
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  naked_identifier: column_name
+                end_bracket: )
+          - comma: ','
+          - table_constraint:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: fk_name
+            - keyword: FOREIGN
+            - keyword: KEY
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  naked_identifier: column_name
+                end_bracket: )
+            - keyword: REFERENCES
+            - table_reference:
+                naked_identifier: other_table_name
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  naked_identifier: other_column_name
+                end_bracket: )
+          - end_bracket: )
   - statement_terminator: ;
   - statement:
       alter_table_statement:

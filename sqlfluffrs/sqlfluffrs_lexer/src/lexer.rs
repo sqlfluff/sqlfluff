@@ -4,10 +4,10 @@ use log::debug;
 
 use sqlfluffrs_types::{
     marker::PositionMarker,
-    matcher::{LexMatcher, LexedElement},
+    matcher::{LexMatcher, LexMatcherConfig, LexedElement},
     slice::Slice,
     templater::{fileslice::TemplatedFileSlice, templatefile::TemplatedFile},
-    token::{CaseFold, Token},
+    token::Token,
 };
 
 use hashbrown::{HashMap, HashSet};
@@ -230,17 +230,10 @@ impl Lexer {
                 // dialect,
                 "<unlexable>",
                 r#"[^\t\n\ ]*"#,
-                Token::unlexable_token_compat,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                CaseFold::None,
+                Token::unlexable_token,
                 None,
                 |_| true,
-                None,
+                LexMatcherConfig::default(),
             )
         });
         Self {
@@ -283,30 +276,25 @@ impl Lexer {
     ) -> Vec<TemplateElement> {
         let mut idx = 0;
         let mut templated_buff = Vec::new();
+        // Advance once per element rather than restarting from 0 each time,
+        // keeping the validation O(n) in total file size.
+        let mut template_chars = template.templated_str.chars();
 
         for element in elements {
             let element_len = element.raw.chars().count();
             let template_slice = Slice::from(idx..idx + element_len);
             idx += element_len;
 
-            // Create a TemplateElement from the LexedElement and the template slice
-            let templated_element = TemplateElement::from_element(element, template_slice);
-            templated_buff.push(templated_element);
-
-            // // Validate that the slice matches the element's raw content
-            let templated_substr: String = template
-                .templated_str
-                .chars()
-                .skip(template_slice.start)
-                .take(template_slice.len())
-                .collect();
-
+            let templated_substr: String = template_chars.by_ref().take(element_len).collect();
             if *templated_substr != *element.raw {
                 panic!(
                     "Template and lexed elements do not match. This should never happen  {:?} != {:?}",
                     &element.raw, &templated_substr
                 )
             }
+
+            let templated_element = TemplateElement::from_element(element, template_slice);
+            templated_buff.push(templated_element);
         }
 
         templated_buff
@@ -394,7 +382,7 @@ impl Lexer {
             let raw = tokens[idx].raw();
 
             // Check if this is an opening bracket
-            if let Some(open_char) = match raw.as_str() {
+            if let Some(open_char) = match raw {
                 "(" => Some('('),
                 "[" => Some('['),
                 "{" => Some('{'),
@@ -403,20 +391,35 @@ impl Lexer {
                 bracket_stack.push((idx, open_char));
             }
             // Check if this is a closing bracket
-            else if let Some(expected_open) = match raw.as_str() {
+            else if let Some(expected_open) = match raw {
                 ")" => Some('('),
                 "]" => Some('['),
                 "}" => Some('{'),
                 _ => None,
             } {
-                // Try to match with the most recent opening bracket of the same type
-                if let Some(pos) = bracket_stack.iter().rposition(|(_, c)| *c == expected_open) {
-                    let (open_idx, _) = bracket_stack.remove(pos);
-                    // Set bidirectional pointers
-                    tokens[open_idx].matching_bracket_idx = Some(idx);
-                    tokens[idx].matching_bracket_idx = Some(open_idx);
+                // Only the most-recently-opened bracket (the top of the stack)
+                // may be closed next, per LIFO nesting discipline. This matches
+                // Python's resolve_bracket (match_algorithms.py), which recurses
+                // into a freshly-opened bracket and only returns once that
+                // specific bracket is resolved.
+                if let Some(&(open_idx, top_char)) = bracket_stack.last() {
+                    if top_char == expected_open {
+                        bracket_stack.pop();
+                        // Set bidirectional pointers
+                        tokens[open_idx].matching_bracket_idx = Some(idx);
+                        tokens[idx].matching_bracket_idx = Some(open_idx);
+                    } else {
+                        // A type mismatch (e.g. `a[(1]`) is what Python's
+                        // resolve_bracket raises on, unwinding through every
+                        // enclosing bracket's own call. Clear the whole stack
+                        // to match that: every bracket still open at this
+                        // point stays unresolved, so none of them can later
+                        // pair with a closer that follows.
+                        bracket_stack.clear();
+                    }
                 }
-                // If no matching opening bracket, leave as None (syntax error)
+                // If the stack is empty, there's no open bracket at all -
+                // leave as None (syntax error).
             }
         }
         // Any remaining opening brackets on the stack are unmatched - leave as None
@@ -430,7 +433,7 @@ impl Lexer {
                 SQLLexError::new(
                     Some(format!(
                         "Unable to lex characters: {}",
-                        token.raw.chars().take(10).collect::<String>()
+                        python_repr_str(&truncate_like_python(token.raw()))
                     )),
                     token.pos_marker.clone(),
                     None,
@@ -442,6 +445,65 @@ impl Lexer {
             })
             .collect()
     }
+}
+
+/// Truncates to match Python's `segment.raw[:10] + "..." if
+/// len(segment.raw) > 9 else segment.raw` (lexer.py's
+/// `violations_from_segments`), counting and slicing by Unicode codepoint
+/// so multi-byte characters truncate the same way Python's `len` and
+/// slicing do.
+fn truncate_like_python(raw: &str) -> String {
+    if raw.chars().count() > 9 {
+        let mut truncated: String = raw.chars().take(10).collect();
+        truncated.push_str("...");
+        truncated
+    } else {
+        raw.to_string()
+    }
+}
+
+/// Quotes and escapes a string the way Python's `repr()` would, so the
+/// `SQLLexError` description (`"Unable to lex characters:
+/// {!r}".format(...)` in lexer.py's `violations_from_segments`) reads the
+/// same from both lexers even when the unlexable text carries control
+/// characters.
+///
+/// Escapes ASCII/C1 control characters and non-space Unicode whitespace,
+/// which covers the punctuation and symbols that typically show up in
+/// unlexable input. Format (Cf), private-use (Co), and unassigned (Cn)
+/// codepoints are printed as-is for now; extend the match below if
+/// real-world input needs them escaped too.
+fn python_repr_str(s: &str) -> String {
+    let use_double_quotes = s.contains('\'') && !s.contains('"');
+    let quote_char = if use_double_quotes { '"' } else { '\'' };
+
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push(quote_char);
+    for c in s.chars() {
+        match c {
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if c == quote_char => {
+                out.push('\\');
+                out.push(c);
+            }
+            c if c.is_control() || (c.is_whitespace() && c != ' ') => {
+                let cp = c as u32;
+                if cp <= 0xff {
+                    out.push_str(&format!("\\x{cp:02x}"));
+                } else if cp <= 0xffff {
+                    out.push_str(&format!("\\u{cp:04x}"));
+                } else {
+                    out.push_str(&format!("\\U{cp:08x}"));
+                }
+            }
+            c => out.push(c),
+        }
+    }
+    out.push(quote_char);
+    out
 }
 
 fn iter_tokens(

@@ -584,6 +584,55 @@ def test__templater_jinja_error_variable():
     assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
 
 
+@pytest.mark.parametrize(
+    ("file_encoding", "config_encoding"),
+    [
+        ("utf-8", "utf-8"),
+        ("utf-16", "utf-16"),
+        ("utf-8", "autodetect"),
+    ],
+)
+def test__templater_jinja_macro_path_configured_encoding(
+    tmp_path, monkeypatch, file_encoding, config_encoding
+):
+    """Macro files are read with the encoding from the configuration.
+
+    See #6633: on platforms whose default text encoding is not UTF-8 (e.g.
+    Windows cp1252), a macro containing a non-ASCII character used to raise a
+    ``UnicodeDecodeError`` when loaded from ``load_macros_from_path``.
+    """
+    macro_file = tmp_path / "macros.sql"
+    macro_file.write_text(
+        "{% macro square(n) %}-- Á\n{{ n * n }}{% endmacro %}",
+        encoding=file_encoding,
+    )
+
+    real_open = open
+
+    def cp1252_default_open(file, mode="r", *args, encoding=None, **kwargs):
+        # Emulate a platform whose default text encoding is cp1252.
+        if encoding is None and "b" not in mode:
+            encoding = "cp1252"
+        return real_open(file, mode, *args, encoding=encoding, **kwargs)
+
+    monkeypatch.setattr("builtins.open", cp1252_default_open)
+
+    config = FluffConfig(
+        configs={
+            "core": {
+                "dialect": "ansi",
+                "encoding": config_encoding,
+                "templater": "jinja",
+            },
+            "templater": {
+                "jinja": {"load_macros_from_path": str(macro_file)},
+            },
+        }
+    )
+    macros = JinjaTemplater()._extract_macros(config, env=Environment(), ctx={})
+    assert "square" in macros
+
+
 def test__templater_jinja_dynamic_variable_no_violations():
     """Test no templater violation for variable defined within template."""
     t = JinjaTemplater(override_context=dict(blah="foo"))

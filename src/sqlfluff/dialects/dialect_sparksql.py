@@ -265,6 +265,15 @@ sparksql_dialect.sets("datetime_units").update(
 # Set Keywords
 sparksql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 sparksql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+# Spark SQL is less restrictive than ANSI: several ANSI reserved keywords are
+# only "strict-non-reserved" in Spark's default (non-ANSI) mode and may be used
+# as identifiers (e.g. `LEFT`/`RIGHT` as lambda variables in `array_sort`, #5004).
+# The keyword lists above are authoritative for Spark, so drop from the inherited
+# ANSI reserved set anything Spark declares unreserved. `LEFT`/`RIGHT` are still
+# matched as keywords in `JoinTypeKeywordsGrammar`, so `LEFT`/`RIGHT [OUTER] JOIN`
+# continue to parse.
+# https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html#sql-keywords
+sparksql_dialect.sets("reserved_keywords").difference_update(UNRESERVED_KEYWORDS)
 
 # Set Angle Bracket Pairs
 sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
@@ -552,6 +561,7 @@ sparksql_dialect.add(
         Ref("EqualsSegment", optional=True),
         OneOf(
             Ref("LiteralGrammar"),
+            Bracketed(Delimited(Ref("LiteralGrammar"))),
             # when property value is Java Class Name
             Delimited(
                 Ref("PropertiesNakedIdentifierSegment"),
@@ -3274,7 +3284,7 @@ class MergeUpdateClauseSegment(ansi.MergeUpdateClauseSegment):
     match_grammar: Matchable = Sequence(
         "UPDATE",
         OneOf(
-            Sequence("SET", Ref("WildcardIdentifierSegment")),
+            Sequence("SET", Ref("WildcardExpressionSegment")),
             Sequence(
                 Indent,
                 Ref("SetClauseListSegment"),
@@ -3291,7 +3301,7 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
     match_grammar: Matchable = Sequence(
         "INSERT",
         OneOf(
-            Ref("WildcardIdentifierSegment"),
+            Ref("WildcardExpressionSegment"),
             Sequence(
                 Indent,
                 Ref("BracketedColumnReferenceListGrammar"),
@@ -3581,12 +3591,18 @@ class ConstraintStatementSegment(BaseSegment):
 
 
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
-    """An extension of the star expression for Databricks."""
+    """An extension of the star expression for SparkSQL.
+
+    Adds support for the optional ``EXCEPT`` clause, which prunes columns
+    from the referenceable set of columns identified in the star clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-star.html
+    """
 
     match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
         insert=[
             # Optional EXCEPT clause
-            # https://docs.databricks.com/release-notes/runtime/9.0.html#exclude-columns-in-select--public-preview
+            # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-star.html
             Ref("ExceptClauseSegment", optional=True),
         ]
     )
