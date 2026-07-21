@@ -18,12 +18,6 @@ import pytest
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
-@pytest.mark.xfail(
-    reason="TableBuilder.grammar_to_id caches grammars by id() without "
-    "keeping them alive, so a GC'd grammar's slot can be inherited by an "
-    "unrelated grammar allocated at the same address.",
-    strict=True,
-)
 def test__parity__codegen_grammar_cache_pins_against_gc():
     """A grammar cached by TableBuilder must not be collectible.
 

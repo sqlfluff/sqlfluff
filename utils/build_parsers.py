@@ -119,10 +119,15 @@ class TableBuilder:
         self.regex_to_id: Dict[str, int] = {}
         self.grammar_to_id: Dict[int, int] = {}  # Python id() -> GrammarId
 
-        # Keep references to synthetic grammars to prevent garbage collection.
-        # Python may reuse memory addresses for new objects after GC, which
-        # would cause incorrect cache hits in grammar_to_id when using id().
-        self._synthetic_grammars: List = []
+        # Keep a reference to every grammar object we cache in grammar_to_id.
+        # Python may reuse a garbage-collected object's memory address for a
+        # later, unrelated grammar; without pinning, that new grammar would
+        # silently inherit the freed object's cached GrammarId - wiring a
+        # semantically wrong subgrammar into the emitted tables. Pin every
+        # cached grammar (dialect-defined or synthetic, e.g. the OneOf
+        # _handle_delimited builds for multi-element Delimited grammars) for
+        # the builder's lifetime so no id() is ever reused while cached.
+        self._cached_grammars: List = []
         self.hint_to_id: Dict[Tuple[Tuple[str, ...], Tuple[str, ...]], int] = {}
 
     def _add_string(self, s: str) -> int:
@@ -273,6 +278,9 @@ class TableBuilder:
         # instruction will end up at the wrong index!
         grammar_id = len(self.instructions)
         self.grammar_to_id[python_id] = grammar_id
+        # Pin the object so its id() cannot be reused by a different grammar
+        # while the cache entry is live (see _cached_grammars in __init__).
+        self._cached_grammars.append(grammar)
         self.instructions.append(None)  # Reserve slot - will be replaced below
         # Reserve a slot for the segment_type offset (default: no type)
         self.segment_type_offsets.append(0xFFFFFFFF)
@@ -780,8 +788,6 @@ class TableBuilder:
                 allow_gaps=grammar.allow_gaps,
                 optional=True,  # Elements in Delimited are implicitly optional
             )
-            # Keep reference to prevent GC and id() reuse
-            self._synthetic_grammars.append(elements_oneof)
             elements_id = self.flatten_grammar(elements_oneof, parse_context)
             comment = f"Delimited({len(grammar._elements)} elements via OneOf)"
         else:
