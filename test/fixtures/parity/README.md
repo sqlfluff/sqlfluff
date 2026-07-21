@@ -79,3 +79,7 @@ Case fields:
 
 - `test/core/parser/parity/corpus_test.py` - three-way sweep of every
   dialect fixture at the same strictness.
+- `test/core/parser/parity/special_cases_test.py` - parity-adjacent checks
+  that need Python-side instrumentation rather than a plain SQL-plus-config
+  case, e.g. codegen object-lifetime and hash-seed-stability probes on
+  `utils/build_parsers.py`/`utils/build_lexers.py`.
