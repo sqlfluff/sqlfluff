@@ -231,11 +231,10 @@ postgres_eszett_function_name:
   sql: SELECT straße(1)
   dialect: postgres
   expect: clean_tree
-  xfail:
-    python_vs_rust: Python's RegexParser matches case-insensitively against raw.upper()
-      - FULL unicode case mapping (eszett straße -> STRASSE) - while Rust's regex crate
-      only does simple case folding, under which the eszett never matches [A-Z]. The
-      word token 'straße' fails FunctionNameIdentifierSegment's template on the Rust
-      side only, so it parses as a bare column_reference there instead of a function
-      call.
-  pins: Unicode full-vs-simple case folding gap in RegexParser accept decisions.
+  pins: Python's RegexParser matches case-insensitively against raw.upper() - FULL unicode
+    case mapping (eszett straße -> STRASSE), while Rust's regex crate only does simple
+    case folding, under which the eszett never matches [A-Z] - so the word token 'straße'
+    failed FunctionNameIdentifierSegment's template on the Rust side only, parsing as
+    column_reference there instead of a function call. Fixed by pre-uppercasing the
+    comparison text for case-insensitive RegexParser matches in core.rs, matching Python's
+    raw.upper() exactly (the constructed segment still keeps the token's original casing).
