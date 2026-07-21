@@ -13,8 +13,6 @@ import sys
 import weakref
 from pathlib import Path
 
-import pytest
-
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
@@ -57,23 +55,18 @@ def test__parity__codegen_grammar_cache_pins_against_gc():
     )
 
 
-@pytest.mark.xfail(
-    reason="tsql's currency_symbols set is joined without sorting first, so "
-    "the money-literal lexer pattern's byte content varies with the "
-    "interpreter's hash seed.",
-    strict=True,
-)
 def test__parity__codegen_lexer_patterns_hash_seed_stable():
     """Dialect lexer regexes are byte-identical across interpreter hash seeds.
 
-    tsql's money-literal lexer pattern is assembled from an unordered set of
-    currency symbols via ``"".join(...)`` with no sorting, so its bytes
-    shuffle with the interpreter's hash seed - unlike every other
-    ``dialect.sets(...)``-derived pattern in the codebase, which already
-    sorts first. That makes the generated Rust lexer file (produced by
+    Regression guard: tsql's money-literal lexer pattern used to be assembled
+    from an unordered set of currency symbols via ``"".join(...)`` with no
+    sorting, so its bytes shuffled with the interpreter's hash seed - unlike
+    every other ``dialect.sets(...)``-derived pattern in the codebase, which
+    already sorts first. That made the generated Rust lexer file (produced by
     utils/rustify.py) unreproducible: rebuilding with a different hash seed
-    silently changes the checked-in output's byte content, even though the
-    character class matches exactly the same input either way.
+    silently changed the checked-in output's byte content, even though the
+    character class matched exactly the same input either way. The join is now
+    sorted; this test keeps it that way.
     """
     script = (
         "from sqlfluff.core.dialects import dialect_selector\n"
