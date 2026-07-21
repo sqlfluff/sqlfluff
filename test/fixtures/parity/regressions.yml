@@ -114,12 +114,10 @@ int_typed_indentation_config:
   sql: SELECT a FROM t JOIN u USING (a)
   configs:
     indentation.indented_joins: 1
-  expect: tree
-  xfail:
-    python_vs_rust: With indentation.indented_joins set to the int 1 rather than the bool
-      True, Rust adds an extra indent/dedent pair around join_clause that Python's tree does
-      not produce.
-  pins: Int-typed vs bool indentation.indented_joins config value diverges.
+  expect: clean_tree
+  pins: RustParser's Conditional-grammar indentation config only kept values already typed
+    as bool, silently dropping int-typed truthy settings such as indented_joins = 1 (fixed
+    by coercing every indentation-section value with bool(), matching ParseContext.from_config).
 found_token_class_name:
   sql: SELECT ] FROM t
   dialect: flink
