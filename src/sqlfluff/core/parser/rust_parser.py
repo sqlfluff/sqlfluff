@@ -370,8 +370,17 @@ try:
                     )
                     if _prof is not None:
                         _prof["apply_as_tree"] = time.perf_counter() - _ts
-                except Exception:  # pragma: no cover
-                    # Non-critical: if tree building fails, rules fall back to Python
+                except (KeyboardInterrupt, SystemExit):
+                    # Never swallow interpreter control-flow exceptions.
+                    raise
+                except BaseException:  # noqa: BLE001  # pragma: no cover
+                    # Non-critical: if arena-tree building fails, rules fall back
+                    # to the Python-built tree. Deliberately `except
+                    # BaseException` (minus the control-flow exceptions above):
+                    # a Rust-side panic crosses pyo3 as PanicException, which is
+                    # a BaseException, NOT an Exception, so a bare `except
+                    # Exception` would let a panic abort the whole parse instead
+                    # of engaging this documented fallback.
                     parser_logger.warning(
                         f"Unable to apply match result in parse tree for {fname}, falling"
                         " back to Python. Please report this as a bug with the SQL that"
