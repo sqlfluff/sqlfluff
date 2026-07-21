@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::sync::Arc;
 
 use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashSet;
@@ -52,7 +53,10 @@ pub struct LexMatcher {
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub quoted_value: Option<(String, RegexModeGroup)>,
-    pub escape_replacements: Option<(String, String)>,
+    // Shared via `Arc` so cloning a matcher into a token (`construct_token`,
+    // once per lexed token) is a refcount bump rather than a deep copy of the
+    // `(pattern, replacement)` pairs.
+    pub escape_replacements: Option<Arc<Vec<(String, String)>>>,
     pub casefold: CaseFold,
     pub kwarg_type: Option<String>,
 }
@@ -66,7 +70,7 @@ pub struct LexMatcherConfig {
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub quoted_value: Option<(String, RegexModeGroup)>,
-    pub escape_replacements: Option<(String, String)>,
+    pub escape_replacements: Option<Arc<Vec<(String, String)>>>,
     pub casefold: CaseFold,
     pub kwarg_type: Option<String>,
 }
@@ -323,7 +327,7 @@ impl LexMatcher {
                 trim_start: self.trim_start.clone(),
                 trim_chars: self.trim_chars.clone(),
                 quoted_value: self.quoted_value.clone(),
-                escape_replacement: self.escape_replacements.clone(),
+                escape_replacements: self.escape_replacements.clone(),
                 casefold: self.casefold,
             },
         )

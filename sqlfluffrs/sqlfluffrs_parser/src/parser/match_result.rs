@@ -38,7 +38,7 @@ pub struct SegmentKwargs {
     pub trim_chars: Option<Vec<String>>,
     pub casefold: CaseFold,
     pub quoted_value: Option<(String, RegexModeGroup)>,
-    pub escape_replacement: Option<(String, String)>,
+    pub escape_replacements: Option<Arc<Vec<(String, String)>>>,
     pub parse_error: Option<(String, usize)>,
 }
 
@@ -50,7 +50,7 @@ impl Default for SegmentKwargs {
             trim_chars: None,
             casefold: CaseFold::None,
             quoted_value: None,
-            escape_replacement: None,
+            escape_replacements: None,
             parse_error: None,
         }
     }
@@ -605,10 +605,7 @@ impl MatchResult {
                                 };
                                 (pattern, group_str)
                             });
-                    let escape_replacements = match_class
-                        .segment_kwargs
-                        .escape_replacement
-                        .map(|(pattern, replacement)| vec![(pattern, replacement)]);
+                    let escape_replacements = match_class.segment_kwargs.escape_replacements;
 
                     return vec![Node::new_raw_with_class_types(
                         match_class.class_name,
@@ -749,7 +746,7 @@ pub fn segment_kwargs_from_token(
         // into it; grammar-configured trim_chars are applied by the parser
         // handlers on top of these kwargs where present.
         trim_chars: None,
-        escape_replacement: tok.escape_replacement().cloned(),
+        escape_replacements: tok.escape_replacements_arc(),
         quoted_value: tok.quoted_value().cloned(),
         ..Default::default()
     }

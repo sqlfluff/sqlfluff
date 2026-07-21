@@ -478,11 +478,11 @@ try:
                 elif rs_match.casefold == "lower":
                     segment_kwargs["casefold"] = str.lower
 
-            # Set quoted_value and escape_replacement for normalization
+            # Set quoted_value and escape_replacements for normalization
             if rs_match.quoted_value:  # pragma: no cover
                 segment_kwargs["quoted_value"] = rs_match.quoted_value
-            if rs_match.escape_replacement:  # pragma: no cover
-                segment_kwargs["escape_replacements"] = [rs_match.escape_replacement]
+            if rs_match.escape_replacements:  # pragma: no cover
+                segment_kwargs["escape_replacements"] = rs_match.escape_replacements
 
             # Extract insert_segments (Indent/Dedent meta segments).
             # rs_match.insert_segments contains (idx, seg_type, is_implicit) tuples;

@@ -23,7 +23,7 @@ impl Token {
             trim_start,
             trim_chars,
             quoted_value,
-            escape_replacement,
+            escape_replacements,
             casefold,
         } = config;
 
@@ -36,7 +36,7 @@ impl Token {
             is_meta: false,
             allow_empty: false,
             pos_marker: Some(pos_marker),
-            raw: crate::token::RawString::new(raw, quoted_value, escape_replacement, casefold),
+            raw: crate::token::RawString::new(raw, quoted_value, escape_replacements, casefold),
             is_whitespace: false,
             is_code: true,
             is_comment: false,

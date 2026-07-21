@@ -435,7 +435,7 @@ impl Arena {
     /// The escape `(pattern, replacement)` pairs for a raw token.
     pub fn escape_replacements(&self, id: NodeId) -> Option<Vec<(String, String)>> {
         match &self.node(id).kind {
-            ArenaKind::Raw { kwargs, .. } => kwargs.escape_replacements.clone(),
+            ArenaKind::Raw { kwargs, .. } => kwargs.escape_replacements.as_deref().cloned(),
             _ => None,
         }
     }

@@ -165,7 +165,7 @@ class RsMatchResult:
     trim_chars: Optional[List[str]]
     casefold: Optional[str]
     quoted_value: Optional[str]
-    escape_replacement: Optional[tuple[str, str]]
+    escape_replacements: Optional[List[tuple[str, str]]]
     insert_segments: Optional[List[tuple[int, str, bool]]]
 
     def apply_as_tree(

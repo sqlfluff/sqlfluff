@@ -341,13 +341,13 @@ impl PyMatchResult {
             })
     }
 
-    /// Get escape_replacement for escape sequence handling
+    /// Get escape_replacements for escape sequence handling
     #[getter]
-    fn escape_replacement(&self) -> Option<(String, String)> {
+    fn escape_replacements(&self) -> Option<Vec<(String, String)>> {
         self.0
             .matched_class
             .as_ref()
-            .and_then(|s| s.segment_kwargs.escape_replacement.clone())
+            .and_then(|s| s.segment_kwargs.escape_replacements.as_deref().cloned())
     }
 
     /// Get insert_segments (meta segments like Indent/Dedent to insert)

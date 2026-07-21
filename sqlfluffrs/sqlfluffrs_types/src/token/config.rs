@@ -1,5 +1,6 @@
 use crate::{regex::RegexModeGroup, token::CaseFold};
 use hashbrown::HashSet;
+use std::sync::Arc;
 
 /// Configuration for token construction, grouping optional parameters
 #[derive(Debug, Clone, Default)]
@@ -9,7 +10,7 @@ pub struct TokenConfig {
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub quoted_value: Option<(String, RegexModeGroup)>,
-    pub escape_replacement: Option<(String, String)>,
+    pub escape_replacements: Option<Arc<Vec<(String, String)>>>,
     pub casefold: CaseFold,
 }
 
@@ -54,9 +55,9 @@ impl TokenConfig {
         self
     }
 
-    /// Builder method to add escape_replacement
-    pub fn escape_replacement(mut self, pattern: String, replacement: String) -> Self {
-        self.escape_replacement = Some((pattern, replacement));
+    /// Builder method to add escape_replacements
+    pub fn escape_replacements(mut self, replacements: Vec<(String, String)>) -> Self {
+        self.escape_replacements = Some(Arc::new(replacements));
         self
     }
 
