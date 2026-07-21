@@ -862,3 +862,51 @@ test_pass_tsql_containstable_join_arguments:
   configs:
     core:
       dialect: tsql
+
+test_pass_mysql_update_alias_correlated_subquery:
+  # https://github.com/sqlfluff/sqlfluff/issues/6147
+  # In MySQL the target table of an UPDATE is parsed as a from_expression,
+  # so the alias `p` is nested inside a from_expression_element. References
+  # to that alias inside a correlated subquery should still resolve.
+  pass_str: |
+    UPDATE llx_product AS p
+    SET p.stock = (
+        SELECT SUM(ps.reel)
+        FROM llx_product_stock AS ps
+        WHERE ps.fk_product = p.rowid
+    );
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_mysql_multi_table_update_alias_correlated_subquery:
+  # https://github.com/sqlfluff/sqlfluff/issues/6147
+  # Aliases of every target of a multi-table UPDATE (including joined
+  # tables) should resolve from correlated subqueries.
+  pass_str: |
+    UPDATE t1 AS a
+    INNER JOIN t2 AS b ON a.id = b.id
+    SET a.x = (
+        SELECT SUM(c.v)
+        FROM t3 AS c
+        WHERE c.k = b.id
+    );
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_mysql_comma_multi_table_update_alias_correlated_subquery:
+  # https://github.com/sqlfluff/sqlfluff/issues/6147
+  # The comma-style multi-table UPDATE parses each target as a sibling
+  # from_expression (not a join_clause), so every alias must still resolve
+  # from a correlated subquery.
+  pass_str: |
+    UPDATE t1 AS a, t2 AS b
+    SET a.x = (
+        SELECT SUM(c.v)
+        FROM t3 AS c
+        WHERE c.k = b.id
+    );
+  configs:
+    core:
+      dialect: mysql
