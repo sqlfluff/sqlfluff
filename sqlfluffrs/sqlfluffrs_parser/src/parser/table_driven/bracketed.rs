@@ -139,7 +139,6 @@ impl Parser<'_> {
             content_idx,
             parse_mode_override,
             child_matches,
-            content_start_len,
             ..
         }) = &mut frame.context
         else {
@@ -168,7 +167,6 @@ impl Parser<'_> {
         );
 
         child_matches.push(Arc::clone(child_match));
-        *content_start_len = child_matches.len();
         let content_start_idx = *child_end_pos;
         // Compute bracket_max_idx from the opening bracket's token position
         let computed_bracket_max_idx = if !child_match.matched_slice.is_empty() {
@@ -308,7 +306,6 @@ impl Parser<'_> {
             content_idx,
             parse_mode_override,
             child_matches,
-            content_start_len,
             ..
         }) = &mut frame.context
         else {
@@ -453,6 +450,51 @@ impl Parser<'_> {
             // STRICT mode check: All content elements must end at the closing bracket position
             // This check should only happen AFTER all content elements have been processed.
             let check_pos = self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
+
+            // PYTHON PARITY: a *required* content element that failed (empty
+            // match) means the content Sequence never completed. When that
+            // happens *after* earlier content already matched (a genuine
+            // partial match), a STRICT Bracketed must fail (return Empty)
+            // rather than match the closing bracket over the partial content -
+            // even when the failure lands exactly on the closing bracket, so
+            // the gap check below would otherwise fall through to MatchingClose
+            // and fabricate a partial match (e.g. tsql CAST(5), whose
+            // Bracketed(Expression, "AS", Datatype) would otherwise succeed
+            // with just the expression). Python's STRICT Sequence.match returns
+            // no match there.
+            //
+            // Crucially this is gated on content having actually matched
+            // (`last_matched_end > content_start`): a required element failing
+            // with *nothing* consumed is just an empty bracket - `()` - which
+            // is valid (e.g. tsql's `dbo.f()` table hint bracket
+            // Bracketed(TableHintSegment, ...) on empty parens), and Python
+            // accepts it, so we must not fail those.
+            // Content starts at the end of the opening bracket, which is always
+            // the first recorded child match.
+            let content_start = child_matches
+                .first()
+                .map(|m| m.matched_slice.end)
+                .unwrap_or(check_pos);
+            let last_matched_end = child_matches
+                .iter()
+                .map(|m| m.matched_slice.end)
+                .max()
+                .unwrap_or(content_start);
+            if current_required_failed
+                && parse_mode == ParseMode::Strict
+                && last_matched_end > content_start
+            {
+                vdebug!(
+                    "Bracketed[table] STRICT mode: required content element failed after a partial match, returning Empty. frame_id={}, frame.pos={}",
+                    frame.frame_id, frame.pos
+                );
+                self.pos = frame.pos;
+                frame.end_pos = Some(frame.pos);
+                frame.state = FrameState::Combining;
+                stack.push(frame);
+                return Ok(TableFrameResult::Done);
+            }
+
             if let Some(expected_close_pos) = *bracket_max_idx {
                 if check_pos != expected_close_pos {
                     if parse_mode == ParseMode::Strict {
@@ -499,32 +541,55 @@ impl Parser<'_> {
                             // so gate on `current_required_failed` (a REQUIRED empty
                             // match), not merely `child_is_empty`, or an optional
                             // element's failure wrongly produces the specific message.
-                            // `child_matches.len() == *content_start_len` checks
-                            // whether any *content* element (as opposed to the
-                            // opening bracket, which is always in `child_matches`
-                            // by this point) has matched yet.
                             let specific_message = if current_required_failed {
                                 content_ids.get(*content_idx).map(|&gid| {
                                     let element_desc = self.grammar_ctx.grammar_repr(gid);
-                                    let error_token = self
-                                        .tokens
-                                        .get(check_pos)
-                                        .map(|t| format!("{}", t))
-                                        .unwrap_or_else(|| "end of input".to_string());
-                                    if child_matches.len() == *content_start_len {
+                                    // The found-token fallback string differs by
+                                    // branch, exactly as sequence.rs does it: the
+                                    // "to start sequence" branch falls back to
+                                    // "start of input" (nothing consumed yet), the
+                                    // "after X" branch to "end of input".
+                                    let found_token = |fallback: &str| {
+                                        self.tokens
+                                            .get(check_pos)
+                                            .map(|t| format!("{}", t))
+                                            .unwrap_or_else(|| fallback.to_string())
+                                    };
+                                    // PYTHON PARITY: Python's Sequence.match keys
+                                    // "to start sequence" vs "after X" on whether
+                                    // any token was consumed (matched_idx ==
+                                    // start_idx), not on a child *count* - an
+                                    // insert-only match (zero-length Indent/
+                                    // Conditional) bumps the count but not the
+                                    // position. `content_start` is where content
+                                    // began (end of the opening bracket, always
+                                    // the first recorded child match);
+                                    // `last_matched_end` is the furthest content
+                                    // match so far (Python's matched_idx).
+                                    if last_matched_end <= content_start {
                                         format!(
                                             "{} to start sequence. Found {}",
-                                            element_desc, error_token
+                                            element_desc,
+                                            found_token("start of input")
                                         )
                                     } else {
+                                        // The "after X" token is the last
+                                        // *matched* token (Python's
+                                        // segments[matched_idx - 1]), not
+                                        // tokens[check_pos - 1]: check_pos was
+                                        // skipped forward over any gap and would
+                                        // otherwise name the intervening
+                                        // whitespace.
                                         let last_matched_token = self
                                             .tokens
-                                            .get(check_pos.saturating_sub(1))
+                                            .get(last_matched_end.saturating_sub(1))
                                             .map(|t| format!("{}", t))
                                             .unwrap_or_else(|| "start of input".to_string());
                                         format!(
                                             "{} after {}. Found {}",
-                                            element_desc, last_matched_token, error_token
+                                            element_desc,
+                                            last_matched_token,
+                                            found_token("end of input")
                                         )
                                     }
                                 })
@@ -743,7 +808,6 @@ fn initialize_bracketed_frame(
         content_idx: 0,
         parse_mode_override: None, // Will be set when creating content frames
         child_matches: Vec::new(),
-        content_start_len: 0, // Set once the opening bracket is recorded
     });
     frame.table_terminators = SmallVec::from_slice(all_terminators);
     stack.push(frame);

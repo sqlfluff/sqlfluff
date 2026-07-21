@@ -152,13 +152,6 @@ pub struct BracketedState {
     pub parse_mode_override: Option<ParseMode>,
     /// Store child matches here until sequence is complete.
     pub child_matches: Vec<Arc<MatchResult>>,
-    /// `child_matches.len()` once the opening bracket has been recorded and
-    /// before any content element has been attempted. Content-failure error
-    /// messages (see `handle_bracketed_content_result`) compare against this
-    /// baseline - rather than `child_matches.is_empty()` - to tell "nothing
-    /// in the content grammar has matched yet" apart from "the opening
-    /// bracket is already in `child_matches`, but no content has".
-    pub content_start_len: usize,
 }
 
 /// Working state for a `Sequence` frame (see [`FrameContext::Sequence`]).

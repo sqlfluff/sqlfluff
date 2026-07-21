@@ -32,18 +32,17 @@ bracketed_required_content_fails_at_close_bracket:
   sql: select CAST(5);
   dialect: tsql
   expect: tree
-  xfail:
-    python_vs_rust: "A STRICT Bracketed whose required content element fails
-      exactly at the closing bracket (no trailing gap) still succeeds on the
-      Rust side with partial content. CastFunctionContents is
-      Bracketed(Expression, \"AS\", Datatype): on CAST(5) Expression matches
-      '5', the required \"AS\" fails at ')', and bracketed.rs - because check_pos
-      equals the closing-bracket position - skips the content-failure handling
-      and matches the close bracket anyway, fabricating a function node with
-      just the expression. Python's STRICT Sequence rejects the CAST and falls
-      back to a column_reference with the rest unparsable."
-  pins: tsql CAST(5)-without-AS partial-match-at-close-bracket gap in
-    bracketed.rs's STRICT required-content handling.
+  pins: A STRICT Bracketed must fail (return empty) when a required content
+    element fails *after earlier content already matched* - a genuine partial
+    match - even when that failure lands exactly on the closing bracket, rather
+    than matching the close bracket over the partial content. CastFunctionContents
+    is Bracketed(Expression, "AS", Datatype); on CAST(5) Expression matches '5',
+    the required "AS" fails at ')', and Rust used to fabricate a function node
+    with just the expression where Python rejects the CAST and falls back to a
+    column_reference with the rest unparsable. The fix is gated on content having
+    actually matched (last_matched_end > content_start) so a required element
+    failing with nothing consumed - a valid empty bracket `()`, e.g. a tsql table
+    hint bracket on empty parens - is left untouched.
 bracketed_optional_content_failure_nothing_here:
   sql: SELECT SUM(a) OVER (1 2 3) FROM t
   expect: tree
