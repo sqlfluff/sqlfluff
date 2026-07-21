@@ -151,15 +151,15 @@ try:
                 "dialect_obj"
             ).get_root_segment()
 
-            # Extract indentation config and convert boolean values only
+            # Extract indentation config for Conditional grammar evaluation.
+            # PYTHON PARITY: ParseContext.from_config coerces every value here
+            # with bool(), not just ones already typed as bool - the ini
+            # config layer can produce int 1 for a truthy setting like
+            # `indented_joins = 1`, and filtering by isinstance(v, bool)
+            # would silently drop it instead of coercing it.
             indent_config = self.config.get_section("indentation") or {}
             if indent_config:
-                # Only keep boolean config values for conditional evaluation
-                # Non-boolean values like "indent_unit": "space" are not needed
-                # for conditionals
-                indent_config = {
-                    k: v for k, v in indent_config.items() if isinstance(v, bool)
-                }
+                indent_config = {k: bool(v) for k, v in indent_config.items()}
 
             # Max parse depth (DoS mitigation); 0 disables the limit
             max_parse_depth = self.config.get("max_parse_depth")
