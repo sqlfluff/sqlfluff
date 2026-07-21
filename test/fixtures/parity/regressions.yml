@@ -105,11 +105,9 @@ parser_created_segments_drop_token_trim_chars:
   sql: SET @errmsg = 'x';
   dialect: mysql
   expect: quoted_kwargs
-  xfail:
-    python_vs_rust: "Parser-created segments must inherit only quoted_value/escape_replacements/casefold from the lexed token, not trim_chars, matching RawSegment.from_result_segments - Rust forwards the token's trim_chars ('@',) instead."
-  pins: Rust forwards a re-wrapped token's lexer-level trim_chars (e.g. the '@'
-    sigil) into the new segment's kwargs, where Python's
-    RawSegment.from_result_segments never carries trim_chars over.
+  pins: Parser-created segments inherit only quoted_value/escape_replacements/casefold from
+    the lexed token - NOT trim_chars - matching RawSegment.from_result_segments; Rust forwards
+    the token's trim_chars ('@',).
 partial_match_failure_keeps_children:
   sql: SELECT CASE
   xfail:

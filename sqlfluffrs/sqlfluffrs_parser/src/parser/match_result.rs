@@ -742,7 +742,13 @@ pub fn segment_kwargs_from_token(
     SegmentKwargs {
         instance_types: instance_types.or_else(|| Some(vec![token_type.to_string()])),
         casefold: casefold.unwrap_or_else(|| tok.casefold()),
-        trim_chars: tok.trim_chars.clone(),
+        // PYTHON PARITY: RawSegment.from_result_segments inherits only
+        // quoted_value / escape_replacements / casefold from the source
+        // token (_get_raw_segment_kwargs) - NOT trim_chars. A parser match
+        // creates a fresh segment, so lexer-level trim_chars must not leak
+        // into it; grammar-configured trim_chars are applied by the parser
+        // handlers on top of these kwargs where present.
+        trim_chars: None,
         escape_replacement: tok.escape_replacement().cloned(),
         quoted_value: tok.quoted_value().cloned(),
         ..Default::default()
