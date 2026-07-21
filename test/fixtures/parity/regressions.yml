@@ -112,12 +112,10 @@ parser_created_segments_drop_token_trim_chars:
     RawSegment.from_result_segments never carries trim_chars over.
 partial_match_failure_keeps_children:
   sql: SELECT CASE
-  xfail:
-    python_vs_rust: Rust appends a trailing period to the 'Found <Segment>' unparsable message
-      that Python's equivalent omits; the unparsable segment's children and the rest of the
-      tree are otherwise identical between engines.
-  pins: Found-message trailing-period gap, CASE-grammar variant; see sequence_found_message_no_trailing_period
-    for the STRUCT variant.
+  pins: GREEDY_ONCE_STARTED Sequence failing partway must keep the already-matched children
+    typed (the SELECT keyword), wrapping only the unmatched tail as unparsable - the Rust
+    side used to drop accumulated child_matches/insert_segments in its error MatchResult,
+    crashing rule ST05 (#8116).
 stray_closing_bracket_dialect_bracket_set:
   sql: SELECT 1 -} FROM t
   dialect: snowflake
@@ -167,10 +165,9 @@ expected_message_curtailment:
 sequence_found_message_no_trailing_period:
   sql: SELECT STRUCT<a INT64(1)
   dialect: bigquery
-  xfail:
-    python_vs_rust: Rust's Found-WordSegment-STRUCT unparsable message ends with a period
-      that Python's identical message omits; no other part of the tree differs.
-  pins: Canonical case for the Found-message trailing-period gap.
+  pins: Canonical case for the Found-message trailing-period gap (fixed by dropping the
+    trailing period from the Sequence "to start sequence"/"after ..." error-message formats
+    in sequence.rs).
 sqlite_nothing_here_expected_message:
   sql: "WITH cte AS (\n t\n)\nSELECT"
   dialect: sqlite
