@@ -139,6 +139,7 @@ impl Parser<'_> {
             content_idx,
             parse_mode_override,
             child_matches,
+            content_start_len,
             ..
         }) = &mut frame.context
         else {
@@ -167,6 +168,7 @@ impl Parser<'_> {
         );
 
         child_matches.push(Arc::clone(child_match));
+        *content_start_len = child_matches.len();
         let content_start_idx = *child_end_pos;
         // Compute bracket_max_idx from the opening bracket's token position
         let computed_bracket_max_idx = if !child_match.matched_slice.is_empty() {
@@ -306,6 +308,7 @@ impl Parser<'_> {
             content_idx,
             parse_mode_override,
             child_matches,
+            content_start_len,
             ..
         }) = &mut frame.context
         else {
@@ -349,9 +352,27 @@ impl Parser<'_> {
                 self.tokens.len()
             );
 
+        // PYTHON PARITY: only an *optional* content element is allowed to fail
+        // and have the loop carry on to the next one unaffected (Python's
+        // Sequence.match: `if elem.is_optional(): continue`). A *required*
+        // element failing (empty match) must stop the content sequence right
+        // here, exactly like Python returns immediately from that failed
+        // element - not march on and let a later element match at the same,
+        // still-unclaimed position (e.g. tsql's Bracketed(Expression, "AS",
+        // Datatype) content: if "AS" is missing, DatatypeSegment must not be
+        // allowed to try matching where "AS" was expected). Falling through
+        // (rather than returning here) lets the closing-bracket gap-check
+        // below turn this into the same "to start sequence"/"after X"
+        // unparsable Python would produce.
+        let current_required_failed = child_is_empty
+            && !self
+                .grammar_ctx
+                .inst(content_ids[*content_idx])
+                .is_optional();
+
         // CRITICAL: Check if there are more content elements to parse
         // Continue parsing even if current element returned Empty (optional elements)
-        if *content_idx + 1 < content_ids.len() {
+        if !current_required_failed && *content_idx + 1 < content_ids.len() {
             // More content elements remain - parse the next one
             *content_idx += 1;
 
@@ -460,16 +481,69 @@ impl Parser<'_> {
                         // with matched_class set, so only create the unparsable
                         // child when there's actually code left to wrap.
                         if unparsable_stop > check_pos {
+                            // PYTHON PARITY: this loop marches through every content
+                            // element regardless of success (see the comment above),
+                            // so this gap can mean two different things Python's
+                            // Sequence.match (grammar/sequence.py) tells apart by
+                            // message: either a *required* content element genuinely
+                            // failed to match (in which case Python names the
+                            // expected grammar and found token - "to start
+                            // sequence" if nothing had matched yet, "after X" if
+                            // something had), or every required element matched
+                            // fine and this is real trailing content the grammar
+                            // has nothing left to claim (Python's generic "Nothing
+                            // here." GREEDY-leftover fallback). Crucially, a failed
+                            // *optional* element is NOT a failure Python reports:
+                            // `Sequence.match` does `if elem.is_optional(): continue`
+                            // and falls through to the same "Nothing here." leftover,
+                            // so gate on `current_required_failed` (a REQUIRED empty
+                            // match), not merely `child_is_empty`, or an optional
+                            // element's failure wrongly produces the specific message.
+                            // `child_matches.len() == *content_start_len` checks
+                            // whether any *content* element (as opposed to the
+                            // opening bracket, which is always in `child_matches`
+                            // by this point) has matched yet.
+                            let specific_message = if current_required_failed {
+                                content_ids.get(*content_idx).map(|&gid| {
+                                    let element_desc = self.grammar_ctx.grammar_repr(gid);
+                                    let error_token = self
+                                        .tokens
+                                        .get(check_pos)
+                                        .map(|t| format!("{}", t))
+                                        .unwrap_or_else(|| "end of input".to_string());
+                                    if child_matches.len() == *content_start_len {
+                                        format!(
+                                            "{} to start sequence. Found {}",
+                                            element_desc, error_token
+                                        )
+                                    } else {
+                                        let last_matched_token = self
+                                            .tokens
+                                            .get(check_pos.saturating_sub(1))
+                                            .map(|t| format!("{}", t))
+                                            .unwrap_or_else(|| "start of input".to_string());
+                                        format!(
+                                            "{} after {}. Found {}",
+                                            element_desc, last_matched_token, error_token
+                                        )
+                                    }
+                                })
+                            } else {
+                                None
+                            };
+                            let error_message =
+                                specific_message.unwrap_or_else(|| "Nothing here.".to_string());
+
                             vdebug!(
-                                    "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {})",
-                                    check_pos, unparsable_stop, check_pos, expected_close_pos
+                                    "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {}): {}",
+                                    check_pos, unparsable_stop, check_pos, expected_close_pos, error_message
                                 );
 
                             // Create an UnparsableSegment for the tokens we couldn't parse
                             let unparsable_match = MatchResult {
                                 matched_slice: check_pos..unparsable_stop,
                                 matched_class: Some(MatchedClass::unparsable(
-                                    "Nothing here.",
+                                    &error_message,
                                     unparsable_stop,
                                 )),
                                 ..Default::default()
@@ -669,6 +743,7 @@ fn initialize_bracketed_frame(
         content_idx: 0,
         parse_mode_override: None, // Will be set when creating content frames
         child_matches: Vec::new(),
+        content_start_len: 0, // Set once the opening bracket is recorded
     });
     frame.table_terminators = SmallVec::from_slice(all_terminators);
     stack.push(frame);

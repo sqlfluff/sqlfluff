@@ -63,11 +63,9 @@ bracketed_required_content_fails_at_close_bracket:
 bracketed_optional_content_failure_nothing_here:
   sql: SELECT SUM(a) OVER (1 2 3) FROM t
   expect: tree
-  pins: Bracketed content-failure message for a failed *optional* content
-    element (window function's WindowSpecificationSegment, optional=True,
-    parse_mode=GREEDY, failing on '1 2 3') - both engines fall back to the
-    generic "Nothing here." GREEDY-leftover message rather than the
-    required-element-specific "<elem> to start sequence/after X" wording.
+  pins: Bracketed content-failure message must match Python's Sequence.match -
+    a failed *optional* content element yields "Nothing here.", not the specific
+    "<elem> to start sequence/after X" message reserved for required failures.
 ansi_grant_all_masking_policies:
   sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
   expect: error
@@ -163,11 +161,13 @@ sequence_found_message_no_trailing_period:
 sqlite_nothing_here_expected_message:
   sql: "WITH cte AS (\n t\n)\nSELECT"
   dialect: sqlite
-  xfail:
-    python_vs_rust: Where a CTE definition's body fails to start a SelectableGrammar, Python's
-      unparsable message names the specific expected grammar and found token, while Rust falls
-      back to the generic placeholder message 'Nothing here.'
-  pins: Generic vs specific fallback message for an empty CTE body (sqlite).
+  expect: tree
+  pins: Bracketed content matching (bracketed.rs) always blamed a content/closing-bracket
+    gap on the generic GREEDY-leftover fallback ('Nothing here.'), even when the gap was
+    actually caused by the sole content element (here, SelectableGrammar inside the CTE's
+    parens) failing to match at all - fixed by tracking how many child matches existed
+    before content parsing began, so a content element that never got off the ground is
+    reported with Python's specific "to start sequence"/"after X" message instead.
 materialize_curly_cross_silent_recovery:
   sql: COPY t FROM STDIN (FORMAT {-
   dialect: materialize
@@ -180,12 +180,17 @@ materialize_curly_cross_silent_recovery:
 tsql_cast_structure:
   sql: select CAST(0X0 uniqueidentifier);
   dialect: tsql
-  xfail:
-    python_vs_rust: 'Rust does not recognise tsql''s AS-less CAST(literal type) shorthand
-      cast syntax: Python parses it as a function call with a binary_literal argument and
-      a data_type, while Rust parses only CAST as a bare column reference and folds the remainder
-      of the statement into an unparsable segment.'
-  pins: tsql CAST(literal type) shorthand (no AS) grammar gap.
+  expect: tree
+  pins: 'CastFunctionContentsSegment requires "AS" between the expression and the
+    data_type (Bracketed(ExpressionSegment, "AS", DatatypeSegment)), and this SQL
+    omits it, so the reference (Python) correctly rejects the CAST call and falls
+    back to a bare column_reference with the rest unparsable. bracketed.rs''s content
+    loop used to march on to the next content element even after a required
+    (non-optional) one failed to match, so with "AS" missing it let DatatypeSegment
+    try - and succeed - matching "uniqueidentifier" in the position "AS" should have
+    occupied, fabricating a function call Python never accepts. Fixed by stopping the
+    content loop the moment a required element fails, exactly like Python''s
+    Sequence.match.'
 materialize_webhook_overlapping_matches:
   sql: "(\n ) ( );\nCREATE SOURCE my_webhook_source IN CLUSTER my_cluster FROM WEBHOOK\n BODY\
     \ FORMAT JSON\n (\n (\n my_webhook_share"
