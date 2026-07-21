@@ -1224,19 +1224,42 @@ impl<'a> Parser<'a> {
 
         match self.peek() {
             Some(tok) => {
-                let raw = tok.raw();
+                // PYTHON PARITY: RegexParser.match evaluates against
+                // `raw_upper` (str.upper() - FULL unicode case mapping, e.g.
+                // 'straße' -> 'STRASSE', 'ﬁ' -> 'FI') when ignore_case, with
+                // the pattern also compiled case-insensitively. The regex
+                // crates only do simple case folding, under which 'ß' never
+                // matches [A-Z] - so without pre-uppercasing, unicode
+                // identifiers that Python accepts (e.g. `SELECT straße(1)` in
+                // postgres, where the lexer produces such word tokens) fail
+                // the template on the Rust side and parse structurally
+                // differently. Uppercase the comparison text exactly like
+                // Python does; Rust's str::to_uppercase applies the same
+                // unicode mappings.
+                // Use the token's cached uppercase form (RawString precomputes
+                // raw_upper at construction and returns the original &str with
+                // zero allocation when it is already uppercase) rather than
+                // recomputing to_uppercase() on every - frequently discarded,
+                // backtracked - RegexParser match attempt. raw_upper() applies
+                // the same full-unicode str::to_uppercase mapping Python's
+                // str.upper() does, so behaviour is identical.
+                let raw = if case_insensitive {
+                    std::borrow::Cow::Borrowed(tok.raw_upper())
+                } else {
+                    std::borrow::Cow::Borrowed(tok.raw())
+                };
 
                 // Check anti-pattern first (if present, should NOT match)
                 if let Some(ref anti) = anti_pattern {
                     vdebug!("RegexParser[table] checking anti-pattern against '{}'", raw);
-                    if anti.is_match(raw) {
+                    if anti.is_match(&raw) {
                         vdebug!("RegexParser[table] anti-pattern matched, returning Empty");
                         return Ok(MatchResult::empty_at(self.pos));
                     }
                 }
 
                 // Check main pattern
-                if pattern.is_match(raw) {
+                if pattern.is_match(&raw) {
                     let token_pos = self.pos;
 
                     vdebug!(
