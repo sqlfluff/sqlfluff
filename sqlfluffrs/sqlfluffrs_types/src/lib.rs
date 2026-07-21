@@ -8,6 +8,7 @@ pub mod matcher;
 pub mod parser;
 pub mod regex;
 pub mod slice;
+pub mod string;
 pub mod templater;
 pub mod token;
 pub use config::fluffconfig::FluffConfig;

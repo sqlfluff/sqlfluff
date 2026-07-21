@@ -152,12 +152,10 @@ found_token_repr_quoting:
 expected_message_curtailment:
   sql: SELECT AS x
   dialect: databricks
-  xfail:
-    python_vs_rust: When the Expected-grammar description in an unparsable message is long,
-      Rust truncates it mid-word with '...' while Python prints it in full; Rust's message
-      also has a trailing period Python's omits.
-  pins: Long Expected-grammar description gets truncated mid-word in Rust (databricks 'SELECT
-    AS x').
+  pins: Rust rendered grammar reprs in full in "Expected:" unparsable messages, where Python's
+    BaseGrammar.__repr__ curtails each element to 40 characters and the joined list to 100
+    (helpers/string.py curtail_string) - fixed by porting the same two-level truncation into
+    GrammarContext::grammar_repr.
 sequence_found_message_no_trailing_period:
   sql: SELECT STRUCT<a INT64(1)
   dialect: bigquery

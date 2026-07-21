@@ -48,15 +48,31 @@ impl<'a> GrammarContext<'a> {
     /// Format: "<Ref: 'RefName'>" for Ref
     /// Format: "VariantName" for others
     pub fn grammar_repr(&self, id: GrammarId) -> String {
+        // PYTHON PARITY: BaseGrammar.__repr__ curtails each element repr to 40
+        // characters and the joined element list to 100
+        // (helpers/string.py curtail_string: `s[:n] + "..."` when longer).
+        // These reprs surface verbatim in user-visible UnparsableSegment
+        // "Expected:" messages, so the truncation must match byte-for-byte.
+        // curtail_string(s, n) keeps n and truncates past n.
+        fn curtail(s: String, n: usize) -> String {
+            crate::string::ellipsize(&s, n, n)
+        }
         if id == GrammarId::NONCODE {
             return "NONCODE".to_string();
         }
         let variant = self.variant(id);
         match variant {
             GrammarVariant::Ref => {
-                // For Ref, format as <Ref: 'RefName'>
+                // PYTHON PARITY: Ref.__repr__ (grammar/base.py) is
+                // `"<Ref: {}{}>".format(repr(self._ref), " [opt]" if
+                // self.is_optional() else "")`, so an optional Ref carries a
+                // trailing " [opt]". These reprs surface in "Expected:"
+                // unparsable messages and feed the 40/100-char curtailment, so
+                // the marker must be present (and only on Ref - container
+                // __repr__s do not append it).
                 let name = self.ref_name(id);
-                format!("<Ref: '{}'>", name)
+                let opt = if self.is_optional(id) { " [opt]" } else { "" };
+                format!("<Ref: '{}'{}>", name, opt)
             }
             GrammarVariant::Delimited => {
                 // For Delimited, Python only shows the element children (child 0), not the delimiter (child 1)
@@ -77,7 +93,15 @@ impl<'a> GrammarContext<'a> {
                 } else {
                     vec![self.grammar_repr(first_child)]
                 };
-                format!("<Delimited: [{}]>", child_reprs.join(", "))
+                let inner = curtail(
+                    child_reprs
+                        .into_iter()
+                        .map(|r| curtail(r, 40))
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                    100,
+                );
+                format!("<Delimited: [{}]>", inner)
             }
             GrammarVariant::Sequence
             | GrammarVariant::OneOf
@@ -89,9 +113,13 @@ impl<'a> GrammarContext<'a> {
                 let children: Vec<GrammarId> = self.children(id).collect();
                 let child_reprs: Vec<String> = children
                     .iter()
-                    .map(|&child_id| self.grammar_repr(child_id))
+                    .map(|&child_id| curtail(self.grammar_repr(child_id), 40))
                     .collect();
-                format!("<{}: [{}]>", variant_name, child_reprs.join(", "))
+                format!(
+                    "<{}: [{}]>",
+                    variant_name,
+                    curtail(child_reprs.join(", "), 100)
+                )
             }
             GrammarVariant::StringParser
             | GrammarVariant::TypedParser

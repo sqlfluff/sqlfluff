@@ -453,13 +453,8 @@ impl Lexer {
 /// so multi-byte characters truncate the same way Python's `len` and
 /// slicing do.
 fn truncate_like_python(raw: &str) -> String {
-    if raw.chars().count() > 9 {
-        let mut truncated: String = raw.chars().take(10).collect();
-        truncated.push_str("...");
-        truncated
-    } else {
-        raw.to_string()
-    }
+    // lexer.py keeps 10 codepoints once the raw is longer than 9.
+    sqlfluffrs_types::string::ellipsize(raw, 10, 9)
 }
 
 
