@@ -1,0 +1,12 @@
+_meta:
+  kind: lexer
+flink_multiple_escape_replacements:
+  sql: SELECT 'esc''aped'
+  dialect: flink
+  xfail:
+    lexer: flink's single_quote lexer matcher configures two escape_replacements
+      pairs (doubled-quote and backslash-escaped-quote), but Rust's LexMatcher only
+      has room for one - the codegen (utils/build_lexers.py) takes
+      escape_replacements[0] and silently drops the rest, so the Rust-lexed token's
+      escape_replacements carries only the first pair where Python's carries both.
+  pins: Plural escape_replacements must survive the Rust bridge.
