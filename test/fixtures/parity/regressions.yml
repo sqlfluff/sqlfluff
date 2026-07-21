@@ -139,12 +139,10 @@ int_typed_indentation_config:
 found_token_class_name:
   sql: SELECT ] FROM t
   dialect: flink
-  xfail:
-    python_vs_rust: 'Python''s ''Found <ClassName: ...>'' unparsable message names the found
-      token''s class CodeSegment while Rust names the identical token RawSegment, and Rust''s
-      message additionally has a trailing period Python''s omits.'
-  pins: Found-segment class name mismatch (flink ']'); see raw_block_survives for the templated-context
-    variant.
+  pins: Rust's code-matched tokens carried class_name RawSegment, so the "Found <...>" unparsable
+    message named the found token's class as RawSegment where Python names it CodeSegment
+    (fixed by giving Token::code_token its own CodeSegment class_name instead of reusing
+    raw_token's).
 found_token_repr_quoting:
   sql: SELECT '
   xfail:
@@ -241,12 +239,8 @@ raw_block_survives:
   context:
     col: a
     table: t
-  xfail:
-    python_vs_rust: Inside a jinja raw block that survives templating unexpanded, Python's
-      unparsable message names the found '{' token RawSegment and appends a trailing period,
-      while Rust names it CodeSegment without a trailing period.
-  pins: Found-segment class name and trailing period inside a jinja raw block; see found_token_class_name
-    for the non-templated variant (reversed class-name direction).
+  pins: Found-segment class name inside a jinja raw block that survives templating unexpanded
+    (fixed by the same Token::code_token CodeSegment fix as found_token_class_name).
 postgres_eszett_function_name:
   sql: SELECT straße(1)
   dialect: postgres
