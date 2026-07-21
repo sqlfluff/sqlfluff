@@ -514,7 +514,7 @@ impl PyParser {
         // Compute bracket pairs for the tokens.
         // When tokens come from Python (lexed by Python lexer), matching_bracket_idx is None.
         // We need to compute it for the Bracketed grammar to work correctly.
-        compute_bracket_pairs(&mut rust_tokens);
+        compute_bracket_pairs(&mut rust_tokens, self.dialect.get_bracket_pairs());
 
         // Create parser
         let mut parser = Parser::new_with_max_parse_depth(
@@ -555,7 +555,7 @@ impl PyParser {
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
         // Compute bracket pairs for the tokens.
-        compute_bracket_pairs(&mut rust_tokens);
+        compute_bracket_pairs(&mut rust_tokens, self.dialect.get_bracket_pairs());
 
         // Create parser
         let mut parser = Parser::new_with_max_parse_depth(
@@ -601,7 +601,7 @@ impl PyParser {
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
         // Compute bracket pairs for the tokens.
-        compute_bracket_pairs(&mut rust_tokens);
+        compute_bracket_pairs(&mut rust_tokens, self.dialect.get_bracket_pairs());
 
         // Create parser with grammar counting enabled
         let mut parser = Parser::new_with_max_parse_depth(
@@ -647,9 +647,9 @@ impl PyParser {
 ///
 /// This is necessary when tokens come from Python (via PyToken -> Token conversion)
 /// because the Python lexer doesn't compute these indices.
-fn compute_bracket_pairs(tokens: &mut [Token]) {
-    // Stack to track opening brackets: (index, bracket_char)
-    let mut bracket_stack: Vec<(usize, char)> = Vec::new();
+fn compute_bracket_pairs(tokens: &mut [Token], bracket_pairs: &[(&str, &str, &str, &str, bool)]) {
+    // Stack to track opening brackets: (index, bracket-pair-type index)
+    let mut bracket_stack: Vec<(usize, usize)> = Vec::new();
 
     for idx in 0..tokens.len() {
         // Only code tokens can be brackets. Skipping non-code tokens (notably
@@ -662,28 +662,24 @@ fn compute_bracket_pairs(tokens: &mut [Token]) {
         let raw = tokens[idx].raw();
 
         // Check if this is an opening bracket
-        if let Some(open_char) = match raw {
-            "(" => Some('('),
-            "[" => Some('['),
-            "{" => Some('{'),
-            _ => None,
-        } {
-            bracket_stack.push((idx, open_char));
+        if let Some(pair_idx) = bracket_pairs.iter().position(|(open, _, _, _, _)| *open == raw) {
+            bracket_stack.push((idx, pair_idx));
         }
         // Check if this is a closing bracket
-        else if let Some(expected_open) = match raw {
-            ")" => Some('('),
-            "]" => Some('['),
-            "}" => Some('{'),
-            _ => None,
-        } {
+        else if let Some(expected_idx) =
+            bracket_pairs.iter().position(|(_, close, _, _, _)| *close == raw)
+        {
             // Only the most-recently-opened bracket (the top of the stack) may
             // be closed next, per LIFO nesting discipline. See the sibling
             // implementation in sqlfluffrs_lexer/src/lexer.rs::compute_bracket_pairs
             // for the full rationale (Python parity with resolve_bracket in
-            // match_algorithms.py).
-            if let Some(&(open_idx, top_char)) = bracket_stack.last() {
-                if top_char == expected_open {
+            // match_algorithms.py). Bracket identity is by raw text against the
+            // dialect's full `bracket_pairs` set (see `Dialect::get_bracket_pairs`),
+            // not a hardcoded ASCII trio, so dialect-specific brackets (e.g.
+            // snowflake's MATCH_RECOGNIZE exclude bracket `{-`/`-}`) are tracked
+            // identically to round/square/curly.
+            if let Some(&(open_idx, top_idx)) = bracket_stack.last() {
+                if top_idx == expected_idx {
                     bracket_stack.pop();
                     // Set bidirectional pointers
                     tokens[open_idx].matching_bracket_idx = Some(idx);

@@ -80,7 +80,8 @@ impl FixtureTest {
         let dialect = Dialect::from_str(self.dialect.as_str()).expect("Invalid dialect");
 
         let input = LexInput::String(sql_content.clone());
-        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone())
+            .with_bracket_pairs(Dialect::get_bracket_pairs(&dialect).clone());
         let (tokens, lex_errors) = lexer.lex(input, false);
 
         if !lex_errors.is_empty() {
@@ -216,6 +217,37 @@ mod tests {
     use super::*;
 
     #[test]
+    fn dialect_specific_brackets_pair_only_when_supplied() {
+        // Snowflake's MATCH_RECOGNIZE exclude brackets `{-`/`-}` are a
+        // dialect-specific pair absent from the lexer's ASCII-trio default. A
+        // lexer built for a dialect must therefore be given that dialect's
+        // bracket set (as the pyo3 PyLexer ctor does); otherwise `{-`/`-}` are
+        // lexed as ordinary tokens and never paired, and the parser then treats
+        // them as unbalanced.
+        let dialect = Dialect::Snowflake;
+        let sql = "PATTERN ({- A -} B)";
+        let find = |tokens: &[sqlfluffrs_types::Token], raw: &str| {
+            tokens
+                .iter()
+                .position(|t| t.raw() == raw)
+                .unwrap_or_else(|| panic!("no {raw:?} token"))
+        };
+
+        // With the dialect's bracket pairs, `{-` and `-}` pair up.
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone())
+            .with_bracket_pairs(Dialect::get_bracket_pairs(&dialect).clone());
+        let (tokens, _) = lexer.lex(LexInput::String(sql.to_string()), false);
+        let (open, close) = (find(&tokens, "{-"), find(&tokens, "-}"));
+        assert_eq!(tokens[open].matching_bracket_idx, Some(close));
+        assert_eq!(tokens[close].matching_bracket_idx, Some(open));
+
+        // With the ASCII-only default the exclude brackets stay unpaired.
+        let default_lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
+        let (tokens, _) = default_lexer.lex(LexInput::String(sql.to_string()), false);
+        assert_eq!(tokens[find(&tokens, "{-")].matching_bracket_idx, None);
+    }
+
+    #[test]
     fn test_discover_ansi_fixtures() {
         let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .parent()
@@ -271,7 +303,8 @@ mod tests {
         let sql = "SELECT 1";
         let input = LexInput::String(sql.to_string());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone())
+            .with_bracket_pairs(Dialect::get_bracket_pairs(&dialect).clone());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
@@ -290,7 +323,8 @@ mod tests {
         let sql = "SELECT a, b, c FROM table1 WHERE a = 1 AND b = 2 ORDER BY c";
         let input = LexInput::String(sql.to_string());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone())
+            .with_bracket_pairs(Dialect::get_bracket_pairs(&dialect).clone());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
@@ -315,7 +349,8 @@ mod whitespace_tests {
         let sql = "SELECT x FROM foo AS t";
         let input = LexInput::String(sql.to_string());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone())
+            .with_bracket_pairs(Dialect::get_bracket_pairs(&dialect).clone());
         let (tokens, _errors) = lexer.lex(input, false);
 
         println!("\n=== TOKENS ===");
@@ -349,7 +384,8 @@ mod whitespace_tests {
         let sql = "SELECT a (x) AS y";
         let input = LexInput::String(sql.to_string());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone())
+            .with_bracket_pairs(Dialect::get_bracket_pairs(&dialect).clone());
         let (tokens, _errors) = lexer.lex(input, false);
 
         println!("\n=== TOKENS ===");

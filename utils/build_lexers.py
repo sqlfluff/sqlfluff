@@ -39,6 +39,46 @@ def generate_lexer(dialect: str):
     print("]});")
 
 
+def generate_bracket_pairs(dialect: str):
+    """Generate the bracket pairs as (open, close, start, end, persists).
+
+    Each tuple is (open raw text, close raw text, start-bracket segment type,
+    end-bracket segment type, persists). Used by the Rust lexer/parser's
+    bracket-matching (`matching_bracket_idx` pre-computation, the parser's
+    stray-closing-bracket detection, and the Anything-grammar bracket recursion
+    in core.rs), so dialect-specific brackets - e.g. snowflake's exclude bracket
+    `{-`/`-}` (types start_exclude_bracket / end_exclude_bracket, persists=True),
+    added to the same `bracket_pairs` set as round/square/curly - are recognised,
+    typed and structurally preserved identically to the universal three rather
+    than by a hardcoded ASCII trio. `persists` (round/exclude are True; square/
+    curly are False) is whether the matched span is kept as a structured
+    `bracketed` node vs flattened to raw siblings.
+    """
+    loaded_dialect = dialect_selector(dialect)
+    print(
+        f"pub static {dialect.upper()}_BRACKET_PAIRS:"
+        " Lazy<Vec<(&'static str, &'static str, &'static str, &'static str, bool)>>"
+        " = Lazy::new(|| { vec!["
+    )
+    for _bracket_type, start_ref, end_ref, persists in sorted(
+        loaded_dialect.bracket_sets("bracket_pairs")
+    ):
+        start_seg = loaded_dialect.ref(start_ref)
+        end_seg = loaded_dialect.ref(end_ref)
+        start_template = start_seg.template
+        end_template = end_seg.template
+        # The segment type the parser assigns to the matched bracket, e.g.
+        # "start_bracket" / "start_exclude_bracket" (matches Python's
+        # StartBracketSegment / StartExcludeBracketSegment instance_types).
+        start_type = (start_seg._instance_types or (start_seg.raw_class.type,))[0]
+        end_type = (end_seg._instance_types or (end_seg.raw_class.type,))[0]
+        print(
+            f'    ("{start_template}", "{end_template}", '
+            f'"{start_type}", "{end_type}", {str(bool(persists)).lower()}),'
+        )
+    print("]});")
+
+
 def generate_reserved_keyword_list(dialect: str):
     """Generate the keywords for a dialects."""
     loaded_dialect = dialect_selector(dialect)
@@ -245,5 +285,7 @@ if __name__ == "__main__":
     generate_reserved_keyword_list(args.dialect)
     print()
     generate_lexer(args.dialect)
+    print()
+    generate_bracket_pairs(args.dialect)
     print()
     generate_extract_nested_block_comments(args.dialect)

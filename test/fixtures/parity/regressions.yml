@@ -5,35 +5,21 @@ anything_dialect_exclude_bracket:
   sql: CREATE TABLE t (c VARCHAR({- 1 -}) AS y)
   dialect: snowflake
   expect: tree
-  xfail:
-    python_vs_rust: "The Anything-grammar bracket path (core.rs
-      match_bracket_recursively, reached here via snowflake's
-      Bracketed(Anything()) column-datatype params) recognises the dialect's
-      exclude bracket '{-'/'-}' as a bracket pair, but two things differ from
-      Python's resolve_bracket: the leaf segments are typed
-      exclude_bracket_open/exclude_bracket_close where Python types them
-      start_exclude_bracket/end_exclude_bracket, and Rust does not wrap the
-      pair in its own nested `bracketed` node with indent/dedent metas - it
-      emits the two bracket tokens and their content as flat siblings of the
-      outer bracket instead."
   pins: Dialect-specific bracket (snowflake's exclude bracket '{-'/'-}')
     reached via the Anything-grammar bracket path (core.rs
-    match_bracket_recursively) - leaf typing and nested-node wrapping gap;
-    see anything_dialect_exclude_bracket_unclosed for the crossed/unclosed
+    match_bracket_recursively) - was a leaf typing and nested-node wrapping
+    gap, fixed alongside the dialect bracket-pairs work; see
+    anything_dialect_exclude_bracket_unclosed for the crossed/unclosed
     variant of the same path.
 anything_dialect_exclude_bracket_unclosed:
   sql: CREATE TABLE t (c NUMBER({- x) AS y)
   dialect: snowflake
-  xfail:
-    python_vs_rust: "For this crossed/unclosed dialect exclude bracket, Python's
-      resolve_bracket raises SQLParseError (\"Found unexpected end bracket!,
-      was expecting <StringParser: '-}'>, but got <StringParser: ')'>\"), but
-      core.rs's match_bracket_recursively does not detect the crossed
-      bracket and returns a fabricated tree instead."
+  expect: error
   pins: Crossed/unclosed variant of anything_dialect_exclude_bracket - Rust
-    does not raise where Python does. Unlike anything_crossed_ascii_bracket_raises,
-    this is scoped to snowflake's dialect-specific '{-'/'-}' exclude bracket, not
-    a universal ASCII closer, so it is not covered by the crossed-ASCII-closer fix.
+    now raises like Python does, fixed alongside the crossed-bracket
+    detection work. Unlike anything_crossed_ascii_bracket_raises, this is
+    scoped to snowflake's dialect-specific '{-'/'-}' exclude bracket, not a
+    universal ASCII closer.
 anything_crossed_ascii_bracket_raises:
   sql: CREATE TABLE t (col VARCHAR(x ( y ] z )))
   expect: error
@@ -113,13 +99,18 @@ partial_match_failure_keeps_children:
 stray_closing_bracket_dialect_bracket_set:
   sql: SELECT 1 -} FROM t
   dialect: snowflake
-  xfail:
-    python_vs_rust: 'Rust''s unparsable-recovery region for the unmatched dialect-specific
-      closing bracket (snowflake''s exclude-bracket ''-}'') does not stop at the bracket:
-      it keeps consuming subsequent tokens (FROM, the table reference) as raw words inside
-      the same unparsable segment, where Python recovers immediately after the stray bracket
-      and parses the FROM clause normally.'
-  pins: Dialect-specific stray closing bracket (snowflake '-}') recovery never closes.
+  expect: tree
+  pins: 'Rust''s bracket-matching (the lexer''s matching_bracket_idx pre-computation
+    in sqlfluffrs_lexer and sqlfluffrs_parser/python.rs, plus greedy_match''s
+    stray-closing-bracket abort in match_algorithms.rs) only recognised the
+    universal round/square/curly brackets by hardcoded ASCII text, so it missed
+    dialect-specific entries in a dialect''s bracket_pairs set - here snowflake''s
+    MATCH_RECOGNIZE exclude bracket ''{-''/''-}'' - and kept scanning past the stray
+    ''-}'' instead of aborting the terminator search there like Python''s
+    next_ex_bracket_match/resolve_bracket do. Fixed by generating each dialect''s
+    full bracket_pairs set (Dialect::get_bracket_pairs, from utils/build_lexers.py)
+    and threading it through both the lexer''s bracket pre-computation and
+    greedy_match''s bracket checks, instead of a hardcoded three-pair list.'
 int_typed_indentation_config:
   sql: SELECT a FROM t JOIN u USING (a)
   configs:

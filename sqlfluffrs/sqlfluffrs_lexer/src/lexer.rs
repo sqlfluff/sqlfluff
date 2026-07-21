@@ -217,10 +217,22 @@ impl SQLLexError {
     }
 }
 
+/// The universal ASCII bracket pairs every dialect has (round/square/curly),
+/// used unless a dialect-specific set is supplied via [`Lexer::with_bracket_pairs`].
+/// PYTHON PARITY: matches `Dialect`'s base `bracket_pairs` set
+/// (dialect_ansi.py) before any dialect-specific additions (e.g. snowflake's
+/// MATCH_RECOGNIZE exclude bracket `{-`/`-}`, added to that same set).
+const DEFAULT_BRACKET_PAIRS: &[(&str, &str, &str, &str, bool)] = &[
+    ("(", ")", "start_bracket", "end_bracket", true),
+    ("[", "]", "start_square_bracket", "end_square_bracket", false),
+    ("{", "}", "start_curly_bracket", "end_curly_bracket", false),
+];
+
 #[derive(Clone)]
 pub struct Lexer {
     last_resort_lexer: LexMatcher,
     matchers: Vec<LexMatcher>,
+    bracket_pairs: Vec<(&'static str, &'static str, &'static str, &'static str, bool)>,
 }
 
 impl Lexer {
@@ -239,7 +251,19 @@ impl Lexer {
         Self {
             last_resort_lexer,
             matchers,
+            bracket_pairs: DEFAULT_BRACKET_PAIRS.to_vec(),
         }
+    }
+
+    /// Override the bracket-pairs set used for `matching_bracket_idx`
+    /// pre-computation, e.g. with a dialect's full `bracket_pairs` set
+    /// (round/square/curly plus any dialect-specific additions).
+    pub fn with_bracket_pairs(
+        mut self,
+        bracket_pairs: Vec<(&'static str, &'static str, &'static str, &'static str, bool)>,
+    ) -> Self {
+        self.bracket_pairs = bracket_pairs;
+        self
     }
 
     pub fn lex_string<'a>(&'a self, mut input: &'a str) -> Vec<LexedElement<'a>> {
@@ -359,7 +383,7 @@ impl Lexer {
             self.elements_to_tokens(&templated_buffer, &template, template_blocks_indent);
 
         // OPTIMIZATION: Pre-compute bracket pairs for O(1) lookup during parsing
-        Self::compute_bracket_pairs(&mut tokens);
+        self.compute_bracket_pairs(&mut tokens);
 
         let violations = Lexer::violations_from_tokens(&tokens);
         (tokens, violations)
@@ -367,9 +391,15 @@ impl Lexer {
 
     /// Pre-compute matching bracket indices for all bracket tokens.
     /// This allows O(1) bracket lookup during parsing instead of O(n) scanning.
-    fn compute_bracket_pairs(tokens: &mut [Token]) {
-        // Stack to track opening brackets: (index, bracket_char)
-        let mut bracket_stack: Vec<(usize, char)> = Vec::new();
+    ///
+    /// PYTHON PARITY: bracket identity is by raw text against `self.bracket_pairs`
+    /// (a dialect's full `bracket_pairs` set - see `Dialect::get_bracket_pairs`),
+    /// not a hardcoded ASCII trio, so dialect-specific brackets (e.g. snowflake's
+    /// MATCH_RECOGNIZE exclude bracket `{-`/`-}`) are tracked identically to
+    /// round/square/curly.
+    fn compute_bracket_pairs(&self, tokens: &mut [Token]) {
+        // Stack to track opening brackets: (index, bracket-pair-type index)
+        let mut bracket_stack: Vec<(usize, usize)> = Vec::new();
 
         for idx in 0..tokens.len() {
             // Only code tokens can be brackets. Skipping non-code tokens (notably
@@ -382,28 +412,26 @@ impl Lexer {
             let raw = tokens[idx].raw();
 
             // Check if this is an opening bracket
-            if let Some(open_char) = match raw {
-                "(" => Some('('),
-                "[" => Some('['),
-                "{" => Some('{'),
-                _ => None,
-            } {
-                bracket_stack.push((idx, open_char));
+            if let Some(pair_idx) = self
+                .bracket_pairs
+                .iter()
+                .position(|(open, _, _, _, _)| *open == raw)
+            {
+                bracket_stack.push((idx, pair_idx));
             }
             // Check if this is a closing bracket
-            else if let Some(expected_open) = match raw {
-                ")" => Some('('),
-                "]" => Some('['),
-                "}" => Some('{'),
-                _ => None,
-            } {
+            else if let Some(expected_idx) = self
+                .bracket_pairs
+                .iter()
+                .position(|(_, close, _, _, _)| *close == raw)
+            {
                 // Only the most-recently-opened bracket (the top of the stack)
                 // may be closed next, per LIFO nesting discipline. This matches
                 // Python's resolve_bracket (match_algorithms.py), which recurses
                 // into a freshly-opened bracket and only returns once that
                 // specific bracket is resolved.
-                if let Some(&(open_idx, top_char)) = bracket_stack.last() {
-                    if top_char == expected_open {
+                if let Some(&(open_idx, top_idx)) = bracket_stack.last() {
+                    if top_idx == expected_idx {
                         bracket_stack.pop();
                         // Set bidirectional pointers
                         tokens[open_idx].matching_bracket_idx = Some(idx);
@@ -951,7 +979,10 @@ pub mod python {
                 panic!("Lexer does not support setting both `config` and `dialect`.")
             }
             let dialect = cfg_dialect.unwrap_or_else(|| in_dialect.expect("Dialect not defined"));
-            Self(Lexer::new(None, dialect.get_lexers().to_vec()))
+            Self(
+                Lexer::new(None, dialect.get_lexers().to_vec())
+                    .with_bracket_pairs(dialect.get_bracket_pairs().clone()),
+            )
         }
 
         #[pyo3(signature = (input, template_blocks_indent = true))]
