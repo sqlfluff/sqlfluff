@@ -894,3 +894,19 @@ test_pass_mysql_multi_table_update_alias_correlated_subquery:
   configs:
     core:
       dialect: mysql
+
+test_pass_mysql_comma_multi_table_update_alias_correlated_subquery:
+  # https://github.com/sqlfluff/sqlfluff/issues/6147
+  # The comma-style multi-table UPDATE parses each target as a sibling
+  # from_expression (not a join_clause), so every alias must still resolve
+  # from a correlated subquery.
+  pass_str: |
+    UPDATE t1 AS a, t2 AS b
+    SET a.x = (
+        SELECT SUM(c.v)
+        FROM t3 AS c
+        WHERE c.k = b.id
+    );
+  configs:
+    core:
+      dialect: mysql
