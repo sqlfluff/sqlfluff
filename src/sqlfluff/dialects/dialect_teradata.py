@@ -484,9 +484,18 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(  # FORMAT 'YYYY-MM-DD',
             "FORMAT", Ref("QuotedLiteralSegment"), optional=True
         ),
-        # Data attributes may be chained, e.g.
-        # VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC
-        AnyNumberOf(Ref("CharCharacterSetGrammar")),
+        # Data attributes may be combined, in any order, e.g.
+        # VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC.
+        # AnySetOf allows each attribute at most once, so duplicates such as
+        # UPPERCASE UPPERCASE or repeated CHARACTER SET clauses are rejected.
+        AnySetOf(
+            Sequence("CHARACTER", "SET", Ref("SingleIdentifierGrammar")),
+            Sequence(
+                Ref.keyword("NOT", optional=True),
+                OneOf("CASESPECIFIC", "CS"),
+            ),
+            OneOf("UPPERCASE", "UC"),
+        ),
     )
 
 
@@ -554,21 +563,22 @@ class ColumnDefinitionSegment(BaseSegment):
 class TdColumnConstraintSegment(BaseSegment):
     """Teradata specific column attributes.
 
-    e.g. CHARACTER SET LATIN | [NOT] (CASESPECIFIC|CS) | (UPPERCASE|UC)
+    e.g. COMPRESS [(1.,3.) | 3. | NULL]
+
+    The character data-type attributes (CHARACTER SET, [NOT] CASESPECIFIC/CS,
+    UPPERCASE/UC) are handled by ``DatatypeSegment`` so that each attribute can
+    appear at most once; modelling them here as well would let them repeat.
     """
 
     type = "td_column_attribute_constraint"
     match_grammar = Sequence(
-        OneOf(
-            Ref("CharCharacterSetGrammar"),
-            Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
-                "COMPRESS",
-                OneOf(
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
-                    Ref("LiteralGrammar"),
-                    "NULL",
-                    optional=True,
-                ),
+        Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
+            "COMPRESS",
+            OneOf(
+                Bracketed(Delimited(Ref("LiteralGrammar"))),
+                Ref("LiteralGrammar"),
+                "NULL",
+                optional=True,
             ),
         ),
     )
