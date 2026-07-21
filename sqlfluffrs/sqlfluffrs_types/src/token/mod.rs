@@ -1,5 +1,7 @@
 pub mod config;
 pub mod construction;
+
+pub use fmt::python_repr;
 mod eq;
 pub mod fix;
 mod fmt;

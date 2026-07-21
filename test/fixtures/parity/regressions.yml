@@ -145,12 +145,10 @@ found_token_class_name:
     raw_token's).
 found_token_repr_quoting:
   sql: SELECT '
-  xfail:
-    python_vs_rust: For an unterminated string literal, Python's unparsable message wraps
-      the Expected/Found text in single quotes and backslash-escapes embedded apostrophes,
-      while Rust always double-quotes the outer message and escapes the embedded quote character
-      differently, so the same content renders with different quoting/escaping between engines.
-  pins: repr() quote-character/escaping choice differs for the unlexable-token found message.
+  pins: Rust rendered a found token's raw with Rust's escape_debug quoting instead of Python's
+    repr() quote-selection rules (prefer single quotes, switch to double quotes only when
+    the content has a single quote and no double quote) - fixed by giving Token's Display
+    its own py_repr helper that follows Python's str repr() rules.
 expected_message_curtailment:
   sql: SELECT AS x
   dialect: databricks

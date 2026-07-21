@@ -7,7 +7,7 @@ use sqlfluffrs_types::{
     matcher::{LexMatcher, LexMatcherConfig, LexedElement},
     slice::Slice,
     templater::{fileslice::TemplatedFileSlice, templatefile::TemplatedFile},
-    token::Token,
+    token::{python_repr, Token},
 };
 
 use hashbrown::{HashMap, HashSet};
@@ -433,7 +433,7 @@ impl Lexer {
                 SQLLexError::new(
                     Some(format!(
                         "Unable to lex characters: {}",
-                        python_repr_str(&truncate_like_python(token.raw()))
+                        python_repr(&truncate_like_python(token.raw()))
                     )),
                     token.pos_marker.clone(),
                     None,
@@ -462,49 +462,6 @@ fn truncate_like_python(raw: &str) -> String {
     }
 }
 
-/// Quotes and escapes a string the way Python's `repr()` would, so the
-/// `SQLLexError` description (`"Unable to lex characters:
-/// {!r}".format(...)` in lexer.py's `violations_from_segments`) reads the
-/// same from both lexers even when the unlexable text carries control
-/// characters.
-///
-/// Escapes ASCII/C1 control characters and non-space Unicode whitespace,
-/// which covers the punctuation and symbols that typically show up in
-/// unlexable input. Format (Cf), private-use (Co), and unassigned (Cn)
-/// codepoints are printed as-is for now; extend the match below if
-/// real-world input needs them escaped too.
-fn python_repr_str(s: &str) -> String {
-    let use_double_quotes = s.contains('\'') && !s.contains('"');
-    let quote_char = if use_double_quotes { '"' } else { '\'' };
-
-    let mut out = String::with_capacity(s.len() + 2);
-    out.push(quote_char);
-    for c in s.chars() {
-        match c {
-            '\\' => out.push_str("\\\\"),
-            '\n' => out.push_str("\\n"),
-            '\r' => out.push_str("\\r"),
-            '\t' => out.push_str("\\t"),
-            c if c == quote_char => {
-                out.push('\\');
-                out.push(c);
-            }
-            c if c.is_control() || (c.is_whitespace() && c != ' ') => {
-                let cp = c as u32;
-                if cp <= 0xff {
-                    out.push_str(&format!("\\x{cp:02x}"));
-                } else if cp <= 0xffff {
-                    out.push_str(&format!("\\u{cp:04x}"));
-                } else {
-                    out.push_str(&format!("\\U{cp:08x}"));
-                }
-            }
-            c => out.push(c),
-        }
-    }
-    out.push(quote_char);
-    out
-}
 
 fn iter_tokens(
     lexed_elements: &[TemplateElement],
