@@ -1619,7 +1619,7 @@ impl<'a> Parser<'a> {
                 // Handle bracket openers - match entire bracketed section with nested brackets
                 if tok_raw == "(" || tok_raw == "[" || tok_raw == "{" {
                     let bracket_match =
-                        self.match_bracket_recursively(tok_raw.as_str(), tok_raw == "(", true);
+                        self.match_bracket_recursively(tok_raw.as_str(), tok_raw == "(", true)?;
                     child_matches.push(bracket_match);
                 } else {
                     // Regular token - just bump, it'll be part of the raw content
@@ -1675,12 +1675,22 @@ impl<'a> Parser<'a> {
     /// `resolve_bracket`: when true, directly-nested brackets are attached as
     /// structured children; the recursive call passes false, so deeper brackets
     /// are consumed but flattened to raw siblings (pure-Python parity).
+    ///
+    /// PYTHON PARITY: `resolve_bracket` (match_algorithms.py) always raises
+    /// `SQLParseError("Couldn't find closing bracket for opening bracket.")`
+    /// when a bracket it opened is never closed before running out of
+    /// segments - unconditionally, regardless of any enclosing grammar's
+    /// parse_mode. This mirrors that: reaching the end of input without
+    /// finding `close_bracket` is an error, not a silent partial match: a
+    /// crossed opening bracket of a *different* type (e.g. an unclosed `{`
+    /// found while scanning for `)`) must abort here rather than being
+    /// swallowed into the match as if it had closed cleanly.
     fn match_bracket_recursively(
         &mut self,
         open_bracket: &str,
         persists: bool,
         nested_match: bool,
-    ) -> MatchResult {
+    ) -> Result<MatchResult, ParseError> {
         // Python parity: bracket leaf type depends on the bracket char
         // (`[`→square, `{`→curly); only `(` uses the plain bracket type.
         let (close_bracket, start_bracket_type, end_bracket_type) = match open_bracket {
@@ -1711,22 +1721,43 @@ impl<'a> Parser<'a> {
         let mut inner_child_matches: Vec<Arc<MatchResult>> = vec![Arc::new(open_bracket_match)];
 
         // Match everything until matching close bracket, recursively handling nested brackets
+        let mut closed = false;
         while !self.is_at_end() {
             if let Some(inner_tok) = self.peek() {
                 let inner_raw = inner_tok.raw().to_owned();
 
                 if inner_raw == close_bracket {
                     // Found our closing bracket
+                    closed = true;
                     break;
                 } else if inner_raw == "(" || inner_raw == "[" || inner_raw == "{" {
                     // Found a nested bracket - recursively match it
                     let nested_persists = inner_raw == "(";
                     let nested_bracket =
-                        self.match_bracket_recursively(inner_raw.as_str(), nested_persists, false);
+                        self.match_bracket_recursively(inner_raw.as_str(), nested_persists, false)?;
                     // Only attach directly-nested brackets; deeper ones flatten.
                     if nested_match {
                         inner_child_matches.push(Arc::new(nested_bracket));
                     }
+                } else if inner_raw == ")" || inner_raw == "]" || inner_raw == "}" {
+                    // PYTHON PARITY: a closing bracket of a *different* type than
+                    // the one we opened is a crossed bracket. Our own
+                    // `close_bracket` is handled above and same-type nested
+                    // openers are recursed (consuming their own closer), so
+                    // reaching here means a wrong-type ASCII closer. Python's
+                    // `resolve_bracket` (match_algorithms.py) raises rather than
+                    // swallowing it as content, so mirror that exactly instead
+                    // of bumping past it. (Scoped to the universal ASCII closers
+                    // so dialect-specific brackets like snowflake's `-}` keep
+                    // their current handling.)
+                    return Err(ParseError::with_context(
+                        format!(
+                            "Found unexpected end bracket!, was expecting <StringParser: '{}'>, but got <StringParser: '{}'>",
+                            close_bracket, inner_raw
+                        ),
+                        Some(self.pos),
+                        None,
+                    ));
                 } else {
                     // Regular token - just bump
                     self.bump();
@@ -1736,13 +1767,17 @@ impl<'a> Parser<'a> {
             }
         }
 
+        if !closed {
+            return Err(ParseError::with_context(
+                "Couldn't find closing bracket for opening bracket.".to_string(),
+                Some(bracket_start),
+                None,
+            ));
+        }
+
         // Record closing bracket position with SymbolSegment class
-        let bracket_end = if !self.is_at_end() {
-            self.bump(); // consume the close bracket
-            self.pos
-        } else {
-            self.pos
-        };
+        self.bump(); // consume the close bracket
+        let bracket_end = self.pos;
 
         let close_bracket_match = MatchResult {
             matched_slice: bracket_end - 1..bracket_end,
@@ -1758,6 +1793,11 @@ impl<'a> Parser<'a> {
         };
         inner_child_matches.push(Arc::new(close_bracket_match));
 
-        MatchResult::bracketed(bracket_start, bracket_end, inner_child_matches, persists)
+        Ok(MatchResult::bracketed(
+            bracket_start,
+            bracket_end,
+            inner_child_matches,
+            persists,
+        ))
     }
 }

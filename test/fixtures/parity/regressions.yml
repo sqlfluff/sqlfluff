@@ -19,9 +19,8 @@ anything_dialect_exclude_bracket:
   pins: Dialect-specific bracket (snowflake's exclude bracket '{-'/'-}')
     reached via the Anything-grammar bracket path (core.rs
     match_bracket_recursively) - leaf typing and nested-node wrapping gap;
-    see anything_dialect_exclude_bracket_unclosed and
-    anything_crossed_ascii_bracket_raises for the crossed/unclosed variants of
-    the same path.
+    see anything_dialect_exclude_bracket_unclosed for the crossed/unclosed
+    variant of the same path.
 anything_dialect_exclude_bracket_unclosed:
   sql: CREATE TABLE t (c NUMBER({- x) AS y)
   dialect: snowflake
@@ -32,18 +31,17 @@ anything_dialect_exclude_bracket_unclosed:
       core.rs's match_bracket_recursively does not detect the crossed
       bracket and returns a fabricated tree instead."
   pins: Crossed/unclosed variant of anything_dialect_exclude_bracket - Rust
-    does not raise where Python does.
+    does not raise where Python does. Unlike anything_crossed_ascii_bracket_raises,
+    this is scoped to snowflake's dialect-specific '{-'/'-}' exclude bracket, not
+    a universal ASCII closer, so it is not covered by the crossed-ASCII-closer fix.
 anything_crossed_ascii_bracket_raises:
   sql: CREATE TABLE t (col VARCHAR(x ( y ] z )))
   expect: error
-  xfail:
-    python_vs_rust: "Python's resolve_bracket raises SQLParseError (\"Found
-      unexpected end bracket!, was expecting <StringParser: ')'>, but got
-      <StringParser: ']'>\") for a wrong-type ASCII closing bracket crossed
-      inside an Anything() region, but core.rs's match_bracket_recursively
-      does not raise on the crossed bracket and returns a tree instead."
-  pins: ASCII-bracket variant of the same crossed-bracket detection gap as
-    anything_dialect_exclude_bracket_unclosed.
+  pins: "ASCII-bracket variant of the crossed-bracket detection gap fixed alongside
+    materialize_curly_cross_silent_recovery - core.rs's match_bracket_recursively
+    now raises on any wrong-type ASCII closing bracket crossed inside an Anything()
+    region, matching Python's resolve_bracket SQLParseError (\"Found unexpected end
+    bracket!, was expecting <StringParser: ')'>, but got <StringParser: ']'>\")."
 bracketed_required_content_fails_at_close_bracket:
   sql: select CAST(5);
   dialect: tsql
@@ -171,12 +169,14 @@ sqlite_nothing_here_expected_message:
 materialize_curly_cross_silent_recovery:
   sql: COPY t FROM STDIN (FORMAT {-
   dialect: materialize
-  xfail:
-    python_vs_rust: For an unclosed regular bracket followed by an unclosed curly bracket
-      (materialize's COPY ... (FORMAT {- ), Python raises SQLParseError (couldn't find closing
-      bracket for opening bracket), while Rust silently recovers, producing a full tree with
-      the stray '(' and '{' folded into a trailing unparsable segment instead of raising.
-  pins: Crossed bracket-type recovery for materialize COPY ... FORMAT { syntax.
+  expect: error
+  pins: The Rust Anything() grammar (core.rs match_bracket_recursively, used for the
+    COPY ... options content) reached end-of-input inside an unresolved nested bracket
+    of a different type (materialize's COPY FORMAT '{' crossed with the outer, also
+    unclosed, '(') and silently treated wherever it stopped as the closing bracket,
+    instead of raising like Python's resolve_bracket does whenever a bracket it opened
+    is never closed - fixed by making match_bracket_recursively return an error in that
+    case instead of a fabricated match.
 tsql_cast_structure:
   sql: select CAST(0X0 uniqueidentifier);
   dialect: tsql
@@ -195,14 +195,13 @@ materialize_webhook_overlapping_matches:
   sql: "(\n ) ( );\nCREATE SOURCE my_webhook_source IN CLUSTER my_cluster FROM WEBHOOK\n BODY\
     \ FORMAT JSON\n (\n (\n my_webhook_share"
   dialect: materialize
-  xfail:
-    python_vs_rust: 'On this heavily cross-bracketed materialize webhook fragment, Python
-      raises a clean SQLParseError (couldn''t find closing bracket for opening bracket, at
-      line 6, position 2), while Rust raises an internal ValueError (segment skip ahead error:
-      an outer match contains overlapping child matches, this MatchResult was wrongly constructed),
-      indicating a genuine invariant violation in the Rust matcher rather than a parse error.'
-  pins: Rust match-invariant crash on deeply crossed/nested unmatched brackets (materialize
-    webhook fixture).
+  expect: error
+  pins: 'Same root cause as materialize_curly_cross_silent_recovery - core.rs''s
+    match_bracket_recursively silently fabricated a close for deeply crossed/unmatched
+    brackets instead of raising, and downstream the resulting malformed match ended up
+    with overlapping child matches, tripping the Python-side builder''s invariant check
+    (ValueError). Fixed by the same change: an unresolved bracket now raises immediately
+    instead of ever reaching the builder.'
 depth_guard_error_position:
   sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
     1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1
