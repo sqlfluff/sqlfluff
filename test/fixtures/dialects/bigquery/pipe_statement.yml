@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 54e1c2e3c2c96bb46231eb8080e885c5ed15cde697a19d81e6ec0c53f01de497
+_hash: 2759f64a6e9b046386490936ace2237520f8b35608dda19cb907ad4353d3c75d
 file:
 - statement:
     pipe_statement:
@@ -1251,54 +1251,54 @@ file:
             end_bracket: )
 - statement_terminator: ;
 - statement:
-    pipe_statement:
-      with_compound_statement:
-        keyword: WITH
-        common_table_expression:
-          naked_identifier: NumbersTable
-          keyword: AS
-          bracketed:
-            start_bracket: (
-            set_expression:
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '1'
-                    alias_expression:
-                      alias_operator:
-                        keyword: AS
-                      naked_identifier: one_digit
-                - comma: ','
-                - select_clause_element:
-                    numeric_literal: '10'
-                    alias_expression:
-                      alias_operator:
-                        keyword: AS
-                      naked_identifier: two_digit
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '2'
-                - comma: ','
-                - select_clause_element:
-                    numeric_literal: '20'
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    numeric_literal: '3'
-                - comma: ','
-                - select_clause_element:
-                    numeric_literal: '30'
-            end_bracket: )
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: NumbersTable
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '1'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: one_digit
+              - comma: ','
+              - select_clause_element:
+                  numeric_literal: '10'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: two_digit
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '2'
+              - comma: ','
+              - select_clause_element:
+                  numeric_literal: '20'
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '3'
+              - comma: ','
+              - select_clause_element:
+                  numeric_literal: '30'
+          end_bracket: )
+      pipe_statement:
         select_statement:
           select_clause:
           - keyword: SELECT
@@ -1316,33 +1316,33 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: NumbersTable
-      pipe_operator_clause:
-        pipe_operator: '|>'
-        set_operator_clause:
-          set_operator:
-          - keyword: INTERSECT
-          - keyword: DISTINCT
-          - keyword: BY
-          - keyword: NAME
-          bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  numeric_literal: '10'
-                  alias_expression:
-                    alias_operator:
-                      keyword: AS
-                    naked_identifier: two_digit
-              - comma: ','
-              - select_clause_element:
-                  numeric_literal: '1'
-                  alias_expression:
-                    alias_operator:
-                      keyword: AS
-                    naked_identifier: one_digit
-            end_bracket: )
+        pipe_operator_clause:
+          pipe_operator: '|>'
+          set_operator_clause:
+            set_operator:
+            - keyword: INTERSECT
+            - keyword: DISTINCT
+            - keyword: BY
+            - keyword: NAME
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    numeric_literal: '10'
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: two_digit
+                - comma: ','
+                - select_clause_element:
+                    numeric_literal: '1'
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: one_digit
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     pipe_statement:
@@ -1749,4 +1749,52 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: bar
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          pipe_statement:
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: foo
+          end_bracket: )
+      pipe_statement:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: bar
+      - pipe_operator_clause:
+          pipe_operator: '|>'
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: sales
+              comparison_operator:
+              - raw_comparison_operator: '>'
+              - raw_comparison_operator: '='
+              numeric_literal: '3'
+      - pipe_operator_clause:
+          pipe_operator: '|>'
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: item
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: sales
 - statement_terminator: ;

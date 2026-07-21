@@ -163,3 +163,11 @@ WITH bar AS (
 )
 
 SELECT * FROM bar;
+
+WITH bar AS (
+    FROM foo
+)
+
+FROM bar
+|> WHERE sales >= 3
+|> SELECT item, sales;

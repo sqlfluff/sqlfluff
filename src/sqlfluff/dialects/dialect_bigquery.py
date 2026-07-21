@@ -3871,6 +3871,27 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
     )
 
 
+class WithCompoundStatementSegment(ansi.WithCompoundStatementSegment):
+    """A `WITH` statement, which in BigQuery may end in a pipe query.
+
+    BigQuery allows the query following the CTE list to be written with pipe
+    syntax (``FROM ... |> ...``), not just a SELECT / set expression. This
+    extends the ANSI definition so the trailing element also accepts a
+    ``PipeStatementSegment``, mirroring how ``CTEDefinitionSegment`` already
+    allows pipe syntax inside CTE bodies.
+    """
+
+    match_grammar = ansi.WithCompoundStatementSegment.match_grammar.copy(
+        insert=[
+            OneOf(
+                Ref("NonWithSelectableGrammar"),
+                Ref("PipeStatementSegment"),
+            ),
+        ],
+        remove=[Ref("NonWithSelectableGrammar")],
+    )
+
+
 class ChainedFunctionCallSegment(BaseSegment):
     """Postfix chained function call accessor: .FUNC(args...) in BigQuery."""
 
