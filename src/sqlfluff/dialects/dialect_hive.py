@@ -1002,7 +1002,10 @@ class FromInsertClauseSegment(BaseSegment):
                         Ref("IfNotExistsGrammar", optional=True),
                         OneOf(
                             Ref("InsertValuesClauseSegment"),
-                            Ref("SelectableGrammar"),
+                            Ref(
+                                "SelectableGrammar",
+                                terminators=[Ref.keyword("INSERT")],
+                            ),
                         ),
                     ),
                     Sequence(
