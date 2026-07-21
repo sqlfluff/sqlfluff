@@ -157,7 +157,7 @@ db2_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--")},
+            segment_kwargs={"trim_start": ("--",)},
         ),
         # In Db2, the only escape character is ' for single quote strings
         RegexLexer(

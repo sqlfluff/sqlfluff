@@ -66,7 +66,7 @@ flink_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": "--"},
+            segment_kwargs={"trim_start": ("--",)},
         ),
         # Support for backtick-quoted identifiers
         RegexLexer(
