@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1046d3a30f352a34bf5855e51859aabdae72352d7cdb956039ae42338f913438
+_hash: d8cfd8c83a04351af267cabae1090f755c86b90f77809a56ce865316cc6039e9
 file:
 - statement:
     set_statement:
@@ -18,7 +18,7 @@ file:
       - properties_naked_identifier: substitute
       comparison_operator:
         raw_comparison_operator: '='
-      expression:
+      set_config_value:
         boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
@@ -57,21 +57,20 @@ file:
       - properties_naked_identifier: serializer
       comparison_operator:
         raw_comparison_operator: '='
-      expression:
-        column_reference:
-        - naked_identifier: org
-        - dot: .
-        - naked_identifier: apache
-        - dot: .
-        - naked_identifier: spark
-        - dot: .
-        - naked_identifier: sql
-        - dot: .
-        - naked_identifier: execution
-        - dot: .
-        - naked_identifier: columnar
-        - dot: .
-        - naked_identifier: DefaultCachedBatchSerializer
+      set_config_value:
+      - properties_naked_identifier: org
+      - dot: .
+      - properties_naked_identifier: apache
+      - dot: .
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: execution
+      - dot: .
+      - properties_naked_identifier: columnar
+      - dot: .
+      - properties_naked_identifier: DefaultCachedBatchSerializer
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -80,7 +79,7 @@ file:
         properties_naked_identifier: foo
       comparison_operator:
         raw_comparison_operator: '='
-      expression:
+      set_config_value:
         bracketed:
         - start_bracket: (
         - numeric_literal: '1'

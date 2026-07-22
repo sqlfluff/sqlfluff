@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eca176800aaa488fc6b60e9053f7e8cdd82f25869214e774c6e2c48371a36b5a
+_hash: 731f45924f52463b9a81d4ec3a38f8b037de74c53969c982ee3b8f32a42507e0
 file:
 - statement:
     set_statement:
@@ -12,7 +12,7 @@ file:
         properties_naked_identifier: c_date
       comparison_operator:
         raw_comparison_operator: '='
-      expression:
+      set_config_value:
         function:
           function_name:
             function_name_identifier: CURRENT_DATE
@@ -28,6 +28,48 @@ file:
         properties_naked_identifier: ansi_mode
       comparison_operator:
         raw_comparison_operator: '='
-      expression:
+      set_config_value:
         boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+        properties_naked_identifier: path
+      comparison_operator:
+        raw_comparison_operator: '='
+      set_config_value:
+      - word: s3a
+      - colon: ':'
+      - divide: /
+      - divide: /
+      - word: bucket
+      - divide: /
+      - word: path
+      - divide: /
+      - word: to
+      - divide: /
+      - word: data
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+        properties_naked_identifier: key
+      comparison_operator:
+        raw_comparison_operator: '='
+      set_config_value:
+      - word: a
+      - minus: '-'
+      - word: b
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+        properties_naked_identifier: warehouse
+      comparison_operator:
+        raw_comparison_operator: '='
+      set_config_value:
+        quoted_literal: "'s3a://bucket/warehouse'"
 - statement_terminator: ;
