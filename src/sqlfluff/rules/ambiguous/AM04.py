@@ -126,15 +126,15 @@ class Rule_AM04(BaseRule):
                 else:
                     # No table was specified with the wildcard. Assume we're
                     # querying from a nested select in FROM.
-                    for o in query.crawl_sources(query.selectables[0].selectable, True):
+                    for o in query.crawl_sources(selectable.selectable, True):
                         if isinstance(o, Query):
                             self._analyze_result_columns(o)
                             return None
                     self.logger.debug(
-                        f'Query target "{query.selectables[0].selectable.raw}" has no '
+                        f'Query target "{selectable.selectable.raw}" has no '
                         "targets. Generating warning."
                     )
-                    raise RuleFailure(query.selectables[0].selectable)
+                    raise RuleFailure(selectable.selectable)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
