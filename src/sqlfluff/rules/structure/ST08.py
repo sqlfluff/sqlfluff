@@ -39,6 +39,14 @@ class Rule_ST08(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"select_clause", "function"})
     is_fix_compatible = True
 
+    @staticmethod
+    def _has_top_level_comma(bracketed: BaseSegment) -> bool:
+        """Return whether brackets contain a row/composite delimiter."""
+        inner_expression = bracketed.get_child("expression")
+        if inner_expression:
+            return bool(inner_expression.get_child("comma"))
+        return bool(bracketed.get_child("comma"))
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Looking for DISTINCT before a bracket.
 
@@ -60,7 +68,19 @@ class Rule_ST08(BaseRule):
             if modifier and bracketed:
                 # If there's nothing else in the expression, remove the brackets.
                 if len(expression[0].segments) == 1:
-                    anchor, seq = self._remove_unneeded_brackets(context, bracketed)
+                    bracketed_segment = bracketed.get()
+                    if bracketed_segment and self._has_top_level_comma(
+                        bracketed_segment
+                    ):
+                        anchor = modifier[0]
+                        seq = ReflowSequence.from_around_target(
+                            modifier[0],
+                            context.parent_stack[0],
+                            config=context.config,
+                            sides="after",
+                        )
+                    else:
+                        anchor, seq = self._remove_unneeded_brackets(context, bracketed)
                 # Otherwise, still make sure there's a space after the DISTINCT.
                 else:
                     anchor = modifier[0]

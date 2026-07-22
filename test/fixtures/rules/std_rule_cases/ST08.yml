@@ -41,6 +41,22 @@ test_fail_distinct_with_parenthesis_7:
     core:
       dialect: postgres
 
+test_pass_distinct_composite_projection:
+  pass_str: |
+    SELECT DISTINCT (a, b) FROM t;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_distinct_composite_projection_spacing:
+  fail_str: |
+    SELECT DISTINCT(a, b) FROM t;
+  fix_str: |
+    SELECT DISTINCT (a, b) FROM t;
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_no_distinct:
   pass_str: |
     SELECT a, b
