@@ -214,6 +214,12 @@ class Rule_ST09(BaseRule):
             if operator_str not in self._REORDERABLE_OPERATORS:
                 continue
 
+            # SQLite can derive comparison collation from the left operand.
+            # Without schema metadata, reordering these references is not
+            # semantics-preserving, so retain the diagnostic without a fix.
+            if context.dialect.name == "sqlite":
+                continue
+
             first_table_seg = first_column_reference.get_child(
                 "naked_identifier", "quoted_identifier"
             )

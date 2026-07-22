@@ -1,5 +1,11 @@
 rule: ST09
 
+test_pass_sqlite_collation_sensitive_join_without_fix:
+  pass_str: SELECT a.k, b.k FROM a JOIN b ON b.k = a.k;
+  configs:
+    core:
+      dialect: sqlite
+
 test_pass_no_join_clauses:
   pass_str: select * from foo
 
