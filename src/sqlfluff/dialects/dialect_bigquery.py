@@ -755,7 +755,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropAssignmentStatementSegment"),
             Ref("DropTableFunctionStatementSegment"),
             Ref("CreateTableFunctionStatementSegment"),
-            Ref("PipeStatementSegment"),
         ],
     )
 
@@ -3638,7 +3637,7 @@ class DropAssignmentStatementSegment(BaseSegment):
 
 
 class PipeStatementSegment(BaseSegment):
-    """A `PIPE` statement.
+    """A pipe query: a base query followed by pipe operators.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax
     """
@@ -3651,11 +3650,34 @@ class PipeStatementSegment(BaseSegment):
             AnyNumberOf(Ref("PipeOperatorClauseSegment")),
         ),
         Sequence(
-            Ref("SelectableGrammar"),
+            OneOf(
+                OptionallyBracketed(Ref("SelectStatementSegment")),
+                Ref("SetExpressionSegment"),
+                Bracketed(Ref("SelectableGrammar")),
+            ),
             Ref("AliasExpressionSegment", optional=True),
             AnyNumberOf(Ref("PipeOperatorClauseSegment"), min_times=1),
         ),
     )
+
+
+bigquery_dialect.replace(
+    NonWithSelectableGrammar=OneOf(
+        Ref("SetExpressionSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("NonSetSelectableGrammar"),
+        Ref("PipeStatementSegment"),
+    ),
+    NonSetSelectableGrammar=OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("UnorderedSelectStatementSegment"),
+        Bracketed(Ref("SelectStatementSegment")),
+        Bracketed(Ref("WithCompoundStatementSegment")),
+        Bracketed(Ref("NonSetSelectableGrammar")),
+        Bracketed(Ref("PipeStatementSegment")),
+        Ref("BracketedSetExpressionGrammar"),
+    ),
+)
 
 
 class PipeOperatorClauseSegment(BaseSegment):
@@ -3854,45 +3876,6 @@ class UnpivotOperatorSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("FromUnpivotExpressionSegment"),
         Ref("AliasExpressionSegment", optional=True),
-    )
-
-
-class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
-    """A CTE Definition from a WITH statement.
-
-    BigQuery allows FROM clauses directly in CTEs without requiring SELECT statements.
-    This extends the ANSI definition to support this pipe syntax.
-    """
-
-    match_grammar = Sequence(
-        Ref("SingleIdentifierGrammar"),
-        Ref("CTEColumnList", optional=True),
-        Ref.keyword("AS", optional=True),
-        Bracketed(
-            OneOf(Ref("SelectableGrammar"), Ref("PipeStatementSegment")),
-            parse_mode=ParseMode.GREEDY,
-        ),
-    )
-
-
-class WithCompoundStatementSegment(ansi.WithCompoundStatementSegment):
-    """A `WITH` statement, which in BigQuery may end in a pipe query.
-
-    BigQuery allows the query following the CTE list to be written with pipe
-    syntax (``FROM ... |> ...``), not just a SELECT / set expression. This
-    extends the ANSI definition so the trailing element also accepts a
-    ``PipeStatementSegment``, mirroring how ``CTEDefinitionSegment`` already
-    allows pipe syntax inside CTE bodies.
-    """
-
-    match_grammar = ansi.WithCompoundStatementSegment.match_grammar.copy(
-        insert=[
-            OneOf(
-                Ref("NonWithSelectableGrammar"),
-                Ref("PipeStatementSegment"),
-            ),
-        ],
-        remove=[Ref("NonWithSelectableGrammar")],
     )
 
 
