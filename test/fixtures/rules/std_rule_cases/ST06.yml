@@ -370,6 +370,7 @@ test_fail_create_view_without_explicit_columns_tsql:
       TRY_CAST(e.id AS INT) AS employee_id,
       e.department
     FROM employees e
+
   line_numbers: [2]
 
   fix_str: |
@@ -415,3 +416,13 @@ test_pass_create_view_with_explicit_quoted_columns_clickhouse:
       TRY_CAST(e.id AS INT) AS eid,
       e.dept
     FROM employees e
+
+test_pass_create_materialized_view_with_explicit_columns_databricks:
+  configs:
+    core:
+      dialect: databricks
+  pass_str: |
+    CREATE MATERIALIZED VIEW typed_mv (first_value INT, second_value INT) AS
+    SELECT SUM(amount) AS total, id
+    FROM orders
+    GROUP BY id;
