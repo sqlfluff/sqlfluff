@@ -93,7 +93,8 @@ class Rule_ST06(BaseRule):
                         # ...)` body wraps them in a select_statement instead --
                         # so check the bracket's direct children.
                         if any(
-                            seg.is_type("naked_identifier") for seg in child.segments
+                            seg.is_type("naked_identifier", "quoted_identifier")
+                            for seg in child.segments
                         ):
                             return True
                 # Found a CREATE VIEW but no explicit column list

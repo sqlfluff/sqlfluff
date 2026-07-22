@@ -403,3 +403,15 @@ test_pass_create_view_with_explicit_columns_clickhouse:
       TRY_CAST(e.id AS INT) AS eid,
       e.dept
     FROM employees e
+
+test_pass_create_view_with_explicit_quoted_columns_clickhouse:
+  configs:
+    core:
+      dialect: clickhouse
+  pass_str: |
+    CREATE VIEW v (`nm`, `i`, `d`) AS
+    SELECT
+      e.name,
+      TRY_CAST(e.id AS INT) AS eid,
+      e.dept
+    FROM employees e
