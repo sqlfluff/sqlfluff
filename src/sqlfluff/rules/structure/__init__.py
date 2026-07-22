@@ -19,6 +19,17 @@ def get_configs_info() -> dict[str, ConfigInfo]:
                 "Defaults to ``earlier``."
             ),
         },
+        "ignore_databricks_command_cells": {
+            "validation": [True, False],
+            "definition": (
+                "Should Databricks notebook cell delimiters "
+                "(``-- COMMAND ----------``) be ignored when detecting "
+                "consecutive statement terminators? These delimiters are lexed "
+                "as statement terminators by the databricks dialect but are "
+                "structural cell boundaries rather than duplicate SQL "
+                "terminators. Defaults to ``False``."
+            ),
+        },
     }
 
 
