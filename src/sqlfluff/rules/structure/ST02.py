@@ -143,13 +143,13 @@ class Rule_ST02(BaseRule):
     @staticmethod
     def _column_only_fix_list(
         context: RuleContext,
-        column_reference_segment: BaseSegment,
+        replacement_segment: BaseSegment,
     ) -> list[LintFix]:
-        """Generate list of fixes to reduce CASE statement to a single column."""
+        """Generate fixes to reduce CASE to the complete matched expression."""
         fixes = [
             LintFix.replace(
                 context.segment,
-                [column_reference_segment],
+                [replacement_segment],
             )
         ]
         return fixes
@@ -275,7 +275,7 @@ class Rule_ST02(BaseRule):
                             anchor=condition_expression,
                             fixes=self._column_only_fix_list(
                                 context,
-                                column_reference_segment,
+                                coalesce_arg_1,
                             ),
                             description="Unnecessary CASE statement. "
                             f"Just use column '{column_reference_segment.raw}'.",
@@ -299,7 +299,7 @@ class Rule_ST02(BaseRule):
                         anchor=condition_expression,
                         fixes=self._column_only_fix_list(
                             context,
-                            column_reference_segment,
+                            then_expression,
                         ),
                         description="Unnecessary CASE statement. "
                         f"Just use column '{column_reference_segment.raw}'.",
