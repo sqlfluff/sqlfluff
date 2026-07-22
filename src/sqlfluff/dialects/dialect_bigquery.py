@@ -3699,12 +3699,14 @@ class ExtendClauseSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "EXTEND",
+        Indent,
         Delimited(
             Sequence(
                 Ref("BaseExpressionElementGrammar"),
                 Ref("AliasExpressionSegment", optional=True),
             ),
         ),
+        Dedent,
     )
 
 
@@ -3794,6 +3796,7 @@ class AggregateClauseSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "AGGREGATE",
+        Indent,
         Delimited(
             Sequence(
                 Ref("BaseExpressionElementGrammar"),
@@ -3805,6 +3808,7 @@ class AggregateClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        Dedent,
         Ref("GroupAndOrderByClauseSegment", optional=True),
     )
 
