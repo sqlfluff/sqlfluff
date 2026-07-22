@@ -119,31 +119,28 @@ class Rule_ST07(BaseRule):
         if len(table_aliases) < 2:
             return unfixable_result
 
-        using_cols = _extract_cols_from_using(segment, using_anchor)
+        using_col_segments = _extract_cols_from_using(segment, using_anchor)
+        using_cols = [seg.raw for seg in using_col_segments]
 
-        # A USING join de-duplicates the join columns, so references to them
-        # that aren't qualified with a table name (e.g. ``field_1`` in the
-        # SELECT clause, or a struct access like ``field_1.nested_field``)
-        # are unambiguous. Rewriting to an ON condition would make those
-        # references ambiguous and so produce invalid SQL. In that case,
-        # flag the USING clause but don't try to fix it.
+        # A USING join de-duplicates the join columns, so any reference whose
+        # leading identifier is a USING column -- a bare ``field_1`` in the
+        # SELECT clause, or a struct access like ``field_1.nested_field`` --
+        # relies on that de-duplication. Rewriting to an ON condition would
+        # make such references ambiguous and produce invalid SQL, so flag the
+        # USING clause but leave it unfixable. Names are compared using the
+        # dialect's identifier normalization (which respects quoting and
+        # case-folding) rather than a raw upper-case; this also stays
+        # conservative when a USING column name happens to match a table
+        # alias (a ``field_1.nested_field`` struct access is then still
+        # treated as unfixable rather than assumed to be ``table.column``).
         # https://github.com/sqlfluff/sqlfluff/issues/7230
-        using_cols_upper = {col.upper() for col in using_cols}
-        table_names_upper = {ta.ref_str.upper() for ta in table_aliases}
+        using_cols_normalized = {seg.raw_normalized() for seg in using_col_segments}
         if select_info:
             for ref in select_info.reference_buffer:
                 parts = list(iter_raw_references(ref, context.dialect.name))
                 if not parts:  # pragma: no cover
                     continue
-                first_part = parts[0].part.upper()
-                if first_part not in using_cols_upper:
-                    continue
-                # A single-part reference is always a column reference, even
-                # if a table shares the USING column's name. A multi-part
-                # reference is only at risk when its first identifier isn't
-                # actually one of the joined tables (e.g. a struct access
-                # like ``field_1.nested_field``).
-                if len(parts) == 1 or first_part not in table_names_upper:
+                if parts[0].segments[0].raw_normalized() in using_cols_normalized:
                     return unfixable_result
 
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
@@ -175,16 +172,14 @@ class Rule_ST07(BaseRule):
         )
 
 
-def _extract_cols_from_using(join_clause: Segments, using_segs: Segments) -> list[str]:
+def _extract_cols_from_using(join_clause: Segments, using_segs: Segments) -> Segments:
     # First bracket after the USING keyword, then find ids
-    using_cols: list[str] = (
+    return (
         join_clause.children()
         .select(start_seg=using_segs[0], select_if=sp.is_type("bracketed"))
         .first()
         .children(sp.is_type("identifier"))
-        .apply(lambda el: el.raw)
     )
-    return using_cols
 
 
 def _generate_join_conditions(

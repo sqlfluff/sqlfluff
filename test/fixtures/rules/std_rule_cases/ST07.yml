@@ -130,3 +130,17 @@ test_fail_no_fix_when_using_col_name_matches_table_name:
     select field_1, table_a.field_2
     from table_a
     inner join field_1 using (field_1)
+
+test_fail_no_fix_when_using_col_struct_access_matches_table_name:
+  # https://github.com/sqlfluff/sqlfluff/issues/7230
+  # A struct access on the USING column (`field_1.nested_field`) must stay
+  # unfixable even when a joined table shares the column's name: the leading
+  # identifier is the de-duplicated USING column, not that table, so the
+  # rewrite would still make it ambiguous.
+  fail_str: |
+    select field_1.nested_field, table_a.field_2
+    from table_a
+    inner join field_1 using (field_1)
+  configs:
+    core:
+      dialect: bigquery
