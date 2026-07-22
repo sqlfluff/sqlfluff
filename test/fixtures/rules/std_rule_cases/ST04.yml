@@ -1,5 +1,16 @@
 rule: ST04
 
+test_pass_sqlite_repeated_function_operand:
+  configs:
+    core:
+      dialect: sqlite
+  pass_str: |
+    SELECT CASE tick() WHEN 1 THEN 'first' ELSE CASE tick() WHEN 2 THEN 'second' ELSE 'other' END END;
+
+test_pass_ansi_repeated_bare_function_operand:
+  pass_str: |
+    SELECT CASE CURRENT_DATE WHEN '2026-01-01' THEN 1 ELSE CASE CURRENT_DATE WHEN '2026-01-02' THEN 2 ELSE 3 END END;
+
 test_pass_1:
   # The nested CASE is under a "WHEN", not an "ELSE".
   pass_str: |
