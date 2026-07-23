@@ -260,6 +260,24 @@ try:
                     if _prof is not None:
                         _prof["rust_core"] = time.perf_counter() - _ts
                 except RsParseError as e:
+                    # A dangling grammar ref surfaces as a "__MISSING_REF__:<name>"
+                    # sentinel. Re-raise via the dialect's own ref() so both
+                    # engines fail with the same RuntimeError.
+                    _missing_ref_prefix = "__MISSING_REF__:"
+                    _rs_desc = str(e)
+                    if _rs_desc.startswith(_missing_ref_prefix):
+                        ref_name = _rs_desc[len(_missing_ref_prefix) :]
+                        dialect_obj = self.config.get("dialect_obj")
+                        # If ref() doesn't raise, the name exists in Python but
+                        # was dropped from Rust's codegen tables - a bug.
+                        dialect_obj.ref(ref_name)
+                        raise RuntimeError(
+                            "Grammar refers to {!r} which is registered in "
+                            "the {} dialect's Python library but missing "
+                            "from its Rust parser tables. This is an "
+                            "internal sqlfluff bug; please raise an issue "
+                            "on GitHub.".format(ref_name, dialect_obj.name)
+                        ) from e
                     # Convert Rust parse error to SQLParseError with position info
                     raise SQLParseError.from_rs_parse_error(
                         e, segments[_start_idx:_end_idx]
