@@ -2,6 +2,7 @@
 
 from collections.abc import Iterator
 from functools import partial
+from itertools import chain
 from typing import NamedTuple, Optional, TypeVar, cast
 
 from sqlfluff.core.dialects.base import Dialect
@@ -9,6 +10,7 @@ from sqlfluff.core.dialects.common import (
     AliasInfo,
     ObjectReferenceLevel,
     extract_possible_references,
+    iter_raw_references,
 )
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -53,6 +55,17 @@ class _NestedSubQuerySummary(NamedTuple):
     selectable: Selectable
     table_alias: AliasInfo
     select_source_names: set[str]
+
+
+_NormalizedTableReference = tuple[BaseSegment, str]
+
+
+class _VisibleTableReferenceIndex(NamedTuple):
+    """Cached table references grouped by their top-level visibility scope."""
+
+    ctes: tuple[CTEDefinitionSegment, ...]
+    cte_references: tuple[tuple[_NormalizedTableReference, ...], ...]
+    root_references: tuple[_NormalizedTableReference, ...]
 
 
 class Rule_ST05(BaseRule):
@@ -180,6 +193,7 @@ class Rule_ST05(BaseRule):
             ctes=ctes,
             case_preference=case_preference,
             clone_map=clone_map,
+            root_segment=context.segment,
         )
 
         results_list: list[tuple[LintResult, BaseSegment, str, BaseSegment, bool]] = []
@@ -291,16 +305,13 @@ class Rule_ST05(BaseRule):
         ctes: "_CTEBuilder",
         case_preference: str,
         clone_map,
+        root_segment: BaseSegment,
     ) -> Iterator[tuple[LintResult, BaseSegment, str, BaseSegment, bool]]:
         """Given the root query, compute lint warnings."""
         nsq: _NestedSubQuerySummary
         for nsq in self._nested_subqueries(query, dialect):
-            alias_name, _ = ctes.create_cte_alias(nsq.table_alias)
             # 'anchor' is the TableExpressionSegment we fix/replace w/CTE name.
             anchor = nsq.table_alias.from_expression_element.segments[0]
-            # If we have duplicate CTE names just don't fix anything
-            # Return the lint warnings anyway
-            is_fixable = alias_name not in ctes.list_used_names()
 
             # if the subquery is table_expression, get the bracketed child instead.
             if anchor.is_type("table_expression"):
@@ -312,10 +323,32 @@ class Rule_ST05(BaseRule):
                 bracket_anchor = anchor
 
             # we can't create a CTE from a nested subquery here, ignore it.
-            if not bracket_anchor.is_type("bracketed") or bracket_anchor.get_child(
-                "table_expression"
-            ):
-                is_fixable = False
+            structurally_fixable = bracket_anchor.is_type(
+                "bracketed"
+            ) and not bracket_anchor.get_child("table_expression")
+            visible_table_names = (
+                ctes.list_visible_table_names(
+                    parent_selectable=nsq.selectable.selectable,
+                    extracted_subquery=bracket_anchor,
+                    root_segment=root_segment,
+                    dialect_name=dialect.name,
+                )
+                if structurally_fixable
+                else set()
+            )
+            alias_name, _ = ctes.create_cte_alias(
+                nsq.table_alias,
+                dialect=dialect,
+                reserved_names=visible_table_names,
+            )
+            # If we have duplicate CTE names just don't fix anything.
+            # Return the lint warnings anyway.
+            is_fixable = (
+                structurally_fixable
+                and alias_name not in ctes.list_used_names()
+                and _normalize_generated_identifier(alias_name, dialect)
+                not in visible_table_names
+            )
             if is_fixable:
                 new_cte = _create_cte_seg(  # 'prep_1 as (select ...)'
                     alias_name=alias_name,
@@ -388,6 +421,9 @@ class _CTEBuilder:
     def __init__(self) -> None:
         self.ctes: list[CTEDefinitionSegment] = []
         self.name_idx = 0
+        self._visible_table_reference_indexes: dict[
+            tuple[int, str], _VisibleTableReferenceIndex
+        ] = {}
 
     def list_used_names(self) -> list[str]:
         """Check CTEs and return used aliases."""
@@ -407,7 +443,13 @@ class _CTEBuilder:
         inbound_subquery = (
             Segments(cte).children().last(lambda seg: bool(seg.pos_marker))
         )
-        insert_position = next(
+        insert_position = self._insertion_position(inbound_subquery)
+
+        self.ctes.insert(insert_position, cte)
+
+    def _insertion_position(self, inbound_subquery: Segments) -> int:
+        """Return where a CTE must be inserted to precede its consumer."""
+        return next(
             (
                 i
                 for i, el in enumerate(self.ctes)
@@ -416,9 +458,182 @@ class _CTEBuilder:
             len(self.ctes),
         )
 
-        self.ctes.insert(insert_position, cte)
+    def list_visible_table_names(
+        self,
+        parent_selectable: BaseSegment,
+        extracted_subquery: BaseSegment,
+        root_segment: BaseSegment,
+        dialect_name: str,
+    ) -> set[str]:
+        """Return table names that a generated CTE could capture."""
+        reference_index = self._get_visible_table_reference_index(
+            root_segment, dialect_name
+        )
+        insert_position = next(
+            (
+                i
+                for i, cte in enumerate(reference_index.ctes)
+                if _is_child(
+                    Segments(cte).children().last(), Segments(parent_selectable)
+                )
+            ),
+            len(reference_index.ctes),
+        )
+        # SQLite permits forward references to later CTEs, so adding a CTE can
+        # also capture a physical-table reference in an earlier CTE body.
+        cte_references = (
+            reference_index.cte_references
+            if dialect_name == "sqlite"
+            else reference_index.cte_references[insert_position:]
+        )
+        table_references = chain.from_iterable(
+            (*cte_references, reference_index.root_references)
+        )
+        return {
+            normalized_reference
+            for table_reference, normalized_reference in table_references
+            if not _is_child(Segments(extracted_subquery), Segments(table_reference))
+        }
 
-    def create_cte_alias(self, alias: Optional[AliasInfo]) -> tuple[str, bool]:
+    def _get_visible_table_reference_index(
+        self, root_segment: BaseSegment, dialect_name: str
+    ) -> _VisibleTableReferenceIndex:
+        """Return a cached reference index for one parsed statement."""
+        cache_key = (id(root_segment), dialect_name)
+        cached_index = self._visible_table_reference_indexes.get(cache_key)
+        if cached_index is not None:
+            return cached_index
+
+        # The parsed statement is immutable during this rule evaluation. New
+        # generated CTEs reuse subqueries already present in this tree, so their
+        # references are already represented by this index.
+        ctes = tuple(
+            cast(CTEDefinitionSegment, child)
+            for child in root_segment.segments
+            if child.is_type("common_table_expression")
+        )
+        existing_cte_names = {
+            identifier.raw_normalized(casefold=True)
+            for cte in ctes
+            if (identifier := cte.get_identifier())
+        }
+
+        def normalized_references(
+            segment: BaseSegment,
+        ) -> Iterator[_NormalizedTableReference]:
+            for table_reference in self._iter_unshadowed_table_references(
+                segment, existing_cte_names, dialect_name
+            ):
+                normalized_reference = self._normalize_table_reference(
+                    table_reference, dialect_name
+                )
+                if normalized_reference:
+                    yield table_reference, normalized_reference
+
+        reference_index = _VisibleTableReferenceIndex(
+            ctes=ctes,
+            cte_references=tuple(tuple(normalized_references(cte)) for cte in ctes),
+            root_references=tuple(
+                reference
+                for child in root_segment.segments
+                if not child.is_type("common_table_expression")
+                for reference in normalized_references(child)
+            ),
+        )
+        self._visible_table_reference_indexes[cache_key] = reference_index
+        return reference_index
+
+    @classmethod
+    def _iter_unshadowed_table_references(
+        cls,
+        segment: BaseSegment,
+        scoped_cte_names: set[str],
+        dialect_name: str,
+    ) -> Iterator[BaseSegment]:
+        """Yield references that are not resolved by a nested CTE scope."""
+        if segment.is_type("with_compound_statement"):
+            ctes = [
+                cast(CTEDefinitionSegment, cte)
+                for cte in segment.segments
+                if cte.is_type("common_table_expression")
+            ]
+            if dialect_name == "sqlite":
+                # SQLite allows CTE bodies to refer to later CTE declarations.
+                local_cte_names = scoped_cte_names | {
+                    identifier.raw_normalized(casefold=True)
+                    for cte in ctes
+                    if (identifier := cte.get_identifier())
+                }
+                for child in segment.segments:
+                    yield from cls._iter_unshadowed_table_references(
+                        child, local_cte_names, dialect_name
+                    )
+                return
+
+            # Other supported dialects expose CTEs in declaration order. A
+            # recursive CTE can also see its own name while its body is parsed.
+            visible_cte_names = set(scoped_cte_names)
+            is_recursive = any(
+                child.is_type("keyword") and child.raw_upper == "RECURSIVE"
+                for child in segment.segments
+            )
+            for child in segment.segments:
+                if child.is_type("common_table_expression"):
+                    cte = cast(CTEDefinitionSegment, child)
+                    identifier = cte.get_identifier()
+                    cte_name = (
+                        identifier.raw_normalized(casefold=True) if identifier else None
+                    )
+                    child_scope = visible_cte_names
+                    if is_recursive and cte_name:
+                        child_scope = visible_cte_names | {cte_name}
+                    yield from cls._iter_unshadowed_table_references(
+                        child, child_scope, dialect_name
+                    )
+                    if cte_name:
+                        visible_cte_names.add(cte_name)
+                else:
+                    yield from cls._iter_unshadowed_table_references(
+                        child, visible_cte_names, dialect_name
+                    )
+            return
+
+        if segment.is_type("table_reference"):
+            normalized_reference = cls._normalize_table_reference(segment, dialect_name)
+            if (
+                normalized_reference is None
+                or normalized_reference not in scoped_cte_names
+            ):
+                yield segment
+            return
+        for child in segment.segments:
+            yield from cls._iter_unshadowed_table_references(
+                child, scoped_cte_names, dialect_name
+            )
+
+    @staticmethod
+    def _normalize_table_reference(
+        table_reference: BaseSegment, dialect_name: str
+    ) -> Optional[str]:
+        """Normalize an unqualified table reference using dialect case rules."""
+        reference_parts = list(
+            iter_raw_references(table_reference, dialect_name=dialect_name)
+        )
+        if len(reference_parts) != 1:
+            # A generated unqualified CTE name cannot capture a qualified
+            # reference such as schema.table.
+            return None
+        return "".join(
+            segment.raw_normalized(casefold=True)
+            for segment in reference_parts[0].segments
+        )
+
+    def create_cte_alias(
+        self,
+        alias: Optional[AliasInfo],
+        dialect: Dialect,
+        reserved_names: set[str] | None = None,
+    ) -> tuple[str, bool]:
         """Find or create the name for the next CTE."""
         if alias and alias.aliased and alias.ref_str:
             # If we know the name use it
@@ -426,9 +641,13 @@ class _CTEBuilder:
 
         self.name_idx = self.name_idx + 1
         name = f"prep_{self.name_idx}"
-        if name in self.list_used_names():
+        if name in self.list_used_names() or _normalize_generated_identifier(
+            name, dialect
+        ) in (reserved_names or set()):
             # corner case where prep_x exists in origin query
-            return self.create_cte_alias(None)
+            return self.create_cte_alias(
+                None, dialect=dialect, reserved_names=reserved_names
+            )
         return name, True
 
     def get_cte_segments(self) -> list[BaseSegment]:
@@ -571,6 +790,12 @@ def _create_cte_seg(
         )
     )
     return element
+
+
+def _normalize_generated_identifier(identifier: str, dialect: Dialect) -> str:
+    """Normalize a generated naked identifier using dialect case rules."""
+    casefold = getattr(dialect.ref("NakedIdentifierSegment"), "casefold", None)
+    return casefold(identifier) if casefold else identifier
 
 
 def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegment:
