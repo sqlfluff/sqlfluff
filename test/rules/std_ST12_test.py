@@ -1,7 +1,9 @@
 """Tests for ST12 (structure.consecutive_semicolons)."""
 
 import sqlfluff
+from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
+
 
 
 def test__rules__std_ST12_basic_patterns():
@@ -112,3 +114,101 @@ def test__rules__std_ST12_templated_consecutive_semicolons_detected():
     result = sqlfluff.lint(sql, rules=["ST12"], config=cfg)
     violations = [r for r in result if r["code"] == "ST12"]
     assert len(violations) == 1
+
+
+def _databricks_config(ignore_command_cells: bool) -> FluffConfig:
+    """Build a databricks FluffConfig with the ST12 command cell toggle set."""
+    cfg = FluffConfig(overrides={"dialect": "databricks", "rules": "ST12"})
+    cfg.set_value(
+        [
+            "rules",
+            "structure.consecutive_semicolons",
+            "ignore_databricks_command_cells",
+        ],
+        ignore_command_cells,
+    )
+    return cfg
+
+
+def test__rules__std_ST12_databricks_command_cell_default_flags():
+    """By default a semicolon followed by a command cell is a consecutive run.
+
+    The databricks dialect lexes ``-- COMMAND ----------`` as a
+    ``statement_terminator``. With the default configuration this delimiter is
+    treated like any other terminator, so a trailing semicolon immediately
+    before it is reported as a consecutive terminator run.
+    """
+    sql = (
+        "-- Databricks notebook source\n\n"
+        "SELECT COL1 FROM TABLE1;\n\n"
+        "-- COMMAND ----------\n\n"
+        "SELECT COL2 FROM TABLE2\n"
+    )
+    cfg = _databricks_config(ignore_command_cells=False)
+    result = sqlfluff.lint(sql, config=cfg)
+    violations = [r for r in result if r["code"] == "ST12"]
+    assert len(violations) == 1
+
+
+def test__rules__std_ST12_databricks_command_cell_ignored_when_enabled():
+    """Enabling the toggle stops command cells from counting as terminators."""
+    sql = (
+        "-- Databricks notebook source\n\n"
+        "SELECT COL1 FROM TABLE1;\n\n"
+        "-- COMMAND ----------\n\n"
+        "SELECT COL2 FROM TABLE2\n"
+    )
+    cfg = _databricks_config(ignore_command_cells=True)
+    result = sqlfluff.lint(sql, config=cfg)
+    violations = [r for r in result if r["code"] == "ST12"]
+    assert violations == []
+
+
+def test__rules__std_ST12_databricks_command_cell_is_still_terminator():
+    """The command cell remains a statement_terminator even when ignored.
+
+    Parsing must be unaffected by the rule configuration: each notebook cell is
+    still parsed as a separate statement terminated by the command delimiter.
+    """
+
+    sql = (
+        "-- Databricks notebook source\n\n"
+        "SELECT COL1 FROM TABLE1\n\n"
+        "-- COMMAND ----------\n\n"
+        "SELECT COL2 FROM TABLE2\n"
+    )
+    cfg = _databricks_config(ignore_command_cells=True)
+    parsed = Linter(config=cfg).parse_string(sql)
+    terminators = [
+        seg.raw for seg in parsed.tree.recursive_crawl("statement_terminator")
+    ]
+    assert any(raw.strip().startswith("-- COMMAND") for raw in terminators)
+
+
+def test__rules__std_ST12_databricks_real_duplicates_still_flagged_when_ignored():
+    """Genuine consecutive semicolons are still flagged when the toggle is on."""
+    sql = (
+        "-- Databricks notebook source\n\n"
+        "SELECT COL1 FROM TABLE1;;\n\n"
+        "-- COMMAND ----------\n\n"
+        "SELECT COL2 FROM TABLE2\n"
+    )
+    cfg = _databricks_config(ignore_command_cells=True)
+    result = sqlfluff.lint(sql, config=cfg)
+    violations = [r for r in result if r["code"] == "ST12"]
+    assert len(violations) == 1
+
+
+def test__rules__std_ST12_databricks_consecutive_command_cells_ignored():
+    """A pair of adjacent command cells (empty cell) is ignored when enabled."""
+    sql = (
+        "-- Databricks notebook source\n\n"
+        "SELECT COL1 FROM TABLE1\n\n"
+        "-- COMMAND ----------\n\n"
+        "-- COMMAND ----------\n\n"
+        "SELECT COL2 FROM TABLE2\n"
+    )
+    cfg = _databricks_config(ignore_command_cells=True)
+    result = sqlfluff.lint(sql, config=cfg)
+    violations = [r for r in result if r["code"] == "ST12"]
+    assert violations == []

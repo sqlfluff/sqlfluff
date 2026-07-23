@@ -2,6 +2,7 @@
 
 # Standard library imports intentionally minimal.
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import (
     BaseRule,
     EvalResultType,
@@ -10,6 +11,13 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
+
+# Databricks notebooks separate cells with a `-- COMMAND ----------` delimiter.
+# The databricks dialect lexes this delimiter as a ``statement_terminator`` so
+# that each notebook cell is parsed as a separate statement. It is a structural
+# cell boundary rather than a duplicate SQL terminator, so it must not be counted
+# as (or contribute to) a run of consecutive terminators.
+_DATABRICKS_COMMAND_CELL_PREFIX = "-- COMMAND"
 
 
 class Rule_ST12(BaseRule):
@@ -41,8 +49,20 @@ class Rule_ST12(BaseRule):
     name = "structure.consecutive_semicolons"
     aliases: tuple[str, ...] = ()
     groups: tuple[str, ...] = ("all", "structure")
+    config_keywords = ["ignore_databricks_command_cells"]
     crawl_behaviour = RootOnlyCrawler()
     is_fix_compatible = True
+
+    @staticmethod
+    def _is_databricks_command_cell(seg: BaseSegment) -> bool:
+        """Return whether a terminator is a Databricks notebook cell delimiter.
+
+        The databricks dialect lexes ``-- COMMAND ----------`` as a
+        ``statement_terminator`` so that each notebook cell is parsed as a
+        separate statement. Such a delimiter is a structural cell boundary
+        rather than a duplicate SQL terminator.
+        """
+        return seg.raw.strip().startswith(_DATABRICKS_COMMAND_CELL_PREFIX)
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Detect consecutive semicolons and provide fixes.
@@ -51,6 +71,9 @@ class Rule_ST12(BaseRule):
         non-whitespace characters, then finds adjacent terminators that
         are separated only by whitespace.
         """
+        # Config type hints
+        self.ignore_databricks_command_cells: bool
+
         if not context.segment.is_type("file"):  # pragma: no cover
             return None
 
@@ -80,6 +103,11 @@ class Rule_ST12(BaseRule):
         terms = [
             t for t in file_seg.recursive_crawl("statement_terminator") if t.pos_marker
         ]
+        # Optionally exclude Databricks notebook cell delimiters. They remain
+        # valid statement terminators, but should not be counted as (or
+        # contribute to) a run of consecutive terminators.
+        if self.ignore_databricks_command_cells:
+            terms = [t for t in terms if not self._is_databricks_command_cell(t)]
         if len(terms) <= 1:
             return None
 
