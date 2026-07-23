@@ -1,10 +1,14 @@
-# Create and push Docker image of latest release to DockerHub.
+# Create and push Docker images of latest release to DockerHub.
 name: Publish SQLFluff DockerHub Version
 on:
   release:
     types:
       - published
   workflow_dispatch:
+
+env:
+  PROD_IMAGE: dhi.io/python:3.14-debian13
+  BASE_IMAGE: dhi.io/python:3.14-debian13-dev
 
 jobs:
   docker:
@@ -13,27 +17,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: standard
+          - name: production
+            target: prod
             cache_tag: latest
             suffix: ""
-            test_label: standard
-            builder_base: python:3.14-slim-trixie
-            final_base: python:3.14-slim-trixie
-            desc_suffix: ""
-          - name: dhi
-            cache_tag: latest-dhi
-            suffix: -dhi
-            test_label: DHI
-            builder_base: dhi.io/python:3.14-debian13-dev
-            final_base: dhi.io/python:3.14-debian13
-            desc_suffix: " (DHI image)"
-          - name: dhi-dev
-            cache_tag: latest-dhi-dev
-            suffix: -dhi-dev
-            test_label: DHI-dev
-            builder_base: dhi.io/python:3.14-debian13-dev
-            final_base: dhi.io/python:3.14-debian13-dev
-            desc_suffix: " (DHI image with shell)"
+            test_label: production
+          - name: development
+            target: dev
+            cache_tag: latest-dev
+            suffix: -dev
+            test_label: development
     permissions:
       contents: read
       packages: write
@@ -87,10 +80,10 @@ jobs:
         with:
           load: true
           file: Dockerfile
+          target: ${{ matrix.target }}
           build-args: |
-            BUILDER_BASE=${{ matrix.builder_base }}
-            FINAL_BASE=${{ matrix.final_base }}
-            DESC_SUFFIX=${{ matrix.desc_suffix }}
+            PROD_IMAGE=${{ env.PROD_IMAGE }}
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:test${{ matrix.suffix }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:${{ matrix.cache_tag }}
           cache-to: type=inline
@@ -113,10 +106,10 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           file: Dockerfile
+          target: ${{ matrix.target }}
           build-args: |
-            BUILDER_BASE=${{ matrix.builder_base }}
-            FINAL_BASE=${{ matrix.final_base }}
-            DESC_SUFFIX=${{ matrix.desc_suffix }}
+            PROD_IMAGE=${{ env.PROD_IMAGE }}
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest${{ matrix.suffix }}
             ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:${{ steps.latest_release.outputs.release }}${{ matrix.suffix }}
