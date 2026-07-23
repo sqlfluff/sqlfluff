@@ -16,6 +16,7 @@ def generate_use():
     print("use sqlfluffrs_types::{LexMatcher, LexMatcherConfig};")
     print("use sqlfluffrs_types::{Token, RegexModeGroup};")
     print("use sqlfluffrs_types::token::CaseFold;")
+    print("use sqlfluffrs_types::BracketPairEntry;")
 
 
 def segment_to_token_name(s: str):
@@ -57,7 +58,7 @@ def generate_bracket_pairs(dialect: str):
     loaded_dialect = dialect_selector(dialect)
     print(
         f"pub static {dialect.upper()}_BRACKET_PAIRS:"
-        " Lazy<Vec<(&'static str, &'static str, &'static str, &'static str, bool)>>"
+        " Lazy<Vec<BracketPairEntry>>"
         " = Lazy::new(|| { vec!["
     )
     for _bracket_type, start_ref, end_ref, persists in sorted(

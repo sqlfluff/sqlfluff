@@ -4,7 +4,7 @@ use log::debug;
 
 use sqlfluffrs_types::{
     marker::PositionMarker,
-    matcher::{LexMatcher, LexMatcherConfig, LexedElement},
+    matcher::{BracketPairEntry, LexMatcher, LexMatcherConfig, LexedElement},
     slice::Slice,
     templater::{fileslice::TemplatedFileSlice, templatefile::TemplatedFile},
     token::{python_repr, Token},
@@ -238,7 +238,7 @@ const DEFAULT_BRACKET_PAIRS: &[(&str, &str, &str, &str, bool)] = &[
 pub struct Lexer {
     last_resort_lexer: LexMatcher,
     matchers: Vec<LexMatcher>,
-    bracket_pairs: Vec<(&'static str, &'static str, &'static str, &'static str, bool)>,
+    bracket_pairs: Vec<BracketPairEntry>,
 }
 
 impl Lexer {
@@ -264,10 +264,7 @@ impl Lexer {
     /// Override the bracket-pairs set used for `matching_bracket_idx`
     /// pre-computation, e.g. with a dialect's full `bracket_pairs` set
     /// (round/square/curly plus any dialect-specific additions).
-    pub fn with_bracket_pairs(
-        mut self,
-        bracket_pairs: Vec<(&'static str, &'static str, &'static str, &'static str, bool)>,
-    ) -> Self {
+    pub fn with_bracket_pairs(mut self, bracket_pairs: Vec<BracketPairEntry>) -> Self {
         self.bracket_pairs = bracket_pairs;
         self
     }

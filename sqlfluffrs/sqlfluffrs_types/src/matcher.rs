@@ -12,6 +12,11 @@ use crate::{token::CaseFold, PositionMarker, RegexModeGroup, Token, TokenConfig}
 /// Function pointer type for token generation: one of `Token::{kind}_token`.
 pub type TokenGenerator = fn(String, PositionMarker, TokenConfig) -> Token;
 
+/// A single bracket pair: (open raw text, close raw text, start-bracket
+/// segment type, end-bracket segment type, persists). See
+/// `utils/build_lexers.py::generate_bracket_pairs` for how these are derived.
+pub type BracketPairEntry = (&'static str, &'static str, &'static str, &'static str, bool);
+
 #[derive(Debug, Clone)]
 pub enum LexerMode {
     String(String),                           // Match a literal string
