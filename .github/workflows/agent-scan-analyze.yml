@@ -1,7 +1,6 @@
-name: agent-scan-analyze
+name: AgentScan Analyze
 
 on:
-  # DO NOT add action/checkout in this workflow as it use pull_request_target
   pull_request:
     types:
       - opened
@@ -21,7 +20,7 @@ jobs:
         uses: MatteoGabriele/agentscan-action@c7d61446e7aece6bdd3edcee4558bbfc0392615e # v2.0.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          mode: "labels"
+          mode: "silent"
           trusted-author-associations: "owner, member"
 
       - name: Write moderation payload
@@ -30,6 +29,13 @@ jobs:
           CLASSIFICATION: ${{ steps.agentscan.outputs.classification }}
           COMMUNITY_FLAGGED: ${{ steps.agentscan.outputs.community-flagged }}
         run: |
+          CLASSIFICATION="${CLASSIFICATION:-organic}"
+          COMMUNITY_FLAGGED="${COMMUNITY_FLAGGED:-false}"
+
+          if [[ "${COMMUNITY_FLAGGED}" != "true" && "${COMMUNITY_FLAGGED}" != "false" ]]; then
+            COMMUNITY_FLAGGED="false"
+          fi
+
           cat > moderation.json <<EOF
           {
             "pr_number": ${PR_NUMBER},

@@ -1,9 +1,9 @@
-name: agent-scan-moderate
+name: AgentScan Moderate
 
 on:
   workflow_run:
     workflows:
-      - agent-scan-analyze
+      - AgentScan Analyze
     types:
       - completed
 
@@ -104,7 +104,7 @@ jobs:
               });
             }
 
-            if (shouldClose && issue.state === "open" && !alreadyCommented) {
+            if (shouldClose && issue.state === "open") {
               await github.rest.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
