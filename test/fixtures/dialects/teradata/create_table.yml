@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6934f9be54f4c5941368f2b2045463c54b406c90e9fe49f6b3908456f78c15e
+_hash: 135aa15aee3aaa164354414c14c781d2be79758ef50a82691d3c31d809a06d78
 file:
 - statement:
     create_table_statement:
@@ -429,7 +429,6 @@ file:
           - keyword: CHARACTER
           - keyword: SET
           - naked_identifier: LATIN
-          td_column_attribute_constraint:
           - keyword: NOT
           - keyword: CASESPECIFIC
           column_constraint_segment:
@@ -539,9 +538,9 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - column_reference:
+          column_reference:
             naked_identifier: DES_EVENTO
-        - data_type:
+          data_type:
           - data_type_identifier: VARCHAR
           - bracketed_arguments:
               bracketed:
@@ -551,10 +550,9 @@ file:
           - keyword: CHARACTER
           - keyword: SET
           - naked_identifier: LATIN
-        - td_column_attribute_constraint:
           - keyword: NOT
           - keyword: CASESPECIFIC
-        - td_column_attribute_constraint:
+          td_column_attribute_constraint:
             keyword: COMPRESS
             bracketed:
             - start_bracket: (
@@ -981,7 +979,6 @@ file:
           - keyword: CHARACTER
           - keyword: SET
           - naked_identifier: LATIN
-          td_column_attribute_constraint:
           - keyword: NOT
           - keyword: CASESPECIFIC
           column_constraint_segment:

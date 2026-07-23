@@ -68,8 +68,6 @@ teradata_dialect.sets("unreserved_keywords").update(
     [
         "AUTOINCREMENT",
         "ACTIVITYCOUNT",
-        "CASESPECIFIC",
-        "CS",
         "DAYS",
         "DEL",
         "DUAL",
@@ -105,13 +103,25 @@ teradata_dialect.sets("unreserved_keywords").update(
         "STATISTICS",
         "SUMMARY",
         "THRESHOLD",
-        "UC",
-        "UPPERCASE",
     ]
 )
 
 teradata_dialect.sets("reserved_keywords").update(
-    ["LOCKING", "UNION", "REPLACE", "TIMESTAMP"]
+    [
+        "LOCKING",
+        "UNION",
+        "REPLACE",
+        "TIMESTAMP",
+        # The data-type attribute keywords are reserved words in Teradata.
+        # Keeping them reserved also ensures that an attribute postfix such as
+        # `col (UPPERCASE)` or `col (NOT CS)` is parsed as an expression with a
+        # data-type attribute, rather than as a function call `col(...)` with
+        # a column argument named UPPERCASE/CS.
+        "CASESPECIFIC",
+        "CS",
+        "UC",
+        "UPPERCASE",
+    ]
 )
 
 teradata_dialect.sets("bare_functions").update(["DATE"])
@@ -125,6 +135,11 @@ teradata_dialect.replace(
         ),
         OneOf("UPPERCASE", "UC"),
     ),
+    # A Teradata data-type attribute can be applied to an expression as a
+    # parenthesised postfix, e.g. 'TEST' (CASESPECIFIC), col (NOT CS),
+    # 'x' (UPPERCASE). This behaves like COLLATE in standard SQL, binding to
+    # the operand, so it works on either side of a comparison.
+    CollateGrammar=Bracketed(Ref("CharCharacterSetGrammar")),
     FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
         insert=[
             Sequence(
@@ -476,7 +491,18 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(  # FORMAT 'YYYY-MM-DD',
             "FORMAT", Ref("QuotedLiteralSegment"), optional=True
         ),
-        Ref("CharCharacterSetGrammar", optional=True),
+        # Data attributes may be combined, in any order, e.g.
+        # VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC.
+        # AnySetOf allows each attribute at most once, so duplicates such as
+        # UPPERCASE UPPERCASE or repeated CHARACTER SET clauses are rejected.
+        AnySetOf(
+            Sequence("CHARACTER", "SET", Ref("SingleIdentifierGrammar")),
+            Sequence(
+                Ref.keyword("NOT", optional=True),
+                OneOf("CASESPECIFIC", "CS"),
+            ),
+            OneOf("UPPERCASE", "UC"),
+        ),
     )
 
 
@@ -544,21 +570,22 @@ class ColumnDefinitionSegment(BaseSegment):
 class TdColumnConstraintSegment(BaseSegment):
     """Teradata specific column attributes.
 
-    e.g. CHARACTER SET LATIN | [NOT] (CASESPECIFIC|CS) | (UPPERCASE|UC)
+    e.g. COMPRESS [(1.,3.) | 3. | NULL]
+
+    The character data-type attributes (CHARACTER SET, [NOT] CASESPECIFIC/CS,
+    UPPERCASE/UC) are handled by ``DatatypeSegment`` so that each attribute can
+    appear at most once; modelling them here as well would let them repeat.
     """
 
     type = "td_column_attribute_constraint"
     match_grammar = Sequence(
-        OneOf(
-            Ref("CharCharacterSetGrammar"),
-            Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
-                "COMPRESS",
-                OneOf(
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
-                    Ref("LiteralGrammar"),
-                    "NULL",
-                    optional=True,
-                ),
+        Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
+            "COMPRESS",
+            OneOf(
+                Bracketed(Delimited(Ref("LiteralGrammar"))),
+                Ref("LiteralGrammar"),
+                "NULL",
+                optional=True,
             ),
         ),
     )
