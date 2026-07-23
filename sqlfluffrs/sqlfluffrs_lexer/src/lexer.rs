@@ -457,7 +457,6 @@ fn truncate_like_python(raw: &str) -> String {
     sqlfluffrs_types::string::ellipsize(raw, 10, 9)
 }
 
-
 fn iter_tokens(
     lexed_elements: &[TemplateElement],
     templated_file: &Arc<TemplatedFile>,
