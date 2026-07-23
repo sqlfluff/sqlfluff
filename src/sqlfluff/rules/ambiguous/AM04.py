@@ -1,6 +1,6 @@
 """Implementation of Rule AM04."""
 
-from typing import Optional
+from typing import Optional, Union
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -8,6 +8,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.analysis.query import Query
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
+SourceTarget = Union[str, Query]
 
 
 class RuleFailure(Exception):
@@ -79,6 +80,31 @@ class Rule_AM04(BaseRule):
                 self._analyze_result_columns(child, pop=False)
             self._analyze_source_ctes(child)
 
+    def _get_source_target(
+        self,
+        query: Query,
+        source_segment: BaseSegment,
+        pop: bool = True,
+    ) -> Optional[SourceTarget]:
+        """Resolve the direct source query or table for a FROM/JOIN element."""
+        direct_query_segment = next(
+            source_segment.recursive_crawl(*_START_TYPES, allow_self=False),
+            None,
+        )
+        if direct_query_segment:
+            return Query.from_segment(direct_query_segment, query.dialect, parent=query)
+
+        sources = list(query.crawl_sources(source_segment, True, pop=pop))
+        query_source = next(
+            (source for source in sources if isinstance(source, Query)),
+            None,
+        )
+        if query_source is not None:
+            return query_source
+        if sources:
+            return sources[0]
+        return None
+
     def _handle_alias(
         self,
         selectable,
@@ -87,11 +113,12 @@ class Rule_AM04(BaseRule):
         pop: bool = True,
         visited: Optional[set[int]] = None,
     ) -> None:
-        sources = list(query.crawl_sources(alias_info.from_expression_element, True))
-        select_info_target = next(
-            (source for source in sources if isinstance(source, Query)),
-            sources[0],
+        select_info_target = self._get_source_target(
+            query,
+            alias_info.from_expression_element,
+            pop=pop,
         )
+        assert select_info_target is not None
         if isinstance(select_info_target, str):
             # It's an alias to an external table whose
             # number of columns could vary without our
@@ -159,11 +186,37 @@ class Rule_AM04(BaseRule):
                                 raise RuleFailure(selectable.selectable)
                 else:
                     # No table was specified with the wildcard. Assume we're
-                    # querying from a nested select in FROM.
-                    for o in query.crawl_sources(selectable.selectable, True):
-                        if isinstance(o, Query):
-                            self._analyze_result_columns(o, pop=pop, visited=visited)
-                            return None
+                    # querying from an anonymous nested source in FROM/JOIN.
+                    anonymous_sources = [
+                        alias_info.from_expression_element
+                        for alias_info in (
+                            selectable.select_info.table_aliases
+                            if selectable.select_info
+                            else []
+                        )
+                        if not alias_info.ref_str
+                    ]
+                    if anonymous_sources:
+                        for source_segment in anonymous_sources:
+                            source_target = self._get_source_target(
+                                query, source_segment, pop=pop
+                            )
+                            if isinstance(source_target, Query):
+                                self._analyze_result_columns(
+                                    source_target, pop=pop, visited=visited
+                                )
+                                continue
+                            if isinstance(source_target, str):
+                                self.logger.debug(
+                                    f"Query target {source_target} is external. "
+                                    "Generating warning."
+                                )
+                            self.logger.debug(
+                                f'Query target "{selectable.selectable.raw}" has no '
+                                "targets. Generating warning."
+                            )
+                            raise RuleFailure(selectable.selectable)
+                        return None
                     self.logger.debug(
                         f'Query target "{selectable.selectable.raw}" has no '
                         "targets. Generating warning."
