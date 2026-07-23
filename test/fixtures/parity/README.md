@@ -79,5 +79,3 @@ Case fields:
 
 - `test/core/parser/parity/corpus_test.py` - three-way sweep of every
   dialect fixture at the same strictness.
-- `test/core/parser/parity/grammar_test.py` - confirms every ref in each
-  dialect's expanded grammar resolves to a real target.
