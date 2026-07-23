@@ -301,3 +301,21 @@ test_pass_simple_case_ignored:
   configs:
     core:
       dialect: redshift
+
+test_fail_indexed_expression_when_null_else_null:
+  fail_str: |
+    SELECT CASE WHEN genres[0] IS NULL THEN NULL ELSE genres[0] END
+  fix_str: |
+    SELECT genres[0]
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_indexed_condition_does_not_change_bare_then_expression:
+  fail_str: |
+    SELECT CASE WHEN genres[0] IS NULL THEN genres END
+  fix_str: |
+    SELECT genres
+  configs:
+    core:
+      dialect: snowflake
