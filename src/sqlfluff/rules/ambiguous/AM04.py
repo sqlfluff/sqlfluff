@@ -1,6 +1,6 @@
 """Implementation of Rule AM04."""
 
-from typing import Optional
+from typing import Optional, Union
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -8,6 +8,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.analysis.query import Query
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
+SourceTarget = Union[str, Query]
 
 
 class RuleFailure(Exception):
@@ -68,13 +69,56 @@ class Rule_AM04(BaseRule):
     name = "ambiguous.column_count"
     aliases = ("L044",)
     groups: tuple[str, ...] = ("all", "ambiguous")
+    config_keywords = ["require_explicit_source_projection"]
     # Only evaluate the outermost query.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
 
-    def _handle_alias(self, selectable, alias_info, query) -> None:
-        select_info_target = next(
-            query.crawl_sources(alias_info.from_expression_element, True)
+    def _analyze_source_ctes(self, query: Query) -> None:
+        """Analyze CTEs recursively when explicit source projection is required."""
+        for child in query.children:
+            if child.cte_definition_segment:
+                self._analyze_result_columns(child, pop=False)
+            self._analyze_source_ctes(child)
+
+    def _get_source_target(
+        self,
+        query: Query,
+        source_segment: BaseSegment,
+        pop: bool = True,
+    ) -> Optional[SourceTarget]:
+        """Resolve the direct source query or table for a FROM/JOIN element."""
+        direct_query_segment = next(
+            source_segment.recursive_crawl(*_START_TYPES, allow_self=False),
+            None,
         )
+        if direct_query_segment:
+            return Query.from_segment(direct_query_segment, query.dialect, parent=query)
+
+        sources = list(query.crawl_sources(source_segment, True, pop=pop))
+        query_source = next(
+            (source for source in sources if isinstance(source, Query)),
+            None,
+        )
+        if query_source is not None:
+            return query_source
+        if sources:
+            return sources[0]
+        return None
+
+    def _handle_alias(
+        self,
+        selectable,
+        alias_info,
+        query,
+        pop: bool = True,
+        visited: Optional[set[int]] = None,
+    ) -> None:
+        select_info_target = self._get_source_target(
+            query,
+            alias_info.from_expression_element,
+            pop=pop,
+        )
+        assert select_info_target is not None
         if isinstance(select_info_target, str):
             # It's an alias to an external table whose
             # number of columns could vary without our
@@ -85,15 +129,24 @@ class Rule_AM04(BaseRule):
             raise RuleFailure(selectable.selectable)
         else:
             # Handle nested SELECT.
-            self._analyze_result_columns(select_info_target)
+            self._analyze_result_columns(select_info_target, pop=pop, visited=visited)
 
-    def _analyze_result_columns(self, query: Query) -> None:
+    def _analyze_result_columns(
+        self,
+        query: Query,
+        pop: bool = True,
+        visited: Optional[set[int]] = None,
+    ) -> None:
         """Given info on a list of SELECTs, determine whether to warn."""
         # Recursively walk from the given query (select_info_list) to any
-        # wildcard columns in the select targets. If every wildcard evdentually
+        # wildcard columns in the select targets. If every wildcard eventually
         # resolves to a query without wildcards, all is well. Otherwise, warn.
         if not query.selectables:
             return None  # pragma: no cover
+        visited = visited or set()
+        if id(query) in visited:
+            raise RuleFailure(query.selectables[0].selectable)
+        visited.add(id(query))
         for selectable in query.selectables:
             self.logger.debug(f"Analyzing query: {selectable.selectable.raw}")
             for wildcard in selectable.get_wildcard_info():
@@ -101,20 +154,28 @@ class Rule_AM04(BaseRule):
                     for wildcard_table in wildcard.tables:
                         self.logger.debug(
                             f"Wildcard: {wildcard.segment.raw} has target "
-                            "{wildcard_table}"
+                            f"{wildcard_table}"
                         )
                         # Is it an alias?
                         alias_info = selectable.find_alias(wildcard_table)
                         if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
-                            self._handle_alias(selectable, alias_info, query)
+                            self._handle_alias(
+                                selectable,
+                                alias_info,
+                                query,
+                                pop=pop,
+                                visited=visited,
+                            )
                         else:
                             # Not an alias. Is it a CTE?
-                            cte = query.lookup_cte(wildcard_table)
+                            cte = query.lookup_cte(wildcard_table, pop=pop)
                             if cte:
                                 # Wildcard refers to a CTE. Analyze it.
-                                self._analyze_result_columns(cte)
+                                self._analyze_result_columns(
+                                    cte, pop=pop, visited=visited
+                                )
                             else:
                                 # Not CTE, not table alias. Presumably an
                                 # external table. Warn.
@@ -125,11 +186,37 @@ class Rule_AM04(BaseRule):
                                 raise RuleFailure(selectable.selectable)
                 else:
                     # No table was specified with the wildcard. Assume we're
-                    # querying from a nested select in FROM.
-                    for o in query.crawl_sources(selectable.selectable, True):
-                        if isinstance(o, Query):
-                            self._analyze_result_columns(o)
-                            return None
+                    # querying from an anonymous nested source in FROM/JOIN.
+                    anonymous_sources = [
+                        alias_info.from_expression_element
+                        for alias_info in (
+                            selectable.select_info.table_aliases
+                            if selectable.select_info
+                            else []
+                        )
+                        if not alias_info.ref_str
+                    ]
+                    if anonymous_sources:
+                        for source_segment in anonymous_sources:
+                            source_target = self._get_source_target(
+                                query, source_segment, pop=pop
+                            )
+                            if isinstance(source_target, Query):
+                                self._analyze_result_columns(
+                                    source_target, pop=pop, visited=visited
+                                )
+                                continue
+                            if isinstance(source_target, str):
+                                self.logger.debug(
+                                    f"Query target {source_target} is external. "
+                                    "Generating warning."
+                                )
+                            self.logger.debug(
+                                f'Query target "{selectable.selectable.raw}" has no '
+                                "targets. Generating warning."
+                            )
+                            raise RuleFailure(selectable.selectable)
+                        return None
                     self.logger.debug(
                         f'Query target "{selectable.selectable.raw}" has no '
                         "targets. Generating warning."
@@ -138,9 +225,12 @@ class Rule_AM04(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
+        self.require_explicit_source_projection: bool
         query: Query = Query.from_segment(context.segment, context.dialect)
 
         try:
+            if self.require_explicit_source_projection:
+                self._analyze_source_ctes(query)
             # Begin analysis at the outer query.
             self._analyze_result_columns(query)
             return None
