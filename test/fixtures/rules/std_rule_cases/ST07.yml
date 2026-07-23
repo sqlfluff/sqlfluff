@@ -86,3 +86,69 @@ test_pass_clickhouse:
   configs:
     core:
       dialect: clickhouse
+
+test_fail_no_fix_when_using_col_referenced_unqualified:
+  # https://github.com/sqlfluff/sqlfluff/issues/7230
+  # `field_1` is referenced unqualified in the SELECT clause. That
+  # reference is only unambiguous because USING de-duplicates the join
+  # columns, so rewriting to an ON condition would produce invalid
+  # (ambiguous) SQL. The USING clause is still flagged, but no fix is
+  # offered.
+  fail_str: |
+    select field_1, field_2
+    from table_a
+    inner join table_b using (field_1)
+
+test_fail_no_fix_when_using_col_referenced_unqualified_in_where:
+  # https://github.com/sqlfluff/sqlfluff/issues/7230
+  fail_str: |
+    select table_a.field_2
+    from table_a
+    inner join table_b using (field_1)
+    where field_1 > 0
+
+test_fail_no_fix_when_using_col_accessed_as_struct:
+  # https://github.com/sqlfluff/sqlfluff/issues/7230
+  # `field_1.nested_field` is a struct access on the USING column, not a
+  # table-qualified reference, so the rewrite would still make it ambiguous.
+  fail_str: |
+    select field_1.nested_field, field_2
+    from table_a
+    inner join table_b using (field_1)
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_fix_when_refs_table_qualified:
+  # All references are table-qualified, so the fix is safe.
+  fail_str: |
+    select table_a.field_1, table_b.field_2
+    from table_a
+    inner join table_b using (field_1)
+  fix_str: |
+    select table_a.field_1, table_b.field_2
+    from table_a
+    inner join table_b ON table_a.field_1 = table_b.field_1
+
+test_fail_no_fix_when_using_col_name_matches_table_name:
+  # A bare reference to the USING column is a column reference even when a
+  # joined table shares its name, so the rewrite would still make it
+  # ambiguous.
+  fail_str: |
+    select field_1, table_a.field_2
+    from table_a
+    inner join field_1 using (field_1)
+
+test_fail_no_fix_when_using_col_struct_access_matches_table_name:
+  # https://github.com/sqlfluff/sqlfluff/issues/7230
+  # A struct access on the USING column (`field_1.nested_field`) must stay
+  # unfixable even when a joined table shares the column's name: the leading
+  # identifier is the de-duplicated USING column, not that table, so the
+  # rewrite would still make it ambiguous.
+  fail_str: |
+    select field_1.nested_field, table_a.field_2
+    from table_a
+    inner join field_1 using (field_1)
+  configs:
+    core:
+      dialect: bigquery
