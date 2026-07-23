@@ -52,36 +52,35 @@ bracketed_optional_content_failure_nothing_here:
 ansi_grant_all_masking_policies:
   sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
   expect: error
-  xfail:
-    python_vs_rust: "Ansi grammar references the POLICIES keyword without registering it - Python's Ref raises RuntimeError the moment the branch is attempted, while Rust resolves the missing name to Empty and silently fails the branch."
-  pins: ansi grammar references the POLICIES keyword without registering it.
+  pins: ansi grammar references the POLICIES keyword (via a bare string) that it
+    never registers, so it is treated as unsupported syntax. Both engines now
+    raise the identical RuntimeError ("Grammar refers to the 'POLICIES' keyword
+    which was not found in the ansi dialect...") - Python via dialect.ref(), Rust
+    by signalling the missing ref to rust_parser.py which re-raises through the
+    same dialect.ref(). (Previously Rust silently produced an unparsable tree.)
 ansi_grant_future_masking_policies:
   sql: GRANT SELECT ON FUTURE MASKING POLICIES IN SCHEMA s TO r
   expect: error
-  xfail:
-    python_vs_rust: 'FUTURE variant of the same POLICIES keyword gap.'
-  pins: FUTURE variant of the POLICIES keyword gap.
+  pins: FUTURE variant of the same dangling POLICIES-keyword-ref gap as
+    ansi_grant_all_masking_policies; both engines raise the identical RuntimeError.
 ansi_grant_all_file_formats:
   sql: GRANT SELECT ON ALL FILE FORMATS IN SCHEMA s TO r
   expect: error
-  xfail:
-    python_vs_rust: 'Ansi grammar references the FORMATS keyword without registering it, the same dangling-ref class as the POLICIES gap.'
-  pins: ansi grammar references the FORMATS keyword without registering it.
+  pins: ansi grammar references the FORMATS keyword without registering it, the
+    same dangling-keyword-ref class as POLICIES; both engines raise the identical
+    RuntimeError.
 mysql_exchange_partition_table_reference:
   sql: ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2 WITH VALIDATION
   dialect: mysql
   expect: error
-  xfail:
-    python_vs_rust: "Mysql EXCHANGE PARTITION grammar has Ref('TableReference') - a typo for TableReferenceSegment."
-  pins: mysql EXCHANGE PARTITION dangling-ref typo (TableReference vs TableReferenceSegment).
+  pins: mysql EXCHANGE PARTITION has Ref('TableReference'), a typo for TableReferenceSegment;
+    both engines raise the identical dangling-ref RuntimeError.
 postgres_alter_foreign_table_column_keyword:
   sql: ALTER FOREIGN TABLE ft ALTER COLUMN c OPTIONS (ADD opt 'v')
   dialect: postgres
   expect: error
-  xfail:
-    python_vs_rust: 'Postgres ALTER FOREIGN TABLE ... ALTER COLUMN grammar has a dangling keyword reference.'
-  pins: "postgres ALTER FOREIGN TABLE has Ref('COLUMN') - a segment ref where the
-    COLUMN keyword was intended."
+  pins: postgres ALTER FOREIGN TABLE has Ref('COLUMN'), a segment ref where the COLUMN
+    keyword was intended; both engines raise the identical dangling-ref RuntimeError.
 parser_created_segments_drop_token_trim_chars:
   sql: SET @errmsg = 'x';
   dialect: mysql
