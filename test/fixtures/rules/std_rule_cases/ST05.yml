@@ -1,5 +1,118 @@
 rule: ST05
 
+generated_cte_does_not_shadow_physical_table:
+  fail_str: |
+    WITH cte_a AS (
+      SELECT anchor.v
+      FROM (SELECT 1 AS v) AS anchor
+      JOIN (SELECT 2 AS v) AS victim ON 1 = 1
+    ),
+    cte_b AS (SELECT v FROM victim)
+    SELECT cte_a.v, cte_b.v FROM cte_a JOIN cte_b ON 1 = 1;
+
+generated_cte_does_not_shadow_quoted_physical_table:
+  fail_str: |
+    WITH cte_a AS (
+      SELECT anchor.v
+      FROM (SELECT 1 AS v) AS anchor
+      JOIN (SELECT 2 AS v) AS victim ON 1 = 1
+    ),
+    cte_b AS (SELECT v FROM "victim")
+    SELECT cte_a.v, cte_b.v FROM cte_a JOIN cte_b ON 1 = 1;
+  configs:
+    core:
+      dialect: sqlite
+
+generated_cte_does_not_shadow_forward_visible_earlier_cte_reference:
+  fail_str: |
+    WITH cte_earlier AS (
+      SELECT v FROM victim
+    ),
+    cte_later AS (
+      SELECT anchor.v
+      FROM (SELECT 1 AS v) AS anchor
+      JOIN (SELECT 2 AS v) AS victim ON 1 = 1
+    )
+    SELECT cte_earlier.v, cte_later.v FROM cte_earlier JOIN cte_later ON 1 = 1;
+  configs:
+    core:
+      dialect: sqlite
+
+generated_cte_does_not_shadow_later_nested_cte_name:
+  fail_str: |
+    WITH cte_earlier AS (
+      SELECT anchor.v
+      FROM (SELECT 1 AS v) AS anchor
+      JOIN (SELECT 2 AS v) AS victim ON 1 = 1
+    ),
+    cte_later AS (
+      WITH a AS (SELECT v FROM victim),
+      victim AS (SELECT 9 AS v)
+      SELECT v FROM a
+    )
+    SELECT cte_earlier.v, cte_later.v FROM cte_earlier JOIN cte_later ON 1 = 1;
+  configs:
+    core:
+      dialect: postgres
+
+generated_cte_may_reuse_prior_nested_cte_name:
+  fail_str: |
+    WITH cte_earlier AS (
+      SELECT anchor.v
+      FROM (SELECT 1 AS v) AS anchor
+      JOIN (SELECT 2 AS v) AS victim ON 1 = 1
+    ),
+    cte_later AS (
+      WITH victim AS (SELECT 9 AS v),
+      a AS (SELECT v FROM victim)
+      SELECT v FROM a
+    )
+    SELECT cte_earlier.v, cte_later.v FROM cte_earlier JOIN cte_later ON 1 = 1;
+  fix_str: |
+    WITH victim AS (SELECT 2 AS v),
+    cte_earlier AS (
+      SELECT anchor.v
+      FROM (SELECT 1 AS v) AS anchor
+      JOIN victim ON 1 = 1
+    ),
+    cte_later AS (
+      WITH victim AS (SELECT 9 AS v),
+      a AS (SELECT v FROM victim)
+      SELECT v FROM a
+    )
+    SELECT cte_earlier.v, cte_later.v FROM cte_earlier JOIN cte_later ON 1 = 1;
+  configs:
+    core:
+      dialect: postgres
+
+generated_cte_may_reuse_nested_locally_shadowed_name:
+  fail_str: |
+    WITH cte_earlier AS (
+      SELECT anchor.v
+      FROM (SELECT 1 AS v) AS anchor
+      JOIN (SELECT 2 AS v) AS victim ON 1 = 1
+    ),
+    cte_later AS (
+      WITH victim AS (SELECT 9 AS v)
+      SELECT v FROM victim
+    )
+    SELECT cte_earlier.v, cte_later.v FROM cte_earlier JOIN cte_later ON 1 = 1;
+  fix_str: |
+    WITH victim AS (SELECT 2 AS v),
+    cte_earlier AS (
+      SELECT anchor.v
+      FROM (SELECT 1 AS v) AS anchor
+      JOIN victim ON 1 = 1
+    ),
+    cte_later AS (
+      WITH victim AS (SELECT 9 AS v)
+      SELECT v FROM victim
+    )
+    SELECT cte_earlier.v, cte_later.v FROM cte_earlier JOIN cte_later ON 1 = 1;
+  configs:
+    core:
+      dialect: sqlite
+
 select_fail:
   fail_str: |
     select
