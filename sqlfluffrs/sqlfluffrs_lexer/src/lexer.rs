@@ -224,7 +224,13 @@ impl SQLLexError {
 /// MATCH_RECOGNIZE exclude bracket `{-`/`-}`, added to that same set).
 const DEFAULT_BRACKET_PAIRS: &[(&str, &str, &str, &str, bool)] = &[
     ("(", ")", "start_bracket", "end_bracket", true),
-    ("[", "]", "start_square_bracket", "end_square_bracket", false),
+    (
+        "[",
+        "]",
+        "start_square_bracket",
+        "end_square_bracket",
+        false,
+    ),
     ("{", "}", "start_curly_bracket", "end_curly_bracket", false),
 ];
 

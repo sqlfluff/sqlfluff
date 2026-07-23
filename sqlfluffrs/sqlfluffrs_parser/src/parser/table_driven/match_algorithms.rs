@@ -129,7 +129,10 @@ fn find_mismatched_closing_bracket(
                     idx += 1;
                 }
             }
-        } else if bracket_pairs.iter().any(|(_, close, _, _, _)| *close == raw) {
+        } else if bracket_pairs
+            .iter()
+            .any(|(_, close, _, _, _)| *close == raw)
+        {
             return BracketScanResult::Mismatch {
                 idx,
                 actual_close: raw.to_string(),
@@ -305,7 +308,10 @@ impl Parser<'_> {
             // bracket! Return no match": abort the terminator search and
             // claim everything through max_idx, rather than scan past the
             // stray bracket to a later terminator like `FROM` or `UNION`.
-            if bracket_pairs.iter().any(|(_, close, _, _, _)| *close == raw) {
+            if bracket_pairs
+                .iter()
+                .any(|(_, close, _, _, _)| *close == raw)
+            {
                 vdebug!(
                     "[GREEDY_MATCH_TABLE] greedy_match: unexpected closing bracket at {} — aborting terminator search, claiming through {}",
                     i, max_idx

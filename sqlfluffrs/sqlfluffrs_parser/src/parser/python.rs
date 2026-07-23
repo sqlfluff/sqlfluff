@@ -662,12 +662,16 @@ fn compute_bracket_pairs(tokens: &mut [Token], bracket_pairs: &[(&str, &str, &st
         let raw = tokens[idx].raw();
 
         // Check if this is an opening bracket
-        if let Some(pair_idx) = bracket_pairs.iter().position(|(open, _, _, _, _)| *open == raw) {
+        if let Some(pair_idx) = bracket_pairs
+            .iter()
+            .position(|(open, _, _, _, _)| *open == raw)
+        {
             bracket_stack.push((idx, pair_idx));
         }
         // Check if this is a closing bracket
-        else if let Some(expected_idx) =
-            bracket_pairs.iter().position(|(_, close, _, _, _)| *close == raw)
+        else if let Some(expected_idx) = bracket_pairs
+            .iter()
+            .position(|(_, close, _, _, _)| *close == raw)
         {
             // Only the most-recently-opened bracket (the top of the stack) may
             // be closed next, per LIFO nesting discipline. See the sibling

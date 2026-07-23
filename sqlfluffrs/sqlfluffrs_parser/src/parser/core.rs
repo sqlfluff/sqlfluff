@@ -1758,7 +1758,10 @@ impl<'a> Parser<'a> {
                     if nested_match {
                         inner_child_matches.push(Arc::new(nested_bracket));
                     }
-                } else if bracket_pairs.iter().any(|(_, close, _, _, _)| *close == inner_raw) {
+                } else if bracket_pairs
+                    .iter()
+                    .any(|(_, close, _, _, _)| *close == inner_raw)
+                {
                     // PYTHON PARITY: a closing bracket of a *different* type than
                     // the one we opened is a crossed bracket. Our own
                     // `close_bracket` is handled above and same-type nested
