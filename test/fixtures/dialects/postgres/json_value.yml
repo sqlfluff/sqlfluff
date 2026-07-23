@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2736a250bfb8d0c167f41e321b12cd16f3f6fcc8b29794fc625fc339cf5a8f8
+_hash: b4a1c1aa9cbe071e8dcf394962e8a8917a5fd679382124b9dc80393044a66ba4
 file:
 - statement:
     select_statement:
@@ -159,27 +159,26 @@ file:
           - keyword: GENERATED
           - keyword: ALWAYS
           - keyword: AS
-          - expression:
-              bracketed:
-                start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: json_value
-                    function_contents:
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            naked_identifier: raw_data
-                      - comma: ','
-                      - expression:
-                          quoted_literal: "'$.\"action_type\"'"
-                      - keyword: RETURNING
-                      - data_type:
-                          keyword: smallint
-                      - end_bracket: )
-                end_bracket: )
+          - bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: json_value
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: raw_data
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'$.\"action_type\"'"
+                    - keyword: RETURNING
+                    - data_type:
+                        keyword: smallint
+                    - end_bracket: )
+              end_bracket: )
           - keyword: STORED
         - column_constraint_segment:
           - keyword: NOT
@@ -193,27 +192,26 @@ file:
           - keyword: GENERATED
           - keyword: ALWAYS
           - keyword: AS
-          - expression:
-              bracketed:
-                start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: json_value
-                    function_contents:
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            naked_identifier: raw_data
-                      - comma: ','
-                      - expression:
-                          quoted_literal: "'$.\"target_id\"'"
-                      - keyword: RETURNING
-                      - data_type:
-                          keyword: bigint
-                      - end_bracket: )
-                end_bracket: )
+          - bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: json_value
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: raw_data
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'$.\"target_id\"'"
+                    - keyword: RETURNING
+                    - data_type:
+                        keyword: bigint
+                    - end_bracket: )
+              end_bracket: )
           - keyword: STORED
       - end_bracket: )
 - statement_terminator: ;

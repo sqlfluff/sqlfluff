@@ -890,6 +890,7 @@ postgres_docs_keywords = [
     ("VERSIONING", "not-keyword"),
     ("VIEW", "non-reserved"),
     ("VIEWS", "non-reserved"),
+    ("VIRTUAL", "non-reserved"),
     ("VOLATILE", "non-reserved"),
     ("WHEN", "reserved"),
     ("WHENEVER", "not-keyword"),
