@@ -1,0 +1,4 @@
+sqlmesh~=0.235.0
+# duckdb is the gateway used by the test fixtures; it is not a hard sqlmesh
+# dependency, so pin it explicitly for reproducible CI runs.
+duckdb~=1.5.0
