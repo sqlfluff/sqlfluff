@@ -1,0 +1,18 @@
+# Structural-invariant cases for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+#
+# Each case audits (not compares) the raw RsMatchResult the Rust core returns:
+# slice bounds, child ordering, overlap and zero-length rules. A violation is a
+# rust-core bug by definition, so these carry no `xfail` leg.
+_meta:
+  kind: invariants
+nested_bracket_function_calls:
+  sql: SELECT f(a, (b + c), g(d)) FROM t WHERE (x IN (1, 2, 3))
+  pins: General structural well-formedness of a returned RsMatchResult over
+    nested brackets and function calls - guards MatchResult bounds/ordering/
+    overlap/zero-length invariants and keeps the invariants leg live (it
+    previously collected zero cases because no fixture declared kind:invariants).
+case_expression_and_cast:
+  sql: SELECT CASE WHEN a > 1 THEN CAST(b AS INT) ELSE c END FROM t
+  pins: Invariants over CASE/CAST nesting - a second live invariants case so the
+    leg exercises more than one match-tree shape.
