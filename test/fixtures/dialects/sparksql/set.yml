@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc5f9d032b44ff9c8e91f87ef0ea115455942f04384a2d453b4ccfe3d363a196
+_hash: d8cfd8c83a04351af267cabae1090f755c86b90f77809a56ce865316cc6039e9
 file:
 - statement:
     set_statement:
@@ -18,7 +18,8 @@ file:
       - properties_naked_identifier: substitute
       comparison_operator:
         raw_comparison_operator: '='
-      boolean_literal: 'FALSE'
+      set_config_value:
+        boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -45,8 +46,8 @@ file:
 - statement_terminator: ;
 - statement:
     set_statement:
-    - keyword: SET
-    - property_name_identifier:
+      keyword: SET
+      property_name_identifier:
       - properties_naked_identifier: spark
       - dot: .
       - properties_naked_identifier: sql
@@ -54,21 +55,22 @@ file:
       - properties_naked_identifier: cache
       - dot: .
       - properties_naked_identifier: serializer
-    - comparison_operator:
+      comparison_operator:
         raw_comparison_operator: '='
-    - properties_naked_identifier: org
-    - dot: .
-    - properties_naked_identifier: apache
-    - dot: .
-    - properties_naked_identifier: spark
-    - dot: .
-    - properties_naked_identifier: sql
-    - dot: .
-    - properties_naked_identifier: execution
-    - dot: .
-    - properties_naked_identifier: columnar
-    - dot: .
-    - properties_naked_identifier: DefaultCachedBatchSerializer
+      set_config_value:
+      - properties_naked_identifier: org
+      - dot: .
+      - properties_naked_identifier: apache
+      - dot: .
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: execution
+      - dot: .
+      - properties_naked_identifier: columnar
+      - dot: .
+      - properties_naked_identifier: DefaultCachedBatchSerializer
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -77,10 +79,11 @@ file:
         properties_naked_identifier: foo
       comparison_operator:
         raw_comparison_operator: '='
-      bracketed:
-      - start_bracket: (
-      - numeric_literal: '1'
-      - comma: ','
-      - numeric_literal: '3'
-      - end_bracket: )
+      set_config_value:
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '3'
+        - end_bracket: )
 - statement_terminator: ;

@@ -1,0 +1,75 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fd84a87f82f342bc8d7b44dbfc722bed7cb734d4cdd6caacf7b6d416532216bb
+file:
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+        naked_identifier: c_date
+      comparison_operator:
+        raw_comparison_operator: '='
+      set_config_value:
+        function:
+          function_name:
+            function_name_identifier: CURRENT_DATE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+        naked_identifier: ansi_mode
+      comparison_operator:
+        raw_comparison_operator: '='
+      set_config_value:
+        boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+        properties_naked_identifier: path
+      comparison_operator:
+        raw_comparison_operator: '='
+      set_config_value:
+      - word: s3a
+      - colon: ':'
+      - divide: /
+      - divide: /
+      - word: bucket
+      - divide: /
+      - word: path
+      - divide: /
+      - word: to
+      - divide: /
+      - word: data
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+        properties_naked_identifier: key
+      comparison_operator:
+        raw_comparison_operator: '='
+      set_config_value:
+      - word: a
+      - minus: '-'
+      - word: b
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+        properties_naked_identifier: warehouse
+      comparison_operator:
+        raw_comparison_operator: '='
+      set_config_value:
+        quoted_literal: "'s3a://bucket/warehouse'"
+- statement_terminator: ;

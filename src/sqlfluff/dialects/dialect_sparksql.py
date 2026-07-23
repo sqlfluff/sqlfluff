@@ -2921,6 +2921,32 @@ class ResetStatementSegment(BaseSegment):
     )
 
 
+class SetConfigValueSegment(BaseSegment):
+    """A runtime config value in a Spark `SET` statement.
+
+    Narrower than ``ExpressionSegment`` so opaque config strings (paths, URIs,
+    hyphenated tokens) are not treated as SQL expressions for linting/rewrites.
+    https://github.com/sqlfluff/sqlfluff/issues/4218
+    """
+
+    type = "set_config_value"
+
+    match_grammar = OneOf(
+        Ref("LiteralGrammar"),
+        Bracketed(Delimited(Ref("LiteralGrammar"))),
+        Ref("FunctionSegment"),
+        Ref("BareFunctionSegment"),
+        # Java class names / dotted identifier config tokens
+        Delimited(
+            Ref("PropertiesNakedIdentifierSegment"),
+            delimiter=Ref("DotSegment"),
+        ),
+        # Opaque raw payloads (URIs, hyphenated tokens, etc.). Anything()
+        # still respects statement terminators from the parse context.
+        Anything(),
+    )
+
+
 class SetStatementSegment(BaseSegment):
     """A `SET` statement used to set runtime properties.
 
@@ -2933,7 +2959,13 @@ class SetStatementSegment(BaseSegment):
         "SET",
         Ref("SQLConfPropertiesSegment", optional=True),
         OneOf(
-            Ref("PropertyListGrammar"),
+            Delimited(
+                Sequence(
+                    Ref("PropertyNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("SetConfigValueSegment"),
+                ),
+            ),
             Ref("PropertyNameSegment"),
             optional=True,
         ),
