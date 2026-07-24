@@ -152,6 +152,38 @@ impl TableParseFrameStack {
         TableFrameResult::Done
     }
 
+    /// First-token hint gate: skip creating and dispatching a real child
+    /// frame for `parent`'s next element when `Parser::simple_hint_rejects`
+    /// has already proven it cannot match at `pos`.
+    ///
+    /// Synthesizes the empty result a real child frame would eventually
+    /// have produced and pushes `parent` straight back onto the stack in
+    /// `WaitingForChild` state, so the normal dispatch loop in
+    /// `iterative.rs` picks it up on its next iteration and calls the same
+    /// `handle_*_waiting_for_child` it always would — exactly as if a child
+    /// frame had run and failed, just without allocating or matching one.
+    /// This is the shared chokepoint any table-driven handler's "create
+    /// child frame" call site can use in place of `push_child_and_wait`
+    /// once it has confirmed the gate fires.
+    #[inline]
+    pub(crate) fn gate_child_and_wait(
+        &mut self,
+        mut parent: TableParseFrame,
+        context_type: GrammarVariant,
+        child_index: usize,
+        pos: usize,
+    ) -> TableFrameResult {
+        let virtual_child_id = self.frame_id_counter;
+        self.increment_frame_id_counter();
+        parent
+            .context
+            .set_last_child_id(context_type, virtual_child_id);
+        parent.state = FrameState::WaitingForChild { child_index };
+        self.insert_empty_result(virtual_child_id, pos);
+        self.push(parent);
+        TableFrameResult::Done
+    }
+
     #[inline]
     pub(crate) fn transition_to_combining(
         &mut self,
