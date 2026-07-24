@@ -38,3 +38,7 @@ ON VIEW view_name
 APPEND_ONLY = FALSE
 SHOW_INITIAL_ROWS = FALSE
 COMMENT = 'amazing comment';
+
+CREATE STREAM IF NOT EXISTS my_db.my_schema.my_stream
+ON DYNAMIC TABLE my_db.my_schema.my_dynamic_table
+COMMENT = 'Details about the stream and its purpose';

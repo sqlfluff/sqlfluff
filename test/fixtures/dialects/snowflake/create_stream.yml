@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d6b9b17076a4d8fdb468ba44e454e9d10855d7e3d71365942f1f5af97d13ebf0
+_hash: 43552dae23e6f55f099cc71ca268130be087e5c7bf6486b8aab051c9ebf44dfe
 file:
 - statement:
     create_stream_statement:
@@ -259,4 +259,32 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: CREATE
+    - keyword: STREAM
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_stream
+    - keyword: 'ON'
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_dynamic_table
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Details about the stream and its purpose'"
 - statement_terminator: ;

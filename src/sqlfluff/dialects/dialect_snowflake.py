@@ -225,7 +225,7 @@ snowflake_dialect.sets("warehouse_scaling_policies").update(
 
 snowflake_dialect.sets("refreshmode_types").clear()
 snowflake_dialect.sets("refreshmode_types").update(
-    ["AUTO", "FULL", "INCREMENTAL"],
+    ["AUTO", "FULL", "INCREMENTAL", "ADAPTIVE"],
 )
 
 snowflake_dialect.sets("initialize_types").clear()
@@ -5111,6 +5111,24 @@ class DynamicTableOptionsSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
+                "WAREHOUSE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "INITIALIZATION_WAREHOUSE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
                 "REFRESH_MODE",
                 Ref("EqualsSegment"),
                 Ref("RefreshModeType"),
@@ -5120,15 +5138,6 @@ class DynamicTableOptionsSegment(BaseSegment):
                 "INITIALIZE",
                 Ref("EqualsSegment"),
                 Ref("InitializeType"),
-                optional=True,
-            ),
-            Sequence(
-                "WAREHOUSE",
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("ObjectReferenceSegment"),
-                    Ref("QuotedLiteralSegment"),
-                ),
                 optional=True,
             ),
             Sequence(
@@ -7992,6 +8001,11 @@ class CreateStreamStatementSegment(BaseSegment):
             ),
             Sequence(
                 "STAGE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DYNAMIC",
+                "TABLE",
                 Ref("ObjectReferenceSegment"),
             ),
         ),
