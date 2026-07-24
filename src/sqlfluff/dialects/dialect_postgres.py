@@ -1694,6 +1694,45 @@ class OffsetClauseSegment(ansi.OffsetClauseSegment):
     )
 
 
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """An `ORDER BY` clause.
+
+    Adds PostgreSQL's ``USING operator`` sort option, which selects an
+    explicit ordering operator instead of ``ASC``/``DESC``.
+    https://www.postgresql.org/docs/current/queries-order.html
+    """
+
+    type = "orderby_clause"
+    match_grammar: Matchable = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf(
+                    "ASC",
+                    "DESC",
+                    # PostgreSQL allows an explicit sort operator, e.g.
+                    # `ORDER BY a USING <` or `ORDER BY a USING OPERATOR(schema.<)`.
+                    Sequence("USING", Ref("ComparisonOperatorGrammar")),
+                    optional=True,
+                ),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                Ref("WithFillSegment", optional=True),
+            ),
+            terminators=[Ref("LimitClauseSegment"), Ref("FrameClauseUnitGrammar")],
+        ),
+        Dedent,
+    )
+
+
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
 

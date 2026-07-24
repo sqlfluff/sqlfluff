@@ -64,6 +64,14 @@ test_fail_parent_child_positioning:
     select * from c1 join c2 ON c1.ID = c2.ID
     join (select * from c3 join c4 ON c3.ID = c4.ID) as c5 on c1.ID = c5.ID
 
+test_fail_comma_join_before_using:
+  # A comma-join before the first USING join must pair the two tables the
+  # join actually connects, not the SELECT's first two tables.
+  fail_str: |
+    SELECT * FROM a, b JOIN c USING (id)
+  fix_str: |
+    SELECT * FROM a, b JOIN c ON b.id = c.id
+
 fail_but_dont_fix_templated_table_names:
   fail_str: |
     SELECT

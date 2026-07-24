@@ -1,0 +1,182 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 406ef8c69fb19cfab7da6cba349dbbff2c309a4356aa7f74603e5fce94d07ac6
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: some_db
+      - dot: .
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: debug_log
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: process
+      - comma: ','
+      - column_reference:
+          naked_identifier: msg
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            bind_variable:
+              colon_prefix: ':'
+              variable: process
+        - comma: ','
+        - expression:
+            quoted_literal: "'START RUN'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          bind_variable:
+            colon_prefix: ':'
+            variable: process
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          bind_variable:
+            colon_prefix: ':'
+            variable: process
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: t
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          bind_variable:
+            colon_prefix: ':'
+            variable: new_value
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          bind_variable:
+            colon_prefix: ':'
+            variable: target_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: t
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          bind_variable:
+            colon_prefix: ':'
+            variable: target_id
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+      - naked_identifier: some_db
+      - dot: .
+      - naked_identifier: some_schema
+      - dot: .
+      - function_name_identifier: i_am_a_procedure
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: BOOLEAN
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - scripting_block_statement:
+      - keyword: BEGIN
+      - statement:
+          scripting_let_statement:
+            keyword: LET
+            variable: process
+            data_type:
+              data_type_identifier: VARCHAR
+            assignment_operator: :=
+            expression:
+              quoted_literal: "'THIS_PROCEDURE_PROCESS_KEY'"
+      - statement_terminator: ;
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+            - naked_identifier: some_db
+            - dot: .
+            - naked_identifier: some_schema
+            - dot: .
+            - naked_identifier: debug_log
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: process
+            - comma: ','
+            - column_reference:
+                naked_identifier: msg
+            - end_bracket: )
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  bind_variable:
+                    colon_prefix: ':'
+                    variable: process
+              - comma: ','
+              - expression:
+                  quoted_literal: "'START RUN'"
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;

@@ -43,10 +43,12 @@ teradata_dialect = ansi_dialect.copy_as(
 
 teradata_dialect.patch_lexer_matchers(
     [
-        # so it also matches 1.
+        # Match the ansi numeric literal form so scientific notation
+        # (1E10, 1.5e3) and leading-dot decimals (.5) lex as one token,
+        # while still matching a trailing dot (1.).
         RegexLexer(
             "numeric_literal",
-            r"([0-9]+(\.[0-9]*)?)",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             CodeSegment,
         ),
     ]

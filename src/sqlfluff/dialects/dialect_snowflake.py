@@ -695,6 +695,11 @@ snowflake_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("ReferencedVariableNameSegment"),
+            # Snowflake Scripting bind variables, e.g. :my_variable. These are
+            # usable wherever a literal value is expected (VALUES lists, WHERE
+            # clauses, etc.).
+            # https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables#using-a-variable-in-a-sql-statement-binding
+            Ref("BindVariableSegment"),
         ]
     ),
     AccessorGrammar=AnyNumberOf(
@@ -10103,9 +10108,14 @@ class BindVariableSegment(BaseSegment):
 
     type = "bind_variable"
 
+    # allow_gaps=False so the colon and the variable name must be adjacent.
+    # Otherwise, when this is reachable in general expressions, input like
+    # `SET a = : WHERE id = 1` would parse `: WHERE` as a bind variable and
+    # corrupt the statement structure instead of failing cleanly.
     match_grammar = Sequence(
         Ref("ColonPrefixSegment"),
         Ref("LocalVariableNameSegment"),
+        allow_gaps=False,
     )
 
 

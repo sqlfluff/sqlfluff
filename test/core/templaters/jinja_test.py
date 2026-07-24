@@ -730,6 +730,38 @@ def test__templater_jinja_error_macro_invalid():
     assert "{% macro pkg.my_macro() %}pass{% endmacro %}" in error_string
 
 
+def test__templater_jinja_fast_path_library_path_error(tmp_path):
+    """A broken library import must still raise on a literal-only file.
+
+    The fast path added to `process()` should only skip work that cannot
+    change observable behaviour. `library_path` loading can raise (e.g. on
+    a broken import), and that must not be bypassed just because the input
+    has no Jinja markers.
+    """
+    lib_dir = tmp_path / "libs"
+    lib_dir.mkdir()
+    (lib_dir / "broken.py").write_text("import this_module_does_not_exist_at_all\n")
+
+    config = FluffConfig(
+        configs={
+            "core": {
+                "dialect": "ansi",
+                "templater": "jinja",
+            },
+            "templater": {
+                "jinja": {"library_path": str(lib_dir)},
+            },
+        }
+    )
+
+    with pytest.raises(ModuleNotFoundError):
+        JinjaTemplater().process(
+            in_str="SELECT 1\n",
+            fname="test.sql",
+            config=config,
+        )
+
+
 def test__templater_jinja_lint_empty():
     """Check that parsing a file which renders to an empty string.
 
