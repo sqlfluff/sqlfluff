@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cb4449e3f689b62380dcd9908fb116858f0f3ac98cd9491e6a4752d08018c65f
+_hash: 46fd70fc308cabcbe991692118ce1403c717eb119b002a183a60a5dd11260b70
 file:
 - statement:
     create_materialized_view_statement:
@@ -150,6 +150,140 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: expect_mv
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: value
+          data_type:
+            primitive_type:
+              keyword: INT
+        comma: ','
+        constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: positive_value
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: value
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: value
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: fail_update_mv
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: value
+          data_type:
+            primitive_type:
+              keyword: INT
+        comma: ','
+        constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: positive_value
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: value
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: VIOLATION
+        - keyword: FAIL
+        - keyword: UPDATE
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: value
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: drop_row_mv
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: value
+          data_type:
+            primitive_type:
+              keyword: INT
+        comma: ','
+        constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: positive_value
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: value
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: VIOLATION
+        - keyword: DROP
+        - keyword: ROW
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: value
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:

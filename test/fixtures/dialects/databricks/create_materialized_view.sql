@@ -17,6 +17,21 @@ CREATE MATERIALIZED VIEW typed_mv (
     amount DECIMAL(10, 2)
 ) AS SELECT id, name, amount FROM orders;
 
+CREATE MATERIALIZED VIEW expect_mv (
+    value INT,
+    CONSTRAINT positive_value EXPECT (value > 0)
+) AS SELECT 1 AS value;
+
+CREATE MATERIALIZED VIEW fail_update_mv (
+    value INT,
+    CONSTRAINT positive_value EXPECT (value > 0) ON VIOLATION FAIL UPDATE
+) AS SELECT 1 AS value;
+
+CREATE MATERIALIZED VIEW drop_row_mv (
+    value INT,
+    CONSTRAINT positive_value EXPECT (value > 0) ON VIOLATION DROP ROW
+) AS SELECT 1 AS value;
+
 CREATE MATERIALIZED VIEW sales_mv
 COMMENT 'Materialized view for sales analytics'
 AS SELECT region, SUM(amount) as total FROM sales GROUP BY region;
