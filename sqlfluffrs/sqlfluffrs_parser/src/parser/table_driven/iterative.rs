@@ -904,15 +904,15 @@ impl Parser<'_> {
 
         self.print_cache_stats();
 
-        println!("Parser at position: {}", self.pos);
+        eprintln!("Parser at position: {}", self.pos);
 
-        println!("\nTokens around failure point:");
+        eprintln!("\nTokens around failure point:");
         let start = self.pos.saturating_sub(3);
         let end = (self.pos + 4).min(self.tokens.len());
         for i in start..end {
             let marker = if i == self.pos { " <<< HERE" } else { "" };
             if let Some(tok) = self.tokens.get(i) {
-                println!(
+                eprintln!(
                     "  [{}]: '{}' (type: {}){}",
                     i,
                     tok.raw(),

@@ -13,6 +13,11 @@ use sqlfluffrs_types::templater::fileslice::{RawFileSlice, TemplatedFileSlice};
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::templater::templatefile::TemplatedFile;
 
+/// One conversion-cache entry: the normalized `Arc` all markers from a given
+/// Python object must share, plus the `weakref.ref` kept alive so its eviction
+/// callback fires.
+type TemplatedFileCacheEntry = (Arc<TemplatedFile>, Py<PyAny>);
+
 /// Cache of Python→Rust `TemplatedFile` conversions, keyed by the SOURCE
 /// PYTHON OBJECT's address. It exists for two reasons: repeated extraction of
 /// the same `TemplatedFile` (every position marker crossing the FFI boundary
@@ -29,7 +34,6 @@ use sqlfluffrs_types::templater::templatefile::TemplatedFile;
 /// source object is garbage collected (the ref must be kept alive for the
 /// callback to fire) — so the cache is bounded by LIVE TemplatedFiles and a
 /// recycled object address can never hit a stale entry.
-type TemplatedFileCacheEntry = (Arc<TemplatedFile>, Py<PyAny>);
 type TemplatedFileCache = Lazy<Mutex<HashMap<usize, TemplatedFileCacheEntry>>>;
 
 static PY_TEMPLATED_FILE_CACHE: TemplatedFileCache = Lazy::new(|| Mutex::new(HashMap::new()));
