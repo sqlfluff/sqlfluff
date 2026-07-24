@@ -1221,6 +1221,50 @@ class IndexTypeReferenceSegment(BaseSegment):
     match_grammar = ansi.ObjectReferenceSegment.match_grammar.copy()
 
 
+class ShowStatementSegment(BaseSegment):
+    """A SQL*Plus ``SHOW`` command.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/latest/sqpug/SHOW.html
+    """
+
+    type = "show_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            # SHOW ERRORS [object_type [schema.]name]
+            Sequence(
+                "ERRORS",
+                Sequence(
+                    OneOf(
+                        "FUNCTION",
+                        "PROCEDURE",
+                        "TRIGGER",
+                        "VIEW",
+                        "DIMENSION",
+                        Sequence("PACKAGE", Ref.keyword("BODY", optional=True)),
+                        Sequence("TYPE", Ref.keyword("BODY", optional=True)),
+                        Sequence("JAVA", OneOf("SOURCE", "CLASS")),
+                    ),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW PARAMETER[S] [name]
+            Sequence(
+                OneOf("PARAMETERS", "PARAMETER"),
+                Ref("ParameterNameSegment", optional=True),
+            ),
+            # Reserved keywords that cannot be matched as a bare identifier.
+            "ALL",
+            "USER",
+            # Any other single-word option, or a SET system variable, e.g.
+            # SGA, PDBS, RELEASE, RECYCLEBIN, SPOOL, LINESIZE, PAGESIZE.
+            Ref("NakedIdentifierSegment"),
+        ),
+    )
+
+
 # Adding Oracle specific statements.
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments.
@@ -1274,6 +1318,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterSynonymStatementSegment"),
             Ref("DropProfileStatementSegment"),
             Ref("DropClusterStatementSegment"),
+            Ref("ShowStatementSegment"),
         ],
     )
 
