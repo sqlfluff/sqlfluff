@@ -142,6 +142,18 @@ impl<'a> GrammarContext<'a> {
         self.tables.get_children(inst)
     }
 
+    /// Like [`Self::children_slice`], but typed as `GrammarId`s - no per-call
+    /// `Vec` allocation. `GrammarId` is `#[repr(transparent)]` over `u32`,
+    /// so the cast is layout-safe.
+    #[inline]
+    pub fn children_ids_slice(&self, id: GrammarId) -> &'a [GrammarId] {
+        let inst = self.inst(id);
+        let ids: &'a [u32] = self.tables.get_children(inst);
+        // SAFETY: GrammarId is #[repr(transparent)] over u32, so &[u32] and
+        // &[GrammarId] have identical layout.
+        unsafe { std::slice::from_raw_parts(ids.as_ptr() as *const GrammarId, ids.len()) }
+    }
+
     /// Get number of children
     #[inline]
     pub fn children_count(&self, id: GrammarId) -> usize {
