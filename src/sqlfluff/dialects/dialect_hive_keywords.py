@@ -173,6 +173,7 @@ UNRESERVED_KEYWORDS = [
     "DATETIME",
     "DAY",
     "DBPROPERTIES",
+    "DEFAULT",
     "DEFERRED",
     "DEFINED",
     "DELIMITED",

@@ -173,6 +173,7 @@ hive_dialect.add(
     ),
 )
 
+
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
 hive_dialect.replace(
     JoinKeywordsGrammar=Sequence(Sequence("SEMI", optional=True), "JOIN"),
@@ -299,6 +300,77 @@ hive_dialect.replace(
         "LIKE", "RLIKE", "ILIKE", "REGEXP", "IREGEXP"
     ),  # Impala dialect uses REGEXP and IREGEXP
 )
+
+
+class ValuesClauseSegment(ansi.ValuesClauseSegment):
+    """A `VALUES` clause for SELECT statements, no DEFAULT, aliases only in first row."""
+
+    type = "values_clause"
+    match_grammar: Matchable = Sequence(
+        "VALUES",
+        # First row, allows AliasExpressionSegment, no DEFAULT
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
+                    Ref("AliasExpressionSegment"),
+                ),
+                Ref("LiteralGrammar"),
+                Ref("ExpressionSegment"),
+            ),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        # Subsequent rows, no AliasExpressionSegment, no DEFAULT
+        AnyNumberOf(
+            Sequence(
+                Ref("CommaSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
+                        Ref("LiteralGrammar"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    parse_mode=ParseMode.GREEDY,
+                ),
+            ),
+        ),
+    )
+
+
+class InsertValuesClauseSegment(ansi.ValuesClauseSegment):
+    """A `VALUES` clause for INSERT statements, allows DEFAULT, aliases only in first row."""
+
+    type = "values_clause"
+    match_grammar: Matchable = Sequence(
+        "VALUES",
+        # First row allows AliasExpressionSegment
+        Bracketed(
+            Delimited(
+                "DEFAULT",
+                Sequence(
+                    OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
+                    Ref("AliasExpressionSegment"),
+                ),
+                Ref("LiteralGrammar"),
+                Ref("ExpressionSegment"),
+            ),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        # Subsequent rows no AliasExpressionSegment
+        AnyNumberOf(
+            Sequence(
+                Ref("CommaSegment"),
+                Bracketed(
+                    Delimited(
+                        "DEFAULT",
+                        Ref("LiteralGrammar"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    parse_mode=ParseMode.GREEDY,
+                ),
+            ),
+        ),
+    )
 
 
 class ArrayTypeSegment(ansi.ArrayTypeSegment):
@@ -893,8 +965,8 @@ class InsertStatementSegment(BaseSegment):
                 Ref("PartitionSpecGrammar", optional=True),
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
                 OneOf(
+                    Ref("InsertValuesClauseSegment"),
                     Ref("SelectableGrammar"),
-                    Ref("ValuesClauseSegment"),
                 ),
             ),
         ),
@@ -928,9 +1000,12 @@ class FromInsertClauseSegment(BaseSegment):
                         Ref("TableReferenceSegment"),
                         Ref("PartitionSpecGrammar", optional=True),
                         Ref("IfNotExistsGrammar", optional=True),
-                        Ref(
-                            "SelectableGrammar",
-                            terminators=[Ref.keyword("INSERT")],
+                        OneOf(
+                            Ref("InsertValuesClauseSegment"),
+                            Ref(
+                                "SelectableGrammar",
+                                terminators=[Ref.keyword("INSERT")],
+                            ),
                         ),
                     ),
                     Sequence(
@@ -939,9 +1014,9 @@ class FromInsertClauseSegment(BaseSegment):
                         Ref("QuotedLiteralSegment"),
                         Ref("RowFormatClauseSegment", optional=True),
                         Ref("StoredAsGrammar", optional=True),
-                        Ref(
-                            "SelectableGrammar",
-                            terminators=[Ref.keyword("INSERT")],
+                        OneOf(
+                            Ref("InsertValuesClauseSegment"),
+                            Ref("SelectableGrammar"),
                         ),
                     ),
                 ),
@@ -957,7 +1032,7 @@ class FromInsertClauseSegment(BaseSegment):
                         "SelectableGrammar",
                         terminators=[Ref.keyword("INSERT")],
                     ),
-                    Ref("ValuesClauseSegment"),
+                    Ref("InsertValuesClauseSegment"),
                 ),
             ),
         ),
