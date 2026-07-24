@@ -1727,21 +1727,40 @@ class SemiStructuredAccessorSegment(BaseSegment):
     """A semi-structured data accessor segment."""
 
     type = "semi_structured_expression"
-    match_grammar = Sequence(
-        AnyNumberOf(
+    # A wildcard is only valid as the final element of the accessor chain,
+    # and it may carry the EXCEPT/REPLACE modifiers, e.g.
+    # `results[0].* EXCEPT (cola)`.
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_except
+    match_grammar = OneOf(
+        Sequence(
+            AnyNumberOf(
+                Sequence(
+                    Ref("DotSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                    allow_gaps=True,
+                ),
+                Ref("ArrayAccessorSegment", optional=True),
+                allow_gaps=True,
+                min_times=1,
+            ),
             Sequence(
                 Ref("DotSegment"),
-                OneOf(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("StarSegment"),
-                ),
+                Ref("StarSegment"),
+                Ref("ExceptClauseSegment", optional=True),
+                Ref("ReplaceClauseSegment", optional=True),
                 allow_gaps=True,
+                optional=True,
             ),
-            Ref("ArrayAccessorSegment", optional=True),
             allow_gaps=True,
-            min_times=1,
         ),
-        allow_gaps=True,
+        # A bare `.*` directly on the preceding expression.
+        Sequence(
+            Ref("DotSegment"),
+            Ref("StarSegment"),
+            Ref("ExceptClauseSegment", optional=True),
+            Ref("ReplaceClauseSegment", optional=True),
+            allow_gaps=True,
+        ),
     )
 
 

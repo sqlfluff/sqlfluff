@@ -1,0 +1,135 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b9f257fceafe98182b7d12f2b1550875fe8c26d60c9639395760d7d63bfe02f8
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: error
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: results
+            semi_structured_expression:
+              array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+              dot: .
+              star: '*'
+              select_except_clause:
+                keyword: EXCEPT
+                bracketed:
+                  start_bracket: (
+                  naked_identifier: cola
+                  end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - quoted_identifier: '`project`'
+              - dot: .
+              - quoted_identifier: '`dataset`'
+              - dot: .
+              - quoted_identifier: '`table`'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: results
+            semi_structured_expression:
+              array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+              dot: .
+              star: '*'
+              select_replace_clause:
+                keyword: REPLACE
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '1'
+                  keyword: AS
+                  naked_identifier: cola
+                  end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - quoted_identifier: '`project`'
+              - dot: .
+              - quoted_identifier: '`dataset`'
+              - dot: .
+              - quoted_identifier: '`table`'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: arr
+            semi_structured_expression:
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+            - dot: .
+            - naked_identifier: field
+            - dot: .
+            - star: '*'
+            - select_except_clause:
+                keyword: EXCEPT
+                bracketed:
+                  start_bracket: (
+                  naked_identifier: x
+                  end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: results
+            semi_structured_expression:
+              array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
