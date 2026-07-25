@@ -346,8 +346,9 @@ class Rule_ST05(BaseRule):
             is_fixable = (
                 structurally_fixable
                 and alias_name not in ctes.list_used_names()
-                and _normalize_generated_identifier(alias_name, dialect)
-                not in visible_table_names
+                and not _identifier_is_reserved(
+                    alias_name, dialect, visible_table_names
+                )
             )
             if is_fixable:
                 new_cte = _create_cte_seg(  # 'prep_1 as (select ...)'
@@ -641,9 +642,9 @@ class _CTEBuilder:
 
         self.name_idx = self.name_idx + 1
         name = f"prep_{self.name_idx}"
-        if name in self.list_used_names() or _normalize_generated_identifier(
-            name, dialect
-        ) in (reserved_names or set()):
+        if name in self.list_used_names() or _identifier_is_reserved(
+            name, dialect, reserved_names
+        ):
             # corner case where prep_x exists in origin query
             return self.create_cte_alias(
                 None, dialect=dialect, reserved_names=reserved_names
@@ -796,6 +797,18 @@ def _normalize_generated_identifier(identifier: str, dialect: Dialect) -> str:
     """Normalize a generated naked identifier using dialect case rules."""
     casefold = getattr(dialect.ref("NakedIdentifierSegment"), "casefold", None)
     return casefold(identifier) if casefold else identifier
+
+
+def _identifier_is_reserved(
+    identifier: str, dialect: Dialect, reserved_names: set[str] | None
+) -> bool:
+    """Return whether raw or dialect-normalized identifier is reserved."""
+    if not reserved_names:
+        return False
+    return bool(
+        {identifier, _normalize_generated_identifier(identifier, dialect)}
+        & reserved_names
+    )
 
 
 def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegment:

@@ -23,6 +23,34 @@ generated_cte_does_not_shadow_quoted_physical_table:
     core:
       dialect: sqlite
 
+generated_cte_does_not_shadow_bigquery_physical_table:
+  fail_str: |
+    SELECT b.y
+    FROM prep_1 AS b
+    JOIN (SELECT 0 AS y) ON b.y >= 0
+  fix_str: |
+    WITH prep_2 AS (SELECT 0 AS y)
+    SELECT b.y
+    FROM prep_1 AS b
+    JOIN prep_2 ON b.y >= 0
+  configs:
+    core:
+      dialect: bigquery
+
+generated_cte_may_reuse_bigquery_qualified_table_name:
+  fail_str: |
+    SELECT b.y
+    FROM dataset.prep_1 AS b
+    JOIN (SELECT 0 AS y) ON b.y >= 0
+  fix_str: |
+    WITH prep_1 AS (SELECT 0 AS y)
+    SELECT b.y
+    FROM dataset.prep_1 AS b
+    JOIN prep_1 ON b.y >= 0
+  configs:
+    core:
+      dialect: bigquery
+
 generated_cte_does_not_shadow_forward_visible_earlier_cte_reference:
   fail_str: |
     WITH cte_earlier AS (
