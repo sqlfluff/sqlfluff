@@ -1988,6 +1988,27 @@ class CreateDictionaryStatementSegment(BaseSegment):
     )
 
 
+class TruncateStatementSegment(ansi.TruncateStatementSegment):
+    """A `TRUNCATE TABLE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/sql-reference/statements/truncate
+    """
+
+    type = "truncate_table"
+
+    match_grammar: Matchable = Sequence(
+        "TRUNCATE",
+        # TABLE keyword is optional, even though the documentation
+        # doesn't state it
+        Ref.keyword("TABLE", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        Ref.keyword("SYNC", optional=True),
+    )
+
+
 class DropTableStatementSegment(ansi.DropTableStatementSegment):
     """A `DROP TABLE` statement.
 
