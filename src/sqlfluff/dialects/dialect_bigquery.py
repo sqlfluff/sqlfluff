@@ -1499,13 +1499,20 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
     """An extension of the star expression for Bigquery."""
 
-    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
-        insert=[
-            # Optional EXCEPT or REPLACE clause
-            # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
-            Ref("ExceptClauseSegment", optional=True),
-            Ref("ReplaceClauseSegment", optional=True),
-        ]
+    match_grammar = Sequence(
+        OneOf(
+            # *, blah.*, blah.blah.*, etc.
+            Ref("WildcardIdentifierSegment"),
+            # Star following a semi-structured accessor, e.g. results[0].*
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                Ref("StarSemiStructuredAccessorSegment"),
+            ),
+        ),
+        # Optional EXCEPT or REPLACE clause
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
+        Ref("ExceptClauseSegment", optional=True),
+        Ref("ReplaceClauseSegment", optional=True),
     )
 
 
@@ -1741,6 +1748,27 @@ class SemiStructuredAccessorSegment(BaseSegment):
             allow_gaps=True,
             min_times=1,
         ),
+        allow_gaps=True,
+    )
+
+
+class StarSemiStructuredAccessorSegment(BaseSegment):
+    """A semi-structured data accessor ending with a star, e.g. `[OFFSET(0)].*`."""
+
+    type = "semi_structured_expression"
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Ref("ArrayAccessorSegment"),
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar"),
+                allow_gaps=True,
+            ),
+            allow_gaps=True,
+            min_times=1,
+        ),
+        Ref("DotSegment"),
+        Ref("StarSegment"),
         allow_gaps=True,
     )
 

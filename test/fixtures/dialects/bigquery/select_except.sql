@@ -19,3 +19,10 @@ select
   foo.* except (some_column),
   bar.* except (other_column)
 from my_tbl;
+
+-- Except following a semi-structured accessor
+-- https://github.com/sqlfluff/sqlfluff/issues/8186
+select
+  error,
+  results[0].* except (cola)
+from my_tbl;
