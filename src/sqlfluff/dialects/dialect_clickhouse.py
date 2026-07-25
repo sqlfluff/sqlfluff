@@ -2769,7 +2769,27 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SystemStatementSegment"),
             Ref("RenameStatementSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("TruncateTableStatementSegment"),
         ]
+    )
+
+
+class TruncateTableStatementSegment(ansi.TruncateStatementSegment):
+    """A `TRUNCATE [TABLE]` statement in ClickHouse.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/truncate/
+    """
+
+    type = "truncate_table_statement"
+
+    match_grammar = Sequence(
+        "TRUNCATE",
+        Ref.keyword("TABLE", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        OneOf("SYNC", "ASYNC", optional=True),
     )
 
 
