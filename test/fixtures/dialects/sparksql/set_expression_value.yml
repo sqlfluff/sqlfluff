@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fd84a87f82f342bc8d7b44dbfc722bed7cb734d4cdd6caacf7b6d416532216bb
+_hash: 53d0392e95c45e79f9a99c2f1079714c77c3eb9bf3e7b26b03740e7ffd796c1f
 file:
 - statement:
     set_statement:
@@ -72,4 +72,22 @@ file:
         raw_comparison_operator: '='
       set_config_value:
         quoted_literal: "'s3a://bucket/warehouse'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: sources
+      - dot: .
+      - properties_naked_identifier: partitionOverwriteMode
+      comparison_operator:
+        raw_comparison_operator: '='
+      set_config_value:
+      - word: dynamic
+      - comma: ','
+      - word: static
 - statement_terminator: ;

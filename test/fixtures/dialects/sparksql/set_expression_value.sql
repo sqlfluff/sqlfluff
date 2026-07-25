@@ -9,3 +9,6 @@ SET path = s3a://bucket/path/to/data;
 SET key = a-b;
 
 SET warehouse = 's3a://bucket/warehouse';
+
+-- Comma-containing opaque values must stay one assignment
+SET spark.sql.sources.partitionOverwriteMode = dynamic,static;

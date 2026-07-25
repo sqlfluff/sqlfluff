@@ -33,6 +33,7 @@ from sqlfluff.core.parser import (
     LiteralSegment,
     Matchable,
     MultiStringParser,
+    NewlineSegment,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -2936,14 +2937,24 @@ class SetConfigValueSegment(BaseSegment):
         Bracketed(Delimited(Ref("LiteralGrammar"))),
         Ref("FunctionSegment"),
         Ref("BareFunctionSegment"),
-        # Java class names / dotted identifier config tokens
+        # Java class names / dotted identifier config tokens.
+        # Require at least one dot so a bare token like `dynamic` in
+        # `dynamic,static` falls through to the opaque Anything() branch.
         Delimited(
             Ref("PropertiesNakedIdentifierSegment"),
             delimiter=Ref("DotSegment"),
+            min_delimiters=1,
         ),
-        # Opaque raw payloads (URIs, hyphenated tokens, etc.). Anything()
-        # still respects statement terminators from the parse context.
-        Anything(),
+        # Opaque raw payloads (URIs, hyphenated tokens, comma lists, etc.).
+        # Bound by semicolon *and* newline so a missing terminator cannot
+        # let this longest-match branch swallow the next statement
+        # (see https://github.com/sqlfluff/sqlfluff/pull/8187).
+        Anything(
+            terminators=[
+                Ref("DelimiterGrammar"),
+                TypedParser("newline", NewlineSegment),
+            ],
+        ),
     )
 
 
@@ -2959,12 +2970,12 @@ class SetStatementSegment(BaseSegment):
         "SET",
         Ref("SQLConfPropertiesSegment", optional=True),
         OneOf(
-            Delimited(
-                Sequence(
-                    Ref("PropertyNameSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("SetConfigValueSegment"),
-                ),
+            # One key=value assignment. Delimiting assignments on commas
+            # incorrectly splits opaque values that contain commas.
+            Sequence(
+                Ref("PropertyNameSegment"),
+                Ref("EqualsSegment"),
+                Ref("SetConfigValueSegment"),
             ),
             Ref("PropertyNameSegment"),
             optional=True,
