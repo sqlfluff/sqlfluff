@@ -42,25 +42,29 @@ jobs:
 
             let eventPrNumber = context.payload.workflow_run?.pull_requests?.[0]?.number;
             if (!eventPrNumber) {
-              // Fork-originated PRs arrive with pull_requests empty; resolve via head SHA.
-              const headSha = context.payload.workflow_run.head_sha;
-              const { data: matchedPRs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              // Fork-originated PRs arrive with pull_requests empty. Commit-based
+              // lookup can't see fork-only commits, so resolve via head repo + branch.
+              const run = context.payload.workflow_run;
+              const headOwner = run.head_repository?.owner?.login;
+              const headRef = `${headOwner}:${run.head_branch}`;
+              const { data: candidatePRs } = await github.rest.pulls.list({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                commit_sha: headSha,
+                head: headRef,
+                state: "open",
+                per_page: 100,
               });
-              const run = context.payload.workflow_run;
-              const openPR = matchedPRs.find(pr =>
-                pr.state === "open" &&
+              const openPR = candidatePRs.find(pr =>
                 pr.head.sha === run.head_sha &&
                 pr.head.repo?.full_name === run.head_repository?.full_name
               );
               eventPrNumber = openPR?.number;
               if (!eventPrNumber) {
-                core.setFailed(`No open pull request found for commit ${headSha}.`);
+                // PR closed, merged, or force-pushed since this run; nothing to moderate.
+                core.info(`No open pull request for ${headRef} at ${run.head_sha}. Nothing to do.`);
                 return;
               }
-              core.info(`Resolved PR #${eventPrNumber} from head SHA ${headSha}.`);
+              core.info(`Resolved PR #${eventPrNumber} from ${headRef} at ${run.head_sha}.`);
             }
 
             const payloadPrNumber = Number(payload.pr_number);
