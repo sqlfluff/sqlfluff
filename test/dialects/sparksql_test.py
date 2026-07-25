@@ -38,6 +38,11 @@ def _parse_violations(sql: str) -> list:
             "SET path = s3a://bucket/path\nDROP TABLE prod.customers;\n",
             id="set_opaque_missing_terminator_before_drop",
         ),
+        pytest.param(
+            "SET spark.sql.shuffle.partitions = 200\n"
+            "LOAD DATA INPATH '/tmp/data' INTO TABLE prod.customers;\n",
+            id="set_missing_terminator_before_load",
+        ),
     ],
 )
 def test_set_without_terminator_does_not_absorb_next_statement(sql: str) -> None:
