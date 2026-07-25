@@ -113,6 +113,65 @@ generated_cte_may_reuse_postgres_body_table_name:
     core:
       dialect: postgres
 
+generated_ctes_extract_safe_forward_dependency_in_one_pass:
+  fail_str: |
+    SELECT *
+    FROM base
+    JOIN (SELECT v FROM physical_later) AS earlier ON true
+    JOIN (SELECT v FROM source_table) AS physical_later ON true
+  fix_str: |
+    WITH earlier AS (SELECT v FROM physical_later),
+    physical_later AS (SELECT v FROM source_table)
+    SELECT *
+    FROM base
+    JOIN earlier ON true
+    JOIN physical_later ON true
+  configs:
+    core:
+      dialect: postgres
+      runaway_limit: 2
+
+generated_ctes_skip_unsafe_backward_dependency:
+  fail_str: |
+    SELECT *
+    FROM base
+    JOIN (SELECT 1 AS v) AS victim ON true
+    JOIN (SELECT v FROM victim) AS later ON true
+  fix_str: |
+    WITH later AS (SELECT v FROM victim)
+    SELECT *
+    FROM base
+    JOIN (SELECT 1 AS v) AS victim ON true
+    JOIN later ON true
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      name: structure.subquery
+      warning: false
+      fixes:
+        - type: replace
+          edit: |-
+            WITH later AS (SELECT v FROM victim),
+            victim AS (SELECT 1 AS v)
+            SELECT *
+            FROM base
+            JOIN victim ON true
+            JOIN later ON true
+          start_line_no: 1
+          start_line_pos: 1
+          start_file_pos: 0
+          end_line_no: 5
+          end_line_pos: 19
+          end_file_pos: 113
+      start_line_no: 4
+      start_line_pos: 6
+      start_file_pos: 61
+      end_line_no: 4
+      end_line_pos: 7
+      end_file_pos: 62
+  configs:
+    core:
+      dialect: postgres
+
 generated_cte_does_not_shadow_forward_visible_earlier_cte_reference:
   fail_str: |
     WITH cte_earlier AS (

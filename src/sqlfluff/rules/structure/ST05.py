@@ -328,7 +328,6 @@ class Rule_ST05(BaseRule):
             ) and not bracket_anchor.get_child("table_expression")
             visible_table_names = (
                 ctes.list_visible_table_names(
-                    parent_selectable=nsq.selectable.selectable,
                     extracted_subquery=bracket_anchor,
                     root_segment=root_segment,
                     dialect_name=dialect.name,
@@ -461,7 +460,6 @@ class _CTEBuilder:
 
     def list_visible_table_names(
         self,
-        parent_selectable: BaseSegment,
         extracted_subquery: BaseSegment,
         root_segment: BaseSegment,
         dialect_name: str,
@@ -470,33 +468,51 @@ class _CTEBuilder:
         reference_index = self._get_visible_table_reference_index(
             root_segment, dialect_name
         )
-        insert_position = next(
-            (
-                i
-                for i, cte in enumerate(reference_index.ctes)
-                if _is_child(
-                    Segments(cte).children().last(), Segments(parent_selectable)
-                )
-            ),
-            len(reference_index.ctes),
-        )
+        insert_position = self._insertion_position(Segments(extracted_subquery))
+        original_cte_positions = {
+            id(cte): position for position, cte in enumerate(reference_index.ctes)
+        }
+        cte_is_forward_visible = dialect_name == "sqlite"
+        cte_is_self_visible = dialect_name in ("sqlite", "tsql")
         # SQLite permits forward references to later CTEs, so adding a CTE can
         # also capture a physical-table reference in an earlier CTE body.
         cte_references = (
             reference_index.cte_references
-            if dialect_name == "sqlite"
-            else reference_index.cte_references[insert_position:]
+            if cte_is_forward_visible
+            else tuple(
+                reference_index.cte_references[original_cte_positions[id(cte)]]
+                for cte in self.ctes[insert_position:]
+                if id(cte) in original_cte_positions
+            )
         )
         table_references = chain.from_iterable(
             (*cte_references, reference_index.root_references)
+        )
+        # A generated CTE before the insertion point cannot see the new CTE in
+        # sequential-scope dialects, so its body cannot be captured.
+        preceding_generated_cte_bodies = tuple(
+            Segments(cte).children().last()
+            for cte in self.ctes[:insert_position]
+            if id(cte) not in original_cte_positions
         )
         # SQLite and T-SQL expose a CTE name inside its own body, so those
         # references can also be captured when the subquery becomes a CTE.
         return {
             normalized_reference
             for table_reference, normalized_reference in table_references
-            if dialect_name in ("sqlite", "tsql")
-            or not _is_child(Segments(extracted_subquery), Segments(table_reference))
+            if (
+                cte_is_self_visible
+                or not _is_child(
+                    Segments(extracted_subquery), Segments(table_reference)
+                )
+            )
+            and (
+                cte_is_forward_visible
+                or not any(
+                    _is_child(generated_cte_body, Segments(table_reference))
+                    for generated_cte_body in preceding_generated_cte_bodies
+                )
+            )
         }
 
     def _get_visible_table_reference_index(
