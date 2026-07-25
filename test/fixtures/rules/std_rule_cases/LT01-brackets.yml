@@ -90,3 +90,30 @@ test_fail_mysql_index_prefix_length:
   configs:
     core:
       dialect: mysql
+
+# An array type suffix `[]` should touch the type name rather than being
+# spaced like a standalone square bracket.
+# https://github.com/sqlfluff/sqlfluff/issues/5005
+test_pass_postgres_array_data_type:
+  pass_str: |
+    CREATE TABLE t (a int[], b text[][]);
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_array_data_type_extra_space:
+  fail_str: |
+    CREATE TABLE t (a int []);
+  fix_str: |
+    CREATE TABLE t (a int[]);
+  configs:
+    core:
+      dialect: postgres
+
+# A bare array literal still keeps the space after the preceding keyword.
+test_pass_duckdb_array_literal_not_touched:
+  pass_str: |
+    SELECT [1, 2, 3] AS a;
+  configs:
+    core:
+      dialect: duckdb
