@@ -26,3 +26,11 @@ select
   error,
   results[0].* except (cola)
 from my_tbl;
+
+-- Replace following a semi-structured accessor
+select
+  results[0].* replace ('x' as colb)
+from my_tbl;
+
+-- Except following a function call returning a struct
+select as_struct(col_a, col_b).* except (col_a) from t;

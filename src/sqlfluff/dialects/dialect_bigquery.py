@@ -1499,20 +1499,35 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
     """An extension of the star expression for Bigquery."""
 
-    match_grammar = Sequence(
-        OneOf(
-            # *, blah.*, blah.blah.*, etc.
-            Ref("WildcardIdentifierSegment"),
-            # Star following a semi-structured accessor, e.g. results[0].*
-            Sequence(
-                Ref("ColumnReferenceSegment"),
-                Ref("StarSemiStructuredAccessorSegment"),
+    match_grammar = OneOf(
+        Sequence(
+            OneOf(
+                # *, blah.*, blah.blah.*, etc.
+                Ref("WildcardIdentifierSegment"),
+                # Star following a semi-structured accessor, e.g. results[0].*
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("StarSemiStructuredAccessorSegment"),
+                ),
+            ),
+            # Optional EXCEPT or REPLACE clause
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
+            Ref("ExceptClauseSegment", optional=True),
+            Ref("ReplaceClauseSegment", optional=True),
+        ),
+        # Functions returning STRUCTs consume any trailing `.*` themselves
+        # (via their semi-structured accessor), so only match here when an
+        # EXCEPT or REPLACE clause follows, e.g. as_struct(a, b).* EXCEPT (a)
+        Sequence(
+            Ref("FunctionSegment"),
+            OneOf(
+                Sequence(
+                    Ref("ExceptClauseSegment"),
+                    Ref("ReplaceClauseSegment", optional=True),
+                ),
+                Ref("ReplaceClauseSegment"),
             ),
         ),
-        # Optional EXCEPT or REPLACE clause
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
-        Ref("ExceptClauseSegment", optional=True),
-        Ref("ReplaceClauseSegment", optional=True),
     )
 
 

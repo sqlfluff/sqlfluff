@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3790599e472495d3b316a4f4f45e24467d626241c397fd27086d7bf65f25ab4c
+_hash: d5d8bbe252690668f326f89fb41206c700eab8780f59c3ad1b41a22696d77f2e
 file:
 - statement:
     select_statement:
@@ -182,4 +182,72 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: my_tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            column_reference:
+              naked_identifier: results
+            semi_structured_expression:
+              array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+              dot: .
+              star: '*'
+            select_replace_clause:
+              keyword: replace
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'x'"
+                keyword: as
+                naked_identifier: colb
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            function:
+              function_name:
+                function_name_identifier: as_struct
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: col_a
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: col_b
+                - end_bracket: )
+              semi_structured_expression:
+                dot: .
+                star: '*'
+            select_except_clause:
+              keyword: except
+              bracketed:
+                start_bracket: (
+                naked_identifier: col_a
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
 - statement_terminator: ;
