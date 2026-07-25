@@ -75,10 +75,13 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "OVERWRITE_OR_IGNORE",
         "PARQUET_VERSION",
         "PARTITION_BY",
+        "PERCENT",
         "POSITIONAL",
         "PROGRAM",
+        "RESERVOIR",
         "ROW_GROUP_SIZE",
         "ROW_GROUP_SIZE_BYTES",
+        "SAMPLE",
         "SEMI",
         "STRUCT",
         "VIRTUAL",
@@ -314,6 +317,49 @@ duckdb_dialect.patch_lexer_matchers(
         RegexLexer("equals", r"==?", CodeSegment),
     ]
 )
+
+
+class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
+    """A DuckDB sampling expression.
+
+    DuckDB samples with a ``USING SAMPLE`` clause (or the ``TABLESAMPLE``
+    keyword), which accepts either a size (a percentage or a row count) or a
+    sampling method applied to a size, optionally with a repeatable seed.
+
+    https://duckdb.org/docs/stable/sql/samples
+    """
+
+    _sample_size = Sequence(
+        Ref("NumericLiteralSegment"),
+        OneOf(Ref("ModuloSegment"), "PERCENT", "ROWS", optional=True),
+    )
+    _sample_method = OneOf("RESERVOIR", "BERNOULLI", "SYSTEM")
+
+    match_grammar: Matchable = Sequence(
+        OneOf("TABLESAMPLE", Sequence("USING", "SAMPLE")),
+        OneOf(
+            # method (size), e.g. `reservoir(20%)`
+            Sequence(_sample_method, Bracketed(_sample_size)),
+            # size, optionally with a method (and seed), e.g. `10% (system, 377)`
+            Sequence(
+                _sample_size,
+                Bracketed(
+                    _sample_method,
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        Sequence(
+            "REPEATABLE",
+            Bracketed(Ref("NumericLiteralSegment")),
+            optional=True,
+        ),
+    )
 
 
 class IntervalExpressionSegment(BaseSegment):
