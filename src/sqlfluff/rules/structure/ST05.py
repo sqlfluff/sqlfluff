@@ -490,12 +490,12 @@ class _CTEBuilder:
         table_references = chain.from_iterable(
             (*cte_references, reference_index.root_references)
         )
-        # SQLite exposes a CTE name inside its own body, so those references
-        # can also be captured when the subquery becomes a CTE.
+        # SQLite and T-SQL expose a CTE name inside its own body, so those
+        # references can also be captured when the subquery becomes a CTE.
         return {
             normalized_reference
             for table_reference, normalized_reference in table_references
-            if dialect_name == "sqlite"
+            if dialect_name in ("sqlite", "tsql")
             or not _is_child(Segments(extracted_subquery), Segments(table_reference))
         }
 
