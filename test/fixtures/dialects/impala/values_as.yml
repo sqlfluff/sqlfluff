@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 188744b62148386b8c49475d1d84cd956837d21ccfe391cd9a9dbe6cf717620f
+_hash: 41b469860c41587ba93d32595c7e543935151fd6f6c68f6335afec7a4af416bb
 file:
 - statement:
     set_expression:
@@ -83,4 +83,174 @@ file:
           comma: ','
           numeric_literal: '31'
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_expression:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: age
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: people
+      set_operator:
+        keyword: UNION
+      values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          keyword: DEFAULT
+          comma: ','
+          numeric_literal: '31'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_expression:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: age
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: people
+      set_operator:
+        keyword: UNION
+      values_clause:
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          quoted_literal: "'John'"
+          comma: ','
+          numeric_literal: '31'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - keyword: DEFAULT
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: name
+        - comma: ','
+        - numeric_literal: '21'
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: age
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: people
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - quoted_literal: "'John Doe'"
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: name
+        - comma: ','
+        - keyword: DEFAULT
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: age
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: people
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'John Doe'"
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: name
+        - comma: ','
+        - numeric_literal: '31'
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: age
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'Jane Doe'"
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: name
+        - comma: ','
+        - numeric_literal: '31'
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: age
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: people
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          quoted_literal: "'John Doe'"
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: name
+          comma: ','
+          numeric_literal: '31'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'Jane Doe'"
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: name
+        - comma: ','
+        - numeric_literal: '31'
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: age
+        - end_bracket: )
 - statement_terminator: ;

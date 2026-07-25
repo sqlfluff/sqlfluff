@@ -38,10 +38,10 @@ impala_dialect.replace(
 )
 
 
-class InsertValuesClauseSegment(ansi.ValuesClauseSegment):
-    """A `VALUES` clause like in `INSERT` for Impala.
+class ValuesClauseSegment(ansi.ValuesClauseSegment):
+    """A `VALUES` clause like in `INSERT` and `SELECT` for Impala.
 
-    See: https://impala.apache.org/docs/build/html/topics/impala_insert.html.
+    See: https://impala.apache.org/docs/build/html/topics/impala_values.html
     """
 
     type = "values_clause"
@@ -51,6 +51,15 @@ class InsertValuesClauseSegment(ansi.ValuesClauseSegment):
             Sequence(
                 Bracketed(
                     Delimited(
+                        "DEFAULT",
+                        Sequence(
+                            OneOf(
+                                "DEFAULT",
+                                Ref("LiteralGrammar"),
+                                Ref("ExpressionSegment"),
+                            ),
+                            Ref("AliasExpressionSegment"),
+                        ),
                         Ref("LiteralGrammar"),
                         Ref("ExpressionSegment"),
                     ),
