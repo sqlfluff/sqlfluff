@@ -12,9 +12,7 @@ from sqlfluff.core import Linter
 def _parse_violations(sql: str) -> list:
     """Return PRS violations and unparsable nodes for sparksql input."""
     parsed = Linter(dialect="sparksql").parse_string(sql)
-    violations: list = [
-        v for v in parsed.violations if v.rule_code() == "PRS"
-    ]
+    violations: list = [v for v in parsed.violations if v.rule_code() == "PRS"]
     if parsed.tree:
         violations += list(parsed.tree.recursive_crawl("unparsable"))
     return violations
@@ -24,8 +22,7 @@ def _parse_violations(sql: str) -> list:
     "sql",
     [
         pytest.param(
-            "SET spark.sql.shuffle.partitions = 200\n"
-            "DROP TABLE prod.customers;\n",
+            "SET spark.sql.shuffle.partitions = 200\nDROP TABLE prod.customers;\n",
             id="set_missing_terminator_before_drop",
         ),
         pytest.param(

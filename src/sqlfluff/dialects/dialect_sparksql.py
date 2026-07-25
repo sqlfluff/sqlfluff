@@ -33,7 +33,6 @@ from sqlfluff.core.parser import (
     LiteralSegment,
     Matchable,
     MultiStringParser,
-    NewlineSegment,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -2946,13 +2945,47 @@ class SetConfigValueSegment(BaseSegment):
             min_delimiters=1,
         ),
         # Opaque raw payloads (URIs, hyphenated tokens, comma lists, etc.).
-        # Bound by semicolon *and* newline so a missing terminator cannot
-        # let this longest-match branch swallow the next statement
-        # (see https://github.com/sqlfluff/sqlfluff/pull/8187).
+        # Bound by semicolon and common statement-start keywords so a missing
+        # terminator cannot let this longest-match branch swallow the next
+        # statement (see https://github.com/sqlfluff/sqlfluff/pull/8187).
+        # Keyword terminators are required for Rust-parser parity: the Rust
+        # Anything matcher skips whitespace/newlines before terminator checks,
+        # so a TypedParser("newline") guard never fires there.
         Anything(
             terminators=[
                 Ref("DelimiterGrammar"),
-                TypedParser("newline", NewlineSegment),
+                "SELECT",
+                "INSERT",
+                "UPDATE",
+                "DELETE",
+                "DROP",
+                "CREATE",
+                "ALTER",
+                "MERGE",
+                "WITH",
+                "SHOW",
+                "DESCRIBE",
+                "DESC",
+                "EXPLAIN",
+                "USE",
+                "SET",
+                "RESET",
+                "CACHE",
+                "UNCACHE",
+                "REFRESH",
+                "TRUNCATE",
+                "ANALYZE",
+                "MSCK",
+                "CALL",
+                "VACUUM",
+                "OPTIMIZE",
+                "RESTORE",
+                "CONVERT",
+                "COPY",
+                "LIST",
+                "ADD",
+                "CLEAR",
+                "FROM",
             ],
         ),
     )
