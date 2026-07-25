@@ -458,6 +458,20 @@ class _CTEBuilder:
             len(self.ctes),
         )
 
+    @staticmethod
+    def _cte_position_key(cte: CTEDefinitionSegment) -> tuple[int, int, int, int]:
+        """Return a clone-stable source and templated span for a CTE body."""
+        cte_body = Segments(cte).children().last()[0]
+        assert cte_body.pos_marker
+        source_slice = cte_body.pos_marker.source_slice
+        templated_slice = cte_body.pos_marker.templated_slice
+        return (
+            source_slice.start,
+            source_slice.stop,
+            templated_slice.start,
+            templated_slice.stop,
+        )
+
     def list_visible_table_names(
         self,
         extracted_subquery: BaseSegment,
@@ -470,7 +484,8 @@ class _CTEBuilder:
         )
         insert_position = self._insertion_position(Segments(extracted_subquery))
         original_cte_positions = {
-            id(cte): position for position, cte in enumerate(reference_index.ctes)
+            self._cte_position_key(cte): position
+            for position, cte in enumerate(reference_index.ctes)
         }
         cte_is_forward_visible = dialect_name == "sqlite"
         cte_is_self_visible = dialect_name in ("sqlite", "tsql")
@@ -480,9 +495,11 @@ class _CTEBuilder:
             reference_index.cte_references
             if cte_is_forward_visible
             else tuple(
-                reference_index.cte_references[original_cte_positions[id(cte)]]
+                reference_index.cte_references[
+                    original_cte_positions[self._cte_position_key(cte)]
+                ]
                 for cte in self.ctes[insert_position:]
-                if id(cte) in original_cte_positions
+                if self._cte_position_key(cte) in original_cte_positions
             )
         )
         table_references = chain.from_iterable(
@@ -493,7 +510,7 @@ class _CTEBuilder:
         preceding_generated_cte_bodies = tuple(
             Segments(cte).children().last()
             for cte in self.ctes[:insert_position]
-            if id(cte) not in original_cte_positions
+            if self._cte_position_key(cte) not in original_cte_positions
         )
         # SQLite and T-SQL expose a CTE name inside its own body, so those
         # references can also be captured when the subquery becomes a CTE.
@@ -626,7 +643,22 @@ class _CTEBuilder:
             ):
                 yield segment
             return
+        # An INSERT target is not resolved through the CTE relation namespace.
+        insert_target = (
+            next(
+                (
+                    child
+                    for child in segment.segments
+                    if child.is_type("table_reference")
+                ),
+                None,
+            )
+            if segment.is_type("insert_statement")
+            else None
+        )
         for child in segment.segments:
+            if child is insert_target:
+                continue
             yield from cls._iter_unshadowed_table_references(
                 child, scoped_cte_names, dialect_name
             )

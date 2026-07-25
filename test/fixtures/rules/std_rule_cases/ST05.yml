@@ -172,6 +172,85 @@ generated_ctes_skip_unsafe_backward_dependency:
     core:
       dialect: postgres
 
+generated_ctes_keep_existing_cte_reference_group_after_clone:
+  fail_str: |
+    WITH host AS (
+      SELECT *
+      FROM victim AS vbase
+      JOIN (SELECT 1 AS v) AS first ON true
+      JOIN (SELECT 2 AS v) AS victim ON true
+    )
+    SELECT * FROM host
+  fix_str: |
+    WITH first AS (SELECT 1 AS v),
+    host AS (
+      SELECT *
+      FROM victim AS vbase
+      JOIN first ON true
+      JOIN (SELECT 2 AS v) AS victim ON true
+    )
+    SELECT * FROM host
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      name: structure.subquery
+      warning: false
+      fixes: []
+      start_line_no: 6
+      start_line_pos: 8
+      start_file_pos: 103
+      end_line_no: 6
+      end_line_pos: 9
+      end_file_pos: 104
+  configs:
+    core:
+      dialect: postgres
+
+generated_cte_ignores_postgres_insert_target:
+  fail_str: |
+    WITH seed AS (SELECT 1 AS v)
+    INSERT INTO victim
+    SELECT seed.v
+    FROM seed
+    JOIN (SELECT 2 AS v) AS victim ON true
+  fix_str: |
+    WITH seed AS (SELECT 1 AS v),
+    victim AS (SELECT 2 AS v)
+    INSERT INTO victim
+    SELECT seed.v
+    FROM seed
+    JOIN victim ON true
+  configs:
+    core:
+      dialect: postgres
+
+generated_cte_preserves_postgres_insert_source_reference:
+  fail_str: |
+    WITH seed AS (SELECT 1 AS v)
+    INSERT INTO sink
+    SELECT source.v
+    FROM victim AS source
+    JOIN (SELECT 2 AS v) AS victim ON true
+  fix_str: |
+    WITH seed AS (SELECT 1 AS v)
+    INSERT INTO sink
+    SELECT source.v
+    FROM victim AS source
+    JOIN (SELECT 2 AS v) AS victim ON true
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      name: structure.subquery
+      warning: false
+      fixes: []
+      start_line_no: 5
+      start_line_pos: 6
+      start_file_pos: 89
+      end_line_no: 5
+      end_line_pos: 7
+      end_file_pos: 90
+  configs:
+    core:
+      dialect: postgres
+
 generated_cte_does_not_shadow_forward_visible_earlier_cte_reference:
   fail_str: |
     WITH cte_earlier AS (
