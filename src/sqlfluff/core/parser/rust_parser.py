@@ -104,6 +104,11 @@ def set_native_ast(enabled: bool) -> None:
     _NATIVE_AST_ENABLED = enabled
 
 
+def get_native_ast() -> bool:
+    """Return whether the fused (native) BaseSegment builder is enabled."""
+    return _NATIVE_AST_ENABLED
+
+
 try:
     from sqlfluffrs import RsMatchResult, RsParseError, RsParser, RsToken
 
