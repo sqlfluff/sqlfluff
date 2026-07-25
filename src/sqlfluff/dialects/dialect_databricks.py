@@ -1045,11 +1045,25 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
-            Delimited(
-                OneOf(
-                    Ref("ColumnFieldDefinitionSegment"),
-                    Ref("MaterializedViewExpectationConstraintSegment"),
-                    Ref("TableConstraintSegment"),
+            Sequence(
+                Ref("ColumnFieldDefinitionSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("ColumnFieldDefinitionSegment"),
+                    ),
+                ),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("MaterializedViewExpectationConstraintSegment"),
+                    ),
+                ),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("TableConstraintSegment"),
+                    ),
                 ),
             ),
             optional=True,

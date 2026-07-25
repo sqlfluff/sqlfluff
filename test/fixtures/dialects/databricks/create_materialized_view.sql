@@ -22,6 +22,18 @@ CREATE MATERIALIZED VIEW expect_mv (
     CONSTRAINT positive_value EXPECT (value > 0)
 ) AS SELECT 1 AS value;
 
+CREATE MATERIALIZED VIEW multiple_expectations_mv (
+    value INT,
+    CONSTRAINT positive_value EXPECT (value > 0),
+    CONSTRAINT small_value EXPECT (value < 10)
+) AS SELECT 1 AS value;
+
+CREATE MATERIALIZED VIEW ordered_constraints_mv (
+    value INT,
+    CONSTRAINT positive_value EXPECT (value > 0),
+    CONSTRAINT pk_ordered_constraints_mv PRIMARY KEY (value)
+) AS SELECT 1 AS value;
+
 CREATE MATERIALIZED VIEW fail_update_mv (
     value INT,
     CONSTRAINT positive_value EXPECT (value > 0) ON VIOLATION FAIL UPDATE

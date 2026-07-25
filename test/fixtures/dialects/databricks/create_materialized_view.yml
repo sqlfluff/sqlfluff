@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 46fd70fc308cabcbe991692118ce1403c717eb119b002a183a60a5dd11260b70
+_hash: 7bb724f518b9dd85bd4eb4bb2b071a52c4ac1756b518a457e43e2b14dc7f52d0
 file:
 - statement:
     create_materialized_view_statement:
@@ -182,6 +182,117 @@ file:
               numeric_literal: '0'
             end_bracket: )
         end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: value
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: multiple_expectations_mv
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: value
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: positive_value
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: value
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: small_value
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: value
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '10'
+            end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: value
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: ordered_constraints_mv
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: value
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: positive_value
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: value
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: pk_ordered_constraints_mv
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: value
+            end_bracket: )
+      - end_bracket: )
     - keyword: AS
     - select_statement:
         select_clause:
