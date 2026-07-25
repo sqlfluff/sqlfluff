@@ -28,12 +28,16 @@ SerializedObject = dict[str, Union[str, int, bool, list["SerializedObject"]]]
 
 
 def _extract_position(segment: Optional["BaseSegment"]) -> dict[str, int]:
-    """If a segment is present and is a literal, return it's source length."""
+    """If a segment is present, return its source position.
+
+    For segments in templated (i.e. non-literal) sections, the source
+    position covers the templated construct (e.g. the jinja expression)
+    which generated the section.
+    """
     if segment:
         position = segment.pos_marker
         assert position
-        if position.is_literal():
-            return position.to_source_dict()
+        return position.to_source_dict()
     # An empty location is an indicator of not being able to accurately
     # represent the location.
     return {}  # pragma: no cover
