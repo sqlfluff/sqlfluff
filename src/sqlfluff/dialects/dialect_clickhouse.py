@@ -2862,6 +2862,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SystemStatementSegment"),
             Ref("RenameStatementSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("ExchangeStatementSegment"),
         ]
     )
 
@@ -3088,4 +3089,30 @@ class TupleElementAccessorSegment(BaseSegment):
         Ref("NumericLiteralSegment"),
         min_times=1,
         allow_gaps=False,
+    )
+
+
+class ExchangeStatementSegment(BaseSegment):
+    """An `EXCHANGE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/sql-reference/statements/exchange
+    """
+
+    type = "exchange_statement"
+
+    match_grammar: Matchable = Sequence(
+        "EXCHANGE",
+        OneOf("TABLES", "DICTIONARIES"),
+        # It is possible to exchange multiple dictionary pairs in
+        # a single query, even though the documentation states it only
+        # for tables
+        Delimited(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                "AND",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
