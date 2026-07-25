@@ -49,7 +49,12 @@ jobs:
                 repo: context.repo.repo,
                 commit_sha: headSha,
               });
-              const openPR = matchedPRs.find(pr => pr.state === "open");
+              const run = context.payload.workflow_run;
+              const openPR = matchedPRs.find(pr =>
+                pr.state === "open" &&
+                pr.head.sha === run.head_sha &&
+                pr.head.repo?.full_name === run.head_repository?.full_name
+              );
               eventPrNumber = openPR?.number;
               if (!eventPrNumber) {
                 core.setFailed(`No open pull request found for commit ${headSha}.`);
