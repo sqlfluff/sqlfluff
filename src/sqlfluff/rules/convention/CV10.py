@@ -255,6 +255,19 @@ class Rule_CV10(BaseRule):
         escaped_orig_quote = regex.compile(rf"([^\\]|^)\\((?:\\\\)*){orig_quote}")
         body = s[first_quote_pos + len(orig_quote) : -len(orig_quote)]
 
+        unescaped_orig_quote = regex.compile(rf"(([^\\]|^)(\\\\)*){orig_quote}")
+        if unescaped_orig_quote.search(body):
+            # SQL escapes an embedded quote by doubling it (e.g. 'O''Brien'), which
+            # this backslash-oriented logic cannot re-encode for the new quote char.
+            # Copying the doubled quotes through unchanged would silently alter the
+            # value of the literal, so leave it alone.
+            self.logger.debug(
+                "Body %s contains an unescaped orig_quote, which suggests "
+                "quote doubling. Converting safely is impossible so skipping.",
+                body,
+            )
+            return s
+
         if "r" in prefix.lower():
             if unescaped_new_quote.search(body):
                 self.logger.debug(
