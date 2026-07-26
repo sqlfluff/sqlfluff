@@ -2975,3 +2975,45 @@ test_pass_mysql_group_by_with_rollup_indented:
   configs:
     core:
       dialect: mysql
+
+test_pass_bigquery_pipe_aggregate_multiline:
+  # Pipe-syntax AGGREGATE lists indent like SELECT / GROUP BY. Previously the
+  # AGGREGATE clause emitted no indent metadata, so the 2nd+ expressions were
+  # wrongly flagged by LT02.
+  pass_str: |
+    FROM my_table
+    |> AGGREGATE
+        SUM(a) AS total_a,
+        SUM(b) AS total_b
+    GROUP BY c
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_pipe_aggregate_multiline_fix:
+  fail_str: |
+    FROM my_table
+    |> AGGREGATE
+    SUM(a) AS total_a,
+    SUM(b) AS total_b
+    GROUP BY c
+  fix_str: |
+    FROM my_table
+    |> AGGREGATE
+        SUM(a) AS total_a,
+        SUM(b) AS total_b
+    GROUP BY c
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_pipe_extend_multiline:
+  # Pipe-syntax EXTEND lists indent like AGGREGATE.
+  pass_str: |
+    FROM my_table
+    |> EXTEND
+        a + 1 AS a1,
+        b + 1 AS b1
+  configs:
+    core:
+      dialect: bigquery

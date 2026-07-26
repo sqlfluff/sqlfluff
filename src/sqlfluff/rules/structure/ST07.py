@@ -120,7 +120,20 @@ class Rule_ST07(BaseRule):
 
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
 
-        table_a, table_b = table_aliases[:2]
+        # This join connects the base table of its from_expression with the
+        # table joined here -- not necessarily the SELECT's first two tables,
+        # which diverge when a comma-join precedes this USING join.
+        alias_by_element = {
+            ta.from_expression_element.uuid: ta
+            for ta in table_aliases
+            if ta.from_expression_element is not None
+        }
+        left_element = tables_in_join.get(0)
+        right_element = segment.children(sp.is_type("from_expression_element")).get(0)
+        table_a = alias_by_element.get(left_element.uuid) if left_element else None
+        table_b = alias_by_element.get(right_element.uuid) if right_element else None
+        if table_a is None or table_b is None:  # pragma: no cover
+            return unfixable_result
         edit_segments = [
             KeywordSegment(raw="ON"),
             WhitespaceSegment(raw=" "),

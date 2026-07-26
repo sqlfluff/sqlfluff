@@ -529,93 +529,12 @@ def test__rust_parser__profiling_accumulates_and_resets():
 # Native (fused) AST builder parity
 # ---------------------------------------------------------------------------
 
-# All dialect fixtures, parametrized as (dialect, sqlfile). Parity must hold for
-# every dialect since the flag affects all of them; covering the whole corpus
-# also exercises the fused builder's rarer branches (e.g. zero-length matches).
+# The whole-corpus three-way sweep (Python vs RustParser legacy vs fused
+# native-AST) now lives in test/core/parser/parity/corpus_test.py, which
+# captures at strictly higher strictness (position markers, stringify,
+# class_types, normalization kwargs) than a to_tuple-only comparison here
+# would - so it is not duplicated in this module.
 _FIXTURE_DIR = Path(__file__).resolve().parents[3] / "test" / "fixtures" / "dialects"
-_FIXTURE_SQL = sorted(_FIXTURE_DIR.glob("*/*.sql"))
-
-# Fixtures with a *known*, already-documented Python-vs-RustParser divergence
-# (see the dedicated regression tests in this file). Three-way parity below
-# is expected to fail on exactly these until those bugs are fixed; everywhere
-# else in the corpus, all three tree-building paths must agree. Currently
-# empty: the pivot/unpivot divergences are fixed by this branch and the
-# snowflake/tsql ones were fixed on main.
-_KNOWN_PYTHON_RUST_DIVERGENCES: set = set()
-
-
-def _fixture_param(sqlfile: Path):
-    key = (sqlfile.parent.name, sqlfile.name)
-    if key in _KNOWN_PYTHON_RUST_DIVERGENCES:
-        return pytest.param(
-            sqlfile,
-            marks=pytest.mark.xfail(
-                strict=True,
-                reason=(
-                    "Known Python-vs-RustParser divergence on this fixture; "
-                    "see the dedicated test__rust_parser__vs_python_* "
-                    "regression for this file elsewhere in this module."
-                ),
-            ),
-        )
-    return pytest.param(sqlfile)
-
-
-@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.parametrize(
-    "sqlfile",
-    [_fixture_param(p) for p in _FIXTURE_SQL],
-    ids=[str(p.relative_to(_FIXTURE_DIR)) for p in _FIXTURE_SQL],
-)
-def test__rust_parser__native_ast_parity(sqlfile):
-    """All three tree-building paths must agree: Python, RustParser, fused.
-
-    For every dialect fixture, parse the same lexer output three ways - the
-    pure-Python Parser, RustParser's legacy convert+apply path, and
-    RustParser's fused native-AST builder - and assert the resulting
-    BaseSegment trees (or raised exceptions) are all identical. Fixtures with
-    an already-documented Python-vs-RustParser divergence are marked xfail
-    (see _KNOWN_PYTHON_RUST_DIVERGENCES); every other fixture must agree
-    across all three paths.
-    """
-    from sqlfluff.core import FluffConfig
-    from sqlfluff.core.parser import Lexer, Parser
-    from sqlfluff.core.parser.rust_parser import set_native_ast
-
-    config = FluffConfig(overrides={"dialect": sqlfile.parent.name})
-    segments, _ = Lexer(config=config).lex(sqlfile.read_text(encoding="utf-8"))
-
-    def result_for(tree):
-        return (
-            "tree",
-            tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
-            if tree
-            else None,
-        )
-
-    def build_rust(native: bool):
-        set_native_ast(native)
-        try:
-            tree = RustParser(config=config).parse(segments, fname=str(sqlfile))
-            return result_for(tree)
-        except BaseException as err:  # PanicException is a BaseException
-            return ("exc", type(err).__name__)
-        finally:
-            set_native_ast(False)
-
-    def build_python():
-        try:
-            tree = Parser(config=config).parse(segments, fname=str(sqlfile))
-            return result_for(tree)
-        except BaseException as err:
-            return ("exc", type(err).__name__)
-
-    python_result = build_python()
-    rust_default = build_rust(native=False)
-    rust_native = build_rust(native=True)
-
-    assert rust_native == rust_default, "native-AST path diverges from convert+apply"
-    assert python_result == rust_default, "RustParser diverges from Python Parser"
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
