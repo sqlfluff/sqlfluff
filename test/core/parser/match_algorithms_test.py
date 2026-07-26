@@ -222,6 +222,32 @@ def test__parser__algorithms__greedy_match(
     assert match.matched_slice == result_slice
 
 
+def test__parser__algorithms__greedy_match_noncode(
+    generate_test_segments,
+    test_dialect,
+):
+    """NonCodeMatcher must terminate greedy_match before whitespace/newlines.
+
+    This is the Python half of Rust's GrammarId::NONCODE Anything boundary.
+    """
+    from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
+
+    test_segments = generate_test_segments(["a", "b", " ", "c"])
+    ctx = ParseContext(dialect=test_dialect, max_parse_depth=0)
+
+    match = greedy_match(
+        segments=test_segments,
+        idx=0,
+        parse_context=ctx,
+        matchers=[NonCodeMatcher()],
+        include_terminator=False,
+    )
+
+    assert match
+    # Claim code only; stop before the whitespace terminator.
+    assert match.matched_slice == slice(0, 2)
+
+
 @pytest.mark.parametrize(
     "raw_segments,target_words,expected_result",
     [

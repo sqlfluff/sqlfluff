@@ -18,6 +18,7 @@ from sqlfluff.core.parser.grammar.base import Anything, Nothing, Ref
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.grammar.delimited import Delimited, OptionallyDelimited
 from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
+from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.parsers import (
     MultiStringParser,
@@ -28,6 +29,11 @@ from sqlfluff.core.parser.parsers import (
 from sqlfluff.core.parser.segments.base import BaseSegment, SegmentMetaclass
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
+
+# Must match Rust ``GrammarId::NONCODE`` (``u32::MAX - 1``). When this id
+# appears in a terminator list, the Rust Anything matcher checks for
+# non-code tokens *before* skipping whitespace/newlines.
+NONCODE_TERMINATOR_ID = 0xFFFFFFFE
 
 
 @dataclass
@@ -1171,9 +1177,16 @@ class TableBuilder:
         if grammar.reset_terminators:
             flags |= self.FLAG_RESET_TERMINATORS
 
-        # Flatten terminators
+        # Flatten terminators. NonCodeMatcher cannot be a normal grammar node
+        # here: Rust's Anything path must see the NONCODE sentinel so it can
+        # stop on newlines/whitespace before skip_transparent() eats them.
         terminators_start = len(self.terminators)
-        terminator_ids = self._flatten_list(grammar.terminators, parse_context)
+        terminator_ids: list[int] = []
+        for terminator in grammar.terminators:
+            if isinstance(terminator, NonCodeMatcher):
+                terminator_ids.append(NONCODE_TERMINATOR_ID)
+            else:
+                terminator_ids.append(self.flatten_grammar(terminator, parse_context))
         self.terminators.extend(terminator_ids)
         terminators_count = len(terminator_ids)
 

@@ -46,6 +46,7 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
+from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_hive as hive
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -499,6 +500,16 @@ sparksql_dialect.replace(
 )
 
 sparksql_dialect.add(
+    # Terminators for the opaque branch of SetConfigValueSegment.
+    # Semicolon ends an explicit SET statement. Child dialects (Databricks)
+    # extend this via `.copy(insert=[...])` for same-line follow-on starters
+    # they introduce. Newline / whitespace statement boundaries are not listed
+    # here: they are handled by NonCodeMatcher on the Anything() call so
+    # Python and Rust share one boundary abstraction instead of a copied
+    # keyword list (see #8187 / #4218).
+    SetConfigValueTerminatorGrammar=OneOf(
+        Ref("DelimiterGrammar"),
+    ),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
         IdentifierSegment,
@@ -2945,60 +2956,19 @@ class SetConfigValueSegment(BaseSegment):
             min_delimiters=1,
         ),
         # Opaque raw payloads (URIs, hyphenated tokens, comma lists, etc.).
-        # Bound by semicolon and statement-start keywords so a missing
-        # terminator cannot let this longest-match branch swallow the next
-        # statement (see https://github.com/sqlfluff/sqlfluff/pull/8187).
-        # Keyword terminators are required for Rust-parser parity: the Rust
-        # Anything matcher skips whitespace/newlines before terminator checks,
-        # so a TypedParser("newline") guard never fires there.
-        # Keep this list aligned with leading keywords of StatementSegment
-        # options in this dialect (and inherited ANSI ones Spark still uses).
+        # Bound by a real statement boundary, not a hand-maintained starter
+        # keyword list:
+        # - semicolon via SetConfigValueTerminatorGrammar (child dialects
+        #   extend that grammar for same-line follow-ons they add)
+        # - newline/whitespace via NonCodeMatcher, which maps to Rust's
+        #   GrammarId::NONCODE so Anything stops *before* skip_transparent
+        #   would walk past the line break. A TypedParser("newline") alone
+        #   is not enough on the Rust path for that reason.
+        # See https://github.com/sqlfluff/sqlfluff/pull/8187.
         Anything(
             terminators=[
-                Ref("DelimiterGrammar"),
-                "ADD",
-                "ALTER",
-                "ANALYZE",
-                "CACHE",
-                "CALL",
-                "CLEAR",
-                "CLUSTER",
-                "CONSTRAINT",
-                "CONVERT",
-                "COPY",
-                "CREATE",
-                "DELETE",
-                "DESC",
-                "DESCRIBE",
-                "DISTRIBUTE",
-                "DROP",
-                "EXPLAIN",
-                "FROM",
-                "GENERATE",
-                "GRANT",
-                "INSERT",
-                "LIST",
-                "LOAD",
-                "MERGE",
-                "MSCK",
-                "OPTIMIZE",
-                "QUALIFY",
-                "REFRESH",
-                "REMOVE",
-                "REPLACE",
-                "RESET",
-                "RESTORE",
-                "REVOKE",
-                "SELECT",
-                "SET",
-                "SHOW",
-                "TRUNCATE",
-                "UNCACHE",
-                "UPDATE",
-                "USE",
-                "VACUUM",
-                "VALUES",
-                "WITH",
+                Ref("SetConfigValueTerminatorGrammar"),
+                NonCodeMatcher(),
             ],
         ),
     )
