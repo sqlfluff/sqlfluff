@@ -6,9 +6,13 @@ WHEN MATCHED THEN DO NOTHING;
 MERGE INTO t USING s ON t.id = s.id
 WHEN NOT MATCHED THEN DO NOTHING;
 
--- Merge with DO NOTHING guarded by an AND condition
+-- Merge with a matched DO NOTHING guarded by an AND condition
 MERGE INTO t USING s ON t.id = s.id
 WHEN MATCHED AND s.flag THEN DO NOTHING;
+
+-- Merge with a not-matched DO NOTHING guarded by an AND condition
+MERGE INTO t USING s ON t.id = s.id
+WHEN NOT MATCHED AND s.flag THEN DO NOTHING;
 
 -- Merge mixing DO NOTHING with the other actions
 MERGE INTO t USING s ON t.id = s.id
