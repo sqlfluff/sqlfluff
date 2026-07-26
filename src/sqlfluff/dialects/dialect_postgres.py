@@ -5521,6 +5521,54 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     )
 
 
+class MergeMatchedClauseSegment(ansi.MergeMatchedClauseSegment):
+    """The `WHEN MATCHED` clause within a `MERGE` statement.
+
+    Overriding ANSI to allow `DO NOTHING`, which Postgres accepts as a merge
+    action alongside `UPDATE` and `DELETE`.
+    https://www.postgresql.org/docs/current/sql-merge.html
+    """
+
+    type = "merge_when_matched_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+            Sequence("DO", "NOTHING"),
+        ),
+        Dedent,
+    )
+
+
+class MergeNotMatchedClauseSegment(ansi.MergeNotMatchedClauseSegment):
+    """The `WHEN NOT MATCHED` clause within a `MERGE` statement.
+
+    Overriding ANSI to allow `DO NOTHING`, which Postgres accepts as a merge
+    action alongside `INSERT`.
+    https://www.postgresql.org/docs/current/sql-merge.html
+    """
+
+    type = "merge_when_not_matched_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeInsertClauseSegment"),
+            Sequence("DO", "NOTHING"),
+        ),
+        Dedent,
+    )
+
+
 class DropTypeStatementSegment(ansi.DropTypeStatementSegment):
     """Drop Type Statement.
 
