@@ -1424,7 +1424,12 @@ class TableBuilder:
                     )
                 else:
                     term_id = self.terminators[j]
-                    if term_id >= len(self.instructions):
+                    # GrammarId::NONCODE is a reserved sentinel, not an
+                    # instruction index. Rust Anything/is_terminated handles it
+                    # before indexing the grammar tables.
+                    if term_id != NONCODE_TERMINATOR_ID and term_id >= len(
+                        self.instructions
+                    ):
                         errors.append(
                             f"Inst {i}: invalid terminator_id {term_id}"
                             f" >= {len(self.instructions)}"
