@@ -622,6 +622,8 @@ class _CTEBuilder:
 
             # Other supported dialects expose CTEs in declaration order. A
             # recursive CTE can also see its own name while its body is parsed.
+            # Oracle and Snowflake allow recursive CTEs without a RECURSIVE
+            # keyword, so their CTE definitions always introduce a local name.
             visible_cte_names = set(scoped_cte_names)
             for child in segment.segments:
                 if child.is_type("common_table_expression"):
@@ -631,7 +633,9 @@ class _CTEBuilder:
                         identifier.raw_normalized(casefold=True) if identifier else None
                     )
                     child_scope = visible_cte_names
-                    if is_recursive and cte_name:
+                    if (
+                        is_recursive or dialect_name in ("oracle", "snowflake")
+                    ) and cte_name:
                         child_scope = visible_cte_names | {cte_name}
                     yield from cls._iter_unshadowed_table_references(
                         child, child_scope, dialect_name

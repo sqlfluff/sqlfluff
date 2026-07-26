@@ -147,6 +147,62 @@ generated_cte_does_not_self_capture_oracle_physical_table:
     core:
       dialect: oracle
 
+generated_cte_may_reuse_snowflake_keywordless_recursive_cte_name:
+  fail_str: |
+    SELECT *
+    FROM base
+    JOIN (
+      WITH victim(n) AS (
+        SELECT 1
+        UNION ALL
+        SELECT n + 1 FROM victim WHERE n < 2
+      )
+      SELECT * FROM victim
+    ) AS victim ON true
+  fix_str: |
+    WITH victim AS (
+      WITH victim(n) AS (
+        SELECT 1
+        UNION ALL
+        SELECT n + 1 FROM victim WHERE n < 2
+      )
+      SELECT * FROM victim
+    )
+    SELECT *
+    FROM base
+    JOIN victim ON true
+  configs:
+    core:
+      dialect: snowflake
+
+generated_cte_may_reuse_oracle_keywordless_recursive_cte_name:
+  fail_str: |
+    SELECT *
+    FROM base
+    JOIN (
+      WITH victim(n) AS (
+        SELECT 1 FROM dual
+        UNION ALL
+        SELECT n + 1 FROM victim WHERE n < 2
+      )
+      SELECT * FROM victim
+    ) victim ON 1 = 1
+  fix_str: |
+    WITH victim AS (
+      WITH victim(n) AS (
+        SELECT 1 FROM dual
+        UNION ALL
+        SELECT n + 1 FROM victim WHERE n < 2
+      )
+      SELECT * FROM victim
+    )
+    SELECT *
+    FROM base
+    JOIN victim ON 1 = 1
+  configs:
+    core:
+      dialect: oracle
+
 generated_cte_may_reuse_postgres_body_table_name:
   fail_str: |
     SELECT *
