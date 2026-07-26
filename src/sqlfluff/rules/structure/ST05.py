@@ -704,16 +704,16 @@ class _CTEBuilder:
             # If we know the name use it
             return alias.ref_str, False
 
-        self.name_idx = self.name_idx + 1
-        name = f"prep_{self.name_idx}"
-        if name in self.list_used_names() or _identifier_is_reserved(
-            name, dialect, reserved_names
-        ):
-            # corner case where prep_x exists in origin query
-            return self.create_cte_alias(
-                None, dialect=dialect, reserved_names=reserved_names
-            )
-        return name, True
+        used_names = set(self.list_used_names())
+        while True:
+            self.name_idx += 1
+            name = f"prep_{self.name_idx}"
+            if name in used_names or _identifier_is_reserved(
+                name, dialect, reserved_names
+            ):
+                # Corner case where prep_x exists in the original query.
+                continue
+            return name, True
 
     def get_cte_segments(self) -> list[BaseSegment]:
         """Return a valid list of CTES with required padding segments."""
