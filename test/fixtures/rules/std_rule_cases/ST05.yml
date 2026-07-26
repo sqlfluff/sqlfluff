@@ -123,6 +123,30 @@ generated_cte_does_not_self_capture_snowflake_physical_table:
     core:
       dialect: snowflake
 
+generated_cte_does_not_self_capture_oracle_physical_table:
+  fail_str: |
+    SELECT *
+    FROM base
+    JOIN (SELECT v FROM victim) victim ON 1 = 1
+  fix_str: |
+    SELECT *
+    FROM base
+    JOIN (SELECT v FROM victim) victim ON 1 = 1
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      name: structure.subquery
+      warning: false
+      fixes: []
+      start_line_no: 3
+      start_line_pos: 6
+      start_file_pos: 24
+      end_line_no: 3
+      end_line_pos: 7
+      end_file_pos: 25
+  configs:
+    core:
+      dialect: oracle
+
 generated_cte_may_reuse_postgres_body_table_name:
   fail_str: |
     SELECT *

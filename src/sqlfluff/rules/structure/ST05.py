@@ -488,7 +488,12 @@ class _CTEBuilder:
             for position, cte in enumerate(reference_index.ctes)
         }
         cte_is_forward_visible = dialect_name == "sqlite"
-        cte_is_self_visible = dialect_name in ("snowflake", "sqlite", "tsql")
+        cte_is_self_visible = dialect_name in (
+            "oracle",
+            "snowflake",
+            "sqlite",
+            "tsql",
+        )
         # SQLite permits forward references to later CTEs, so adding a CTE can
         # also capture a physical-table reference in an earlier CTE body.
         cte_references = (
@@ -512,8 +517,9 @@ class _CTEBuilder:
             for cte in self.ctes[:insert_position]
             if self._cte_position_key(cte) not in original_cte_positions
         )
-        # Snowflake, SQLite, and T-SQL expose a CTE name inside its own body,
-        # so those references can also be captured when the subquery becomes a CTE.
+        # Oracle, Snowflake, SQLite, and T-SQL expose a CTE name inside its own
+        # body, so those references can also be captured when the subquery becomes
+        # a CTE.
         return {
             normalized_reference
             for table_reference, normalized_reference in table_references
