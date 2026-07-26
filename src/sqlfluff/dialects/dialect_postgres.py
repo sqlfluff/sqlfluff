@@ -1180,11 +1180,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         ),
         # array types
         OneOf(
-            AnyNumberOf(
-                Bracketed(
-                    Ref("ExpressionSegment", optional=True), bracket_type="square"
-                )
-            ),
+            AnyNumberOf(Ref("ArrayTypeSuffixSegment")),
             Ref("ArrayTypeSegment"),
             Ref("SizedArrayTypeSegment"),
             optional=True,
@@ -1197,6 +1193,20 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
     type = "array_type"
     match_grammar = Ref.keyword("ARRAY")
+
+
+class ArrayTypeSuffixSegment(BaseSegment):
+    """The ``[]`` suffix that turns a scalar type into an array type.
+
+    e.g. the ``[]`` in ``int[]``. It's its own segment so that layout rule
+    LT01 keeps it touching the preceding type name rather than spacing it
+    like a standalone square bracket (see issue #5005).
+    """
+
+    type = "array_type_suffix"
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment", optional=True), bracket_type="square"
+    )
 
 
 class IndexAccessMethodSegment(BaseSegment):

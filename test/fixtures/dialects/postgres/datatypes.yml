@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 33dcae915e6157bf6e56ad245455ccf30b56115e604dc13b7266719d42880953
+_hash: 89842fdc15852a1b72da798ec82fdb2dea0f4c65d1ecfddca51c971133b88419
 file:
 - statement:
     create_table_statement:
@@ -651,39 +651,45 @@ file:
           naked_identifier: a
           data_type:
             keyword: integer
-            start_square_bracket: '['
-            end_square_bracket: ']'
+            array_type_suffix:
+              start_square_bracket: '['
+              end_square_bracket: ']'
       - comma: ','
       - column_definition:
           naked_identifier: b
           data_type:
           - keyword: float
-          - start_square_bracket: '['
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - end_square_bracket: ']'
+          - array_type_suffix:
+              start_square_bracket: '['
+              end_square_bracket: ']'
+          - array_type_suffix:
+              start_square_bracket: '['
+              end_square_bracket: ']'
       - comma: ','
       - column_definition:
           naked_identifier: c
           data_type:
             keyword: char
-            start_square_bracket: '['
-            expression:
-              numeric_literal: '1'
-            end_square_bracket: ']'
+            array_type_suffix:
+              start_square_bracket: '['
+              expression:
+                numeric_literal: '1'
+              end_square_bracket: ']'
       - comma: ','
       - column_definition:
           naked_identifier: d
           data_type:
           - keyword: jsonb
-          - start_square_bracket: '['
-          - expression:
-              numeric_literal: '3'
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - expression:
-              numeric_literal: '5'
-          - end_square_bracket: ']'
+          - array_type_suffix:
+              start_square_bracket: '['
+              expression:
+                numeric_literal: '3'
+              end_square_bracket: ']'
+          - array_type_suffix:
+              start_square_bracket: '['
+              expression:
+                numeric_literal: '5'
+              end_square_bracket: ']'
       - comma: ','
       - column_definition:
           naked_identifier: e
