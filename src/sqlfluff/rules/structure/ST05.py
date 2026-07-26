@@ -594,8 +594,15 @@ class _CTEBuilder:
                 for cte in segment.segments
                 if cte.is_type("common_table_expression")
             ]
-            if dialect_name == "sqlite":
-                # SQLite allows CTE bodies to refer to later CTE declarations.
+            is_recursive = any(
+                child.is_type("keyword") and child.raw_upper == "RECURSIVE"
+                for child in segment.segments
+            )
+            if dialect_name == "sqlite" or (
+                dialect_name == "bigquery" and is_recursive
+            ):
+                # SQLite always permits forward CTE references. BigQuery does
+                # so when the WITH clause includes the RECURSIVE keyword.
                 local_cte_names = scoped_cte_names | {
                     identifier.raw_normalized(casefold=True)
                     for cte in ctes
@@ -610,10 +617,6 @@ class _CTEBuilder:
             # Other supported dialects expose CTEs in declaration order. A
             # recursive CTE can also see its own name while its body is parsed.
             visible_cte_names = set(scoped_cte_names)
-            is_recursive = any(
-                child.is_type("keyword") and child.raw_upper == "RECURSIVE"
-                for child in segment.segments
-            )
             for child in segment.segments:
                 if child.is_type("common_table_expression"):
                     cte = cast(CTEDefinitionSegment, child)

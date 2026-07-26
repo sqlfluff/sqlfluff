@@ -113,6 +113,28 @@ generated_cte_may_reuse_postgres_body_table_name:
     core:
       dialect: postgres
 
+generated_cte_may_reuse_bigquery_recursive_sibling_name:
+  fail_str: |
+    SELECT *
+    FROM base
+    JOIN (
+      WITH RECURSIVE a AS (SELECT * FROM victim),
+      victim AS (SELECT 1 AS v)
+      SELECT * FROM a
+    ) AS victim ON true
+  fix_str: |
+    WITH victim AS (
+      WITH RECURSIVE a AS (SELECT * FROM victim),
+      victim AS (SELECT 1 AS v)
+      SELECT * FROM a
+    )
+    SELECT *
+    FROM base
+    JOIN victim ON true
+  configs:
+    core:
+      dialect: bigquery
+
 generated_ctes_extract_safe_forward_dependency_in_one_pass:
   fail_str: |
     SELECT *
