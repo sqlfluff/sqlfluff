@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b9f257fceafe98182b7d12f2b1550875fe8c26d60c9639395760d7d63bfe02f8
+_hash: d22164279d2a9f21b3dc4215d9033385403ffa85b7ef8dc44620056d5dece296
 file:
 - statement:
     select_statement:
@@ -17,11 +17,11 @@ file:
           expression:
             column_reference:
               naked_identifier: results
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
             semi_structured_expression:
-              array_accessor:
-                start_square_bracket: '['
-                numeric_literal: '0'
-                end_square_bracket: ']'
               dot: .
               star: '*'
               select_except_clause:
@@ -50,11 +50,11 @@ file:
           expression:
             column_reference:
               naked_identifier: results
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
             semi_structured_expression:
-              array_accessor:
-                start_square_bracket: '['
-                numeric_literal: '0'
-                end_square_bracket: ']'
               dot: .
               star: '*'
               select_replace_clause:
@@ -83,20 +83,21 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
+          - column_reference:
             - naked_identifier: s
             - dot: .
             - naked_identifier: arr
-            semi_structured_expression:
-            - array_accessor:
+          - semi_structured_expression:
+              array_accessor:
                 start_square_bracket: '['
                 numeric_literal: '0'
                 end_square_bracket: ']'
-            - dot: .
-            - naked_identifier: field
-            - dot: .
-            - star: '*'
-            - select_except_clause:
+              dot: .
+              naked_identifier: field
+          - semi_structured_expression:
+              dot: .
+              star: '*'
+              select_except_clause:
                 keyword: EXCEPT
                 bracketed:
                   start_bracket: (
@@ -118,11 +119,11 @@ file:
           expression:
             column_reference:
               naked_identifier: results
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
             semi_structured_expression:
-              array_accessor:
-                start_square_bracket: '['
-                numeric_literal: '0'
-                end_square_bracket: ']'
               dot: .
               star: '*'
       from_clause:
