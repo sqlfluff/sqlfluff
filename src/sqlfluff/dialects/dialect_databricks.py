@@ -182,7 +182,7 @@ databricks_dialect.insert_lexer_matchers(
 
 
 databricks_dialect.add(
-    CommandCellSegment=TypedParser("command", CodeSegment, type="statement_terminator"),
+    CommandCellSegment=TypedParser("command", CodeSegment, type="command_cell"),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
         CodeSegment,
