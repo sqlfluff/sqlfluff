@@ -6,11 +6,14 @@ from sqlfluff.core.parser import (
     BinaryOperatorSegment,
     Bracketed,
     Delimited,
+    Matchable,
     OneOf,
+    ParseMode,
     Ref,
     Sequence,
     StringParser,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_hive as hive
 from sqlfluff.dialects.dialect_impala_keywords import (
     RESERVED_KEYWORDS,
@@ -33,6 +36,38 @@ impala_dialect.replace(
         StringParser("/", BinaryOperatorSegment),
     )
 )
+
+
+class ValuesClauseSegment(ansi.ValuesClauseSegment):
+    """A `VALUES` clause like in `INSERT` and `SELECT` for Impala.
+
+    See: https://impala.apache.org/docs/build/html/topics/impala_values.html
+    """
+
+    type = "values_clause"
+    match_grammar: Matchable = Sequence(
+        "VALUES",
+        Delimited(
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        "DEFAULT",
+                        Sequence(
+                            OneOf(
+                                "DEFAULT",
+                                Ref("LiteralGrammar"),
+                                Ref("ExpressionSegment"),
+                            ),
+                            Ref("AliasExpressionSegment"),
+                        ),
+                        Ref("LiteralGrammar"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    parse_mode=ParseMode.GREEDY,
+                ),
+            ),
+        ),
+    )
 
 
 class StatementSegment(hive.StatementSegment):
