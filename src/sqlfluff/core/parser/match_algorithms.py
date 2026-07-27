@@ -5,7 +5,7 @@ or BaseGrammar to un-bloat those classes.
 """
 
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import DefaultDict, Optional, cast
 
 from sqlfluff.core.errors import SQLParseError
@@ -550,19 +550,21 @@ def next_ex_bracket_match(
         # Head back around the loop and keep looking.
 
 
-def _next_noncode_ex_bracket(
+def _next_boundary_ex_bracket(
     segments: Sequence[BaseSegment],
     idx: int,
     parse_context: ParseContext,
+    is_boundary: Callable[[BaseSegment], bool],
     bracket_pairs_set: str = "bracket_pairs",
 ) -> MatchResult:
-    """Find the next non-code segment, skipping bracketed regions.
+    """Find the next boundary segment, skipping bracketed regions.
 
-    ``NonCodeMatcher.simple()`` is intentionally ``None``, so it cannot be
-    passed through ``next_match``. This helper mirrors the bracket-skipping
-    behaviour of ``next_ex_bracket_match`` while terminating on the first
-    non-code token - the same role Rust's ``GrammarId::NONCODE`` plays in
-    ``is_terminated`` before ``skip_transparent``.
+    Matchers without ``.simple()`` (``NonCodeMatcher``, ``NewlineMatcher``)
+    cannot go through ``next_match``. This helper mirrors the bracket-skipping
+    behaviour of ``next_ex_bracket_match`` while stopping on the first segment
+    that satisfies ``is_boundary`` - the same role Rust's ``GrammarId::NONCODE``
+    / ``NEWLINE`` sentinels play in ``is_terminated`` before
+    ``skip_transparent``.
     """
     max_idx = len(segments)
     if idx >= max_idx:
@@ -579,9 +581,9 @@ def _next_noncode_ex_bracket(
 
     matched_idx = idx
     while matched_idx < max_idx:
-        # Prefer a non-code boundary at the current position before looking
-        # for brackets further ahead.
-        if not segments[matched_idx].is_code:
+        # Prefer a boundary at the current position before looking for
+        # brackets further ahead.
+        if is_boundary(segments[matched_idx]):
             return MatchResult(matched_slice=slice(matched_idx, matched_idx + 1))
 
         match, matcher = next_match(
@@ -591,16 +593,16 @@ def _next_noncode_ex_bracket(
             parse_context=parse_context,
         )
         if not match:
-            # No further brackets; if any non-code remains after this point,
+            # No further brackets; if any boundary remains after this point,
             # take the earliest one.
             for _idx in range(matched_idx, max_idx):
-                if not segments[_idx].is_code:
+                if is_boundary(segments[_idx]):
                     return MatchResult(matched_slice=slice(_idx, _idx + 1))
             return MatchResult.empty_at(idx)
 
-        # A bracket ahead of us must not hide an earlier non-code boundary.
+        # A bracket ahead of us must not hide an earlier boundary.
         for _idx in range(matched_idx, match.matched_slice.start):
-            if not segments[_idx].is_code:
+            if is_boundary(segments[_idx]):
                 return MatchResult(matched_slice=slice(_idx, _idx + 1))
 
         assert matcher
@@ -608,7 +610,7 @@ def _next_noncode_ex_bracket(
             # Unexpected closing bracket - same as next_ex_bracket_match.
             return MatchResult.empty_at(idx)
 
-        # Opening bracket before any non-code: skip the whole bracketed span.
+        # Opening bracket before any boundary: skip the whole bracketed span.
         bracket_match = resolve_bracket(
             segments,
             opening_match=match,
@@ -624,6 +626,38 @@ def _next_noncode_ex_bracket(
     return MatchResult.empty_at(idx)
 
 
+def _next_noncode_ex_bracket(
+    segments: Sequence[BaseSegment],
+    idx: int,
+    parse_context: ParseContext,
+    bracket_pairs_set: str = "bracket_pairs",
+) -> MatchResult:
+    """Find the next non-code segment, skipping bracketed regions."""
+    return _next_boundary_ex_bracket(
+        segments,
+        idx,
+        parse_context,
+        is_boundary=lambda seg: not seg.is_code,
+        bracket_pairs_set=bracket_pairs_set,
+    )
+
+
+def _next_newline_ex_bracket(
+    segments: Sequence[BaseSegment],
+    idx: int,
+    parse_context: ParseContext,
+    bracket_pairs_set: str = "bracket_pairs",
+) -> MatchResult:
+    """Find the next newline segment, skipping bracketed regions."""
+    return _next_boundary_ex_bracket(
+        segments,
+        idx,
+        parse_context,
+        is_boundary=lambda seg: seg.is_type("newline"),
+        bracket_pairs_set=bracket_pairs_set,
+    )
+
+
 def greedy_match(
     segments: Sequence[BaseSegment],
     idx: int,
@@ -633,20 +667,25 @@ def greedy_match(
     nested_match: bool = False,
 ) -> MatchResult:
     """Match anything up to some defined terminator."""
-    # Local import: match_algorithms is low-level and NonCodeMatcher imports
+    # Local imports: match_algorithms is low-level; these matchers import
     # Matchable from the same package layer.
+    from sqlfluff.core.parser.grammar.newline import NewlineMatcher
     from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 
-    # NonCodeMatcher cannot use next_match (no `.simple()`). Handle it as a
-    # first-class terminator alongside simple matchers so Anything() can stop
-    # on real statement boundaries (newline/whitespace) in Python the way
-    # GrammarId::NONCODE does in Rust.
+    # NonCodeMatcher / NewlineMatcher cannot use next_match (no `.simple()`).
+    # Handle them as first-class terminators so Anything() can stop on
+    # statement boundaries in Python the way GrammarId::NONCODE / NEWLINE
+    # do in Rust.
     noncode_matcher: Optional[NonCodeMatcher] = None
+    newline_matcher: Optional[NewlineMatcher] = None
     simple_matchers: list[Matchable] = []
     for _matcher in matchers:
         if isinstance(_matcher, NonCodeMatcher):
             if noncode_matcher is None:
                 noncode_matcher = _matcher
+        elif isinstance(_matcher, NewlineMatcher):
+            if newline_matcher is None:
+                newline_matcher = _matcher
         else:
             simple_matchers.append(_matcher)
 
@@ -686,6 +725,20 @@ def greedy_match(
                     matcher = noncode_matcher
                     inner_matches = ()
 
+            if newline_matcher is not None:
+                newline_match = _next_newline_ex_bracket(
+                    segments,
+                    working_idx,
+                    parse_context=ctx,
+                )
+                if newline_match and (
+                    not match
+                    or newline_match.matched_slice.start < match.matched_slice.start
+                ):
+                    match = newline_match
+                    matcher = newline_matcher
+                    inner_matches = ()
+
         if nested_match:
             child_matches += inner_matches
 
@@ -698,9 +751,9 @@ def greedy_match(
         _stop_idx = match.matched_slice.stop
         assert matcher, f"Match without matcher: {match}"
 
-        # NonCode terminators are position-based, not keyword-like; they do
-        # not require a preceding whitespace gate.
-        if isinstance(matcher, NonCodeMatcher):
+        # Position-based terminators are not keyword-like; they do not require
+        # a preceding whitespace gate.
+        if isinstance(matcher, (NonCodeMatcher, NewlineMatcher)):
             break
 
         # NOTE: For some terminators we only count them if they're preceded

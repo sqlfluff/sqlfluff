@@ -227,22 +227,6 @@ databricks_dialect.replace(
         ]
     ),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
-    # Same-line follow-ons Databricks adds beyond Spark. Newline-separated
-    # follow-ons are already stopped by NonCodeMatcher on the opaque SET value;
-    # these keywords cover the rarer same-line-without-space case and show how
-    # child dialects extend SetConfigValueTerminatorGrammar.
-    SetConfigValueTerminatorGrammar=sparksql_dialect.get_grammar(
-        "SetConfigValueTerminatorGrammar"
-    ).copy(
-        insert=[
-            Ref.keyword("COMMENT"),
-            Ref.keyword("DECLARE"),
-            Ref.keyword("OPTIMIZE"),
-            Ref.keyword("APPLY"),
-            Ref.keyword("TAG"),
-            Ref.keyword("UNSET"),
-        ],
-    ),
 )
 
 databricks_dialect.add(

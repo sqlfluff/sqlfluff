@@ -207,9 +207,9 @@ impl Parser<'_> {
         // If a terminator matches immediately (at start_idx), return as-is.
         // Python allows keyword terminators at the very start ("first element" edge case).
         for &term_id in terminators {
-            // Skip the NONCODE sentinel (not a real grammar id; handled by
-            // `is_terminated`). Indexing the grammar tables with it would panic.
-            if term_id == GrammarId::NONCODE {
+            // Skip the NONCODE/NEWLINE sentinels (not real grammar ids; handled by
+            // `is_terminated`). Indexing the grammar tables with them would panic.
+            if term_id == GrammarId::NONCODE || term_id == GrammarId::NEWLINE {
                 continue;
             }
             vdebug!(
@@ -307,8 +307,8 @@ impl Parser<'_> {
             }
 
             for &term_id in terminators {
-                // Skip the NONCODE sentinel (see the immediate-match loop above).
-                if term_id == GrammarId::NONCODE {
+                // Skip sentinels (see the immediate-match loop above).
+                if term_id == GrammarId::NONCODE || term_id == GrammarId::NEWLINE {
                     continue;
                 }
                 vdebug!(

@@ -11,6 +11,7 @@ from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Anything, Delimited, Nothing
 from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
+from sqlfluff.core.parser.grammar.newline import NewlineMatcher
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.types import ParseMode
 
@@ -239,6 +240,21 @@ def test__parser__grammar_noncode_match(test_segments, fresh_ansi_dialect):
     match = NonCodeMatcher().match(test_segments, 1, parse_context=ctx)
     assert match
     assert match.matched_slice == slice(1, 2)
+
+
+def test__parser__grammar_newline_match(generate_test_segments, fresh_ansi_dialect):
+    """Test the NewlineMatcher."""
+    ctx = ParseContext(dialect=fresh_ansi_dialect, max_parse_depth=0)
+    matcher = NewlineMatcher()
+    assert matcher.simple(ctx) is None
+    assert matcher.cache_key() == "newline-matcher"
+    assert matcher.is_optional() is False
+
+    segments = generate_test_segments(["a", "\n", "b"])
+    assert matcher.match(segments, 1, parse_context=ctx).matched_slice == slice(1, 2)
+    # Whitespace is not a newline boundary.
+    spaced = generate_test_segments(["a", " ", "b"])
+    assert not matcher.match(spaced, 1, parse_context=ctx)
 
 
 @pytest.mark.parametrize(

@@ -330,9 +330,9 @@ impl<'a> Parser<'a> {
         let tables = Some(self.grammar_ctx.tables());
 
         for &opt_id in options {
-            // Skip the NONCODE sentinel (not a real grammar id; handled by
-            // `is_terminated`). Indexing the grammar tables with it would panic.
-            if opt_id == GrammarId::NONCODE {
+            // Skip sentinel values (not real grammar ids; handled by
+            // `is_terminated`). Indexing the grammar tables with them would panic.
+            if opt_id == GrammarId::NONCODE || opt_id == GrammarId::NEWLINE {
                 continue;
             }
             // Try to get simple hint for this grammar from tables
@@ -424,25 +424,36 @@ impl<'a> Parser<'a> {
             .set(self.metrics.terminator_checks.get() + 1);
         let init_pos = self.pos;
 
-        // CRITICAL: Check for GrammarId::NONCODE BEFORE skipping transparent tokens!
-        // NONCODE should match non-code tokens at the CURRENT position,
-        // not after skipping them. This is essential for allow_gaps=false behavior.
+        // CRITICAL: Check sentinel terminators BEFORE skipping transparent tokens.
+        // NONCODE matches any non-code token; NEWLINE matches only newlines.
+        // Both must see the token at the CURRENT position, not after skip_transparent.
         let has_noncode_terminator = terminators.contains(&GrammarId::NONCODE);
+        let has_newline_terminator = terminators.contains(&GrammarId::NEWLINE);
         vdebug!(
-            "  is_terminated at pos {}: has_noncode_terminator={}",
+            "  is_terminated at pos {}: has_noncode_terminator={} has_newline_terminator={}",
             init_pos,
-            has_noncode_terminator
+            has_noncode_terminator,
+            has_newline_terminator
         );
-        if has_noncode_terminator {
+        if has_noncode_terminator || has_newline_terminator {
             if let Some(tok) = self.peek() {
                 let is_code = tok.is_code();
+                let is_newline = tok.get_type() == "newline";
                 vdebug!(
-                    "  is_terminated: current token is_code={}, type={}",
+                    "  is_terminated: current token is_code={}, is_newline={}, type={}",
                     is_code,
+                    is_newline,
                     tok.get_type()
                 );
-                if !is_code {
+                if has_noncode_terminator && !is_code {
                     vdebug!("  TERMED NONCODE found non-code token at current position");
+                    self.metrics
+                        .terminator_hits
+                        .set(self.metrics.terminator_hits.get() + 1);
+                    return true;
+                }
+                if has_newline_terminator && is_newline {
+                    vdebug!("  TERMED NEWLINE found newline token at current position");
                     self.metrics
                         .terminator_hits
                         .set(self.metrics.terminator_hits.get() + 1);
@@ -451,20 +462,21 @@ impl<'a> Parser<'a> {
             }
         }
 
-        // Filter out NONCODE from terminators for the rest of the check
-        // We've already checked it at the current position above.
+        // Filter sentinels from terminators for the rest of the check.
+        // We've already checked them at the current position above.
         // Avoid allocation when no filtering is needed (the common case).
         let filtered_storage: Vec<GrammarId>;
-        let terminators_without_noncode: &[GrammarId] = if has_noncode_terminator {
-            filtered_storage = terminators
-                .iter()
-                .filter(|&t| *t != GrammarId::NONCODE)
-                .copied()
-                .collect();
-            &filtered_storage
-        } else {
-            terminators
-        };
+        let terminators_without_sentinels: &[GrammarId] =
+            if has_noncode_terminator || has_newline_terminator {
+                filtered_storage = terminators
+                    .iter()
+                    .filter(|&t| *t != GrammarId::NONCODE && *t != GrammarId::NEWLINE)
+                    .copied()
+                    .collect();
+                &filtered_storage
+            } else {
+                terminators
+            };
 
         self.skip_transparent(true);
         let saved_pos = self.pos;
@@ -494,11 +506,11 @@ impl<'a> Parser<'a> {
         // Prune terminators before checking
         vdebug!(
             "  TERM Before prune: {} terminators at pos {}: {:?}",
-            terminators_without_noncode.len(),
+            terminators_without_sentinels.len(),
             self.pos,
-            terminators_without_noncode
+            terminators_without_sentinels
         );
-        let pruned_terminators = self.prune_terminators(terminators_without_noncode);
+        let pruned_terminators = self.prune_terminators(terminators_without_sentinels);
         vdebug!(
             "  TERM Checking {} pruned terminators at pos {}",
             pruned_terminators.len(),
@@ -533,8 +545,8 @@ impl<'a> Parser<'a> {
         };
 
         for term_id in pruned_terminators.iter() {
-            // Skip NONCODE - already handled above
-            if *term_id == GrammarId::NONCODE {
+            // Skip sentinels - already handled above
+            if *term_id == GrammarId::NONCODE || *term_id == GrammarId::NEWLINE {
                 continue;
             }
 

@@ -46,7 +46,7 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
-from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
+from sqlfluff.core.parser.grammar.newline import NewlineMatcher
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_hive as hive
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -501,12 +501,10 @@ sparksql_dialect.replace(
 
 sparksql_dialect.add(
     # Terminators for the opaque branch of SetConfigValueSegment.
-    # Semicolon ends an explicit SET statement. Child dialects (Databricks)
-    # extend this via `.copy(insert=[...])` for same-line follow-on starters
-    # they introduce. Newline / whitespace statement boundaries are not listed
-    # here: they are handled by NonCodeMatcher on the Anything() call so
-    # Python and Rust share one boundary abstraction instead of a copied
-    # keyword list (see #8187 / #4218).
+    # Semicolon ends an explicit SET statement. Newline / EOF statement
+    # boundaries are handled by NewlineMatcher on the Anything() call (not
+    # generic NonCodeMatcher: intra-line spaces must remain part of opaque
+    # values). See #8187 / #4218.
     SetConfigValueTerminatorGrammar=OneOf(
         Ref("DelimiterGrammar"),
     ),
@@ -2956,19 +2954,16 @@ class SetConfigValueSegment(BaseSegment):
             min_delimiters=1,
         ),
         # Opaque raw payloads (URIs, hyphenated tokens, comma lists, etc.).
-        # Bound by a real statement boundary, not a hand-maintained starter
-        # keyword list:
-        # - semicolon via SetConfigValueTerminatorGrammar (child dialects
-        #   extend that grammar for same-line follow-ons they add)
-        # - newline/whitespace via NonCodeMatcher, which maps to Rust's
-        #   GrammarId::NONCODE so Anything stops *before* skip_transparent
-        #   would walk past the line break. A TypedParser("newline") alone
-        #   is not enough on the Rust path for that reason.
-        # See https://github.com/sqlfluff/sqlfluff/pull/8187.
+        # Bound by statement boundaries, not a hand-maintained starter keyword
+        # list and not generic non-code:
+        # - semicolon via SetConfigValueTerminatorGrammar
+        # - newline via NewlineMatcher (maps to Rust GrammarId::NEWLINE so
+        #   Anything stops before skip_transparent walks past the line break)
+        # Intra-line whitespace stays inside the value. See #8187.
         Anything(
             terminators=[
                 Ref("SetConfigValueTerminatorGrammar"),
-                NonCodeMatcher(),
+                NewlineMatcher(),
             ],
         ),
     )

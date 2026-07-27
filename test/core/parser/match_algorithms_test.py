@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.lexer import RegexLexer
 from sqlfluff.core.parser.match_algorithms import (
+    _next_newline_ex_bracket,
     _next_noncode_ex_bracket,
     greedy_match,
     next_ex_bracket_match,
@@ -227,10 +228,7 @@ def test__parser__algorithms__greedy_match_noncode(
     generate_test_segments,
     test_dialect,
 ):
-    """NonCodeMatcher must terminate greedy_match before whitespace/newlines.
-
-    This is the Python half of Rust's GrammarId::NONCODE Anything boundary.
-    """
+    """NonCodeMatcher must terminate greedy_match before whitespace/newlines."""
     from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 
     test_segments = generate_test_segments(["a", "b", " ", "c"])
@@ -247,6 +245,29 @@ def test__parser__algorithms__greedy_match_noncode(
     assert match
     # Claim code only; stop before the whitespace terminator.
     assert match.matched_slice == slice(0, 2)
+
+
+def test__parser__algorithms__greedy_match_newline(
+    generate_test_segments,
+    test_dialect,
+):
+    """NewlineMatcher stops on newlines only, not intra-line spaces."""
+    from sqlfluff.core.parser.grammar.newline import NewlineMatcher
+
+    test_segments = generate_test_segments(["a", " ", "b", "\n", "c"])
+    ctx = ParseContext(dialect=test_dialect, max_parse_depth=0)
+
+    match = greedy_match(
+        segments=test_segments,
+        idx=0,
+        parse_context=ctx,
+        matchers=[NewlineMatcher()],
+        include_terminator=False,
+    )
+
+    assert match
+    # Include the spaced tokens; stop before the newline.
+    assert match.matched_slice == slice(0, 3)
 
 
 @pytest.mark.parametrize(
@@ -279,6 +300,32 @@ def test__parser__algorithms__next_noncode_ex_bracket(
     test_segments = generate_test_segments(raw_segments)
     ctx = ParseContext(dialect=test_dialect, max_parse_depth=0)
     match = _next_noncode_ex_bracket(test_segments, idx, parse_context=ctx)
+    assert match.matched_slice == expected
+
+
+@pytest.mark.parametrize(
+    "raw_segments,idx,expected",
+    [
+        (["a"], 1, slice(1, 1)),
+        (["\n", "a"], 0, slice(0, 1)),
+        # Spaces are not newlines.
+        (["a", " ", "b"], 0, slice(0, 0)),
+        (["a", " ", "b", "\n", "c"], 0, slice(3, 4)),
+        (["a", "(", "b", ")", "\n", "c"], 0, slice(4, 5)),
+        (["a", ")", "\n", "c"], 0, slice(0, 0)),
+    ],
+)
+def test__parser__algorithms__next_newline_ex_bracket(
+    raw_segments,
+    idx,
+    expected,
+    generate_test_segments,
+    test_dialect,
+):
+    """Cover bracket-aware newline terminator scanning paths."""
+    test_segments = generate_test_segments(raw_segments)
+    ctx = ParseContext(dialect=test_dialect, max_parse_depth=0)
+    match = _next_newline_ex_bracket(test_segments, idx, parse_context=ctx)
     assert match.matched_slice == expected
 
 
