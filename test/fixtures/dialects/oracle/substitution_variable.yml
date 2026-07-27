@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f61a68c2908326c3047043a99dab4e8b3944e8aeb84e73488646be513d075ff0
+_hash: 57278b4e910b74da97a2d44d48fb00366d40eb07fbea4609562155eb0ceb48cf
 file:
   batch:
   - statement:
@@ -207,4 +207,64 @@ file:
                 ampersand: '&'
                 naked_identifier: myv
             end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            expression:
+              substitution_variable:
+                ampersand: '&'
+                numeric_literal: '1'
+        - comma: ','
+        - select_clause_element:
+            expression:
+              substitution_variable:
+                ampersand: '&'
+                numeric_literal: '2'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+              naked_identifier: employee_id
+            comparison_operator:
+              raw_comparison_operator: '='
+            substitution_variable:
+              ampersand: '&'
+              numeric_literal: '3'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+              naked_identifier: employee_id
+            comparison_operator:
+              raw_comparison_operator: '='
+            substitution_variable:
+            - ampersand: '&'
+            - ampersand: '&'
+            - numeric_literal: '1'
   - statement_terminator: ;

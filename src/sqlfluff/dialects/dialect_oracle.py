@@ -2031,7 +2031,11 @@ class FunctionNameSegment(BaseSegment):
 
 
 class SubstitutionVariableSegment(BaseSegment):
-    """SQL*Plus substitution variable (&var, &&var).
+    """SQL*Plus substitution variable (&var, &&var, &1, &&1).
+
+    Substitution variables are referenced either by name (``&var``, ``&&var``)
+    or by position (``&1``, ``&&1``), the latter being substituted from the
+    arguments passed to the calling script.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/using-substitution-variables-sqlplus.html
     """
@@ -2041,7 +2045,11 @@ class SubstitutionVariableSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("AmpersandSegment"),
         Ref("AmpersandSegment", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("NumericLiteralSegment"),
+        ),
+        allow_gaps=False,
     )
 
 
