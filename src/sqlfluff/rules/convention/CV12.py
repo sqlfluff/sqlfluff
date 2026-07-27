@@ -15,7 +15,6 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.dialects.dialect_ansi import (
     ExpressionSegment,
-    JoinClauseSegment,
     JoinOnConditionSegment,
 )
 
@@ -208,20 +207,12 @@ class Rule_CV12(BaseRule):
                             join_on_expression,
                         )
                     )
-                    join_clause_segment = JoinClauseSegment(
-                        (
-                            *join_clause.segments,
-                            WhitespaceSegment(),
-                            join_on,
-                        )
-                    )
-
                     yield LintResult(
                         anchor=join_clause,
                         fixes=[
-                            LintFix.replace(
-                                join_clause,
-                                edit_segments=[join_clause_segment],
+                            LintFix.create_after(
+                                join_table_reference,
+                                edit_segments=[WhitespaceSegment(), join_on],
                             )
                         ],
                     )

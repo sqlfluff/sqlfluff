@@ -155,3 +155,18 @@ test_pass_left_join_unnest_where_unaliased:
       UNNEST(t.purchases)
     WHERE
       t.user_id != 1
+
+test_fail_templated_join_table:
+  fail_str: |
+    select a.id, b.id as b_id
+    from table_a as a
+    left join {{ ref('table_b') }} as b
+    where a.region = b.region
+  fix_str: |
+    select a.id, b.id as b_id
+    from table_a as a
+    left join {{ ref('table_b') }} as b ON a.region = b.region
+  configs:
+    core:
+      dialect: snowflake
+      templater: jinja
