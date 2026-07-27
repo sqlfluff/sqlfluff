@@ -147,6 +147,7 @@ UNRESERVED_KEYWORDS = [
     "EPHEMERAL",
     "EVENTS",
     "EXCEPT",
+    "EXCHANGE",
     "EXISTS",
     "EXPLAIN",
     "EXPRESSION",
