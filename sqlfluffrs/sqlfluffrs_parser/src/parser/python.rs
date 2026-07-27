@@ -547,6 +547,8 @@ impl PyParser {
     /// - pruning_kept: options kept after pruning
     /// - pruning_hinted: options that had hints
     /// - pruning_complex: options that returned None (complex)
+    /// - hint_gate_calls: `simple_hint_rejects` calls with a usable hint (Sequence/Delimited)
+    /// - hint_gate_rejections: of those, how many actually skipped a child frame
     pub fn parse_match_result_with_stats(
         &self,
         tokens: Vec<PyToken>,

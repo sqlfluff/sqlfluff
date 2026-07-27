@@ -31,6 +31,8 @@ struct RunStats {
     pruning_calls: usize,
     pruning_total: usize,
     pruning_kept: usize,
+    hint_gate_calls: usize,
+    hint_gate_rejections: usize,
     match_attempts: usize,
     match_successes: usize,
     complete_match_early_exits: usize,
@@ -50,6 +52,8 @@ impl RunStats {
             pruning_calls: m.pruning_calls.get(),
             pruning_total: m.pruning_total.get(),
             pruning_kept: m.pruning_kept.get(),
+            hint_gate_calls: m.hint_gate_calls.get(),
+            hint_gate_rejections: m.hint_gate_rejections.get(),
             match_attempts: m.match_attempts.get(),
             match_successes: m.match_successes.get(),
             complete_match_early_exits: m.complete_match_early_exits.get(),
@@ -68,6 +72,8 @@ struct Avg {
     cache_entries: f64,
     pruning_calls: f64,
     pruned_pct: f64,
+    hint_gate_calls: f64,
+    hint_gate_hit_pct: f64,
     match_attempts: f64,
     match_success_pct: f64,
     early_exits: f64,
@@ -88,6 +94,8 @@ fn avg(runs: &[RunStats]) -> Avg {
     let misses = stat(|r| r.cache_misses);
     let kept = stat(|r| r.pruning_kept);
     let total_opts = stat(|r| r.pruning_total);
+    let gate_calls = stat(|r| r.hint_gate_calls);
+    let gate_rejections = stat(|r| r.hint_gate_rejections);
     let attempts = stat(|r| r.match_attempts);
     let successes = stat(|r| r.match_successes);
     let t_checks = stat(|r| r.terminator_checks);
@@ -108,6 +116,12 @@ fn avg(runs: &[RunStats]) -> Avg {
         pruning_calls: stat(|r| r.pruning_calls),
         pruned_pct: if total_opts > 0.0 {
             (1.0 - kept / total_opts) * 100.0
+        } else {
+            0.0
+        },
+        hint_gate_calls: gate_calls,
+        hint_gate_hit_pct: if gate_calls > 0.0 {
+            gate_rejections / gate_calls * 100.0
         } else {
             0.0
         },
@@ -139,6 +153,10 @@ fn print_avg(label: &str, a: &Avg) {
     println!(
         "    Pruning       {:.0} calls  {:.1}% pruned",
         a.pruning_calls, a.pruned_pct,
+    );
+    println!(
+        "    Hint gate     {:.0} calls  {:.1}% skipped a child frame",
+        a.hint_gate_calls, a.hint_gate_hit_pct,
     );
     println!(
         "    Matches       {:.0} attempts  {:.1}% success  {:.0} early-exits",
@@ -189,6 +207,8 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
             let mut pruning_calls = 0;
             let mut pruning_total = 0;
             let mut pruning_kept = 0;
+            let mut hint_gate_calls = 0;
+            let mut hint_gate_rejections = 0;
             let mut match_attempts = 0;
             let mut match_successes = 0;
             let mut early_exits = 0;
@@ -205,6 +225,8 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
                 pruning_calls += m.pruning_calls.get();
                 pruning_total += m.pruning_total.get();
                 pruning_kept += m.pruning_kept.get();
+                hint_gate_calls += m.hint_gate_calls.get();
+                hint_gate_rejections += m.hint_gate_rejections.get();
                 match_attempts += m.match_attempts.get();
                 match_successes += m.match_successes.get();
                 early_exits += m.complete_match_early_exits.get();
@@ -219,6 +241,8 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
                 pruning_calls,
                 pruning_total,
                 pruning_kept,
+                hint_gate_calls,
+                hint_gate_rejections,
                 match_attempts,
                 match_successes,
                 complete_match_early_exits: early_exits,
@@ -231,10 +255,10 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
 
 fn print_query_table_header() {
     println!(
-        "  {:<8} {:>8} {:>8} {:>10} {:>10} {:>10} {:>10}",
-        "Query", "Bytes", "Tokens", "Mean(ms)", "Cache%", "Pruned%", "TermChk%"
+        "  {:<8} {:>8} {:>8} {:>10} {:>10} {:>10} {:>10} {:>10}",
+        "Query", "Bytes", "Tokens", "Mean(ms)", "Cache%", "Pruned%", "TermChk%", "HintGate%"
     );
-    println!("  {}", "-".repeat(72));
+    println!("  {}", "-".repeat(84));
 }
 
 fn run_suite(name: &str, count: u32, sub_dir: &str) {
@@ -250,7 +274,7 @@ fn run_suite(name: &str, count: u32, sub_dir: &str) {
         let runs = timed_runs(&tokens);
         let a = avg(&runs);
         println!(
-            "  Q{:<7} {:>8} {:>8} {:>10.2} {:>9.1}% {:>9.1}% {:>9.1}%",
+            "  Q{:<7} {:>8} {:>8} {:>10.2} {:>9.1}% {:>9.1}% {:>9.1}% {:>9.1}%",
             n,
             bytes,
             tok_count,
@@ -258,6 +282,7 @@ fn run_suite(name: &str, count: u32, sub_dir: &str) {
             a.cache_hit_rate_pct,
             a.pruned_pct,
             a.term_hit_pct,
+            a.hint_gate_hit_pct,
         );
         suite_tokens.push(tokens);
     }
