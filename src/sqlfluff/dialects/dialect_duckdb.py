@@ -129,9 +129,7 @@ duckdb_dialect.add(
             Sequence(
                 "RESERVOIR",
                 Bracketed(
-                    OneOf(
-                        Ref("SamplePercentageGrammar"), Ref("SampleRowCountGrammar")
-                    )
+                    OneOf(Ref("SamplePercentageGrammar"), Ref("SampleRowCountGrammar"))
                 ),
             ),
             # bernoulli and system are percentage-only
@@ -166,9 +164,7 @@ duckdb_dialect.add(
                 ),
             ),
         ),
-        Sequence(
-            "REPEATABLE", Bracketed(Ref("NumericLiteralSegment")), optional=True
-        ),
+        Sequence("REPEATABLE", Bracketed(Ref("NumericLiteralSegment")), optional=True),
     ),
     EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
     UnpackingOperatorSegment=TypedParser("star", SymbolSegment, "unpacking_operator"),
