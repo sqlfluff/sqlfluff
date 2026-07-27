@@ -2003,7 +2003,13 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
         # doesn't state it
         Ref.keyword("TABLE", optional=True),
         Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        OneOf(
+    Sequence(
+        Ref.keyword("DATABASE"),
+        Ref("DatabaseReferenceSegment"),
+    ),
+    Ref("TableReferenceSegment"),
+),
         Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )

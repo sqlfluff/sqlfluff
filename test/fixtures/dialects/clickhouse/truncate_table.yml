@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 33775e0659109c407d7dab47d68c69ec25d350645a94b5db0cd7d4c36bce6f67
+_hash: 9dc39b42a37e213bf45d610692d8570813999ee18d62409860ac0540b5647033
 file:
 - statement:
     truncate_table:
@@ -356,4 +356,11 @@ file:
       - keyword: CLUSTER
       - naked_identifier: clstr
     - keyword: SYNC
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: test
 - statement_terminator: ;
