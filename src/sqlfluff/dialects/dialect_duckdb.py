@@ -329,29 +329,39 @@ class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
     https://duckdb.org/docs/stable/sql/samples
     """
 
-    _sample_size = Sequence(
+    # A percentage (`10%` or `10 PERCENT`) as opposed to a fixed row count (a
+    # bare number, or `10 ROWS`). Only reservoir sampling supports a fixed row
+    # count; bernoulli and system sampling are percentage-only.
+    _percentage = Sequence(
         Ref("NumericLiteralSegment"),
-        OneOf(Ref("ModuloSegment"), "PERCENT", "ROWS", optional=True),
+        OneOf(Ref("ModuloSegment"), "PERCENT"),
     )
-    _sample_method = OneOf("RESERVOIR", "BERNOULLI", "SYSTEM")
+    _row_count = Sequence(
+        Ref("NumericLiteralSegment"),
+        Ref.keyword("ROWS", optional=True),
+    )
+    _seed = Sequence(Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True)
 
     match_grammar: Matchable = Sequence(
         OneOf("TABLESAMPLE", Sequence("USING", "SAMPLE")),
         OneOf(
-            # method (size), e.g. `reservoir(20%)`
-            Sequence(_sample_method, Bracketed(_sample_size)),
-            # size, optionally with a method (and seed), e.g. `10% (system, 377)`
+            # reservoir takes a percentage or a fixed row count
+            Sequence("RESERVOIR", Bracketed(OneOf(_percentage, _row_count))),
+            # bernoulli and system are percentage-only
+            Sequence(OneOf("BERNOULLI", "SYSTEM"), Bracketed(_percentage)),
+            # a percentage, optionally with any method (and seed),
+            # e.g. `10% (system, 377)`
             Sequence(
-                _sample_size,
+                _percentage,
                 Bracketed(
-                    _sample_method,
-                    Sequence(
-                        Ref("CommaSegment"),
-                        Ref("NumericLiteralSegment"),
-                        optional=True,
-                    ),
-                    optional=True,
+                    OneOf("RESERVOIR", "BERNOULLI", "SYSTEM"), _seed, optional=True
                 ),
+            ),
+            # a fixed row count, optionally with reservoir (and seed),
+            # e.g. `10 ROWS (reservoir, 354)`
+            Sequence(
+                _row_count,
+                Bracketed("RESERVOIR", _seed, optional=True),
             ),
         ),
         Sequence(

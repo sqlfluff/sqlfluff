@@ -5,21 +5,29 @@
 SELECT * FROM addresses USING SAMPLE 10%;
 SELECT * FROM addresses USING SAMPLE 10 PERCENT;
 
--- Fixed-size (row count) sample.
+-- Fixed row-count samples (a bare number, or `ROWS`). Only reservoir sampling
+-- supports a fixed number of rows.
+SELECT * FROM addresses USING SAMPLE 5;
 SELECT * FROM addresses USING SAMPLE 100 ROWS;
 
--- Sampling method applied to a size.
+-- A sampling method applied to a size. `reservoir` accepts a percentage or a
+-- row count; `bernoulli` and `system` are percentage-only.
 SELECT * FROM addresses USING SAMPLE reservoir(20%);
+SELECT * FROM addresses USING SAMPLE reservoir(500 ROWS);
 SELECT * FROM addresses USING SAMPLE bernoulli(10%);
-SELECT * FROM addresses USING SAMPLE reservoir(500 ROWS) REPEATABLE (100);
+SELECT * FROM addresses USING SAMPLE system(20%);
+SELECT * FROM addresses USING SAMPLE reservoir(50 ROWS) REPEATABLE (100);
 
--- Size with an explicit method and seed.
-SELECT * FROM addresses USING SAMPLE 10% (system, 377);
+-- A percentage with an explicit method (and optional seed) -- any method.
+SELECT * FROM addresses USING SAMPLE 10 PERCENT (bernoulli);
+SELECT * FROM addresses USING SAMPLE 20% (system, 377);
+
+-- A fixed row count with an explicit method (and optional seed) -- reservoir only.
 SELECT * FROM addresses USING SAMPLE 10 ROWS (reservoir, 354);
 
 -- `TABLESAMPLE` is an accepted synonym.
 SELECT * FROM addresses TABLESAMPLE 10%;
-SELECT * FROM addresses TABLESAMPLE bernoulli(10);
+SELECT * FROM addresses TABLESAMPLE bernoulli(10%);
 
 -- Sampling combined with a join (the sample applies to the sampled table).
 SELECT *

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd47ec9f744514e4ab3a1f4d324b1b8f3406cd871baa37e7c810bf4a4f29f2c0
+_hash: 7a54755ae6a5464999a5b952abf567933ea14e95f7d9d7a697cf8cb49ce4902b
 file:
 - statement:
     select_statement:
@@ -46,6 +46,26 @@ file:
             - keyword: SAMPLE
             - numeric_literal: '10'
             - keyword: PERCENT
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+            sample_expression:
+            - keyword: USING
+            - keyword: SAMPLE
+            - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -111,6 +131,31 @@ file:
             sample_expression:
             - keyword: USING
             - keyword: SAMPLE
+            - keyword: reservoir
+            - bracketed:
+                start_bracket: (
+                numeric_literal: '500'
+                keyword: ROWS
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+            sample_expression:
+            - keyword: USING
+            - keyword: SAMPLE
             - keyword: bernoulli
             - bracketed:
                 start_bracket: (
@@ -136,10 +181,35 @@ file:
             sample_expression:
             - keyword: USING
             - keyword: SAMPLE
+            - keyword: system
+            - bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                binary_operator: '%'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+            sample_expression:
+            - keyword: USING
+            - keyword: SAMPLE
             - keyword: reservoir
             - bracketed:
                 start_bracket: (
-                numeric_literal: '500'
+                numeric_literal: '50'
                 keyword: ROWS
                 end_bracket: )
             - keyword: REPEATABLE
@@ -167,6 +237,31 @@ file:
             - keyword: USING
             - keyword: SAMPLE
             - numeric_literal: '10'
+            - keyword: PERCENT
+            - bracketed:
+                start_bracket: (
+                keyword: bernoulli
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+            sample_expression:
+            - keyword: USING
+            - keyword: SAMPLE
+            - numeric_literal: '20'
             - binary_operator: '%'
             - bracketed:
                 start_bracket: (
@@ -243,6 +338,7 @@ file:
             - bracketed:
                 start_bracket: (
                 numeric_literal: '10'
+                binary_operator: '%'
                 end_bracket: )
 - statement_terminator: ;
 - statement:
