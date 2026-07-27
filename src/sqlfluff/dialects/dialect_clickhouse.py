@@ -2880,7 +2880,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SystemStatementSegment"),
             Ref("RenameStatementSegment"),
             Ref("AlterTableStatementSegment"),
-            Ref("ExchangeStatementSegment"),
+            Ref("ExchangeTablesStatementSegment"),
+            Ref("ExchangeDictionariesStatementSegment"),
             Ref("TruncateDatabaseStatementSegment"),
         ]
     )
@@ -3111,26 +3112,50 @@ class TupleElementAccessorSegment(BaseSegment):
     )
 
 
-class ExchangeStatementSegment(BaseSegment):
-    """An `EXCHANGE` statement.
+class ExchangeTablesStatementSegment(BaseSegment):
+    """An `EXCHANGE TABLES` statement.
 
     As specified in
     https://clickhouse.com/docs/sql-reference/statements/exchange
     """
 
-    type = "exchange_statement"
+    type = "exchange_tables_statement"
 
     match_grammar: Matchable = Sequence(
         "EXCHANGE",
-        OneOf("TABLES", "DICTIONARIES"),
-        # It is possible to exchange multiple dictionary pairs in
-        # a single query, even though the documentation states it only
-        # for tables
+        "TABLES",
         Delimited(
             Sequence(
                 Ref("TableReferenceSegment"),
                 "AND",
                 Ref("TableReferenceSegment"),
+            ),
+        ),
+        Ref("OnClusterClauseSegment", optional=True),
+    )
+
+
+class ExchangeDictionariesStatementSegment(BaseSegment):
+    """An `EXCHANGE DICTIONARIES` statement.
+
+    As specified in
+    https://clickhouse.com/docs/sql-reference/statements/exchange
+    """
+
+    type = "exchange_dictionaries_statement"
+
+    match_grammar: Matchable = Sequence(
+        "EXCHANGE",
+        "DICTIONARIES",
+        # It is possible to exchange multiple dictionary pairs in
+        # a single query, even though the documentation states it only
+        # for tables
+        # https://fiddle.clickhouse.com/739c85b0-2f18-4d14-a396-a41ce568d6d9
+        Delimited(
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                "AND",
+                Ref("ObjectReferenceSegment"),
             ),
         ),
         Ref("OnClusterClauseSegment", optional=True),
