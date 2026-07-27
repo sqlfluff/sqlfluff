@@ -1,5 +1,8 @@
--- DuckDB `USING SAMPLE` / `TABLESAMPLE` table sampling.
--- https://duckdb.org/docs/stable/sql/samples
+-- DuckDB sampling. https://duckdb.org/docs/stable/sql/samples
+--
+-- `USING SAMPLE` is a query-level clause: it samples the result of the whole
+-- FROM clause (after joins), so it trails the query. `TABLESAMPLE` is the
+-- table-level form: it samples an individual table (before joins).
 
 -- Percentage samples.
 SELECT * FROM addresses USING SAMPLE 10%;
@@ -25,11 +28,21 @@ SELECT * FROM addresses USING SAMPLE 20% (system, 377);
 -- A fixed row count with an explicit method (and optional seed) -- reservoir only.
 SELECT * FROM addresses USING SAMPLE 10 ROWS (reservoir, 354);
 
--- `TABLESAMPLE` is an accepted synonym.
+-- `USING SAMPLE` samples after joins, so it trails the whole query.
+SELECT *
+FROM tbl, tbl2
+WHERE tbl.i = tbl2.i
+USING SAMPLE reservoir(20%);
+
+SELECT city, count(*)
+FROM addresses
+GROUP BY city
+ORDER BY city
+USING SAMPLE 10%;
+
+-- `TABLESAMPLE` samples before joins, so it attaches to a table in FROM.
 SELECT * FROM addresses TABLESAMPLE 10%;
 SELECT * FROM addresses TABLESAMPLE bernoulli(10%);
-
--- Sampling combined with a join (the sample applies to the sampled table).
 SELECT *
-FROM addresses USING SAMPLE 10%
-JOIN cities USING (city_id);
+FROM tbl TABLESAMPLE reservoir(20%), tbl2
+WHERE tbl.i = tbl2.i;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7a54755ae6a5464999a5b952abf567933ea14e95f7d9d7a697cf8cb49ce4902b
+_hash: f335e72bbe584654b2cfc28681e64d20ed7f44fe6508ece50bee56082d17bc63
 file:
 - statement:
     select_statement:
@@ -20,11 +20,11 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - numeric_literal: '10'
-            - binary_operator: '%'
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - numeric_literal: '10'
+      - binary_operator: '%'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -41,11 +41,11 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - numeric_literal: '10'
-            - keyword: PERCENT
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - numeric_literal: '10'
+      - keyword: PERCENT
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -62,10 +62,10 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - numeric_literal: '5'
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -82,11 +82,11 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - numeric_literal: '100'
-            - keyword: ROWS
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - numeric_literal: '100'
+      - keyword: ROWS
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -103,24 +103,261 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - keyword: reservoir
-            - bracketed:
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - keyword: reservoir
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '20'
+          binary_operator: '%'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - keyword: reservoir
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '500'
+          keyword: ROWS
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - keyword: bernoulli
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '10'
+          binary_operator: '%'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - keyword: system
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '20'
+          binary_operator: '%'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - keyword: reservoir
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '50'
+          keyword: ROWS
+          end_bracket: )
+      - keyword: REPEATABLE
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '100'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - numeric_literal: '10'
+      - keyword: PERCENT
+      - bracketed:
+          start_bracket: (
+          keyword: bernoulli
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - numeric_literal: '20'
+      - binary_operator: '%'
+      - bracketed:
+          start_bracket: (
+          keyword: system
+          comma: ','
+          numeric_literal: '377'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - numeric_literal: '10'
+      - keyword: ROWS
+      - bracketed:
+          start_bracket: (
+          keyword: reservoir
+          comma: ','
+          numeric_literal: '354'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl2
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: tbl
+          - dot: .
+          - naked_identifier: i
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: i
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - keyword: reservoir
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '20'
+          binary_operator: '%'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
                 start_bracket: (
-                numeric_literal: '20'
-                binary_operator: '%'
+                star: '*'
                 end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
       from_clause:
         keyword: FROM
         from_expression:
@@ -128,174 +365,21 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - keyword: reservoir
-            - bracketed:
-                start_bracket: (
-                numeric_literal: '500'
-                keyword: ROWS
-                end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - keyword: bernoulli
-            - bracketed:
-                start_bracket: (
-                numeric_literal: '10'
-                binary_operator: '%'
-                end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - keyword: system
-            - bracketed:
-                start_bracket: (
-                numeric_literal: '20'
-                binary_operator: '%'
-                end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - keyword: reservoir
-            - bracketed:
-                start_bracket: (
-                numeric_literal: '50'
-                keyword: ROWS
-                end_bracket: )
-            - keyword: REPEATABLE
-            - bracketed:
-                start_bracket: (
-                numeric_literal: '100'
-                end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - numeric_literal: '10'
-            - keyword: PERCENT
-            - bracketed:
-                start_bracket: (
-                keyword: bernoulli
-                end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - numeric_literal: '20'
-            - binary_operator: '%'
-            - bracketed:
-                start_bracket: (
-                keyword: system
-                comma: ','
-                numeric_literal: '377'
-                end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: addresses
-            sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - numeric_literal: '10'
-            - keyword: ROWS
-            - bracketed:
-                start_bracket: (
-                keyword: reservoir
-                comma: ','
-                numeric_literal: '354'
-                end_bracket: )
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+      sample_expression:
+      - keyword: USING
+      - keyword: SAMPLE
+      - numeric_literal: '10'
+      - binary_operator: '%'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -350,26 +434,37 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
+      - keyword: FROM
+      - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                naked_identifier: addresses
+                naked_identifier: tbl
             sample_expression:
-            - keyword: USING
-            - keyword: SAMPLE
-            - numeric_literal: '10'
-            - binary_operator: '%'
-          join_clause:
-          - keyword: JOIN
-          - from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: cities
-          - keyword: USING
-          - bracketed:
-              start_bracket: (
-              naked_identifier: city_id
-              end_bracket: )
+            - keyword: TABLESAMPLE
+            - keyword: reservoir
+            - bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                binary_operator: '%'
+                end_bracket: )
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl2
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: tbl
+          - dot: .
+          - naked_identifier: i
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: i
 - statement_terminator: ;

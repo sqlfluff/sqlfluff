@@ -112,6 +112,64 @@ duckdb_dialect.sets("datetime_units").update(
 duckdb_dialect.add(
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
+    # DuckDB sampling. A percentage (`10%` / `10 PERCENT`) as opposed to a fixed
+    # row count (a bare number, or `10 ROWS`). Only reservoir sampling supports a
+    # fixed row count; bernoulli and system sampling are percentage-only. Shared
+    # by the table-level `TABLESAMPLE` and the query-level `USING SAMPLE` clauses.
+    # https://duckdb.org/docs/stable/sql/samples
+    SamplePercentageGrammar=Sequence(
+        Ref("NumericLiteralSegment"), OneOf(Ref("ModuloSegment"), "PERCENT")
+    ),
+    SampleRowCountGrammar=Sequence(
+        Ref("NumericLiteralSegment"), Ref.keyword("ROWS", optional=True)
+    ),
+    SampleExpressionGrammar=Sequence(
+        OneOf(
+            # reservoir takes a percentage or a fixed row count
+            Sequence(
+                "RESERVOIR",
+                Bracketed(
+                    OneOf(
+                        Ref("SamplePercentageGrammar"), Ref("SampleRowCountGrammar")
+                    )
+                ),
+            ),
+            # bernoulli and system are percentage-only
+            Sequence(
+                OneOf("BERNOULLI", "SYSTEM"),
+                Bracketed(Ref("SamplePercentageGrammar")),
+            ),
+            # a percentage, optionally with any method (and seed)
+            Sequence(
+                Ref("SamplePercentageGrammar"),
+                Bracketed(
+                    OneOf("RESERVOIR", "BERNOULLI", "SYSTEM"),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    optional=True,
+                ),
+            ),
+            # a fixed row count, optionally with reservoir (and seed)
+            Sequence(
+                Ref("SampleRowCountGrammar"),
+                Bracketed(
+                    "RESERVOIR",
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        Sequence(
+            "REPEATABLE", Bracketed(Ref("NumericLiteralSegment")), optional=True
+        ),
+    ),
     EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
     UnpackingOperatorSegment=TypedParser("star", SymbolSegment, "unpacking_operator"),
     # DuckDB math operators
@@ -320,55 +378,36 @@ duckdb_dialect.patch_lexer_matchers(
 
 
 class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
-    """A DuckDB sampling expression.
+    """A DuckDB ``TABLESAMPLE`` expression.
 
-    DuckDB samples with a ``USING SAMPLE`` clause (or the ``TABLESAMPLE``
-    keyword), which accepts either a size (a percentage or a row count) or a
-    sampling method applied to a size, optionally with a repeatable seed.
+    ``TABLESAMPLE`` is the table-level form: it samples an individual table in
+    the ``FROM`` clause (before joins). The query-level ``USING SAMPLE`` form is
+    handled by ``UsingSampleClauseSegment``.
 
     https://duckdb.org/docs/stable/sql/samples
     """
 
-    # A percentage (`10%` or `10 PERCENT`) as opposed to a fixed row count (a
-    # bare number, or `10 ROWS`). Only reservoir sampling supports a fixed row
-    # count; bernoulli and system sampling are percentage-only.
-    _percentage = Sequence(
-        Ref("NumericLiteralSegment"),
-        OneOf(Ref("ModuloSegment"), "PERCENT"),
-    )
-    _row_count = Sequence(
-        Ref("NumericLiteralSegment"),
-        Ref.keyword("ROWS", optional=True),
-    )
-    _seed = Sequence(Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True)
-
     match_grammar: Matchable = Sequence(
-        OneOf("TABLESAMPLE", Sequence("USING", "SAMPLE")),
-        OneOf(
-            # reservoir takes a percentage or a fixed row count
-            Sequence("RESERVOIR", Bracketed(OneOf(_percentage, _row_count))),
-            # bernoulli and system are percentage-only
-            Sequence(OneOf("BERNOULLI", "SYSTEM"), Bracketed(_percentage)),
-            # a percentage, optionally with any method (and seed),
-            # e.g. `10% (system, 377)`
-            Sequence(
-                _percentage,
-                Bracketed(
-                    OneOf("RESERVOIR", "BERNOULLI", "SYSTEM"), _seed, optional=True
-                ),
-            ),
-            # a fixed row count, optionally with reservoir (and seed),
-            # e.g. `10 ROWS (reservoir, 354)`
-            Sequence(
-                _row_count,
-                Bracketed("RESERVOIR", _seed, optional=True),
-            ),
-        ),
-        Sequence(
-            "REPEATABLE",
-            Bracketed(Ref("NumericLiteralSegment")),
-            optional=True,
-        ),
+        "TABLESAMPLE",
+        Ref("SampleExpressionGrammar"),
+    )
+
+
+class UsingSampleClauseSegment(BaseSegment):
+    """A DuckDB query-level ``USING SAMPLE`` clause.
+
+    Unlike ``TABLESAMPLE``, ``USING SAMPLE`` samples the result of the whole
+    ``FROM`` clause (after joins), so it trails the query rather than attaching
+    to a single table.
+
+    https://duckdb.org/docs/stable/sql/samples
+    """
+
+    type = "sample_expression"
+    match_grammar: Matchable = Sequence(
+        "USING",
+        "SAMPLE",
+        Ref("SampleExpressionGrammar"),
     )
 
 
@@ -850,6 +889,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("WithCheckOptionSegment"),
             Ref("MetaCommandQueryBufferSegment"),
         ],
+    ).copy(
+        # `USING SAMPLE` is query-level, so it trails the whole statement.
+        insert=[Ref("UsingSampleClauseSegment", optional=True)],
     )
 
 
