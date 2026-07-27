@@ -339,6 +339,18 @@ clickhouse_dialect.replace(
             optional=True,
         ),
     ),
+    LikeGrammar=OneOf("LIKE", "ILIKE", "REGEXP"),
+    LikeExpressionGrammar=Sequence(
+        OneOf(
+            Sequence(
+                Ref.keyword("NOT", optional=True),
+                # REGEXP does not support the NOT keyword
+                Ref("LikeGrammar", exclude=Ref.keyword("REGEXP")),
+            ),
+            "REGEXP",
+        ),
+        Ref("Tail_Recurse_Expression_A_Grammar"),
+    ),
 )
 
 # Set the datetime units
