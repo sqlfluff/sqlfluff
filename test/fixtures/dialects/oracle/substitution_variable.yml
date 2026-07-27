@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 57278b4e910b74da97a2d44d48fb00366d40eb07fbea4609562155eb0ceb48cf
+_hash: 032003fe61f64276d763e19429f261b32673e8123650f9922bd7d94c662d1049
 file:
   batch:
   - statement:
@@ -213,16 +213,14 @@ file:
         select_clause:
         - keyword: select
         - select_clause_element:
-            expression:
+            column_reference:
               substitution_variable:
-                ampersand: '&'
-                numeric_literal: '1'
+                raw: '&1'
         - comma: ','
         - select_clause_element:
-            expression:
+            column_reference:
               substitution_variable:
-                ampersand: '&'
-                numeric_literal: '2'
+                raw: '&2'
         from_clause:
           keyword: from
           from_expression:
@@ -233,13 +231,13 @@ file:
         where_clause:
           keyword: where
           expression:
-            column_reference:
+          - column_reference:
               naked_identifier: employee_id
-            comparison_operator:
+          - comparison_operator:
               raw_comparison_operator: '='
-            substitution_variable:
-              ampersand: '&'
-              numeric_literal: '3'
+          - column_reference:
+              substitution_variable:
+                raw: '&3'
   - statement_terminator: ;
   - statement:
       select_statement:
@@ -259,12 +257,11 @@ file:
         where_clause:
           keyword: where
           expression:
-            column_reference:
+          - column_reference:
               naked_identifier: employee_id
-            comparison_operator:
+          - comparison_operator:
               raw_comparison_operator: '='
-            substitution_variable:
-            - ampersand: '&'
-            - ampersand: '&'
-            - numeric_literal: '1'
+          - column_reference:
+              substitution_variable:
+                raw: '&&1'
   - statement_terminator: ;

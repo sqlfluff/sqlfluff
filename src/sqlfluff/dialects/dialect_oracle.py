@@ -147,6 +147,17 @@ oracle_dialect.insert_lexer_matchers(
 )
 
 oracle_dialect.insert_lexer_matchers(
+    [
+        # Positional SQL*Plus substitution variables (&1, &&1) are lexed as a
+        # single token so that a trailing "." terminator (e.g. `&&1.`) is left
+        # as a separate segment rather than being absorbed into a numeric
+        # literal (`1.`), which would lose the substitution-variable boundary.
+        RegexLexer("substitution_variable", r"&&?\d+", CodeSegment),
+    ],
+    before="ampersand",
+)
+
+oracle_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
         StringLexer("right_arrow", "=>", CodeSegment),
@@ -2042,14 +2053,17 @@ class SubstitutionVariableSegment(BaseSegment):
 
     type = "substitution_variable"
 
-    match_grammar = Sequence(
-        Ref("AmpersandSegment"),
-        Ref("AmpersandSegment", optional=True),
-        OneOf(
+    match_grammar = OneOf(
+        # Positional (&1, &&1): lexed as a single token so the trailing "."
+        # terminator is not swallowed into a numeric literal.
+        TypedParser("substitution_variable", CodeSegment),
+        # Named (&var, &&var).
+        Sequence(
+            Ref("AmpersandSegment"),
+            Ref("AmpersandSegment", optional=True),
             Ref("SingleIdentifierGrammar"),
-            Ref("NumericLiteralSegment"),
+            allow_gaps=False,
         ),
-        allow_gaps=False,
     )
 
 
