@@ -2009,6 +2009,24 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
     )
 
 
+class TruncateDatabaseStatementSegment(BaseSegment):
+    """A `TRUNCATE DATABASE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/sql-reference/statements/truncate
+    """
+
+    type = "truncate_database"
+
+    match_grammar: Matchable = Sequence(
+        "TRUNCATE",
+        "DATABASE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+    )
+
+
 class DropTableStatementSegment(ansi.DropTableStatementSegment):
     """A `DROP TABLE` statement.
 
@@ -2862,6 +2880,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SystemStatementSegment"),
             Ref("RenameStatementSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("TruncateDatabaseStatementSegment"),
         ]
     )
 
