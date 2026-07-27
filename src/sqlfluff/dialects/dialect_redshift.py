@@ -2994,6 +2994,43 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
     )
 
 
+class MergeMatchSegment(ansi.MergeMatchSegment):
+    """Redshift's `MERGE` match grammar.
+
+    Redshift is copied from the postgres dialect, which supports the
+    PostgreSQL 17 ``WHEN NOT MATCHED BY SOURCE`` / ``BY TARGET`` clauses and
+    ``DO NOTHING`` merge actions. Redshift's documented ``MERGE`` only supports
+    ``WHEN MATCHED`` and ``WHEN NOT MATCHED`` (with ``UPDATE``/``DELETE``/
+    ``INSERT``) and ``REMOVE DUPLICATES``, so reset the match grammar and its
+    clauses to the ANSI definitions to avoid inheriting those postgres-specific
+    additions.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+    """
+
+    match_grammar = ansi.MergeMatchSegment.match_grammar.copy()
+
+
+class MergeMatchedClauseSegment(ansi.MergeMatchedClauseSegment):
+    """Redshift's ``WHEN MATCHED`` clause.
+
+    Reset to the ANSI grammar so the postgres dialect's ``DO NOTHING`` action is
+    not inherited.
+    """
+
+    match_grammar = ansi.MergeMatchedClauseSegment.match_grammar.copy()
+
+
+class MergeNotMatchedClauseSegment(ansi.MergeNotMatchedClauseSegment):
+    """Redshift's ``WHEN NOT MATCHED`` clause.
+
+    Reset to the ANSI grammar so the postgres dialect's optional ``BY TARGET``
+    qualifier and ``DO NOTHING`` action are not inherited.
+    """
+
+    match_grammar = ansi.MergeNotMatchedClauseSegment.match_grammar.copy()
+
+
 class SetOperatorSegment(ansi.SetOperatorSegment):
     """A set operator such as Union, Minus, Except or Intersect.
 
