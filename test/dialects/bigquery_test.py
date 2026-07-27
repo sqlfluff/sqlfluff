@@ -159,6 +159,10 @@ def test_cast_as_float_fails():
     [
         "SELECT x.y.*.z FROM t",
         "SELECT results[0].*.z FROM t",
+        # The wildcard is equally terminal when the chain hangs off a function.
+        "SELECT testFunction(a).b.*.z FROM t",
+        "SELECT testFunction(a).*.z FROM t",
+        "SELECT testFunction(a)[0].b.*.z FROM t",
     ],
 )
 def test_semi_structured_wildcard_is_terminal(sql):

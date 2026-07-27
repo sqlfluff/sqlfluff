@@ -1314,13 +1314,12 @@ class FunctionSegment(ansi.FunctionSegment):
                 # Functions returning STRUCTs in BigQuery can have the fields
                 # elements referenced (e.g. ".a"), including wildcards (e.g. ".*")
                 # or multiple nested fields (e.g. ".a.b", or ".a.b.c")
-                OneOf(
-                    # Try the wildcard form first so that a chain ending in `.*`
-                    # (e.g. `.b.*`) stays a single accessor segment.
-                    Ref("SemiStructuredWildcardAccessorSegment"),
-                    Ref("SemiStructuredAccessorSegment"),
-                    optional=True,
-                ),
+                # Note the wildcard form is deliberately *not* matched here. It is
+                # left to `AccessorGrammar`, which is applied after the function and
+                # is the single place that enforces the wildcard being terminal.
+                # Matching it here would let the outer grammar chain a further
+                # accessor after the star (e.g. `f(a).b.*.z`).
+                Ref("SemiStructuredAccessorSegment", optional=True),
                 Ref("PostFunctionGrammar", optional=True),
             ),
         ),
