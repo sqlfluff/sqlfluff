@@ -275,6 +275,16 @@ class Rule_ST02(BaseRule):
                 ):
                     return None
 
+                # Quoted identifiers can be case-sensitive, so raw_upper is
+                # not sufficient to prove that the condition and result refer
+                # to the same column.
+                if any(
+                    child.is_type("quoted_identifier")
+                    for segment in condition_operand_segments
+                    for child in segment.recursive_crawl_all()
+                ):
+                    return None
+
                 condition_operand_raw_upper = "".join(
                     segment.raw_upper for segment in condition_operand_segments
                 )
