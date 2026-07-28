@@ -131,7 +131,7 @@ FROM (
 
 SELECT name
 FROM system.columns
-WHERE database LIKE 'sY%' ESCAPE '|';
+WHERE database ILIKE 'sY%' ESCAPE '|';
 
 
 -- NOT ILIKE ESCAPE
