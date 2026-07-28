@@ -154,6 +154,31 @@ class Rule_ST02(BaseRule):
         ]
         return fixes
 
+    @staticmethod
+    def _segment_identity(segment: BaseSegment) -> tuple[object, ...]:
+        """Build a dialect-aware identity while preserving segment boundaries."""
+        if segment.segments:
+            return (
+                segment.get_type(),
+                tuple(
+                    Rule_ST02._segment_identity(child)
+                    for child in segment.segments
+                    if not child.is_whitespace and not child.is_meta
+                ),
+            )
+        return segment.get_type(), segment.raw_normalized()
+
+    @staticmethod
+    def _expression_identity(
+        expression: BaseSegment,
+    ) -> tuple[tuple[object, ...], ...]:
+        """Build identity for an expression's non-whitespace top-level segments."""
+        return tuple(
+            Rule_ST02._segment_identity(segment)
+            for segment in expression.segments
+            if not segment.is_whitespace and not segment.is_meta
+        )
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary CASE statement."""
         # Look for CASE expression.
@@ -268,25 +293,19 @@ class Rule_ST02(BaseRule):
 
                 if any(
                     child.is_code
-                    and not child.is_type("array_accessor", "symbol", "literal")
+                    and (
+                        child.is_type("parameter")
+                        or not child.is_type("array_accessor", "symbol", "literal")
+                    )
                     for segment in condition_operand_segments
                     if segment.is_type("array_accessor")
                     for child in segment.recursive_crawl_all()
                 ):
                     return None
 
-                # Quoted identifiers can be case-sensitive, so raw_upper is
-                # not sufficient to prove that the condition and result refer
-                # to the same column.
-                if any(
-                    child.is_type("quoted_identifier")
+                condition_operand_identity = tuple(
+                    self._segment_identity(segment)
                     for segment in condition_operand_segments
-                    for child in segment.recursive_crawl_all()
-                ):
-                    return None
-
-                condition_operand_raw = "".join(
-                    segment.raw for segment in condition_operand_segments
                 )
 
                 if else_clauses:
@@ -295,11 +314,16 @@ class Rule_ST02(BaseRule):
                     # function.
                     if (
                         not is_not_prefix
-                        and condition_operand_raw == else_expression.raw
+                        and condition_operand_identity
+                        == self._expression_identity(else_expression)
                     ):
                         coalesce_arg_1 = else_expression
                         coalesce_arg_2 = then_expression
-                    elif is_not_prefix and condition_operand_raw == then_expression.raw:
+                    elif (
+                        is_not_prefix
+                        and condition_operand_identity
+                        == self._expression_identity(then_expression)
+                    ):
                         coalesce_arg_1 = then_expression
                         coalesce_arg_2 = else_expression
                     else:
@@ -328,7 +352,11 @@ class Rule_ST02(BaseRule):
                         description="Unnecessary CASE statement. "
                         "Use COALESCE function instead.",
                     )
-                elif is_not_prefix and condition_operand_raw == then_expression.raw:
+                elif (
+                    is_not_prefix
+                    and condition_operand_identity
+                    == self._expression_identity(then_expression)
+                ):
                     # Can just specify the column on it's own
                     # rather than using a COALESCE function.
                     # In this case no ELSE statement is equivalent to ELSE NULL.

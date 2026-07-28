@@ -338,6 +338,24 @@ test_fail_multiple_indexed_expression_when_not_null_no_else:
     core:
       dialect: snowflake
 
+test_fail_identical_quoted_indexed_expression_when_not_null_no_else:
+  fail_str: |
+    SELECT CASE WHEN "genres"[0] IS NOT NULL THEN "genres"[0] END
+  fix_str: |
+    SELECT "genres"[0]
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_mixed_case_indexed_expression_when_not_null_no_else:
+  fail_str: |
+    SELECT CASE WHEN genres[0] IS NOT NULL THEN GENRES[0] END
+  fix_str: |
+    SELECT GENRES[0]
+  configs:
+    core:
+      dialect: snowflake
+
 test_pass_indexed_condition_does_not_change_bare_then_expression:
   pass_str: |
     SELECT CASE WHEN genres[0] IS NOT NULL THEN genres END
