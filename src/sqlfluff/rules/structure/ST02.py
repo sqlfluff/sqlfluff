@@ -285,8 +285,8 @@ class Rule_ST02(BaseRule):
                 ):
                     return None
 
-                condition_operand_raw_upper = "".join(
-                    segment.raw_upper for segment in condition_operand_segments
+                condition_operand_raw = "".join(
+                    segment.raw for segment in condition_operand_segments
                 )
 
                 if else_clauses:
@@ -295,14 +295,11 @@ class Rule_ST02(BaseRule):
                     # function.
                     if (
                         not is_not_prefix
-                        and condition_operand_raw_upper == else_expression.raw_upper
+                        and condition_operand_raw == else_expression.raw
                     ):
                         coalesce_arg_1 = else_expression
                         coalesce_arg_2 = then_expression
-                    elif (
-                        is_not_prefix
-                        and condition_operand_raw_upper == then_expression.raw_upper
-                    ):
+                    elif is_not_prefix and condition_operand_raw == then_expression.raw:
                         coalesce_arg_1 = then_expression
                         coalesce_arg_2 = else_expression
                     else:
@@ -331,10 +328,7 @@ class Rule_ST02(BaseRule):
                         description="Unnecessary CASE statement. "
                         "Use COALESCE function instead.",
                     )
-                elif (
-                    is_not_prefix
-                    and condition_operand_raw_upper == then_expression.raw_upper
-                ):
+                elif is_not_prefix and condition_operand_raw == then_expression.raw:
                     # Can just specify the column on it's own
                     # rather than using a COALESCE function.
                     # In this case no ELSE statement is equivalent to ELSE NULL.

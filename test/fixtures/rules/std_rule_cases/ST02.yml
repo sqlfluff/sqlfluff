@@ -400,3 +400,17 @@ test_pass_differently_cased_quoted_indexed_columns:
   configs:
     core:
       dialect: snowflake
+
+test_pass_differently_cased_clickhouse_indexed_columns_with_else_null:
+  pass_str: |
+    SELECT CASE WHEN genres[1] IS NOT NULL THEN GENRES[1] ELSE NULL END
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_differently_cased_clickhouse_indexed_columns_no_else:
+  pass_str: |
+    SELECT CASE WHEN genres[1] IS NOT NULL THEN GENRES[1] END
+  configs:
+    core:
+      dialect: clickhouse
