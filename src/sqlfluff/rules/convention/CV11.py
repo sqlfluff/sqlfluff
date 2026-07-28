@@ -275,6 +275,14 @@ class Rule_CV11(BaseRule):
         else:  # pragma: no cover
             current_type_casting_style = None
 
+        if current_type_casting_style == "convert" and context.dialect.name in (
+            "mysql",
+            "mariadb",
+            "doris",
+            "starrocks",
+        ):
+            return None
+
         functional_context = FunctionalContext(context)
 
         # If casting style is set to consistent,
