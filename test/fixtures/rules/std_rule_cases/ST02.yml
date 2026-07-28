@@ -333,3 +333,27 @@ test_pass_null_condition_does_not_change_bare_then_expression:
   configs:
     core:
       dialect: snowflake
+
+test_pass_null_condition_does_not_change_indexed_then_expression:
+  pass_str: |
+    SELECT CASE WHEN genres[0] IS NULL THEN genres[0] END
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_composite_condition_does_not_change_indexed_then_expression:
+  pass_str: |
+    SELECT CASE WHEN genres[0] + other IS NOT NULL THEN genres[0] END
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_composite_condition_with_else_null_does_not_change_indexed_then_expression:
+  pass_str: |
+    SELECT CASE
+      WHEN genres[0] + other IS NOT NULL THEN genres[0]
+      ELSE NULL
+    END
+  configs:
+    core:
+      dialect: snowflake
