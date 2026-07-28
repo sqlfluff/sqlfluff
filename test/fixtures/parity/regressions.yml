@@ -112,12 +112,10 @@ parser_created_segments_drop_token_trim_chars:
     RawSegment.from_result_segments never carries trim_chars over.
 partial_match_failure_keeps_children:
   sql: SELECT CASE
-  xfail:
-    python_vs_rust: Rust appends a trailing period to the 'Found <Segment>' unparsable message
-      that Python's equivalent omits; the unparsable segment's children and the rest of the
-      tree are otherwise identical between engines.
-  pins: Found-message trailing-period gap, CASE-grammar variant; see sequence_found_message_no_trailing_period
-    for the STRUCT variant.
+  pins: GREEDY_ONCE_STARTED Sequence failing partway must keep the already-matched children
+    typed (the SELECT keyword), wrapping only the unmatched tail as unparsable - the Rust
+    side used to drop accumulated child_matches/insert_segments in its error MatchResult,
+    crashing rule ST05 (#8116).
 stray_closing_bracket_dialect_bracket_set:
   sql: SELECT 1 -} FROM t
   dialect: snowflake
@@ -141,36 +139,29 @@ int_typed_indentation_config:
 found_token_class_name:
   sql: SELECT ] FROM t
   dialect: flink
-  xfail:
-    python_vs_rust: 'Python''s ''Found <ClassName: ...>'' unparsable message names the found
-      token''s class CodeSegment while Rust names the identical token RawSegment, and Rust''s
-      message additionally has a trailing period Python''s omits.'
-  pins: Found-segment class name mismatch (flink ']'); see raw_block_survives for the templated-context
-    variant.
+  pins: Rust's code-matched tokens carried class_name RawSegment, so the "Found <...>" unparsable
+    message named the found token's class as RawSegment where Python names it CodeSegment
+    (fixed by giving Token::code_token its own CodeSegment class_name instead of reusing
+    raw_token's).
 found_token_repr_quoting:
   sql: SELECT '
-  xfail:
-    python_vs_rust: For an unterminated string literal, Python's unparsable message wraps
-      the Expected/Found text in single quotes and backslash-escapes embedded apostrophes,
-      while Rust always double-quotes the outer message and escapes the embedded quote character
-      differently, so the same content renders with different quoting/escaping between engines.
-  pins: repr() quote-character/escaping choice differs for the unlexable-token found message.
+  pins: Rust rendered a found token's raw with Rust's escape_debug quoting instead of Python's
+    repr() quote-selection rules (prefer single quotes, switch to double quotes only when
+    the content has a single quote and no double quote) - fixed by giving Token's Display
+    its own py_repr helper that follows Python's str repr() rules.
 expected_message_curtailment:
   sql: SELECT AS x
   dialect: databricks
-  xfail:
-    python_vs_rust: When the Expected-grammar description in an unparsable message is long,
-      Rust truncates it mid-word with '...' while Python prints it in full; Rust's message
-      also has a trailing period Python's omits.
-  pins: Long Expected-grammar description gets truncated mid-word in Rust (databricks 'SELECT
-    AS x').
+  pins: Rust rendered grammar reprs in full in "Expected:" unparsable messages, where Python's
+    BaseGrammar.__repr__ curtails each element to 40 characters and the joined list to 100
+    (helpers/string.py curtail_string) - fixed by porting the same two-level truncation into
+    GrammarContext::grammar_repr.
 sequence_found_message_no_trailing_period:
   sql: SELECT STRUCT<a INT64(1)
   dialect: bigquery
-  xfail:
-    python_vs_rust: Rust's Found-WordSegment-STRUCT unparsable message ends with a period
-      that Python's identical message omits; no other part of the tree differs.
-  pins: Canonical case for the Found-message trailing-period gap.
+  pins: Canonical case for the Found-message trailing-period gap (fixed by dropping the
+    trailing period from the Sequence "to start sequence"/"after ..." error-message formats
+    in sequence.rs).
 sqlite_nothing_here_expected_message:
   sql: "WITH cte AS (\n t\n)\nSELECT"
   dialect: sqlite
@@ -244,12 +235,8 @@ raw_block_survives:
   context:
     col: a
     table: t
-  xfail:
-    python_vs_rust: Inside a jinja raw block that survives templating unexpanded, Python's
-      unparsable message names the found '{' token RawSegment and appends a trailing period,
-      while Rust names it CodeSegment without a trailing period.
-  pins: Found-segment class name and trailing period inside a jinja raw block; see found_token_class_name
-    for the non-templated variant (reversed class-name direction).
+  pins: Found-segment class name inside a jinja raw block that survives templating unexpanded
+    (fixed by the same Token::code_token CodeSegment fix as found_token_class_name).
 postgres_eszett_function_name:
   sql: SELECT straße(1)
   dialect: postgres

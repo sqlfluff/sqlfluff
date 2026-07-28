@@ -60,7 +60,11 @@ impl Token {
     }
 
     pub fn raw_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        let suffix = format!("'{}'", raw.escape_debug().to_string().trim_matches('"'));
+        // Render the stringify suffix with the shared python_repr helper (the
+        // same one the token Display uses), rather than a second ad-hoc
+        // escape_debug quoting that diverges from Python's repr for embedded
+        // quotes, control chars and non-space whitespace.
+        let suffix = crate::token::python_repr(&raw);
 
         let mut token = Token::base_token(raw, pos_marker, config, vec![]);
         token.class_name = Cow::Borrowed("RawSegment");
@@ -71,7 +75,13 @@ impl Token {
     }
 
     pub fn code_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
-        Self::raw_token(raw, pos_marker, config)
+        let mut token = Self::raw_token(raw, pos_marker, config);
+        // PYTHON PARITY: code-matched tokens are CodeSegment on the Python
+        // side; class_name feeds the Display used in user-visible "Found
+        // <...>" parse-error messages (token_type still drives class
+        // selection elsewhere).
+        token.class_name = Cow::Borrowed("CodeSegment");
+        token
     }
 
     pub fn symbol_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {

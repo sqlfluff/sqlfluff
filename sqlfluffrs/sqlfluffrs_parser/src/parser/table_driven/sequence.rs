@@ -464,7 +464,7 @@ impl Parser<'_> {
                 .map(|t| format!("{}", t))
                 .unwrap_or_else(|| "start of input".to_string());
             let error_message =
-                format!("{} to start sequence. Found {}.", element_desc, error_token);
+                format!("{} to start sequence. Found {}", element_desc, error_token);
 
             let unparsable_match = MatchResult {
                 matched_slice: start_idx..max_idx,
@@ -489,7 +489,7 @@ impl Parser<'_> {
             .map(|t| format!("{}", t))
             .expect("There should be at least one matched token here.");
         let error_message = format!(
-            "{} after {}. Found {}.",
+            "{} after {}. Found {}",
             element_desc, last_matched_token, error_token
         );
 
