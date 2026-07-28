@@ -222,6 +222,8 @@ impl SQLLexError {
 /// PYTHON PARITY: matches `Dialect`'s base `bracket_pairs` set
 /// (dialect_ansi.py) before any dialect-specific additions (e.g. snowflake's
 /// MATCH_RECOGNIZE exclude bracket `{-`/`-}`, added to that same set).
+/// The last `bool` in each tuple is `persists`: `true` wraps the matched
+/// span in a `BracketedSegment` node, `false` leaves the children inline.
 const DEFAULT_BRACKET_PAIRS: &[(&str, &str, &str, &str, bool)] = &[
     ("(", ")", "start_bracket", "end_bracket", true),
     (
