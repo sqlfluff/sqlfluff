@@ -353,6 +353,7 @@ clickhouse_dialect.replace(
                     optional=True,
                 ),
             ),
+            # REGEXP does not support the ESCAPE keyword
             Sequence(
                 "REGEXP",
                 Ref("Tail_Recurse_Expression_A_Grammar"),
