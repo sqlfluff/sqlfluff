@@ -46,3 +46,18 @@ SELECT * FROM addresses TABLESAMPLE bernoulli(10%);
 SELECT *
 FROM tbl TABLESAMPLE reservoir(20%), tbl2
 WHERE tbl.i = tbl2.i;
+
+-- `USING SAMPLE` also trails a `SELECT` that is a branch of a set expression,
+-- so it can sample either (or both) sides of a `UNION`.
+SELECT * FROM tbl USING SAMPLE 10%
+UNION ALL
+SELECT * FROM other;
+
+SELECT * FROM tbl
+UNION ALL
+SELECT * FROM other USING SAMPLE 10%;
+
+SELECT * FROM a USING SAMPLE 5 ROWS
+UNION
+SELECT * FROM b USING SAMPLE 10%
+ORDER BY 1;

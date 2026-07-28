@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f335e72bbe584654b2cfc28681e64d20ed7f44fe6508ece50bee56082d17bc63
+_hash: a036d8a9066af01b34bb9a7b82efa88c90f0369ac84d53be6857737cac3e6872
 file:
 - statement:
     select_statement:
@@ -467,4 +467,129 @@ file:
           - naked_identifier: tbl2
           - dot: .
           - naked_identifier: i
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+        sample_expression:
+        - keyword: USING
+        - keyword: SAMPLE
+        - numeric_literal: '10'
+        - binary_operator: '%'
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: other
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: other
+        sample_expression:
+        - keyword: USING
+        - keyword: SAMPLE
+        - numeric_literal: '10'
+        - binary_operator: '%'
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: a
+        sample_expression:
+        - keyword: USING
+        - keyword: SAMPLE
+        - numeric_literal: '5'
+        - keyword: ROWS
+    - set_operator:
+        keyword: UNION
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: b
+        sample_expression:
+        - keyword: USING
+        - keyword: SAMPLE
+        - numeric_literal: '10'
+        - binary_operator: '%'
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - numeric_literal: '1'
 - statement_terminator: ;

@@ -919,6 +919,9 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         Ref("HavingClauseSegment", optional=True),
         Ref("NamedWindowSegment", optional=True),
         Ref("QualifyClauseSegment", optional=True),
+        # `USING SAMPLE` is query-level, so it also trails a `SELECT` that is a
+        # branch of a set expression (e.g. one side of a `UNION`).
+        Ref("UsingSampleClauseSegment", optional=True),
         terminators=[
             Ref("SetOperatorSegment"),
             Ref("OrderByClauseSegment"),
