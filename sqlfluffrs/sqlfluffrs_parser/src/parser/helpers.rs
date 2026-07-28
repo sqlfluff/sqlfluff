@@ -573,29 +573,16 @@ impl<'a> Parser<'a> {
                 continue;
             }
 
-            // Cache miss - do full parse
-            let check_pos = self.pos;
-            self.pos = saved_pos;
-
-            if let Ok(mr) = self.parse_table_iterative_match_result(*term_id, &[]) {
-                let is_empty = mr.is_empty();
-                self.pos = check_pos;
-
-                // Cache the result
-                self.terminator_match_cache.insert(cache_key, !is_empty);
-
-                if !is_empty {
-                    vdebug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
-                    self.pos = init_pos;
-                    self.metrics
-                        .terminator_hits
-                        .set(self.metrics.terminator_hits.get() + 1);
-                    return true;
-                }
-            } else {
-                self.pos = check_pos;
-                // Cache the failure
-                self.terminator_match_cache.insert(cache_key, false);
+            // Cache miss - probe the terminator (frame-free for terminals).
+            let matched = self.terminator_matches_at(*term_id, saved_pos, &[]);
+            self.terminator_match_cache.insert(cache_key, matched);
+            if matched {
+                vdebug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
+                self.pos = init_pos;
+                self.metrics
+                    .terminator_hits
+                    .set(self.metrics.terminator_hits.get() + 1);
+                return true;
             }
             vdebug!("  Terminator did not match (table-driven): {:?}", term_id);
         }
@@ -603,6 +590,35 @@ impl<'a> Parser<'a> {
         vdebug!("  NOTERM No terminators matched");
         self.pos = init_pos;
         false
+    }
+
+    /// Check whether a single terminator grammar matches at `pos`.
+    ///
+    /// Terminal terminators (keywords, symbols, typed/token matchers - the
+    /// overwhelming majority) are evaluated frame-free via
+    /// `try_terminal_inline`; compound terminators fall back to a full
+    /// sub-parse through `try_match_grammar`. The parser position is
+    /// restored afterwards. A probe that errors counts as "no match",
+    /// matching the previous call sites' behaviour.
+    #[inline]
+    pub(crate) fn terminator_matches_at(
+        &mut self,
+        term_id: GrammarId,
+        pos: usize,
+        sub_terminators: &[GrammarId],
+    ) -> bool {
+        let saved = self.pos;
+        self.pos = pos;
+        let matched = match self.try_terminal_inline(term_id, None) {
+            Ok(Some(mr)) => !mr.is_empty(),
+            Ok(None) => self
+                .try_match_grammar(term_id, pos, sub_terminators)
+                .map(|end_pos| end_pos > pos)
+                .unwrap_or(false),
+            Err(_) => false,
+        };
+        self.pos = saved;
+        matched
     }
 
     /// Prune terminators for table-driven parsing based on simple matchers.
@@ -645,7 +661,7 @@ impl<'a> Parser<'a> {
                 grammar_name,
                 start_idx
             );
-            if let Ok(_m) = self.try_match_grammar(*term, start_idx, &[]) {
+            if self.terminator_matches_at(*term, start_idx, &[]) {
                 vdebug!(
                     "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) matched immediately at idx={}, returning start_idx={}",
                     term,
