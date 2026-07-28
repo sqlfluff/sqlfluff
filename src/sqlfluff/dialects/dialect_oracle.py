@@ -147,6 +147,17 @@ oracle_dialect.insert_lexer_matchers(
 )
 
 oracle_dialect.insert_lexer_matchers(
+    [
+        # Positional SQL*Plus substitution variables (&1, &&1) are lexed as a
+        # single token so that a trailing "." terminator (e.g. `&&1.`) is left
+        # as a separate segment rather than being absorbed into a numeric
+        # literal (`1.`), which would lose the substitution-variable boundary.
+        RegexLexer("substitution_variable", r"&&?\d+", CodeSegment),
+    ],
+    before="ampersand",
+)
+
+oracle_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
         StringLexer("right_arrow", "=>", CodeSegment),
@@ -2031,17 +2042,28 @@ class FunctionNameSegment(BaseSegment):
 
 
 class SubstitutionVariableSegment(BaseSegment):
-    """SQL*Plus substitution variable (&var, &&var).
+    """SQL*Plus substitution variable (&var, &&var, &1, &&1).
+
+    Substitution variables are referenced either by name (``&var``, ``&&var``)
+    or by position (``&1``, ``&&1``), the latter being substituted from the
+    arguments passed to the calling script.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/using-substitution-variables-sqlplus.html
     """
 
     type = "substitution_variable"
 
-    match_grammar = Sequence(
-        Ref("AmpersandSegment"),
-        Ref("AmpersandSegment", optional=True),
-        Ref("SingleIdentifierGrammar"),
+    match_grammar = OneOf(
+        # Positional (&1, &&1): lexed as a single token so the trailing "."
+        # terminator is not swallowed into a numeric literal.
+        TypedParser("substitution_variable", CodeSegment),
+        # Named (&var, &&var).
+        Sequence(
+            Ref("AmpersandSegment"),
+            Ref("AmpersandSegment", optional=True),
+            Ref("SingleIdentifierGrammar"),
+            allow_gaps=False,
+        ),
     )
 
 
