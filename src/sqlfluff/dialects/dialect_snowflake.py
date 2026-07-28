@@ -225,7 +225,7 @@ snowflake_dialect.sets("warehouse_scaling_policies").update(
 
 snowflake_dialect.sets("refreshmode_types").clear()
 snowflake_dialect.sets("refreshmode_types").update(
-    ["AUTO", "FULL", "INCREMENTAL"],
+    ["ADAPTIVE", "AUTO", "FULL", "INCREMENTAL"],
 )
 
 snowflake_dialect.sets("initialize_types").clear()
@@ -5123,6 +5123,15 @@ class DynamicTableOptionsSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
+                "INITIALIZATION_WAREHOUSE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
                 "WAREHOUSE",
                 Ref("EqualsSegment"),
                 OneOf(
@@ -7954,7 +7963,7 @@ class CreateStreamStatementSegment(BaseSegment):
         "ON",
         OneOf(
             Sequence(
-                OneOf("TABLE", "VIEW"),
+                OneOf("TABLE", "VIEW", Sequence("DYNAMIC", "TABLE")),
                 Ref("ObjectReferenceSegment"),
                 OneOf(
                     Ref("FromAtExpressionSegment"),

@@ -79,3 +79,17 @@ CREATE DYNAMIC TABLE tagged_product (
   WAREHOUSE = mywh
   AS
     SELECT product_id FROM staging_table;
+
+CREATE DYNAMIC TABLE adaptive_product
+  TARGET_LAG = '20 minutes'
+  WAREHOUSE = mywh
+  REFRESH_MODE = ADAPTIVE
+  AS
+    SELECT product_id FROM staging_table;
+
+CREATE DYNAMIC TABLE initialized_product
+  TARGET_LAG = '20 minutes'
+  WAREHOUSE = mywh
+  INITIALIZATION_WAREHOUSE = init_wh
+  AS
+    SELECT product_id FROM staging_table;
