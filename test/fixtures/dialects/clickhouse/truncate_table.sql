@@ -1,0 +1,63 @@
+TRUNCATE TABLE IF EXISTS default.users;
+
+TRUNCATE TABLE IF EXISTS users;
+
+TRUNCATE TABLE default.users;
+
+TRUNCATE TABLE users;
+
+TRUNCATE TABLE IF EXISTS default.users ON CLUSTER clstr;
+
+TRUNCATE TABLE IF EXISTS users ON CLUSTER clstr;
+
+TRUNCATE TABLE default.users ON CLUSTER clstr;
+
+TRUNCATE TABLE users ON CLUSTER clstr;
+
+TRUNCATE TABLE IF EXISTS default.users SYNC;
+
+TRUNCATE TABLE IF EXISTS users SYNC;
+
+TRUNCATE TABLE default.users SYNC;
+
+TRUNCATE TABLE users SYNC;
+
+TRUNCATE TABLE IF EXISTS default.users ON CLUSTER clstr SYNC;
+
+TRUNCATE TABLE IF EXISTS users ON CLUSTER clstr SYNC;
+
+TRUNCATE TABLE default.users ON CLUSTER clstr SYNC;
+
+TRUNCATE TABLE users ON CLUSTER clstr SYNC;
+
+TRUNCATE IF EXISTS default.users;
+
+TRUNCATE IF EXISTS users;
+
+TRUNCATE default.users;
+
+TRUNCATE users;
+
+TRUNCATE IF EXISTS default.users ON CLUSTER clstr;
+
+TRUNCATE IF EXISTS users ON CLUSTER clstr;
+
+TRUNCATE default.users ON CLUSTER clstr;
+
+TRUNCATE users ON CLUSTER clstr;
+
+TRUNCATE IF EXISTS default.users SYNC;
+
+TRUNCATE IF EXISTS users SYNC;
+
+TRUNCATE default.users SYNC;
+
+TRUNCATE users SYNC;
+
+TRUNCATE IF EXISTS default.users ON CLUSTER clstr SYNC;
+
+TRUNCATE IF EXISTS users ON CLUSTER clstr SYNC;
+
+TRUNCATE default.users ON CLUSTER clstr SYNC;
+
+TRUNCATE users ON CLUSTER clstr SYNC;

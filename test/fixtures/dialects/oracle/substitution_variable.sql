@@ -17,3 +17,7 @@ GROUP BY &GROUP_COL;
 select * from employees where employee_id = &&myv;
 
 insert into mytable values (&myv);
+
+select &1, &2 from employees where employee_id = &3;
+
+select * from employees where employee_id = &&1;

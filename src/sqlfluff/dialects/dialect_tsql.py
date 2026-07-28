@@ -263,8 +263,10 @@ tsql_dialect.insert_lexer_matchers(
             (
                 r"([xX]'([\da-fA-F][\da-fA-F])+'"
                 r"|0[xX][\da-fA-F]*"
-                r"|[+-]*[" + "".join(tsql_dialect.sets("currency_symbols")) + r"]"
-                r"[" + "".join(tsql_dialect.sets("currency_symbols")) + r"+-]*"
+                r"|[+-]*["
+                + "".join(sorted(tsql_dialect.sets("currency_symbols")))
+                + r"]"
+                r"[" + "".join(sorted(tsql_dialect.sets("currency_symbols"))) + r"+-]*"
                 r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+))"
             ),
             LiteralSegment,

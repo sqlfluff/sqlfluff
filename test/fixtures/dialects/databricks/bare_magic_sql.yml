@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc397b5063e3c575d8c81efc0a7edcb6e365cb1edca7257075885f7d86583178
+_hash: 2102de1d06dcea3276ceeb13c56b61f32bb97766f14edf9d5956caee04880feb
 file:
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
     select_statement:
       select_clause:
@@ -28,12 +28,12 @@ file:
               table_reference:
                 naked_identifier: t
 - statement_terminator: ;
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
     magic_cell_segment:
     - bare_magic_cell: '%python'
     - bare_magic_cell: print("opaque, not parsed as sql")
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
     select_statement:
       select_clause:

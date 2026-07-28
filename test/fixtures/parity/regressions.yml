@@ -1,0 +1,264 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+
+anything_dialect_exclude_bracket:
+  sql: CREATE TABLE t (c VARCHAR({- 1 -}) AS y)
+  dialect: snowflake
+  expect: tree
+  xfail:
+    python_vs_rust: "The Anything-grammar bracket path (core.rs
+      match_bracket_recursively, reached here via snowflake's
+      Bracketed(Anything()) column-datatype params) recognises the dialect's
+      exclude bracket '{-'/'-}' as a bracket pair, but two things differ from
+      Python's resolve_bracket: the leaf segments are typed
+      exclude_bracket_open/exclude_bracket_close where Python types them
+      start_exclude_bracket/end_exclude_bracket, and Rust does not wrap the
+      pair in its own nested `bracketed` node with indent/dedent metas - it
+      emits the two bracket tokens and their content as flat siblings of the
+      outer bracket instead."
+  pins: Dialect-specific bracket (snowflake's exclude bracket '{-'/'-}')
+    reached via the Anything-grammar bracket path (core.rs
+    match_bracket_recursively) - leaf typing and nested-node wrapping gap;
+    see anything_dialect_exclude_bracket_unclosed and
+    anything_crossed_ascii_bracket_raises for the crossed/unclosed variants of
+    the same path.
+anything_dialect_exclude_bracket_unclosed:
+  sql: CREATE TABLE t (c NUMBER({- x) AS y)
+  dialect: snowflake
+  xfail:
+    python_vs_rust: "For this crossed/unclosed dialect exclude bracket, Python's
+      resolve_bracket raises SQLParseError (\"Found unexpected end bracket!,
+      was expecting <StringParser: '-}'>, but got <StringParser: ')'>\"), but
+      core.rs's match_bracket_recursively does not detect the crossed
+      bracket and returns a fabricated tree instead."
+  pins: Crossed/unclosed variant of anything_dialect_exclude_bracket - Rust
+    does not raise where Python does.
+anything_crossed_ascii_bracket_raises:
+  sql: CREATE TABLE t (col VARCHAR(x ( y ] z )))
+  expect: error
+  xfail:
+    python_vs_rust: "Python's resolve_bracket raises SQLParseError (\"Found
+      unexpected end bracket!, was expecting <StringParser: ')'>, but got
+      <StringParser: ']'>\") for a wrong-type ASCII closing bracket crossed
+      inside an Anything() region, but core.rs's match_bracket_recursively
+      does not raise on the crossed bracket and returns a tree instead."
+  pins: ASCII-bracket variant of the same crossed-bracket detection gap as
+    anything_dialect_exclude_bracket_unclosed.
+bracketed_required_content_fails_at_close_bracket:
+  sql: select CAST(5);
+  dialect: tsql
+  expect: tree
+  xfail:
+    python_vs_rust: "A STRICT Bracketed whose required content element fails
+      exactly at the closing bracket (no trailing gap) still succeeds on the
+      Rust side with partial content. CastFunctionContents is
+      Bracketed(Expression, \"AS\", Datatype): on CAST(5) Expression matches
+      '5', the required \"AS\" fails at ')', and bracketed.rs - because check_pos
+      equals the closing-bracket position - skips the content-failure handling
+      and matches the close bracket anyway, fabricating a function node with
+      just the expression. Python's STRICT Sequence rejects the CAST and falls
+      back to a column_reference with the rest unparsable."
+  pins: tsql CAST(5)-without-AS partial-match-at-close-bracket gap in
+    bracketed.rs's STRICT required-content handling.
+bracketed_optional_content_failure_nothing_here:
+  sql: SELECT SUM(a) OVER (1 2 3) FROM t
+  expect: tree
+  pins: Bracketed content-failure message for a failed *optional* content
+    element (window function's WindowSpecificationSegment, optional=True,
+    parse_mode=GREEDY, failing on '1 2 3') - both engines fall back to the
+    generic "Nothing here." GREEDY-leftover message rather than the
+    required-element-specific "<elem> to start sequence/after X" wording.
+ansi_grant_all_masking_policies:
+  sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
+  expect: error
+  xfail:
+    python_vs_rust: "Ansi grammar references the POLICIES keyword without registering it - Python's Ref raises RuntimeError the moment the branch is attempted, while Rust resolves the missing name to Empty and silently fails the branch."
+  pins: ansi grammar references the POLICIES keyword without registering it.
+ansi_grant_future_masking_policies:
+  sql: GRANT SELECT ON FUTURE MASKING POLICIES IN SCHEMA s TO r
+  expect: error
+  xfail:
+    python_vs_rust: 'FUTURE variant of the same POLICIES keyword gap.'
+  pins: FUTURE variant of the POLICIES keyword gap.
+ansi_grant_all_file_formats:
+  sql: GRANT SELECT ON ALL FILE FORMATS IN SCHEMA s TO r
+  expect: error
+  xfail:
+    python_vs_rust: 'Ansi grammar references the FORMATS keyword without registering it, the same dangling-ref class as the POLICIES gap.'
+  pins: ansi grammar references the FORMATS keyword without registering it.
+mysql_exchange_partition_table_reference:
+  sql: ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2 WITH VALIDATION
+  dialect: mysql
+  expect: error
+  xfail:
+    python_vs_rust: "Mysql EXCHANGE PARTITION grammar has Ref('TableReference') - a typo for TableReferenceSegment."
+  pins: mysql EXCHANGE PARTITION dangling-ref typo (TableReference vs TableReferenceSegment).
+postgres_alter_foreign_table_column_keyword:
+  sql: ALTER FOREIGN TABLE ft ALTER COLUMN c OPTIONS (ADD opt 'v')
+  dialect: postgres
+  expect: error
+  xfail:
+    python_vs_rust: 'Postgres ALTER FOREIGN TABLE ... ALTER COLUMN grammar has a dangling keyword reference.'
+  pins: "postgres ALTER FOREIGN TABLE has Ref('COLUMN') - a segment ref where the
+    COLUMN keyword was intended."
+parser_created_segments_drop_token_trim_chars:
+  sql: SET @errmsg = 'x';
+  dialect: mysql
+  expect: quoted_kwargs
+  xfail:
+    python_vs_rust: "Parser-created segments must inherit only quoted_value/escape_replacements/casefold from the lexed token, not trim_chars, matching RawSegment.from_result_segments - Rust forwards the token's trim_chars ('@',) instead."
+  pins: Rust forwards a re-wrapped token's lexer-level trim_chars (e.g. the '@'
+    sigil) into the new segment's kwargs, where Python's
+    RawSegment.from_result_segments never carries trim_chars over.
+partial_match_failure_keeps_children:
+  sql: SELECT CASE
+  xfail:
+    python_vs_rust: Rust appends a trailing period to the 'Found <Segment>' unparsable message
+      that Python's equivalent omits; the unparsable segment's children and the rest of the
+      tree are otherwise identical between engines.
+  pins: Found-message trailing-period gap, CASE-grammar variant; see sequence_found_message_no_trailing_period
+    for the STRUCT variant.
+stray_closing_bracket_dialect_bracket_set:
+  sql: SELECT 1 -} FROM t
+  dialect: snowflake
+  xfail:
+    python_vs_rust: 'Rust''s unparsable-recovery region for the unmatched dialect-specific
+      closing bracket (snowflake''s exclude-bracket ''-}'') does not stop at the bracket:
+      it keeps consuming subsequent tokens (FROM, the table reference) as raw words inside
+      the same unparsable segment, where Python recovers immediately after the stray bracket
+      and parses the FROM clause normally.'
+  pins: Dialect-specific stray closing bracket (snowflake '-}') recovery never closes.
+int_typed_indentation_config:
+  sql: SELECT a FROM t JOIN u USING (a)
+  configs:
+    indentation.indented_joins: 1
+  expect: tree
+  xfail:
+    python_vs_rust: With indentation.indented_joins set to the int 1 rather than the bool
+      True, Rust adds an extra indent/dedent pair around join_clause that Python's tree does
+      not produce.
+  pins: Int-typed vs bool indentation.indented_joins config value diverges.
+found_token_class_name:
+  sql: SELECT ] FROM t
+  dialect: flink
+  xfail:
+    python_vs_rust: 'Python''s ''Found <ClassName: ...>'' unparsable message names the found
+      token''s class CodeSegment while Rust names the identical token RawSegment, and Rust''s
+      message additionally has a trailing period Python''s omits.'
+  pins: Found-segment class name mismatch (flink ']'); see raw_block_survives for the templated-context
+    variant.
+found_token_repr_quoting:
+  sql: SELECT '
+  xfail:
+    python_vs_rust: For an unterminated string literal, Python's unparsable message wraps
+      the Expected/Found text in single quotes and backslash-escapes embedded apostrophes,
+      while Rust always double-quotes the outer message and escapes the embedded quote character
+      differently, so the same content renders with different quoting/escaping between engines.
+  pins: repr() quote-character/escaping choice differs for the unlexable-token found message.
+expected_message_curtailment:
+  sql: SELECT AS x
+  dialect: databricks
+  xfail:
+    python_vs_rust: When the Expected-grammar description in an unparsable message is long,
+      Rust truncates it mid-word with '...' while Python prints it in full; Rust's message
+      also has a trailing period Python's omits.
+  pins: Long Expected-grammar description gets truncated mid-word in Rust (databricks 'SELECT
+    AS x').
+sequence_found_message_no_trailing_period:
+  sql: SELECT STRUCT<a INT64(1)
+  dialect: bigquery
+  xfail:
+    python_vs_rust: Rust's Found-WordSegment-STRUCT unparsable message ends with a period
+      that Python's identical message omits; no other part of the tree differs.
+  pins: Canonical case for the Found-message trailing-period gap.
+sqlite_nothing_here_expected_message:
+  sql: "WITH cte AS (\n t\n)\nSELECT"
+  dialect: sqlite
+  xfail:
+    python_vs_rust: Where a CTE definition's body fails to start a SelectableGrammar, Python's
+      unparsable message names the specific expected grammar and found token, while Rust falls
+      back to the generic placeholder message 'Nothing here.'
+  pins: Generic vs specific fallback message for an empty CTE body (sqlite).
+materialize_curly_cross_silent_recovery:
+  sql: COPY t FROM STDIN (FORMAT {-
+  dialect: materialize
+  xfail:
+    python_vs_rust: For an unclosed regular bracket followed by an unclosed curly bracket
+      (materialize's COPY ... (FORMAT {- ), Python raises SQLParseError (couldn't find closing
+      bracket for opening bracket), while Rust silently recovers, producing a full tree with
+      the stray '(' and '{' folded into a trailing unparsable segment instead of raising.
+  pins: Crossed bracket-type recovery for materialize COPY ... FORMAT { syntax.
+tsql_cast_structure:
+  sql: select CAST(0X0 uniqueidentifier);
+  dialect: tsql
+  xfail:
+    python_vs_rust: 'Rust does not recognise tsql''s AS-less CAST(literal type) shorthand
+      cast syntax: Python parses it as a function call with a binary_literal argument and
+      a data_type, while Rust parses only CAST as a bare column reference and folds the remainder
+      of the statement into an unparsable segment.'
+  pins: tsql CAST(literal type) shorthand (no AS) grammar gap.
+materialize_webhook_overlapping_matches:
+  sql: "(\n ) ( );\nCREATE SOURCE my_webhook_source IN CLUSTER my_cluster FROM WEBHOOK\n BODY\
+    \ FORMAT JSON\n (\n (\n my_webhook_share"
+  dialect: materialize
+  xfail:
+    python_vs_rust: 'On this heavily cross-bracketed materialize webhook fragment, Python
+      raises a clean SQLParseError (couldn''t find closing bracket for opening bracket, at
+      line 6, position 2), while Rust raises an internal ValueError (segment skip ahead error:
+      an outer match contains overlapping child matches, this MatchResult was wrongly constructed),
+      indicating a genuine invariant violation in the Rust matcher rather than a parse error.'
+  pins: Rust match-invariant crash on deeply crossed/nested unmatched brackets (materialize
+    webhook fixture).
+depth_guard_error_position:
+  sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1
+    THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE
+    WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1
+    THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN 0 END END END END
+    END END END END END END END END END END END END END END END END END END END END END END
+    END END END END END END END END END END END END END END
+  xfail:
+    python_vs_rust: Both engines raise SQLParseError 'Maximum parse depth exceeded (limit
+      600)...' for this deeply nested CASE expression, but Python attaches the real source
+      position (line 1, position 630) while Rust's exception defaults to (0, 0).
+  pins: Missing position marker on Rust's max-parse-depth exception.
+nested_case_unclosed:
+  sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1
+    THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE
+    WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN 0
+  xfail:
+    python_vs_rust: For this deeply nested, unclosed CASE expression, Python parses through
+      to a complete tree, while Rust raises a PanicException (parser exceeded maximum iteration
+      limit of 3000000), hitting a different guard than the max-parse-depth guard and producing
+      an exception where Python produces none.
+  pins: Rust iteration-limit panic vs Python full parse on unclosed deep CASE nesting.
+raw_block_survives:
+  sql: '{% raw %}SELECT {{ not_a_var }}{% endraw %} FROM t'
+  templater: jinja
+  context:
+    col: a
+    table: t
+  xfail:
+    python_vs_rust: Inside a jinja raw block that survives templating unexpanded, Python's
+      unparsable message names the found '{' token RawSegment and appends a trailing period,
+      while Rust names it CodeSegment without a trailing period.
+  pins: Found-segment class name and trailing period inside a jinja raw block; see found_token_class_name
+    for the non-templated variant (reversed class-name direction).
+postgres_eszett_function_name:
+  sql: SELECT straße(1)
+  dialect: postgres
+  expect: clean_tree
+  xfail:
+    python_vs_rust: Python's RegexParser matches case-insensitively against raw.upper()
+      - FULL unicode case mapping (eszett straße -> STRASSE) - while Rust's regex crate
+      only does simple case folding, under which the eszett never matches [A-Z]. The
+      word token 'straße' fails FunctionNameIdentifierSegment's template on the Rust
+      side only, so it parses as a bare column_reference there instead of a function
+      call.
+  pins: Unicode full-vs-simple case folding gap in RegexParser accept decisions.

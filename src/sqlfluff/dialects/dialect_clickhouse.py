@@ -339,6 +339,27 @@ clickhouse_dialect.replace(
             optional=True,
         ),
     ),
+    LikeGrammar=OneOf("LIKE", "ILIKE", "REGEXP"),
+    LikeExpressionGrammar=Sequence(
+        OneOf(
+            Sequence(
+                Ref.keyword("NOT", optional=True),
+                # REGEXP does not support the NOT keyword
+                Ref("LikeGrammar", exclude=Ref.keyword("REGEXP")),
+                Ref("Expression_A_Grammar"),
+                Sequence(
+                    "ESCAPE",
+                    Ref("Tail_Recurse_Expression_A_Grammar"),
+                    optional=True,
+                ),
+            ),
+            # REGEXP does not support the ESCAPE keyword
+            Sequence(
+                "REGEXP",
+                Ref("Tail_Recurse_Expression_A_Grammar"),
+            ),
+        ),
+    ),
 )
 
 # Set the datetime units
@@ -1988,6 +2009,45 @@ class CreateDictionaryStatementSegment(BaseSegment):
     )
 
 
+class TruncateStatementSegment(ansi.TruncateStatementSegment):
+    """A `TRUNCATE TABLE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/sql-reference/statements/truncate
+    """
+
+    type = "truncate_table"
+
+    match_grammar: Matchable = Sequence(
+        "TRUNCATE",
+        # TABLE keyword is optional, even though the documentation
+        # doesn't state it
+        Ref.keyword("TABLE", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        Ref.keyword("SYNC", optional=True),
+    )
+
+
+class TruncateDatabaseStatementSegment(BaseSegment):
+    """A `TRUNCATE DATABASE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/sql-reference/statements/truncate
+    """
+
+    type = "truncate_database"
+
+    match_grammar: Matchable = Sequence(
+        "TRUNCATE",
+        "DATABASE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+    )
+
+
 class DropTableStatementSegment(ansi.DropTableStatementSegment):
     """A `DROP TABLE` statement.
 
@@ -2841,6 +2901,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SystemStatementSegment"),
             Ref("RenameStatementSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("ExchangeTablesStatementSegment"),
+            Ref("ExchangeDictionariesStatementSegment"),
+            Ref("TruncateDatabaseStatementSegment"),
         ]
     )
 
@@ -3067,4 +3130,54 @@ class TupleElementAccessorSegment(BaseSegment):
         Ref("NumericLiteralSegment"),
         min_times=1,
         allow_gaps=False,
+    )
+
+
+class ExchangeTablesStatementSegment(BaseSegment):
+    """An `EXCHANGE TABLES` statement.
+
+    As specified in
+    https://clickhouse.com/docs/sql-reference/statements/exchange
+    """
+
+    type = "exchange_tables_statement"
+
+    match_grammar: Matchable = Sequence(
+        "EXCHANGE",
+        "TABLES",
+        Delimited(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                "AND",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+        Ref("OnClusterClauseSegment", optional=True),
+    )
+
+
+class ExchangeDictionariesStatementSegment(BaseSegment):
+    """An `EXCHANGE DICTIONARIES` statement.
+
+    As specified in
+    https://clickhouse.com/docs/sql-reference/statements/exchange
+    """
+
+    type = "exchange_dictionaries_statement"
+
+    match_grammar: Matchable = Sequence(
+        "EXCHANGE",
+        "DICTIONARIES",
+        # It is possible to exchange multiple dictionary pairs in
+        # a single query, even though the documentation states it only
+        # for tables
+        # https://fiddle.clickhouse.com/739c85b0-2f18-4d14-a396-a41ce568d6d9
+        Delimited(
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                "AND",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )

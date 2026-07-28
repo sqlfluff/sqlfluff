@@ -173,6 +173,24 @@ test_pass_oracle_substitution_variable_as_table:
     core:
       dialect: oracle
 
+test_pass_oracle_substitution_variable_positional:
+  # Positional substitution variables (&1, &&1) are substituted from the
+  # arguments passed to the calling script - see
+  # https://github.com/sqlfluff/sqlfluff/issues/8074
+  pass_str: SELECT &1, &&2 FROM employees WHERE department_id = &3;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_substitution_variable_concatenated:
+  # A substitution variable concatenated to surrounding text (here inside a
+  # script file name run with "@") must not require whitespace around the
+  # ampersand - see https://github.com/sqlfluff/sqlfluff/issues/8074
+  pass_str: "@LOGANALYZER_&&CLIENT_OS..SQL &&1. &&2."
+  configs:
+    core:
+      dialect: oracle
+
 # psql client variable interpolation (:var, :'var', :"var") must not be
 # broken by LT01 - see https://github.com/sqlfluff/sqlfluff/issues/6686
 test_pass_postgres_psql_variable_naked:

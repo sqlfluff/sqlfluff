@@ -182,7 +182,7 @@ databricks_dialect.insert_lexer_matchers(
 
 
 databricks_dialect.add(
-    CommandCellSegment=TypedParser("command", CodeSegment, type="statement_terminator"),
+    CommandCellSegment=TypedParser("command", CodeSegment, type="command_cell"),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
         CodeSegment,
@@ -948,6 +948,28 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
+class MaterializedViewExpectationConstraintSegment(BaseSegment):
+    """A data quality expectation for a materialized view."""
+
+    type = "constraint_statement"
+
+    match_grammar = Sequence(
+        "CONSTRAINT",
+        Ref("ObjectReferenceSegment"),
+        "EXPECT",
+        Bracketed(Ref("ExpressionSegment")),
+        Sequence(
+            "ON",
+            "VIOLATION",
+            OneOf(
+                Sequence("FAIL", "UPDATE"),
+                Sequence("DROP", "ROW"),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class CreateMaterializedViewStatementSegment(BaseSegment):
     """A `CREATE MATERIALIZED VIEW` Statement.
 
@@ -1023,10 +1045,25 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
-            Delimited(
-                OneOf(
-                    Ref("ColumnFieldDefinitionSegment"),
-                    Ref("TableConstraintSegment"),
+            Sequence(
+                Ref("ColumnFieldDefinitionSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("ColumnFieldDefinitionSegment"),
+                    ),
+                ),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("MaterializedViewExpectationConstraintSegment"),
+                    ),
+                ),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("TableConstraintSegment"),
+                    ),
                 ),
             ),
             optional=True,
