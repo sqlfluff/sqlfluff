@@ -236,10 +236,47 @@ class Rule_ST02(BaseRule):
                     for index, segment in enumerate(condition_expression.segments)
                     if segment.raw_upper == "IS"
                 )
-                condition_operand_raw_upper = "".join(
-                    segment.raw_upper
+                condition_operand_segments = tuple(
+                    segment
                     for segment in condition_expression.segments[:is_segment_index]
                     if not segment.is_whitespace and not segment.is_meta
+                )
+                if not condition_operand_segments or any(
+                    not segment.is_type("column_reference", "array_accessor")
+                    for segment in condition_operand_segments
+                ):
+                    return None
+
+                comparison_segments = tuple(
+                    segment
+                    for segment in condition_expression.segments[is_segment_index + 1 :]
+                    if not segment.is_whitespace and not segment.is_meta
+                )
+                if (
+                    len(comparison_segments) == 1
+                    and comparison_segments[0].raw_upper == "NULL"
+                ):
+                    is_not_prefix = False
+                elif (
+                    len(comparison_segments) == 2
+                    and comparison_segments[0].raw_upper == "NOT"
+                    and comparison_segments[1].raw_upper == "NULL"
+                ):
+                    is_not_prefix = True
+                else:
+                    return None
+
+                if any(
+                    child.is_code
+                    and not child.is_type("array_accessor", "symbol", "literal")
+                    for segment in condition_operand_segments
+                    if segment.is_type("array_accessor")
+                    for child in segment.recursive_crawl_all()
+                ):
+                    return None
+
+                condition_operand_raw_upper = "".join(
+                    segment.raw_upper for segment in condition_operand_segments
                 )
 
                 if else_clauses:
