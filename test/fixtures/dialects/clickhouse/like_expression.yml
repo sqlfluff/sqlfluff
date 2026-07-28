@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a9ba8b8a57868d3ffbfb5e7c581984c63ba54f585d0f5b87567579db412ccf1b
+_hash: 04a8a5c49540ba60f2db5a72c8a7a32ce80d9ad3f6e12d54c0dabd4e01507ee5
 file:
 - statement:
     select_statement:
@@ -510,4 +510,442 @@ file:
         - keyword: NOT
         - keyword: ILIKE
         - quoted_literal: "'sYs%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'test%value'"
+          - keyword: LIKE
+          - quoted_literal: "'test|%%'"
+          - keyword: ESCAPE
+          - quoted_literal: "'|'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: field
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '0'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'false'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'true'"
+            - keyword: END
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      expression:
+                      - function:
+                          function_name:
+                            function_name_identifier: CAST
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                  - quoted_literal: "'string'"
+                                  - keyword: LIKE
+                                  - quoted_literal: "'s%'"
+                                  - keyword: ESCAPE
+                                  - quoted_literal: "'|'"
+                                  end_bracket: )
+                              keyword: AS
+                              data_type:
+                                data_type_identifier: String
+                              end_bracket: )
+                      - keyword: LIKE
+                      - quoted_literal: "'%0%'"
+                      - keyword: ESCAPE
+                      - quoted_literal: "'|'"
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: field
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: system
+              - dot: .
+              - naked_identifier: columns
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: database
+        - keyword: LIKE
+        - quoted_literal: "'sy%'"
+        - keyword: ESCAPE
+        - quoted_literal: "'|'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'test%value'"
+          - keyword: NOT
+          - keyword: LIKE
+          - quoted_literal: "'est|%%'"
+          - keyword: ESCAPE
+          - quoted_literal: "'|'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: field
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '0'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'false'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'true'"
+            - keyword: END
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      expression:
+                      - function:
+                          function_name:
+                            function_name_identifier: CAST
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                  - quoted_literal: "'string'"
+                                  - keyword: LIKE
+                                  - quoted_literal: "'s%'"
+                                  - keyword: ESCAPE
+                                  - quoted_literal: "'|'"
+                                  end_bracket: )
+                              keyword: AS
+                              data_type:
+                                data_type_identifier: String
+                              end_bracket: )
+                      - keyword: NOT
+                      - keyword: LIKE
+                      - quoted_literal: "'%0%'"
+                      - keyword: ESCAPE
+                      - quoted_literal: "'|'"
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: field
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: system
+              - dot: .
+              - naked_identifier: columns
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: database
+        - keyword: NOT
+        - keyword: LIKE
+        - quoted_literal: "'sy%'"
+        - keyword: ESCAPE
+        - quoted_literal: "'|'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'test%value'"
+          - keyword: ILIKE
+          - quoted_literal: "'Test|%%'"
+          - keyword: ESCAPE
+          - quoted_literal: "'|'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: field
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '0'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'false'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'true'"
+            - keyword: END
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      expression:
+                      - function:
+                          function_name:
+                            function_name_identifier: CAST
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                  - quoted_literal: "'string'"
+                                  - keyword: ILIKE
+                                  - quoted_literal: "'S%'"
+                                  - keyword: ESCAPE
+                                  - quoted_literal: "'|'"
+                                  end_bracket: )
+                              keyword: AS
+                              data_type:
+                                data_type_identifier: String
+                              end_bracket: )
+                      - keyword: LIKE
+                      - quoted_literal: "'%0%'"
+                      - keyword: ESCAPE
+                      - quoted_literal: "'|'"
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: field
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: system
+              - dot: .
+              - naked_identifier: columns
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: database
+        - keyword: LIKE
+        - quoted_literal: "'sY%'"
+        - keyword: ESCAPE
+        - quoted_literal: "'|'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'test%value'"
+          - keyword: NOT
+          - keyword: ILIKE
+          - quoted_literal: "'Est|%%'"
+          - keyword: ESCAPE
+          - quoted_literal: "'|'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: field
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '0'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'false'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'true'"
+            - keyword: END
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      expression:
+                      - function:
+                          function_name:
+                            function_name_identifier: CAST
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                  - quoted_literal: "'string'"
+                                  - keyword: NOT
+                                  - keyword: ILIKE
+                                  - quoted_literal: "'S%'"
+                                  - keyword: ESCAPE
+                                  - quoted_literal: "'|'"
+                                  end_bracket: )
+                              keyword: AS
+                              data_type:
+                                data_type_identifier: String
+                              end_bracket: )
+                      - keyword: LIKE
+                      - quoted_literal: "'%0%'"
+                      - keyword: ESCAPE
+                      - quoted_literal: "'|'"
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: field
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: system
+              - dot: .
+              - naked_identifier: columns
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: database
+        - keyword: NOT
+        - keyword: ILIKE
+        - quoted_literal: "'sY%'"
+        - keyword: ESCAPE
+        - quoted_literal: "'|'"
 - statement_terminator: ;

@@ -346,10 +346,18 @@ clickhouse_dialect.replace(
                 Ref.keyword("NOT", optional=True),
                 # REGEXP does not support the NOT keyword
                 Ref("LikeGrammar", exclude=Ref.keyword("REGEXP")),
+                Ref("Expression_A_Grammar"),
+                Sequence(
+                    "ESCAPE",
+                    Ref("Tail_Recurse_Expression_A_Grammar"),
+                    optional=True,
+                ),
             ),
-            "REGEXP",
+            Sequence(
+                "REGEXP",
+                Ref("Tail_Recurse_Expression_A_Grammar"),
+            ),
         ),
-        Ref("Tail_Recurse_Expression_A_Grammar"),
     ),
 )
 
