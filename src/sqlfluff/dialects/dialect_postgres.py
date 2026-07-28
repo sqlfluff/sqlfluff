@@ -4027,7 +4027,13 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Ref("ExpressionSegment"),
+                OneOf("STORED", "VIRTUAL", optional=True),
+            ),
             Sequence(
                 "GENERATED",
                 OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
@@ -4112,8 +4118,14 @@ class ForeignTableColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            # GENERATED ALWAYS AS ( generation_expr ) STORED
-            Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
+            # GENERATED ALWAYS AS ( generation_expr ) [ STORED | VIRTUAL ]
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Ref("ExpressionSegment"),
+                OneOf("STORED", "VIRTUAL", optional=True),
+            ),
         ),
     )
 
