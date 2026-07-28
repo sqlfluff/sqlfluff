@@ -118,6 +118,7 @@ clickhouse_dialect.replace(
         # Add Lambda Function
         Ref("LambdaFunctionSegment"),
     ),
+    LikeGrammar=OneOf("LIKE", "ILIKE", "RLIKE", "REGEXP"),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("DoubleEqualsSegment"),
