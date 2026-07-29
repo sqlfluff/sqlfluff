@@ -46,7 +46,6 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
-from sqlfluff.core.parser.grammar.newline import NewlineMatcher
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_hive as hive
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -500,14 +499,6 @@ sparksql_dialect.replace(
 )
 
 sparksql_dialect.add(
-    # Terminators for the opaque branch of SetConfigValueSegment.
-    # Semicolon ends an explicit SET statement. Newline / EOF statement
-    # boundaries are handled by NewlineMatcher on the Anything() call (not
-    # generic NonCodeMatcher: intra-line spaces must remain part of opaque
-    # values). See #8187 / #4218.
-    SetConfigValueTerminatorGrammar=OneOf(
-        Ref("DelimiterGrammar"),
-    ),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
         IdentifierSegment,
@@ -2954,17 +2945,11 @@ class SetConfigValueSegment(BaseSegment):
             min_delimiters=1,
         ),
         # Opaque raw payloads (URIs, hyphenated tokens, comma lists, etc.).
-        # Bound by statement boundaries, not a hand-maintained starter keyword
-        # list and not generic non-code:
-        # - semicolon via SetConfigValueTerminatorGrammar
-        # - newline via NewlineMatcher (maps to Rust GrammarId::NEWLINE so
-        #   Anything stops before skip_transparent walks past the line break)
-        # Intra-line whitespace stays inside the value. See #8187.
+        # Bound on `;` only — SparkSQL expects semicolon-delimited statements;
+        # missing-semicolon recovery is a separate known gap. See #8187 / #4218.
         Anything(
-            terminators=[
-                Ref("SetConfigValueTerminatorGrammar"),
-                NewlineMatcher(),
-            ],
+            terminators=[Ref("DelimiterGrammar")],
+            reset_terminators=True,
         ),
     )
 

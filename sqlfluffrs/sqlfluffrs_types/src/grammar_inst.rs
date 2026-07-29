@@ -378,10 +378,7 @@ impl fmt::Display for GrammarInst {
 pub struct GrammarId(pub u32);
 
 impl GrammarId {
-    pub const NONCODE: GrammarId = GrammarId(u32::MAX - 1); // reserved sentinel
-    /// Newline-only terminator sentinel (checked before ``skip_transparent``).
-    /// Narrower than ``NONCODE``: spaces/comments are not boundaries.
-    pub const NEWLINE: GrammarId = GrammarId(u32::MAX - 2);
+    pub const NONCODE: GrammarId = GrammarId(u32::MAX - 1); // Use a reserved value for NONCODE
 
     /// Create a new GrammarId
     #[inline]

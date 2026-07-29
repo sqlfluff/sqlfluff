@@ -18,8 +18,6 @@ from sqlfluff.core.parser.grammar.base import Anything, Nothing, Ref
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.grammar.delimited import Delimited, OptionallyDelimited
 from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
-from sqlfluff.core.parser.grammar.newline import NewlineMatcher
-from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.parsers import (
     MultiStringParser,
@@ -30,12 +28,6 @@ from sqlfluff.core.parser.parsers import (
 from sqlfluff.core.parser.segments.base import BaseSegment, SegmentMetaclass
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
-
-# Must match Rust ``GrammarId::NONCODE`` / ``NEWLINE`` (``u32::MAX - 1`` /
-# ``u32::MAX - 2``). When these ids appear in a terminator list, the Rust
-# Anything matcher checks them *before* skipping whitespace/newlines.
-NONCODE_TERMINATOR_ID = 0xFFFFFFFE
-NEWLINE_TERMINATOR_ID = 0xFFFFFFFD
 
 
 @dataclass
@@ -1179,18 +1171,9 @@ class TableBuilder:
         if grammar.reset_terminators:
             flags |= self.FLAG_RESET_TERMINATORS
 
-        # Flatten terminators. NonCodeMatcher / NewlineMatcher cannot be normal
-        # grammar nodes here: Rust's Anything path must see the NONCODE /
-        # NEWLINE sentinels so it can stop before skip_transparent() eats them.
+        # Flatten terminators
         terminators_start = len(self.terminators)
-        terminator_ids: list[int] = []
-        for terminator in grammar.terminators:
-            if isinstance(terminator, NonCodeMatcher):
-                terminator_ids.append(NONCODE_TERMINATOR_ID)
-            elif isinstance(terminator, NewlineMatcher):
-                terminator_ids.append(NEWLINE_TERMINATOR_ID)
-            else:
-                terminator_ids.append(self.flatten_grammar(terminator, parse_context))
+        terminator_ids = self._flatten_list(grammar.terminators, parse_context)
         self.terminators.extend(terminator_ids)
         terminators_count = len(terminator_ids)
 
@@ -1428,13 +1411,7 @@ class TableBuilder:
                     )
                 else:
                     term_id = self.terminators[j]
-                    # GrammarId::NONCODE / NEWLINE are reserved sentinels, not
-                    # instruction indexes. Rust Anything/is_terminated handles
-                    # them before indexing the grammar tables.
-                    if term_id not in (
-                        NONCODE_TERMINATOR_ID,
-                        NEWLINE_TERMINATOR_ID,
-                    ) and term_id >= len(self.instructions):
+                    if term_id >= len(self.instructions):
                         errors.append(
                             f"Inst {i}: invalid terminator_id {term_id}"
                             f" >= {len(self.instructions)}"

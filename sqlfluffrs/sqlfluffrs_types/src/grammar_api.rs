@@ -34,9 +34,6 @@ impl<'a> GrammarContext<'a> {
         if id == GrammarId::NONCODE {
             return "NONCODE".to_string();
         }
-        if id == GrammarId::NEWLINE {
-            return "NEWLINE".to_string();
-        }
         match self.variant(id) {
             GrammarVariant::Ref => self.ref_name(id).to_string(),
             GrammarVariant::StringParser
@@ -53,9 +50,6 @@ impl<'a> GrammarContext<'a> {
     pub fn grammar_repr(&self, id: GrammarId) -> String {
         if id == GrammarId::NONCODE {
             return "NONCODE".to_string();
-        }
-        if id == GrammarId::NEWLINE {
-            return "NEWLINE".to_string();
         }
         let variant = self.variant(id);
         match variant {
