@@ -350,12 +350,18 @@ class RawSegment(BaseSegment):
         # Build instance_types from token
         instance_types = tuple(token.instance_types)
 
+        # NOTE: The pyo3 getters return lists (Vec<String>), but the Python
+        # lexer configures these kwargs as tuples and downstream code (and
+        # byte-level parity with Python-lexed segments) expects tuples.
+        trim_start = tuple(token.trim_start) if token.trim_start else None
+        trim_chars = tuple(token.trim_chars) if token.trim_chars else None
+
         segment = cls(
             raw=token.raw,
             pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
             instance_types=instance_types,
-            trim_start=token.trim_start,
-            trim_chars=token.trim_chars,
+            trim_start=trim_start,
+            trim_chars=trim_chars,
             source_fixes=token.source_fixes,
             uuid=token.uuid,
             quoted_value=token.quoted_value,

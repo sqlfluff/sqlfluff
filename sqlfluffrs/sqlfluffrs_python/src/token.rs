@@ -422,8 +422,8 @@ impl PyToken {
         } else {
             dict.set_item("quoted_value", py.None()).unwrap();
         }
-        if let Some((ref pattern, ref repl)) = self.0.escape_replacement() {
-            dict.set_item("escape_replacements", vec![(pattern.clone(), repl.clone())])
+        if let Some(replacements) = self.0.escape_replacements() {
+            dict.set_item("escape_replacements", replacements.clone())
                 .unwrap();
         } else {
             dict.set_item("escape_replacements", py.None()).unwrap();
@@ -445,9 +445,7 @@ impl PyToken {
 
     #[getter]
     pub fn escape_replacements(&self) -> Option<Vec<(String, String)>> {
-        self.0
-            .escape_replacement()
-            .map(|(s, r)| vec![(s.clone(), r.clone())])
+        self.0.escape_replacements().cloned()
     }
 
     pub fn set_parent(&self, parent: &Bound<'_, PyAny>, idx: usize) -> PyResult<()> {

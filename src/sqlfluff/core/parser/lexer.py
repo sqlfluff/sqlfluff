@@ -152,6 +152,19 @@ class StringLexer:
         self.subdivider = subdivider
         self.trim_post_subdivide = trim_post_subdivide
         self.segment_kwargs = segment_kwargs or {}
+        # Guard against the recurring `trim_start="--"` / `trim_chars="'"` typo.
+        # These must be tuples/lists of whole sequences to strip: a bare str
+        # silently means "strip each of these characters" in Python, and the
+        # Rust codegen (utils/build_lexers.py) char-splits it into per-character
+        # entries, so the two engines diverge on what a token trims to. Fail
+        # loudly at construction instead of shipping that divergence.
+        for _key in ("trim_start", "trim_chars"):
+            _val = self.segment_kwargs.get(_key)
+            if isinstance(_val, str):
+                raise TypeError(
+                    f"{name}: segment_kwargs[{_key!r}] must be a tuple/list of "
+                    f"strings, not a bare str ({_val!r}); write ({_val!r},)."
+                )
         self.__post_init__()
 
     def __repr__(self) -> str:

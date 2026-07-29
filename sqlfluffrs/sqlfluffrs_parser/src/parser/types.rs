@@ -34,7 +34,7 @@ pub enum MetaType {
 pub struct RawSegmentKwargs {
     pub trim_chars: Option<Vec<String>>,
     pub quoted_value: Option<(String, String)>,
-    pub escape_replacements: Option<Vec<(String, String)>>,
+    pub escape_replacements: Option<std::sync::Arc<Vec<(String, String)>>>,
 }
 
 /// AST Node - represents parsed SQL structure

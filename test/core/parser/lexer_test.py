@@ -100,6 +100,22 @@ def test__parser__lexer_string(raw, res):
     assert_matches(raw, matcher, res)
 
 
+@pytest.mark.parametrize("kwarg", ["trim_start", "trim_chars"])
+def test__parser__lexer_rejects_bare_str_trim_kwarg(kwarg):
+    """A bare-str trim_start/trim_chars is the classic typo and must raise.
+
+    Written as a bare str it silently means "strip each character" in Python
+    and the Rust codegen char-splits it, so the two engines diverge; the
+    correct form is a 1-tuple. Both the string and regex lexers must reject it.
+    """
+    with pytest.raises(TypeError, match=kwarg):
+        StringLexer("t", "--", CodeSegment, segment_kwargs={kwarg: "--"})
+    with pytest.raises(TypeError, match=kwarg):
+        RegexLexer("t", r"--[^\n]*", CodeSegment, segment_kwargs={kwarg: "--"})
+    # The correct tuple form is accepted.
+    StringLexer("t", "--", CodeSegment, segment_kwargs={kwarg: ("--",)})
+
+
 @pytest.mark.parametrize(
     "raw,reg,res",
     [

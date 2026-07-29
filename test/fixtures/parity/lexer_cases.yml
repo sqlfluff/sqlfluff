@@ -1,0 +1,9 @@
+_meta:
+  kind: lexer
+flink_multiple_escape_replacements:
+  sql: SELECT 'esc''aped'
+  dialect: flink
+  pins: Plural escape_replacements must survive the Rust bridge - flink's
+    single_quote lexer matcher configures two escape_replacements pairs
+    (doubled-quote and backslash-escaped-quote), and the Rust-lexed token's
+    escape_replacements must carry both, in order, like Python's.

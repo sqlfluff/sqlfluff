@@ -136,9 +136,15 @@ impl Token {
         self.raw.quoted_value()
     }
 
-    /// Get the escape_replacement pattern for this token (if any)
-    pub fn escape_replacement(&self) -> Option<&(String, String)> {
-        self.raw.escape_replacement()
+    /// Get the escape_replacements patterns for this token (if any)
+    pub fn escape_replacements(&self) -> Option<&Vec<(String, String)>> {
+        self.raw.escape_replacements()
+    }
+
+    /// Cheaply-cloneable (`Arc`) handle to the escape_replacements patterns,
+    /// for carrying them into a segment/match without deep-copying the pairs.
+    pub fn escape_replacements_arc(&self) -> Option<std::sync::Arc<Vec<(String, String)>>> {
+        self.raw.escape_replacements_arc()
     }
 
     /// Get the casefold mode for this token (`CaseFold::None` if unset)
@@ -149,7 +155,7 @@ impl Token {
     pub fn normalize(
         value: &str,
         quoted_value: Option<&(String, RegexModeGroup)>,
-        escape_replacement: Option<&(String, String)>,
+        escape_replacements: Option<&Vec<(String, String)>>,
     ) -> String {
         let mut str_buffer = value.to_string();
 
@@ -159,9 +165,14 @@ impl Token {
             }
         }
 
-        if let Some((regex_str, replacement)) = escape_replacement {
-            str_buffer =
-                RegexMode::cached(regex_str).replace_all(&str_buffer, replacement.as_str());
+        // PYTHON PARITY: RawSegment._get_normalized_value (segments/raw.py)
+        // applies every escape_replacements pair in order, each on the result
+        // of the previous - not just the first pair.
+        if let Some(replacements) = escape_replacements {
+            for (regex_str, replacement) in replacements {
+                str_buffer =
+                    RegexMode::cached(regex_str).replace_all(&str_buffer, replacement.as_str());
+            }
         }
 
         str_buffer
@@ -344,7 +355,7 @@ impl Token {
             raw: RawString::new(
                 new_raw,
                 self.raw.quoted_value().cloned(),
-                self.raw.escape_replacement().cloned(),
+                self.raw.escape_replacements_arc(),
                 self.raw.casefold(),
             ),
             source_fixes: Some(source_fixes.unwrap_or(self.source_fixes())),

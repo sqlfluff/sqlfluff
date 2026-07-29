@@ -172,27 +172,23 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
             )
 
     if escape_replacements:
-        escape_replacement = escape_replacements[0]
-        escape_replacement = (
-            f'r#"{escape_replacement[0]}"#',
-            f'r#"{escape_replacement[1]}"#',
-        )
-        if escape_replacement[0] == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
-            escape_replacement = (
-                r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#',
-                escape_replacement[1],
-            )
-        if escape_replacement[1] == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
-            escape_replacement = (
-                escape_replacement[0],
-                r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#',
-            )
-        escape_replacement = (
-            f"Some(({escape_replacement[0]}.to_string(),"
-            f" {escape_replacement[1]}.to_string()))"
+        # Plural: emit every pair, not just the first - Python applies each
+        # escape_replacements pair in order (RawSegment._get_normalized_value,
+        # segments/raw.py), so dropping any but the first silently changes what
+        # a token normalizes to on the Rust side.
+        rust_pairs = []
+        for pattern, replacement in escape_replacements:
+            pattern, replacement = f'r#"{pattern}"#', f'r#"{replacement}"#'
+            if pattern == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
+                pattern = r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#'
+            if replacement == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
+                replacement = r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#'
+            rust_pairs.append(f"({pattern}.to_string(), {replacement}.to_string())")
+        escape_replacements_rust = (
+            "Some(std::sync::Arc::new(vec![" + ", ".join(rust_pairs) + "]))"
         )
     else:
-        escape_replacement = None
+        escape_replacements_rust = None
 
     # TokenGenerator is `fn(String, PositionMarker, TokenConfig) -> Token`, which
     # every `Token::{kind}_token` constructor already matches directly.
@@ -204,7 +200,7 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         trim_start: {trim_start},
         trim_chars: {trim_chars},
         quoted_value: {quoted_value},
-        escape_replacements: {escape_replacement},
+        escape_replacements: {escape_replacements_rust},
         casefold: {casefold_rust},
         kwarg_type: {kwarg_type},
     }}"""
