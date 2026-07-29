@@ -17,8 +17,10 @@
 use std::sync::{Arc, Mutex};
 
 use pyo3::prelude::*;
+use pyo3::types::{PyList, PyTuple};
 
 use sqlfluffrs_python::marker::PyPositionMarker;
+use sqlfluffrs_python::pyo3_helpers::{pylist_of_str_pairs, pylist_of_strs, pytuple_of_strs};
 
 use super::arena::{Arena, NodeId};
 
@@ -161,8 +163,11 @@ impl PyHandle {
         self.inner.lock().unwrap().class_types(self.node)
     }
 
-    fn instance_types(&self) -> Vec<String> {
-        self.inner.lock().unwrap().instance_types(self.node)
+    fn instance_types<'py>(&self, py: Python<'py>) -> Bound<'py, PyList> {
+        self.inner
+            .lock()
+            .unwrap()
+            .with_instance_types(self.node, |v| pylist_of_strs(py, v))
     }
 
     /// `is_implicit` flag for Indent/Dedent metas (`None` for non-metas).
@@ -170,16 +175,24 @@ impl PyHandle {
         self.inner.lock().unwrap().is_implicit(self.node)
     }
 
-    fn trim_chars(&self) -> Option<Vec<String>> {
-        self.inner.lock().unwrap().trim_chars(self.node)
+    fn trim_chars<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyTuple>> {
+        self.inner
+            .lock()
+            .unwrap()
+            .with_trim_chars(self.node, |v| v.map(|v| pytuple_of_strs(py, v)))
     }
 
     fn quoted_value(&self) -> Option<(String, String)> {
         self.inner.lock().unwrap().quoted_value(self.node)
     }
 
-    fn escape_replacements(&self) -> Option<Vec<(String, String)>> {
-        self.inner.lock().unwrap().escape_replacements(self.node)
+    fn escape_replacements<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyList>> {
+        self.inner
+            .lock()
+            .unwrap()
+            .with_escape_replacements(self.node, |pairs| {
+                pairs.map(|pairs| pylist_of_str_pairs(py, pairs))
+            })
     }
 
     #[getter]
@@ -187,14 +200,9 @@ impl PyHandle {
         self.inner.lock().unwrap().segment_class(self.node)
     }
 
-    fn descendant_type_set(&self) -> Vec<String> {
-        self.inner
-            .lock()
-            .unwrap()
-            .descendant_type_set(self.node)
-            .iter()
-            .cloned()
-            .collect()
+    fn descendant_type_set<'py>(&self, py: Python<'py>) -> Bound<'py, PyList> {
+        let set = self.inner.lock().unwrap().descendant_type_set(self.node);
+        PyList::new(py, set.iter().map(String::as_str)).unwrap()
     }
 
     #[getter]

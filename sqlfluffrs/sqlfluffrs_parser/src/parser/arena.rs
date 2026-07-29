@@ -390,10 +390,12 @@ impl Arena {
         self.node_type_set(id)
     }
 
-    pub fn instance_types(&self, id: NodeId) -> Vec<String> {
+    /// Instance types for a raw token, borrowed to avoid cloning into an
+    /// intermediate `Vec` — callers build a Python list/tuple directly.
+    pub fn with_instance_types<R>(&self, id: NodeId, f: impl FnOnce(&[String]) -> R) -> R {
         match &self.node(id).kind {
-            ArenaKind::Raw { instance_types, .. } => instance_types.clone(),
-            _ => Vec::new(),
+            ArenaKind::Raw { instance_types, .. } => f(instance_types),
+            _ => f(&[]),
         }
     }
 
@@ -416,11 +418,13 @@ impl Arena {
         }
     }
 
-    /// Characters to trim from both ends of a raw token (if set on the token).
-    pub fn trim_chars(&self, id: NodeId) -> Option<Vec<String>> {
+    /// Characters to trim from both ends of a raw token (if set on the
+    /// token), borrowed to avoid cloning into an intermediate `Vec` —
+    /// callers build a Python list/tuple directly.
+    pub fn with_trim_chars<R>(&self, id: NodeId, f: impl FnOnce(Option<&[String]>) -> R) -> R {
         match &self.node(id).kind {
-            ArenaKind::Raw { kwargs, .. } => kwargs.trim_chars.clone(),
-            _ => None,
+            ArenaKind::Raw { kwargs, .. } => f(kwargs.trim_chars.as_deref()),
+            _ => f(None),
         }
     }
 
@@ -432,11 +436,19 @@ impl Arena {
         }
     }
 
-    /// The escape `(pattern, replacement)` pairs for a raw token.
-    pub fn escape_replacements(&self, id: NodeId) -> Option<Vec<(String, String)>> {
+    /// The escape `(pattern, replacement)` pairs for a raw token, borrowed to
+    /// avoid cloning into an intermediate `Vec` — callers build a Python list
+    /// directly.
+    pub fn with_escape_replacements<R>(
+        &self,
+        id: NodeId,
+        f: impl FnOnce(Option<&[(String, String)]>) -> R,
+    ) -> R {
         match &self.node(id).kind {
-            ArenaKind::Raw { kwargs, .. } => kwargs.escape_replacements.as_deref().cloned(),
-            _ => None,
+            ArenaKind::Raw { kwargs, .. } => {
+                f(kwargs.escape_replacements.as_deref().map(Vec::as_slice))
+            }
+            _ => f(None),
         }
     }
 

@@ -3,6 +3,7 @@
 
 pub mod config;
 pub mod marker;
+pub mod pyo3_helpers;
 pub mod slice;
 pub mod templater;
 pub mod token;
