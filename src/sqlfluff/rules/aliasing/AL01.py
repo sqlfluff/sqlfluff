@@ -86,7 +86,12 @@ class Rule_AL01(BaseRule):
 
             elif self.aliasing != "implicit":
                 self.logger.debug("Inserting AS keyword and respacing.")
-                for identifier in context.segment.raw_segments:
+                # Anchor on the first code *child* rather than the first code
+                # raw segment. Some aliases (e.g. a bare column list like
+                # `(a, b)`) wrap their content in a `bracketed` segment, and
+                # anchoring on the nested bracket would insert the `AS` inside
+                # it, where the `alias_operator` check above can't see it.
+                for identifier in context.segment.segments:
                     if identifier.is_code:
                         break
                 else:  # pragma: no cover
