@@ -232,13 +232,21 @@ impl PyToken {
     }
 
     #[getter]
-    pub fn trim_start<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyTuple>> {
-        self.0.trim_start.as_ref().map(|v| pytuple_of_strs(py, v))
+    pub fn trim_start<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyTuple>>> {
+        self.0
+            .trim_start
+            .as_ref()
+            .map(|v| pytuple_of_strs(py, v))
+            .transpose()
     }
 
     #[getter]
-    pub fn trim_chars<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyTuple>> {
-        self.0.trim_chars.as_ref().map(|v| pytuple_of_strs(py, v))
+    pub fn trim_chars<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyTuple>>> {
+        self.0
+            .trim_chars
+            .as_ref()
+            .map(|v| pytuple_of_strs(py, v))
+            .transpose()
     }
 
     #[pyo3(signature = (raw_only = false))]
@@ -288,7 +296,7 @@ impl PyToken {
     }
 
     #[getter]
-    pub fn instance_types<'py>(&self, py: Python<'py>) -> Bound<'py, PyList> {
+    pub fn instance_types<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
         pylist_of_strs(py, &self.0.instance_types)
     }
 
@@ -453,10 +461,14 @@ impl PyToken {
     }
 
     #[getter]
-    pub fn escape_replacements<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyList>> {
+    pub fn escape_replacements<'py>(
+        &self,
+        py: Python<'py>,
+    ) -> PyResult<Option<Bound<'py, PyList>>> {
         self.0
             .escape_replacements()
             .map(|pairs| pylist_of_str_pairs(py, pairs))
+            .transpose()
     }
 
     pub fn set_parent(&self, parent: &Bound<'_, PyAny>, idx: usize) -> PyResult<()> {

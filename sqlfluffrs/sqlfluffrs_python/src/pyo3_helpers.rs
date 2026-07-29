@@ -8,22 +8,25 @@ use pyo3::prelude::*;
 use pyo3::types::{PyList, PyTuple};
 
 /// Build a `PyList` of Python strings from a slice of owned `String`s.
-pub fn pylist_of_strs<'py>(py: Python<'py>, items: &[String]) -> Bound<'py, PyList> {
-    PyList::new(py, items.iter().map(String::as_str)).unwrap()
+pub fn pylist_of_strs<'py>(py: Python<'py>, items: &[String]) -> PyResult<Bound<'py, PyList>> {
+    PyList::new(py, items.iter().map(String::as_str))
 }
 
 /// Build a `PyTuple` of Python strings from a slice of owned `String`s.
-pub fn pytuple_of_strs<'py>(py: Python<'py>, items: &[String]) -> Bound<'py, PyTuple> {
-    PyTuple::new(py, items.iter().map(String::as_str)).unwrap()
+pub fn pytuple_of_strs<'py>(py: Python<'py>, items: &[String]) -> PyResult<Bound<'py, PyTuple>> {
+    PyTuple::new(py, items.iter().map(String::as_str))
 }
 
 /// Build a `PyList` of `(str, str)` tuples from a slice of string pairs.
-pub fn pylist_of_str_pairs<'py>(py: Python<'py>, pairs: &[(String, String)]) -> Bound<'py, PyList> {
+pub fn pylist_of_str_pairs<'py>(
+    py: Python<'py>,
+    pairs: &[(String, String)],
+) -> PyResult<Bound<'py, PyList>> {
     PyList::new(
         py,
         pairs
             .iter()
-            .map(|(a, b)| PyTuple::new(py, [a.as_str(), b.as_str()]).unwrap()),
+            .map(|(a, b)| PyTuple::new(py, [a.as_str(), b.as_str()]))
+            .collect::<PyResult<Vec<_>>>()?,
     )
-    .unwrap()
 }

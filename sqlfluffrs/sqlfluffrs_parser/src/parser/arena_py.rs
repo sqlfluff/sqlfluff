@@ -163,7 +163,7 @@ impl PyHandle {
         self.inner.lock().unwrap().class_types(self.node)
     }
 
-    fn instance_types<'py>(&self, py: Python<'py>) -> Bound<'py, PyList> {
+    fn instance_types<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
         self.inner
             .lock()
             .unwrap()
@@ -175,23 +175,25 @@ impl PyHandle {
         self.inner.lock().unwrap().is_implicit(self.node)
     }
 
-    fn trim_chars<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyTuple>> {
+    fn trim_chars<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyTuple>>> {
         self.inner
             .lock()
             .unwrap()
-            .with_trim_chars(self.node, |v| v.map(|v| pytuple_of_strs(py, v)))
+            .with_trim_chars(self.node, |v| v.map(|v| pytuple_of_strs(py, v)).transpose())
     }
 
     fn quoted_value(&self) -> Option<(String, String)> {
         self.inner.lock().unwrap().quoted_value(self.node)
     }
 
-    fn escape_replacements<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyList>> {
+    fn escape_replacements<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
         self.inner
             .lock()
             .unwrap()
             .with_escape_replacements(self.node, |pairs| {
-                pairs.map(|pairs| pylist_of_str_pairs(py, pairs))
+                pairs
+                    .map(|pairs| pylist_of_str_pairs(py, pairs))
+                    .transpose()
             })
     }
 

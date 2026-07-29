@@ -100,25 +100,25 @@ impl PyNode {
     }
 
     /// Get instance_types (for Raw nodes)
-    fn instance_types<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyList>> {
+    fn instance_types<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
         match &self.0 {
-            Node::Raw { instance_types, .. } => Some(pylist_of_strs(py, instance_types)),
-            _ => None,
+            Node::Raw { instance_types, .. } => Ok(Some(pylist_of_strs(py, instance_types)?)),
+            _ => Ok(None),
         }
     }
 
     /// Get class_types — mirrors Python's class_types property.
-    fn class_types<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyList>> {
+    fn class_types<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
         match &self.0 {
-            Node::Raw { class_types, .. } => Some(pylist_of_strs(py, class_types)),
+            Node::Raw { class_types, .. } => Ok(Some(pylist_of_strs(py, class_types)?)),
             Node::Segment { class_types, .. } => {
                 if class_types.is_empty() {
-                    None
+                    Ok(None)
                 } else {
-                    Some(pylist_of_strs(py, class_types))
+                    Ok(Some(pylist_of_strs(py, class_types)?))
                 }
             }
-            _ => None,
+            _ => Ok(None),
         }
     }
 
@@ -289,22 +289,24 @@ impl PyMatchResult {
 
     /// Get instance_types (semantic type markers like "keyword", "star")
     #[getter]
-    fn instance_types<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyList>> {
+    fn instance_types<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
         self.0
             .matched_class
             .as_ref()
             .and_then(|s| s.segment_kwargs.instance_types.as_ref())
             .map(|v| pylist_of_strs(py, v))
+            .transpose()
     }
 
     /// Get trim_chars for the segment
     #[getter]
-    fn trim_chars<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyTuple>> {
+    fn trim_chars<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyTuple>>> {
         self.0
             .matched_class
             .as_ref()
             .and_then(|s| s.segment_kwargs.trim_chars.as_ref())
             .map(|v| pytuple_of_strs(py, v))
+            .transpose()
     }
 
     /// Get casefold mode (for case-insensitive matching)
@@ -346,12 +348,13 @@ impl PyMatchResult {
 
     /// Get escape_replacements for escape sequence handling
     #[getter]
-    fn escape_replacements<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyList>> {
+    fn escape_replacements<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
         self.0
             .matched_class
             .as_ref()
             .and_then(|s| s.segment_kwargs.escape_replacements.as_deref())
             .map(|pairs| pylist_of_str_pairs(py, pairs))
+            .transpose()
     }
 
     /// Get insert_segments (meta segments like Indent/Dedent to insert)
