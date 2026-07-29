@@ -231,13 +231,19 @@ impl PyToken {
     }
 
     #[getter]
-    pub fn trim_start(&self) -> Option<Vec<String>> {
-        self.0.trim_start.clone()
+    pub fn trim_start<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyTuple>> {
+        self.0
+            .trim_start
+            .as_ref()
+            .map(|v| PyTuple::new(py, v.iter().map(String::as_str)).unwrap())
     }
 
     #[getter]
-    pub fn trim_chars(&self) -> Option<Vec<String>> {
-        self.0.trim_chars.clone()
+    pub fn trim_chars<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyTuple>> {
+        self.0
+            .trim_chars
+            .as_ref()
+            .map(|v| PyTuple::new(py, v.iter().map(String::as_str)).unwrap())
     }
 
     #[pyo3(signature = (raw_only = false))]
