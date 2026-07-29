@@ -57,6 +57,7 @@
   "perma/rule/LT13": "reference/rules/layout#lt13",
   "perma/rule/LT14": "reference/rules/layout#lt14",
   "perma/rule/LT15": "reference/rules/layout#lt15",
+  "perma/rule/LT16": "reference/rules/layout#lt16",
   "perma/rule/JJ01": "reference/rules/jinja#jj01",
   "perma/rule/CV01": "reference/rules/convention#cv01",
   "perma/rule/CV02": "reference/rules/convention#cv02",

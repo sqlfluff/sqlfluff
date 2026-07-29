@@ -1,0 +1,59 @@
+rule: LT16, LT02
+
+# LT16 only inserts the line breaks between targets. The indentation of the
+# targets it moves is then handled by LT02, so these cases check that the two
+# rules combine to give a sensible layout.
+
+test_group_by_targets_indented_after_split:
+  fail_str: |
+    select
+        a,
+        b
+    from t
+    group by a, b
+  fix_str: |
+    select
+        a,
+        b
+    from t
+    group by
+        a,
+        b
+
+test_order_by_targets_indented_after_split:
+  fail_str: |
+    select
+        a,
+        b
+    from t
+    order by a desc, b nulls last
+  fix_str: |
+    select
+        a,
+        b
+    from t
+    order by
+        a desc,
+        b nulls last
+
+test_group_by_targets_indented_in_subquery:
+  fail_str: |
+    select *
+    from (
+        select
+            a,
+            b
+        from t
+        group by a, b
+    ) as x
+  fix_str: |
+    select *
+    from (
+        select
+            a,
+            b
+        from t
+        group by
+            a,
+            b
+    ) as x
