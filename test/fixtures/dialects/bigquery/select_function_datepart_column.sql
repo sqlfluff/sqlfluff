@@ -10,3 +10,12 @@ SELECT
     DATE_TRUNC(some_date, WEEK(MONDAY)),
     DATE_DIFF(date_a, date_b, DAY)
 FROM some_table;
+
+-- SAFE-qualified date part functions should also parse date parts.
+SELECT
+    SAFE.DATE_TRUNC(some_date, YEAR),
+    SAFE.DATETIME_TRUNC(some_datetime, MINUTE),
+    SAFE.TIMESTAMP_TRUNC(some_timestamp, HOUR),
+    SAFE.DATE_DIFF(date_a, date_b, DAY),
+    SAFE.LAST_DAY(some_date, MONTH)
+FROM some_table;

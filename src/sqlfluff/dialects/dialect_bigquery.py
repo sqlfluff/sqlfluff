@@ -1188,15 +1188,39 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
     )
 
 
+class DatePartFunctionNameSegment(ansi.DatePartFunctionNameSegment):
+    """Date part function name, allowing an optional SAFE. prefix.
+
+    BigQuery allows date part functions to be SAFE-qualified (e.g.
+    ``SAFE.DATE_TRUNC(some_date, YEAR)``) and the date part argument
+    should still parse as a date part rather than a column reference.
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-reference#safe_prefix
+    """
+
+    match_grammar: Matchable = Sequence(
+        Sequence("SAFE", Ref("DotSegment"), optional=True),
+        Ref("DatePartFunctionName"),
+    )
+
+
 class DateTimeFunctionContentsSegment(ansi.DateTimeFunctionContentsSegment):
-    """Datetime function contents segment."""
+    """Datetime function contents segment.
+
+    Each argument is either a date part or an expression: matching
+    them one argument at a time (rather than via the generic
+    ``FunctionContentsGrammar``, which contains its own delimited list)
+    ensures date parts are always preferred over column references for
+    every argument.
+    """
 
     match_grammar = Sequence(
         Bracketed(
             Delimited(
-                Ref("DatetimeUnitSegment"),
-                Ref("DatePartWeekSegment"),
-                Ref("FunctionContentsGrammar"),
+                OneOf(
+                    Ref("DatetimeUnitSegment"),
+                    Ref("DatePartWeekSegment"),
+                    Ref("FunctionContentsExpressionGrammar"),
+                ),
             ),
         )
     )
