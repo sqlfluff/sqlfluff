@@ -1590,6 +1590,90 @@ class LimitClauseSegment(sparksql.LimitClauseSegment):
     )
 
 
+class InsertStatementSegment(sparksql.InsertStatementSegment):
+    """An `INSERT [TABLE]` statement for Databricks SQL.
+
+    The Databricks docs define three distinct forms:
+
+    Form 1 — standard insert, ``OVERWRITE`` or ``INTO``:
+        ``INSERT [WITH SCHEMA EVOLUTION] { OVERWRITE | INTO } [TABLE] table_name
+        [PARTITION clause] [( column_name [, ...] ) | BY NAME] query``
+
+    Form 2 — selective replace, ``INTO`` only:
+        ``INSERT [WITH SCHEMA EVOLUTION] INTO [TABLE] table_name
+        [BY NAME] [REPLACE WHERE predicate | REPLACE USING (col [, ...])] query``
+
+    Form 3 — replace-on, ``INTO`` only:
+        ``INSERT [WITH SCHEMA EVOLUTION] INTO [TABLE] table_name [target_alias]
+        [BY NAME] REPLACE ON boolean_expression { (query) [source_alias] | query }``
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-dml-insert-into
+    """
+
+    type = "insert_statement"
+
+    match_grammar = Sequence(
+        "INSERT",
+        # WITH SCHEMA EVOLUTION: Databricks Runtime 18.1+
+        Sequence("WITH", "SCHEMA", "EVOLUTION", optional=True),
+        OneOf(
+            # Forms 2 & 3: INTO only (OVERWRITE is not allowed with REPLACE)
+            Sequence(
+                "INTO",
+                Ref.keyword("TABLE", optional=True),
+                Ref("TableReferenceSegment"),
+                OneOf(
+                    # Form 3: REPLACE ON with optional target_alias and BY NAME.
+                    # target_alias requires the AS keyword here to avoid ambiguity
+                    # with the REPLACE/BY unreserved keywords being consumed as a
+                    # bare identifier alias.
+                    Sequence(
+                        Sequence(
+                            "AS",
+                            Ref("SingleIdentifierGrammar"),
+                            optional=True,
+                        ),
+                        Sequence("BY", "NAME", optional=True),
+                        "REPLACE",
+                        "ON",
+                        Ref("ExpressionSegment"),
+                        Ref("SelectableGrammar"),
+                    ),
+                    # Form 2: [BY NAME] REPLACE WHERE predicate | REPLACE USING (cols)
+                    Sequence(
+                        Sequence("BY", "NAME", optional=True),
+                        "REPLACE",
+                        OneOf(
+                            Sequence(
+                                Ref("WhereClauseSegment"),
+                                Ref("InsertSourceGrammar"),
+                            ),
+                            Sequence(
+                                "USING",
+                                Ref("BracketedColumnReferenceListGrammar"),
+                                Ref("InsertSourceGrammar"),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            # Form 1: { INTO | OVERWRITE } with optional PARTITION and column list
+            Sequence(
+                OneOf("INTO", "OVERWRITE"),
+                Ref.keyword("TABLE", optional=True),
+                Ref("TableReferenceSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+                OneOf(
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Sequence("BY", "NAME"),
+                    optional=True,
+                ),
+                Ref("InsertSourceGrammar"),
+            ),
+        ),
+    )
+
+
 class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     """`INSERT` clause within the `MERGE` statement.
 
