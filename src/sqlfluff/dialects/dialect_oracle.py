@@ -1459,6 +1459,7 @@ class BatchSegment(BaseSegment):
             Delimited(
                 OneOf(
                     Ref("SqlplusSetStatementSegment"),
+                    Ref("SqlplusShowStatementSegment"),
                     Ref("StatementSegment"),
                 ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
@@ -1485,6 +1486,67 @@ class SqlplusSetStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET", StringParser("SCAN", WordSegment, type="keyword"), OneOf("ON", "OFF")
+    )
+
+
+class SqlplusShowStatementSegment(BaseSegment):
+    """A SQL*Plus `SHOW` command.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/SHOW.html
+    """
+
+    type = "sqlplus_show_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            # SHOW ERRORS [<object type> [schema.]name]
+            Sequence(
+                "ERRORS",
+                Sequence(
+                    OneOf(
+                        Sequence("PACKAGE", "BODY"),
+                        Sequence("TYPE", "BODY"),
+                        Sequence("JAVA", "CLASS"),
+                        Sequence("ANALYTIC", "VIEW"),
+                        Sequence("ATTRIBUTE", "DIMENSION"),
+                        "FUNCTION",
+                        "PROCEDURE",
+                        "PACKAGE",
+                        "TRIGGER",
+                        "VIEW",
+                        "TYPE",
+                        "DIMENSION",
+                        "HIERARCHY",
+                    ),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW PARAMETER[S] [parameter_name]
+            Sequence(
+                OneOf("PARAMETERS", "PARAMETER"),
+                # SQL*Plus terminates these at the newline, which the parser
+                # does not see. Without excluding the command words, an
+                # argument-less `SHOW PARAMETERS` swallows the first word of
+                # the following command as its parameter name.
+                Ref(
+                    "ObjectReferenceSegment",
+                    optional=True,
+                    exclude=OneOf("SHOW", "SET", "PROMPT"),
+                ),
+            ),
+            # Remaining options take no argument, or are a system variable
+            # name. Reserved words have to be spelled out; everything else -
+            # including the abbreviated spellings SQL*Plus accepts, such as
+            # ERR, REL or RECYC - matches as a bare identifier.
+            "ALL",
+            "USER",
+            "RELEASE",
+            "SQLCODE",
+            "EDITION",
+            Ref("NakedIdentifierSegment"),
+        ),
     )
 
 

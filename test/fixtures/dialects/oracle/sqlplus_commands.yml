@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f4622cac6ef80428f0380680fc769014144b40723d2be04a835c1deb1fe1991d
+_hash: 8eaf24af38969ff26c56c46b9a8c901357c04eb5a019e62a1d6277e215bc9acd
 file:
 - batch:
     sqlplus_set_statement:
@@ -104,4 +104,112 @@ file:
       - keyword: END
   - statement_terminator: ;
   - slash_buffer_executor:
+      slash: /
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: ALL
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: USER
+- batch:
+    sqlplus_show_statement:
+      keyword: SHOW
+      naked_identifier: SGA
+- batch:
+    sqlplus_show_statement:
+      keyword: SHOW
+      naked_identifier: PDBS
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: RELEASE
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: SQLCODE
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: EDITION
+- batch:
+    sqlplus_show_statement:
+      keyword: SHOW
+      naked_identifier: RECYCLEBIN
+- batch:
+    sqlplus_show_statement:
+      keyword: SHOW
+      naked_identifier: CON_NAME
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: PARAMETERS
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: PARAMETER
+    - object_reference:
+        naked_identifier: db_name
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - keyword: PROCEDURE
+    - object_reference:
+        naked_identifier: my_proc
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - keyword: PACKAGE
+    - keyword: BODY
+    - object_reference:
+        naked_identifier: my_pkg
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - keyword: TYPE
+    - keyword: BODY
+    - object_reference:
+        naked_identifier: my_type
+- batch:
+    sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - keyword: FUNCTION
+    - object_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: my_fn
+- batch:
+    sqlplus_show_statement:
+      keyword: SHOW
+      naked_identifier: ERR
+- batch:
+    sqlplus_show_statement:
+      keyword: SHOW
+      naked_identifier: REL
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+          keyword: DECLARE
+          naked_identifier: show
+          data_type:
+            data_type_identifier: NUMBER
+          statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          null_statement:
+            keyword: 'NULL'
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
       slash: /
