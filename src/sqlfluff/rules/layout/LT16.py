@@ -8,10 +8,12 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import Segments, sp
 
 # The clauses handled by this rule, mapped from the config keyword which
-# controls them to the segment type which they're parsed as.
+# controls them to the segment types which they're parsed as. NOTE: BigQuery's
+# `GROUP AND ORDER BY` is a `GROUP BY` with an extra modifier, so it's covered
+# by the group by policy.
 CLAUSE_POLICIES = {
-    "group_by_policy": "groupby_clause",
-    "order_by_policy": "orderby_clause",
+    "group_by_policy": ("groupby_clause", "group_and_orderby_clause"),
+    "order_by_policy": ("orderby_clause",),
 }
 
 # Within these segments, the clause is part of a larger inline expression
@@ -21,7 +23,6 @@ INLINE_CONTEXTS = (
     "window_specification",
     "aggregate_order_by",
     "withingroup_clause",
-    "pipe_operator_clause",
 )
 
 
@@ -34,9 +35,13 @@ class Rule_LT16(BaseRule):
     .. note::
        By default this applies to both ``GROUP BY`` and ``ORDER BY``. Either
        can be relaxed by setting the relevant policy to ``same_line``, e.g.
-       ``order_by_policy = same_line``. ``ORDER BY`` clauses which are part
-       of a larger expression (e.g. within a window function) are never
-       affected by this rule.
+       ``order_by_policy = same_line``. BigQuery's ``GROUP AND ORDER BY``
+       follows ``group_by_policy``.
+
+    .. note::
+       ``ORDER BY`` clauses which are part of a larger expression (e.g. within
+       a window function, an aggregate function or a ``WITHIN GROUP`` clause)
+       are never affected by this rule.
 
     **Anti-pattern**
 
@@ -77,7 +82,9 @@ class Rule_LT16(BaseRule):
     name = "layout.list_targets"
     groups = ("all", "layout")
     config_keywords = ["group_by_policy", "order_by_policy"]
-    crawl_behaviour = SegmentSeekerCrawler(set(CLAUSE_POLICIES.values()))
+    crawl_behaviour = SegmentSeekerCrawler(
+        {seg_type for types in CLAUSE_POLICIES.values() for seg_type in types}
+    )
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -132,8 +139,8 @@ class Rule_LT16(BaseRule):
     def _is_enabled(self, segment: BaseSegment) -> bool:
         """Is this rule configured to apply to this clause?"""
         return any(
-            segment.is_type(seg_type) and getattr(self, policy) == "new_line"
-            for policy, seg_type in CLAUSE_POLICIES.items()
+            segment.is_type(*seg_types) and getattr(self, policy) == "new_line"
+            for policy, seg_types in CLAUSE_POLICIES.items()
         )
 
     @staticmethod

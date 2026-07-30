@@ -50,10 +50,10 @@ def get_configs_info() -> dict[str, ConfigInfo]:
         "group_by_policy": {
             "validation": ["same_line", "new_line"],
             "definition": (
-                "Treatment of ``GROUP BY`` targets. ``new_line`` (default) "
-                "requires each target to be on its own line, unless there is "
-                "only one. ``same_line`` allows several targets to share a "
-                "line."
+                "Treatment of ``GROUP BY`` targets (including BigQuery's "
+                "``GROUP AND ORDER BY``). ``new_line`` (default) requires "
+                "each target to be on its own line, unless there is only "
+                "one. ``same_line`` allows several targets to share a line."
             ),
         },
         "order_by_policy": {
