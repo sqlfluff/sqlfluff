@@ -155,3 +155,52 @@ test_pass_left_join_unnest_where_unaliased:
       UNNEST(t.purchases)
     WHERE
       t.user_id != 1
+
+test_pass_templated_join_clause_not_fixed:
+  # https://github.com/sqlfluff/sqlfluff/issues/8230
+  # Moving the condition into an ON clause rewrites the whole join clause. When
+  # that clause is templated the resulting patch can't be mapped back to the
+  # source and is dropped, but the (literal) WHERE rewrite still applied - which
+  # deleted the join condition altogether.
+  pass_str: |
+    select a.id, b.id as b_id
+    from table_a as a
+    left join {{ ref('table_b') }} as b
+    where a.region = b.region
+  configs:
+    core:
+      dialect: snowflake
+      templater: jinja
+
+test_pass_templated_join_clause_keeps_other_filters:
+  # The join condition used to disappear while the unrelated filter survived,
+  # so the fix looked successful but silently changed the query's meaning.
+  pass_str: |
+    select a.id
+    from table_a as a
+    left join {{ ref('table_b') }} as b
+    where a.region = b.region and a.x = 1
+  configs:
+    core:
+      dialect: snowflake
+      templater: jinja
+
+test_fail_templated_join_alongside_literal_join:
+  # Only the non-templated join is rewritten; the templated join's condition
+  # stays put in the WHERE clause.
+  fail_str: |
+    select a.id
+    from table_a as a
+    left join {{ ref('table_b') }} as b
+    left join table_c as c
+    where a.region = b.region and a.k = c.k
+  fix_str: |
+    select a.id
+    from table_a as a
+    left join {{ ref('table_b') }} as b
+    left join table_c as c ON a.k = c.k
+    where a.region = b.region
+  configs:
+    core:
+      dialect: snowflake
+      templater: jinja

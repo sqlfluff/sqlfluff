@@ -140,6 +140,18 @@ class Rule_CV12(BaseRule):
                 # Join condition is present, no error reported.
                 continue
 
+            if join_clause.is_templated:
+                # Moving a condition into an ON clause rewrites the whole join
+                # clause. If that clause contains templated code, the resulting
+                # patch can't be mapped back onto the source file and is
+                # silently dropped - but the WHERE clause rewrite below is
+                # literal, so it still applies. The net effect is that the join
+                # condition is deleted rather than moved, silently changing the
+                # meaning of the query. Flag the violation, but don't offer a
+                # fix we can't apply safely.
+                yield LintResult(anchor=join_clause)
+                continue
+
             if not where_clause_simplifable:
                 yield LintResult(anchor=join_clause)
             else:
