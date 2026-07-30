@@ -152,3 +152,51 @@ BEGIN
     END LOOP;
 END;
 /
+
+-- SELECT ... INTO targeting fields of a record variable.
+CREATE OR REPLACE PROCEDURE test_proc(out_rec OUT SYS_REFCURSOR) IS
+  TYPE t_rec IS RECORD (a NUMBER, b NUMBER);
+  out_metrics t_rec;
+BEGIN
+  WITH cte1 AS (
+    SELECT 1 AS x FROM dual
+  )
+
+  SELECT
+    cte1.x,
+    cte1.x
+  INTO
+    out_metrics.a,
+    out_metrics.b
+  FROM cte1;
+END;
+/
+
+-- Record fields mixed with plain variables, and a nested field.
+DECLARE
+  TYPE inner_rec IS RECORD (c NUMBER);
+  TYPE outer_rec IS RECORD (a NUMBER, nested inner_rec);
+  rec        outer_rec;
+  plain_var  NUMBER;
+BEGIN
+  SELECT 1, 2, 3
+  INTO rec.a, plain_var, rec.nested.c
+  FROM dual;
+
+  UPDATE t1 SET id = id + 1
+  WHERE id = 1
+  RETURNING id, description INTO rec.a, rec.nested.c;
+END;
+/
+
+-- BULK COLLECT INTO targeting a record field.
+DECLARE
+  TYPE t_ids IS TABLE OF NUMBER;
+  TYPE t_holder IS RECORD (ids t_ids);
+  holder t_holder;
+BEGIN
+  SELECT id
+  BULK COLLECT INTO holder.ids
+  FROM t1;
+END;
+/

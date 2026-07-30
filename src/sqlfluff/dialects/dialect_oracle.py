@@ -3856,7 +3856,15 @@ class IntoClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "INTO",
-        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment"))),
+        # Targets may be record or collection fields (e.g. `rec.field`), not
+        # just bare variable names.
+        Delimited(
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("ObjectReferenceSegment"),
+                Ref("BindVariableSegment"),
+            )
+        ),
     )
 
 
@@ -3873,7 +3881,14 @@ class BulkCollectIntoClauseSegment(BaseSegment):
         "COLLECT",
         "INTO",
         ImplicitIndent,
-        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment"))),
+        # As above, targets may be record or collection fields.
+        Delimited(
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("ObjectReferenceSegment"),
+                Ref("BindVariableSegment"),
+            )
+        ),
         Dedent,
     )
 

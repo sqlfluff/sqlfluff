@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b69491eeb30a90ecd2d4ddeeb37ba2eea0e9d237e36fe309b6f3fc4c13b93a35
+_hash: 0e9cafeaaa324332db5ccd02859633aab9bdc7a62e27c5310a54c4af728c7ae1
 file:
 - batch:
     statement:
@@ -1282,6 +1282,292 @@ file:
             - statement_terminator: ;
             - keyword: END
             - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - function_name:
+          function_name_identifier: test_proc
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: out_rec
+            keyword: OUT
+            data_type:
+              data_type_identifier: SYS_REFCURSOR
+            end_bracket: )
+      - keyword: IS
+      - declare_segment:
+        - record_type:
+          - keyword: TYPE
+          - naked_identifier: t_rec
+          - keyword: IS
+          - keyword: RECORD
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: a
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - naked_identifier: b
+            - data_type:
+                data_type_identifier: NUMBER
+            - end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: out_metrics
+        - data_type:
+            data_type_identifier: t_rec
+        - statement_terminator: ;
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            with_compound_statement:
+              keyword: WITH
+              common_table_expression:
+                naked_identifier: cte1
+                keyword: AS
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        numeric_literal: '1'
+                        alias_expression:
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: x
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: dual
+                  end_bracket: )
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                    - naked_identifier: cte1
+                    - dot: .
+                    - naked_identifier: x
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                    - naked_identifier: cte1
+                    - dot: .
+                    - naked_identifier: x
+                into_clause:
+                - keyword: INTO
+                - object_reference:
+                  - naked_identifier: out_metrics
+                  - dot: .
+                  - naked_identifier: a
+                - comma: ','
+                - object_reference:
+                  - naked_identifier: out_metrics
+                  - dot: .
+                  - naked_identifier: b
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: cte1
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+        - keyword: DECLARE
+        - record_type:
+          - keyword: TYPE
+          - naked_identifier: inner_rec
+          - keyword: IS
+          - keyword: RECORD
+          - bracketed:
+              start_bracket: (
+              naked_identifier: c
+              data_type:
+                data_type_identifier: NUMBER
+              end_bracket: )
+        - statement_terminator: ;
+        - record_type:
+          - keyword: TYPE
+          - naked_identifier: outer_rec
+          - keyword: IS
+          - keyword: RECORD
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: a
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - naked_identifier: nested
+            - data_type:
+                data_type_identifier: inner_rec
+            - end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: rec
+        - data_type:
+            data_type_identifier: outer_rec
+        - statement_terminator: ;
+        - naked_identifier: plain_var
+        - data_type:
+            data_type_identifier: NUMBER
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                numeric_literal: '1'
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '2'
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '3'
+            into_clause:
+            - keyword: INTO
+            - object_reference:
+              - naked_identifier: rec
+              - dot: .
+              - naked_identifier: a
+            - comma: ','
+            - naked_identifier: plain_var
+            - comma: ','
+            - object_reference:
+              - naked_identifier: rec
+              - dot: .
+              - naked_identifier: nested
+              - dot: .
+              - naked_identifier: c
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: dual
+      - statement_terminator: ;
+      - statement:
+          update_statement:
+            keyword: UPDATE
+            table_reference:
+              naked_identifier: t1
+            set_clause_list:
+              keyword: SET
+              set_clause:
+                column_reference:
+                  naked_identifier: id
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                  binary_operator: +
+                  numeric_literal: '1'
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: id
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '1'
+            returning_clause:
+            - keyword: RETURNING
+            - naked_identifier: id
+            - comma: ','
+            - naked_identifier: description
+            - into_clause:
+              - keyword: INTO
+              - object_reference:
+                - naked_identifier: rec
+                - dot: .
+                - naked_identifier: a
+              - comma: ','
+              - object_reference:
+                - naked_identifier: rec
+                - dot: .
+                - naked_identifier: nested
+                - dot: .
+                - naked_identifier: c
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+        - keyword: DECLARE
+        - collection_type:
+          - keyword: TYPE
+          - naked_identifier: t_ids
+          - keyword: IS
+          - keyword: TABLE
+          - keyword: OF
+          - data_type:
+              data_type_identifier: NUMBER
+        - statement_terminator: ;
+        - record_type:
+          - keyword: TYPE
+          - naked_identifier: t_holder
+          - keyword: IS
+          - keyword: RECORD
+          - bracketed:
+              start_bracket: (
+              naked_identifier: ids
+              data_type:
+                data_type_identifier: t_ids
+              end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: holder
+        - data_type:
+            data_type_identifier: t_holder
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            bulk_collect_into_clause:
+            - keyword: BULK
+            - keyword: COLLECT
+            - keyword: INTO
+            - object_reference:
+              - naked_identifier: holder
+              - dot: .
+              - naked_identifier: ids
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: t1
       - statement_terminator: ;
       - keyword: END
     statement_terminator: ;
