@@ -1,23 +1,9 @@
 """Implementation of Rule RF07."""
 
 from sqlfluff.core.dialects.common import qualification
-from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.analysis.select import get_select_statement_info
-
-
-def _identifier_key(identifier: BaseSegment) -> tuple[bool, str]:
-    """Return a comparison key of quoting style and normalized name.
-
-    Unquoted identifiers fold case according to the dialect, so they compare
-    case-insensitively with each other. A quoted identifier keeps its exact
-    spelling and only compares equal to another quoted identifier with the
-    same spelling, mirroring ANSI quoted identifier semantics.
-    """
-    if identifier.is_type("quoted_identifier"):
-        return (True, identifier.raw_normalized())
-    return (False, identifier.raw_normalized())
 
 
 class Rule_RF07(BaseRule):
@@ -85,10 +71,11 @@ class Rule_RF07(BaseRule):
         if not select_info or len(select_info.table_aliases) <= 1:
             return None
 
-        # Comparison keys of the aliases declared in this SELECT: case variants
-        # of unquoted identifiers match, quoted identifiers match exactly.
+        # Normalized names of the aliases declared in this SELECT.
+        # raw_normalized() applies the dialect's identifier case folding, so
+        # names which the dialect treats as the same column compare equal.
         alias_names = {
-            _identifier_key(identifier)
+            identifier.raw_normalized()
             for element in select_statement.recursive_crawl(
                 "select_clause_element", no_recursive_seg_type="select_statement"
             )
@@ -113,7 +100,7 @@ class Rule_RF07(BaseRule):
                 identifier = next(reference.recursive_crawl("identifier"), None)
                 if identifier is None:  # pragma: no cover
                     continue
-                if _identifier_key(identifier) in alias_names:
+                if identifier.raw_normalized() in alias_names:
                     results.append(
                         LintResult(
                             anchor=reference,
