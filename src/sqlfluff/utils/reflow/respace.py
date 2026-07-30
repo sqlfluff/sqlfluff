@@ -454,6 +454,9 @@ def _determine_aligned_inline_spacing(
                 and sibling.pos_marker
                 and seg.pos_marker.working_loc == sibling.pos_marker.working_loc
                 and last_code
+                and last_code.pos_marker
+                and _pos_line(last_code.pos_marker, use_source_positions)
+                == _pos_line(sibling.pos_marker, use_source_positions)
             ):
                 if use_source_positions:
                     end_pm = last_code.pos_marker.end_point_marker()
