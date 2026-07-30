@@ -155,3 +155,21 @@ test_pass_left_join_unnest_where_unaliased:
       UNNEST(t.purchases)
     WHERE
       t.user_id != 1
+
+test_fail_templated_join_no_fix:
+  # If the join clause overlaps templated code, replacing it would
+  # be discarded as unsafe while the WHERE rewrite still applied,
+  # silently deleting the join condition. The violation should
+  # still be flagged, but without a fix.
+  # https://github.com/sqlfluff/sqlfluff/issues/8230
+  fail_str: |
+    select a.id, b.id as b_id
+    from table_a as a
+    left join {{ ref('table_b') }} as b
+    where a.region = b.region
+  configs:
+    core:
+      templater: jinja
+    templater:
+      jinja:
+        apply_dbt_builtins: true

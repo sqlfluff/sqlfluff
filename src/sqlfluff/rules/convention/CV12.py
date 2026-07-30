@@ -142,6 +142,24 @@ class Rule_CV12(BaseRule):
 
             if not where_clause_simplifable:
                 yield LintResult(anchor=join_clause)
+            elif join_clause.pos_marker and not join_clause.pos_marker.is_literal():
+                # The join clause overlaps templated code (e.g. a Jinja
+                # expression for the joined table). Any replacement of the
+                # join clause would be discarded by the linter as unsafe,
+                # but the paired WHERE clause rewrite would still apply,
+                # silently deleting the condition. Flag the issue without
+                # a fix and leave the WHERE clause untouched. Anchor on a
+                # literal segment where possible so the violation isn't
+                # filtered out along with the templated section.
+                anchor = next(
+                    (
+                        seg
+                        for seg in join_clause.recursive_crawl_all()
+                        if seg.pos_marker and seg.pos_marker.is_literal() and seg.raw
+                    ),
+                    join_clause,
+                )
+                yield LintResult(anchor=anchor)
             else:
                 this_join_clause_subexpressions = set()
                 for subexpr_idx, subexpr_segments in enumerate(subexpressions):
