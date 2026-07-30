@@ -3857,11 +3857,9 @@ class IntoClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "INTO",
         Delimited(
-            OneOf(
-                Ref("SingleIdentifierGrammar"),
-                Ref("ObjectReferenceSegment"),
-                Ref("BindVariableSegment"),
-            )
+            Ref("SingleIdentifierGrammar"),
+            Ref("ObjectReferenceSegment"),
+            Ref("BindVariableSegment"),
         ),
     )
 
