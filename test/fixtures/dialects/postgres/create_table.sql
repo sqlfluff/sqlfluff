@@ -370,3 +370,10 @@ CREATE TABLE myschema.user (
 CREATE TABLE my_table (
   interval  bigint
 );
+
+CREATE TABLE generated_columns (
+    simple_column integer,
+    stored_column bigint GENERATED ALWAYS AS (simple_column * 2) STORED,
+    virtual_column bigint GENERATED ALWAYS AS (simple_column * 3) VIRTUAL,
+    implicitly_virtual_column bigint GENERATED ALWAYS AS (simple_column * 4)
+);

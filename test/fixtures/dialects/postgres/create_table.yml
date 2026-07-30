@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7c8ef6046a12da5416a7f53a483423ece5bc65ab618f64ab1df1ff86aeb80b1a
+_hash: b8886382680e9fb1bffc20cd612262085bc6121a304d4b6715c99c7da52bb2b4
 file:
 - statement:
     create_table_statement:
@@ -2478,4 +2478,74 @@ file:
           data_type:
             keyword: bigint
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: generated_columns
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: simple_column
+          data_type:
+            keyword: integer
+      - comma: ','
+      - column_definition:
+          naked_identifier: stored_column
+          data_type:
+            keyword: bigint
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: simple_column
+                  binary_operator: '*'
+                  numeric_literal: '2'
+                end_bracket: )
+          - keyword: STORED
+      - comma: ','
+      - column_definition:
+          naked_identifier: virtual_column
+          data_type:
+            keyword: bigint
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: simple_column
+                  binary_operator: '*'
+                  numeric_literal: '3'
+                end_bracket: )
+          - keyword: VIRTUAL
+      - comma: ','
+      - column_definition:
+          naked_identifier: implicitly_virtual_column
+          data_type:
+            keyword: bigint
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: simple_column
+                  binary_operator: '*'
+                  numeric_literal: '4'
+                end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;

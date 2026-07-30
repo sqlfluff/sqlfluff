@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cdcbe24329fb7f0e321e4ad584f94a5d6e918340c17cc53d61af8dedc57a473d
+_hash: b6d80a45bcc90896d3537c77810bf970a7a0ab296d69c1c1b482df31450547ff
 file:
 - statement:
     create_foreign_table_statement:
@@ -110,6 +110,43 @@ file:
                 numeric_literal: '2'
               end_bracket: )
         - keyword: STORED
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_virtual_generated_constraint
+      - data_type:
+          keyword: bigint
+      - column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: simple_column
+                binary_operator: '*'
+                numeric_literal: '3'
+              end_bracket: )
+        - keyword: VIRTUAL
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_implicitly_virtual_generated_constraint
+      - data_type:
+          keyword: bigint
+      - column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: simple_column
+                binary_operator: '*'
+                numeric_literal: '4'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: column_with_more_than_one_constraint

@@ -7,6 +7,8 @@ CREATE FOREIGN TABLE foreign_table (
     column_with_check_constraint float CHECK (column_with_check_constraint > 0.0),
     column_with_default_constraint timestamp DEFAULT CURRENT_TIMESTAMP,
     column_with_generated_constraint bigint GENERATED ALWAYS AS (simple_column * 2) STORED,
+    column_with_virtual_generated_constraint bigint GENERATED ALWAYS AS (simple_column * 3) VIRTUAL,
+    column_with_implicitly_virtual_generated_constraint bigint GENERATED ALWAYS AS (simple_column * 4),
     column_with_more_than_one_constraint int NOT NULL CHECK (column_with_more_than_one_constraint > 0),
     column_with_options_and_collate char(5) OPTIONS (a 'foo', b 'bar') COLLATE "es_ES",
     column_with_options_and_constraint char(5) OPTIONS (a 'foo', b 'bar') NOT NULL,
