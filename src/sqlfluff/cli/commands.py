@@ -432,8 +432,18 @@ def core_options(f: Callable) -> Callable:
 def lint_options(f: Callable) -> Callable:
     """Add lint operation options to commands via a decorator.
 
-    These are cli commands that do linting, i.e. `lint` and `fix`.
+    These are cli commands that do linting, i.e. `lint`, `fix`, and `format`.
     """
+    f = click.option(
+        "-q",
+        "--quiet",
+        is_flag=True,
+        help=(
+            "Reduces the amount of output to stdout to a minimal level. "
+            "This is effectively the opposite of -v. NOTE: It cannot be "
+            "used together with -v/--verbose."
+        ),
+    )(f)
     f = click.option(
         "-p",
         "--processes",
@@ -472,6 +482,18 @@ def lint_options(f: Callable) -> Callable:
         help="Perform the operation regardless of .sqlfluffignore configurations",
     )(f)
     return f
+
+
+def _apply_quiet_option(quiet: bool, kwargs: dict[str, Any]) -> None:
+    """Apply the quiet option as negative verbosity."""
+    if not quiet:
+        return
+    if kwargs["verbose"]:
+        click.echo(
+            "ERROR: The --quiet flag can only be used if --verbose is not set.",
+        )
+        sys.exit(EXIT_ERROR)
+    kwargs["verbose"] = -1
 
 
 def get_config(
@@ -693,6 +715,7 @@ def lint(
     nofail: bool,
     recursion_limit: Optional[int],
     disregard_sqlfluffignores: bool,
+    quiet: bool = False,
     logger: Optional[logging.Logger] = None,
     bench: bool = False,
     processes: Optional[int] = None,
@@ -721,6 +744,7 @@ def lint(
         echo 'select col from tbl' | sqlfluff lint -
 
     """
+    _apply_quiet_option(quiet, kwargs)
     apply_recursion_limit(
         recursion_limit,
         extra_config_path=extra_config_path,
@@ -1287,16 +1311,6 @@ def _paths_fix(
     ),
 )
 @click.option(
-    "-q",
-    "--quiet",
-    is_flag=True,
-    help=(
-        "Reduces the amount of output to stdout to a minimal level. "
-        "This is effectively the opposite of -v. NOTE: It cannot be "
-        "used together with -v/--verbose."
-    ),
-)
-@click.option(
     "-x",
     "--fixed-suffix",
     default=None,
@@ -1353,6 +1367,7 @@ def fix(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    _apply_quiet_option(quiet, kwargs)
     apply_recursion_limit(
         recursion_limit,
         extra_config_path=extra_config_path,
@@ -1361,14 +1376,6 @@ def fix(
     )
     # some quick checks
     fixing_stdin = ("-",) == paths
-    if quiet:
-        if kwargs["verbose"]:
-            click.echo(
-                "ERROR: The --quiet flag can only be used if --verbose is not set.",
-            )
-            sys.exit(EXIT_ERROR)
-        kwargs["verbose"] = -1
-
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
@@ -1448,6 +1455,7 @@ def cli_format(
     paths: tuple[str],
     disregard_sqlfluffignores: bool,
     recursion_limit: Optional[int],
+    quiet: bool = False,
     bench: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
@@ -1470,6 +1478,7 @@ def cli_format(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    _apply_quiet_option(quiet, kwargs)
     apply_recursion_limit(
         recursion_limit,
         extra_config_path=extra_config_path,

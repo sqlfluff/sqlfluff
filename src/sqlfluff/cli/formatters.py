@@ -761,4 +761,5 @@ class OutputStreamFormatter(FormatterInterface):
 
     def completion_message(self) -> None:
         """Prints message when SQLFluff is finished."""
-        click.echo(f"All Finished{'' if self.plain_output else ' 📜 🎉'}!")
+        if self.verbosity >= 0:
+            click.echo(f"All Finished{'' if self.plain_output else ' 📜 🎉'}!")

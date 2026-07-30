@@ -776,18 +776,6 @@ def test__cli__command_lint_parse(command):
             ),
             1,
         ),
-        # Test that setting --quiet with --verbose raises an error.
-        (
-            (
-                fix,
-                [
-                    "--quiet",
-                    "--verbose",
-                    "test/fixtures/cli/fail_many.sql",
-                ],
-            ),
-            2,
-        ),
         # Test machine format parse command with an unparsable file.
         (
             (
@@ -809,6 +797,42 @@ def test__cli__command_lint_parse(command):
 def test__cli__command_lint_parse_with_retcode(command, ret_code):
     """Check commands expecting a non-zero ret code."""
     invoke_assert_code(ret_code=ret_code, args=command)
+
+
+@pytest.mark.parametrize("command", [lint, fix, cli_format])
+def test__cli__quiet_suppresses_success_output(command):
+    """The linting commands should be silent on success when quiet."""
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            command,
+            [
+                "--quiet",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    assert result.stdout == ""
+
+
+@pytest.mark.parametrize("command", [lint, fix, cli_format])
+def test__cli__quiet_rejects_verbose(command):
+    """The linting commands should reject conflicting output options."""
+    invoke_assert_code(
+        ret_code=2,
+        args=[
+            command,
+            [
+                "--quiet",
+                "--verbose",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+        assert_stdout_contains=(
+            "ERROR: The --quiet flag can only be used if --verbose is not set."
+        ),
+    )
 
 
 def test__cli__command_lint_warning_explicit_file_ignored():
@@ -2519,8 +2543,7 @@ def test__cli__fix_multiple_errors_quiet_check():
         assert_stdout_contains=(
             """2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
-== [test/fixtures/linter/multiple_sql_errors.sql] FIXED
-All Finished"""
+== [test/fixtures/linter/multiple_sql_errors.sql] FIXED"""
         ),
     )
 
