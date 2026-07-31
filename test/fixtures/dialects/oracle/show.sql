@@ -26,3 +26,14 @@ SHOW PDBS;
 SHOW CON_NAME;
 
 SHOW LINESIZE;
+
+-- SHOW accepts SET system variables that are Oracle reserved words.
+SHOW LONG;
+
+SHOW NULL;
+
+-- SQL*Plus terminates commands at newlines without requiring semicolons.
+SHOW PARAMETERS
+SHOW USER
+SHOW PARAMETERS
+SET SCAN ON

@@ -189,6 +189,7 @@ oracle_dialect.add(
     ),
     PowerOperatorSegment=StringParser("**", SymbolSegment, type="binary_operator"),
     ModOperatorSegment=StringParser("MOD", WordSegment, type="binary_operator"),
+    ShowOptionSegment=TypedParser("word", CodeSegment, type="show_option"),
     OnCommitGrammar=Sequence(
         "ON",
         "COMMIT",
@@ -1234,14 +1235,19 @@ class ShowStatementSegment(BaseSegment):
             # SHOW PARAMETER[S] [name]
             Sequence(
                 OneOf("PARAMETERS", "PARAMETER"),
-                Ref("ParameterNameSegment", optional=True),
+                Ref(
+                    "ParameterNameSegment",
+                    optional=True,
+                    exclude=OneOf("SHOW", "SET", "PROMPT"),
+                ),
             ),
-            # Reserved keywords that cannot be matched as a bare identifier.
             "ALL",
             "USER",
-            # Any other single-word option, or a SET system variable, e.g.
-            # SGA, PDBS, RELEASE, RECYCLEBIN, SPOOL, LINESIZE, PAGESIZE.
-            Ref("NakedIdentifierSegment"),
+            # Any other single-word option, including a SET system variable.
+            Ref(
+                "ShowOptionSegment",
+                exclude=OneOf("SHOW", "SET", "PROMPT"),
+            ),
         ),
     )
 
