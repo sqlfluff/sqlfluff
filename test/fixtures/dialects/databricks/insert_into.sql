@@ -51,12 +51,27 @@ INSERT INTO TABLE students AS t
 REPLACE ON t.name = s.name
 SELECT * FROM people;
 
+-- INSERT INTO with REPLACE ON and implicit target alias (no AS)
+INSERT INTO TABLE students t
+REPLACE ON t.name = s.name
+SELECT * FROM people;
+
 -- INSERT INTO with BY NAME and REPLACE ON (Databricks Runtime 18.1+)
 INSERT INTO TABLE students AS t BY NAME
 REPLACE ON t.name = s.name
 SELECT * FROM (
     VALUES ('query', 'Bob'), ('query', 'Charlie')
 ) AS s(row_origin, name);
+
+-- INSERT INTO with REPLACE ON and source alias
+INSERT INTO TABLE students AS t
+REPLACE ON t.name = s.name
+SELECT * FROM people AS s;
+
+-- INSERT INTO with REPLACE ON and implicit source alias (no AS)
+INSERT INTO TABLE students t
+REPLACE ON t.name = s.name
+SELECT * FROM people s;
 
 -- INSERT WITH SCHEMA EVOLUTION
 INSERT WITH SCHEMA EVOLUTION INTO TABLE students

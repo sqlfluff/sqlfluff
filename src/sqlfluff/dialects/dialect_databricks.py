@@ -1624,12 +1624,9 @@ class InsertStatementSegment(sparksql.InsertStatementSegment):
                 Ref("TableReferenceSegment"),
                 OneOf(
                     # Form 3: REPLACE ON with optional target_alias and BY NAME.
-                    # target_alias requires the AS keyword here to avoid ambiguity
-                    # with the REPLACE/BY unreserved keywords being consumed as a
-                    # bare identifier alias.
                     Sequence(
                         Sequence(
-                            "AS",
+                            Ref.keyword("AS", optional=True),
                             Ref("SingleIdentifierGrammar"),
                             optional=True,
                         ),
@@ -1638,6 +1635,11 @@ class InsertStatementSegment(sparksql.InsertStatementSegment):
                         "ON",
                         Ref("ExpressionSegment"),
                         Ref("SelectableGrammar"),
+                        Sequence(
+                            Ref.keyword("AS", optional=True),
+                            Ref("SingleIdentifierGrammar"),
+                            optional=True,
+                        ),
                     ),
                     # Form 2: [BY NAME] REPLACE WHERE predicate | REPLACE USING (cols)
                     Sequence(
