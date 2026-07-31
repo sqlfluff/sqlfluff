@@ -2921,6 +2921,39 @@ class ResetStatementSegment(BaseSegment):
     )
 
 
+class SetConfigValueSegment(BaseSegment):
+    """A runtime config value in a Spark `SET` statement.
+
+    Narrower than ``ExpressionSegment`` so opaque config strings (paths, URIs,
+    hyphenated tokens) are not treated as SQL expressions for linting/rewrites.
+    https://github.com/sqlfluff/sqlfluff/issues/4218
+    """
+
+    type = "set_config_value"
+
+    match_grammar = OneOf(
+        Ref("LiteralGrammar"),
+        Bracketed(Delimited(Ref("LiteralGrammar"))),
+        Ref("FunctionSegment"),
+        Ref("BareFunctionSegment"),
+        # Java class names / dotted identifier config tokens.
+        # Require at least one dot so a bare token like `dynamic` in
+        # `dynamic,static` falls through to the opaque Anything() branch.
+        Delimited(
+            Ref("PropertiesNakedIdentifierSegment"),
+            delimiter=Ref("DotSegment"),
+            min_delimiters=1,
+        ),
+        # Opaque raw payloads (URIs, hyphenated tokens, comma lists, etc.).
+        # Bound on `;` only — SparkSQL expects semicolon-delimited statements;
+        # missing-semicolon recovery is a separate known gap. See #8187 / #4218.
+        Anything(
+            terminators=[Ref("DelimiterGrammar")],
+            reset_terminators=True,
+        ),
+    )
+
+
 class SetStatementSegment(BaseSegment):
     """A `SET` statement used to set runtime properties.
 
@@ -2933,7 +2966,13 @@ class SetStatementSegment(BaseSegment):
         "SET",
         Ref("SQLConfPropertiesSegment", optional=True),
         OneOf(
-            Ref("PropertyListGrammar"),
+            # One key=value assignment. Delimiting assignments on commas
+            # incorrectly splits opaque values that contain commas.
+            Sequence(
+                Ref("PropertyNameSegment"),
+                Ref("EqualsSegment"),
+                Ref("SetConfigValueSegment"),
+            ),
             Ref("PropertyNameSegment"),
             optional=True,
         ),
