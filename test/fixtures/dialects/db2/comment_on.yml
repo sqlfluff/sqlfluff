@@ -1,0 +1,67 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fadd7600813daf0d3492b69bf8eee091e3968c4946fa60643a09784f1814192b
+file:
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: mytab
+    - keyword: IS
+    - quoted_literal: "'a table'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: mytab
+      - dot: .
+      - naked_identifier: mycol
+    - keyword: IS
+    - quoted_literal: "'a column'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: myidx
+    - keyword: IS
+    - quoted_literal: "'an index'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: mytab
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - keyword: IS
+      - quoted_literal: "'first column'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - keyword: IS
+      - quoted_literal: "'second column'"
+      - end_bracket: )
+- statement_terminator: ;

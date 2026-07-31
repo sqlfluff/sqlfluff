@@ -674,7 +674,83 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             Ref("CallStoredProcedureSegment"),
             Ref("DeclareGlobalTempTableSegment"),
+            Ref("CommentOnStatementSegment"),
         ]
+    )
+
+
+class CommentOnStatementSegment(BaseSegment):
+    """A `COMMENT ON` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-comment
+    """
+
+    type = "comment_clause"
+
+    match_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        OneOf(
+            # Multi-column form: COMMENT ON TABLE t (c1 IS '..', c2 IS '..')
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            "IS",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+                "IS",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                OneOf(
+                    "ALIAS",
+                    "FUNCTION",
+                    "INDEX",
+                    "PACKAGE",
+                    "PROCEDURE",
+                    "ROLE",
+                    "SCHEMA",
+                    "SEQUENCE",
+                    "TABLE",
+                    "TABLESPACE",
+                    "TRIGGER",
+                    "TYPE",
+                    "VARIABLE",
+                ),
+                Ref("ObjectReferenceSegment"),
+                "IS",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
+class AccessTargetSegment(ansi.AccessTargetSegment):
+    """An access target.
+
+    Db2 allows a `USER`/`GROUP`/`ROLE` keyword before each grantee in a
+    comma-separated list, e.g. `GRANT ... TO USER a, USER b, GROUP c`.
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-grant-table-view-nickname-privileges
+    """
+
+    match_grammar = OneOf(
+        "PUBLIC",
+        Delimited(
+            Sequence(
+                OneOf("USER", "GROUP", "ROLE", optional=True),
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
     )
 
 
