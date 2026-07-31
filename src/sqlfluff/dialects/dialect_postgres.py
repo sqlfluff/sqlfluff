@@ -1470,7 +1470,10 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
                                 Ref("DatatypeSegment"),
                                 Sequence(
                                     Ref("ColumnReferenceSegment"),
-                                    OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
+                                    OneOf(
+                                        Ref("DatatypeSegment"),
+                                        Ref("ColumnTypeReferenceSegment"),
+                                    ),
                                 ),
                             ),
                         )
