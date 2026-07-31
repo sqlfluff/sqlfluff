@@ -301,3 +301,134 @@ test_pass_simple_case_ignored:
   configs:
     core:
       dialect: redshift
+
+test_fail_indexed_expression_when_null_else_null:
+  fail_str: |
+    SELECT CASE WHEN genres[0] IS NULL THEN NULL ELSE genres[0] END
+  fix_str: |
+    SELECT genres[0]
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_indexed_expression_when_not_null_no_else:
+  fail_str: |
+    SELECT CASE WHEN genres[0] IS NOT NULL THEN genres[0] END
+  fix_str: |
+    SELECT genres[0]
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_qualified_indexed_expression_when_not_null_no_else:
+  fail_str: |
+    SELECT CASE WHEN table_name.genres[0] IS NOT NULL THEN table_name.genres[0] END
+  fix_str: |
+    SELECT table_name.genres[0]
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_multiple_indexed_expression_when_not_null_no_else:
+  fail_str: |
+    SELECT CASE WHEN genres[0][1] IS NOT NULL THEN genres[0][1] END
+  fix_str: |
+    SELECT genres[0][1]
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_identical_quoted_indexed_expression_when_not_null_no_else:
+  fail_str: |
+    SELECT CASE WHEN "genres"[0] IS NOT NULL THEN "genres"[0] END
+  fix_str: |
+    SELECT "genres"[0]
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_mixed_case_indexed_expression_when_not_null_no_else:
+  fail_str: |
+    SELECT CASE WHEN genres[0] IS NOT NULL THEN GENRES[0] END
+  fix_str: |
+    SELECT GENRES[0]
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_indexed_condition_does_not_change_bare_then_expression:
+  pass_str: |
+    SELECT CASE WHEN genres[0] IS NOT NULL THEN genres END
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_null_condition_does_not_change_bare_then_expression:
+  pass_str: |
+    SELECT CASE WHEN genres[0] IS NULL THEN genres END
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_null_condition_does_not_change_indexed_then_expression:
+  pass_str: |
+    SELECT CASE WHEN genres[0] IS NULL THEN genres[0] END
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_composite_condition_does_not_change_indexed_then_expression:
+  pass_str: |
+    SELECT CASE WHEN genres[0] + other IS NOT NULL THEN genres[0] END
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_composite_condition_with_else_null_does_not_change_indexed_then_expression:
+  pass_str: |
+    SELECT CASE
+      WHEN genres[0] + other IS NOT NULL THEN genres[0]
+      ELSE NULL
+    END
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_distinct_from_null_does_not_change_expression:
+  pass_str: |
+    SELECT CASE WHEN value IS DISTINCT FROM NULL THEN NULL ELSE value END
+
+test_pass_not_distinct_from_null_does_not_change_expression:
+  pass_str: |
+    SELECT CASE WHEN value IS NOT DISTINCT FROM NULL THEN value ELSE NULL END
+
+test_pass_dynamic_index_does_not_change_expression:
+  pass_str: |
+    SELECT CASE
+      WHEN genres[uniform(0, 9, random())] IS NOT NULL
+      THEN genres[uniform(0, 9, random())]
+    END
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_differently_cased_quoted_indexed_columns:
+  pass_str: |
+    SELECT CASE WHEN "genres"[0] IS NOT NULL THEN "GENRES"[0] END
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_differently_cased_clickhouse_indexed_columns_with_else_null:
+  pass_str: |
+    SELECT CASE WHEN genres[1] IS NOT NULL THEN GENRES[1] ELSE NULL END
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_differently_cased_clickhouse_indexed_columns_no_else:
+  pass_str: |
+    SELECT CASE WHEN genres[1] IS NOT NULL THEN GENRES[1] END
+  configs:
+    core:
+      dialect: clickhouse
