@@ -71,6 +71,38 @@ def test__validate_configs_precedence_same_file():
     assert config == {"layout": {"type": {"binary_operator": {"line_position": "foo"}}}}
 
 
+def test__validate_configs_max_line_length_migration():
+    """Test migration of the deprecated `rules:max_line_length` config.
+
+    The replacement value is resolved from the `core` section, so the
+    migrated value must land there rather than at the root of the config.
+    """
+    old_key = ("rules", "max_line_length")
+    new_key = ("core", "max_line_length")
+    # Confirm this key is still translated (guards against the test drifting).
+    assert any(
+        k.old_path == old_key and k.new_path == new_key for k in REMOVED_CONFIGS
+    ), (
+        "This test depends on this key still being removed. Update the test to "
+        "one that is if this one isn't."
+    )
+    # NOTE: A `core` section is present, as it would be for any config loaded
+    # from a file (the `[sqlfluff]` section is loaded as `core`).
+    config = {"core": {"dialect": "ansi"}, "rules": {"max_line_length": 30}}
+    validate_config_dict_for_removed(config, "<test>")
+    assert config == {"core": {"dialect": "ansi", "max_line_length": 30}}
+
+
+def test__validate_configs_max_line_length_precedence():
+    """The new `max_line_length` value should win over the deprecated one."""
+    config = {
+        "core": {"dialect": "ansi", "max_line_length": 50},
+        "rules": {"max_line_length": 30},
+    }
+    validate_config_dict_for_removed(config, "<test>")
+    assert config == {"core": {"dialect": "ansi", "max_line_length": 50}}
+
+
 @pytest.mark.parametrize(
     "old_value,expected",
     [
