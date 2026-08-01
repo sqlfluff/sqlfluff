@@ -34,6 +34,15 @@ fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     sqlfluffrs_rules::python::register(m)?;
     // Add custom exception
     m.add("RsParseError", m.py().get_type::<RsParseError>())?;
+    // Rust-driven orchestration entrypoints (discover → render → lex → parse).
+    m.add_function(wrap_pyfunction!(
+        crate::engine_entry::engine_parse_paths,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::engine_entry::engine_render_string,
+        m
+    )?)?;
     // TemplatedFile conversion-cache internals (weakref eviction + test
     // introspection).
     m.add_function(wrap_pyfunction!(
