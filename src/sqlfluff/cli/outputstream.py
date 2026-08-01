@@ -2,6 +2,8 @@
 
 import abc
 import os
+from dataclasses import dataclass
+from enum import Enum, auto
 from typing import Any, Optional
 
 import click
@@ -9,6 +11,36 @@ from tqdm import tqdm
 
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.types import FormatType
+
+
+class OutputKind(Enum):
+    """Semantic categories used to decide whether CLI output is emitted."""
+
+    PAYLOAD = auto()
+    DIAGNOSTIC = auto()
+    ACTION = auto()
+    STATUS = auto()
+    PROGRESS = auto()
+    VERBOSE = auto()
+
+
+@dataclass(frozen=True)
+class OutputPolicy:
+    """Control CLI output independently from result and exit-code handling."""
+
+    verbosity: int = 0
+    quiet: bool = False
+    machine_output: bool = False
+
+    def allows(self, kind: OutputKind, *, minimum_verbosity: int = 0) -> bool:
+        """Return whether an output category should be emitted."""
+        if kind is OutputKind.PAYLOAD:
+            return True
+        if self.machine_output:
+            return False
+        if kind in (OutputKind.DIAGNOSTIC, OutputKind.ACTION):
+            return True
+        return not self.quiet and self.verbosity >= minimum_verbosity
 
 
 class OutputStream(abc.ABC):

@@ -16,7 +16,7 @@ from sqlfluff.cli.helpers import (
     pad_line,
     wrap_field,
 )
-from sqlfluff.cli.outputstream import OutputStream
+from sqlfluff.cli.outputstream import OutputKind, OutputPolicy, OutputStream
 from sqlfluff.core import FluffConfig, Linter, SQLBaseError, TimingSummary
 from sqlfluff.core.linter import FormatterInterface, LintedFile, ParsedString
 from sqlfluff.core.types import Color
@@ -80,7 +80,7 @@ class OutputStreamFormatter(FormatterInterface):
 
     Args:
         output_stream: Output is sent here
-        verbosity: Specifies how verbose output should be
+        output_policy: Controls which semantic output categories are emitted
         filter_empty: If True, empty messages will not be dispatched
         output_line_length: Maximum line length
     """
@@ -89,14 +89,14 @@ class OutputStreamFormatter(FormatterInterface):
         self,
         output_stream: OutputStream,
         nocolor: Optional[bool],
-        verbosity: int = 0,
+        output_policy: OutputPolicy,
         filter_empty: bool = True,
         output_line_length: int = 80,
         show_lint_violations: bool = False,
     ):
         self._output_stream = output_stream
         self.plain_output = self.should_produce_plain_output(nocolor)
-        self.verbosity = verbosity
+        self.output_policy = output_policy
         self._filter_empty = filter_empty
         self.output_line_length = output_line_length
         self.show_lint_violations = show_lint_violations
@@ -119,17 +119,27 @@ class OutputStreamFormatter(FormatterInterface):
         if (not self._filter_empty) or s.strip(" \n\t"):
             self._output_stream.write(s)
 
+    def dispatch_message(
+        self,
+        s: str,
+        kind: OutputKind,
+        *,
+        minimum_verbosity: int = 0,
+    ) -> None:
+        """Dispatch a message when its semantic output category is enabled."""
+        if self.output_policy.allows(kind, minimum_verbosity=minimum_verbosity):
+            self._dispatch(s)
+
     def _format_config(self, linter: Linter) -> str:
         """Format the config of a `Linter`."""
         text_buffer = StringIO()
-        # Only show version information if verbosity is high enough
-        if self.verbosity > 0:
+        if self.output_policy.allows(OutputKind.VERBOSE, minimum_verbosity=1):
             text_buffer.write("==== sqlfluff ====\n")
             config_content = [
                 ("sqlfluff", get_package_version()),
                 ("python", get_python_version()),
                 ("implementation", get_python_implementation()),
-                ("verbosity", self.verbosity),
+                ("verbosity", self.output_policy.verbosity),
             ]
             if linter.dialect:
                 config_content.append(("dialect", linter.dialect.name))
@@ -145,20 +155,32 @@ class OutputStreamFormatter(FormatterInterface):
                         col_width=41,
                     )
                 )
-            if self.verbosity > 1:
+            if self.output_policy.allows(OutputKind.VERBOSE, minimum_verbosity=2):
                 text_buffer.write("\n== Raw Config:\n")
                 text_buffer.write(self.format_config_vals(linter.config.iter_vals()))
         return text_buffer.getvalue()
 
     def dispatch_config(self, linter: Linter) -> None:
         """Dispatch configuration output appropriately."""
-        self._dispatch(self._format_config(linter))
+        self.dispatch_message(
+            self._format_config(linter),
+            OutputKind.VERBOSE,
+            minimum_verbosity=1,
+        )
 
     def dispatch_persist_filename(self, filename: str, result: str) -> None:
         """Dispatch filenames during a persist operation."""
-        # Only show the skip records at higher levels of verbosity
-        if self.verbosity >= 2 or result != "SKIP":
-            self._dispatch(self.format_filename(filename=filename, success=result))
+        if result == "SKIP":
+            self.dispatch_message(
+                self.format_filename(filename=filename, success=result),
+                OutputKind.VERBOSE,
+                minimum_verbosity=2,
+            )
+        else:
+            self.dispatch_message(
+                self.format_filename(filename=filename, success=result),
+                OutputKind.ACTION,
+            )
 
     def _format_path(self, path: str) -> str:
         """Format paths."""
@@ -166,58 +188,77 @@ class OutputStreamFormatter(FormatterInterface):
 
     def dispatch_path(self, path: str) -> None:
         """Dispatch paths for display."""
-        if self.verbosity > 0:
-            self._dispatch(self._format_path(path))
+        self.dispatch_message(
+            self._format_path(path), OutputKind.VERBOSE, minimum_verbosity=1
+        )
 
     def dispatch_template_header(
         self, fname: str, linter_config: FluffConfig, file_config: Optional[FluffConfig]
     ) -> None:
         """Dispatch the header displayed before templating."""
-        if self.verbosity > 1:
-            self._dispatch(self.format_filename(filename=fname, success="TEMPLATING"))
+        if self.output_policy.allows(OutputKind.VERBOSE, minimum_verbosity=2):
+            self.dispatch_message(
+                self.format_filename(filename=fname, success="TEMPLATING"),
+                OutputKind.VERBOSE,
+                minimum_verbosity=2,
+            )
             # This is where we output config diffs if they exist.
             if file_config:
                 # Only output config diffs if there is a config to diff to.
                 config_diff = file_config.diff_to(linter_config)
                 if config_diff:  # pragma: no cover
-                    self._dispatch("   Config Diff:")
-                    self._dispatch(
+                    self.dispatch_message(
+                        "   Config Diff:",
+                        OutputKind.VERBOSE,
+                        minimum_verbosity=2,
+                    )
+                    self.dispatch_message(
                         self.format_config_vals(
                             linter_config.iter_vals(cfg=config_diff)
-                        )
+                        ),
+                        OutputKind.VERBOSE,
+                        minimum_verbosity=2,
                     )
 
     def dispatch_parse_header(self, fname: str) -> None:
         """Dispatch the header displayed before parsing."""
-        if self.verbosity > 1:
-            self._dispatch(self.format_filename(filename=fname, success="PARSING"))
+        self.dispatch_message(
+            self.format_filename(filename=fname, success="PARSING"),
+            OutputKind.VERBOSE,
+            minimum_verbosity=2,
+        )
 
     def dispatch_lint_header(self, fname: str, rules: list[str]) -> None:
         """Dispatch the header displayed before linting."""
-        if self.verbosity > 1:
-            self._dispatch(
-                self.format_filename(
-                    filename=fname, success=f"LINTING ({', '.join(rules)})"
-                )
-            )
+        self.dispatch_message(
+            self.format_filename(
+                filename=fname, success=f"LINTING ({', '.join(rules)})"
+            ),
+            OutputKind.VERBOSE,
+            minimum_verbosity=2,
+        )
 
     def dispatch_compilation_header(self, templater: str, message: str) -> None:
         """Dispatch the header displayed before linting."""
-        self._dispatch(
-            f"=== [{self.colorize(templater, Color.light)}] {message}"
+        self.dispatch_message(
+            f"=== [{self.colorize(templater, Color.light)}] {message}",
+            OutputKind.STATUS,
         )  # pragma: no cover
 
     def dispatch_processing_header(self, processes: int) -> None:
         """Dispatch the header displayed before linting."""
-        if self.verbosity > 0:
-            self._dispatch(  # pragma: no cover
-                f"{self.colorize('effective configured processes: ', Color.light)} "
-                f"{processes}"
-            )
+        self.dispatch_message(  # pragma: no cover
+            f"{self.colorize('effective configured processes: ', Color.light)} "
+            f"{processes}",
+            OutputKind.VERBOSE,
+            minimum_verbosity=1,
+        )
 
     def dispatch_dialect_warning(self, dialect: str) -> None:
         """Dispatch a warning for dialects."""
-        self._dispatch(self.format_dialect_warning(dialect))  # pragma: no cover
+        self.dispatch_message(  # pragma: no cover
+            self.format_dialect_warning(dialect), OutputKind.DIAGNOSTIC
+        )
 
     def _format_file_violations(
         self, fname: str, violations: list[SQLBaseError]
@@ -234,8 +275,8 @@ class OutputStreamFormatter(FormatterInterface):
         warns = sum(int(violation.warning) for violation in violations)
         show = fails + warns > 0
 
-        # Only print the filename if it's either a failure or verbosity > 1
-        if self.verbosity > 0 or show:
+        # Only print the filename if it has diagnostics or verbose output is enabled.
+        if self.output_policy.allows(OutputKind.VERBOSE, minimum_verbosity=1) or show:
             text_buffer.write(self.format_filename(fname, success=fails == 0))
             text_buffer.write("\n")
 
@@ -264,21 +305,23 @@ class OutputStreamFormatter(FormatterInterface):
         warn_unused_ignores: bool,
     ) -> None:
         """Dispatch any violations found in a file."""
-        if self.verbosity < 0:
-            return
+        violations = linted_file.get_violations(
+            fixable=(
+                True if bool(only_fixable and not self.show_lint_violations) else None
+            ),
+            filter_warning=False,
+            warn_unused_ignores=warn_unused_ignores,
+        )
         s = self._format_file_violations(
             fname,
-            linted_file.get_violations(
-                fixable=(
-                    True
-                    if bool(only_fixable and not self.show_lint_violations)
-                    else None
-                ),
-                filter_warning=False,
-                warn_unused_ignores=warn_unused_ignores,
-            ),
+            violations,
         )
-        self._dispatch(s)
+        kind = (
+            OutputKind.STATUS
+            if only_fixable and not self.show_lint_violations
+            else OutputKind.DIAGNOSTIC
+        )
+        self.dispatch_message(s, kind)
 
     def colorize(self, s: str, color: Optional[Color] = None) -> str:
         """Optionally use ANSI colour codes to colour a string."""
@@ -500,12 +543,12 @@ class OutputStreamFormatter(FormatterInterface):
             out_buff += line
         return out_buff
 
-    def format_linting_stats(self, result, verbose=0) -> str:
+    def format_linting_stats(self, result) -> str:
         """Format a set of stats given a `LintingResult`."""
         text_buffer = StringIO()
         all_stats = result.stats(EXIT_FAIL, EXIT_SUCCESS)
         text_buffer.write("==== summary ====\n")
-        if verbose >= 2:
+        if self.output_policy.allows(OutputKind.VERBOSE, minimum_verbosity=2):
             output_fields = [
                 "files",
                 "violations",
@@ -684,7 +727,6 @@ class OutputStreamFormatter(FormatterInterface):
         bench: bool,
         code_only: bool,
         total_time: float,
-        verbose: int,
         parsed_strings: list[ParsedString],
         violations_getter: Optional[
             Callable[[ParsedString], list[SQLBaseError]]
@@ -745,11 +787,11 @@ class OutputStreamFormatter(FormatterInterface):
                     self.format_dialect_warning(parsed_string.config.get("dialect"))
                 )
 
-            if verbose >= 2:
+            if self.output_policy.allows(OutputKind.VERBOSE, minimum_verbosity=2):
                 output_stream.write("==== timings ====")
                 output_stream.write(self.cli_table(parsed_string.time_dict.items()))
 
-        if verbose >= 2 or bench:
+        if self.output_policy.allows(OutputKind.VERBOSE, minimum_verbosity=2) or bench:
             output_stream.write("==== overall timings ====")
             output_stream.write(self.cli_table([("Clock time", total_time)]))
             timing_summary = timing.summary()
@@ -761,4 +803,7 @@ class OutputStreamFormatter(FormatterInterface):
 
     def completion_message(self) -> None:
         """Prints message when SQLFluff is finished."""
-        click.echo(f"All Finished{'' if self.plain_output else ' 📜 🎉'}!")
+        self.dispatch_message(
+            f"All Finished{'' if self.plain_output else ' 📜 🎉'}!",
+            OutputKind.STATUS,
+        )

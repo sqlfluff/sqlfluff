@@ -21,7 +21,12 @@ from sqlfluff.cli import EXIT_ERROR, EXIT_FAIL, EXIT_SUCCESS
 from sqlfluff.cli.autocomplete import dialect_shell_complete, shell_completion_enabled
 from sqlfluff.cli.formatters import OutputStreamFormatter, format_linting_result_header
 from sqlfluff.cli.helpers import LazySequence, get_package_version
-from sqlfluff.cli.outputstream import OutputStream, make_output_stream
+from sqlfluff.cli.outputstream import (
+    OutputKind,
+    OutputPolicy,
+    OutputStream,
+    make_output_stream,
+)
 
 # Import from sqlfluff core.
 from sqlfluff.core import (
@@ -432,8 +437,18 @@ def core_options(f: Callable) -> Callable:
 def lint_options(f: Callable) -> Callable:
     """Add lint operation options to commands via a decorator.
 
-    These are cli commands that do linting, i.e. `lint` and `fix`.
+    These are cli commands that do linting, i.e. `lint`, `fix`, and `format`.
     """
+    f = click.option(
+        "-q",
+        "--quiet",
+        is_flag=True,
+        help=(
+            "Suppresses routine status and progress output while preserving "
+            "diagnostics and command results. NOTE: It cannot be used together "
+            "with -v/--verbose."
+        ),
+    )(f)
     f = click.option(
         "-p",
         "--processes",
@@ -472,6 +487,18 @@ def lint_options(f: Callable) -> Callable:
         help="Perform the operation regardless of .sqlfluffignore configurations",
     )(f)
     return f
+
+
+def _apply_quiet_option(quiet: bool, kwargs: dict[str, Any]) -> None:
+    """Validate quiet and override configured verbosity."""
+    if not quiet:
+        return
+    if kwargs["verbose"]:
+        click.echo(
+            "ERROR: The --quiet flag can only be used if --verbose is not set.",
+        )
+        sys.exit(EXIT_ERROR)
+    kwargs["verbose"] = 0
 
 
 def get_config(
@@ -542,6 +569,7 @@ def get_linter_and_formatter(
     cfg: FluffConfig,
     output_stream: Optional[OutputStream] = None,
     show_lint_violations: bool = False,
+    output_policy: Optional[OutputPolicy] = None,
 ) -> tuple[Linter, OutputStreamFormatter]:
     """Get a linter object given a config."""
     try:
@@ -553,10 +581,11 @@ def get_linter_and_formatter(
     except KeyError:  # pragma: no cover
         click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
         sys.exit(EXIT_ERROR)
+    output_policy = output_policy or OutputPolicy(verbosity=cfg.get("verbose"))
     formatter = OutputStreamFormatter(
         output_stream=output_stream or make_output_stream(cfg),
         nocolor=cfg.get("nocolor"),
-        verbosity=cfg.get("verbose"),
+        output_policy=output_policy,
         output_line_length=cfg.get("output_line_length"),
         show_lint_violations=show_lint_violations,
     )
@@ -693,6 +722,7 @@ def lint(
     nofail: bool,
     recursion_limit: Optional[int],
     disregard_sqlfluffignores: bool,
+    quiet: bool = False,
     logger: Optional[logging.Logger] = None,
     bench: bool = False,
     processes: Optional[int] = None,
@@ -721,6 +751,7 @@ def lint(
         echo 'select col from tbl' | sqlfluff lint -
 
     """
+    _apply_quiet_option(quiet, kwargs)
     apply_recursion_limit(
         recursion_limit,
         extra_config_path=extra_config_path,
@@ -731,12 +762,21 @@ def lint(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
     non_human_output = (format != FormatType.human.value) or (write_output is not None)
+    verbose = config.get("verbose")
+    output_policy = OutputPolicy(
+        verbosity=verbose,
+        quiet=quiet,
+        machine_output=format != FormatType.human.value,
+    )
     file_output = None
     output_stream = make_output_stream(config, format, write_output)
-    lnt, formatter = get_linter_and_formatter(config, output_stream)
+    lnt, formatter = get_linter_and_formatter(
+        config, output_stream, output_policy=output_policy
+    )
 
-    verbose = config.get("verbose")
-    progress_bar_configuration.disable_progress_bar = disable_progress_bar
+    progress_bar_configuration.disable_progress_bar = bool(
+        disable_progress_bar
+    ) or not output_policy.allows(OutputKind.PROGRESS)
 
     formatter.dispatch_config(lnt)
 
@@ -749,8 +789,12 @@ def lint(
     )
 
     # Output the results as we go
-    if verbose >= 1 and not non_human_output:
-        click.echo(format_linting_result_header())
+    if not non_human_output:
+        formatter.dispatch_message(
+            format_linting_result_header(),
+            OutputKind.VERBOSE,
+            minimum_verbosity=1,
+        )
 
     with PathAndUserErrorHandler(formatter):
         # add stdin if specified via lone '-'
@@ -774,8 +818,12 @@ def lint(
             )
 
     # Output the final stats
-    if verbose >= 1 and not non_human_output:
-        click.echo(formatter.format_linting_stats(result, verbose=verbose))
+    if not non_human_output:
+        formatter.dispatch_message(
+            formatter.format_linting_stats(result),
+            OutputKind.VERBOSE,
+            minimum_verbosity=1,
+        )
 
     if format == FormatType.json.value:
         file_output = json.dumps(result.as_records())
@@ -1003,14 +1051,16 @@ def do_fixes(
     fixed_file_suffix: str = "",
 ) -> bool:
     """Actually do the fixes."""
-    if formatter and formatter.verbosity >= 0:
-        click.echo("Persisting Changes...")
+    if formatter:
+        formatter.dispatch_message("Persisting Changes...", OutputKind.STATUS)
     res = result.persist_changes(
         formatter=formatter, fixed_file_suffix=fixed_file_suffix
     )
     if all(res.values()):
-        if formatter and formatter.verbosity >= 0:
-            click.echo("Done. Please check your files to confirm.")
+        if formatter:
+            formatter.dispatch_message(
+                "Done. Please check your files to confirm.", OutputKind.STATUS
+            )
         return True
     # If some failed then return false
     click.echo(
@@ -1155,8 +1205,9 @@ def _paths_fix(
 ) -> None:
     """Handle fixing from paths."""
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
-    if formatter.verbosity >= 0:
-        click.echo("==== finding fixable violations ====")
+    formatter.dispatch_message(
+        "==== finding fixable violations ====", OutputKind.STATUS
+    )
     exit_code = EXIT_SUCCESS
 
     with PathAndUserErrorHandler(formatter):
@@ -1189,10 +1240,12 @@ def _paths_fix(
     )
 
     if num_fixable > 0:
-        if check and formatter.verbosity >= 0:
-            click.echo("==== fixing violations ====")
+        if check:
+            formatter.dispatch_message("==== fixing violations ====", OutputKind.STATUS)
 
-        click.echo(f"{num_fixable} fixable linting violations found")
+        formatter.dispatch_message(
+            f"{num_fixable} fixable linting violations found", OutputKind.ACTION
+        )
 
         if check:
             click.echo(
@@ -1201,8 +1254,7 @@ def _paths_fix(
             c = click.getchar().lower()
             click.echo("...")
             if c in ("y", "\r", "\n"):
-                if formatter.verbosity >= 0:
-                    click.echo("Attempting fixes...")
+                formatter.dispatch_message("Attempting fixes...", OutputKind.STATUS)
                 success = do_fixes(
                     result,
                     formatter,
@@ -1220,13 +1272,17 @@ def _paths_fix(
                 click.echo("Aborting...")
                 exit_code = EXIT_FAIL
     else:
-        if formatter.verbosity >= 0:
-            click.echo("==== no fixable linting violations found ====")
-            formatter.completion_message()
+        formatter.dispatch_message(
+            "==== no fixable linting violations found ====", OutputKind.STATUS
+        )
+        formatter.completion_message()
 
     num_unfixable = sum(p.num_unfixable_lint_errors for p in result.paths)
-    if num_unfixable > 0 and formatter.verbosity >= 0:
-        click.echo("  [{} unfixable linting violations found]".format(num_unfixable))
+    if num_unfixable > 0:
+        formatter.dispatch_message(
+            "  [{} unfixable linting violations found]".format(num_unfixable),
+            OutputKind.DIAGNOSTIC,
+        )
         exit_code = max(exit_code, EXIT_FAIL)
 
     if bench:
@@ -1287,16 +1343,6 @@ def _paths_fix(
     ),
 )
 @click.option(
-    "-q",
-    "--quiet",
-    is_flag=True,
-    help=(
-        "Reduces the amount of output to stdout to a minimal level. "
-        "This is effectively the opposite of -v. NOTE: It cannot be "
-        "used together with -v/--verbose."
-    ),
-)
-@click.option(
     "-x",
     "--fixed-suffix",
     default=None,
@@ -1353,6 +1399,7 @@ def fix(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    _apply_quiet_option(quiet, kwargs)
     apply_recursion_limit(
         recursion_limit,
         extra_config_path=extra_config_path,
@@ -1361,27 +1408,25 @@ def fix(
     )
     # some quick checks
     fixing_stdin = ("-",) == paths
-    if quiet:
-        if kwargs["verbose"]:
-            click.echo(
-                "ERROR: The --quiet flag can only be used if --verbose is not set.",
-            )
-            sys.exit(EXIT_ERROR)
-        kwargs["verbose"] = -1
-
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
     fix_even_unparsable = config.get("fix_even_unparsable")
+    verbose = config.get("verbose")
+    output_policy = OutputPolicy(verbosity=verbose, quiet=quiet)
     output_stream = make_output_stream(
         config, None, os.devnull if fixing_stdin else None
     )
     lnt, formatter = get_linter_and_formatter(
-        config, output_stream, show_lint_violations
+        config,
+        output_stream,
+        show_lint_violations,
+        output_policy=output_policy,
     )
 
-    verbose = config.get("verbose")
-    progress_bar_configuration.disable_progress_bar = disable_progress_bar
+    progress_bar_configuration.disable_progress_bar = bool(
+        disable_progress_bar
+    ) or not output_policy.allows(OutputKind.PROGRESS)
 
     formatter.dispatch_config(lnt)
 
@@ -1448,6 +1493,7 @@ def cli_format(
     paths: tuple[str],
     disregard_sqlfluffignores: bool,
     recursion_limit: Optional[int],
+    quiet: bool = False,
     bench: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
@@ -1470,6 +1516,7 @@ def cli_format(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    _apply_quiet_option(quiet, kwargs)
     apply_recursion_limit(
         recursion_limit,
         extra_config_path=extra_config_path,
@@ -1504,13 +1551,18 @@ def cli_format(
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
+    verbose = config.get("verbose")
+    output_policy = OutputPolicy(verbosity=verbose, quiet=quiet)
     output_stream = make_output_stream(
         config, None, os.devnull if fixing_stdin else None
     )
-    lnt, formatter = get_linter_and_formatter(config, output_stream)
+    lnt, formatter = get_linter_and_formatter(
+        config, output_stream, output_policy=output_policy
+    )
 
-    verbose = config.get("verbose")
-    progress_bar_configuration.disable_progress_bar = disable_progress_bar
+    progress_bar_configuration.disable_progress_bar = bool(
+        disable_progress_bar
+    ) or not output_policy.allows(OutputKind.PROGRESS)
 
     formatter.dispatch_config(lnt)
 
@@ -1710,7 +1762,6 @@ def parse(
             bench,
             code_only,
             total_time,
-            verbose,
             parsed_strings,
             lambda parsed_string: _get_filtered_parse_violations(
                 parsed_string, lnt, allowed_rules_ref_map_cache
