@@ -2634,13 +2634,18 @@ def test_cli_get_config_color_override():
 
 def test_cli_lint_quiet_disables_progress_bar():
     """Quiet mode should disable progress output without another flag."""
-    result = invoke_assert_code(
-        args=[lint, ["--quiet", "test/fixtures/linter/passing.sql"]]
-    )
+    previous_disable_progress_bar = progress_bar_configuration.disable_progress_bar
+    try:
+        progress_bar_configuration.disable_progress_bar = False
+        result = invoke_assert_code(
+            args=[lint, ["--quiet", "test/fixtures/linter/passing.sql"]]
+        )
 
-    assert progress_bar_configuration.disable_progress_bar is True
-    assert result.stdout == ""
-    assert result.stderr == ""
+        assert progress_bar_configuration.disable_progress_bar is True
+        assert result.stdout == ""
+        assert result.stderr == ""
+    finally:
+        progress_bar_configuration.disable_progress_bar = previous_disable_progress_bar
 
 
 @patch(
