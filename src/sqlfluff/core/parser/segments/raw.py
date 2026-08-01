@@ -84,13 +84,13 @@ class RawSegment(BaseSegment):
 
         # pos marker is required here. We ignore the typing initially
         # because it might *initially* be unset, but it will be reset
-        # later. NOTE: Assigned normally (not via the __dict__ bypass below)
-        # because this annotated assignment is what tells mypy that, for a
-        # RawSegment specifically, pos_marker is non-Optional - several call
-        # sites downstream rely on that narrowing.
-        self.pos_marker: PositionMarker = pos_marker  # type: ignore
-
+        # later. NOTE: The annotated declaration below tells mypy that,
+        # for a RawSegment specifically, pos_marker is non-Optional.
+        # The actual assignment goes through __dict__ (not __setattr__)
+        # to avoid a wasted _recalculate_caches() call on construction.
+        self.pos_marker: PositionMarker
         d = self.__dict__
+        d["pos_marker"] = pos_marker
         d["_raw"] = _raw
         d["_raw_upper"] = _raw.upper()
         # Set the segments attribute to be an empty tuple.
@@ -123,6 +123,8 @@ class RawSegment(BaseSegment):
 
     def __setattr__(self, key: str, value: Any) -> None:
         """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
+        if key == "pos_marker":
+            self._recalculate_caches()
         super(BaseSegment, self).__setattr__(key, value)
 
     # ################ PUBLIC PROPERTIES

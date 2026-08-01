@@ -475,6 +475,101 @@ def test__parser__raw_segment_raw_normalized():
     assert bs1.raw_normalized() == 'A".E'
 
 
+def test__parser__base_segments_cached_property_names_autodetected():
+    """Test that _cached_property_names is auto-detected by the metaclass."""
+    # BaseSegment should have all its @cached_property fields detected.
+    expected_base = {
+        "_hash",
+        "is_code",
+        "_code_indices",
+        "is_comment",
+        "is_whitespace",
+        "raw",
+        "descendant_type_set",
+        "direct_descendant_type_set",
+        "raw_upper",
+        "raw_segments",
+        "raw_segments_with_ancestors",
+        "source_fixes",
+        "first_non_whitespace_segment_raw_upper",
+        "is_templated",
+    }
+    assert BaseSegment._cached_property_names == expected_base
+
+    # RawSegment inherits BaseSegment's cached props and adds its own.
+    assert "representation" in RawSegment._cached_property_names
+    assert RawSegment._cached_property_names == expected_base | {"representation"}
+
+    # Stale names from the old hardcoded list should NOT be present.
+    assert "matched_length" not in BaseSegment._cached_property_names
+    assert "full_type_set" not in BaseSegment._cached_property_names
+
+
+def test__parser__base_segments_recalculate_caches_clears_all():
+    """Test that _recalculate_caches clears every @cached_property."""
+    template = TemplatedFile.from_string("foobar")
+    rs = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
+    bs = BaseSegment([rs])
+
+    # Populate caches by accessing them.
+    bs.is_code
+    bs.raw
+    bs._hash
+    assert "_hash" in bs.__dict__
+    assert "raw" in bs.__dict__
+    assert "is_code" in bs.__dict__
+
+    # Clear them.
+    bs._recalculate_caches()
+    assert "_hash" not in bs.__dict__
+    assert "raw" not in bs.__dict__
+    assert "is_code" not in bs.__dict__
+
+
+def test__parser__base_segments_pos_marker_invalidation(raw_seg):
+    """Test that reassigning pos_marker invalidates pos-dependent caches.
+
+    Regression test for issue #3855: _hash and is_templated both read
+    pos_marker, but only `segments` reassignment triggered cache
+    invalidation. After fixing, pos_marker reassignment should also
+    clear caches so stale values are not retained.
+    """
+    template = TemplatedFile.from_string("foobar")
+    seg = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
+
+    # Populate _hash cache.
+    old_hash = seg._hash
+    assert "_hash" in seg.__dict__
+
+    # Reassign pos_marker to a different source slice.
+    seg.pos_marker = PositionMarker(slice(6, 12), slice(6, 12), template)
+
+    # _hash should have been invalidated and recomputed with new slice.
+    assert "_hash" not in seg.__dict__
+    new_hash = seg._hash
+    assert new_hash != old_hash
+
+
+def test__parser__base_segments_copy_pos_marker_invalidation(raw_seg):
+    """Test that copy() + pos_marker reassignment doesn't keep stale caches.
+
+    This is the real-world path in _position_segments: copy inherits
+    cached values from the original, then pos_marker is reassigned.
+    The stale cache must be cleared.
+    """
+    template = TemplatedFile.from_string("foobar")
+    seg = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
+    original_hash = seg._hash
+
+    copied = seg.copy()
+    # copy() transfers cached values via __dict__.update.
+    assert copied._hash == original_hash
+
+    # Reassign pos_marker (as _position_segments does).
+    copied.pos_marker = PositionMarker(slice(6, 12), slice(6, 12), template)
+    assert copied._hash != original_hash
+
+
 def test__parser__base_segments_structural_simplify_with_position():
     """Test structural_simplify with 3-element tuple (with position)."""
     # This covers lines 603 and 614 in base.py
