@@ -1,5 +1,11 @@
 rule: CV12
 
+test_fail_sqlite_left_join_without_fix:
+  fail_str: SELECT a.k, b.k FROM a LEFT JOIN b WHERE a.k = b.k;
+  configs:
+    core:
+      dialect: sqlite
+
 test_noop_select_comma:
   # this syntax is currently not covered by CV12
   pass_str: |
@@ -155,3 +161,12 @@ test_pass_left_join_unnest_where_unaliased:
       UNNEST(t.purchases)
     WHERE
       t.user_id != 1
+
+test_pass_sqlite_left_join_with_on_and_where:
+  pass_str: |
+    SELECT a.k, b.k
+    FROM a LEFT JOIN b ON a.k = b.k
+    WHERE a.active
+  configs:
+    core:
+      dialect: sqlite

@@ -140,6 +140,16 @@ class Rule_CV12(BaseRule):
                 # Join condition is present, no error reported.
                 continue
 
+            # Moving a WHERE predicate into ON changes which null-extended
+            # rows survive an outer join. SQLite makes this directly visible
+            # for LEFT JOIN, so retain the diagnostic but suppress the fix.
+            if context.dialect.name == "sqlite" and any(
+                kw.raw_upper in ("LEFT", "RIGHT", "FULL", "OUTER")
+                for kw in join_clause_keywords
+            ):
+                yield LintResult(anchor=join_clause)
+                continue
+
             if not where_clause_simplifable:
                 yield LintResult(anchor=join_clause)
             else:
