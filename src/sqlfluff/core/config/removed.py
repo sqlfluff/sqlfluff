@@ -58,11 +58,20 @@ class _RemovedConfig:
 
     @property
     def formatted_new_key(self) -> str:
-        """Format the new key (assuming it exists) in a way similar to a config file."""
+        """Format the new key (assuming it exists) in a way similar to a config file.
+
+        NOTE: ``core`` is the internal name of the root ``[sqlfluff]`` section
+        and is never written by users, so it is stripped here. Without that,
+        a warning would quote a path (e.g. ``core:max_line_length``) which is
+        silently ignored if it is copied into a config file.
+        """
         assert self.new_path, (
             "`formatted_new_key` can only be called if a `new_path` is set."
         )
-        return ":".join(self.new_path)
+        path = self.new_path
+        if len(path) > 1 and path[0] == "core":
+            path = path[1:]
+        return ":".join(path)
 
 
 RemovedConfigMapType = dict[str, Union[_RemovedConfig, "RemovedConfigMapType"]]

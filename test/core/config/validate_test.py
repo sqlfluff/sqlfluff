@@ -103,6 +103,20 @@ def test__validate_configs_max_line_length_precedence():
     assert config == {"core": {"dialect": "ansi", "max_line_length": 50}}
 
 
+def test__validate_configs_removed_new_key_display():
+    """A migrated key should be quoted the way a user would write it.
+
+    `core` is the internal name of the root `[sqlfluff]` section, so a warning
+    naming `core:max_line_length` would send people to a section that does not
+    exist and leave the setting ignored.
+    """
+    record = next(
+        k for k in REMOVED_CONFIGS if k.old_path == ("rules", "max_line_length")
+    )
+    assert record.new_path == ("core", "max_line_length")
+    assert record.formatted_new_key == "max_line_length"
+
+
 @pytest.mark.parametrize(
     "old_value,expected",
     [
