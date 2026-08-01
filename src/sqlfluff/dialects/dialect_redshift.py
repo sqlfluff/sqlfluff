@@ -2615,6 +2615,29 @@ class LockTableStatementSegment(BaseSegment):
     )
 
 
+class TableReferenceSegment(ansi.TableReferenceSegment):
+    """A reference to a table, CTE, subquery or alias.
+
+    Overridden to allow indexing into SUPER arrays part way through the
+    reference, e.g. ``a.topic[0].extension``. Redshift supports navigating
+    into a SUPER column in the FROM clause, and the array accessor may appear
+    on any element of the path.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+    """
+
+    match_grammar: Matchable = Delimited(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("ArrayAccessorSegment", optional=True),
+            allow_gaps=False,
+        ),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+        terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+        allow_gaps=False,
+    )
+
+
 class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause.
 
