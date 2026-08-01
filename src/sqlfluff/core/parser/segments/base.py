@@ -147,6 +147,18 @@ class SegmentMetaclass(type, Matchable):
         # Populate the `_class_types` property on creation.
         added_type = class_dict.get("type", None)
         class_dict["_class_types"] = frozenset(_iter_base_types(added_type, bases))
+
+        # Auto-detect @cached_property names so _recalculate_caches()
+        # can invalidate them without a hardcoded list that drifts.
+        cached_props: set[str] = set()
+        for base in bases:
+            if hasattr(base, "_cached_property_names"):
+                cached_props.update(base._cached_property_names)
+        for key, val in class_dict.items():
+            if isinstance(val, cached_property):
+                cached_props.add(key)
+        class_dict["_cached_property_names"] = frozenset(cached_props)
+
         return cast(type["BaseSegment"], type.__new__(mcs, name, bases, class_dict))
 
 
@@ -238,7 +250,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def __setattr__(self, key: str, value: Any) -> None:
         try:
-            if key == "segments":
+            if key in ("segments", "pos_marker"):
                 self._recalculate_caches()
 
         except (AttributeError, KeyError):  # pragma: no cover
@@ -770,23 +782,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ PRIVATE INSTANCE METHODS
 
     def _recalculate_caches(self) -> None:
-        for key in [
-            "is_code",
-            "is_comment",
-            "is_whitespace",
-            "raw",
-            "raw_upper",
-            "matched_length",
-            "raw_segments",
-            "raw_segments_with_ancestors",
-            "first_non_whitespace_segment_raw_upper",
-            "source_fixes",
-            "full_type_set",
-            "descendant_type_set",
-            "direct_descendant_type_set",
-            "_code_indices",
-            "_hash",
-        ]:
+        for key in self._cached_property_names:
             self.__dict__.pop(key, None)
 
     def _preface(self, ident: int, tabsize: int) -> str:

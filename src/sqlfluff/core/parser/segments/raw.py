@@ -123,6 +123,8 @@ class RawSegment(BaseSegment):
 
     def __setattr__(self, key: str, value: Any) -> None:
         """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
+        if key == "pos_marker":
+            self._recalculate_caches()
         super(BaseSegment, self).__setattr__(key, value)
 
     # ################ PUBLIC PROPERTIES
