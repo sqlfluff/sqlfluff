@@ -1,0 +1,84 @@
+rule: CV13
+
+test_fail_string_literals_concatenated_with_plus:
+  fail_str: |
+    SELECT 'a' + 'b' AS col
+    FROM foo
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_chained_string_literals:
+  # every '+' joining two string literals is flagged, not just the first
+  fail_str: |
+    SELECT 'a' + 'b' + 'c' AS col
+    FROM foo
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_sparksql:
+  fail_str: |
+    SELECT 'a' + 'b' AS col
+    FROM foo
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_pipe_concatenation:
+  pass_str: |
+    SELECT 'a' || 'b' AS col
+    FROM foo
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_concat_function:
+  pass_str: |
+    SELECT CONCAT('a', 'b') AS col
+    FROM foo
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_numeric_addition:
+  pass_str: |
+    SELECT 1 + 2 AS col
+    FROM foo
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_column_operands_are_not_flagged:
+  # types are unknown, so this is deliberately left alone
+  pass_str: |
+    SELECT a + b AS col
+    FROM foo
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_one_operand_is_a_column:
+  pass_str: |
+    SELECT 'a' + b AS col
+    FROM foo
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_tsql_uses_plus_for_concatenation:
+  pass_str: |
+    SELECT 'a' + 'b' AS col
+    FROM foo
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_mysql_coerces_strings_to_numbers:
+  # legal in mysql: evaluates to 0 rather than raising
+  pass_str: |
+    SELECT 'a' + 'b' AS col
+    FROM foo
+  configs:
+    core:
+      dialect: mysql
