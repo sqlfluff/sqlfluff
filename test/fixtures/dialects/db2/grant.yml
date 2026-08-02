@@ -1,0 +1,145 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7bfaf1d597634f8a7bf0a95fff78bd37d254634b14a1edfe2618ac567882caa2
+file:
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: ALL
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+          - naked_identifier: SCHEMA1
+          - dot: .
+          - naked_identifier: TABLE1
+      - keyword: TO
+      - access_target:
+          keyword: USER
+          user_reference:
+            naked_identifier: USER1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: grant
+      - access_permissions:
+          access_permission:
+            keyword: all
+      - keyword: 'on'
+      - access_object:
+          object_reference:
+          - naked_identifier: schema1
+          - dot: .
+          - naked_identifier: table1
+      - keyword: to
+      - access_target:
+        - keyword: user
+        - user_reference:
+            naked_identifier: user1
+        - comma: ','
+        - keyword: user
+        - user_reference:
+            naked_identifier: user2
+        - comma: ','
+        - keyword: user
+        - user_reference:
+            naked_identifier: user3
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+            keyword: SELECT
+        - comma: ','
+        - access_permission:
+            keyword: INSERT
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+          - naked_identifier: SCHEMA1
+          - dot: .
+          - naked_identifier: TABLE1
+      - keyword: TO
+      - access_target:
+        - keyword: USER
+        - user_reference:
+            naked_identifier: USER1
+        - comma: ','
+        - keyword: GROUP
+        - object_reference:
+            naked_identifier: GROUP1
+        - comma: ','
+        - keyword: ROLE
+        - role_reference:
+            naked_identifier: ROLE1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+          - naked_identifier: SCHEMA1
+          - dot: .
+          - naked_identifier: TABLE1
+      - keyword: TO
+      - access_target:
+          keyword: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+          - naked_identifier: SCHEMA1
+          - dot: .
+          - naked_identifier: TABLE1
+      - keyword: TO
+      - access_target:
+        - keyword: USER
+        - user_reference:
+            naked_identifier: USER1
+        - comma: ','
+        - keyword: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          object_reference:
+          - naked_identifier: SCHEMA1
+          - dot: .
+          - naked_identifier: TABLE1
+      - keyword: TO
+      - access_target:
+          keyword: USER
+          user_reference:
+            naked_identifier: USER1
+      - keyword: WITH
+      - keyword: GRANT
+      - keyword: OPTION
+- statement_terminator: ;
