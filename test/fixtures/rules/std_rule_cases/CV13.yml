@@ -82,3 +82,29 @@ test_pass_mysql_coerces_strings_to_numbers:
   configs:
     core:
       dialect: mysql
+
+test_fail_raw_string_literals:
+  # spark/databricks raw strings lex as raw_quoted_literal, not quoted_literal
+  fail_str: |
+    SELECT r'a' + r'b' AS col
+    FROM foo
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_mixed_raw_and_plain_literals:
+  fail_str: |
+    SELECT r'a' + 'b' AS col
+    FROM foo
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_mariadb_coerces_strings_to_numbers:
+  # same coercion as mysql, which mariadb inherits from
+  pass_str: |
+    SELECT 'a' + 'b' AS col
+    FROM foo
+  configs:
+    core:
+      dialect: mariadb

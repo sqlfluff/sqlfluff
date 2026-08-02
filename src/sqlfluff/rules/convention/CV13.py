@@ -14,6 +14,10 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 # ``+`` *is* the concatenation operator.
 _ERRORING_DIALECTS = ("sparksql", "databricks")
 
+# Spark and Databricks also have raw string literals, written r'a', which lex to
+# their own segment type rather than to quoted_literal.
+_STRING_LITERALS = ("quoted_literal", "raw_quoted_literal")
+
 
 class Rule_CV13(BaseRule):
     """Do not use ``+`` to concatenate strings.
@@ -69,8 +73,8 @@ class Rule_CV13(BaseRule):
             if (
                 operator.is_type("binary_operator")
                 and operator.raw == "+"
-                and left.is_type("quoted_literal")
-                and right.is_type("quoted_literal")
+                and left.is_type(*_STRING_LITERALS)
+                and right.is_type(*_STRING_LITERALS)
             ):
                 results.append(
                     LintResult(
