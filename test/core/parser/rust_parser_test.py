@@ -492,6 +492,58 @@ def test__rust_parser__rs_handle_getters_return_expected_container_types():
     assert isinstance(root.class_types(), list)
 
 
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_match_result_getters_return_expected_container_types():
+    """RsMatchResult collection getters return the expected container types.
+
+    Companion to the two checks above: covers `instance_types`, `trim_chars`,
+    and `escape_replacements` on the raw `RsMatchResult` returned by
+    `RsParser.parse_match_result_from_tokens`, before it's ever turned into a
+    tree. BigQuery's single-quoted literal grammar sets all three via
+    grammar-configured kwargs (as opposed to lexer-level kwargs, which are
+    deliberately not carried onto a fresh parser match), giving a real case
+    for each getter in one parse.
+
+    Note: `RsNode` (`PyNode` in Rust) has no corresponding check — no
+    `#[pymethod]` anywhere in the Rust workspace ever constructs and returns
+    one to Python, so it cannot be reached or tested from here.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "bigquery"})
+    segments, _ = Lexer(config=config).lex("SELECT 'abc'")
+    tokens = [
+        s._rstoken
+        for s in segments
+        if getattr(s, "_rstoken", None) is not None and s.is_code
+    ]
+
+    rs_match = RsParser(
+        dialect="bigquery", indent_config={}
+    ).parse_match_result_from_tokens(tokens)
+
+    def flatten(match):
+        yield match
+        for child in match.child_matches:
+            yield from flatten(child)
+
+    keyword_match = next(
+        m for m in flatten(rs_match) if m.matched_class == "KeywordSegment"
+    )
+    assert isinstance(keyword_match.instance_types, list)
+    assert "keyword" in keyword_match.instance_types
+
+    literal_match = next(
+        m for m in flatten(rs_match) if m.matched_class == "LiteralSegment"
+    )
+    assert isinstance(literal_match.instance_types, list)
+    assert isinstance(literal_match.trim_chars, tuple)
+    assert literal_match.trim_chars == ("'",)
+    assert isinstance(literal_match.escape_replacements, list)
+    assert literal_match.escape_replacements
+
+
 # ---------------------------------------------------------------------------
 # Per-stage profiling
 # ---------------------------------------------------------------------------
