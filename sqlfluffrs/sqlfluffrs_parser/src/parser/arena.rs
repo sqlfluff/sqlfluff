@@ -52,10 +52,10 @@ enum ArenaKind {
         segment_class: Cow<'static, str>,
         segment_type: Cow<'static, str>,
         raw: String,
-        /// `Arc`-wrapped so `with_instance_types`'s PyO3 caller can clone the
-        /// handle under the arena lock, drop the guard, and only then build
-        /// the Python list — never holding the lock across a Python
-        /// allocation.
+        /// `Arc`-wrapped so `instance_types_arc`'s PyO3 caller
+        /// (`PyHandle::instance_types`) can clone the handle under the arena
+        /// lock, drop the guard, and only then build the Python list —
+        /// never holding the lock across a Python allocation.
         instance_types: Arc<Vec<String>>,
         class_types: Vec<String>,
         kwargs: RawSegmentKwargs,

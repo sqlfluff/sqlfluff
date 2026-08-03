@@ -1,8 +1,9 @@
 //! Small shared converters for building PyO3 containers from Rust collections.
 //!
-//! Centralised here so the string-list and escape-pair conversions used across
-//! `sqlfluffrs_python::token` and the `sqlfluffrs_parser` PyO3 bindings stay in
-//! sync instead of being copy-pasted at each call site.
+//! Centralised here so the string-list, string-set, and escape-pair
+//! conversions used across `sqlfluffrs_python::token` and the
+//! `sqlfluffrs_parser` PyO3 bindings stay in sync instead of being
+//! copy-pasted at each call site.
 
 use pyo3::prelude::*;
 use pyo3::types::{PyFrozenSet, PyList, PyTuple};

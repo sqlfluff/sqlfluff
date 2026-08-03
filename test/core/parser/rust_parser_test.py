@@ -476,9 +476,8 @@ def test__rust_parser__rs_token_getters_return_expected_container_types():
 def test__rust_parser__rs_handle_getters_return_expected_container_types():
     """RsHandle collection getters return the expected Python container types.
 
-    Companion to the `RsToken` check above: covers the arena-side getters
-    (`descendant_type_set`, `class_types`) that build their `PyList` directly
-    rather than through the shared `pyo3_helpers` builders.
+    Covers `descendant_type_set` and `class_types`, both cached behind an `Arc`,
+    and two `RsHandle` getters which now use the shared helpers.
     """
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
