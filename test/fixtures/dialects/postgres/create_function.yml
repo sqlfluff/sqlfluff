@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e8178a7a0e420c460c5bcc5e3f87af66585ad2e3999d077d37bdb0f0841a02c
+_hash: 5a2b2b3c8fbead6df9b71b0251fd734f8e3a21d1791166a54e69914e1e386efe
 file:
 - statement:
     create_function_statement:
@@ -1557,4 +1557,141 @@ file:
                     end_bracket: )
       - statement_terminator: ;
       - keyword: end
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: time_series
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: _from
+        - column_type_reference:
+            column_reference:
+            - naked_identifier: time_table
+            - dot: .
+            - naked_identifier: time_field
+            binary_operator: '%'
+            keyword: TYPE
+        - comma: ','
+        - parameter: _to
+        - column_type_reference:
+            column_reference:
+            - naked_identifier: time_table
+            - dot: .
+            - naked_identifier: time_field
+            binary_operator: '%'
+            keyword: TYPE
+        - comma: ','
+        - parameter: _buckets
+        - data_type:
+            keyword: integer
+        - keyword: DEFAULT
+        - expression:
+            numeric_literal: '200'
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: pp
+        column_type_reference:
+          column_reference:
+          - naked_identifier: time_table
+          - dot: .
+          - naked_identifier: time_field
+          binary_operator: '%'
+          keyword: TYPE
+        end_bracket: )
+    - function_definition:
+      - keyword: IMMUTABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: time_bucket
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: _from
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _from
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _to
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _buckets
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                      - naked_identifier: g
+                      - dot: .
+                      - naked_identifier: ofs
+                      binary_operator: '-'
+                      numeric_literal: '1'
+                  - end_bracket: )
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: generate_series
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '0'
+                      - comma: ','
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: greatest
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      column_reference:
+                                        naked_identifier: _buckets
+                                      binary_operator: '-'
+                                      numeric_literal: '1'
+                                    end_bracket: )
+                              - comma: ','
+                              - expression:
+                                  numeric_literal: '1'
+                              - end_bracket: )
+                      - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: g
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                      naked_identifier: ofs
+                    end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
