@@ -201,20 +201,16 @@ impl<'a> Parser<'a> {
             return None;
         }
 
-        // Validate the token at matching_idx is actually the expected closing bracket.
-        // PYTHON PARITY: recognise the opener by the dialect's full bracket_pairs
-        // set (round/square/curly plus any dialect-specific brackets, e.g.
-        // snowflake's exclude `{-`/`-}`), not a hardcoded ASCII trio - otherwise
-        // exclude-bracket opens never validate and bracket_max_idx silently
-        // becomes None, losing the closing-bracket boundary entirely.
+        // Validate the token at matching_idx is actually the expected closing
+        // bracket, recognising the opener via the dialect's full bracket_pairs
+        // set (not a hardcoded ASCII trio) so dialect-specific brackets validate too.
         let close_tok = self.tokens.get(matching_idx)?;
         let open_raw = open_tok.raw();
         let expected_close = self
             .dialect
             .get_bracket_pairs()
-            .iter()
-            .find(|(open, _, _, _, _)| *open == open_raw)
-            .map(|(_, close, _, _, _)| *close)?;
+            .find_by_open(open_raw)
+            .map(|p| p.close)?;
 
         if close_tok.raw() == expected_close {
             Some(matching_idx)

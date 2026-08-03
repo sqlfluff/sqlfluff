@@ -16,7 +16,7 @@ def generate_use():
     print("use sqlfluffrs_types::{LexMatcher, LexMatcherConfig};")
     print("use sqlfluffrs_types::{Token, RegexModeGroup};")
     print("use sqlfluffrs_types::token::CaseFold;")
-    print("use sqlfluffrs_types::BracketPairEntry;")
+    print("use sqlfluffrs_types::{BracketPairEntry, BracketPairSet};")
 
 
 def segment_to_token_name(s: str):
@@ -58,8 +58,8 @@ def generate_bracket_pairs(dialect: str):
     loaded_dialect = dialect_selector(dialect)
     print(
         f"pub static {dialect.upper()}_BRACKET_PAIRS:"
-        " Lazy<Vec<BracketPairEntry>>"
-        " = Lazy::new(|| { vec!["
+        " Lazy<BracketPairSet>"
+        " = Lazy::new(|| { BracketPairSet(vec!["
     )
     for _bracket_type, start_ref, end_ref, persists in sorted(
         loaded_dialect.bracket_sets("bracket_pairs")
@@ -74,10 +74,11 @@ def generate_bracket_pairs(dialect: str):
         start_type = (start_seg._instance_types or (start_seg.raw_class.type,))[0]
         end_type = (end_seg._instance_types or (end_seg.raw_class.type,))[0]
         print(
-            f'    ("{start_template}", "{end_template}", '
-            f'"{start_type}", "{end_type}", {str(bool(persists)).lower()}),'
+            f'    BracketPairEntry {{ open: "{start_template}", '
+            f'close: "{end_template}", start_type: "{start_type}", '
+            f'end_type: "{end_type}", persists: {str(bool(persists)).lower()} }},'
         )
-    print("]});")
+    print("]) });")
 
 
 def generate_reserved_keyword_list(dialect: str):

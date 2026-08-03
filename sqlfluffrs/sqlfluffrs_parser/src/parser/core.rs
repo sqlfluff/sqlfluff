@@ -1616,17 +1616,13 @@ impl<'a> Parser<'a> {
             if let Some(tok) = self.peek() {
                 let tok_raw = tok.raw().to_owned();
 
-                // Handle bracket openers - match entire bracketed section with
-                // nested brackets. Recognise openers by the dialect's full
-                // bracket_pairs set (round/square/curly plus any dialect-specific
-                // brackets, e.g. snowflake's exclude `{-`), matching Python's
-                // resolve_bracket rather than a hardcoded ASCII trio.
+                // Handle bracket openers - match the entire bracketed section,
+                // recursing into any nested brackets (Python parity: resolve_bracket).
                 let opener_persists = self
                     .dialect
                     .get_bracket_pairs()
-                    .iter()
-                    .find(|(open, _, _, _, _)| *open == tok_raw)
-                    .map(|(_, _, _, _, persists)| *persists);
+                    .find_by_open(&tok_raw)
+                    .map(|p| p.persists);
                 if let Some(persists) = opener_persists {
                     let bracket_match =
                         self.match_bracket_recursively(tok_raw.as_str(), persists, true)?;
@@ -1701,19 +1697,14 @@ impl<'a> Parser<'a> {
         persists: bool,
         nested_match: bool,
     ) -> Result<MatchResult, ParseError> {
-        // PYTHON PARITY: recognise brackets - and their leaf segment types - by
-        // the dialect's full bracket_pairs set (round → start_bracket, square →
-        // start_square_bracket, curly → start_curly_bracket, plus any dialect-
-        // specific brackets, e.g. snowflake's exclude `{-`/`-}` →
-        // start_exclude_bracket), mirroring resolve_bracket, rather than a
-        // hardcoded ASCII trio. `get_bracket_pairs` returns a `&'static` slice,
-        // so it can be held across the `&mut self` calls in the scan loop below.
+        // `get_bracket_pairs` returns a `&'static` reference, so it can be held
+        // across the `&mut self` calls in the scan loop below.
         let bracket_pairs = self.dialect.get_bracket_pairs();
-        let (close_bracket, start_bracket_type, end_bracket_type) = bracket_pairs
-            .iter()
-            .find(|(open, _, _, _, _)| *open == open_bracket)
-            .map(|(_, close, start_ty, end_ty, _)| (*close, *start_ty, *end_ty))
+        let opener = bracket_pairs
+            .find_by_open(open_bracket)
             .expect("match_bracket_recursively called with an unregistered opener");
+        let (close_bracket, start_bracket_type, end_bracket_type) =
+            (opener.close, opener.start_type, opener.end_type);
 
         let bracket_start = self.pos;
 
@@ -1745,10 +1736,8 @@ impl<'a> Parser<'a> {
                     // Found our closing bracket
                     closed = true;
                     break;
-                } else if let Some(nested_persists) = bracket_pairs
-                    .iter()
-                    .find(|(open, _, _, _, _)| *open == inner_raw)
-                    .map(|(_, _, _, _, persists)| *persists)
+                } else if let Some(nested_persists) =
+                    bracket_pairs.find_by_open(&inner_raw).map(|p| p.persists)
                 {
                     // Found a nested bracket (any registered opener) - recurse,
                     // carrying its own dialect persists flag.
@@ -1758,18 +1747,10 @@ impl<'a> Parser<'a> {
                     if nested_match {
                         inner_child_matches.push(Arc::new(nested_bracket));
                     }
-                } else if bracket_pairs
-                    .iter()
-                    .any(|(_, close, _, _, _)| *close == inner_raw)
-                {
-                    // PYTHON PARITY: a closing bracket of a *different* type than
-                    // the one we opened is a crossed bracket. Our own
-                    // `close_bracket` is handled above and same-type nested
-                    // openers are recursed (consuming their own closer), so
-                    // reaching here means a wrong-type closer of any registered
-                    // pair (round/square/curly or a dialect-specific one).
-                    // Python's `resolve_bracket` (match_algorithms.py) raises
-                    // rather than swallowing it as content, so mirror that.
+                } else if bracket_pairs.is_close(&inner_raw) {
+                    // A closing bracket of a different type than the one we
+                    // opened is a crossed bracket (Python's resolve_bracket
+                    // raises here rather than swallowing it as content).
                     return Err(ParseError::with_context(
                         format!(
                             "Found unexpected end bracket!, was expecting <StringParser: '{}'>, but got <StringParser: '{}'>",

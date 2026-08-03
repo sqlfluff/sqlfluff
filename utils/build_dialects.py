@@ -19,7 +19,7 @@ def generate_use():
     print()
     print("use sqlfluffrs_types::RootGrammar;")
     print("use sqlfluffrs_types::LexMatcher;")
-    print("use sqlfluffrs_types::BracketPairEntry;")
+    print("use sqlfluffrs_types::BracketPairSet;")
     print("use std::str::FromStr;")
 
 
@@ -96,7 +96,7 @@ impl Dialect {{
         }}
     }}
 
-    pub fn get_bracket_pairs(&self) -> &'static Vec<BracketPairEntry> {{
+    pub fn get_bracket_pairs(&self) -> &'static BracketPairSet {{
         match self {{
             {dialect_bracket_pairs},
         }}

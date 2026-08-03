@@ -4,7 +4,7 @@ use log::debug;
 
 use sqlfluffrs_types::{
     marker::PositionMarker,
-    matcher::{BracketPairEntry, LexMatcher, LexMatcherConfig, LexedElement},
+    matcher::{BracketPairEntry, BracketPairSet, LexMatcher, LexMatcherConfig, LexedElement},
     slice::Slice,
     templater::{fileslice::TemplatedFileSlice, templatefile::TemplatedFile},
     token::{python_repr, Token},
@@ -219,28 +219,38 @@ impl SQLLexError {
 
 /// The universal ASCII bracket pairs every dialect has (round/square/curly),
 /// used unless a dialect-specific set is supplied via [`Lexer::with_bracket_pairs`].
-/// PYTHON PARITY: matches `Dialect`'s base `bracket_pairs` set
-/// (dialect_ansi.py) before any dialect-specific additions (e.g. snowflake's
-/// MATCH_RECOGNIZE exclude bracket `{-`/`-}`, added to that same set).
-/// The last `bool` in each tuple is `persists`: `true` wraps the matched
-/// span in a `BracketedSegment` node, `false` leaves the children inline.
-const DEFAULT_BRACKET_PAIRS: &[(&str, &str, &str, &str, bool)] = &[
-    ("(", ")", "start_bracket", "end_bracket", true),
-    (
-        "[",
-        "]",
-        "start_square_bracket",
-        "end_square_bracket",
-        false,
-    ),
-    ("{", "}", "start_curly_bracket", "end_curly_bracket", false),
+/// PYTHON PARITY: matches `Dialect`'s base `bracket_pairs` set (dialect_ansi.py)
+/// before any dialect-specific additions. `persists` is whether the matched
+/// span is kept as a structured `BracketedSegment` node vs flattened inline.
+const DEFAULT_BRACKET_PAIRS: &[BracketPairEntry] = &[
+    BracketPairEntry {
+        open: "(",
+        close: ")",
+        start_type: "start_bracket",
+        end_type: "end_bracket",
+        persists: true,
+    },
+    BracketPairEntry {
+        open: "[",
+        close: "]",
+        start_type: "start_square_bracket",
+        end_type: "end_square_bracket",
+        persists: false,
+    },
+    BracketPairEntry {
+        open: "{",
+        close: "}",
+        start_type: "start_curly_bracket",
+        end_type: "end_curly_bracket",
+        persists: false,
+    },
 ];
 
 #[derive(Clone)]
 pub struct Lexer {
     last_resort_lexer: LexMatcher,
     matchers: Vec<LexMatcher>,
-    bracket_pairs: Vec<BracketPairEntry>,
+    bracket_pairs: BracketPairSet,
 }
 
 impl Lexer {
@@ -259,14 +269,14 @@ impl Lexer {
         Self {
             last_resort_lexer,
             matchers,
-            bracket_pairs: DEFAULT_BRACKET_PAIRS.to_vec(),
+            bracket_pairs: BracketPairSet(DEFAULT_BRACKET_PAIRS.to_vec()),
         }
     }
 
     /// Override the bracket-pairs set used for `matching_bracket_idx`
     /// pre-computation, e.g. with a dialect's full `bracket_pairs` set
     /// (round/square/curly plus any dialect-specific additions).
-    pub fn with_bracket_pairs(mut self, bracket_pairs: Vec<BracketPairEntry>) -> Self {
+    pub fn with_bracket_pairs(mut self, bracket_pairs: BracketPairSet) -> Self {
         self.bracket_pairs = bracket_pairs;
         self
     }
@@ -394,68 +404,12 @@ impl Lexer {
         (tokens, violations)
     }
 
-    /// Pre-compute matching bracket indices for all bracket tokens.
-    /// This allows O(1) bracket lookup during parsing instead of O(n) scanning.
-    ///
-    /// PYTHON PARITY: bracket identity is by raw text against `self.bracket_pairs`
-    /// (a dialect's full `bracket_pairs` set - see `Dialect::get_bracket_pairs`),
-    /// not a hardcoded ASCII trio, so dialect-specific brackets (e.g. snowflake's
-    /// MATCH_RECOGNIZE exclude bracket `{-`/`-}`) are tracked identically to
-    /// round/square/curly.
+    /// Pre-compute matching bracket indices for all bracket tokens, for O(1)
+    /// lookup during parsing instead of O(n) scanning. Bracket identity is by
+    /// raw text against `self.bracket_pairs` (a dialect's full set - see
+    /// `Dialect::get_bracket_pairs` - not a hardcoded ASCII trio).
     fn compute_bracket_pairs(&self, tokens: &mut [Token]) {
-        // Stack to track opening brackets: (index, bracket-pair-type index)
-        let mut bracket_stack: Vec<(usize, usize)> = Vec::new();
-
-        for idx in 0..tokens.len() {
-            // Only code tokens can be brackets. Skipping non-code tokens (notably
-            // comments) prevents bracket characters inside a block/inline comment -
-            // e.g. `min(` / `)` - from being paired with real brackets in the SQL.
-            if !tokens[idx].is_code() {
-                continue;
-            }
-
-            let raw = tokens[idx].raw();
-
-            // Check if this is an opening bracket
-            if let Some(pair_idx) = self
-                .bracket_pairs
-                .iter()
-                .position(|(open, _, _, _, _)| *open == raw)
-            {
-                bracket_stack.push((idx, pair_idx));
-            }
-            // Check if this is a closing bracket
-            else if let Some(expected_idx) = self
-                .bracket_pairs
-                .iter()
-                .position(|(_, close, _, _, _)| *close == raw)
-            {
-                // Only the most-recently-opened bracket (the top of the stack)
-                // may be closed next, per LIFO nesting discipline. This matches
-                // Python's resolve_bracket (match_algorithms.py), which recurses
-                // into a freshly-opened bracket and only returns once that
-                // specific bracket is resolved.
-                if let Some(&(open_idx, top_idx)) = bracket_stack.last() {
-                    if top_idx == expected_idx {
-                        bracket_stack.pop();
-                        // Set bidirectional pointers
-                        tokens[open_idx].matching_bracket_idx = Some(idx);
-                        tokens[idx].matching_bracket_idx = Some(open_idx);
-                    } else {
-                        // A type mismatch (e.g. `a[(1]`) is what Python's
-                        // resolve_bracket raises on, unwinding through every
-                        // enclosing bracket's own call. Clear the whole stack
-                        // to match that: every bracket still open at this
-                        // point stays unresolved, so none of them can later
-                        // pair with a closer that follows.
-                        bracket_stack.clear();
-                    }
-                }
-                // If the stack is empty, there's no open bracket at all -
-                // leave as None (syntax error).
-            }
-        }
-        // Any remaining opening brackets on the stack are unmatched - leave as None
+        self.bracket_pairs.compute_matching_indices(tokens);
     }
 
     fn violations_from_tokens(tokens: &[Token]) -> Vec<SQLLexError> {
