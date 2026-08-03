@@ -166,10 +166,11 @@ impl PyHandle {
     }
 
     fn instance_types<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
-        self.inner
-            .lock()
-            .unwrap()
-            .with_instance_types(self.node, |v| pylist_of_strs(py, v))
+        // Clone the `Arc` under the lock (a refcount bump), then drop the
+        // guard before building the Python list — the arena lock is never
+        // held across a Python allocation.
+        let arc = self.inner.lock().unwrap().instance_types_arc(self.node);
+        pylist_of_strs(py, &arc)
     }
 
     /// `is_implicit` flag for Indent/Dedent metas (`None` for non-metas).
@@ -178,10 +179,10 @@ impl PyHandle {
     }
 
     fn trim_chars<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyTuple>>> {
-        self.inner
-            .lock()
-            .unwrap()
-            .with_trim_chars(self.node, |v| v.map(|v| pytuple_of_strs(py, v)).transpose())
+        // Clone the `Arc` under the lock, then drop the guard before
+        // building the Python tuple.
+        let arc = self.inner.lock().unwrap().trim_chars_arc(self.node);
+        arc.map(|v| pytuple_of_strs(py, &v)).transpose()
     }
 
     fn quoted_value(&self) -> Option<(String, String)> {
@@ -189,14 +190,10 @@ impl PyHandle {
     }
 
     fn escape_replacements<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
-        self.inner
-            .lock()
-            .unwrap()
-            .with_escape_replacements(self.node, |pairs| {
-                pairs
-                    .map(|pairs| pylist_of_str_pairs(py, pairs))
-                    .transpose()
-            })
+        // Clone the `Arc` under the lock, then drop the guard before
+        // building the Python list.
+        let arc = self.inner.lock().unwrap().escape_replacements_arc(self.node);
+        arc.map(|pairs| pylist_of_str_pairs(py, &pairs)).transpose()
     }
 
     #[getter]

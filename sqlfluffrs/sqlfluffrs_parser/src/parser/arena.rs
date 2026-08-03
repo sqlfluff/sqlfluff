@@ -52,7 +52,11 @@ enum ArenaKind {
         segment_class: Cow<'static, str>,
         segment_type: Cow<'static, str>,
         raw: String,
-        instance_types: Vec<String>,
+        /// `Arc`-wrapped so `with_instance_types`'s PyO3 caller can clone the
+        /// handle under the arena lock, drop the guard, and only then build
+        /// the Python list — never holding the lock across a Python
+        /// allocation.
+        instance_types: Arc<Vec<String>>,
         class_types: Vec<String>,
         kwargs: RawSegmentKwargs,
     },
@@ -162,7 +166,7 @@ impl Arena {
                     segment_class: segment_class.clone(),
                     segment_type: segment_type.clone(),
                     raw: raw.clone(),
-                    instance_types: instance_types.clone(),
+                    instance_types: Arc::new(instance_types.clone()),
                     class_types: class_types.clone(),
                     kwargs: segment_kwargs.clone(),
                 },
@@ -390,12 +394,13 @@ impl Arena {
         self.node_type_set(id)
     }
 
-    /// Instance types for a raw token, borrowed to avoid cloning into an
-    /// intermediate `Vec` — callers build a Python list/tuple directly.
-    pub fn with_instance_types<R>(&self, id: NodeId, f: impl FnOnce(&[String]) -> R) -> R {
+    /// Instance types for a raw token: a cheap `Arc` clone (a refcount bump,
+    /// not a deep copy) so callers can drop the arena lock before building a
+    /// Python object from it.
+    pub fn instance_types_arc(&self, id: NodeId) -> Arc<Vec<String>> {
         match &self.node(id).kind {
-            ArenaKind::Raw { instance_types, .. } => f(instance_types),
-            _ => f(&[]),
+            ArenaKind::Raw { instance_types, .. } => instance_types.clone(),
+            _ => Arc::new(Vec::new()),
         }
     }
 
@@ -419,12 +424,12 @@ impl Arena {
     }
 
     /// Characters to trim from both ends of a raw token (if set on the
-    /// token), borrowed to avoid cloning into an intermediate `Vec` —
-    /// callers build a Python list/tuple directly.
-    pub fn with_trim_chars<R>(&self, id: NodeId, f: impl FnOnce(Option<&[String]>) -> R) -> R {
+    /// token): a cheap `Arc` clone so callers can drop the arena lock before
+    /// building a Python object from it.
+    pub fn trim_chars_arc(&self, id: NodeId) -> Option<Arc<Vec<String>>> {
         match &self.node(id).kind {
-            ArenaKind::Raw { kwargs, .. } => f(kwargs.trim_chars.as_deref()),
-            _ => f(None),
+            ArenaKind::Raw { kwargs, .. } => kwargs.trim_chars.clone(),
+            _ => None,
         }
     }
 
@@ -436,19 +441,13 @@ impl Arena {
         }
     }
 
-    /// The escape `(pattern, replacement)` pairs for a raw token, borrowed to
-    /// avoid cloning into an intermediate `Vec` — callers build a Python list
-    /// directly.
-    pub fn with_escape_replacements<R>(
-        &self,
-        id: NodeId,
-        f: impl FnOnce(Option<&[(String, String)]>) -> R,
-    ) -> R {
+    /// The escape `(pattern, replacement)` pairs for a raw token: a cheap
+    /// `Arc` clone so callers can drop the arena lock before building a
+    /// Python object from it.
+    pub fn escape_replacements_arc(&self, id: NodeId) -> Option<Arc<Vec<(String, String)>>> {
         match &self.node(id).kind {
-            ArenaKind::Raw { kwargs, .. } => {
-                f(kwargs.escape_replacements.as_deref().map(Vec::as_slice))
-            }
-            _ => f(None),
+            ArenaKind::Raw { kwargs, .. } => kwargs.escape_replacements.clone(),
+            _ => None,
         }
     }
 
