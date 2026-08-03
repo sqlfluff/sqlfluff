@@ -1682,15 +1682,8 @@ impl<'a> Parser<'a> {
     /// structured children; the recursive call passes false, so deeper brackets
     /// are consumed but flattened to raw siblings (pure-Python parity).
     ///
-    /// PYTHON PARITY: `resolve_bracket` (match_algorithms.py) always raises
-    /// `SQLParseError("Couldn't find closing bracket for opening bracket.")`
-    /// when a bracket it opened is never closed before running out of
-    /// segments - unconditionally, regardless of any enclosing grammar's
-    /// parse_mode. This mirrors that: reaching the end of input without
-    /// finding `close_bracket` is an error, not a silent partial match: a
-    /// crossed opening bracket of a *different* type (e.g. an unclosed `{`
-    /// found while scanning for `)`) must abort here rather than being
-    /// swallowed into the match as if it had closed cleanly.
+    /// Reaching end of input without finding `close_bracket` is always an
+    /// error, regardless of parse_mode - never a silent partial match.
     fn match_bracket_recursively(
         &mut self,
         open_bracket: &str,

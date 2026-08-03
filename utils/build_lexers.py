@@ -41,19 +41,12 @@ def generate_lexer(dialect: str):
 
 
 def generate_bracket_pairs(dialect: str):
-    """Generate the bracket pairs as (open, close, start, end, persists).
+    """Generate the dialect's BracketPairEntry set.
 
-    Each tuple is (open raw text, close raw text, start-bracket segment type,
-    end-bracket segment type, persists). Used by the Rust lexer/parser's
-    bracket-matching (`matching_bracket_idx` pre-computation, the parser's
-    stray-closing-bracket detection, and the Anything-grammar bracket recursion
-    in core.rs), so dialect-specific brackets - e.g. snowflake's exclude bracket
-    `{-`/`-}` (types start_exclude_bracket / end_exclude_bracket, persists=True),
-    added to the same `bracket_pairs` set as round/square/curly - are recognised,
-    typed and structurally preserved identically to the universal three rather
-    than by a hardcoded ASCII trio. `persists` (round/exclude are True; square/
-    curly are False) is whether the matched span is kept as a structured
-    `bracketed` node vs flattened to raw siblings.
+    Used by the Rust lexer/parser for bracket matching, stray-closing-bracket
+    detection, and Anything-grammar bracket recursion. `persists` is whether
+    the matched span is kept as a structured `bracketed` node vs flattened
+    to raw siblings.
     """
     loaded_dialect = dialect_selector(dialect)
     print(

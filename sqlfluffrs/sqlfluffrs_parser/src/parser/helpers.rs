@@ -201,9 +201,7 @@ impl<'a> Parser<'a> {
             return None;
         }
 
-        // Validate the token at matching_idx is actually the expected closing
-        // bracket, recognising the opener via the dialect's full bracket_pairs
-        // set (not a hardcoded ASCII trio) so dialect-specific brackets validate too.
+        // Validate the token at matching_idx is actually the expected closing bracket.
         let close_tok = self.tokens.get(matching_idx)?;
         let open_raw = open_tok.raw();
         let expected_close = self

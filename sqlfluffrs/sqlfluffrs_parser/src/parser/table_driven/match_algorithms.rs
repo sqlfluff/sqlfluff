@@ -257,12 +257,9 @@ impl Parser<'_> {
                             actual_close,
                             expected_open,
                         } => {
-                            // `expected_open` is always the raw of a token that
-                            // matched a registered opener in
-                            // find_mismatched_closing_bracket, so this lookup
-                            // cannot miss; fall back to the opener text rather
-                            // than panicking (AGENTS.md: no `.expect()` in
-                            // production) if that invariant ever changes.
+                            // Lookup can't miss (expected_open is always a
+                            // registered opener), but fall back to the opener
+                            // text rather than panicking.
                             let expected_close = bracket_pairs
                                 .find_by_open(&expected_open)
                                 .map(|p| p.close)

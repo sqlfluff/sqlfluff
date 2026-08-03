@@ -218,12 +218,9 @@ mod tests {
 
     #[test]
     fn dialect_specific_brackets_pair_only_when_supplied() {
-        // Snowflake's MATCH_RECOGNIZE exclude brackets `{-`/`-}` are a
-        // dialect-specific pair absent from the lexer's ASCII-trio default. A
-        // lexer built for a dialect must therefore be given that dialect's
-        // bracket set (as the pyo3 PyLexer ctor does); otherwise `{-`/`-}` are
-        // lexed as ordinary tokens and never paired, and the parser then treats
-        // them as unbalanced.
+        // Snowflake's `{-`/`-}` brackets are absent from the lexer's default
+        // set, so a dialect's own bracket set must be supplied or they're
+        // lexed as ordinary tokens and never paired.
         let dialect = Dialect::Snowflake;
         let sql = "PATTERN ({- A -} B)";
         let find = |tokens: &[sqlfluffrs_types::Token], raw: &str| {

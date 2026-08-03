@@ -349,18 +349,11 @@ impl Parser<'_> {
                 self.tokens.len()
             );
 
-        // PYTHON PARITY: only an *optional* content element is allowed to fail
-        // and have the loop carry on to the next one unaffected (Python's
-        // Sequence.match: `if elem.is_optional(): continue`). A *required*
-        // element failing (empty match) must stop the content sequence right
-        // here, exactly like Python returns immediately from that failed
-        // element - not march on and let a later element match at the same,
-        // still-unclaimed position (e.g. tsql's Bracketed(Expression, "AS",
-        // Datatype) content: if "AS" is missing, DatatypeSegment must not be
-        // allowed to try matching where "AS" was expected). Falling through
-        // (rather than returning here) lets the closing-bracket gap-check
-        // below turn this into the same "to start sequence"/"after X"
-        // unparsable Python would produce.
+        // Only an optional element may fail and let the loop advance to the
+        // next one; a required element failing must stop advancing here (not
+        // let a later element match at its still-unclaimed position), but we
+        // fall through rather than return so the gap-check below still
+        // produces the right unparsable span.
         let current_required_failed = child_is_empty
             && !self
                 .grammar_ctx
@@ -451,26 +444,13 @@ impl Parser<'_> {
             // This check should only happen AFTER all content elements have been processed.
             let check_pos = self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
 
-            // PYTHON PARITY: a *required* content element that failed (empty
-            // match) means the content Sequence never completed. When that
-            // happens *after* earlier content already matched (a genuine
-            // partial match), a STRICT Bracketed must fail (return Empty)
-            // rather than match the closing bracket over the partial content -
-            // even when the failure lands exactly on the closing bracket, so
-            // the gap check below would otherwise fall through to MatchingClose
-            // and fabricate a partial match (e.g. tsql CAST(5), whose
-            // Bracketed(Expression, "AS", Datatype) would otherwise succeed
-            // with just the expression). Python's STRICT Sequence.match returns
-            // no match there.
-            //
-            // Crucially this is gated on content having actually matched
-            // (`last_matched_end > content_start`): a required element failing
-            // with *nothing* consumed is just an empty bracket - `()` - which
-            // is valid (e.g. tsql's `dbo.f()` table hint bracket
-            // Bracketed(TableHintSegment, ...) on empty parens), and Python
-            // accepts it, so we must not fail those.
-            // Content starts at the end of the opening bracket, which is always
-            // the first recorded child match.
+            // A required element failing after some content already matched
+            // is a genuine partial match: STRICT must fail here rather than
+            // let the gap check below match the closing bracket over it.
+            // Gated on `last_matched_end > content_start` so a required
+            // element failing with nothing consumed - an empty bracket `()` -
+            // still succeeds. Content starts at the end of the opening
+            // bracket, always the first recorded child match.
             let content_start = child_matches
                 .first()
                 .map(|m| m.matched_slice.end)
@@ -523,49 +503,29 @@ impl Parser<'_> {
                         // with matched_class set, so only create the unparsable
                         // child when there's actually code left to wrap.
                         if unparsable_stop > check_pos {
-                            // PYTHON PARITY: this loop marches through every content
-                            // element regardless of success (see the comment above),
-                            // so this gap can mean two different things Python's
-                            // Sequence.match (grammar/sequence.py) tells apart by
-                            // message: either a *required* content element genuinely
-                            // failed to match (in which case Python names the
-                            // expected grammar and found token - "to start
-                            // sequence" if nothing had matched yet, "after X" if
-                            // something had), or every required element matched
-                            // fine and this is real trailing content the grammar
-                            // has nothing left to claim (Python's generic "Nothing
-                            // here." GREEDY-leftover fallback). Crucially, a failed
-                            // *optional* element is NOT a failure Python reports:
-                            // `Sequence.match` does `if elem.is_optional(): continue`
-                            // and falls through to the same "Nothing here." leftover,
-                            // so gate on `current_required_failed` (a REQUIRED empty
-                            // match), not merely `child_is_empty`, or an optional
-                            // element's failure wrongly produces the specific message.
+                            // This gap means one of two things: a required
+                            // element genuinely failed (message names the
+                            // expected grammar and found token), or every
+                            // required element matched and this is just
+                            // trailing content ("Nothing here."). Gate on
+                            // `current_required_failed`, not `child_is_empty`,
+                            // so a failed *optional* element gets the generic
+                            // message, not the specific one.
                             let specific_message = if current_required_failed {
                                 content_ids.get(*content_idx).map(|&gid| {
                                     let element_desc = self.grammar_ctx.grammar_repr(gid);
-                                    // The found-token fallback string differs by
-                                    // branch, exactly as sequence.rs does it: the
-                                    // "to start sequence" branch falls back to
-                                    // "start of input" (nothing consumed yet), the
-                                    // "after X" branch to "end of input".
+                                    // Fallback when check_pos is out of range: "start
+                                    // of input" for the "to start sequence" branch,
+                                    // "end of input" for the "after X" branch.
                                     let found_token = |fallback: &str| {
                                         self.tokens
                                             .get(check_pos)
                                             .map(|t| format!("{}", t))
                                             .unwrap_or_else(|| fallback.to_string())
                                     };
-                                    // PYTHON PARITY: Python's Sequence.match keys
-                                    // "to start sequence" vs "after X" on whether
-                                    // any token was consumed (matched_idx ==
-                                    // start_idx), not on a child *count* - an
-                                    // insert-only match (zero-length Indent/
-                                    // Conditional) bumps the count but not the
-                                    // position. `content_start` is where content
-                                    // began (end of the opening bracket, always
-                                    // the first recorded child match);
-                                    // `last_matched_end` is the furthest content
-                                    // match so far (Python's matched_idx).
+                                    // Branch on whether any position was consumed,
+                                    // not child count: a zero-length insert-only
+                                    // match bumps the count but not the position.
                                     if last_matched_end <= content_start {
                                         format!(
                                             "{} to start sequence. Found {}",
@@ -573,13 +533,10 @@ impl Parser<'_> {
                                             found_token("start of input")
                                         )
                                     } else {
-                                        // The "after X" token is the last
-                                        // *matched* token (Python's
-                                        // segments[matched_idx - 1]), not
-                                        // tokens[check_pos - 1]: check_pos was
-                                        // skipped forward over any gap and would
-                                        // otherwise name the intervening
-                                        // whitespace.
+                                        // Use the last matched token, not
+                                        // tokens[check_pos - 1]: check_pos skipped
+                                        // forward over any gap and would otherwise
+                                        // name the intervening whitespace.
                                         let last_matched_token = self
                                             .tokens
                                             .get(last_matched_end.saturating_sub(1))
