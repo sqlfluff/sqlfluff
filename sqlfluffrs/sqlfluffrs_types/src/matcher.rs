@@ -61,6 +61,8 @@ impl BracketPairSet {
         let mut bracket_stack: Vec<(usize, usize)> = Vec::new();
 
         for idx in 0..tokens.len() {
+            tokens[idx].matching_bracket_idx = None;
+
             if !tokens[idx].is_code() {
                 continue;
             }
