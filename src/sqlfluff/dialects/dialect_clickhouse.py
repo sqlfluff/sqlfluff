@@ -2048,6 +2048,37 @@ class TruncateDatabaseStatementSegment(BaseSegment):
     )
 
 
+class TruncateTablesStatementSegment(BaseSegment):
+    """A `TRUNCATE TABLES` statement.
+
+    As specified in
+    https://clickhouse.com/docs/sql-reference/statements/truncate
+    """
+
+    type = "truncate_tables"
+
+    match_grammar: Matchable = Sequence(
+        "TRUNCATE",
+        Ref.keyword("ALL", optional=True),
+        "TABLES",
+        "FROM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        # We specifically do not use LikeExpressionGrammar here,
+        # as it covers cases that TRUNCATE TABLES does not support.
+        # For instance, something like
+        # TRUNCATE TABLES FROM test LIKE 'users|_%' escape '|';
+        # is not supported.
+        Sequence(
+            Ref.keyword("NOT", optional=True),
+            Ref("LikeGrammar", exclude=Ref.keyword("REGEXP")),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Ref("OnClusterClauseSegment", optional=True),
+    )
+
+
 class DropTableStatementSegment(ansi.DropTableStatementSegment):
     """A `DROP TABLE` statement.
 
@@ -2904,6 +2935,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExchangeTablesStatementSegment"),
             Ref("ExchangeDictionariesStatementSegment"),
             Ref("TruncateDatabaseStatementSegment"),
+            Ref("TruncateTablesStatementSegment"),
         ]
     )
 

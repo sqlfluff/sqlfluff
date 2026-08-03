@@ -1,0 +1,995 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a3e69531ca1c61b26fea1d2b2a857a16ef99cb2b5bc99c796d5c4bb0694e770e
+file:
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: "'users\\_%'"
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: LIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
+- statement:
+    truncate_tables:
+    - keyword: TRUNCATE
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: test
+    - keyword: NOT
+    - keyword: ILIKE
+    - quoted_literal: $$users\_%$$
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: clstr
+- statement_terminator: ;
