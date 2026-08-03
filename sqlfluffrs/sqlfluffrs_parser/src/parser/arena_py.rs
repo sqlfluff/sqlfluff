@@ -161,8 +161,11 @@ impl PyHandle {
         seg_type.iter().any(|t| a.is_type(self.node, t))
     }
 
-    fn class_types(&self) -> Vec<String> {
-        self.inner.lock().unwrap().class_types(self.node)
+    fn class_types<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
+        // Clone the cached `Arc` under the lock, then drop the guard before
+        // building the Python list.
+        let arc = self.inner.lock().unwrap().class_types(self.node);
+        pylist_of_strs(py, &arc)
     }
 
     fn instance_types<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {

@@ -89,6 +89,9 @@ struct ArenaNode {
     /// Cached `descendant_type_set` (mirrors `BaseSegment.descendant_type_set`),
     /// used by the crawler to prune subtrees.
     descendant_types: RefCell<Option<Arc<HashSet<String>>>>,
+    /// Cached `class_types` (mirrors `BaseSegment.class_types`) — computed
+    /// once per node, then handed out as a cheap `Arc` clone.
+    class_types_cache: RefCell<Option<Arc<Vec<String>>>>,
 }
 
 /// A flattened, parent-linked, id-addressable parse tree.
@@ -146,6 +149,7 @@ impl Arena {
             kind,
             cached_raw: RefCell::new(None),
             descendant_types: RefCell::new(None),
+            class_types_cache: RefCell::new(None),
         });
         self.by_uuid.insert(uuid, id);
         id
@@ -390,8 +394,16 @@ impl Arena {
         out
     }
 
-    pub fn class_types(&self, id: NodeId) -> Vec<String> {
-        self.node_type_set(id)
+    /// This node's `class_types`, cached and handed out as a cheap `Arc`
+    /// clone (mirrors `descendant_type_set`'s caching below) so callers can
+    /// drop the arena lock before building a Python object from it.
+    pub fn class_types(&self, id: NodeId) -> Arc<Vec<String>> {
+        if let Some(cached) = self.node(id).class_types_cache.borrow().as_ref() {
+            return cached.clone();
+        }
+        let rc = Arc::new(self.node_type_set(id));
+        *self.node(id).class_types_cache.borrow_mut() = Some(rc.clone());
+        rc
     }
 
     /// Instance types for a raw token: a cheap `Arc` clone (a refcount bump,
