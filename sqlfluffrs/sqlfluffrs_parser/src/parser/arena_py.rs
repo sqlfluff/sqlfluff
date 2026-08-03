@@ -195,7 +195,11 @@ impl PyHandle {
     fn escape_replacements<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
         // Clone the `Arc` under the lock, then drop the guard before
         // building the Python list.
-        let arc = self.inner.lock().unwrap().escape_replacements_arc(self.node);
+        let arc = self
+            .inner
+            .lock()
+            .unwrap()
+            .escape_replacements_arc(self.node);
         arc.map(|pairs| pylist_of_str_pairs(py, &pairs)).transpose()
     }
 

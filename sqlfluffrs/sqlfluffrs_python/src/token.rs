@@ -11,7 +11,9 @@ use pyo3::{
 use uuid::Uuid;
 
 use crate::marker::{PyPositionMarker, PySqlFluffPositionMarker};
-use crate::pyo3_helpers::{pyfrozenset_of_strs, pylist_of_str_pairs, pylist_of_strs, pytuple_of_strs};
+use crate::pyo3_helpers::{
+    pyfrozenset_of_strs, pylist_of_str_pairs, pylist_of_strs, pytuple_of_strs,
+};
 use sqlfluffrs_types::token::fix::SourceFix;
 use sqlfluffrs_types::{
     regex::RegexModeGroup,
