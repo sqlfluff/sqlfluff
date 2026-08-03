@@ -443,6 +443,55 @@ def test__rust_parser__rs_node_class_types_match_python():
     assert checked_gzip, "expected a quoted 'GZIP' compression value in the parse"
 
 
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_token_getters_return_expected_container_types():
+    """RsToken collection getters return the expected Python container types.
+
+    Pins the container types (`tuple`/`frozenset`/`list`) that PR #8247's
+    direct-to-Python-object builders produce, so a future change to
+    `pyo3_helpers` can't silently swap e.g. `trim_chars` back to a `list`
+    or `class_types` back to a plain `set`.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "mysql"})
+    segments, _ = Lexer(config=config).lex("SET @errmsg = 'it''s';")
+    tokens = {
+        s.raw: s._rstoken for s in segments if getattr(s, "_rstoken", None) is not None
+    }
+
+    at_sign_token = tokens["@errmsg"]
+    assert isinstance(at_sign_token.trim_chars, tuple)
+    assert at_sign_token.trim_chars == ("@",)
+    assert isinstance(at_sign_token.class_types, frozenset)
+    assert isinstance(at_sign_token.instance_types, list)
+
+    quoted_token = tokens["'it''s'"]
+    assert isinstance(quoted_token.escape_replacements, list)
+    assert quoted_token.escape_replacements
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_handle_getters_return_expected_container_types():
+    """RsHandle collection getters return the expected Python container types.
+
+    Companion to the `RsToken` check above: covers the arena-side getters
+    (`descendant_type_set`, `class_types`) that build their `PyList` directly
+    rather than through the shared `pyo3_helpers` builders.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi", "use_rust_parser": True})
+    segments, _ = Lexer(config=config).lex("SELECT a FROM my_table\n")
+    tree = RustParser(config=config).parse(segments, fname="t.sql")
+
+    root = tree._rs_tree.root
+    assert isinstance(root.descendant_type_set(), list)
+    assert isinstance(root.class_types(), list)
+
+
 # ---------------------------------------------------------------------------
 # Per-stage profiling
 # ---------------------------------------------------------------------------

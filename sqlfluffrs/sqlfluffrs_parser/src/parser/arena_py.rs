@@ -20,7 +20,9 @@ use pyo3::prelude::*;
 use pyo3::types::{PyList, PyTuple};
 
 use sqlfluffrs_python::marker::PyPositionMarker;
-use sqlfluffrs_python::pyo3_helpers::{pylist_of_str_pairs, pylist_of_strs, pytuple_of_strs};
+use sqlfluffrs_python::pyo3_helpers::{
+    pylist_of_str_pairs, pylist_of_strs, pylist_of_strs_iter, pytuple_of_strs,
+};
 
 use super::arena::{Arena, NodeId};
 
@@ -202,9 +204,9 @@ impl PyHandle {
         self.inner.lock().unwrap().segment_class(self.node)
     }
 
-    fn descendant_type_set<'py>(&self, py: Python<'py>) -> Bound<'py, PyList> {
+    fn descendant_type_set<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
         let set = self.inner.lock().unwrap().descendant_type_set(self.node);
-        PyList::new(py, set.iter().map(String::as_str)).unwrap()
+        pylist_of_strs_iter(py, set.iter().map(String::as_str))
     }
 
     #[getter]

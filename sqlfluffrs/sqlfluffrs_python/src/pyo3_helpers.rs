@@ -5,11 +5,27 @@
 //! sync instead of being copy-pasted at each call site.
 
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyTuple};
+use pyo3::types::{PyFrozenSet, PyList, PyTuple};
 
 /// Build a `PyList` of Python strings from a slice of owned `String`s.
 pub fn pylist_of_strs<'py>(py: Python<'py>, items: &[String]) -> PyResult<Bound<'py, PyList>> {
     PyList::new(py, items.iter().map(String::as_str))
+}
+
+/// Build a `PyList` of Python strings from any iterator of borrowed `&str`s.
+pub fn pylist_of_strs_iter<'py, 'a>(
+    py: Python<'py>,
+    items: impl IntoIterator<Item = &'a str>,
+) -> PyResult<Bound<'py, PyList>> {
+    PyList::new(py, items)
+}
+
+/// Build a `PyFrozenSet` of Python strings from any iterator of borrowed `&str`s.
+pub fn pyfrozenset_of_strs<'py, 'a>(
+    py: Python<'py>,
+    items: impl IntoIterator<Item = &'a str>,
+) -> PyResult<Bound<'py, PyFrozenSet>> {
+    PyFrozenSet::new(py, items)
 }
 
 /// Build a `PyTuple` of Python strings from a slice of owned `String`s.
