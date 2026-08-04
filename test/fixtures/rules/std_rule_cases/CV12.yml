@@ -6,6 +6,15 @@ test_fail_sqlite_left_join_without_fix:
     core:
       dialect: sqlite
 
+test_fail_ansi_left_join_without_fix:
+  fail_str: SELECT a.k, b.k FROM a LEFT JOIN b WHERE a.k = b.k;
+
+test_fail_ansi_right_join_without_fix:
+  fail_str: SELECT a.k, b.k FROM a RIGHT JOIN b WHERE a.k = b.k;
+
+test_fail_ansi_full_outer_join_without_fix:
+  fail_str: SELECT a.k, b.k FROM a FULL OUTER JOIN b WHERE a.k = b.k;
+
 test_noop_select_comma:
   # this syntax is currently not covered by CV12
   pass_str: |
@@ -39,20 +48,34 @@ test_noop_natural_join:
 
 test_fail_natural_join_mixed_with_later_join:
   # The NATURAL JOIN is skipped, but its predicate (a.k = b.k) must not be
-  # hoisted into the following LEFT JOIN's ON clause: only conditions that
+  # hoisted into the following JOIN's ON clause: only conditions that
   # reference the joined table itself may be moved.
   fail_str: |
-    SELECT * FROM a NATURAL JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+    SELECT * FROM a NATURAL JOIN b JOIN c WHERE a.k = b.k AND a.m = c.m
   fix_str: |
-    SELECT * FROM a NATURAL JOIN b LEFT JOIN c ON a.m = c.m WHERE a.k = b.k
+    SELECT * FROM a NATURAL JOIN b JOIN c ON a.m = c.m WHERE a.k = b.k
 
 test_fail_cross_join_mixed_with_later_join:
   # Same as above for a skipped CROSS JOIN: a.k = b.k references neither the
-  # LEFT JOIN's table nor an ON-able join, so it stays in the WHERE clause.
+  # JOIN's table nor an ON-able join, so it stays in the WHERE clause.
   fail_str: |
-    SELECT * FROM a CROSS JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+    SELECT * FROM a CROSS JOIN b JOIN c WHERE a.k = b.k AND a.m = c.m
   fix_str: |
-    SELECT * FROM a CROSS JOIN b LEFT JOIN c ON a.m = c.m WHERE a.k = b.k
+    SELECT * FROM a CROSS JOIN b JOIN c ON a.m = c.m WHERE a.k = b.k
+
+test_fail_sparksql_left_semi_join_with_fix:
+  fail_str: |
+    SELECT employee.id
+    FROM employee
+    LEFT SEMI JOIN department
+    WHERE employee.deptno = department.deptno
+  fix_str: |
+    SELECT employee.id
+    FROM employee
+    LEFT SEMI JOIN department ON employee.deptno = department.deptno
+  configs:
+    core:
+      dialect: sparksql
 
 test_noop_using:
   pass_str: |

@@ -2,7 +2,7 @@
 
 # code linting and formatting
 # ---------------------------
-ruff
+ruff==0.15.5
 import-linter
 yamllint
 

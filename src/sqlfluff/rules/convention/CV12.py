@@ -141,12 +141,17 @@ class Rule_CV12(BaseRule):
                 continue
 
             # Moving a WHERE predicate into ON changes which null-extended
-            # rows survive an outer join. SQLite makes this directly visible
-            # for LEFT JOIN, so retain the diagnostic but suppress the fix.
-            if context.dialect.name == "sqlite" and any(
+            # rows survive an outer join, so retain the diagnostic but
+            # suppress the fix for all outer joins. SEMI and ANTI joins are
+            # filtering joins, not null-extending outer joins.
+            is_outer_join = any(
                 kw.raw_upper in ("LEFT", "RIGHT", "FULL", "OUTER")
                 for kw in join_clause_keywords
-            ):
+            )
+            is_semi_or_anti_join = any(
+                kw.raw_upper in ("SEMI", "ANTI") for kw in join_clause_keywords
+            )
+            if is_outer_join and not is_semi_or_anti_join:
                 yield LintResult(anchor=join_clause)
                 continue
 
