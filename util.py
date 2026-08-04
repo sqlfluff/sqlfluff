@@ -121,6 +121,7 @@ def release(new_version_num):
         owner=os.environ["GITHUB_REPOSITORY_OWNER"],
         repo="sqlfluff",
         token=os.environ["GITHUB_TOKEN"],
+        sync=True,
     )
     try:
         releases = api.repos.list_releases(per_page=100)
