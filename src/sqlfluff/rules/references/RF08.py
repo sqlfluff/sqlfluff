@@ -14,9 +14,8 @@ _IDENTIFIERS = ("naked_identifier", "quoted_identifier")
 
 def _name_of(segment: BaseSegment) -> Optional[str]:
     """The identifier a column definition or reference introduces, case folded."""
-    for part in segment.recursive_crawl(*_IDENTIFIERS):
-        return part.raw.strip('"`[]').upper()
-    return None
+    part = next(segment.recursive_crawl(*_IDENTIFIERS), None)
+    return part.raw.strip('"`[]').upper() if part else None
 
 
 class Rule_RF08(BaseRule):
