@@ -16,6 +16,7 @@ def generate_use():
     print("use sqlfluffrs_types::{LexMatcher, LexMatcherConfig};")
     print("use sqlfluffrs_types::{Token, RegexModeGroup};")
     print("use sqlfluffrs_types::token::CaseFold;")
+    print("use sqlfluffrs_types::{BracketPairEntry, BracketPairSet};")
 
 
 def segment_to_token_name(s: str):
@@ -37,6 +38,40 @@ def generate_lexer(dialect: str):
     for matcher in loaded_dialect.get_lexer_matchers():
         print(f"{_as_rust_lexer_matcher(matcher, dialect.capitalize())},")
     print("]});")
+
+
+def generate_bracket_pairs(dialect: str):
+    """Generate the dialect's BracketPairEntry set.
+
+    Used by the Rust lexer/parser for bracket matching, stray-closing-bracket
+    detection, and Anything-grammar bracket recursion. `persists` is whether
+    the matched span is kept as a structured `bracketed` node vs flattened
+    to raw siblings.
+    """
+    loaded_dialect = dialect_selector(dialect)
+    print(
+        f"pub static {dialect.upper()}_BRACKET_PAIRS:"
+        " Lazy<BracketPairSet>"
+        " = Lazy::new(|| { BracketPairSet(vec!["
+    )
+    for _bracket_type, start_ref, end_ref, persists in sorted(
+        loaded_dialect.bracket_sets("bracket_pairs")
+    ):
+        start_seg = loaded_dialect.ref(start_ref)
+        end_seg = loaded_dialect.ref(end_ref)
+        start_template = start_seg.template
+        end_template = end_seg.template
+        # The segment type the parser assigns to the matched bracket, e.g.
+        # "start_bracket" / "start_exclude_bracket" (matches Python's
+        # StartBracketSegment / StartExcludeBracketSegment instance_types).
+        start_type = (start_seg._instance_types or (start_seg.raw_class.type,))[0]
+        end_type = (end_seg._instance_types or (end_seg.raw_class.type,))[0]
+        print(
+            f'    BracketPairEntry {{ open: "{start_template}", '
+            f'close: "{end_template}", start_type: "{start_type}", '
+            f'end_type: "{end_type}", persists: {str(bool(persists)).lower()} }},'
+        )
+    print("]) });")
 
 
 def generate_reserved_keyword_list(dialect: str):
@@ -245,5 +280,7 @@ if __name__ == "__main__":
     generate_reserved_keyword_list(args.dialect)
     print()
     generate_lexer(args.dialect)
+    print()
+    generate_bracket_pairs(args.dialect)
     print()
     generate_extract_nested_block_comments(args.dialect)

@@ -12,6 +12,86 @@ use crate::{token::CaseFold, PositionMarker, RegexModeGroup, Token, TokenConfig}
 /// Function pointer type for token generation: one of `Token::{kind}_token`.
 pub type TokenGenerator = fn(String, PositionMarker, TokenConfig) -> Token;
 
+/// A single bracket pair recognised by a dialect. See
+/// `utils/build_lexers.py::generate_bracket_pairs` for how these are derived.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct BracketPairEntry {
+    pub open: &'static str,
+    pub close: &'static str,
+    pub start_type: &'static str,
+    pub end_type: &'static str,
+    pub persists: bool,
+}
+
+/// A dialect's full set of recognised bracket pairs (round/square/curly plus
+/// any dialect-specific additions, e.g. snowflake's exclude `{-`/`-}`).
+#[derive(Debug, Clone, Default)]
+pub struct BracketPairSet(pub Vec<BracketPairEntry>);
+
+impl BracketPairSet {
+    pub fn find_by_open(&self, raw: &str) -> Option<&BracketPairEntry> {
+        self.0.iter().find(|p| p.open == raw)
+    }
+
+    pub fn is_open(&self, raw: &str) -> bool {
+        self.0.iter().any(|p| p.open == raw)
+    }
+
+    pub fn is_close(&self, raw: &str) -> bool {
+        self.0.iter().any(|p| p.close == raw)
+    }
+
+    pub fn position_by_open(&self, raw: &str) -> Option<usize> {
+        self.0.iter().position(|p| p.open == raw)
+    }
+
+    pub fn position_by_close(&self, raw: &str) -> Option<usize> {
+        self.0.iter().position(|p| p.close == raw)
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &BracketPairEntry> {
+        self.0.iter()
+    }
+
+    /// Pre-compute `matching_bracket_idx` for every bracket token via LIFO
+    /// nesting order (Python parity: `resolve_bracket`, match_algorithms.py).
+    /// Only code tokens are considered, so bracket characters inside a
+    /// comment can't pair with real brackets in the SQL.
+    pub fn compute_matching_indices(&self, tokens: &mut [Token]) {
+        let mut bracket_stack: Vec<(usize, usize)> = Vec::new();
+
+        for idx in 0..tokens.len() {
+            tokens[idx].matching_bracket_idx = None;
+
+            if !tokens[idx].is_code() {
+                continue;
+            }
+
+            let raw = tokens[idx].raw();
+
+            if let Some(pair_idx) = self.position_by_open(raw) {
+                bracket_stack.push((idx, pair_idx));
+            } else if let Some(expected_idx) = self.position_by_close(raw) {
+                // Only the most-recently-opened bracket may be closed next
+                // (LIFO), matching `resolve_bracket`'s own recursion.
+                if let Some(&(open_idx, top_idx)) = bracket_stack.last() {
+                    if top_idx == expected_idx {
+                        bracket_stack.pop();
+                        tokens[open_idx].matching_bracket_idx = Some(idx);
+                        tokens[idx].matching_bracket_idx = Some(open_idx);
+                    } else {
+                        // Type mismatch: unwind the whole stack, as Python's
+                        // resolve_bracket does when it raises.
+                        bracket_stack.clear();
+                    }
+                }
+                // Empty stack: a stray closer with no open bracket - leave as None.
+            }
+        }
+        // Any remaining openers on the stack are unmatched - leave as None.
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum LexerMode {
     String(String),                           // Match a literal string

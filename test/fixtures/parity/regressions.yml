@@ -5,69 +5,50 @@ anything_dialect_exclude_bracket:
   sql: CREATE TABLE t (c VARCHAR({- 1 -}) AS y)
   dialect: snowflake
   expect: tree
-  xfail:
-    python_vs_rust: "The Anything-grammar bracket path (core.rs
-      match_bracket_recursively, reached here via snowflake's
-      Bracketed(Anything()) column-datatype params) recognises the dialect's
-      exclude bracket '{-'/'-}' as a bracket pair, but two things differ from
-      Python's resolve_bracket: the leaf segments are typed
-      exclude_bracket_open/exclude_bracket_close where Python types them
-      start_exclude_bracket/end_exclude_bracket, and Rust does not wrap the
-      pair in its own nested `bracketed` node with indent/dedent metas - it
-      emits the two bracket tokens and their content as flat siblings of the
-      outer bracket instead."
   pins: Dialect-specific bracket (snowflake's exclude bracket '{-'/'-}')
     reached via the Anything-grammar bracket path (core.rs
-    match_bracket_recursively) - leaf typing and nested-node wrapping gap;
-    see anything_dialect_exclude_bracket_unclosed and
-    anything_crossed_ascii_bracket_raises for the crossed/unclosed variants of
-    the same path.
+    match_bracket_recursively) - was a leaf typing and nested-node wrapping
+    gap, fixed alongside the dialect bracket-pairs work; see
+    anything_dialect_exclude_bracket_unclosed for the crossed/unclosed
+    variant of the same path.
 anything_dialect_exclude_bracket_unclosed:
   sql: CREATE TABLE t (c NUMBER({- x) AS y)
   dialect: snowflake
-  xfail:
-    python_vs_rust: "For this crossed/unclosed dialect exclude bracket, Python's
-      resolve_bracket raises SQLParseError (\"Found unexpected end bracket!,
-      was expecting <StringParser: '-}'>, but got <StringParser: ')'>\"), but
-      core.rs's match_bracket_recursively does not detect the crossed
-      bracket and returns a fabricated tree instead."
+  expect: error
   pins: Crossed/unclosed variant of anything_dialect_exclude_bracket - Rust
-    does not raise where Python does.
+    now raises like Python does, fixed alongside the crossed-bracket
+    detection work. Unlike anything_crossed_ascii_bracket_raises, this is
+    scoped to snowflake's dialect-specific '{-'/'-}' exclude bracket, not a
+    universal ASCII closer.
 anything_crossed_ascii_bracket_raises:
   sql: CREATE TABLE t (col VARCHAR(x ( y ] z )))
   expect: error
-  xfail:
-    python_vs_rust: "Python's resolve_bracket raises SQLParseError (\"Found
-      unexpected end bracket!, was expecting <StringParser: ')'>, but got
-      <StringParser: ']'>\") for a wrong-type ASCII closing bracket crossed
-      inside an Anything() region, but core.rs's match_bracket_recursively
-      does not raise on the crossed bracket and returns a tree instead."
-  pins: ASCII-bracket variant of the same crossed-bracket detection gap as
-    anything_dialect_exclude_bracket_unclosed.
+  pins: "ASCII-bracket variant of the crossed-bracket detection gap fixed alongside
+    materialize_curly_cross_silent_recovery - core.rs's match_bracket_recursively
+    now raises on any wrong-type ASCII closing bracket crossed inside an Anything()
+    region, matching Python's resolve_bracket SQLParseError (\"Found unexpected end
+    bracket!, was expecting <StringParser: ')'>, but got <StringParser: ']'>\")."
 bracketed_required_content_fails_at_close_bracket:
   sql: select CAST(5);
   dialect: tsql
   expect: tree
-  xfail:
-    python_vs_rust: "A STRICT Bracketed whose required content element fails
-      exactly at the closing bracket (no trailing gap) still succeeds on the
-      Rust side with partial content. CastFunctionContents is
-      Bracketed(Expression, \"AS\", Datatype): on CAST(5) Expression matches
-      '5', the required \"AS\" fails at ')', and bracketed.rs - because check_pos
-      equals the closing-bracket position - skips the content-failure handling
-      and matches the close bracket anyway, fabricating a function node with
-      just the expression. Python's STRICT Sequence rejects the CAST and falls
-      back to a column_reference with the rest unparsable."
-  pins: tsql CAST(5)-without-AS partial-match-at-close-bracket gap in
-    bracketed.rs's STRICT required-content handling.
+  pins: A STRICT Bracketed must fail (return empty) when a required content
+    element fails *after earlier content already matched* - a genuine partial
+    match - even when that failure lands exactly on the closing bracket, rather
+    than matching the close bracket over the partial content. CastFunctionContents
+    is Bracketed(Expression, "AS", Datatype); on CAST(5) Expression matches '5',
+    the required "AS" fails at ')', and Rust used to fabricate a function node
+    with just the expression where Python rejects the CAST and falls back to a
+    column_reference with the rest unparsable. The fix is gated on content having
+    actually matched (last_matched_end > content_start) so a required element
+    failing with nothing consumed - a valid empty bracket `()`, e.g. a tsql table
+    hint bracket on empty parens - is left untouched.
 bracketed_optional_content_failure_nothing_here:
   sql: SELECT SUM(a) OVER (1 2 3) FROM t
   expect: tree
-  pins: Bracketed content-failure message for a failed *optional* content
-    element (window function's WindowSpecificationSegment, optional=True,
-    parse_mode=GREEDY, failing on '1 2 3') - both engines fall back to the
-    generic "Nothing here." GREEDY-leftover message rather than the
-    required-element-specific "<elem> to start sequence/after X" wording.
+  pins: Bracketed content-failure message must match Python's Sequence.match -
+    a failed *optional* content element yields "Nothing here.", not the specific
+    "<elem> to start sequence/after X" message reserved for required failures.
 ansi_grant_all_masking_policies:
   sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
   expect: error
@@ -117,13 +98,18 @@ partial_match_failure_keeps_children:
 stray_closing_bracket_dialect_bracket_set:
   sql: SELECT 1 -} FROM t
   dialect: snowflake
-  xfail:
-    python_vs_rust: 'Rust''s unparsable-recovery region for the unmatched dialect-specific
-      closing bracket (snowflake''s exclude-bracket ''-}'') does not stop at the bracket:
-      it keeps consuming subsequent tokens (FROM, the table reference) as raw words inside
-      the same unparsable segment, where Python recovers immediately after the stray bracket
-      and parses the FROM clause normally.'
-  pins: Dialect-specific stray closing bracket (snowflake '-}') recovery never closes.
+  expect: tree
+  pins: 'Rust''s bracket-matching (the lexer''s matching_bracket_idx pre-computation
+    in sqlfluffrs_lexer and sqlfluffrs_parser/python.rs, plus greedy_match''s
+    stray-closing-bracket abort in match_algorithms.rs) only recognised the
+    universal round/square/curly brackets by hardcoded ASCII text, so it missed
+    dialect-specific entries in a dialect''s bracket_pairs set - here snowflake''s
+    MATCH_RECOGNIZE exclude bracket ''{-''/''-}'' - and kept scanning past the stray
+    ''-}'' instead of aborting the terminator search there like Python''s
+    next_ex_bracket_match/resolve_bracket do. Fixed by generating each dialect''s
+    full bracket_pairs set (Dialect::get_bracket_pairs, from utils/build_lexers.py)
+    and threading it through both the lexer''s bracket pre-computation and
+    greedy_match''s bracket checks, instead of a hardcoded three-pair list.'
 int_typed_indentation_config:
   sql: SELECT a FROM t JOIN u USING (a)
   configs:
@@ -163,41 +149,49 @@ sequence_found_message_no_trailing_period:
 sqlite_nothing_here_expected_message:
   sql: "WITH cte AS (\n t\n)\nSELECT"
   dialect: sqlite
-  xfail:
-    python_vs_rust: Where a CTE definition's body fails to start a SelectableGrammar, Python's
-      unparsable message names the specific expected grammar and found token, while Rust falls
-      back to the generic placeholder message 'Nothing here.'
-  pins: Generic vs specific fallback message for an empty CTE body (sqlite).
+  expect: tree
+  pins: Bracketed content matching (bracketed.rs) always blamed a content/closing-bracket
+    gap on the generic GREEDY-leftover fallback ('Nothing here.'), even when the gap was
+    actually caused by the sole content element (here, SelectableGrammar inside the CTE's
+    parens) failing to match at all - fixed by tracking how many child matches existed
+    before content parsing began, so a content element that never got off the ground is
+    reported with Python's specific "to start sequence"/"after X" message instead.
 materialize_curly_cross_silent_recovery:
   sql: COPY t FROM STDIN (FORMAT {-
   dialect: materialize
-  xfail:
-    python_vs_rust: For an unclosed regular bracket followed by an unclosed curly bracket
-      (materialize's COPY ... (FORMAT {- ), Python raises SQLParseError (couldn't find closing
-      bracket for opening bracket), while Rust silently recovers, producing a full tree with
-      the stray '(' and '{' folded into a trailing unparsable segment instead of raising.
-  pins: Crossed bracket-type recovery for materialize COPY ... FORMAT { syntax.
+  expect: error
+  pins: The Rust Anything() grammar (core.rs match_bracket_recursively, used for the
+    COPY ... options content) reached end-of-input inside an unresolved nested bracket
+    of a different type (materialize's COPY FORMAT '{' crossed with the outer, also
+    unclosed, '(') and silently treated wherever it stopped as the closing bracket,
+    instead of raising like Python's resolve_bracket does whenever a bracket it opened
+    is never closed - fixed by making match_bracket_recursively return an error in that
+    case instead of a fabricated match.
 tsql_cast_structure:
   sql: select CAST(0X0 uniqueidentifier);
   dialect: tsql
-  xfail:
-    python_vs_rust: 'Rust does not recognise tsql''s AS-less CAST(literal type) shorthand
-      cast syntax: Python parses it as a function call with a binary_literal argument and
-      a data_type, while Rust parses only CAST as a bare column reference and folds the remainder
-      of the statement into an unparsable segment.'
-  pins: tsql CAST(literal type) shorthand (no AS) grammar gap.
+  expect: tree
+  pins: 'CastFunctionContentsSegment requires "AS" between the expression and the
+    data_type (Bracketed(ExpressionSegment, "AS", DatatypeSegment)), and this SQL
+    omits it, so the reference (Python) correctly rejects the CAST call and falls
+    back to a bare column_reference with the rest unparsable. bracketed.rs''s content
+    loop used to march on to the next content element even after a required
+    (non-optional) one failed to match, so with "AS" missing it let DatatypeSegment
+    try - and succeed - matching "uniqueidentifier" in the position "AS" should have
+    occupied, fabricating a function call Python never accepts. Fixed by stopping the
+    content loop the moment a required element fails, exactly like Python''s
+    Sequence.match.'
 materialize_webhook_overlapping_matches:
   sql: "(\n ) ( );\nCREATE SOURCE my_webhook_source IN CLUSTER my_cluster FROM WEBHOOK\n BODY\
     \ FORMAT JSON\n (\n (\n my_webhook_share"
   dialect: materialize
-  xfail:
-    python_vs_rust: 'On this heavily cross-bracketed materialize webhook fragment, Python
-      raises a clean SQLParseError (couldn''t find closing bracket for opening bracket, at
-      line 6, position 2), while Rust raises an internal ValueError (segment skip ahead error:
-      an outer match contains overlapping child matches, this MatchResult was wrongly constructed),
-      indicating a genuine invariant violation in the Rust matcher rather than a parse error.'
-  pins: Rust match-invariant crash on deeply crossed/nested unmatched brackets (materialize
-    webhook fixture).
+  expect: error
+  pins: 'Same root cause as materialize_curly_cross_silent_recovery - core.rs''s
+    match_bracket_recursively silently fabricated a close for deeply crossed/unmatched
+    brackets instead of raising, and downstream the resulting malformed match ended up
+    with overlapping child matches, tripping the Python-side builder''s invariant check
+    (ValueError). Fixed by the same change: an unresolved bracket now raises immediately
+    instead of ever reaching the builder.'
 depth_guard_error_position:
   sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
     1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1

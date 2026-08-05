@@ -349,9 +349,20 @@ impl Parser<'_> {
                 self.tokens.len()
             );
 
+        // Only an optional element may fail and let the loop advance to the
+        // next one; a required element failing must stop advancing here (not
+        // let a later element match at its still-unclaimed position), but we
+        // fall through rather than return so the gap-check below still
+        // produces the right unparsable span.
+        let current_required_failed = child_is_empty
+            && !self
+                .grammar_ctx
+                .inst(content_ids[*content_idx])
+                .is_optional();
+
         // CRITICAL: Check if there are more content elements to parse
         // Continue parsing even if current element returned Empty (optional elements)
-        if *content_idx + 1 < content_ids.len() {
+        if !current_required_failed && *content_idx + 1 < content_ids.len() {
             // More content elements remain - parse the next one
             *content_idx += 1;
 
@@ -432,6 +443,38 @@ impl Parser<'_> {
             // STRICT mode check: All content elements must end at the closing bracket position
             // This check should only happen AFTER all content elements have been processed.
             let check_pos = self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
+
+            // A required element failing after some content already matched
+            // is a genuine partial match: STRICT must fail here rather than
+            // let the gap check below match the closing bracket over it.
+            // Gated on `last_matched_end > content_start` so a required
+            // element failing with nothing consumed - an empty bracket `()` -
+            // still succeeds. Content starts at the end of the opening
+            // bracket, always the first recorded child match.
+            let content_start = child_matches
+                .first()
+                .map(|m| m.matched_slice.end)
+                .unwrap_or(check_pos);
+            let last_matched_end = child_matches
+                .iter()
+                .map(|m| m.matched_slice.end)
+                .max()
+                .unwrap_or(content_start);
+            if current_required_failed
+                && parse_mode == ParseMode::Strict
+                && last_matched_end > content_start
+            {
+                vdebug!(
+                    "Bracketed[table] STRICT mode: required content element failed after a partial match, returning Empty. frame_id={}, frame.pos={}",
+                    frame.frame_id, frame.pos
+                );
+                self.pos = frame.pos;
+                frame.end_pos = Some(frame.pos);
+                frame.state = FrameState::Combining;
+                stack.push(frame);
+                return Ok(TableFrameResult::Done);
+            }
+
             if let Some(expected_close_pos) = *bracket_max_idx {
                 if check_pos != expected_close_pos {
                     if parse_mode == ParseMode::Strict {
@@ -460,16 +503,69 @@ impl Parser<'_> {
                         // with matched_class set, so only create the unparsable
                         // child when there's actually code left to wrap.
                         if unparsable_stop > check_pos {
+                            // This gap means one of two things: a required
+                            // element genuinely failed (message names the
+                            // expected grammar and found token), or every
+                            // required element matched and this is just
+                            // trailing content ("Nothing here."). Gate on
+                            // `current_required_failed`, not `child_is_empty`,
+                            // so a failed *optional* element gets the generic
+                            // message, not the specific one.
+                            let specific_message = if current_required_failed {
+                                content_ids.get(*content_idx).map(|&gid| {
+                                    let element_desc = self.grammar_ctx.grammar_repr(gid);
+                                    // Fallback when check_pos is out of range: "start
+                                    // of input" for the "to start sequence" branch,
+                                    // "end of input" for the "after X" branch.
+                                    let found_token = |fallback: &str| {
+                                        self.tokens
+                                            .get(check_pos)
+                                            .map(|t| format!("{}", t))
+                                            .unwrap_or_else(|| fallback.to_string())
+                                    };
+                                    // Branch on whether any position was consumed,
+                                    // not child count: a zero-length insert-only
+                                    // match bumps the count but not the position.
+                                    if last_matched_end <= content_start {
+                                        format!(
+                                            "{} to start sequence. Found {}",
+                                            element_desc,
+                                            found_token("start of input")
+                                        )
+                                    } else {
+                                        // Use the last matched token, not
+                                        // tokens[check_pos - 1]: check_pos skipped
+                                        // forward over any gap and would otherwise
+                                        // name the intervening whitespace.
+                                        let last_matched_token = self
+                                            .tokens
+                                            .get(last_matched_end.saturating_sub(1))
+                                            .map(|t| format!("{}", t))
+                                            .unwrap_or_else(|| "start of input".to_string());
+                                        format!(
+                                            "{} after {}. Found {}",
+                                            element_desc,
+                                            last_matched_token,
+                                            found_token("end of input")
+                                        )
+                                    }
+                                })
+                            } else {
+                                None
+                            };
+                            let error_message =
+                                specific_message.unwrap_or_else(|| "Nothing here.".to_string());
+
                             vdebug!(
-                                    "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {})",
-                                    check_pos, unparsable_stop, check_pos, expected_close_pos
+                                    "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {}): {}",
+                                    check_pos, unparsable_stop, check_pos, expected_close_pos, error_message
                                 );
 
                             // Create an UnparsableSegment for the tokens we couldn't parse
                             let unparsable_match = MatchResult {
                                 matched_slice: check_pos..unparsable_stop,
                                 matched_class: Some(MatchedClass::unparsable(
-                                    "Nothing here.",
+                                    &error_message,
                                     unparsable_stop,
                                 )),
                                 ..Default::default()

@@ -514,7 +514,9 @@ impl PyParser {
         // Compute bracket pairs for the tokens.
         // When tokens come from Python (lexed by Python lexer), matching_bracket_idx is None.
         // We need to compute it for the Bracketed grammar to work correctly.
-        compute_bracket_pairs(&mut rust_tokens);
+        self.dialect
+            .get_bracket_pairs()
+            .compute_matching_indices(&mut rust_tokens);
 
         // Create parser
         let mut parser = Parser::new_with_max_parse_depth(
@@ -555,7 +557,9 @@ impl PyParser {
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
         // Compute bracket pairs for the tokens.
-        compute_bracket_pairs(&mut rust_tokens);
+        self.dialect
+            .get_bracket_pairs()
+            .compute_matching_indices(&mut rust_tokens);
 
         // Create parser
         let mut parser = Parser::new_with_max_parse_depth(
@@ -601,7 +605,9 @@ impl PyParser {
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
         // Compute bracket pairs for the tokens.
-        compute_bracket_pairs(&mut rust_tokens);
+        self.dialect
+            .get_bracket_pairs()
+            .compute_matching_indices(&mut rust_tokens);
 
         // Create parser with grammar counting enabled
         let mut parser = Parser::new_with_max_parse_depth(
@@ -637,68 +643,4 @@ impl PyParser {
 
         Ok((PyMatchResult(match_result), grammar_counts))
     }
-}
-
-/// Compute matching bracket indices for all bracket tokens.
-///
-/// This function sets `matching_bracket_idx` on each opening and closing bracket
-/// to point to its matching counterpart. This is used by the parser's
-/// `find_matching_bracket` function for O(1) bracket pair lookup.
-///
-/// This is necessary when tokens come from Python (via PyToken -> Token conversion)
-/// because the Python lexer doesn't compute these indices.
-fn compute_bracket_pairs(tokens: &mut [Token]) {
-    // Stack to track opening brackets: (index, bracket_char)
-    let mut bracket_stack: Vec<(usize, char)> = Vec::new();
-
-    for idx in 0..tokens.len() {
-        // Only code tokens can be brackets. Skipping non-code tokens (notably
-        // comments) prevents bracket characters inside a block/inline comment -
-        // e.g. `min(` / `)` - from being paired with real brackets in the SQL.
-        if !tokens[idx].is_code() {
-            continue;
-        }
-
-        let raw = tokens[idx].raw();
-
-        // Check if this is an opening bracket
-        if let Some(open_char) = match raw {
-            "(" => Some('('),
-            "[" => Some('['),
-            "{" => Some('{'),
-            _ => None,
-        } {
-            bracket_stack.push((idx, open_char));
-        }
-        // Check if this is a closing bracket
-        else if let Some(expected_open) = match raw {
-            ")" => Some('('),
-            "]" => Some('['),
-            "}" => Some('{'),
-            _ => None,
-        } {
-            // Only the most-recently-opened bracket (the top of the stack) may
-            // be closed next, per LIFO nesting discipline. See the sibling
-            // implementation in sqlfluffrs_lexer/src/lexer.rs::compute_bracket_pairs
-            // for the full rationale (Python parity with resolve_bracket in
-            // match_algorithms.py).
-            if let Some(&(open_idx, top_char)) = bracket_stack.last() {
-                if top_char == expected_open {
-                    bracket_stack.pop();
-                    // Set bidirectional pointers
-                    tokens[open_idx].matching_bracket_idx = Some(idx);
-                    tokens[idx].matching_bracket_idx = Some(open_idx);
-                } else {
-                    // A type mismatch is what Python's resolve_bracket raises
-                    // on, unwinding through every enclosing bracket's own
-                    // call. Clear the whole stack to match that: every
-                    // bracket still open at this point stays unresolved, so
-                    // none of them can later pair with a closer that follows.
-                    bracket_stack.clear();
-                }
-            }
-            // If the stack is empty, there's no open bracket at all - leave as None.
-        }
-    }
-    // Any remaining opening brackets on the stack are unmatched - leave as None
 }

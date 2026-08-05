@@ -1616,10 +1616,16 @@ impl<'a> Parser<'a> {
             if let Some(tok) = self.peek() {
                 let tok_raw = tok.raw().to_owned();
 
-                // Handle bracket openers - match entire bracketed section with nested brackets
-                if tok_raw == "(" || tok_raw == "[" || tok_raw == "{" {
+                // Handle bracket openers - match the entire bracketed section,
+                // recursing into any nested brackets (Python parity: resolve_bracket).
+                let opener_persists = self
+                    .dialect
+                    .get_bracket_pairs()
+                    .find_by_open(&tok_raw)
+                    .map(|p| p.persists);
+                if let Some(persists) = opener_persists {
                     let bracket_match =
-                        self.match_bracket_recursively(tok_raw.as_str(), tok_raw == "(", true);
+                        self.match_bracket_recursively(tok_raw.as_str(), persists, true)?;
                     child_matches.push(bracket_match);
                 } else {
                     // Regular token - just bump, it'll be part of the raw content
@@ -1675,20 +1681,23 @@ impl<'a> Parser<'a> {
     /// `resolve_bracket`: when true, directly-nested brackets are attached as
     /// structured children; the recursive call passes false, so deeper brackets
     /// are consumed but flattened to raw siblings (pure-Python parity).
+    ///
+    /// Reaching end of input without finding `close_bracket` is always an
+    /// error, regardless of parse_mode - never a silent partial match.
     fn match_bracket_recursively(
         &mut self,
         open_bracket: &str,
         persists: bool,
         nested_match: bool,
-    ) -> MatchResult {
-        // Python parity: bracket leaf type depends on the bracket char
-        // (`[`→square, `{`→curly); only `(` uses the plain bracket type.
-        let (close_bracket, start_bracket_type, end_bracket_type) = match open_bracket {
-            "(" => (")", "start_bracket", "end_bracket"),
-            "[" => ("]", "start_square_bracket", "end_square_bracket"),
-            "{" => ("}", "start_curly_bracket", "end_curly_bracket"),
-            _ => unreachable!(),
-        };
+    ) -> Result<MatchResult, ParseError> {
+        // `get_bracket_pairs` returns a `&'static` reference, so it can be held
+        // across the `&mut self` calls in the scan loop below.
+        let bracket_pairs = self.dialect.get_bracket_pairs();
+        let opener = bracket_pairs
+            .find_by_open(open_bracket)
+            .expect("match_bracket_recursively called with an unregistered opener");
+        let (close_bracket, start_bracket_type, end_bracket_type) =
+            (opener.close, opener.start_type, opener.end_type);
 
         let bracket_start = self.pos;
 
@@ -1711,22 +1720,38 @@ impl<'a> Parser<'a> {
         let mut inner_child_matches: Vec<Arc<MatchResult>> = vec![Arc::new(open_bracket_match)];
 
         // Match everything until matching close bracket, recursively handling nested brackets
+        let mut closed = false;
         while !self.is_at_end() {
             if let Some(inner_tok) = self.peek() {
                 let inner_raw = inner_tok.raw().to_owned();
 
                 if inner_raw == close_bracket {
                     // Found our closing bracket
+                    closed = true;
                     break;
-                } else if inner_raw == "(" || inner_raw == "[" || inner_raw == "{" {
-                    // Found a nested bracket - recursively match it
-                    let nested_persists = inner_raw == "(";
+                } else if let Some(nested_persists) =
+                    bracket_pairs.find_by_open(&inner_raw).map(|p| p.persists)
+                {
+                    // Found a nested bracket (any registered opener) - recurse,
+                    // carrying its own dialect persists flag.
                     let nested_bracket =
-                        self.match_bracket_recursively(inner_raw.as_str(), nested_persists, false);
+                        self.match_bracket_recursively(inner_raw.as_str(), nested_persists, false)?;
                     // Only attach directly-nested brackets; deeper ones flatten.
                     if nested_match {
                         inner_child_matches.push(Arc::new(nested_bracket));
                     }
+                } else if bracket_pairs.is_close(&inner_raw) {
+                    // A closing bracket of a different type than the one we
+                    // opened is a crossed bracket (Python's resolve_bracket
+                    // raises here rather than swallowing it as content).
+                    return Err(ParseError::with_context(
+                        format!(
+                            "Found unexpected end bracket!, was expecting <StringParser: '{}'>, but got <StringParser: '{}'>",
+                            close_bracket, inner_raw
+                        ),
+                        Some(self.pos),
+                        None,
+                    ));
                 } else {
                     // Regular token - just bump
                     self.bump();
@@ -1736,13 +1761,17 @@ impl<'a> Parser<'a> {
             }
         }
 
+        if !closed {
+            return Err(ParseError::with_context(
+                "Couldn't find closing bracket for opening bracket.".to_string(),
+                Some(bracket_start),
+                None,
+            ));
+        }
+
         // Record closing bracket position with SymbolSegment class
-        let bracket_end = if !self.is_at_end() {
-            self.bump(); // consume the close bracket
-            self.pos
-        } else {
-            self.pos
-        };
+        self.bump(); // consume the close bracket
+        let bracket_end = self.pos;
 
         let close_bracket_match = MatchResult {
             matched_slice: bracket_end - 1..bracket_end,
@@ -1758,6 +1787,11 @@ impl<'a> Parser<'a> {
         };
         inner_child_matches.push(Arc::new(close_bracket_match));
 
-        MatchResult::bracketed(bracket_start, bracket_end, inner_child_matches, persists)
+        Ok(MatchResult::bracketed(
+            bracket_start,
+            bracket_end,
+            inner_child_matches,
+            persists,
+        ))
     }
 }
