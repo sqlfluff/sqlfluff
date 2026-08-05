@@ -55,6 +55,12 @@ test_fail_natural_join_mixed_with_later_join:
   fix_str: |
     SELECT * FROM a NATURAL JOIN b JOIN c ON a.m = c.m WHERE a.k = b.k
 
+test_fail_natural_join_mixed_with_later_outer_join:
+  # A later outer join must keep both predicates in WHERE because moving one
+  # into ON could change the result set.
+  fail_str: |
+    SELECT * FROM a NATURAL JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+
 test_fail_cross_join_mixed_with_later_join:
   # Same as above for a skipped CROSS JOIN: a.k = b.k references neither the
   # JOIN's table nor an ON-able join, so it stays in the WHERE clause.
@@ -62,6 +68,11 @@ test_fail_cross_join_mixed_with_later_join:
     SELECT * FROM a CROSS JOIN b JOIN c WHERE a.k = b.k AND a.m = c.m
   fix_str: |
     SELECT * FROM a CROSS JOIN b JOIN c ON a.m = c.m WHERE a.k = b.k
+
+test_fail_cross_join_mixed_with_later_outer_join:
+  # The outer join must not move the predicate into its ON clause.
+  fail_str: |
+    SELECT * FROM a CROSS JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
 
 test_fail_sparksql_left_semi_join_with_fix:
   fail_str: |
