@@ -91,6 +91,7 @@ You can set the dbt project directory, profiles directory and profile with:
     profile = <dbt profile>
     target = <dbt target>
     dbt_skip_compilation_error = <True or False, default is True>
+    populate_relations_cache = <True or False, default is True>
 
 .. note::
 
@@ -101,6 +102,11 @@ You can set the dbt project directory, profiles directory and profile with:
     ``profiles_dir`` can be set by ``DBT_ENGINE_PROFILES_DIR`` or
     ``DBT_PROFILES_DIR``, and ``profile`` can be set by ``DBT_ENGINE_PROFILE``
     or ``DBT_PROFILE``.
+
+    The dbt templater also supports dbt's ``DBT_POPULATE_CACHE`` environment
+    variable. Set ``DBT_POPULATE_CACHE=False`` or
+    ``populate_relations_cache = False`` to skip the eager relation-cache
+    warm-up before linting.
 
 .. note::
 

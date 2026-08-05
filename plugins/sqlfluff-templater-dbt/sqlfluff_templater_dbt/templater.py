@@ -185,6 +185,7 @@ class DbtTemplater(JinjaTemplater):
         self.profiles_dir = None
         self.working_dir = os.getcwd()
         self.dbt_skip_compilation_error = True
+        self.populate_relations_cache = True
         super().__init__(override_context=override_context)
 
     def config_pairs(self):
@@ -459,6 +460,40 @@ class DbtTemplater(JinjaTemplater):
             default=True,
         )
 
+    @staticmethod
+    def _coerce_bool(value: Any, name: str) -> bool:
+        """Coerce a config or environment variable value to a boolean."""
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, int) and value in {0, 1}:
+            return bool(value)
+        if isinstance(value, str):
+            cleaned_value = value.strip().lower()
+            if cleaned_value in {"1", "true", "yes", "on"}:
+                return True
+            if cleaned_value in {"0", "false", "no", "off"}:
+                return False
+        raise SQLFluffUserError(
+            f"Expected `{name}` to be a boolean value, but got {value!r}."
+        )
+
+    def _get_populate_relations_cache(self) -> bool:
+        """Get whether to eagerly populate dbt's relations cache."""
+        assert self.sqlfluff_config
+        config_value = self.sqlfluff_config.get(
+            val="populate_relations_cache",
+            section=(self.templater_selector, self.name),
+            default=None,
+        )
+        if config_value is not None:
+            return self._coerce_bool(config_value, "populate_relations_cache")
+
+        env_value = os.getenv("DBT_POPULATE_CACHE")
+        if env_value is not None:
+            return self._coerce_bool(env_value, "DBT_POPULATE_CACHE")
+
+        return True
+
     def sequence_files(
         self, fnames: list[str], config=None, formatter=None
     ) -> Iterator[str]:
@@ -562,6 +597,7 @@ class DbtTemplater(JinjaTemplater):
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
         self.dbt_skip_compilation_error = self._get_dbt_skip_compilation_error()
+        self.populate_relations_cache = self._get_populate_relations_cache()
         fname_absolute_path = os.path.abspath(fname) if fname != "stdin" else fname
 
         # NOTE: dbt exceptions are caught and handled safely for pickling by the outer
@@ -889,8 +925,9 @@ class DbtTemplater(JinjaTemplater):
 
                 adapter.set_macro_resolver(self.dbt_manifest)
                 adapter.set_macro_context_generator(generate_runtime_macro_context)
-                adapter.set_relations_cache(self.dbt_manifest.nodes.values())
-            else:
+                if self.populate_relations_cache:
+                    adapter.set_relations_cache(self.dbt_manifest.nodes.values())
+            elif self.populate_relations_cache:
                 adapter.set_relations_cache(self.dbt_manifest)
 
         yield

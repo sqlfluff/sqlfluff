@@ -813,6 +813,82 @@ def test__target_path_from_env(dbt_templater, monkeypatch):
     assert dbt_templater._get_target_path() == "engine_target"
 
 
+@pytest.mark.parametrize(
+    ("env_value", "expected"),
+    [("false", False), ("0", False), ("true", True), ("1", True)],
+)
+def test__populate_relations_cache_from_env(
+    dbt_templater, monkeypatch, env_value, expected
+):
+    """Test possibility to skip relation cache population from a dbt env var."""
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={"core": {"dialect": "ansi"}, "templater": {"dbt": {}}}
+    )
+    monkeypatch.setenv("DBT_POPULATE_CACHE", env_value)
+
+    assert dbt_templater._get_populate_relations_cache() is expected
+
+
+def test__populate_relations_cache_config_precedence(dbt_templater, monkeypatch):
+    """Test SQLFluff config takes precedence over DBT_POPULATE_CACHE."""
+    monkeypatch.setenv("DBT_POPULATE_CACHE", "false")
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"populate_relations_cache": True}},
+        }
+    )
+
+    assert dbt_templater._get_populate_relations_cache() is True
+
+
+def test__populate_relations_cache_from_config(dbt_templater, monkeypatch):
+    """Test possibility to skip relation cache population from SQLFluff config."""
+    monkeypatch.delenv("DBT_POPULATE_CACHE", raising=False)
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"populate_relations_cache": False}},
+        }
+    )
+
+    assert dbt_templater._get_populate_relations_cache() is False
+
+
+def test__populate_relations_cache_invalid_env(dbt_templater, monkeypatch):
+    """Test invalid DBT_POPULATE_CACHE values raise a helpful error."""
+    monkeypatch.setenv("DBT_POPULATE_CACHE", "definitely")
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={"core": {"dialect": "ansi"}, "templater": {"dbt": {}}}
+    )
+
+    with pytest.raises(SQLFluffUserError, match="DBT_POPULATE_CACHE"):
+        dbt_templater._get_populate_relations_cache()
+
+
+def test__connection_skips_relations_cache_when_disabled(dbt_templater):
+    """Test that disabling relation cache population skips the dbt warm-up call."""
+    pytest.importorskip("dbt")
+    DbtTemplater.adapters.clear()
+    adapter = mock.Mock()
+    manifest = mock.Mock()
+
+    dbt_templater.project_dir = "test-project"
+    dbt_templater.populate_relations_cache = False
+    dbt_templater.__dict__["dbt_config"] = object()
+    dbt_templater.__dict__["dbt_manifest"] = manifest
+    dbt_templater.__dict__["dbt_version_tuple"] = (1, 8)
+
+    with mock.patch("dbt.adapters.factory.get_adapter", return_value=adapter):
+        with dbt_templater.connection():
+            pass
+
+    adapter.acquire_connection.assert_called_once_with("master")
+    adapter.set_macro_resolver.assert_called_once_with(manifest)
+    adapter.set_relations_cache.assert_not_called()
+    manifest.nodes.values.assert_not_called()
+
+
 def test__project_dir_does_not_exist_error(dbt_templater):
     """Test an error is logged if the given dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(
