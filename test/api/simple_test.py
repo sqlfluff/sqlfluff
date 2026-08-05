@@ -7,6 +7,7 @@ import pytest
 
 import sqlfluff
 from sqlfluff.api import APIParsingError
+from sqlfluff.core import FluffConfig
 from sqlfluff.core.errors import SQLFluffUserError
 
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
@@ -368,6 +369,32 @@ def test__api__lint_string():
     assert all(isinstance(elem, dict) for elem in result)
     # Check actual result
     assert result == lint_result
+
+
+def test__api__lint_string_templated_positions():
+    """Check violations in templated sections still report source positions.
+
+    https://github.com/sqlfluff/sqlfluff/issues/6450
+    """
+    sql = (
+        "SELECT\n"
+        "    {{ 'a_very_long_templated_column_name' }} AS col_a,\n"
+        "    'foo' AS col_b\n"
+        "FROM tbl\n"
+    )
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "rules": "LT05", "max_line_length": 30}
+    )
+    result = sqlfluff.lint(sql, config=config)
+    assert len(result) == 1
+    violation = result[0]
+    assert violation["code"] == "LT05"
+    assert violation["start_line_no"] == 2
+    # The violation is anchored on the templated expression, but should
+    # still serialise with full source position information.
+    assert violation["start_file_pos"] == 11
+    assert violation["end_line_no"] == 2
+    assert violation["end_file_pos"] == 52
 
 
 def test__api__lint_string_specific():
