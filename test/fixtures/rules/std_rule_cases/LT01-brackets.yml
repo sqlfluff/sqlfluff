@@ -117,3 +117,38 @@ test_pass_duckdb_array_literal_not_touched:
   configs:
     core:
       dialect: duckdb
+
+# A column list after a T-SQL table alias is written both ways, so neither
+# is enforced. The docs attach it (`AS T2(Loc)`), which used to be flagged.
+# https://github.com/sqlfluff/sqlfluff/issues/6733
+test_pass_tsql_alias_column_list_touching:
+  pass_str: |
+    SELECT r.c.value('column[1]', 'varchar(10)') AS [Value]
+    FROM @xml.nodes('/rows/row') AS r(c);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alias_column_list_spaced:
+  pass_str: |
+    SELECT r.c.value('column[1]', 'varchar(10)') AS [Value]
+    FROM @xml.nodes('/rows/row') AS r (c);
+  configs:
+    core:
+      dialect: tsql
+
+# Either style can still be enforced by configuring the segment.
+test_fail_tsql_alias_column_list_spaced_when_touch_configured:
+  fail_str: |
+    SELECT r.c.value('column[1]', 'varchar(10)') AS [Value]
+    FROM @xml.nodes('/rows/row') AS r (c);
+  fix_str: |
+    SELECT r.c.value('column[1]', 'varchar(10)') AS [Value]
+    FROM @xml.nodes('/rows/row') AS r(c);
+  configs:
+    core:
+      dialect: tsql
+    layout:
+      type:
+        alias_column_list:
+          spacing_before: touch

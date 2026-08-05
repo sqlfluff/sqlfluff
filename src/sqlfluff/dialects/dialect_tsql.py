@@ -2108,6 +2108,38 @@ class EqualAliasOperatorSegment(BaseSegment):
     match_grammar: Matchable = Sequence(Ref("RawEqualsSegment"))
 
 
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
+    """A reference to an object with an `AS` clause.
+
+    T-SQL wraps the optional column list after a table alias
+    (``... .nodes('/rows/row') AS r(c)``) in an ``alias_column_list``
+    segment so that its spacing is configurable: the docs attach the
+    bracket to the alias (``AS T2(Loc)``), but the spaced form is also
+    valid, so the default config enforces neither.
+    https://learn.microsoft.com/en-us/sql/t-sql/xml/nodes-method-xml-data-type
+    """
+
+    match_grammar: Matchable = Sequence(
+        Indent,
+        Ref("AsAliasOperatorSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("AliasColumnListSegment", optional=True),
+            ),
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        Dedent,
+    )
+
+
+class AliasColumnListSegment(BaseSegment):
+    """The bracketed column list following a table alias: ``AS r(c)``."""
+
+    type = "alias_column_list"
+    match_grammar: Matchable = Bracketed(Ref("SingleIdentifierListSegment"))
+
+
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 

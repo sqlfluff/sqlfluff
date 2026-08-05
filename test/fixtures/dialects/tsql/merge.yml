@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f91f474bfec6523b98ddd6be79b122aaab65c0456c9f9534712f7e281c42d982
+_hash: b58b2dc54b9924461421e859beb4956f272b76acfde0bf3eb6d4c410965551df
 file:
 - batch:
     statement:
@@ -492,13 +492,14 @@ file:
           alias_operator:
             keyword: as
           naked_identifier: src
-          bracketed:
-            start_bracket: (
-            identifier_list:
-            - naked_identifier: UnitMeasureCode
-            - comma: ','
-            - naked_identifier: Name
-            end_bracket: )
+          alias_column_list:
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: UnitMeasureCode
+              - comma: ','
+              - naked_identifier: Name
+              end_bracket: )
       - join_on_condition:
           keyword: 'ON'
           bracketed:
@@ -672,13 +673,14 @@ file:
           alias_operator:
             keyword: as
           naked_identifier: src
-          bracketed:
-            start_bracket: (
-            identifier_list:
-            - naked_identifier: ProductID
-            - comma: ','
-            - naked_identifier: OrderQty
-            end_bracket: )
+          alias_column_list:
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: ProductID
+              - comma: ','
+              - naked_identifier: OrderQty
+              end_bracket: )
       - join_on_condition:
           keyword: 'ON'
           bracketed:
@@ -878,13 +880,14 @@ file:
           alias_operator:
             keyword: AS
           naked_identifier: src
-          bracketed:
-            start_bracket: (
-            identifier_list:
-            - naked_identifier: ProductID
-            - comma: ','
-            - naked_identifier: OrderQty
-            end_bracket: )
+          alias_column_list:
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: ProductID
+              - comma: ','
+              - naked_identifier: OrderQty
+              end_bracket: )
       - join_on_condition:
           keyword: 'ON'
           expression:
@@ -1133,13 +1136,14 @@ file:
           alias_operator:
             keyword: as
           naked_identifier: src
-          bracketed:
-            start_bracket: (
-            identifier_list:
-            - naked_identifier: UnitMeasureCode
-            - comma: ','
-            - naked_identifier: Name
-            end_bracket: )
+          alias_column_list:
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: UnitMeasureCode
+              - comma: ','
+              - naked_identifier: Name
+              end_bracket: )
       - join_on_condition:
           keyword: 'ON'
           bracketed:
@@ -1332,13 +1336,14 @@ file:
           alias_operator:
             keyword: AS
           naked_identifier: src
-          bracketed:
-            start_bracket: (
-            identifier_list:
-            - naked_identifier: ProductID
-            - comma: ','
-            - naked_identifier: OrderQty
-            end_bracket: )
+          alias_column_list:
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: ProductID
+              - comma: ','
+              - naked_identifier: OrderQty
+              end_bracket: )
       - join_on_condition:
           keyword: 'ON'
           expression:
