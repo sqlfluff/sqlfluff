@@ -6,11 +6,14 @@ use std::{
 use hashbrown::HashSet;
 use pyo3::{
     prelude::*,
-    types::{PyDict, PyString, PyTuple, PyType},
+    types::{PyDict, PyFrozenSet, PyList, PyString, PyTuple, PyType},
 };
 use uuid::Uuid;
 
 use crate::marker::{PyPositionMarker, PySqlFluffPositionMarker};
+use crate::pyo3_helpers::{
+    pyfrozenset_of_strs, pylist_of_str_pairs, pylist_of_strs, pytuple_of_strs,
+};
 use sqlfluffrs_types::token::fix::SourceFix;
 use sqlfluffrs_types::{
     regex::RegexModeGroup,
@@ -231,13 +234,21 @@ impl PyToken {
     }
 
     #[getter]
-    pub fn trim_start(&self) -> Option<Vec<String>> {
-        self.0.trim_start.clone()
+    pub fn trim_start<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyTuple>>> {
+        self.0
+            .trim_start
+            .as_ref()
+            .map(|v| pytuple_of_strs(py, v))
+            .transpose()
     }
 
     #[getter]
-    pub fn trim_chars(&self) -> Option<Vec<String>> {
-        self.0.trim_chars.clone()
+    pub fn trim_chars<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyTuple>>> {
+        self.0
+            .trim_chars
+            .as_ref()
+            .map(|v| pytuple_of_strs(py, v))
+            .transpose()
     }
 
     #[pyo3(signature = (raw_only = false))]
@@ -274,13 +285,20 @@ impl PyToken {
     }
 
     #[getter]
-    pub fn class_types(&self) -> HashSet<String> {
-        self.0.class_types()
+    pub fn class_types<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyFrozenSet>> {
+        pyfrozenset_of_strs(
+            py,
+            self.0
+                .instance_types
+                .iter()
+                .map(String::as_str)
+                .chain(self.0.class_types.iter().map(String::as_str)),
+        )
     }
 
     #[getter]
-    pub fn instance_types(&self) -> Vec<String> {
-        self.0.instance_types.clone()
+    pub fn instance_types<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
+        pylist_of_strs(py, &self.0.instance_types)
     }
 
     #[getter]
@@ -444,8 +462,14 @@ impl PyToken {
     }
 
     #[getter]
-    pub fn escape_replacements(&self) -> Option<Vec<(String, String)>> {
-        self.0.escape_replacements().cloned()
+    pub fn escape_replacements<'py>(
+        &self,
+        py: Python<'py>,
+    ) -> PyResult<Option<Bound<'py, PyList>>> {
+        self.0
+            .escape_replacements()
+            .map(|pairs| pylist_of_str_pairs(py, pairs))
+            .transpose()
     }
 
     pub fn set_parent(&self, parent: &Bound<'_, PyAny>, idx: usize) -> PyResult<()> {

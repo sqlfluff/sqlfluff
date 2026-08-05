@@ -443,6 +443,106 @@ def test__rust_parser__rs_node_class_types_match_python():
     assert checked_gzip, "expected a quoted 'GZIP' compression value in the parse"
 
 
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_token_getters_return_expected_container_types():
+    """RsToken collection getters return the expected Python container types.
+
+    Pins the container types (`tuple`/`frozenset`/`list`) that PR #8247's
+    direct-to-Python-object builders produce, so a future change to
+    `pyo3_helpers` can't silently swap e.g. `trim_chars` back to a `list`
+    or `class_types` back to a plain `set`.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "mysql"})
+    segments, _ = Lexer(config=config).lex("SET @errmsg = 'it''s';")
+    tokens = {
+        s.raw: s._rstoken for s in segments if getattr(s, "_rstoken", None) is not None
+    }
+
+    at_sign_token = tokens["@errmsg"]
+    assert isinstance(at_sign_token.trim_chars, tuple)
+    assert at_sign_token.trim_chars == ("@",)
+    assert isinstance(at_sign_token.class_types, frozenset)
+    assert isinstance(at_sign_token.instance_types, list)
+
+    quoted_token = tokens["'it''s'"]
+    assert isinstance(quoted_token.escape_replacements, list)
+    assert quoted_token.escape_replacements
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_handle_getters_return_expected_container_types():
+    """RsHandle collection getters return the expected Python container types.
+
+    Covers `descendant_type_set` and `class_types`, both cached behind an `Arc`,
+    and two `RsHandle` getters which now use the shared helpers.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi", "use_rust_parser": True})
+    segments, _ = Lexer(config=config).lex("SELECT a FROM my_table\n")
+    tree = RustParser(config=config).parse(segments, fname="t.sql")
+
+    root = tree._rs_tree.root
+    assert isinstance(root.descendant_type_set(), list)
+    assert isinstance(root.class_types(), list)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_match_result_getters_return_expected_container_types():
+    """RsMatchResult collection getters return the expected container types.
+
+    Companion to the two checks above: covers `instance_types`, `trim_chars`,
+    and `escape_replacements` on the raw `RsMatchResult` returned by
+    `RsParser.parse_match_result_from_tokens`, before it's ever turned into a
+    tree. BigQuery's single-quoted literal grammar sets all three via
+    grammar-configured kwargs (as opposed to lexer-level kwargs, which are
+    deliberately not carried onto a fresh parser match), giving a real case
+    for each getter in one parse.
+
+    Note: `RsNode` (`PyNode` in Rust) has no corresponding check — no
+    `#[pymethod]` anywhere in the Rust workspace ever constructs and returns
+    one to Python, so it cannot be reached or tested from here.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "bigquery"})
+    segments, _ = Lexer(config=config).lex("SELECT 'abc'")
+    tokens = [
+        s._rstoken
+        for s in segments
+        if getattr(s, "_rstoken", None) is not None and s.is_code
+    ]
+
+    rs_match = RsParser(
+        dialect="bigquery", indent_config={}
+    ).parse_match_result_from_tokens(tokens)
+
+    def flatten(match):
+        yield match
+        for child in match.child_matches:
+            yield from flatten(child)
+
+    keyword_match = next(
+        m for m in flatten(rs_match) if m.matched_class == "KeywordSegment"
+    )
+    assert isinstance(keyword_match.instance_types, list)
+    assert "keyword" in keyword_match.instance_types
+
+    literal_match = next(
+        m for m in flatten(rs_match) if m.matched_class == "LiteralSegment"
+    )
+    assert isinstance(literal_match.instance_types, list)
+    assert isinstance(literal_match.trim_chars, tuple)
+    assert literal_match.trim_chars == ("'",)
+    assert isinstance(literal_match.escape_replacements, list)
+    assert literal_match.escape_replacements
+
+
 # ---------------------------------------------------------------------------
 # Per-stage profiling
 # ---------------------------------------------------------------------------

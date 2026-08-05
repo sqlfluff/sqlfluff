@@ -32,7 +32,10 @@ pub enum MetaType {
 /// Additional segment properties for Raw segments
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RawSegmentKwargs {
-    pub trim_chars: Option<Vec<String>>,
+    /// `Arc`-wrapped, like `escape_replacements` below, so PyO3 getters on the
+    /// arena-backed `RsHandle` can clone the handle under the arena lock and
+    /// build the Python tuple only after dropping the guard.
+    pub trim_chars: Option<std::sync::Arc<Vec<String>>>,
     pub quoted_value: Option<(String, String)>,
     pub escape_replacements: Option<std::sync::Arc<Vec<(String, String)>>>,
 }

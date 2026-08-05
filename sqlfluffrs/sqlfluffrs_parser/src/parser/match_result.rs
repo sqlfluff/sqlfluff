@@ -615,7 +615,7 @@ impl MatchResult {
                         instance_types,
                         &raw_class_ct,
                         RawSegmentKwargs {
-                            trim_chars: match_class.segment_kwargs.trim_chars,
+                            trim_chars: match_class.segment_kwargs.trim_chars.map(Arc::new),
                             quoted_value,
                             escape_replacements,
                         },
