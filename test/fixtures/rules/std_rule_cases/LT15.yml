@@ -325,3 +325,29 @@ test_pass_minimum_counts_a_whitespace_only_line_as_blank:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_leading_blank_line:
+  # no statement precedes the gap, so there is nothing to separate
+  pass_str: "\nSELECT a FROM tab;\n"
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_leading_comment:
+  pass_str: |
+    -- a header comment
+    SELECT a FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_pads_a_whitespace_only_gap:
+  # the whitespace-only line counts as one blank, so one more is inserted
+  fail_str: "SELECT a FROM tab;\n   \nSELECT b FROM tab;\n"
+  fix_str: "SELECT a FROM tab;\n   \n\nSELECT b FROM tab;\n"
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 2

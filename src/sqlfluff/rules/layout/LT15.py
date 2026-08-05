@@ -144,6 +144,12 @@ class Rule_LT15(BaseRule):
         if following and following[0].is_type("newline"):
             return None
 
+        # A gap needs a statement on both sides. Without the preceding check, a
+        # file that opens with a blank line or a comment is treated as a gap
+        # before its first statement and padded, which is a false positive.
+        if not any(seg.is_code for seg in context.siblings_pre):
+            return None
+
         # Skip when nothing but the end of the file follows, so there is no gap to
         # pad, and when the newline is templated, since that is not ours to rewrite.
         if context.segment.is_templated or not any(
