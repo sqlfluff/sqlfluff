@@ -5,8 +5,9 @@
     "type": "module",
     "scripts": {
         "docs:prebuild": "python scripts/generate-all-docs.py",
-        "docs:dev": "vitepress dev",
+        "docs:dev": "vitepress dev --base /en/latest/",
         "docs:build": "python scripts/generate-all-docs.py && vitepress build",
+        "docs:build:latest": "python scripts/generate-all-docs.py && vitepress build --base /en/latest/",
         "docs:preview": "vitepress preview"
     },
     "devDependencies": {

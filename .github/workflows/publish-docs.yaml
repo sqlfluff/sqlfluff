@@ -9,6 +9,25 @@ on:
     types:
       - published
   workflow_dispatch:
+    inputs:
+      version:
+        description: Release tag to rebuild. Leave empty to publish latest from the selected ref.
+        required: false
+        type: string
+      refresh_stable:
+        description: Also refresh /en/stable/ from the selected release tag.
+        required: false
+        default: false
+        type: boolean
+      prerelease:
+        description: Mark the manually rebuilt version as a prerelease.
+        required: false
+        default: false
+        type: boolean
+      published_at:
+        description: Optional published_at timestamp to preserve in versions.json.
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -32,7 +51,55 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.version || github.ref }}
+
+      - name: Determine docs publish target
+        id: docs-target
+        env:
+          DISPATCH_VERSION: ${{ inputs.version }}
+          DISPATCH_REFRESH_STABLE: ${{ inputs.refresh_stable }}
+          DISPATCH_PRERELEASE: ${{ inputs.prerelease }}
+          DISPATCH_PUBLISHED_AT: ${{ inputs.published_at }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+          RELEASE_PUBLISHED_AT: ${{ github.event.release.published_at }}
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+              version="${RELEASE_TAG}"
+              prerelease="${RELEASE_PRERELEASE}"
+              published_at="${RELEASE_PUBLISHED_AT}"
+              build_latest=false
+              build_release=true
+              if [ "${RELEASE_PRERELEASE}" = "true" ]; then
+                  build_stable=false
+              else
+                  build_stable=true
+              fi
+          elif [ -n "${DISPATCH_VERSION}" ]; then
+              version="${DISPATCH_VERSION}"
+              prerelease="${DISPATCH_PRERELEASE}"
+              published_at="${DISPATCH_PUBLISHED_AT}"
+              build_latest=false
+              build_release=true
+              build_stable="${DISPATCH_REFRESH_STABLE}"
+          else
+              version=latest
+              prerelease=false
+              published_at=
+              build_latest=true
+              build_release=false
+              build_stable=false
+          fi
+
+          {
+              echo "version=${version}"
+              echo "release_base=/en/${version}/"
+              echo "prerelease=${prerelease}"
+              echo "published_at=${published_at}"
+              echo "build_latest=${build_latest}"
+              echo "build_release=${build_release}"
+              echo "build_stable=${build_stable}"
+          } >> "${GITHUB_OUTPUT}"
 
       - name: 📦 Enable corepack
         run: corepack enable
@@ -72,7 +139,7 @@ jobs:
           --endpoint-url https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
       - name: ⚒️ Build VitePress latest docs
-        if: ${{ github.event_name != 'release' }}
+        if: ${{ steps.docs-target.outputs.build_latest == 'true' }}
         env:
           SQLFLUFF_DOCS_BASE: /en/latest/
           SQLFLUFF_DOCS_NOINDEX: ${{ env.SQLFLUFF_DOCS_NOINDEX }}
@@ -80,7 +147,7 @@ jobs:
         run: corepack pnpm run docs:build
 
       - name: Assemble latest site
-        if: ${{ github.event_name != 'release' }}
+        if: ${{ steps.docs-target.outputs.build_latest == 'true' }}
         run: >-
           python docsv/scripts/assemble-site.py
           --vitepress-dist docsv/.vitepress/dist
@@ -90,27 +157,27 @@ jobs:
           --kind channel
 
       - name: ⚒️ Build VitePress release docs
-        if: ${{ github.event_name == 'release' }}
+        if: ${{ steps.docs-target.outputs.build_release == 'true' }}
         env:
-          SQLFLUFF_DOCS_BASE: /en/${{ github.event.release.tag_name }}/
+          SQLFLUFF_DOCS_BASE: ${{ steps.docs-target.outputs.release_base }}
           SQLFLUFF_DOCS_NOINDEX: ${{ env.SQLFLUFF_DOCS_NOINDEX }}
         working-directory: docsv
         run: corepack pnpm run docs:build
 
       - name: Assemble release site
-        if: ${{ github.event_name == 'release' }}
+        if: ${{ steps.docs-target.outputs.build_release == 'true' }}
         run: >-
           python docsv/scripts/assemble-site.py
           --vitepress-dist docsv/.vitepress/dist
           --output-dir ${{ env.DOCS_SITE_DIR }}
-          --channel ${{ github.event.release.tag_name }}
-          --title ${{ github.event.release.tag_name }}
+          --channel ${{ steps.docs-target.outputs.version }}
+          --title ${{ steps.docs-target.outputs.version }}
           --kind release
-          --published-at ${{ github.event.release.published_at }}
-          ${{ github.event.release.prerelease && '--prerelease' || '' }}
+          ${{ steps.docs-target.outputs.published_at && format('--published-at {0}', steps.docs-target.outputs.published_at) || '' }}
+          ${{ steps.docs-target.outputs.prerelease == 'true' && '--prerelease' || '' }}
 
       - name: ⚒️ Build VitePress stable docs
-        if: ${{ github.event_name == 'release' && !github.event.release.prerelease }}
+        if: ${{ steps.docs-target.outputs.build_stable == 'true' }}
         env:
           SQLFLUFF_DOCS_BASE: /en/stable/
           SQLFLUFF_DOCS_NOINDEX: ${{ env.SQLFLUFF_DOCS_NOINDEX }}
@@ -118,7 +185,7 @@ jobs:
         run: corepack pnpm run docs:build
 
       - name: Assemble stable site
-        if: ${{ github.event_name == 'release' && !github.event.release.prerelease }}
+        if: ${{ steps.docs-target.outputs.build_stable == 'true' }}
         run: >-
           python docsv/scripts/assemble-site.py
           --vitepress-dist docsv/.vitepress/dist
@@ -126,7 +193,12 @@ jobs:
           --channel stable
           --title Stable
           --kind channel
-          --stable-release ${{ github.event.release.tag_name }}
+          --stable-release ${{ steps.docs-target.outputs.version }}
+
+      - name: Smoke check assembled site
+        run: >-
+          python docsv/scripts/smoke-check-assembled-site.py
+          --site-dir ${{ env.DOCS_SITE_DIR }}
 
       - name: ⬆️ Upload assembled site artifact
         uses: actions/upload-artifact@v4

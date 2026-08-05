@@ -6,11 +6,11 @@ import VersionPicker from './VersionPicker.vue'
 
 <template>
   <DefaultTheme.Layout>
-    <template #nav-bar-content-after>
-      <VersionPicker :show-label="false" :inline="true" />
+    <template #nav-bar-content-before>
+      <VersionPicker class="version-picker--desktop" :show-label="false" />
     </template>
 
-    <template #nav-screen-content-after>
+    <template #nav-screen-content-before>
       <VersionPicker class="version-picker--mobile" />
     </template>
 
@@ -21,7 +21,24 @@ import VersionPicker from './VersionPicker.vue'
 </template>
 
 <style scoped>
+.version-picker--desktop {
+  display: none;
+  margin-right: auto;
+  margin-left: 0.75rem;
+}
+
 .version-picker--mobile {
-  padding: 0.75rem 0 0;
+  display: flex;
+  padding: 0 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .version-picker--desktop {
+    display: flex;
+  }
+
+  .version-picker--mobile {
+    display: none;
+  }
 }
 </style>
