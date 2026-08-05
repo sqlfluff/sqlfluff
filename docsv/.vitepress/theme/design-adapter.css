@@ -1,0 +1,60 @@
+/**
+ * VitePress adapter for the shared SQLFluff design package.
+ *
+ * This maps VitePress's own theme variables onto the shared tokens so the docs
+ * inherit SQLFluff typography, colour, and surfaces without maintaining a
+ * parallel palette. It must stay narrow: it should only translate between the
+ * two variable systems and cover VitePress-specific layout. Anything which
+ * represents the same component on more than one SQLFluff site belongs in the
+ * design package instead.
+ *
+ * The shared tokens themselves are loaded from `public/sqlfluff-design/` and
+ * respond to both `data-theme="dark"` and the `dark` class which VitePress
+ * styling keys off, so a single mapping serves both themes.
+ */
+
+:root {
+  --vp-font-family-base: var(--sqlfluff-font-sans);
+  --vp-font-family-mono: var(--sqlfluff-font-mono);
+
+  /* VitePress expects the reading surface to sit above a recessed chrome
+     surface. `surface` over `canvas` preserves that relationship in both
+     themes, where mapping both onto one token would flatten it. */
+  --vp-c-bg: var(--sqlfluff-color-surface);
+  --vp-c-bg-alt: var(--sqlfluff-color-canvas);
+  --vp-c-bg-elv: var(--sqlfluff-color-surface);
+  --vp-c-bg-soft: var(--sqlfluff-color-surface-muted);
+
+  --vp-c-text-1: var(--sqlfluff-color-text);
+  --vp-c-text-2: var(--sqlfluff-color-text-muted);
+  --vp-c-text-3: var(--sqlfluff-color-text-muted);
+
+  --vp-c-border: var(--sqlfluff-color-border-strong);
+  --vp-c-divider: var(--sqlfluff-color-border);
+  --vp-c-gutter: var(--sqlfluff-color-border);
+
+  --vp-c-brand-1: var(--sqlfluff-color-accent);
+  --vp-c-brand-2: var(--sqlfluff-color-accent-hover);
+  --vp-c-brand-3: var(--sqlfluff-color-accent);
+  --vp-c-brand-soft: var(--sqlfluff-color-accent-soft);
+
+  /* VitePress hardcodes white button text, which fails against the light
+     accent used in dark mode. The shared token already carries the correct
+     contrast colour for each theme. */
+  --vp-button-brand-text: var(--sqlfluff-color-accent-contrast);
+  --vp-button-brand-hover-text: var(--sqlfluff-color-accent-contrast);
+  --vp-button-brand-active-text: var(--sqlfluff-color-accent-contrast);
+}
+
+/* The shared theme control is placed in the nav bar and nav screen slots in
+   place of VitePress's own two-state toggle. Only spacing is set here; the
+   control's appearance comes from the shared components stylesheet. */
+.VPNavBar .sqlfluff-theme-control {
+  margin-left: 0.5rem;
+}
+
+.VPNavScreen .sqlfluff-theme-control {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: 0;
+}

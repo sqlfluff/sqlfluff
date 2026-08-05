@@ -5,8 +5,9 @@
     "type": "module",
     "scripts": {
         "docs:prebuild": "python scripts/generate-all-docs.py",
-        "docs:dev": "vitepress dev",
-        "docs:build": "python scripts/generate-all-docs.py && vitepress build",
+        "design:sync": "node scripts/sync-design.mjs",
+        "docs:dev": "node scripts/sync-design.mjs && vitepress dev",
+        "docs:build": "node scripts/sync-design.mjs && python scripts/generate-all-docs.py && vitepress build",
         "docs:preview": "vitepress preview"
     },
     "devDependencies": {

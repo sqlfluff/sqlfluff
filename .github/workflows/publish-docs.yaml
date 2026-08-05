@@ -33,6 +33,9 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
+          # The shared design package is vendored at vendor/sqlfluff.com. Only
+          # the direct submodule is needed, not anything nested inside it.
+          submodules: true
 
       - name: 📦 Enable corepack
         run: corepack enable

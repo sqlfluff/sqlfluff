@@ -6,3 +6,6 @@ reference/rules/*.md
 reference/cli/*.md
 reference/api/*.md
 .vitepress/sidebar-*.json
+
+# Copied from the vendor/sqlfluff.com submodule by `design:sync`.
+public/sqlfluff-design/
