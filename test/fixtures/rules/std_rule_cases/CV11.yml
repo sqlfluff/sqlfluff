@@ -512,3 +512,57 @@ test_fail_databricks_plain_shorthand_preferred_cast:
     rules:
       convention.casting_style:
         preferred_type_casting_style: cast
+
+test_pass_mysql_convert_is_left_alone:
+  # issue #8171: mysql spells this CONVERT(expr, type), so rewriting to CAST
+  # would swap the arguments and silently produce cast(SIGNED as b)
+  pass_str: SELECT CONVERT(b, SIGNED) FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_pass_mariadb_convert_is_left_alone:
+  # mariadb inherits the mysql dialect, and so the argument order
+  pass_str: SELECT CONVERT(b, SIGNED) FROM t
+  configs:
+    core:
+      dialect: mariadb
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_pass_mysql_convert_is_never_the_target_style:
+  # the reverse direction corrupts too: CAST(b AS SIGNED) would be rewritten to
+  # convert(SIGNED, b), which is the t-sql order and wrong on mysql
+  pass_str: SELECT CAST(b AS SIGNED) FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
+test_fail_mysql_shorthand_still_linted:
+  # only CONVERT is affected on mysql; :: and CAST are linted as usual
+  fail_str: SELECT b::SIGNED FROM t
+  fix_str: SELECT cast(b as SIGNED) FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_tsql_convert_still_rewritten:
+  # t-sql takes CONVERT(type, expr), so the existing rewrite stays correct there
+  fail_str: SELECT CONVERT(SIGNED, b) FROM t
+  fix_str: SELECT cast(b as SIGNED) FROM t
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
