@@ -539,7 +539,7 @@ test_pass_mysql_rule_skipped_when_convert_is_the_target_style:
   # convert(SIGNED, b), the t-sql order, which is wrong on mysql. Every rewrite
   # under this config would do that, so the whole rule is skipped here and CAST
   # and :: are not linted either. The cast/consistent styles are unaffected.
-  pass_str: SELECT CAST(b AS SIGNED) FROM t
+  pass_str: SELECT CAST(b AS SIGNED), c::SIGNED FROM t
   configs:
     core:
       dialect: mysql
