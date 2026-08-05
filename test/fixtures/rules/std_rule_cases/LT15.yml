@@ -263,3 +263,65 @@ test_fail_extra_blank_in_cte_body:
     rules:
       layout.newlines:
         maximum_empty_lines_inside_statements: 0
+
+test_fail_minimum_blank_lines_between_statements:
+  # issue #6840: a minimum, mirroring maximum_empty_lines_between_statements
+  fail_str: |
+    SELECT a FROM tab;
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_of_two_blank_lines:
+  fail_str: |
+    SELECT a FROM tab;
+
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 2
+
+test_pass_minimum_already_satisfied:
+  pass_str: |
+    SELECT a FROM tab;
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_defaults_to_zero:
+  # unset means unchanged behaviour for everyone already using this rule
+  pass_str: |
+    SELECT a FROM tab;
+    SELECT b FROM tab;
+
+test_pass_minimum_ignores_end_of_file:
+  # no statement follows, so there is no gap to pad
+  pass_str: |
+    SELECT a FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_counts_a_whitespace_only_line_as_blank:
+  # a line of spaces is still a blank line, so the run walk steps over whitespace
+  pass_str: "SELECT a FROM tab;\n   \nSELECT b FROM tab;\n"
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
