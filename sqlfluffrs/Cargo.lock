@@ -999,7 +999,7 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
 name = "sqlfluffrs"
-version = "4.2.2"
+version = "4.3.0"
 dependencies = [
  "blake2",
  "criterion",
@@ -1018,7 +1018,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_benchmarks"
-version = "4.2.2"
+version = "4.3.0"
 dependencies = [
  "criterion",
  "hashbrown 0.16.1",
@@ -1031,7 +1031,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_dialects"
-version = "4.2.2"
+version = "4.3.0"
 dependencies = [
  "once_cell",
  "sqlfluffrs_types",
@@ -1039,7 +1039,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_lexer"
-version = "4.2.2"
+version = "4.3.0"
 dependencies = [
  "hashbrown 0.16.1",
  "itertools 0.14.0",
@@ -1053,7 +1053,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_parser"
-version = "4.2.2"
+version = "4.3.0"
 dependencies = [
  "env_logger",
  "hashbrown 0.16.1",
@@ -1070,7 +1070,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_python"
-version = "4.2.2"
+version = "4.3.0"
 dependencies = [
  "bincode",
  "hashbrown 0.16.1",
@@ -1084,7 +1084,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_rules"
-version = "4.2.2"
+version = "4.3.0"
 dependencies = [
  "pyo3",
  "sqlfluffrs_parser",
@@ -1092,7 +1092,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_types"
-version = "4.2.2"
+version = "4.3.0"
 dependencies = [
  "fancy-regex",
  "hashbrown 0.16.1",
