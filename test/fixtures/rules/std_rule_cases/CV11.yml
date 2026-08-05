@@ -534,9 +534,11 @@ test_pass_mariadb_convert_is_left_alone:
       convention.casting_style:
         preferred_type_casting_style: cast
 
-test_pass_mysql_convert_is_never_the_target_style:
+test_pass_mysql_rule_skipped_when_convert_is_the_target_style:
   # the reverse direction corrupts too: CAST(b AS SIGNED) would be rewritten to
-  # convert(SIGNED, b), which is the t-sql order and wrong on mysql
+  # convert(SIGNED, b), the t-sql order, which is wrong on mysql. Every rewrite
+  # under this config would do that, so the whole rule is skipped here and CAST
+  # and :: are not linted either. The cast/consistent styles are unaffected.
   pass_str: SELECT CAST(b AS SIGNED) FROM t
   configs:
     core:

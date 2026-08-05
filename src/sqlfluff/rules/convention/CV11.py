@@ -35,10 +35,15 @@ class Rule_CV11(BaseRule):
         which cannot be rewritten into CAST.
         This rule is disabled by default for Teradata because it supports different
         type casting apart from CONVERT and ::
-        ``CONVERT`` is left alone on MySQL and the dialects that inherit it
-        (MariaDB, Doris, StarRocks) because they take its arguments in the
-        opposite order.
         e.g DATE '2007-01-01', '9999-12-31' (DATE).
+
+    .. note::
+        MySQL and the dialects that inherit it (MariaDB, Doris, StarRocks) take
+        ``CONVERT(expr, type)``, the opposite way round from the
+        ``CONVERT(type, expr)`` this rule rewrites. ``CONVERT`` is therefore left
+        alone there, and when ``preferred_type_casting_style`` is ``convert`` the
+        rule is skipped entirely on those dialects, since every rewrite it could
+        make would emit the wrong argument order.
 
     **Anti-pattern**
 
@@ -252,8 +257,10 @@ class Rule_CV11(BaseRule):
 
         # Writing CONVERT on these dialects is as wrong as reading it: the rule
         # emits the T-SQL argument order, so CAST(b AS SIGNED) would become
-        # convert(SIGNED, b). Skip the whole rule when CONVERT is the target
-        # style there; the other styles are still linted below.
+        # convert(SIGNED, b). When CONVERT is the target style there is no safe
+        # rewrite left to make, since every violation would be fixed into that
+        # order, so the rule is skipped entirely for this config. The other
+        # preferred styles are unaffected and still lint CAST and :: normally.
         if (
             self.preferred_type_casting_style == "convert"
             and context.dialect.name in _REVERSED_CONVERT_DIALECTS
