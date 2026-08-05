@@ -27,7 +27,7 @@ class Rule_RF08(BaseRule):
 
     Only ``CREATE TABLE`` statements that declare their columns explicitly are
     checked. A ``CREATE TABLE ... AS SELECT`` takes its columns from the query,
-    so there is no local list to compare against and it is left alone.
+    so it is left alone even when it also carries a column list.
 
     **Anti-pattern**
 
@@ -64,6 +64,17 @@ class Rule_RF08(BaseRule):
 
         cluster_clauses = list(context.segment.recursive_crawl(*_CLUSTER_CLAUSES))
         if not cluster_clauses:
+            return None
+
+        # A statement with a query takes its columns from that query, so an
+        # explicit column list is not necessarily the whole story and comparing
+        # against it can flag a column the SELECT does provide. Skip any CTAS,
+        # with or without a column list.
+        if any(
+            context.segment.recursive_crawl(
+                "select_statement", "with_compound_statement"
+            )
+        ):
             return None
 
         defined = {

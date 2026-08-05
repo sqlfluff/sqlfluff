@@ -100,3 +100,55 @@ test_pass_bigquery_defined_column:
   configs:
     core:
       dialect: bigquery
+
+test_pass_ctas_with_an_explicit_column_list:
+  # the query supplies columns too, so the local list is not the whole story
+  pass_str: |
+    CREATE TABLE t (
+        col1 STRING
+    )
+    CLUSTER BY (col2)
+    AS SELECT col2 FROM other
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_backtick_quoted_identifiers:
+  pass_str: |
+    CREATE TABLE t (
+        `col1` STRING
+    )
+    CLUSTER BY (`col1`)
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_double_quoted_identifiers:
+  pass_str: |
+    CREATE TABLE t (
+        "col1" STRING
+    )
+    CLUSTER BY ("col1")
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_backtick_quoted_undefined_column:
+  # quoting must not hide a genuine typo
+  fail_str: |
+    CREATE TABLE t (
+        `col1` STRING
+    )
+    CLUSTER BY (`col2`)
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_create_table_like_has_no_local_columns:
+  # the columns come from the source table, so there is nothing to compare to
+  pass_str: |
+    CREATE TABLE t LIKE other
+    CLUSTER BY (col1)
+  configs:
+    core:
+      dialect: databricks
