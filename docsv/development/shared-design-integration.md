@@ -55,17 +55,16 @@ upstream, in the design package.
 
 ### Current pin
 
-The submodule points at `edd922b` on the `create-shared-design-library` branch
-of `sqlfluff.com`, the squash merge of
+The submodule points at `12b76ac` on `sqlfluff.com` `main`, the squash merge of
+[PR #18](https://github.com/sqlfluff/sqlfluff.com/pull/18), which carries the
+shared design package including the consumer changes from
 [PR #19](https://github.com/sqlfluff/sqlfluff.com/pull/19).
 
-That branch is still the head of the unmerged
-[PR #18](https://github.com/sqlfluff/sqlfluff.com/pull/18), so **this pin will
-need moving again when #18 merges into `main`**. A submodule pin is an exact
-commit: #19 was squash-merged with its branch deleted, which orphaned the
-commits pinned at the time, and merging #18 the same way will orphan `edd922b`
-too. Either re-pin as part of that merge, or tag the merged result `design-v*`
-and pin the tag.
+This is a commit on `main` rather than on a feature branch, so unlike the
+development pins it will not be orphaned. Both of those PRs were squash-merged
+with their branches deleted, which did orphan the commits pinned at the time; if
+future design work is pinned from a branch before it merges, expect the same and
+re-pin afterwards.
 
 To check whether the current pin is still reachable:
 
@@ -74,6 +73,9 @@ git -C vendor/sqlfluff.com fetch origin
 git -C vendor/sqlfluff.com merge-base --is-ancestor HEAD origin/main \
   && echo reachable || echo orphaned
 ```
+
+Upstream has no `design-v*` tags yet. Once it does, pinning a tag rather than a
+commit would make the intended version obvious in the diff.
 
 ## Asset flow
 
@@ -198,6 +200,14 @@ than worked around here, on the `design/framework-neutral-chrome` branch:
 The package also gained a `window.sqlfluffTheme` API for adapters, and its guide
 now describes two adoption tiers, because the shared header, navigation, and
 footer markup assumes a consumer which renders its own page shell.
+
+Upstream then refined the package further before merging. The one change which
+is visible here is that `:focus-visible` was moved out of the cascade layer, so
+the shared focus ring is no longer overridable by an application reset. In these
+docs that replaces the browser default focus ring, since VitePress only styles
+focus on buttons and inputs specifically, and those more specific rules still
+win. The rest were robustness fixes: a `color-mix` fallback on the header
+background, and `try`/`catch` around cookie reads and the first subscriber call.
 
 ## Not done yet
 
