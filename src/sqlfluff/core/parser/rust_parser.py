@@ -151,15 +151,15 @@ try:
                 "dialect_obj"
             ).get_root_segment()
 
-            # Extract indentation config and convert boolean values only
+            # Extract indentation config for Conditional grammar evaluation.
+            # PYTHON PARITY: ParseContext.from_config coerces every value here
+            # with bool(), not just ones already typed as bool - the ini
+            # config layer can produce int 1 for a truthy setting like
+            # `indented_joins = 1`, and filtering by isinstance(v, bool)
+            # would silently drop it instead of coercing it.
             indent_config = self.config.get_section("indentation") or {}
             if indent_config:
-                # Only keep boolean config values for conditional evaluation
-                # Non-boolean values like "indent_unit": "space" are not needed
-                # for conditionals
-                indent_config = {
-                    k: v for k, v in indent_config.items() if isinstance(v, bool)
-                }
+                indent_config = {k: bool(v) for k, v in indent_config.items()}
 
             # Max parse depth (DoS mitigation); 0 disables the limit
             max_parse_depth = self.config.get("max_parse_depth")
@@ -260,6 +260,24 @@ try:
                     if _prof is not None:
                         _prof["rust_core"] = time.perf_counter() - _ts
                 except RsParseError as e:
+                    # A dangling grammar ref surfaces as a "__MISSING_REF__:<name>"
+                    # sentinel. Re-raise via the dialect's own ref() so both
+                    # engines fail with the same RuntimeError.
+                    _missing_ref_prefix = "__MISSING_REF__:"
+                    _rs_desc = str(e)
+                    if _rs_desc.startswith(_missing_ref_prefix):
+                        ref_name = _rs_desc[len(_missing_ref_prefix) :]
+                        dialect_obj = self.config.get("dialect_obj")
+                        # If ref() doesn't raise, the name exists in Python but
+                        # was dropped from Rust's codegen tables - a bug.
+                        dialect_obj.ref(ref_name)
+                        raise RuntimeError(  # pragma: no cover
+                            "Grammar refers to {!r} which is registered in "
+                            "the {} dialect's Python library but missing "
+                            "from its Rust parser tables. This is an "
+                            "internal sqlfluff bug; please raise an issue "
+                            "on GitHub.".format(ref_name, dialect_obj.name)
+                        ) from e
                     # Convert Rust parse error to SQLParseError with position info
                     raise SQLParseError.from_rs_parse_error(
                         e, segments[_start_idx:_end_idx]
@@ -370,8 +388,17 @@ try:
                     )
                     if _prof is not None:
                         _prof["apply_as_tree"] = time.perf_counter() - _ts
-                except Exception:  # pragma: no cover
-                    # Non-critical: if tree building fails, rules fall back to Python
+                except (KeyboardInterrupt, SystemExit):  # pragma: no cover
+                    # Never swallow interpreter control-flow exceptions.
+                    raise
+                except BaseException:  # noqa: BLE001  # pragma: no cover
+                    # Non-critical: if arena-tree building fails, rules fall back
+                    # to the Python-built tree. Deliberately `except
+                    # BaseException` (minus the control-flow exceptions above):
+                    # a Rust-side panic crosses pyo3 as PanicException, which is
+                    # a BaseException, NOT an Exception, so a bare `except
+                    # Exception` would let a panic abort the whole parse instead
+                    # of engaging this documented fallback.
                     parser_logger.warning(
                         f"Unable to apply match result in parse tree for {fname}, falling"
                         " back to Python. Please report this as a bug with the SQL that"

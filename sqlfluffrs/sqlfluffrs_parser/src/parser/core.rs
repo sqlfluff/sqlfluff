@@ -1224,19 +1224,28 @@ impl<'a> Parser<'a> {
 
         match self.peek() {
             Some(tok) => {
-                let raw = tok.raw();
+                // PYTHON PARITY: match against the full-unicode uppercase form
+                // when case-insensitive, like Python's str.upper() (e.g.
+                // 'straße' -> 'STRASSE') - the regex crate only does simple
+                // folding, which misses that. Uses the token's precomputed
+                // raw_upper(), so this stays cheap under backtracking.
+                let raw = if case_insensitive {
+                    std::borrow::Cow::Borrowed(tok.raw_upper())
+                } else {
+                    std::borrow::Cow::Borrowed(tok.raw())
+                };
 
                 // Check anti-pattern first (if present, should NOT match)
                 if let Some(ref anti) = anti_pattern {
                     vdebug!("RegexParser[table] checking anti-pattern against '{}'", raw);
-                    if anti.is_match(raw) {
+                    if anti.is_match(&raw) {
                         vdebug!("RegexParser[table] anti-pattern matched, returning Empty");
                         return Ok(MatchResult::empty_at(self.pos));
                     }
                 }
 
                 // Check main pattern
-                if pattern.is_match(raw) {
+                if pattern.is_match(&raw) {
                     let token_pos = self.pos;
 
                     vdebug!(
