@@ -138,6 +138,16 @@ test_pass_tsql_alias_column_list_spaced:
       dialect: tsql
 
 # Either style can still be enforced by configuring the segment.
+# The VALUES clause column alias list is the same segment, so it is not
+# enforced either. Pinned because the config comment says so.
+test_pass_tsql_values_alias_column_list_touching:
+  pass_str: |
+    SELECT a, b
+    FROM (VALUES (1, 2), (3, 4)) AS t(a, b);
+  configs:
+    core:
+      dialect: tsql
+
 test_fail_tsql_alias_column_list_spaced_when_touch_configured:
   fail_str: |
     SELECT r.c.value('column[1]', 'varchar(10)') AS [Value]

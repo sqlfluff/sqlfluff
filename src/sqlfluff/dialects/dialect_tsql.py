@@ -2117,6 +2117,13 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     bracket to the alias (``AS T2(Loc)``), but the spaced form is also
     valid, so the default config enforces neither.
     https://learn.microsoft.com/en-us/sql/t-sql/xml/nodes-method-xml-data-type
+
+    The same segment carries the column alias list on a VALUES clause
+    (``(VALUES (1, 2)) AS t(a, b)``), so its spacing is unenforced as well.
+
+    Apart from that column list this mirrors ``ansi.AliasExpressionSegment``.
+    Changes to the ANSI grammar no longer reach T-SQL on their own, so they
+    have to be applied here too.
     """
 
     match_grammar: Matchable = Sequence(
