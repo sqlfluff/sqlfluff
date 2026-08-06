@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_mariadb_keywords import (
     mariadb_reserved_keywords,
@@ -1240,4 +1241,53 @@ class CreateViewStatementSegment(mysql.CreateViewStatementSegment):
     match_grammar = mysql.CreateViewStatementSegment.match_grammar.copy(
         insert=[Ref("IfNotExistsGrammar", optional=True)],
         before=Ref("TableReferenceSegment"),
+    )
+
+
+class CreateSequenceStatementSegment(ansi.CreateSequenceStatementSegment):
+    """A `CREATE SEQUENCE` statement.
+
+    Adds MariaDB's ``IF NOT EXISTS`` clause. MySQL/ANSI do not support it, so
+    the change is confined to the MariaDB dialect.
+    https://mariadb.com/kb/en/create-sequence/
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SEQUENCE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
+    )
+
+
+class AlterSequenceStatementSegment(ansi.AlterSequenceStatementSegment):
+    """An `ALTER SEQUENCE` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause. MariaDB only.
+    https://mariadb.com/kb/en/alter-sequence/
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("AlterSequenceOptionsSegment")),
+    )
+
+
+class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
+    """A `DROP SEQUENCE` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause and comma-separated name list.
+    MariaDB only.
+    https://mariadb.com/kb/en/drop-sequence/
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("SequenceReferenceSegment")),
     )
