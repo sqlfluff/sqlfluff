@@ -75,6 +75,11 @@ The copied directory is generated and is not committed. The sync runs
 automatically before `docs:dev` and `docs:build`, and can be run on its own with
 `pnpm run design:sync`.
 
+Every image the site serves comes from the package, including the favicon set
+and both home page lockups, so `docsv/public/` holds nothing but generated
+output. It does not exist at all in a fresh clone until the sync has run, which
+is why the sync is wired into the scripts rather than left as a manual step.
+
 It is a Node script rather than the `rsync` invocation the upstream guide shows
 as an example, because the docs are also built on Windows.
 

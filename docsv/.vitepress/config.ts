@@ -90,7 +90,12 @@ const themeBootstrap = readFileSync(join(DESIGN_SOURCE, 'js/theme.js'), 'utf-8')
 const designAsset = (path: string) => withDocsBase(docsBase, `sqlfluff-design/${path}`)
 
 const head: HeadConfig[] = [
-    ['link', { rel: 'icon', href: withDocsBase(docsBase, 'favicon.ico') }],
+    // The shared favicon set, so the docs and sqlfluff.com show the same mark
+    // in a tab and move together when it changes.
+    ['link', { rel: 'icon', href: designAsset('img/favicon.ico'), sizes: 'any' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: designAsset('img/favicon-32x32.png') }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: designAsset('img/favicon-16x16.png') }],
+    ['link', { rel: 'apple-touch-icon', href: designAsset('img/apple-touch-icon.png') }],
     // The bootstrap rewrites this to match the resolved theme.
     ['meta', { name: 'theme-color', content: '#f7f8f8' }],
     ['script', {}, themeBootstrap],
