@@ -25,6 +25,14 @@
   --vp-c-bg-elv: var(--sqlfluff-color-surface);
   --vp-c-bg-soft: var(--sqlfluff-color-surface-muted);
 
+  /* The shared system has two text levels, so VitePress's third collapses onto
+     the muted one. That is deliberate. Only six rules consume `text-3`, all of
+     them chrome rather than prose: input placeholders, the external-link icon,
+     the sidebar collapse caret, and home sponsors. Flattening raises their
+     contrast from about 3.1:1 to 5.5:1 on light and 3.2:1 to 7.1:1 on dark, so
+     the placeholders in particular stop failing AA. Introducing a lighter third
+     value here would undo that and amount to a parallel palette, which belongs
+     in the design package if it is ever wanted. */
   --vp-c-text-1: var(--sqlfluff-color-text);
   --vp-c-text-2: var(--sqlfluff-color-text-muted);
   --vp-c-text-3: var(--sqlfluff-color-text-muted);
