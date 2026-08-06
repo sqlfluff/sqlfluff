@@ -55,14 +55,25 @@ upstream, in the design package.
 
 ### Current pin
 
-The submodule currently points at the `design/framework-neutral-chrome` branch
-of `sqlfluff.com`, which builds on the unmerged shared design work in
-[PR #18](https://github.com/sqlfluff/sqlfluff.com/pull/18).
+The submodule points at `edd922b` on the `create-shared-design-library` branch
+of `sqlfluff.com`, the squash merge of
+[PR #19](https://github.com/sqlfluff/sqlfluff.com/pull/19).
 
-This needs re-pinning once that work merges. A submodule pin is an exact commit,
-so if the upstream branches are squash-merged and deleted, the pinned commits
-become unreachable and eventually unrecoverable. Re-pin to the resulting `main`
-commit, or to a `design-v*` tag, as part of merging upstream.
+That branch is still the head of the unmerged
+[PR #18](https://github.com/sqlfluff/sqlfluff.com/pull/18), so **this pin will
+need moving again when #18 merges into `main`**. A submodule pin is an exact
+commit: #19 was squash-merged with its branch deleted, which orphaned the
+commits pinned at the time, and merging #18 the same way will orphan `edd922b`
+too. Either re-pin as part of that merge, or tag the merged result `design-v*`
+and pin the tag.
+
+To check whether the current pin is still reachable:
+
+```sh
+git -C vendor/sqlfluff.com fetch origin
+git -C vendor/sqlfluff.com merge-base --is-ancestor HEAD origin/main \
+  && echo reachable || echo orphaned
+```
 
 ## Asset flow
 
