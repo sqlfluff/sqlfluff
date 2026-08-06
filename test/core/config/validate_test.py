@@ -1,5 +1,7 @@
 """Tests for the config validation routines."""
 
+import logging
+
 import pytest
 
 from sqlfluff.core.config.removed import (
@@ -106,15 +108,43 @@ def test__validate_configs_max_line_length_precedence():
 def test__validate_configs_removed_new_key_display():
     """A migrated key should be quoted the way a user would write it.
 
-    `core` is the internal name of the root `[sqlfluff]` section, so a warning
-    naming `core:max_line_length` would send people to a section that does not
-    exist and leave the setting ignored.
+    `core` is the internal name of the root `[sqlfluff]` section. In ini style
+    configs a warning naming `core:max_line_length` would send people to a
+    section that does not exist and leave the setting ignored, while in
+    `pyproject.toml` the same setting really does live under
+    `[tool.sqlfluff.core]` and the prefix must stay.
     """
     record = next(
         k for k in REMOVED_CONFIGS if k.old_path == ("rules", "max_line_length")
     )
     assert record.new_path == ("core", "max_line_length")
-    assert record.formatted_new_key == "max_line_length"
+    assert record.formatted_new_key() == "max_line_length"
+    assert record.formatted_new_key(toml=True) == "core:max_line_length"
+
+
+@pytest.mark.parametrize(
+    "logging_reference,expected",
+    [
+        (".sqlfluff", "`max_line_length`"),
+        ("setup.cfg", "`max_line_length`"),
+        ("/some/path/pyproject.toml", "`core:max_line_length`"),
+    ],
+)
+def test__validate_configs_removed_warning_is_source_aware(
+    logging_reference, expected, caplog
+):
+    """The migration warning quotes the key for the format being read.
+
+    An ini config takes `max_line_length` at the root of `[sqlfluff]`, but a
+    `pyproject.toml` needs it under `[tool.sqlfluff.core]`, so a single
+    spelling cannot be correct for both.
+    """
+    config = records_to_nested_dict([(("rules", "max_line_length"), 800)])
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.config"):
+        validate_config_dict_for_removed(config, logging_reference)
+    assert expected in caplog.text
+    # The functional migration is unaffected by how the warning is rendered.
+    assert config == {"core": {"max_line_length": 800}}
 
 
 @pytest.mark.parametrize(

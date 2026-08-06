@@ -56,20 +56,23 @@ class _RemovedConfig:
         """Format the old key in a way similar to a config file."""
         return ":".join(self.old_path)
 
-    @property
-    def formatted_new_key(self) -> str:
-        """Format the new key (assuming it exists) in a way similar to a config file.
+    def formatted_new_key(self, *, toml: bool = False) -> str:
+        """Format the new key (assuming it exists) as the user has to write it.
 
-        NOTE: ``core`` is the internal name of the root ``[sqlfluff]`` section
-        and is never written by users, so it is stripped here. Without that,
-        a warning would quote a path (e.g. ``core:max_line_length``) which is
-        silently ignored if it is copied into a config file.
+        NOTE: ``core`` is the internal name of the root ``[sqlfluff]`` section,
+        and the two config formats spell it differently. In ini style configs
+        (``.sqlfluff``, ``setup.cfg``, ``tox.ini``) those keys sit at the root
+        of ``[sqlfluff]``, so the ``core`` element is stripped: quoting
+        ``core:max_line_length`` would send people to a section that does not
+        exist and leave the setting ignored. In ``pyproject.toml`` the same
+        setting lives under ``[tool.sqlfluff.core]``, so there ``core`` is part
+        of what the user must write and is kept.
         """
         assert self.new_path, (
             "`formatted_new_key` can only be called if a `new_path` is set."
         )
         path = self.new_path
-        if len(path) > 1 and path[0] == "core":
+        if not toml and len(path) > 1 and path[0] == "core":
             path = path[1:]
         return ":".join(path)
 
@@ -227,6 +230,15 @@ def validate_config_dict_for_removed(
     # NOTE: During recursion, this should be set explicitly.
     root_config_ref = root_config_ref or config
 
+    # The warnings below quote the migrated key the way the user has to write
+    # it, and that differs between the two config formats: ``pyproject.toml``
+    # nests the root section as ``[tool.sqlfluff.core]`` while ini style files
+    # put the same keys at the root of ``[sqlfluff]``.
+    # NOTE: ``logging_reference`` is typed as a string but callers also pass
+    # path objects (it is otherwise only ever interpolated into a message),
+    # so coerce before inspecting the suffix.
+    toml_source = str(logging_reference).lower().endswith(".toml")
+
     # Iterate through a copy of the config keys, so we can safely mutate
     # the underlying dict.
     for key in list(config.keys()):
@@ -277,7 +289,8 @@ def validate_config_dict_for_removed(
                 f"\nWARNING: Config file {logging_reference} set a deprecated "
                 f"config value `{removed_value.formatted_old_key}` (which can be "
                 "migrated) but ALSO set the value it would be migrated to. The new "
-                f"value (`{removed_value.formatted_new_key}`) takes precedence. "
+                f"value (`{removed_value.formatted_new_key(toml=toml_source)}`) "
+                "takes precedence. "
                 "Please update your configuration to remove this warning. "
                 f"\n\n{removed_value.warning}\n\n"
                 "See https://docs.sqlfluff.com/en/stable/perma/"
@@ -302,7 +315,7 @@ def validate_config_dict_for_removed(
             f"\nWARNING: Config file {logging_reference} set a deprecated config "
             f"value `{removed_value.formatted_old_key}`. This will be "
             "removed in a later release. This has been mapped to "
-            f"`{removed_value.formatted_new_key}` set to a value of "
+            f"`{removed_value.formatted_new_key(toml=toml_source)}` set to a value of "
             f"{new_value!r} for this run. "
             "Please update your configuration to remove this warning. "
             f"\n\n{removed_value.warning}\n\n"
