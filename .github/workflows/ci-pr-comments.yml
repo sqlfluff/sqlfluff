@@ -20,7 +20,7 @@ jobs:
       github.event.workflow_run.event == 'pull_request'
     steps:
       - name: 'Download txt artifact'
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
           script: |
             const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
@@ -44,7 +44,7 @@ jobs:
         run: unzip cov-report.zip
 
       - name: Update PR comment with coverage report.
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |

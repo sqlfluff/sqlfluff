@@ -11,7 +11,7 @@ jobs:
   run:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 1
 
@@ -26,7 +26,7 @@ jobs:
             fi
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: '3.14'
 
@@ -35,7 +35,9 @@ jobs:
           pip install requests click pyyaml ghapi
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@1.96
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+        with:
+          toolchain: "1.96"
 
       - name: Prepare release
         run: |
@@ -45,7 +47,7 @@ jobs:
           GITHUB_REPOSITORY_OWNER: ${{ secrets.GITHUB_REPOSITORY_OWNER }}
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
         with:
           delete-branch: true
           branch: prep-${{ github.event.inputs.newVersionNumber }}
@@ -74,7 +76,7 @@ jobs:
             skip-changelog
 
       - name: Update release title and tag
-        uses: release-drafter/release-drafter@v6
+        uses: release-drafter/release-drafter@6a93d829887aa2e0748befe2e808c66c0ec6e4c7 # v6.4.0
         with:
           # NOTE: We should eventually actually populate the date here, but that
           # will most likely change before the new pull request actually gets

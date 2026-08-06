@@ -44,29 +44,29 @@ jobs:
       # order to tag published Docker image.
       - name: Get latest release name
         id: latest_release
-        uses: pozetroninc/github-action-get-latest-release@master
+        uses: pozetroninc/github-action-get-latest-release@5ac6001ed175b443484c81ab32a20e12132be99c # latest
         with:
           repository: ${{ github.repository }}
 
       # Setup QEMU and Buildx to allow for multi-platform builds.
       - name: Set up QEMU
         id: docker_qemu
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
       - name: Set up Docker Buildx
         id: docker_buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       # Authenticate with DockerHub.
       - name: Login to DockerHub
         id: docker_login
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # Authenticate with dhi.io to pull Docker Hardened Images.
       - name: Login to dhi.io
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: dhi.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -74,7 +74,7 @@ jobs:
 
       # Authenticate with Container registry
       - name: Login to Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -83,7 +83,7 @@ jobs:
       # Build amd64 image to use in the integration test.
       - name: Build and export ${{ matrix.name }} image to Docker
         id: docker_build_test
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           load: true
           file: Dockerfile
@@ -108,7 +108,7 @@ jobs:
       # N.B. We tag each image as both latest and with its version number.
       - name: Build and push (${{ matrix.name }} image)
         id: docker_build_push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           push: true
           platforms: linux/amd64,linux/arm64
@@ -127,7 +127,7 @@ jobs:
 
       # Add artifact attestation for GHCR image.
       - name: Generate artifact attestation (${{ matrix.name }})
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
           subject-name: ghcr.io/${{ github.repository }}
           subject-digest: ${{ steps.docker_build_push.outputs.digest }}

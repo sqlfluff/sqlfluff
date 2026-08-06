@@ -58,17 +58,17 @@ jobs:
           - 5432:5432
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       with:
         fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
       with:
         python-version: ${{ inputs.python-version }}
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v7
+      uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
       with:
         enable-cache: true
         cache-dependency-glob: |
@@ -88,7 +88,7 @@ jobs:
       run: tox -e ${{ inputs.dbt-version }} -- plugins/sqlfluff-templater-dbt
 
     - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       if: ${{ inputs.coverage }}
       with:
         name: coverage-data-py${{ inputs.python-version }}-${{ inputs.dbt-version }}

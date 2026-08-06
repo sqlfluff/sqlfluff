@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.14"
 
@@ -30,7 +30,7 @@ jobs:
           python utils/rustify.py build
 
       - name: Upload generated Rust dialects
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: generated-rust-dialects
           path: sqlfluffrs/sqlfluffrs_dialects/src/
@@ -60,25 +60,25 @@ jobs:
           - {runner: macos-15, target: aarch64, manylinux: "", artifact: macos-aarch64}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 1
 
       - name: Download generated Rust dialects
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: generated-rust-dialects
           path: sqlfluffrs/sqlfluffrs_dialects/src/
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.14"
           architecture: ${{ matrix.platform.arch || null }}
 
       - name: Build wheels
         if: matrix.platform.runner == 'ubuntu-22.04'
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           target: ${{ matrix.platform.target }}
           args: --release -i python3.10 --out dist --manifest-path sqlfluffrs/Cargo.toml
@@ -86,14 +86,14 @@ jobs:
 
       - name: Build wheels
         if: matrix.platform.runner != 'ubuntu-22.04'
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
           manylinux: ${{ matrix.platform.manylinux || '' }}
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: wheels-${{ matrix.platform.artifact }}
           path: dist
@@ -102,24 +102,24 @@ jobs:
     needs: [generate-rust-dialects]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 1
 
       - name: Download generated Rust dialects
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: generated-rust-dialects
           path: sqlfluffrs/sqlfluffrs_dialects/src/
 
       - name: Build sdist
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           command: sdist
           args: --out dist --manifest-path sqlfluffrs/Cargo.toml
 
       - name: Upload sdist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: wheels-sdist
           path: dist
@@ -137,15 +137,15 @@ jobs:
       attestations: write
     steps:
       - name: Download all wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
           subject-path: 'wheels-*/*'
 
       - name: Publish to PyPI
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         env:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_SQLFLUFFRS_TOKEN }}
         with:
