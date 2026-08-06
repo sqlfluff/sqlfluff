@@ -121,10 +121,15 @@ export default defineConfig({
     appearance: false,
 
     themeConfig: {
-        // Was '/logo.svg', which has never existed in this repo. Use the shared
-        // brand asset so the mark comes from the design package. VitePress
-        // applies the docs base to this itself.
-        logo: '/sqlfluff-design/img/sqlfluff-avatar.png',
+        // The shared wordmark, matching what sqlfluff.com shows in the same
+        // position. VitePress applies the docs base to this itself. The alt
+        // text carries the accessible name for the home link, since the site
+        // title below is hidden.
+        logo: { src: '/sqlfluff-design/img/sqlfluff-wide.png', alt: 'SQLFluff' },
+
+        // The wordmark already reads "SQLfluff", so the adjacent title would
+        // repeat it. sqlfluff.com shows the mark alone for the same reason.
+        siteTitle: false,
 
         nav: [
             { text: 'Guide', items: GUIDE },

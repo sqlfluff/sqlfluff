@@ -44,6 +44,10 @@
   --vp-button-brand-text: var(--sqlfluff-color-accent-contrast);
   --vp-button-brand-hover-text: var(--sqlfluff-color-accent-contrast);
   --vp-button-brand-active-text: var(--sqlfluff-color-accent-contrast);
+
+  /* Renders the shared wordmark at the same 132px width sqlfluff.com uses,
+     given its aspect ratio and the matching 64px header height. */
+  --vp-nav-logo-height: 27px;
 }
 
 /* The shared theme control is placed in the nav bar and nav screen slots in

@@ -191,7 +191,14 @@ footer markup assumes a consumer which renders its own page shell.
   with one which renders the shared skeleton around VitePress's own sidebar,
   content, and search components. That is a larger change and is worth doing once
   the visual direction has settled.
-- **A small SVG brand mark.** The package ships raster wordmarks and favicons but
-  no compact vector mark, so the nav logo currently uses the 512px avatar.
+- **A theme-aware brand mark.** The nav uses the shared `sqlfluff-wide.png`
+  wordmark, matching sqlfluff.com, with the site title hidden because the mark
+  already reads "SQLfluff". The artwork is two-tone, `#666666` letterforms with
+  a `#e6e6e6` fill, and there is no dark variant, so it reads differently in
+  each theme: on light the fill is invisible at 1.2:1 and the letterforms carry
+  the mark, while on dark the fill dominates at 15.2:1 and the letterforms drop
+  to 3.3:1. VitePress supports `logo: { light, dark }`, switched on the same
+  `dark` class the shared script sets, so this is ready to use as soon as
+  theme-specific vector artwork exists upstream.
 - **Visual regression checks** at representative widths in both themes, which the
   upstream design plan calls for across all three sites.
