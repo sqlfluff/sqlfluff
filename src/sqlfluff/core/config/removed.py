@@ -1,10 +1,12 @@
 """Records of deprecated and removed config variables."""
 
 import logging
+import os.path
 from dataclasses import dataclass
 from typing import Callable, Optional, Union
 
 from sqlfluff.core.config.ini import coerce_value
+from sqlfluff.core.config.toml import PYPROJECT_FILENAME
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     NestedStringDict,
@@ -234,10 +236,13 @@ def validate_config_dict_for_removed(
     # it, and that differs between the two config formats: ``pyproject.toml``
     # nests the root section as ``[tool.sqlfluff.core]`` while ini style files
     # put the same keys at the root of ``[sqlfluff]``.
+    # NOTE: This mirrors ``_load_raw_file_as_dict`` exactly, filename and all:
+    # a ``.toml`` suffix is not enough, because any file which isn't named
+    # ``pyproject.toml`` is loaded as ini and so takes the ini spelling.
     # NOTE: ``logging_reference`` is typed as a string but callers also pass
     # path objects (it is otherwise only ever interpolated into a message),
-    # so coerce before inspecting the suffix.
-    toml_source = str(logging_reference).lower().endswith(".toml")
+    # so coerce before inspecting it.
+    toml_source = os.path.basename(str(logging_reference)) == PYPROJECT_FILENAME
 
     # Iterate through a copy of the config keys, so we can safely mutate
     # the underlying dict.

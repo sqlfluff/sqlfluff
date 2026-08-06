@@ -128,6 +128,11 @@ def test__validate_configs_removed_new_key_display():
         (".sqlfluff", "`max_line_length`"),
         ("setup.cfg", "`max_line_length`"),
         ("/some/path/pyproject.toml", "`core:max_line_length`"),
+        # Only `pyproject.toml` is loaded as toml. Any other name is read as
+        # ini whatever its extension, so it takes the ini spelling.
+        ("/some/path/custom.toml", "`max_line_length`"),
+        ("/some/path/Pyproject.TOML", "`max_line_length`"),
+        ("<config string>", "`max_line_length`"),
     ],
 )
 def test__validate_configs_removed_warning_is_source_aware(
@@ -137,7 +142,8 @@ def test__validate_configs_removed_warning_is_source_aware(
 
     An ini config takes `max_line_length` at the root of `[sqlfluff]`, but a
     `pyproject.toml` needs it under `[tool.sqlfluff.core]`, so a single
-    spelling cannot be correct for both.
+    spelling cannot be correct for both. The format is decided by filename in
+    `_load_raw_file_as_dict`, so the warning has to key off the same thing.
     """
     config = records_to_nested_dict([(("rules", "max_line_length"), 800)])
     with caplog.at_level(logging.WARNING, logger="sqlfluff.config"):
