@@ -1224,25 +1224,11 @@ impl<'a> Parser<'a> {
 
         match self.peek() {
             Some(tok) => {
-                // PYTHON PARITY: RegexParser.match evaluates against
-                // `raw_upper` (str.upper() - FULL unicode case mapping, e.g.
-                // 'straße' -> 'STRASSE', 'ﬁ' -> 'FI') when ignore_case, with
-                // the pattern also compiled case-insensitively. The regex
-                // crates only do simple case folding, under which 'ß' never
-                // matches [A-Z] - so without pre-uppercasing, unicode
-                // identifiers that Python accepts (e.g. `SELECT straße(1)` in
-                // postgres, where the lexer produces such word tokens) fail
-                // the template on the Rust side and parse structurally
-                // differently. Uppercase the comparison text exactly like
-                // Python does; Rust's str::to_uppercase applies the same
-                // unicode mappings.
-                // Use the token's cached uppercase form (RawString precomputes
-                // raw_upper at construction and returns the original &str with
-                // zero allocation when it is already uppercase) rather than
-                // recomputing to_uppercase() on every - frequently discarded,
-                // backtracked - RegexParser match attempt. raw_upper() applies
-                // the same full-unicode str::to_uppercase mapping Python's
-                // str.upper() does, so behaviour is identical.
+                // PYTHON PARITY: match against the full-unicode uppercase form
+                // when case-insensitive, like Python's str.upper() (e.g.
+                // 'straße' -> 'STRASSE') - the regex crate only does simple
+                // folding, which misses that. Uses the token's precomputed
+                // raw_upper(), so this stays cheap under backtracking.
                 let raw = if case_insensitive {
                     std::borrow::Cow::Borrowed(tok.raw_upper())
                 } else {
