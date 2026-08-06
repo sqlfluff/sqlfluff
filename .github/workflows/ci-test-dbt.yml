@@ -28,6 +28,9 @@ on:
       gh_token:
         required: true
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}-${{ inputs.dbt-version }}-${{ inputs.coverage }}
   cancel-in-progress: true

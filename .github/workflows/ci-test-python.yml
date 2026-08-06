@@ -32,6 +32,9 @@ on:
       gh_token:
         required: true
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}-${{ inputs.marks }}-${{ inputs.coverage }}-${{ inputs.with-rust }}
   cancel-in-progress: true
