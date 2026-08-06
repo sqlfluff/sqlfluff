@@ -18,11 +18,7 @@ impl Parser<'_> {
     /// Build the sentinel [`ParseError`] for an unresolvable Ref. The Python
     /// side (`rust_parser.py`) recognises the `__MISSING_REF__:` prefix and
     /// re-raises through the dialect's own `ref()`, so the resulting
-    /// RuntimeError message matches the pure-Python parser byte-for-byte
-    /// (keyword-not-found vs segment-not-found text, plus the dialect name and
-    /// contribute-guide tip). `rule_name` is the stored ref name, e.g.
-    /// `PoliciesKeywordSegment` (from a bare-string `"POLICIES"`) or a mistyped
-    /// segment ref like `TableReference`.
+    /// RuntimeError matches the pure-Python parser.
     fn missing_ref_error(rule_name: &str, pos: usize) -> ParseError {
         ParseError::with_context(format!("__MISSING_REF__:{rule_name}"), Some(pos), None)
     }
