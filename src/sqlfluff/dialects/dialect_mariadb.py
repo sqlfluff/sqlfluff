@@ -1206,3 +1206,17 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
             ),
         ),
     )
+
+
+class CreateViewStatementSegment(mysql.CreateViewStatementSegment):
+    """A `CREATE VIEW` statement.
+
+    Adds MariaDB's ``IF NOT EXISTS`` clause after the ``VIEW`` keyword. MySQL
+    does not support it, so the change is confined to the MariaDB dialect.
+    https://mariadb.com/kb/en/create-view/
+    """
+
+    match_grammar = mysql.CreateViewStatementSegment.match_grammar.copy(
+        insert=[Ref("IfNotExistsGrammar", optional=True)],
+        before=Ref("TableReferenceSegment"),
+    )
