@@ -51,6 +51,25 @@ mariadb_dialect.replace(
         "VERSIONING",
     ),
     TriggerOrReplaceGrammar=Sequence("OR", "REPLACE"),
+    # Extend key-part lists (UNIQUE / PRIMARY KEY) with the MariaDB
+    # application-time `WITHOUT OVERLAPS` modifier. The clause is optional, so
+    # previously valid key lists parse identically.
+    BracketedKeyPartListGrammar=Bracketed(
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("IndexColumnPrefixLengthSegment"),
+                    ),
+                    Bracketed(Ref("ExpressionSegment")),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                Sequence("WITHOUT", "OVERLAPS", optional=True),
+            ),
+        ),
+    ),
 )
 
 
@@ -65,6 +84,105 @@ class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
             Bracketed(Ref("ExpressionSegment")),
             OneOf("PERSISTENT", "STORED", "VIRTUAL", optional=True),
         ),
+        # System-versioned period columns:
+        #   col TIMESTAMP(6) GENERATED ALWAYS AS ROW {START|END}
+        # Here `GENERATED ALWAYS` is required (unlike the expression variant).
+        Sequence(
+            "GENERATED",
+            "ALWAYS",
+            "AS",
+            "ROW",
+            OneOf("START", "END"),
+        ),
+    )
+
+
+class TemporalQuerySegment(BaseSegment):
+    """A ``FOR SYSTEM_TIME`` clause for querying system-versioned tables.
+
+    Fills the ANSI `TemporalQuerySegment` hook (``Nothing()`` by default), so the
+    clause sits right after the table and before any alias — the position MariaDB
+    documents. MySQL has no such clause, so this is confined to MariaDB.
+
+    https://mariadb.com/kb/en/system-versioned-tables/
+    """
+
+    type = "temporal_query"
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        "SYSTEM_TIME",
+        OneOf(
+            "ALL",
+            Sequence("AS", "OF", Ref("ExpressionSegment")),
+            # `Expression_B_Grammar` for the lower bound stops the parse from
+            # swallowing the `AND` (same guard ANSI uses for BETWEEN).
+            Sequence(
+                "BETWEEN",
+                Ref("Expression_B_Grammar"),
+                "AND",
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                "FROM",
+                Ref("ExpressionSegment"),
+                "TO",
+                Ref("ExpressionSegment"),
+            ),
+        ),
+    )
+
+
+class ForPortionOfSegment(BaseSegment):
+    """A ``FOR PORTION OF`` clause for application-time period DML.
+
+    Used by `DELETE` and `UPDATE` on tables with an application-time period.
+    MariaDB-only.
+
+    https://mariadb.com/kb/en/application-time-periods/
+    """
+
+    type = "for_portion_of_clause"
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        "PORTION",
+        "OF",
+        Ref("SingleIdentifierGrammar"),
+        "FROM",
+        Ref("ExpressionSegment"),
+        "TO",
+        Ref("ExpressionSegment"),
+    )
+
+
+class PeriodSegment(BaseSegment):
+    """A ``PERIOD FOR`` table element in `CREATE TABLE`.
+
+    Covers both the system-time period (``PERIOD FOR SYSTEM_TIME(...)``) and
+    application-time periods (``PERIOD FOR period_name(...)``). MariaDB-only.
+
+    https://mariadb.com/kb/en/system-versioned-tables/
+    https://mariadb.com/kb/en/application-time-periods/
+    """
+
+    type = "period_segment"
+    match_grammar: Matchable = Sequence(
+        "PERIOD",
+        "FOR",
+        OneOf("SYSTEM_TIME", Ref("SingleIdentifierGrammar")),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+    )
+
+
+class TableConstraintSegment(mysql.TableConstraintSegment):
+    """A table constraint, extended with the MariaDB ``PERIOD FOR`` element.
+
+    `CREATE TABLE` routes both table constraints and column definitions through
+    one `OneOf`, so adding `PeriodSegment` here lets `PERIOD FOR ...` appear as a
+    table element without recopying the whole `CREATE TABLE` grammar.
+    """
+
+    match_grammar = mysql.TableConstraintSegment.match_grammar.copy(
+        insert=[Ref("PeriodSegment")],
     )
 
 
@@ -112,6 +230,8 @@ class DeleteStatementSegment(BaseSegment):
             ),
             Sequence(
                 Ref("FromClauseSegment"),
+                # Application-time: DELETE ... FOR PORTION OF period FROM x TO y
+                Ref("ForPortionOfSegment", optional=True),
                 Ref("SelectPartitionClauseSegment", optional=True),
                 Ref("WhereClauseSegment", optional=True),
                 Ref("OrderByClauseSegment", optional=True),
@@ -599,6 +719,23 @@ class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
                 Ref("AlterTableOnlineDDLOptionSegment"),
                 # Dialect-specific ALTER TABLE actions.
                 Ref("AddDropSystemVersioningGrammar"),
+                # Add an application-time period.
+                Sequence(
+                    "ADD",
+                    "PERIOD",
+                    Ref("IfNotExistsGrammar", optional=True),
+                    "FOR",
+                    Ref("SingleIdentifierGrammar"),
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                ),
+                # Drop an application-time period.
+                Sequence(
+                    "DROP",
+                    "PERIOD",
+                    Ref("IfExistsGrammar", optional=True),
+                    "FOR",
+                    Ref("SingleIdentifierGrammar"),
+                ),
                 # Add column
                 Sequence(
                     "ADD",
@@ -817,6 +954,22 @@ class CreateFunctionStatementSegment(mysql.CreateFunctionStatementSegment):
     match_grammar = mysql.CreateFunctionStatementSegment.match_grammar.copy(
         insert=[Ref("OrReplaceGrammar", optional=True)],
         before=Ref("FunctionKeywordSegment"),
+    )
+
+
+class UpdateStatementSegment(mysql.UpdateStatementSegment):
+    """An `UPDATE` statement, extended with `FOR PORTION OF` (application-time).
+
+    ``UPDATE t FOR PORTION OF period FROM x TO y SET ...``. The clause is
+    optional, so previously valid UPDATE statements parse identically.
+    MariaDB-only.
+
+    https://mariadb.com/kb/en/application-time-periods/
+    """
+
+    match_grammar: Matchable = mysql.UpdateStatementSegment.match_grammar.copy(
+        insert=[Ref("ForPortionOfSegment", optional=True)],
+        before=Ref("SetClauseListSegment"),
     )
 
 
