@@ -1,0 +1,154 @@
+rule: RF08
+
+test_fail_cluster_by_undefined_column_databricks:
+  fail_str: |
+    CREATE TABLE my_catalog.my_schema.my_table (
+        col1 STRING
+    )
+    CLUSTER BY (col2)
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_cluster_by_undefined_column_sparksql:
+  fail_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY (col2)
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_cluster_by_undefined_column_bigquery:
+  fail_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY (col2)
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_second_of_two_cluster_columns_undefined:
+  fail_str: |
+    CREATE TABLE my_table (
+        col1 STRING,
+        col2 STRING
+    )
+    CLUSTER BY (col1, col3)
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_defined_column:
+  pass_str: |
+    CREATE TABLE my_catalog.my_schema.my_table (
+        col1 STRING
+    )
+    CLUSTER BY (col1)
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_multiple_defined_columns:
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING,
+        col2 BIGINT
+    )
+    CLUSTER BY (col1, col2)
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_cluster_by_is_case_insensitive:
+  pass_str: |
+    CREATE TABLE my_table (
+        MyCol STRING
+    )
+    CLUSTER BY (mycol)
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_no_cluster_by_clause:
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_ctas_has_no_local_column_list:
+  # columns come from the query, so there is nothing to compare against
+  pass_str: |
+    CREATE TABLE my_table
+    CLUSTER BY (col1)
+    AS SELECT col1 FROM other_table
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_bigquery_defined_column:
+  pass_str: |
+    CREATE TABLE my_table (
+        col1 STRING
+    )
+    CLUSTER BY (col1)
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_ctas_with_an_explicit_column_list:
+  # the query supplies columns too, so the local list is not the whole story
+  pass_str: |
+    CREATE TABLE t (
+        col1 STRING
+    )
+    CLUSTER BY (col2)
+    AS SELECT col2 FROM other
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_backtick_quoted_identifiers:
+  pass_str: |
+    CREATE TABLE t (
+        `col1` STRING
+    )
+    CLUSTER BY (`col1`)
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_double_quoted_identifiers:
+  pass_str: |
+    CREATE TABLE t (
+        "col1" STRING
+    )
+    CLUSTER BY ("col1")
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_backtick_quoted_undefined_column:
+  # quoting must not hide a genuine typo
+  fail_str: |
+    CREATE TABLE t (
+        `col1` STRING
+    )
+    CLUSTER BY (`col2`)
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_create_table_like_has_no_local_columns:
+  # the columns come from the source table, so there is nothing to compare to
+  pass_str: |
+    CREATE TABLE t LIKE other
+    CLUSTER BY (col1)
+  configs:
+    core:
+      dialect: databricks

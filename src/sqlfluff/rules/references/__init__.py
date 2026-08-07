@@ -74,6 +74,7 @@ def get_rules() -> list[type[BaseRule]]:
     from sqlfluff.rules.references.RF05 import Rule_RF05
     from sqlfluff.rules.references.RF06 import Rule_RF06
     from sqlfluff.rules.references.RF07 import Rule_RF07
+    from sqlfluff.rules.references.RF08 import Rule_RF08
 
     return [
         Rule_RF01,
@@ -83,4 +84,5 @@ def get_rules() -> list[type[BaseRule]]:
         Rule_RF05,
         Rule_RF06,
         Rule_RF07,
+        Rule_RF08,
     ]
