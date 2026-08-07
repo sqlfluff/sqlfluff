@@ -14,9 +14,35 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+This minor release brings expanded BigQuery pipe-syntax support, a wave of
+ClickHouse grammar additions, a new rule, and continued progress on the
+Rust-backed parsing engine.
+
+* BigQuery pipe syntax (`|>`) is now modelled natively as a postfix operation
+  on selectables, so pipe queries can follow a `WITH` clause, use
+  `EXCEPT`/`REPLACE` after a wildcard, and get correct indentation for
+  `AGGREGATE`/`EXTEND` clauses.
+* ClickHouse gains support for `TRUNCATE TABLES`/`TRUNCATE DATABASE`,
+  `EXCHANGE`, the `REGEXP` operator, `GROUP BY WITH ROLLUP/CUBE/TOTALS`,
+  multi-column `LIMIT BY`, and `ORDER BY ... WITH FILL ... INTERPOLATE`,
+  among other additions.
+* A new rule, `RF07`, flags window-clause references that shadow a `SELECT`
+  alias.
+* `lint`, `fix`, and `format` all gain a consistent `--quiet` output mode.
+* This release introduces the first Rust-native lint rule detection
+  (`CP01`, `CP03`, `CP04`), extending the Rust engine beyond parsing and into
+  linting for the first time — a major step toward our broader performance
+  goals. Alongside this, numerous parity fixes (bracket matching, error
+  messages, cache invalidation) keep the Rust and Python engines in sync.
+
+Beyond that, there are parser improvements across Oracle, PostgreSQL,
+Snowflake, Databricks, T-SQL, MySQL/MariaDB, Teradata, Athena, DuckDB,
+SQLite, Impala, and SparkSQL, plus rule fixes that remove false positives
+from `RF01`-`RF03`, `AL05`, `AM04`, `CV10`, `CV12`, `ST06`, `ST07`, and
+`PG01`.
+
+This release also includes first-time contributions from **forty-seven**
+new contributors. Thank you all for your contributions. 🏆
 
 ## What’s Changed
 
