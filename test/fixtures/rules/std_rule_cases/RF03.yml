@@ -768,3 +768,52 @@ test_fail_athena_struct_field_access_qualified_config:
       references.consistent:
         single_table_references: qualified
         force_enable: true
+
+test_fail_postgres_quoted_alias_preserves_identity:
+  fail_str: |
+    SELECT "T".a, b FROM foo AS "T";
+  fix_str: |
+    SELECT "T".a, "T".b FROM foo AS "T";
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_bigquery_dashed_table_preserves_complete_qualifier:
+  fail_str: |
+    SELECT col FROM table-a123
+  fix_str: |
+    SELECT `table-a123`.col FROM table-a123
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.consistent:
+        single_table_references: qualified
+        force_enable: true
+
+test_fail_bigquery_templated_dashed_table_has_no_unsafe_fix:
+  fail_str: |
+    SELECT col FROM project-{{ suffix }}
+  configs:
+    core:
+      dialect: bigquery
+      templater: jinja
+    templater:
+      jinja:
+        context:
+          suffix: prod
+    rules:
+      references.consistent:
+        single_table_references: qualified
+        force_enable: true
+
+test_pass_bigquery_quoted_dotted_column_path:
+  pass_str: |
+    SELECT `t.col` FROM foo AS t
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.consistent:
+        single_table_references: qualified
+        force_enable: true
