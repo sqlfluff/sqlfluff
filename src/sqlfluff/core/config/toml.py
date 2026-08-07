@@ -19,6 +19,13 @@ from sqlfluff.core.types import ConfigMappingType
 
 T = TypeVar("T")
 
+# The only filename which is parsed as toml. Anything else, whatever its
+# extension, is parsed as ini. Both the loader (`_load_raw_file_as_dict`)
+# and the migration warnings key off this, so they have to agree: a warning
+# which quotes the toml spelling for a file loaded as ini sends the user to a
+# section they cannot set.
+PYPROJECT_FILENAME = "pyproject.toml"
+
 
 def _condense_rule_record(record: NestedDictRecord[T]) -> NestedDictRecord[T]:
     """Helper function to condense the rule section of a toml config."""
