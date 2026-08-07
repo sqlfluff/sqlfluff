@@ -47,6 +47,24 @@ def get_configs_info() -> dict[str, ConfigInfo]:
             "validation": ["single", "multiple"],
             "definition": "Treatment of wildcards. Defaults to ``single``.",
         },
+        "group_by_policy": {
+            "validation": ["same_line", "new_line"],
+            "definition": (
+                "Treatment of ``GROUP BY`` targets (including BigQuery's "
+                "``GROUP AND ORDER BY``). ``new_line`` (default) requires "
+                "each target to be on its own line, unless there is only "
+                "one. ``same_line`` allows several targets to share a line."
+            ),
+        },
+        "order_by_policy": {
+            "validation": ["same_line", "new_line"],
+            "definition": (
+                "Treatment of ``ORDER BY`` targets. ``new_line`` (default) "
+                "requires each target to be on its own line, unless there is "
+                "only one. ``same_line`` allows several targets to share a "
+                "line."
+            ),
+        },
         "single_target_policy": {
             "validation": ["same_line", "new_line"],
             "definition": (
@@ -82,6 +100,7 @@ def get_rules() -> list[type[BaseRule]]:
     from sqlfluff.rules.layout.LT13 import Rule_LT13
     from sqlfluff.rules.layout.LT14 import Rule_LT14
     from sqlfluff.rules.layout.LT15 import Rule_LT15
+    from sqlfluff.rules.layout.LT16 import Rule_LT16
 
     return [
         Rule_LT01,
@@ -99,4 +118,5 @@ def get_rules() -> list[type[BaseRule]]:
         Rule_LT13,
         Rule_LT14,
         Rule_LT15,
+        Rule_LT16,
     ]

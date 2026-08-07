@@ -1,0 +1,292 @@
+rule: LT16
+
+test_pass_single_group_by_target:
+  pass_str: |
+    select a
+    from t
+    group by a
+
+test_pass_group_by_targets_on_separate_lines:
+  pass_str: |
+    select
+        a,
+        b
+    from t
+    group by
+        a,
+        b
+
+test_fail_group_by_targets_on_one_line:
+  fail_str: |
+    select
+        a,
+        b
+    from t
+    group by
+        a, b
+  fix_str: |
+    select
+        a,
+        b
+    from t
+    group by
+        a,
+    b
+
+test_fail_group_by_targets_on_keyword_line:
+  fail_str: |
+    select
+        a,
+        b
+    from t
+    group by a, b
+  fix_str: |
+    select
+        a,
+        b
+    from t
+    group by
+    a,
+    b
+
+test_fail_order_by_targets_on_keyword_line:
+  fail_str: |
+    select
+        a,
+        b
+    from t
+    order by a desc, b nulls last
+  fix_str: |
+    select
+        a,
+        b
+    from t
+    order by
+    a desc,
+    b nulls last
+
+test_pass_single_order_by_target:
+  pass_str: |
+    select a
+    from t
+    order by a desc
+
+test_pass_group_by_policy_same_line:
+  pass_str: |
+    select
+        a,
+        b
+    from t
+    group by a, b
+  configs:
+    rules:
+      layout.list_targets:
+        group_by_policy: same_line
+
+test_fail_order_by_only_when_group_by_disabled:
+  fail_str: |
+    select
+        a,
+        b
+    from t
+    group by a, b
+    order by a, b
+  fix_str: |
+    select
+        a,
+        b
+    from t
+    group by a, b
+    order by
+    a,
+    b
+  configs:
+    rules:
+      layout.list_targets:
+        group_by_policy: same_line
+
+test_pass_order_by_policy_same_line:
+  pass_str: |
+    select
+        a,
+        b
+    from t
+    order by a, b
+  configs:
+    rules:
+      layout.list_targets:
+        order_by_policy: same_line
+
+test_pass_group_by_all:
+  pass_str: |
+    select
+        a,
+        b
+    from t
+    group by all
+
+test_pass_group_by_rollup:
+  # Only the targets at the top level of the clause are split up.
+  pass_str: |
+    select
+        a,
+        b
+    from t
+    group by
+        rollup(a, b)
+
+test_fail_group_by_rollup_with_further_targets:
+  fail_str: |
+    select
+        a,
+        b,
+        c
+    from t
+    group by
+        rollup(a, b), c
+  fix_str: |
+    select
+        a,
+        b,
+        c
+    from t
+    group by
+        rollup(a, b),
+    c
+
+test_pass_group_by_grouping_sets:
+  pass_str: |
+    select
+        a,
+        b
+    from t
+    group by
+        grouping sets ((a, b), (a))
+
+test_fail_bigquery_pipe_group_and_order_by:
+  # `GROUP AND ORDER BY` is a `GROUP BY` with a modifier, so it follows
+  # `group_by_policy`.
+  fail_str: |
+    FROM Produce
+    |> AGGREGATE SUM(sales) AS total_sales
+       GROUP AND ORDER BY category, item DESC;
+  fix_str: |
+    FROM Produce
+    |> AGGREGATE SUM(sales) AS total_sales
+       GROUP AND ORDER BY
+    category,
+    item DESC;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_pipe_group_and_order_by_same_line_policy:
+  pass_str: |
+    FROM Produce
+    |> AGGREGATE SUM(sales) AS total_sales
+       GROUP AND ORDER BY category, item DESC;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      layout.list_targets:
+        group_by_policy: same_line
+
+test_fail_bigquery_pipe_group_by_and_order_by:
+  # Pipe operators are statement level operations, so the lists in them are
+  # split up just like any other.
+  fail_str: |
+    FROM Produce
+    |> AGGREGATE SUM(sales) AS total_sales
+       GROUP BY category, item
+    |> ORDER BY category, item DESC;
+  fix_str: |
+    FROM Produce
+    |> AGGREGATE SUM(sales) AS total_sales
+       GROUP BY
+    category,
+    item
+    |> ORDER BY
+    category,
+    item DESC;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_order_by_in_window_function:
+  pass_str: |
+    select
+        row_number() over (partition by a, b order by c, d) as rn
+    from t
+
+test_pass_order_by_in_aggregate:
+  pass_str: |
+    select
+        array_agg(x order by a, b) as ag
+    from t
+
+test_pass_leading_commas:
+  # The targets are already on separate lines, so there's nothing to do.
+  pass_str: |
+    select
+        a
+        , b
+    from t
+    group by
+        a
+        , b
+
+test_fail_multiline_target:
+  fail_str: |
+    select
+        a,
+        b
+    from t
+    group by
+        case
+            when a > 1 then a
+            else b
+        end, b
+  fix_str: |
+    select
+        a,
+        b
+    from t
+    group by
+        case
+            when a > 1 then a
+            else b
+        end,
+    b
+
+test_pass_comment_between_targets:
+  pass_str: |
+    select
+        a,
+        b
+    from t
+    group by
+        a,  -- the first target
+        b
+
+test_fail_subquery_group_by:
+  fail_str: |
+    select *
+    from (
+        select
+            a,
+            b
+        from t
+        group by a, b
+    ) as x
+  fix_str: |
+    select *
+    from (
+        select
+            a,
+            b
+        from t
+        group by
+    a,
+    b
+    ) as x
