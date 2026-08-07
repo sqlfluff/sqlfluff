@@ -695,13 +695,17 @@ class AlterTableConstraintSegment(mysql.TableConstraintSegment):
 class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
     """An `ALTER TABLE` statement.
 
-    Overriding MySQL to add MariaDB's ``IF [NOT] EXISTS`` conditional clauses on
-    the ``ADD`` / ``DROP`` / ``CHANGE`` / ``MODIFY`` / ``ALTER {INDEX|KEY}``
-    actions. The ``ADD`` index/constraint clauses pick up ``IF NOT EXISTS`` via
-    the ALTER-only `AlterTableConstraintSegment`; the remaining actions are
-    handled here. Every added clause is strictly optional, so previously valid
-    statements parse identically. MySQL does not support these clauses, so the
-    change is confined to the MariaDB dialect.
+    Overriding MySQL to add MariaDB extensions:
+    - Table-level ``IF EXISTS`` (between ``TABLE`` and table reference)
+    - Column-level ``IF [NOT] EXISTS`` on ``ADD`` / ``DROP`` / ``CHANGE`` /
+      ``MODIFY`` / ``ALTER {INDEX|KEY}`` actions (the ``ADD`` index/constraint
+      clauses pick up ``IF NOT EXISTS`` via the ALTER-only
+      `AlterTableConstraintSegment`; the remaining actions are handled here)
+    - Partition-level ``DROP PARTITION IF EXISTS`` with comma-separated name list
+
+    Every added clause is strictly optional, so previously valid statements parse
+    identically. MySQL does not support these clauses, so the change is confined
+    to the MariaDB dialect.
 
     https://mariadb.com/docs/server/reference/sql-statements/data-definition/alter/alter-table
     """
@@ -710,6 +714,7 @@ class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
+        Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Delimited(
             OneOf(
@@ -892,27 +897,43 @@ class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
         ),
         Sequence(
             OneOf(
-                "ADD",
-                "DROP",
-                "DISCARD",
-                "IMPORT",
-                "TRUNCATE",
-                "COALESCE",
-                "REORGANIZE",
-                "EXCHANGE",
-                "ANALYZE",
-                "CHECK",
-                "OPTIMIZE",
-                "REBUILD",
-                "REPAIR",
-                "REMOVE",
-            ),
-            OneOf("PARTITION", "PARTITIONING"),
-            OneOf(
-                Ref("SingleIdentifierGrammar"),
-                Ref("NumericLiteralSegment"),
-                "ALL",
-                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                # MariaDB: DROP PARTITION [IF EXISTS] p1[, p2 ...]
+                # `IF EXISTS` and the comma-separated name list are MariaDB
+                # extensions kept on the DROP verb only, so ADD/TRUNCATE/etc.
+                # do not pick up the conditional. Only ``PARTITION`` is valid
+                # here (``DROP PARTITIONING`` is not MariaDB syntax; removing
+                # partitioning uses ``REMOVE PARTITIONING``).
+                Sequence(
+                    "DROP",
+                    "PARTITION",
+                    Ref("IfExistsGrammar", optional=True),
+                    Delimited(Ref("SingleIdentifierGrammar")),
+                ),
+                # All other partition actions (unchanged behaviour).
+                Sequence(
+                    OneOf(
+                        "ADD",
+                        "DISCARD",
+                        "IMPORT",
+                        "TRUNCATE",
+                        "COALESCE",
+                        "REORGANIZE",
+                        "EXCHANGE",
+                        "ANALYZE",
+                        "CHECK",
+                        "OPTIMIZE",
+                        "REBUILD",
+                        "REPAIR",
+                        "REMOVE",
+                    ),
+                    OneOf("PARTITION", "PARTITIONING"),
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("NumericLiteralSegment"),
+                        "ALL",
+                        Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                    ),
+                ),
             ),
             Ref.keyword("TABLESPACE", optional=True),
             Sequence(
