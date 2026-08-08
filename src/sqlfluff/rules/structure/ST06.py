@@ -101,6 +101,39 @@ class Rule_ST06(BaseRule):
                 return False
         return False
 
+    def _has_comments(self, context: RuleContext) -> bool:
+        """Check for comments among or trailing the select targets.
+
+        Comments are siblings of the ``select_clause_element`` segments rather
+        than children of them, so reordering the elements on their own leaves
+        the comments behind and silently attaches each one to a different
+        column.
+
+        Args:
+            context: The rule context, anchored on the select clause
+
+        Returns:
+            True if a comment would be displaced by reordering the targets
+        """
+        # Comments sat between the select targets are inside the clause.
+        if any(context.segment.recursive_crawl("comment")):
+            return True
+        # A comment trailing the *final* target is outside the select clause,
+        # in its parent, because it follows the clause's closing dedent. Scan
+        # forward from the clause and stop at the end of that line.
+        if not context.parent_stack:
+            return False  # pragma: no cover
+        after_select_clause = False
+        for seg in context.parent_stack[-1].segments:
+            if seg is context.segment:
+                after_select_clause = True
+            elif after_select_clause:
+                if seg.is_type("newline"):
+                    break
+                if seg.is_type("comment"):
+                    return True
+        return False
+
     def _validate(self, i: int, segment: BaseSegment) -> None:
         # Check if we've seen a more complex select target element already
         if self.seen_band_elements[i + 1 : :] != [[]] * len(
@@ -273,6 +306,11 @@ class Rule_ST06(BaseRule):
                 # If there are implicit column references (i.e. column
                 # numbers), warn but don't fix, because it's much more
                 # complicated to autofix.
+                return LintResult(anchor=select_clause_segment)
+            if self._has_comments(context):
+                # Comments aren't bound to the select target they annotate, so
+                # reordering the targets would leave them in place and label
+                # the wrong columns. Warn but don't fix.
                 return LintResult(anchor=select_clause_segment)
             # Create a list of all the edit fixes
             # We have to do this at the end of iterating through all the
