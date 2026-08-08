@@ -2920,14 +2920,40 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
-class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
-    """An extension of the star expression for Redshift."""
+class SelectClauseSegment(postgres.SelectClauseSegment):
+    """A Redshift `SELECT` clause.
 
-    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
-        insert=[
-            # Optional Exclude
-            Ref("ExcludeClauseSegment", optional=True),
-        ]
+    EXCLUDE follows the full select list (not a wildcard/item suffix):
+    https://docs.aws.amazon.com/redshift/latest/dg/r_SELECT_synopsis.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_EXCLUDE_list.html
+    """
+
+    # Keep the Postgres select-clause structure and terminators; only attach
+    # EXCLUDE after the delimited select list.
+    match_grammar = postgres.SelectClauseSegment.match_grammar.copy(
+        insert=[Ref("ExcludeClauseSegment", optional=True)],
+        before=Dedent,
+    )
+
+
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """Select-list element for Redshift.
+
+    Prevent bare ``EXCLUDE`` from being treated as an implicit column alias so
+    the select-clause-level ``ExcludeClauseSegment`` can match. This does not
+    restrict ``EXCLUDE(...)`` expressions or ``AS EXCLUDE`` aliases.
+    """
+
+    match_grammar = OneOf(
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref(
+                "AliasExpressionSegment",
+                exclude=Ref.keyword("EXCLUDE"),
+                optional=True,
+            ),
+        ),
     )
 
 
@@ -2942,7 +2968,7 @@ class ExcludeClauseSegment(BaseSegment):
         "EXCLUDE",
         OneOf(
             Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
-            Ref("SingleIdentifierGrammar"),
+            Delimited(Ref("SingleIdentifierGrammar")),
         ),
     )
 
