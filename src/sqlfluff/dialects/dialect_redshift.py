@@ -2933,13 +2933,24 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
         "SELECT",
         Ref("SelectClauseModifierSegment", optional=True),
         Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            optional=True,
-            allow_trailing=False,
-            terminators=[Ref.keyword("EXCLUDE")],
+        OneOf(
+            # EXCLUDE branch: terminator only here so a column named EXCLUDE can
+            # still parse via the fallback. No trailing comma before EXCLUDE.
+            Sequence(
+                Delimited(
+                    Ref("SelectClauseElementSegment"),
+                    allow_trailing=False,
+                    terminators=[Ref.keyword("EXCLUDE")],
+                ),
+                Ref("ExcludeClauseSegment"),
+            ),
+            # Postgres-compatible select list (optional / trailing commas).
+            Delimited(
+                Ref("SelectClauseElementSegment"),
+                optional=True,
+                allow_trailing=True,
+            ),
         ),
-        Ref("ExcludeClauseSegment", optional=True),
         Dedent,
         terminators=[
             "INTO",
@@ -2962,13 +2973,23 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement.
 
-    ``EXCLUDE`` is a select-list clause keyword in Redshift, not a column alias.
+    ``EXCLUDE`` is a select-list clause keyword in Redshift, not a column alias
+    or ``EXCLUDE (...)`` function-like expression.
     """
 
     match_grammar = OneOf(
         Ref("WildcardExpressionSegment"),
         Sequence(
-            Ref("BaseExpressionElementGrammar"),
+            Ref(
+                "BaseExpressionElementGrammar",
+                exclude=Sequence(
+                    "EXCLUDE",
+                    OneOf(
+                        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+                        Delimited(Ref("SingleIdentifierGrammar")),
+                    ),
+                ),
+            ),
             Ref(
                 "AliasExpressionSegment",
                 exclude=Ref.keyword("EXCLUDE"),
