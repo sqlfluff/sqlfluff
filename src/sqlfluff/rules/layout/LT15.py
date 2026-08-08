@@ -2,6 +2,7 @@
 
 from typing import List, Optional
 
+from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
@@ -37,6 +38,24 @@ class Rule_LT15(BaseRule):
         LIMIT 5
         ;
 
+    A minimum can also be required between statements. With
+    ``minimum_empty_lines_between_statements = 1``, this is an anti-pattern:
+
+    .. code-block:: sql
+
+        SELECT a FROM tab;
+        SELECT b FROM tab;
+
+    and this is the best practice:
+
+    .. code-block:: sql
+
+        SELECT a FROM tab;
+
+        SELECT b FROM tab;
+
+    The minimum defaults to ``0``, which leaves the rule's existing behaviour
+    unchanged.
     """
 
     name = "layout.newlines"
@@ -45,6 +64,7 @@ class Rule_LT15(BaseRule):
         "maximum_empty_lines_between_statements",
         "maximum_empty_lines_inside_statements",
         "maximum_empty_lines_between_batches",
+        "minimum_empty_lines_between_statements",
     ]
     crawl_behaviour = SegmentSeekerCrawler(types={"newline"}, provide_raw_stack=True)
     is_fix_compatible = True
@@ -54,7 +74,16 @@ class Rule_LT15(BaseRule):
         self.maximum_empty_lines_between_statements: int
         self.maximum_empty_lines_inside_statements: int
         self.maximum_empty_lines_between_batches: int
+        self.minimum_empty_lines_between_statements: int
         context_seg = context.segment
+
+        # A minimum only makes sense between statements, so it is checked where we
+        # are not inside one. It runs first because the two cannot both fire on the
+        # same gap: one wants newlines added, the other wants them removed.
+        if not any(seg.is_type("statement") for seg in context.parent_stack):
+            minimum_result = self._check_minimum(context)
+            if minimum_result:
+                return minimum_result
 
         # Determine the appropriate maximum based on context
         # Check if we're inside a statement first (highest priority)
@@ -91,5 +120,70 @@ class Rule_LT15(BaseRule):
             LintResult(
                 anchor=context_seg,
                 fixes=[LintFix.delete(context_seg)],
+            )
+        ]
+
+    def _check_minimum(self, context: RuleContext) -> Optional[List[LintResult]]:
+        """Require at least ``minimum_empty_lines_between_statements`` blank lines.
+
+        Fires on the last newline of a run so the whole gap is measured once, rather
+        than once per newline in it.
+        """
+        minimum = self.minimum_empty_lines_between_statements
+        if not minimum:
+            return None
+
+        # Only act on the last newline of the run; otherwise the same gap would be
+        # reported several times over. Whitespace is skipped both here and in the
+        # backward walk below, so a line of spaces still counts as blank.
+        following = [
+            seg
+            for seg in context.siblings_post
+            if not seg.is_type("dedent", "indent", "whitespace")
+        ]
+        if following and following[0].is_type("newline"):
+            return None
+
+        # A gap needs a statement on both sides. Without the preceding check, a
+        # file that opens with a blank line or a comment is treated as a gap
+        # before its first statement and padded, which is a false positive.
+        if not any(seg.is_code for seg in context.siblings_pre):
+            return None
+
+        # Skip when nothing but the end of the file follows, so there is no gap to
+        # pad, and when the newline is templated, since that is not ours to rewrite.
+        if context.segment.is_templated or not any(
+            seg.is_code for seg in context.siblings_post
+        ):
+            return None
+
+        # Count the run of newlines ending at this one. Two newlines are one blank
+        # line, so the blank count is one less than the run length.
+        run = 1
+        for raw_seg in reversed(context.raw_stack):
+            if raw_seg.is_type("newline"):
+                run += 1
+            elif raw_seg.is_type("whitespace"):
+                continue
+            else:
+                break
+        blank_lines = run - 1
+
+        if blank_lines >= minimum:
+            return None
+
+        return [
+            LintResult(
+                anchor=context.segment,
+                fixes=[
+                    LintFix.create_after(
+                        context.segment,
+                        [NewlineSegment() for _ in range(minimum - blank_lines)],
+                    )
+                ],
+                description=(
+                    f"Expected at least {minimum} blank line(s) between statements, "
+                    f"found {blank_lines}."
+                ),
             )
         ]
