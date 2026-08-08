@@ -2936,7 +2936,7 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
         Delimited(
             Ref("SelectClauseElementSegment"),
             optional=True,
-            allow_trailing=True,
+            allow_trailing=False,
             terminators=[Ref.keyword("EXCLUDE")],
         ),
         Ref("ExcludeClauseSegment", optional=True),
