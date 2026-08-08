@@ -20,4 +20,10 @@ SELECT EXCLUDE, col1 FROM table1;
 
 SELECT "EXCLUDE" FROM table1;
 
+SELECT EXCLUDE(col1) FROM table1;
+
+SELECT schema.EXCLUDE(col1) FROM table1;
+
+SELECT 1 AS EXCLUDE FROM table1;
+
 SELECT a, b, FROM table1;

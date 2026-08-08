@@ -21,7 +21,6 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
-    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -2924,72 +2923,31 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 class SelectClauseSegment(postgres.SelectClauseSegment):
     """A Redshift `SELECT` clause.
 
-    EXCLUDE follows the full select list:
+    EXCLUDE follows the full select list (not a wildcard/item suffix):
     https://docs.aws.amazon.com/redshift/latest/dg/r_SELECT_synopsis.html
     https://docs.aws.amazon.com/redshift/latest/dg/r_EXCLUDE_list.html
     """
 
-    match_grammar = Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        OneOf(
-            # EXCLUDE branch: terminator only here so a column named EXCLUDE can
-            # still parse via the fallback. No trailing comma before EXCLUDE.
-            Sequence(
-                Delimited(
-                    Ref("SelectClauseElementSegment"),
-                    allow_trailing=False,
-                    terminators=[Ref.keyword("EXCLUDE")],
-                ),
-                Ref("ExcludeClauseSegment"),
-            ),
-            # Postgres-compatible select list (optional / trailing commas).
-            Delimited(
-                Ref("SelectClauseElementSegment"),
-                optional=True,
-                allow_trailing=True,
-            ),
-        ),
-        Dedent,
-        terminators=[
-            "INTO",
-            "FROM",
-            "WHERE",
-            Sequence("ORDER", "BY"),
-            Sequence("ON", "CONFLICT"),
-            "LIMIT",
-            "RETURNING",
-            "OVERLAPS",
-            Ref("SetOperatorSegment"),
-            Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
-            Ref("WithCheckOptionSegment"),
-            Ref("MetaCommandQueryBufferSegment"),
-        ],
-        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+    # Keep the Postgres select-clause structure and terminators; only attach
+    # EXCLUDE after the delimited select list.
+    match_grammar = postgres.SelectClauseSegment.match_grammar.copy(
+        insert=[Ref("ExcludeClauseSegment", optional=True)],
+        before=Dedent,
     )
 
 
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
-    """An element in the targets of a select statement.
+    """Select-list element for Redshift.
 
-    ``EXCLUDE`` is a select-list clause keyword in Redshift, not a column alias
-    or ``EXCLUDE (...)`` function-like expression.
+    Prevent bare ``EXCLUDE`` from being treated as an implicit column alias so
+    the select-clause-level ``ExcludeClauseSegment`` can match. This does not
+    restrict ``EXCLUDE(...)`` expressions or ``AS EXCLUDE`` aliases.
     """
 
     match_grammar = OneOf(
         Ref("WildcardExpressionSegment"),
         Sequence(
-            Ref(
-                "BaseExpressionElementGrammar",
-                exclude=Sequence(
-                    "EXCLUDE",
-                    OneOf(
-                        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
-                        Delimited(Ref("SingleIdentifierGrammar")),
-                    ),
-                ),
-            ),
+            Ref("BaseExpressionElementGrammar"),
             Ref(
                 "AliasExpressionSegment",
                 exclude=Ref.keyword("EXCLUDE"),
