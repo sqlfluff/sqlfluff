@@ -15,6 +15,14 @@ def get_configs_info() -> dict[str, ConfigInfo]:
             "validation": ["inner", "outer", "both"],
             "definition": ("Which types of JOIN clauses should be fully qualified?"),
         },
+        "require_explicit_source_projection": {
+            "validation": [True, False],
+            "definition": (
+                "Whether source-referencing CTEs must enumerate columns "
+                "explicitly, even if downstream projections later make the "
+                "final column set deterministic."
+            ),
+        },
         "group_by_and_order_by_style": {
             "validation": ["consistent", "implicit", "explicit"],
             "definition": (
