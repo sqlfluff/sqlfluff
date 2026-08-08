@@ -32,7 +32,10 @@ def get_configs_info() -> dict[str, ConfigInfo]:
             "validation": [True, False],
             "definition": (
                 "Should semi-colons be placed on a new line after multi-line "
-                "statements?"
+                "statements? Older L052 docs and configs used the name "
+                "``semicolon_newline`` for this setting; that name is no longer "
+                "recognized — use ``multiline_newline`` under "
+                "``[sqlfluff:rules:convention.terminator]`` instead."
             ),
         },
         "require_final_semicolon": {
