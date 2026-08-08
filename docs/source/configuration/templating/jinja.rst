@@ -56,6 +56,33 @@ options:
     library_path = sqlfluff_libs
     exclude_macros_from_path = my_macros_exclude
 
+Custom Jinja Delimiters
+"""""""""""""""""""""""
+
+By default, Jinja uses ``{{ }}`` for variables, ``{% %}`` for blocks, and
+``{# #}`` for comments. Some tools use different delimiters — for example,
+`Snowflake CLI <https://docs.snowflake.com/en/developer-guide/snowflake-cli/project-definitions/use-sql-variables>`_
+uses ``<% varname %>`` for variable substitution.
+
+SQLFluff exposes Jinja's delimiter config options so you can lint files
+that use non-standard delimiters:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja]
+    variable_start_string = <%
+    variable_end_string = %>
+
+All six Jinja delimiter options are supported:
+
+- ``variable_start_string`` / ``variable_end_string`` (default: ``{{ }}``)
+- ``block_start_string`` / ``block_end_string`` (default: ``{% %}``)
+- ``comment_start_string`` / ``comment_end_string`` (default: ``{# #}``)
+
+Each can be set independently. Unset options fall back to Jinja defaults.
+
+.. code-block:: cfg
+
     [sqlfluff:templater:jinja:context]
     my_list = ['a', 'b', 'c']
     MY_LIST = ("d", "e", "f")
