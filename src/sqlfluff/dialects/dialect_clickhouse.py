@@ -1944,7 +1944,13 @@ class CreateDictionaryStatementSegment(BaseSegment):
     _dictionary_source_clause = Sequence(
         "SOURCE",
         Bracketed(
-            _dictionary_function,
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                # NULL() is a valid SOURCE
+                # https://clickhouse.com/docs/reference/statements/create/dictionary/sources/null
+                "NULL",
+            ),
+            _dictionary_parameters,
         ),
     )
     _dictionary_layout_clause = Sequence(
@@ -1966,6 +1972,15 @@ class CreateDictionaryStatementSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
             ),
         ),
+    )
+    _dictionary_range_clause = Sequence(
+        "RANGE",
+        Bracketed(
+            "MIN",
+            Ref("SingleIdentifierGrammar"),
+            "MAX",
+            Ref("SingleIdentifierGrammar"),
+        ),
         optional=True,
     )
     _dictionary_settings_clause = Sequence(
@@ -1986,6 +2001,11 @@ class CreateDictionaryStatementSegment(BaseSegment):
         ),
         optional=True,
     )
+    _dictionary_mandatory_clauses = (
+        _dictionary_source_clause,
+        _dictionary_layout_clause,
+        _dictionary_lifetime_clause,
+    )
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
@@ -2000,11 +2020,39 @@ class CreateDictionaryStatementSegment(BaseSegment):
         ),
         "PRIMARY",
         "KEY",
-        Delimited(Ref("SingleIdentifierGrammar")),
-        _dictionary_source_clause,
-        _dictionary_layout_clause,
-        _dictionary_lifetime_clause,
-        _dictionary_settings_clause,
+        OptionallyBracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+        # The order of SOURCE, LAYOUT, LIFETIME, SETTINGS, RANGE clauses
+        # is not strictly defined. However, there is a couple of rules:
+        # 1. These clauses must be stated after the PRIMARY KEY clause.
+        # 2. These clauses must be stated before the SETTINGS clause.
+        # 3. SOURCE, LAYOUT, LIFETIME clauses are mandatory.
+        # 4. SETTINGS, RANGE clauses are optional.
+        OneOf(
+            # SOURCE, LAYOUT, LIFETIME
+            AnySetOf(
+                *_dictionary_mandatory_clauses,
+                min_times=3,
+            ),
+            # SOURCE, LAYOUT, LIFETIME, RANGE
+            AnySetOf(
+                *_dictionary_mandatory_clauses,
+                _dictionary_range_clause,
+                min_times=4,
+            ),
+            # SOURCE, LAYOUT, LIFETIME, SETTINGS
+            AnySetOf(
+                *_dictionary_mandatory_clauses,
+                _dictionary_settings_clause,
+                min_times=4,
+            ),
+            # SOURCE, LAYOUT, LIFETIME, RANGE, SETTINGS
+            AnySetOf(
+                *_dictionary_mandatory_clauses,
+                _dictionary_range_clause,
+                _dictionary_settings_clause,
+                min_times=5,
+            ),
+        ),
         Ref("CommentClauseSegment", optional=True),
     )
 
