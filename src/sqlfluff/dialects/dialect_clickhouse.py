@@ -2024,7 +2024,7 @@ class CreateDictionaryStatementSegment(BaseSegment):
         # The order of SOURCE, LAYOUT, LIFETIME, SETTINGS, RANGE clauses
         # is not strictly defined. However, there is a couple of rules:
         # 1. These clauses must be stated after the PRIMARY KEY clause.
-        # 2. These clauses must be stated before the SETTINGS clause.
+        # 2. These clauses must be stated before the COMMENT clause.
         # 3. SOURCE, LAYOUT, LIFETIME clauses are mandatory.
         # 4. SETTINGS, RANGE clauses are optional.
         OneOf(
