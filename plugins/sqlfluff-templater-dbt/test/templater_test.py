@@ -609,7 +609,7 @@ def test__templater_dbt_templating_absolute_path(
         ),
         pytest.param(
             "compile_missing_table.sql",
-            "Runtime Error",
+            'relation "this_table_does_not_exist" does not exist',
             False,
             SQLTemplaterError,
             id="dbt_skip_compilation_error",
