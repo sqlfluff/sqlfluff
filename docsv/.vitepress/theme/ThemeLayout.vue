@@ -8,12 +8,12 @@ import VersionPicker from './VersionPicker.vue'
 <template>
   <DefaultTheme.Layout>
     <template #nav-bar-content-after>
-      <VersionPicker :show-label="false" :inline="true" />
+      <VersionPicker />
       <ThemeSwitcher />
     </template>
 
     <template #nav-screen-content-after>
-      <VersionPicker class="version-picker--mobile" />
+      <VersionPicker variant="list" :show-label="true" class="version-picker--mobile" />
       <ThemeSwitcher class="theme-switcher--mobile" />
     </template>
 
