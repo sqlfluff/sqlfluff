@@ -3,86 +3,85 @@
 This document records how the VitePress documentation consumes the shared
 SQLFluff design system, and why the integration is shaped the way it is.
 
-The design system lives in `sqlfluff.com` under `packages/design/`, and that
-repository is the source of truth for it. Its own `INTEGRATION.md` is the
-contract; this document only covers what is specific to these docs.
+The design system lives in its own repository,
+[`sqlfluff/sqlfluff-design`](https://github.com/sqlfluff/sqlfluff-design), which
+is the source of truth for it. Its own `INTEGRATION.md` is the contract; this
+document only covers what is specific to these docs.
 
 The legacy Sphinx documentation is out of scope and is deliberately unchanged.
 
 ## Summary
 
-- `vendor/sqlfluff.com` is a pinned Git submodule containing the design package.
+- `@sqlfluff/design` is installed as a pinned Git dependency
+  (`github:sqlfluff/sqlfluff-design#design-v0.1.0`).
 - `design:sync` copies the package's static assets into `docsv/public/`.
 - The shared tokens, base styles, and component styles are loaded from `head`.
 - A narrow adapter maps VitePress's own theme variables onto the shared tokens.
 - The shared theme script is the single owner of light and dark mode, and
   VitePress's own appearance handling is switched off.
 
-## Why a submodule
+## Why a Git dependency, not a submodule
 
-The design package is not published to a registry. Each consuming site pins a
-reviewed commit and advances it through an ordinary pull request, so a design
-change never reaches a site without a diff someone approved.
+The design package is not published to a registry, so pinning still happens
+through source control rather than a version range. Each consuming site pins a
+reviewed commit or tag and advances it through an ordinary pull request, so a
+design change never reaches a site without a diff someone approved.
+
+Earlier drafts of this integration vendored the whole `sqlfluff.com` repository
+as a Git submodule, since the design package used to live inside it at
+`packages/design/`. That required a manual `git submodule update --init` after
+every clone and `submodules: true` on every CI checkout. Now that the package
+is its own repository with a `package.json` at its root, a plain Git dependency
+(`github:sqlfluff/sqlfluff-design#<tag>`) resolves with pnpm the same way any
+other dependency does, and `corepack pnpm install` is sufficient — nothing extra
+to initialise.
 
 This matters more here than elsewhere because these docs publish immutable
 versioned builds. Every `/en/<version>/` build bundles the design assets it was
 built with, so historical documentation keeps the design it shipped with, and no
-published version depends on `sqlfluff.com` being reachable at runtime.
+published version depends on `sqlfluff-design`, or any other SQLFluff site,
+being reachable at runtime.
 
-### Working with the submodule
+### Working with the dependency
 
-After cloning, or after the pin moves:
+After cloning, or after the pin moves, `corepack pnpm install` in `docsv/`
+fetches the pinned tag. `design:sync` fails with a clear message if the package
+somehow isn't resolvable.
 
-```sh
-git submodule update --init vendor/sqlfluff.com
+To move to a newer design tag or commit, review the package diff first, then
+update the specifier and reinstall:
+
+```jsonc
+"@sqlfluff/design": "github:sqlfluff/sqlfluff-design#<reviewed-tag-or-commit>"
 ```
 
-The build fails with a clear message when the submodule is missing. CI checks it
-out with `submodules: true`, which initialises the direct submodule only.
-
-To move to a newer design commit, review the package diff first:
-
 ```sh
-git -C vendor/sqlfluff.com fetch origin
-git -C vendor/sqlfluff.com checkout <reviewed-commit-or-design-tag>
-git add vendor/sqlfluff.com
+corepack pnpm install
 ```
 
 Then run `design:sync`, rebuild, and check both themes before merging.
 
-Treat `vendor/sqlfluff.com` as read-only. Changes to shared styles belong
+Treat the installed package as read-only. Changes to shared styles belong
 upstream, in the design package.
 
 ### Current pin
 
-The submodule points at `12b76ac` on `sqlfluff.com` `main`, the squash merge of
-[PR #18](https://github.com/sqlfluff/sqlfluff.com/pull/18), which carries the
-shared design package including the consumer changes from
-[PR #19](https://github.com/sqlfluff/sqlfluff.com/pull/19).
+The dependency points at `design-v0.1.0`, the tag pushed when the design package
+was extracted from `sqlfluff.com`'s `packages/design/` (carrying its history
+from [sqlfluff.com PR #18](https://github.com/sqlfluff/sqlfluff.com/pull/18) and
+[PR #19](https://github.com/sqlfluff/sqlfluff.com/pull/19)) into its own
+repository.
 
-This is a commit on `main` rather than on a feature branch, so unlike the
-development pins it will not be orphaned. Both of those PRs were squash-merged
-with their branches deleted, which did orphan the commits pinned at the time; if
-future design work is pinned from a branch before it merges, expect the same and
-re-pin afterwards.
-
-To check whether the current pin is still reachable:
-
-```sh
-git -C vendor/sqlfluff.com fetch origin
-git -C vendor/sqlfluff.com merge-base --is-ancestor HEAD origin/main \
-  && echo reachable || echo orphaned
-```
-
-Upstream has no `design-v*` tags yet. Once it does, pinning a tag rather than a
-commit would make the intended version obvious in the diff.
+Pinning a tag rather than a bare commit keeps the intended version obvious in
+the diff, and avoids the orphaned-commit problem a squash-merged, branch-deleted
+PR can cause for a bare commit pin.
 
 ## Asset flow
 
-`design:sync` mirrors
-`vendor/sqlfluff.com/packages/design/static/sqlfluff-design/` into
-`docsv/public/sqlfluff-design/`, so the assets are served from this site at
-`/sqlfluff-design/` under whatever base the build uses.
+`design:sync` resolves `@sqlfluff/design/package.json` and mirrors that
+package's `static/sqlfluff-design/` directory into `docsv/public/sqlfluff-design/`,
+so the assets are served from this site at `/sqlfluff-design/` under whatever
+base the build uses.
 
 The copied directory is generated and is not committed. The sync runs
 automatically before `docs:dev` and `docs:build`, and can be run on its own with
@@ -98,8 +97,8 @@ as an example, because the docs are also built on Windows.
 
 The shared stylesheets are linked from `head`, with paths run through
 `withDocsBase` so they resolve under versioned bases such as `/en/latest/`. The
-theme script is different: its contents are read from the submodule at build
-time and inlined, so the theme is applied before first paint without a
+theme script is different: its contents are read from the installed package at
+build time and inlined, so the theme is applied before first paint without a
 render-blocking request.
 
 ## Theme and dark mode

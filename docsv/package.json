@@ -10,6 +10,9 @@
         "docs:build": "node scripts/sync-design.mjs && python scripts/generate-all-docs.py && vitepress build",
         "docs:preview": "vitepress preview"
     },
+    "dependencies": {
+        "@sqlfluff/design": "github:sqlfluff/sqlfluff-design#design-v0.1.0"
+    },
     "devDependencies": {
         "@azure/static-web-apps-cli": "^2.0.9",
         "vitepress": "^1.6.4",

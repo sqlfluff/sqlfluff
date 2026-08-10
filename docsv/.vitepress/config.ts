@@ -82,8 +82,8 @@ assertDesignPackage()
 
 /**
  * Inlined rather than linked so the theme is applied before first paint without
- * a render-blocking request. Read from the submodule, which is the source of
- * truth; `design:sync` copies the rest of the package into `public/`.
+ * a render-blocking request. Read from the installed package, which is the
+ * source of truth; `design:sync` copies the rest of the package into `public/`.
  */
 const themeBootstrap = readFileSync(join(DESIGN_SOURCE, 'js/theme.js'), 'utf-8')
 

@@ -1,3 +1,0 @@
-[submodule "vendor/sqlfluff.com"]
-	path = vendor/sqlfluff.com
-	url = https://github.com/sqlfluff/sqlfluff.com.git

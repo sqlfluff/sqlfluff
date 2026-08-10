@@ -7,5 +7,5 @@ reference/cli/*.md
 reference/api/*.md
 .vitepress/sidebar-*.json
 
-# Copied from the vendor/sqlfluff.com submodule by `design:sync`.
+# Copied from the installed @sqlfluff/design package by `design:sync`.
 public/sqlfluff-design/
