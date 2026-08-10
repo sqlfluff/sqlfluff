@@ -676,6 +676,65 @@ snowflake_dialect.add(
         ),
     ),
     PurposeGrammar=OneOf("STEWARD", "SUPPORT", "ACCESS_APPROVAL"),
+    # Data governance clauses which are shared between the CREATE and ALTER
+    # statements of tables, views, materialized views and dynamic tables.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-table
+    ProjectionPolicyGrammar=Sequence(
+        Ref.keyword("WITH", optional=True),
+        "PROJECTION",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+    ),
+    AggregationPolicyGrammar=Sequence(
+        Ref.keyword("WITH", optional=True),
+        "AGGREGATION",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "ENTITY",
+            "KEY",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+    ),
+    JoinPolicyGrammar=Sequence(
+        Ref.keyword("WITH", optional=True),
+        "JOIN",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "ALLOWED",
+            "JOIN",
+            "KEYS",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+    ),
+    StorageLifecyclePolicyGrammar=Sequence(
+        Ref.keyword("WITH", optional=True),
+        "STORAGE",
+        "LIFECYCLE",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+    ),
+    # WITH CONTACT ( <purpose> = <contact_name> [ , ... ] ), as accepted by the
+    # CREATE statements. The ALTER statements use the unbracketed form.
+    ContactBracketedGrammar=Sequence(
+        "WITH",
+        "CONTACT",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("PurposeGrammar"),
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                )
+            )
+        ),
+    ),
+    CopyTagsGrammar=Sequence("COPY", "TAGS"),
 )
 
 snowflake_dialect.replace(
@@ -2333,6 +2392,25 @@ class DataGovernancePolicyTagActionSegment(BaseSegment):
             "JOIN",
             "POLICY",
         ),
+        Sequence(
+            "ADD",
+            "STORAGE",
+            "LIFECYCLE",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            "ON",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "DROP",
+            "STORAGE",
+            "LIFECYCLE",
+            "POLICY",
+        ),
     )
 
 
@@ -2414,6 +2492,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                         ),
                         optional=True,
                     ),
+                    Ref("ProjectionPolicyGrammar", optional=True),
                     Ref("CommentClauseSegment", optional=True),
                 ),
             ),
@@ -2487,6 +2566,22 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                             Ref("ColumnReferenceSegment"),
                             "UNSET",
                             "MASKING",
+                            "POLICY",
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "SET",
+                            "PROJECTION",
+                            "POLICY",
+                            Ref("ObjectReferenceSegment"),
+                            Ref.keyword("FORCE", optional=True),
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "UNSET",
+                            "PROJECTION",
                             "POLICY",
                         ),
                         Sequence(
@@ -4739,6 +4834,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                 optional=True,
             ),
         ),
+        Ref("ProjectionPolicyGrammar"),
         Ref("TagBracketedEqualsSegment", optional=True),
         Ref("InlineConstraintPropertiesSegment"),
         Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
@@ -5366,6 +5462,11 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 optional=True,
             ),
             Sequence(
+                "COPY",
+                "TAGS",
+                optional=True,
+            ),
+            Sequence(
                 Sequence("WITH", optional=True),
                 "ROW",
                 "ACCESS",
@@ -5375,6 +5476,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                 optional=True,
             ),
+            Ref("AggregationPolicyGrammar", optional=True),
+            Ref("JoinPolicyGrammar", optional=True),
+            Ref("StorageLifecyclePolicyGrammar", optional=True),
+            Ref("ContactBracketedGrammar", optional=True),
             Ref("IcebergTableOptionsSegment", optional=True),
             Ref("DynamicTableOptionsSegment", optional=True),
             Ref("TagBracketedEqualsSegment", optional=True),
