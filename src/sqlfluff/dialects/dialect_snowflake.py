@@ -6678,6 +6678,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                             ),
                             optional=True,
                         ),
+                        Ref("ProjectionPolicyGrammar", optional=True),
                         Ref("TagBracketedEqualsSegment", optional=True),
                         Ref("CommentClauseSegment", optional=True),
                     ),
@@ -6694,6 +6695,10 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                     Delimited(Ref("ColumnReferenceSegment")),
                 ),
             ),
+            Ref("AggregationPolicyGrammar"),
+            Ref("JoinPolicyGrammar"),
+            Ref("ContactBracketedGrammar"),
+            Ref("CopyTagsGrammar"),
             Ref("TagBracketedEqualsSegment"),
             Sequence(
                 "CHANGE_TRACKING",
@@ -6745,6 +6750,53 @@ class AlterViewStatementSegment(BaseSegment):
             ),
             Sequence("SET", Ref("TagEqualsSegment")),
             Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            # ALTER VIEW ... SET <view_property> [ <view_property> ... ]
+            Sequence(
+                "SET",
+                AnySetOf(
+                    "SECURE",
+                    Sequence(
+                        "CHANGE_TRACKING",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "CONTACT",
+                        Delimited(
+                            Sequence(
+                                Ref("PurposeGrammar"),
+                                Ref("EqualsSegment"),
+                                Ref("ObjectReferenceSegment"),
+                            ),
+                        ),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    "SECURE",
+                    "COMMENT",
+                    Sequence("CONTACT", Ref("PurposeGrammar")),
+                    Sequence("DCM", "PROJECT"),
+                ),
+            ),
+            # Aggregation and join policies
+            Sequence(
+                "SET",
+                Ref("AggregationPolicyGrammar"),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence("UNSET", "AGGREGATION", "POLICY"),
+            Sequence(
+                "SET",
+                Ref("JoinPolicyGrammar"),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence("UNSET", "JOIN", "POLICY"),
+            Sequence("DROP", "ALL", "ROW", "ACCESS", "POLICIES"),
             Delimited(
                 Sequence(
                     "ADD",
@@ -6786,6 +6838,12 @@ class AlterViewStatementSegment(BaseSegment):
                                     Ref.keyword("FORCE", optional=True),
                                 ),
                                 Sequence("UNSET", "MASKING", "POLICY"),
+                                Sequence(
+                                    "SET",
+                                    Ref("ProjectionPolicyGrammar"),
+                                    Ref.keyword("FORCE", optional=True),
+                                ),
+                                Sequence("UNSET", "PROJECTION", "POLICY"),
                                 Sequence("SET", Ref("TagEqualsSegment")),
                             ),
                         ),

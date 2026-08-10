@@ -1,0 +1,274 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2394a4d89cbc97af637ecf8b5c1754fb195accc03ab986b294b4e603e2a24bf4
+file:
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'x'"
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'x'"
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: CHANGE_TRACKING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: CHANGE_TRACKING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: SECURE
+    - keyword: CHANGE_TRACKING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'several properties'"
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: CONTACT
+    - keyword: STEWARD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_contact
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: CONTACT
+    - keyword: STEWARD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_contact
+    - comma: ','
+    - keyword: SUPPORT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: support_contact
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: UNSET
+    - keyword: CONTACT
+    - keyword: STEWARD
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: UNSET
+    - keyword: DCM
+    - keyword: PROJECT
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: DROP
+    - keyword: ALL
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICIES
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: ap1
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: ap1
+    - keyword: ENTITY
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c1
+      - comma: ','
+      - column_reference:
+          naked_identifier: c2
+      - end_bracket: )
+    - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: UNSET
+    - keyword: AGGREGATION
+    - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: JOIN
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: jp1
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: JOIN
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: jp1
+    - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: UNSET
+    - keyword: JOIN
+    - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: c1
+    - keyword: SET
+    - keyword: PROJECTION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: pp1
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: c1
+    - keyword: SET
+    - keyword: PROJECTION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: pp1
+    - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: c1
+    - keyword: UNSET
+    - keyword: PROJECTION
+    - keyword: POLICY
+- statement_terminator: ;
