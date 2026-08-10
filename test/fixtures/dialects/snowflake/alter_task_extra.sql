@@ -1,0 +1,41 @@
+-- ALTER TASK and EXECUTE TASK options
+-- https://docs.snowflake.com/en/sql-reference/sql/alter-task
+-- https://docs.snowflake.com/en/sql-reference/sql/execute-task
+
+ALTER TASK t1 SET ERROR_INTEGRATION = my_int;
+
+ALTER TASK t1 SET SUCCESS_INTEGRATION = my_db.my_schema.ok_int;
+
+ALTER TASK t1 SET FINALIZE = root_task;
+
+ALTER TASK t1 SET OVERLAP_POLICY = ALLOW_ALL_OVERLAP;
+
+ALTER TASK t1 SET SCHEDULE = $schedule_var;
+
+ALTER TASK t1 SET CONTACT STEWARD = my_contact;
+
+ALTER TASK t1 SET TAG env = 'prod';
+
+ALTER TASK t1 SET TAG tag1 = 'v1', tag2 = 'v2';
+
+ALTER TASK t1 UNSET TAG env;
+
+ALTER TASK t1 UNSET TAG tag1, tag2;
+
+ALTER TASK t1 MODIFY WHEN SYSTEM$STREAM_HAS_DATA('my_stream');
+
+ALTER TASK IF EXISTS t1 MODIFY WHEN SYSTEM$STREAM_HAS_DATA('s1') AND SYSTEM$STREAM_HAS_DATA('s2');
+
+ALTER TASK t1 REMOVE WHEN;
+
+ALTER TASK t1 MODIFY AS BEGIN INSERT INTO t VALUES (1); END;
+
+ALTER TASK t1 MODIFY AS SELECT 1;
+
+EXECUTE TASK t1 RETRY LAST;
+
+EXECUTE TASK my_db.my_schema.t1 RETRY LAST;
+
+EXECUTE TASK t1 USING CONFIG = '{"k":"v"}';
+
+EXECUTE TASK t1 RETRY GRAPH RUN GROUP 'abc-123';
