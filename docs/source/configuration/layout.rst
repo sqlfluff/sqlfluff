@@ -750,6 +750,26 @@ applies to elements of the *type* :code:`comma`, i.e. :code:`,`.
    spacing_before = touch
    line_position = trailing
 
+Finding segment types
+"""""""""""""""""""""
+
+The available types depend on the selected dialect and the SQL being parsed.
+To discover them, parse a representative query using the same dialect:
+
+.. code-block:: console
+
+   $ sqlfluff parse query.sql --dialect ansi
+   ...
+   |            select_clause:
+   ...
+   |                comma:                                        ','
+   ...
+   |            from_clause:
+
+The labels in the parse tree, such as :code:`select_clause`, :code:`comma`
+and :code:`from_clause`, are the segment types to use in
+:code:`[sqlfluff:layout:type:<type>]` section headings.
+
 Within these configurable sections there are a few key elements which are
 available:
 
