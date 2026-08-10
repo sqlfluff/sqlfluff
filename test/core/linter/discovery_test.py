@@ -46,6 +46,44 @@ def test__linter__path_from_paths__exts():
     assert "test.fixtures.linter.discovery_file.txt.j2" in paths
 
 
+def test__linter__path_from_paths__nested_exts(tmp_path):
+    """Test configuration of file discovery by directory."""
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    root_file = tmp_path / "root.sql"
+    nested_file = nested / "nested.bq"
+    root_file.touch()
+    nested_file.touch()
+
+    paths = paths_from_path(
+        str(tmp_path),
+        target_file_exts=[".sql"],
+        target_file_exts_for_path=lambda path: (
+            [".bq"] if os.path.normpath(path) == os.path.normpath(nested) else [".sql"]
+        ),
+    )
+
+    assert set(paths) == {str(root_file), str(nested_file)}
+
+
+def test__linter__path_from_paths__exact_nested_ext(tmp_path):
+    """Test exact file discovery with path-specific extensions."""
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    nested_file = nested / "nested.bq"
+    nested_file.touch()
+
+    paths = paths_from_path(
+        str(nested_file),
+        target_file_exts=[".sql"],
+        target_file_exts_for_path=lambda path: (
+            [".bq"] if os.path.dirname(path) == str(nested) else [".sql"]
+        ),
+    )
+
+    assert paths == [str(nested_file)]
+
+
 def test__linter__path_from_paths__file():
     """Test extracting paths from a file path."""
     paths = paths_from_path("test/fixtures/linter/indentation_errors.sql")
