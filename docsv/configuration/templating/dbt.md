@@ -166,9 +166,11 @@ dbt run --vars '{"my_variable": 1}'
 
 ## Known Caveats
 
-- To use the dbt templater, you must set `templater = dbt` in the `.sqlfluff`
-  config file in the directory where sqlfluff is run. The templater cannot
-  be changed in `.sqlfluff` files in subdirectories.
+- The dbt templater may be selected in nested `.sqlfluff` files. A single
+  SQLFluff invocation may include multiple dbt projects and other templaters.
+  Each effective dbt configuration is compiled and rendered independently in
+  the main process before parsing and linting are distributed to any configured
+  workers.
 - In SQLFluff 0.4.0 using the dbt templater requires that all files
   within the root and child directories of the dbt project must be part
   of the project. If there are deployment scripts which refer to SQL files

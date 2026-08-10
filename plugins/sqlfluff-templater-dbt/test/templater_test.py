@@ -18,7 +18,6 @@ from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.utils.testing.cli import invoke_assert_code
 from sqlfluff.utils.testing.logging import fluff_log_catcher
-from sqlfluff_templater_dbt.templater import DbtTemplater
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir, dbt_fluff_config):
@@ -704,7 +703,7 @@ def test__templater_dbt_handle_database_connection_failure(
             )
 
     # Clear the adapter cache to force this test to create a new connection.
-    DbtTemplater.adapters.clear()
+    dbt_templater._reset_project_state()
 
     set_relations_cache.side_effect = DbtFailedToConnectException("dummy error")
 

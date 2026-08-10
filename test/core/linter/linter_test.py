@@ -2,6 +2,7 @@
 
 import logging
 import os
+import pickle
 from unittest.mock import patch
 
 import pytest
@@ -18,7 +19,8 @@ from sqlfluff.core.errors import (
     SQLTemplaterError,
 )
 from sqlfluff.core.linter import runner
-from sqlfluff.core.linter.common import DeferredRenderTask
+from sqlfluff.core.linter.common import DeferredRenderTask, RenderedLintTask
+from sqlfluff.core.linter.linter import TemplaterSession
 from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
 from sqlfluff.core.templaters import RawTemplater, TemplatedFile
@@ -420,7 +422,7 @@ def test__parallel_runner__iter_partials_non_worker_path(monkeypatch):
     config = FluffConfig(overrides={"dialect": "ansi"})
     lntr = Linter(dialect="ansi")
     # Force the flag off (mirrors what DbtTemplater sets)
-    monkeypatch.setattr(lntr.templater, "templates_in_worker", False)
+    monkeypatch.setattr(RawTemplater, "templates_in_worker", False)
     thd_runner = runner.MultiThreadRunner(lntr, config, processes=1)
     partials = list(
         thd_runner.iter_partials(
@@ -430,8 +432,7 @@ def test__parallel_runner__iter_partials_non_worker_path(monkeypatch):
     )
     assert len(partials) == 1
     _fname, task = partials[0]
-    assert callable(task)
-    assert not isinstance(task, DeferredRenderTask)
+    assert isinstance(task, RenderedLintTask)
 
 
 def test__parallel_runner__apply_deferred_task():
@@ -439,6 +440,7 @@ def test__parallel_runner__apply_deferred_task():
     from sqlfluff.core.linter import LintedFile
 
     config = FluffConfig(overrides={"dialect": "ansi"})
+    config = pickle.loads(pickle.dumps(config))
     task = DeferredRenderTask(
         fname="test/fixtures/linter/passing.sql",
         root_config=config,
@@ -448,21 +450,15 @@ def test__parallel_runner__apply_deferred_task():
     assert isinstance(result, LintedFile)
 
 
-def test__parallel_runner__apply_callable_task(monkeypatch):
-    """_apply with a PartialLintCallable covers the dbt-like non-deferred path.
-
-    When templates_in_worker=False (as with DbtTemplater), ParallelRunner
-    iter_partials falls back to the base class and yields callables rather than
-    DeferredRenderTask objects.  _apply() should call the callable directly and
-    return a LintedFile.
-    """
+def test__parallel_runner__apply_rendered_task(monkeypatch):
+    """_apply lints a main-process rendered task without a bound Linter."""
     from sqlfluff.core.linter import LintedFile
 
     config = FluffConfig(overrides={"dialect": "ansi"})
     lntr = Linter(dialect="ansi")
     # Simulate a main-process-only templater (e.g. dbt) that disables
     # worker-side rendering.
-    monkeypatch.setattr(lntr.templater, "templates_in_worker", False)
+    monkeypatch.setattr(RawTemplater, "templates_in_worker", False)
     thd_runner = runner.MultiThreadRunner(lntr, config, processes=1)
     partials = list(
         thd_runner.iter_partials(
@@ -471,7 +467,7 @@ def test__parallel_runner__apply_callable_task(monkeypatch):
         )
     )
     fname, task = partials[0]
-    assert callable(task) and not isinstance(task, DeferredRenderTask)
+    assert isinstance(task, RenderedLintTask)
     result = runner.ParallelRunner._apply((fname, task))
     assert isinstance(result, LintedFile)
 
@@ -954,7 +950,9 @@ WHERE c < 0
     assert fixed_sql == expected
 
 
-def test__linter__deduplicates_duplicate_templater_violations_in_linted_output():
+def test__linter__deduplicates_duplicate_templater_violations_in_linted_output(
+    monkeypatch,
+):
     """Verify duplicate templater errors from variants collapse in lint output."""
     config = FluffConfig(
         overrides={
@@ -964,10 +962,10 @@ def test__linter__deduplicates_duplicate_templater_violations_in_linted_output()
     )
     linter = Linter(config=config)
     templater = DuplicateViolationTemplater()
-    linter.templater = templater
-    linter.config._configs["core"]["templater_obj"] = templater
+    monkeypatch.setattr(config, "get_templater", lambda: templater)
 
     parsed = linter.parse_string("SELECT 1\n")
+    monkeypatch.setattr(config, "get_templater", DuplicateViolationTemplater)
     linted = linter.lint_string("SELECT 1\n")
 
     assert len(parsed.templating_violations) == 2
@@ -1117,23 +1115,349 @@ def test_delayed_exception():
         de.reraise()
 
 
-def test__attempt_to_change_templater_warning():
-    """Test warning when changing templater in .sqlfluff file in subdirectory."""
+def test__linter__uses_stateful_templater_from_file_config(monkeypatch):
+    """Test a stateful templater can be selected by a file configuration."""
     initial_config = FluffConfig(
         configs={"core": {"templater": "jinja", "dialect": "ansi"}}
     )
     lntr = Linter(config=initial_config)
     updated_config = FluffConfig(
-        configs={"core": {"templater": "python", "dialect": "ansi"}}
+        configs={
+            "core": {"templater": "python", "dialect": "ansi"},
+            "templater": {"python": {"context": {"table": "table"}}},
+        }
     )
-    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
-        lntr.render_string(
-            in_str="select * from table",
-            fname="test.sql",
-            config=updated_config,
-            encoding="utf-8",
-        )
-    assert "Attempt to set templater to " in caplog.text
+    updated_templater = updated_config.get("templater_obj")
+    monkeypatch.setattr(updated_templater, "templates_in_worker", False)
+
+    rendered = lntr.render_string(
+        in_str="select * from {table}",
+        fname="test.sql",
+        config=updated_config,
+        encoding="utf-8",
+    )
+
+    assert rendered.templated_variants[0].templated_str == "select * from table"
+
+
+def test__templater_session_does_not_mutate_or_close_config_templaters():
+    """A session leaves caller-owned configuration templaters untouched."""
+
+    class TrackingTemplater(RawTemplater):
+        name = "tracking"
+
+        def __init__(self):
+            self.close_count = 0
+
+        def close(self):
+            self.close_count += 1
+
+    first_templater = TrackingTemplater()
+    second_templater = TrackingTemplater()
+    first_config = FluffConfig(overrides={"dialect": "ansi"})
+    second_config = FluffConfig(overrides={"dialect": "ansi"})
+    first_config._configs["core"]["templater_obj"] = first_templater
+    second_config._configs["core"]["templater_obj"] = second_templater
+    session = TemplaterSession(lambda config: config.get_templater())
+
+    assert session.borrow(first_config, first_templater) is first_templater
+    assert session.borrow(second_config, second_templater) is first_templater
+    assert session.borrow(second_config, second_templater) is first_templater
+    assert second_templater.close_count == 0
+
+    session.close()
+    assert first_templater.close_count == 0
+    assert first_config.get("templater_obj") is first_templater
+    assert second_config.get("templater_obj") is second_templater
+
+
+def test__templater_session_factory_owns_created_templaters():
+    """A session closes templaters returned by its explicit factory."""
+
+    class TrackingTemplater(RawTemplater):
+        def __init__(self):
+            self.closed = False
+
+        def close(self):
+            self.closed = True
+
+    templater = TrackingTemplater()
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    session = TemplaterSession(lambda _: templater)
+
+    assert session.get(config) is templater
+    session.close()
+
+    assert templater.closed
+
+
+@pytest.mark.parametrize("operation", ["render", "lint"])
+def test__linter__uses_fresh_templater_for_repeated_string_operations(
+    monkeypatch, operation
+):
+    """Each public string operation gets a usable templater instance."""
+
+    class SingleUseTemplater(RawTemplater):
+        def __init__(self):
+            self.closed = False
+
+        def process(self, **kwargs):
+            assert not self.closed
+            return super().process(**kwargs)
+
+        def close(self):
+            self.closed = True
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    linter = Linter(config=config)
+    instances = []
+
+    def get_templater():
+        templater = SingleUseTemplater()
+        instances.append(templater)
+        return templater
+
+    config._configs["core"]["templater_obj"] = None
+    monkeypatch.setattr(config, "get_templater", get_templater)
+
+    if operation == "render":
+        linter.render_string("SELECT 1", "first.sql", config, "utf-8")
+        linter.render_string("SELECT 2", "second.sql", config, "utf-8")
+    else:
+        linter.lint_string("SELECT 1", fname="first.sql")
+        linter.lint_string("SELECT 2", fname="second.sql")
+
+    assert len(instances) == 2
+    assert all(templater.closed for templater in instances)
+
+
+def test__linter__shares_stateless_templater_with_different_configs(tmp_path):
+    """One run shares a stateless templater across per-file configurations."""
+    first_dir = tmp_path / "first"
+    second_dir = tmp_path / "second"
+    first_dir.mkdir()
+    second_dir.mkdir()
+    first_file = first_dir / "query.sql"
+    second_file = second_dir / "query.sql"
+    first_file.write_text("SELECT :value\n", encoding="utf-8")
+    second_file.write_text("SELECT {value}\n", encoding="utf-8")
+    first_dir.joinpath(".sqlfluff").write_text(
+        """[sqlfluff]
+dialect = ansi
+templater = placeholder
+
+[sqlfluff:templater:placeholder]
+param_style = colon
+""",
+        encoding="utf-8",
+    )
+    second_dir.joinpath(".sqlfluff").write_text(
+        """[sqlfluff]
+dialect = ansi
+templater = placeholder
+
+[sqlfluff:templater:placeholder]
+param_regex = \\{(?P<param_name>\\w+)\\}
+""",
+        encoding="utf-8",
+    )
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    linter = Linter(config=config)
+
+    result = linter.lint_paths(
+        (str(first_file), str(second_file)),
+        processes=2,
+    )
+
+    assert not result.get_violations()
+    rendered_files = {
+        linted_file.path: linted_file.templated_file.templated_str
+        for linted_path in result.paths
+        for linted_file in linted_path.files
+    }
+    assert rendered_files == {
+        str(first_file): "SELECT value\n",
+        str(second_file): "SELECT value\n",
+    }
+
+
+@pytest.mark.parametrize("processes", [1, 2])
+@pytest.mark.parametrize("fix", [False, True])
+def test__linter__uses_templater_from_file_config(processes, fix):
+    """Lint files using different built-in templaters in one invocation."""
+    config = FluffConfig.from_path("test/fixtures/linter/mixed_templaters")
+    linter = Linter(config=config)
+
+    result = linter.lint_paths(
+        ("test/fixtures/linter/mixed_templaters",),
+        fix=fix,
+        processes=processes,
+    )
+
+    assert not result.get_violations()
+
+
+def test__linter__mixed_templaters_preserve_file_order(tmp_path):
+    """Sequential templater grouping preserves discovery order."""
+    nested = tmp_path / "placeholder"
+    nested.mkdir()
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\ntemplater = jinja\n", encoding="utf-8"
+    )
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ntemplater = placeholder\n\n"
+        "[sqlfluff:templater:placeholder]\nparam_style = colon\n",
+        encoding="utf-8",
+    )
+    paths = (
+        tmp_path / "first.sql",
+        nested / "second.sql",
+        tmp_path / "third.sql",
+    )
+    for path in paths:
+        path.write_text("SELECT 1\n", encoding="utf-8")
+    string_paths = tuple(str(path) for path in paths)
+    linter = Linter(config=FluffConfig.from_path(str(tmp_path)))
+
+    result = linter.lint_paths(string_paths, processes=1)
+
+    assert [file.path for path in result.paths for file in path.files] == list(
+        string_paths
+    )
+
+
+def test__sequential_runner__streams_worker_safe_files(tmp_path, monkeypatch):
+    """Sequential linting completes each worker-safe file before loading the next."""
+    first_file = tmp_path / "first.sql"
+    second_file = tmp_path / "second.sql"
+    first_file.write_text("SELECT 1\n", encoding="utf-8")
+    second_file.write_text("SELECT 2\n", encoding="utf-8")
+    linter = Linter(dialect="ansi")
+    events = []
+    original_load = linter.load_raw_file
+    original_lint = linter.lint_rendered
+
+    def tracking_load(fname, config):
+        events.append(("load", fname))
+        return original_load(fname, config)
+
+    def tracking_lint(rendered, rule_pack, fix, formatter):
+        events.append(("lint", rendered.fname))
+        return original_lint(rendered, rule_pack, fix, formatter)
+
+    monkeypatch.setattr(linter, "load_raw_file", tracking_load)
+    monkeypatch.setattr(linter, "lint_rendered", tracking_lint)
+
+    linter.lint_paths((str(first_file), str(second_file)), processes=1)
+
+    assert events == [
+        ("load", str(first_file)),
+        ("lint", str(first_file)),
+        ("load", str(second_file)),
+        ("lint", str(second_file)),
+    ]
+
+
+def test__linter__discovers_extensions_from_nested_config(tmp_path):
+    """Directory discovery uses file extensions from nested configuration."""
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\ntemplater = jinja\n", encoding="utf-8"
+    )
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ntemplater = placeholder\nsql_file_exts = .bq\n\n"
+        "[sqlfluff:templater:placeholder]\nparam_style = colon\n",
+        encoding="utf-8",
+    )
+    nested_file = nested / "query.bq"
+    nested_file.write_text("SELECT :value\n", encoding="utf-8")
+    linter = Linter(config=FluffConfig.from_path(str(tmp_path)))
+
+    result = linter.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(nested_file)
+    ]
+
+
+def test__linter__parse_path_uses_nested_templaters():
+    """Path parsing uses effective templaters and operation cleanup."""
+    root = "test/fixtures/linter/mixed_templaters"
+    linter = Linter(config=FluffConfig.from_path(root))
+
+    parsed = list(linter.parse_path(root))
+
+    assert len(parsed) == 2
+    assert not [violation for result in parsed for violation in result.violations]
+
+
+def test__linter__render_string_closes_owned_templater_after_error(monkeypatch):
+    """Direct rendering closes its templater without masking the render error."""
+
+    class FailingTemplater(RawTemplater):
+        """Templater that fails rendering and records cleanup."""
+
+        def __init__(self):
+            super().__init__()
+            self.closed = False
+
+        def process_with_variants(self, **kwargs):
+            raise ValueError("render failed")
+            yield  # pragma: no cover
+
+        def close(self):
+            self.closed = True
+            raise RuntimeError("close failed")
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    templater = FailingTemplater()
+    config._configs["core"]["templater_obj"] = None
+    monkeypatch.setattr(config, "get_templater", lambda: templater)
+    linter = Linter(config=config)
+
+    with pytest.raises(ValueError, match="render failed"):
+        linter.render_string("SELECT 1", "test.sql", config, "utf-8")
+
+    assert templater.closed
+
+
+def test__linter__variant_cleanup_does_not_mask_render_error(monkeypatch):
+    """Variant iterator cleanup preserves the active rendering exception."""
+
+    class FailingVariants:
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            raise ValueError("render failed")
+
+        def close(self):
+            raise RuntimeError("variant close failed")
+
+    class FailingTemplater(RawTemplater):
+        def process_with_variants(self, **kwargs):
+            return FailingVariants()
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    templater = FailingTemplater()
+    monkeypatch.setattr(config, "get_templater", lambda: templater)
+
+    with pytest.raises(ValueError, match="render failed"):
+        Linter(config=config).render_string("SELECT 1", "test.sql", config, "utf-8")
+
+
+def test__linter__closing_parse_path_releases_session():
+    """Closing a partially consumed path parser permits another operation."""
+    root = "test/fixtures/linter/mixed_templaters"
+    linter = Linter(config=FluffConfig.from_path(root))
+    parsed = linter.parse_path(root)
+
+    assert next(parsed).tree
+    parsed.close()
+
+    assert not linter.lint_paths((root,)).get_violations()
 
 
 def test_advanced_api_methods():

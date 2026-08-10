@@ -105,7 +105,7 @@ def test__config__templater_selection(templater_name, templater_class, raises_er
     else:
         cfg = FluffConfig(overrides={"dialect": "ansi", "templater": templater_name})
         assert cfg.get_templater().__class__ is templater_class
-        assert cfg._configs["core"]["templater_obj"].__class__ is templater_class
+        assert cfg.get("templater_obj").__class__ is templater_class
 
 
 def test__config__glob_exclude_config_tests():
@@ -366,6 +366,17 @@ def test__process_inline_config():
     # Check that JSON arrays are not mangled
     cfg.process_inline_config('-- sqlfluff:jinja:my_dict:[{"k":"v"}]', "test.sql")
     assert cfg.get("my_dict", section="jinja") == '[{"k":"v"}]'
+
+
+def test__process_inline_config__ignores_templater():
+    """Inline configuration cannot change templater lifecycle requirements."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.config") as caplog:
+        config.process_inline_config("-- sqlfluff:templater:dbt", "test.sql")
+
+    assert config.get("templater") == "jinja"
+    assert "Ignoring inline templater configuration" in caplog.text
 
 
 def test__process_inline_config__malformed_equals_syntax():
