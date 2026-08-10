@@ -64,6 +64,19 @@ Then run `design:sync`, rebuild, and check both themes before merging.
 Treat the installed package as read-only. Changes to shared styles belong
 upstream, in the design package.
 
+### Package manager requirement
+
+`docsv/package.json` declares `"engines": { "pnpm": ">=9" }`, which pnpm enforces
+by default with `ERR_PNPM_UNSUPPORTED_ENGINE`. A range rather than a fixed
+version, so security updates still apply.
+
+This is not a requirement of the design package. Now that it has its own
+repository with a `package.json` at the root, it installs equally well under npm,
+pnpm, and Yarn. The constraint records an existing property of this workspace:
+`docsv/pnpm-workspace.yaml` has no `packages` field, which pnpm 8 rejects outright
+with a confusing workspace-configuration error. Declaring the floor makes that
+requirement visible to contributors and to tooling which reads `engines`.
+
 ### Current pin
 
 The dependency points at `design-v0.1.0`, the tag pushed when the design package
