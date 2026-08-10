@@ -7,14 +7,13 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@sqlfluff/design':
-        specifier: github:sqlfluff/sqlfluff-design#design-v0.1.0
-        version: https://codeload.github.com/sqlfluff/sqlfluff-design/tar.gz/f59f3a17e9feae138eeea9796e8cfba67a119b5c
     devDependencies:
       '@azure/static-web-apps-cli':
         specifier: ^2.0.9
         version: 2.0.9(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
+      '@sqlfluff/design':
+        specifier: github:sqlfluff/sqlfluff-design#design-v0.1.0
+        version: https://codeload.github.com/sqlfluff/sqlfluff-design/tar.gz/f59f3a17e9feae138eeea9796e8cfba67a119b5c
       vitepress:
         specifier: ^1.6.4
         version: 1.6.4(@algolia/client-search@5.52.1)(@types/node@25.8.0)(axios@1.16.1(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1))(jwt-decode@4.0.0)(postcss@8.5.14)(search-insights@2.17.3)
