@@ -352,6 +352,31 @@ snowflake_dialect.add(
             type="initialize_type",
         )
     ),
+    # EXECUTE AS USER <user_name>
+    #   [ USE SECONDARY ROLES { ALL | NONE | <role_name> [ , ... ] } ]
+    # https://docs.snowflake.com/en/sql-reference/sql/create-dynamic-table
+    ExecuteAsUserGrammar=Sequence(
+        "EXECUTE",
+        "AS",
+        "USER",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "USE",
+            "SECONDARY",
+            "ROLES",
+            OneOf(
+                "ALL",
+                "NONE",
+                Delimited(Ref("RoleReferenceSegment")),
+            ),
+            optional=True,
+        ),
+    ),
+    FrozenWhereGrammar=Sequence(
+        "FROZEN",
+        "WHERE",
+        Bracketed(Ref("ExpressionSegment")),
+    ),
     CompressionType=OneOf(
         MultiStringParser(
             snowflake_dialect.sets("compression_types"),
@@ -2696,7 +2721,8 @@ class AlterDynamicTableStatementSegment(BaseSegment):
         "DYNAMIC",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        # A REFRESH may target several dynamic tables at once.
+        Delimited(Ref("TableReferenceSegment")),
         OneOf(
             "SUSPEND",
             "RESUME",
@@ -2759,6 +2785,26 @@ class AlterDynamicTableStatementSegment(BaseSegment):
                         "WHERE",
                         Bracketed(Ref("ExpressionSegment")),
                     ),
+                    Ref("FrozenWhereGrammar"),
+                    Sequence(
+                        "SCHEDULER",
+                        Ref("EqualsSegment"),
+                        OneOf("DISABLE", "ENABLE"),
+                    ),
+                    Sequence(
+                        "INITIALIZATION_WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("ObjectReferenceSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                    Ref("ExecuteAsUserGrammar"),
+                    Sequence(
+                        "ROW_TIMESTAMP",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
                 ),
             ),
             Sequence(
@@ -2771,6 +2817,11 @@ class AlterDynamicTableStatementSegment(BaseSegment):
                     "LOG_LEVEL",
                     Sequence("CONTACT", Ref("PurposeGrammar")),
                     "IMMUTABLE",
+                    "INITIALIZATION_WAREHOUSE",
+                    "ROW_TIMESTAMP",
+                    Sequence("FROZEN", "WHERE"),
+                    Sequence("EXECUTE", "AS", "USER"),
+                    Sequence("DCM", "PROJECT"),
                 ),
             ),
         ),
@@ -5194,6 +5245,20 @@ class DynamicTableOptionsSegment(BaseSegment):
                 "USER",
                 optional=True,
             ),
+            Sequence(
+                "SCHEDULER",
+                Ref("EqualsSegment"),
+                OneOf("DISABLE", "ENABLE"),
+                optional=True,
+            ),
+            Ref("FrozenWhereGrammar", optional=True),
+            Ref("ExecuteAsUserGrammar", optional=True),
+            Sequence(
+                "ROW_TIMESTAMP",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
         ),
     )
 
@@ -5253,6 +5318,30 @@ class IcebergTableOptionsSegment(BaseSegment):
             "BASE_LOCATION",
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "TARGET_FILE_SIZE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "PATH_LAYOUT",
+            Ref("EqualsSegment"),
+            OneOf("FLAT", "HIERARCHICAL"),
+            optional=True,
+        ),
+        Sequence(
+            "ICEBERG_VERSION",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "PARTITION",
+            "BY",
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
             optional=True,
         ),
     )
@@ -5385,6 +5474,14 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     Ref("DynamicTableOptionsSegment", optional=True),
                     "AS",
                     OptionallyBracketed(Ref("SelectableGrammar")),
+                ),
+                # Dynamic tables may define their refresh with a DML statement
+                # instead of a query.
+                Sequence(
+                    Ref("DynamicTableOptionsSegment", optional=True),
+                    "REFRESH",
+                    "USING",
+                    Bracketed(Ref("StatementSegment")),
                 ),
                 # Create like syntax
                 Sequence("LIKE", Ref("TableReferenceSegment")),
