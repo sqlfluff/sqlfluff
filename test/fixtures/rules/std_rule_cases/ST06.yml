@@ -478,3 +478,17 @@ test_pass_ordered_select_with_inline_comments:
         (a - b) AS calc_alias  -- calc_alias comment
     FROM
         tbl
+
+test_fail_fix_comment_nested_inside_target:
+  # A comment inside a target's own body travels with that target, so it can
+  # never be re-assigned and must not withhold the fix.
+  fail_str: |
+    SELECT
+        (SELECT max(x) /* inner note */ FROM t2) AS c,
+        a
+    FROM tbl
+  fix_str: |
+    SELECT
+        a,
+        (SELECT max(x) /* inner note */ FROM t2) AS c
+    FROM tbl

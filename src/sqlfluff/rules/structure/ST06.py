@@ -115,8 +115,11 @@ class Rule_ST06(BaseRule):
         Returns:
             True if a comment would be displaced by reordering the targets
         """
-        # Comments sat between the select targets are inside the clause.
-        if any(context.segment.recursive_crawl("comment")):
+        # Comments sat between the select targets are direct children of the
+        # clause, alongside the elements themselves. A comment nested inside a
+        # target's own body is carried along when that target moves, so it
+        # cannot be re-assigned and must not withhold the fix.
+        if any(seg.is_type("comment") for seg in context.segment.segments):
             return True
         # A comment trailing the *final* target is outside the select clause,
         # in its parent, because it follows the clause's closing dedent. Scan
