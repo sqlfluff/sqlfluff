@@ -5461,11 +5461,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 "GRANTS",
                 optional=True,
             ),
-            Sequence(
-                "COPY",
-                "TAGS",
-                optional=True,
-            ),
+            Ref("CopyTagsGrammar", optional=True),
             Sequence(
                 Sequence("WITH", optional=True),
                 "ROW",
