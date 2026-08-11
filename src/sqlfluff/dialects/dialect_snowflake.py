@@ -783,6 +783,24 @@ snowflake_dialect.add(
         Sequence("EXECUTE", "AS", Ref("ProcedureCallerGrammar"), optional=True),
         optional=True,
     ),
+    # Stored procedure arguments may declare a direction, unlike function
+    # arguments.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-procedure
+    ProcedureParameterGrammar=Sequence(
+        OneOf(
+            Ref("DatatypeSegment"),
+            Sequence(
+                Ref("ParameterNameSegment"),
+                OneOf("IN", "INPUT", "OUT", "OUTPUT", optional=True),
+                Ref("DatatypeSegment"),
+            ),
+        ),
+        Sequence(
+            "DEFAULT",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+    ),
     # EXECUTE AS { CALLER | OWNER | RESTRICTED CALLER }
     ProcedureCallerGrammar=OneOf(
         "CALLER",
@@ -979,14 +997,7 @@ snowflake_dialect.replace(
     FunctionParameterGrammar=Sequence(
         OneOf(
             Ref("DatatypeSegment"),
-            Sequence(
-                Ref("ParameterNameSegment"),
-                # Stored procedures written in SQL may declare the direction of
-                # each argument.
-                # https://docs.snowflake.com/en/sql-reference/sql/create-procedure
-                OneOf("IN", "INPUT", "OUT", "OUTPUT", optional=True),
-                Ref("DatatypeSegment"),
-            ),
+            Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
         ),
         Sequence(
             "DEFAULT",
@@ -3222,8 +3233,21 @@ class LogLevelEqualsSegment(BaseSegment):
             "ERROR",
             "FATAL",
             "OFF",
-            # The documented form quotes the level.
-            Ref("QuotedLiteralSegment"),
+            # The documented form quotes the level; only the documented
+            # values are accepted.
+            MultiStringParser(
+                [
+                    "'TRACE'",
+                    "'DEBUG'",
+                    "'INFO'",
+                    "'WARN'",
+                    "'ERROR'",
+                    "'FATAL'",
+                    "'OFF'",
+                ],
+                CodeSegment,
+                type="quoted_literal",
+            ),
         ),
     )
 
@@ -3242,8 +3266,13 @@ class TraceLevelEqualsSegment(BaseSegment):
             "ALWAYS",
             "ON_EVENT",
             "OFF",
-            # The documented form quotes the level.
-            Ref("QuotedLiteralSegment"),
+            # The documented form quotes the level; only the documented
+            # values are accepted.
+            MultiStringParser(
+                ["'ALWAYS'", "'ON_EVENT'", "'OFF'"],
+                CodeSegment,
+                type="quoted_literal",
+            ),
         ),
     )
 
@@ -3261,8 +3290,13 @@ class MetricLevelEqualsSegment(BaseSegment):
         OneOf(
             "ALL",
             "NONE",
-            # The documented form quotes the level.
-            Ref("QuotedLiteralSegment"),
+            # The documented form quotes the level; only the documented
+            # values are accepted.
+            MultiStringParser(
+                ["'ALL'", "'NONE'"],
+                CodeSegment,
+                type="quoted_literal",
+            ),
         ),
     )
 
@@ -3282,7 +3316,13 @@ class AutoEventLoggingEqualsSegment(BaseSegment):
             "TRACING",
             "ALL",
             "OFF",
-            Ref("QuotedLiteralSegment"),
+            # The documented form quotes the level; only the documented
+            # values are accepted.
+            MultiStringParser(
+                ["'LOGGING'", "'TRACING'", "'ALL'", "'OFF'"],
+                CodeSegment,
+                type="quoted_literal",
+            ),
         ),
     )
 
@@ -3869,7 +3909,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         "PROCEDURE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterListGrammar"),
+        Ref("ProcedureParameterListSegment"),
         Sequence("COPY", "GRANTS", optional=True),
         "RETURNS",
         OneOf(
@@ -3895,6 +3935,17 @@ class CreateProcedureStatementSegment(BaseSegment):
     )
 
 
+class ProcedureParameterListSegment(ansi.FunctionParameterListGrammar):
+    """The parameters for a stored procedure, which may declare a direction."""
+
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Ref("ProcedureParameterGrammar"),
+            optional=True,
+        ),
+    )
+
+
 class CallWithAnonymousProcedureSegment(BaseSegment):
     """A snowflake anonymous procedure, i.e. `WITH ... AS PROCEDURE ... CALL`.
 
@@ -3909,7 +3960,7 @@ class CallWithAnonymousProcedureSegment(BaseSegment):
                 Ref("FunctionNameSegment"),
                 "AS",
                 "PROCEDURE",
-                Ref("FunctionParameterListGrammar"),
+                Ref("ProcedureParameterListSegment"),
                 "RETURNS",
                 OneOf(
                     Ref("DatatypeSegment"),
