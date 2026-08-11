@@ -361,7 +361,8 @@ clickhouse_dialect.replace(
     ),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
-    ).copy(
+    )
+    .copy(
         insert=[
             Ref.keyword("PREWHERE"),
             Ref.keyword("SETTINGS"),
@@ -369,6 +370,10 @@ clickhouse_dialect.replace(
             Ref.keyword("FORMAT"),
         ],
         before=Ref.keyword("WHERE"),
+    )
+    .copy(
+        insert=[Sequence("GROUP", "BY")],
+        before=Sequence("ORDER", "BY"),
     ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar("FromClauseTerminatorGrammar")
     .copy(
@@ -585,7 +590,9 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
                 ),
                 # ALTER PROJECTION
                 Sequence(
-                    OneOf("ADD", "DROP", "MATERIALIZE", "CLEAR"),
+                    OneOf(
+                        "ADD", "MODIFY", "DROP", "MATERIALIZE", "CLEAR", optional=True
+                    ),
                     "PROJECTION",
                 ),
                 # ALTER VIEW - REFRESH/MODIFY QUERY
@@ -747,17 +754,20 @@ class SettingsClauseSegment(BaseSegment):
     type = "settings_clause"
     match_grammar: Matchable = Sequence(
         "SETTINGS",
-        Delimited(
-            Sequence(
-                Ref("NakedIdentifierSegment"),
-                Ref("EqualsSegment"),
-                OneOf(
+        # OptionallyBracketed is only needed in the ProjectionDefinitionSegment
+        OptionallyBracketed(
+            Delimited(
+                Sequence(
                     Ref("NakedIdentifierSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("QuotedLiteralSegment"),
-                    Ref("BooleanLiteralGrammar"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("NumericLiteralSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    optional=True,
                 ),
-                optional=True,
             ),
         ),
         optional=True,
@@ -1786,6 +1796,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("TableConstraintSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("ColumnConstraintSegment"),
+                                Ref("ProjectionDefinitionSegment"),
                             ),
                         ),
                         # Column definition may be missing if using AS SELECT
@@ -1840,6 +1851,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("TableConstraintSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("ColumnConstraintSegment"),
+                                Ref("ProjectionDefinitionSegment"),
                             ),
                         ),
                         # Column definition may be missing if using AS SELECT
@@ -2742,6 +2754,55 @@ class SystemStatementSegment(BaseSegment):
     )
 
 
+class ProjectionDefinitionSegment(BaseSegment):
+    """A Projection definition.
+
+    As specified in
+    https://clickhouse.com/docs/reference/statements/alter/projection
+    https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree#projections
+    """
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = Sequence(
+        "PROJECTION",
+        OneOf(
+            # Needed for ALTER TABLE ... MODIFY PROJECTION
+            Ref("IfExistsGrammar", optional=True),
+            # Needed for ALTER TABLE ... ADD PROJECTION
+            Ref("IfNotExistsGrammar", optional=True),
+            optional=True,
+        ),
+        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            # Projection query
+            Bracketed(
+                Ref("SelectClauseSegment"),
+                Ref("WhereClauseSegment", optional=True),
+                OneOf(
+                    Ref("OrderByClauseSegment"),
+                    Ref("GroupByClauseSegment"),
+                ),
+            ),
+            # Projection index
+            Sequence(
+                "INDEX",
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+                "TYPE",
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+        Sequence(
+            "WITH",
+            Ref("SettingsClauseSegment"),
+            optional=True,
+        ),
+    )
+
+
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement for ClickHouse.
 
@@ -3075,6 +3136,43 @@ class AlterTableStatementSegment(BaseSegment):
                 "DELETE",
                 Ref("WhereClauseSegment"),
             ),
+            # ALTER TABLE ... ADD PROJECTION
+            Sequence(
+                "ADD",
+                Ref("ProjectionDefinitionSegment"),
+            ),
+            # ALTER TABLE ... MODIFY PROJECTION
+            Sequence(
+                "MODIFY",
+                Ref("ProjectionDefinitionSegment"),
+            ),
+            # ALTER TABLE ... DROP PROJECTION
+            Sequence(
+                "DROP",
+                "PROJECTION",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            # ALTER TABLE ... MATERIALIZE PROJECTION
+            Sequence(
+                "MATERIALIZE",
+                "PROJECTION",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    "IN", "PARTITION", Ref("SingleIdentifierGrammar"), optional=True
+                ),
+            ),
+            # ALTER TABLE ... CLEAR PROJECTION
+            Sequence(
+                "CLEAR",
+                "PROJECTION",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    "IN", "PARTITION", Ref("SingleIdentifierGrammar"), optional=True
+                ),
+            ),
         ),
         Ref("SettingsClauseSegment", optional=True),
     )
@@ -3098,6 +3196,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExchangeDictionariesStatementSegment"),
             Ref("TruncateDatabaseStatementSegment"),
             Ref("TruncateTablesStatementSegment"),
+            Ref("ProjectionDefinitionSegment"),
         ]
     )
 

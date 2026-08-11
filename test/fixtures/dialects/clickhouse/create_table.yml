@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02e93d2b4a90a471ee3fba20d90c6b29cee1a4cf6cca8a4e879dfab1a579343b
+_hash: d156d5a71f4fcf77bdf21a98d7f7e3c15ad8ab79b1804fa3826e7a8a16eb8e84
 file:
 - statement:
     create_table_statement:
@@ -829,4 +829,1026 @@ file:
         table_engine_function:
           function_name:
             function_name_identifier: MergeTree
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+          keyword: PROJECTION
+          naked_identifier: region_proj
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
+                naked_identifier: region
+            end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+          keyword: PROJECTION
+          naked_identifier: region_proj
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
+                naked_identifier: user_id
+            end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_3
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj
+        - bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
+                naked_identifier: region
+            end_bracket: )
+        - keyword: WITH
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_4
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj
+        - bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
+                naked_identifier: user_id
+            end_bracket: )
+        - keyword: WITH
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+              start_bracket: (
+              naked_identifier: index_granularity
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '4096'
+              end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_5
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+          keyword: PROJECTION
+          naked_identifier: region_proj
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: user_id
+                      end_bracket: )
+            groupby_clause:
+            - keyword: group
+            - keyword: by
+            - column_reference:
+                naked_identifier: region
+            end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_6
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+          keyword: PROJECTION
+          naked_identifier: region_proj
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: user_id
+                      end_bracket: )
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            groupby_clause:
+            - keyword: group
+            - keyword: by
+            - column_reference:
+                naked_identifier: region
+            end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_7
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj
+        - bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: user_id
+                      end_bracket: )
+            groupby_clause:
+            - keyword: group
+            - keyword: by
+            - column_reference:
+                naked_identifier: region
+            end_bracket: )
+        - keyword: WITH
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_8
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj
+        - bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: user_id
+                      end_bracket: )
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            groupby_clause:
+            - keyword: group
+            - keyword: by
+            - column_reference:
+                naked_identifier: region
+            end_bracket: )
+        - keyword: WITH
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+              start_bracket: (
+              naked_identifier: index_granularity
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '4096'
+              end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_9
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj_1
+        - bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: user_id
+                      end_bracket: )
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            groupby_clause:
+            - keyword: group
+            - keyword: by
+            - column_reference:
+                naked_identifier: region
+            end_bracket: )
+        - keyword: WITH
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+              start_bracket: (
+              naked_identifier: index_granularity
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '4096'
+              end_bracket: )
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj_2
+        - bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
+                naked_identifier: region
+            end_bracket: )
+        - keyword: WITH
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
+      - comma: ','
+      - projection_definition:
+          keyword: PROJECTION
+          naked_identifier: region_proj_3
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
+                naked_identifier: user_id
+            end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_10
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj
+        - keyword: INDEX
+        - column_reference:
+            naked_identifier: region
+        - keyword: TYPE
+        - naked_identifier: basic
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: uid_proj
+        - keyword: INDEX
+        - column_reference:
+            naked_identifier: user_id
+        - keyword: TYPE
+        - naked_identifier: basic
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_11
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj
+        - keyword: INDEX
+        - column_reference:
+            naked_identifier: region
+        - keyword: TYPE
+        - naked_identifier: basic
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: uid_proj
+        - keyword: INDEX
+        - column_reference:
+            naked_identifier: user_id
+        - keyword: TYPE
+        - naked_identifier: basic
+        - keyword: WITH
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_12
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj_1
+        - bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: user_id
+                      end_bracket: )
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            groupby_clause:
+            - keyword: group
+            - keyword: by
+            - column_reference:
+                naked_identifier: region
+            end_bracket: )
+        - keyword: WITH
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+              start_bracket: (
+              naked_identifier: index_granularity
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '4096'
+              end_bracket: )
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj_2
+        - bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
+                naked_identifier: region
+            end_bracket: )
+        - keyword: WITH
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
+      - comma: ','
+      - projection_definition:
+          keyword: PROJECTION
+          naked_identifier: region_proj_3
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
+                naked_identifier: user_id
+            end_bracket: )
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: region_proj
+        - keyword: INDEX
+        - column_reference:
+            naked_identifier: region
+        - keyword: TYPE
+        - naked_identifier: basic
+      - comma: ','
+      - projection_definition:
+        - keyword: PROJECTION
+        - naked_identifier: uid_proj
+        - keyword: INDEX
+        - column_reference:
+            naked_identifier: user_id
+        - keyword: TYPE
+        - naked_identifier: basic
+        - keyword: WITH
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
 - statement_terminator: ;
