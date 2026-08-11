@@ -19,7 +19,11 @@ from sqlfluff.core.errors import (
     SQLTemplaterError,
 )
 from sqlfluff.core.linter import runner
-from sqlfluff.core.linter.common import DeferredRenderTask, RenderedLintTask
+from sqlfluff.core.linter.common import (
+    DeferredRenderTask,
+    RenderedFile,
+    RenderedLintTask,
+)
 from sqlfluff.core.linter.linter import TemplaterSession
 from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
@@ -1191,6 +1195,97 @@ def test__templater_session_factory_owns_created_templaters():
     assert templater.closed
 
 
+def test__templater_session_closes_templater_after_setup_failure(caplog):
+    """A session preserves setup errors when closing a failed templater."""
+
+    class FailingTemplater(RawTemplater):
+        def __init__(self):
+            self.close_count = 0
+
+        def session_key(self, config):
+            raise ValueError("setup failed")
+
+        def close(self):
+            self.close_count += 1
+            raise RuntimeError("close failed")
+
+    templater = FailingTemplater()
+    session = TemplaterSession(lambda _: templater)
+
+    with pytest.raises(ValueError, match="setup failed"):
+        session.get(FluffConfig(overrides={"dialect": "ansi"}))
+
+    assert templater.close_count == 1
+    assert "Failed to close templater after session setup failed" in caplog.text
+    session.close()
+    assert templater.close_count == 1
+
+
+def test__linter__templater_override_is_borrowed():
+    """A root templater override remains caller-owned within an operation."""
+
+    class TrackingTemplater(RawTemplater):
+        def __init__(self):
+            self.closed = False
+
+        def close(self):
+            self.closed = True
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    linter = Linter(config=config)
+    root_templater = TrackingTemplater()
+    other_templater = TrackingTemplater()
+    other_config = FluffConfig(overrides={"dialect": "ansi"})
+    linter.templater = root_templater
+
+    assert linter.templater is root_templater
+    with linter.templater_session():
+        assert (
+            linter.borrow_templater_for_config(other_config, other_templater)
+            is root_templater
+        )
+
+    assert not root_templater.closed
+    assert not other_templater.closed
+
+
+@pytest.mark.parametrize("operation_failed", [False, True])
+def test__linter__release_templater_close_failure(
+    monkeypatch, caplog, operation_failed
+):
+    """Releasing a templater only suppresses cleanup errors during failure."""
+
+    class FailingTemplater(RawTemplater):
+        def __init__(self):
+            self.close_count = 0
+
+        def close(self):
+            self.close_count += 1
+            raise RuntimeError("close failed")
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    config._configs["core"]["templater_obj"] = None
+    templater = FailingTemplater()
+    monkeypatch.setattr(config, "get_templater", lambda: templater)
+    linter = Linter(config=config)
+
+    expected_error = ValueError if operation_failed else RuntimeError
+    expected_message = "operation failed" if operation_failed else "close failed"
+    with pytest.raises(expected_error, match=expected_message):
+        with linter.templater_session():
+            linter.templater_for_config(config)
+            if operation_failed:
+                try:
+                    raise ValueError("operation failed")
+                except ValueError:
+                    linter.release_templater(templater)
+                    raise
+            linter.release_templater(templater)
+
+    assert templater.close_count == 1
+    assert ("Failed to close templater session" in caplog.text) is operation_failed
+
+
 @pytest.mark.parametrize("operation", ["render", "lint"])
 def test__linter__uses_fresh_templater_for_repeated_string_operations(
     monkeypatch, operation
@@ -1327,6 +1422,71 @@ def test__linter__mixed_templaters_preserve_file_order(tmp_path):
     )
 
 
+def test__sequential_runner__groups_and_orders_sequenced_templaters(monkeypatch):
+    """Custom sequencing groups templaters and preserves discovery order."""
+
+    class SequencingTemplater(RawTemplater):
+        def __init__(self, key):
+            self.key = key
+
+        def session_key(self, config):
+            return (self.key,)
+
+        def sequence_files(self, fnames, *, config=None, formatter=None):
+            return fnames
+
+    templater_a = SequencingTemplater("a")
+    templater_b = SequencingTemplater("b")
+    templater_c = SequencingTemplater("c")
+    configs = [FluffConfig(overrides={"dialect": "ansi"}) for _ in range(4)]
+    templaters = [templater_a, templater_b, templater_c, templater_a]
+    for config, templater in zip(configs, templaters):
+        monkeypatch.setattr(config, "get_templater", lambda t=templater: t)
+
+    root_config = FluffConfig(overrides={"dialect": "ansi"})
+    fnames = ["first.sql", "second.sql", "third.sql", "fourth.sql"]
+    monkeypatch.setattr(
+        root_config,
+        "make_child_from_path",
+        lambda fname: configs[fnames.index(fname)],
+    )
+    linter = Linter(config=root_config)
+    test_runner = runner.SequentialRunner(linter, root_config)
+    rendered_groups = []
+
+    def render_group(templater, file_config, group_files, formatter):
+        rendered_groups.append(
+            (templater.key, [file.discovery_index for file in group_files])
+        )
+        indexes = (
+            [3] if templater is templater_a else [1] if templater is templater_b else []
+        )
+        for index in indexes:
+            yield (
+                group_files[-1],
+                RenderedFile(
+                    [TemplatedFile("SELECT 1", fname=fnames[index])],
+                    [],
+                    configs[index],
+                    {},
+                    fnames[index],
+                    "utf-8",
+                    "SELECT 1",
+                ),
+            )
+
+    released = []
+    monkeypatch.setattr(test_runner, "_render_group", render_group)
+    monkeypatch.setattr(linter, "release_templater", released.append)
+
+    with linter.templater_session():
+        rendered = list(test_runner.iter_rendered(fnames))
+
+    assert rendered_groups == [("a", [0, 3]), ("b", [1]), ("c", [2])]
+    assert [fname for fname, _ in rendered] == [fnames[1], fnames[3]]
+    assert released == [templater_a, templater_b, templater_c]
+
+
 def test__sequential_runner__streams_worker_safe_files(tmp_path, monkeypatch):
     """Sequential linting completes each worker-safe file before loading the next."""
     first_file = tmp_path / "first.sql"
@@ -1445,6 +1605,27 @@ def test__linter__variant_cleanup_does_not_mask_render_error(monkeypatch):
     monkeypatch.setattr(config, "get_templater", lambda: templater)
 
     with pytest.raises(ValueError, match="render failed"):
+        Linter(config=config).render_string("SELECT 1", "test.sql", config, "utf-8")
+
+
+def test__linter__variant_cleanup_error_is_raised(monkeypatch):
+    """Variant cleanup errors propagate after successful iteration."""
+
+    class FailingVariants:
+        def __iter__(self):
+            return iter(())
+
+        def close(self):
+            raise RuntimeError("variant close failed")
+
+    class FailingTemplater(RawTemplater):
+        def process_with_variants(self, **kwargs):
+            return FailingVariants()
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    monkeypatch.setattr(config, "get_templater", FailingTemplater)
+
+    with pytest.raises(RuntimeError, match="variant close failed"):
         Linter(config=config).render_string("SELECT 1", "test.sql", config, "utf-8")
 
 
