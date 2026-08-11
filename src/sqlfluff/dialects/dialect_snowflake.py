@@ -2721,13 +2721,21 @@ class AlterDynamicTableStatementSegment(BaseSegment):
         "DYNAMIC",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
-        # A REFRESH may target several dynamic tables at once.
-        Delimited(Ref("TableReferenceSegment")),
+        Ref("TableReferenceSegment"),
         OneOf(
             "SUSPEND",
             "RESUME",
             Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
             Sequence("SWAP", "WITH", Ref("TableReferenceSegment")),
+            # Only a REFRESH may target several dynamic tables at once.
+            Sequence(
+                AnyNumberOf(
+                    Sequence(Ref("CommaSegment"), Ref("TableReferenceSegment")),
+                    min_times=1,
+                ),
+                "REFRESH",
+                Sequence("COPY", "SESSION", optional=True),
+            ),
             Sequence("REFRESH", Sequence("COPY", "SESSION", optional=True)),
             Ref("AlterTableClusteringActionSegment"),
             Ref("TableColumnCommentActionSegment"),
@@ -5481,7 +5489,15 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     Ref("DynamicTableOptionsSegment", optional=True),
                     "REFRESH",
                     "USING",
-                    Bracketed(Ref("StatementSegment")),
+                    # The refresh definition must be a DML statement.
+                    Bracketed(
+                        OneOf(
+                            Ref("InsertStatementSegment"),
+                            Ref("MergeStatementSegment"),
+                            Ref("UpdateStatementSegment"),
+                            Ref("DeleteStatementSegment"),
+                        ),
+                    ),
                 ),
                 # Create like syntax
                 Sequence("LIKE", Ref("TableReferenceSegment")),

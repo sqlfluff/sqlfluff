@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e8ac8de53e9f211712214ee63526730cce121dc21b9bc8898c8d4a557ce07323
+_hash: 5ed853ce6d8246032060dc804e7536b9fd36a08efed73f854cc25c029ec3d14b
 file:
 - statement:
     create_table_statement:
@@ -304,25 +304,24 @@ file:
     - keyword: USING
     - bracketed:
         start_bracket: (
-        statement:
-          insert_statement:
-          - keyword: INSERT
-          - keyword: INTO
-          - table_reference:
-              naked_identifier: SELF
-          - select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: a
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: b
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: SELF
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: a
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: b
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -348,48 +347,47 @@ file:
     - keyword: USING
     - bracketed:
         start_bracket: (
-        statement:
-          merge_statement:
-          - keyword: MERGE
-          - keyword: INTO
-          - table_reference:
-              naked_identifier: SELF
-          - keyword: USING
-          - table_reference:
-              naked_identifier: b
-          - join_on_condition:
-              keyword: 'ON'
-              expression:
-              - column_reference:
-                - naked_identifier: SELF
-                - dot: .
-                - naked_identifier: a
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - column_reference:
-                - naked_identifier: b
-                - dot: .
-                - naked_identifier: a
-          - merge_match:
-              merge_when_matched_clause:
-              - keyword: WHEN
-              - keyword: MATCHED
-              - keyword: THEN
-              - merge_update_clause:
-                  keyword: UPDATE
-                  set_clause_list:
-                    keyword: SET
-                    set_clause:
-                    - column_reference:
-                      - naked_identifier: SELF
-                      - dot: .
-                      - naked_identifier: a
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - column_reference:
-                      - naked_identifier: b
-                      - dot: .
-                      - naked_identifier: a
+        merge_statement:
+        - keyword: MERGE
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: SELF
+        - keyword: USING
+        - table_reference:
+            naked_identifier: b
+        - join_on_condition:
+            keyword: 'ON'
+            expression:
+            - column_reference:
+              - naked_identifier: SELF
+              - dot: .
+              - naked_identifier: a
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: b
+              - dot: .
+              - naked_identifier: a
+        - merge_match:
+            merge_when_matched_clause:
+            - keyword: WHEN
+            - keyword: MATCHED
+            - keyword: THEN
+            - merge_update_clause:
+                keyword: UPDATE
+                set_clause_list:
+                  keyword: SET
+                  set_clause:
+                  - column_reference:
+                    - naked_identifier: SELF
+                    - dot: .
+                    - naked_identifier: a
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: b
+                    - dot: .
+                    - naked_identifier: a
         end_bracket: )
 - statement_terminator: ;
 - statement:
