@@ -3585,7 +3585,12 @@ class CreateOptionSegment(BaseSegment):
                 "CHARACTER",
                 "SET",
                 Ref("EqualsSegment", optional=True),
-                OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedLiteralSegment")),
+                OneOf(
+                    Ref("CharacterSetSegment"),
+                    "BINARY",
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             Sequence(
                 "COLLATE",
