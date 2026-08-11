@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 661d552b1cd2639ee69a1cca18a4ffaa18efc5c8c024e76bb1f63c31d340aab7
+_hash: 39baeccc3d86e61326499a01aa93acf835cdfa06aebbd4c82f5fa13a7136d9b7
 file:
 - statement:
     alter_table_statement:
@@ -358,4 +358,52 @@ file:
           naked_identifier: c1
       - keyword: UNSET
       - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: MODIFY
+      - keyword: CONSTRAINT
+      - naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: ALTER
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"quoted constraint"'
+      - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"quoted constraint"'
+      - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: RENAME
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"old name"'
+      - keyword: TO
+      - quoted_identifier: '"new name"'
 - statement_terminator: ;

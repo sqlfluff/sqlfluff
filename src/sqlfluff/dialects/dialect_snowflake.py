@@ -2615,17 +2615,14 @@ class AlterTableConstraintActionSegment(BaseSegment):
         Sequence(
             "DROP",
             OneOf(
-                Sequence("CONSTRAINT", Ref("NakedIdentifierSegment")),
+                Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar")),
                 Sequence(
                     OneOf(
                         Ref("PrimaryKeyGrammar"),
                         Ref("ForeignKeyGrammar"),
                         Ref("UniqueKeyGrammar"),
                     ),
-                    OneOf(
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                        Delimited(Ref("ColumnReferenceSegment")),
-                    ),
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                 ),
             ),
             OneOf("CASCADE", "RESTRICT", optional=True),
@@ -2636,7 +2633,7 @@ class AlterTableConstraintActionSegment(BaseSegment):
         Sequence(
             OneOf("ALTER", "MODIFY"),
             OneOf(
-                Sequence("CONSTRAINT", Ref("NakedIdentifierSegment")),
+                Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar")),
                 Ref("PrimaryKeyGrammar"),
                 Ref("ForeignKeyGrammar"),
                 Ref("UniqueKeyGrammar"),
@@ -2649,15 +2646,14 @@ class AlterTableConstraintActionSegment(BaseSegment):
                 Sequence(Ref.keyword("NOT", optional=True), "ENFORCED"),
                 OneOf("VALIDATE", "NOVALIDATE"),
                 OneOf("RELY", "NORELY"),
-                min_times=1,
             ),
         ),
         Sequence(
             "RENAME",
             "CONSTRAINT",
-            Ref("NakedIdentifierSegment"),
+            Ref("SingleIdentifierGrammar"),
             "TO",
-            Ref("NakedIdentifierSegment"),
+            Ref("SingleIdentifierGrammar"),
         ),
     )
 
@@ -5320,9 +5316,19 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             Sequence(
                 "CREATE",
                 Ref("AlterOrReplaceGrammar", optional=True),
-                Ref("TemporaryTransientGrammar", optional=True),
-                # Only valid for temporary tables cloning another table.
-                Sequence("READ", "ONLY", optional=True),
+                OneOf(
+                    "TRANSIENT",
+                    # READ ONLY is only valid for temporary tables cloning
+                    # another table, so it requires the TEMP keyword.
+                    Sequence(
+                        OneOf("LOCAL", "GLOBAL", optional=True),
+                        OneOf("TEMP", "TEMPORARY"),
+                        Ref.keyword("VOLATILE", optional=True),
+                        Sequence("READ", "ONLY", optional=True),
+                    ),
+                    Ref("TemporaryGrammar"),
+                    optional=True,
+                ),
                 Ref.keyword("DYNAMIC", optional=True),
                 Ref.keyword("HYBRID", optional=True),
                 Ref.keyword("ICEBERG", optional=True),
