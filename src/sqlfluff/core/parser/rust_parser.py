@@ -110,7 +110,13 @@ def get_native_ast() -> bool:
 
 
 try:
-    from sqlfluffrs import RsMatchResult, RsParseError, RsParser, RsToken
+    from sqlfluffrs import (
+        MISSING_REF_PREFIX,
+        RsMatchResult,
+        RsParseError,
+        RsParser,
+        RsToken,
+    )
 
     _HAS_RUST_PARSER = True
 
@@ -260,13 +266,12 @@ try:
                     if _prof is not None:
                         _prof["rust_core"] = time.perf_counter() - _ts
                 except RsParseError as e:
-                    # A dangling grammar ref surfaces as a "__MISSING_REF__:<name>"
+                    # A dangling grammar ref surfaces with the MISSING_REF_PREFIX
                     # sentinel. Re-raise via the dialect's own ref() so both
                     # engines fail with the same RuntimeError.
-                    _missing_ref_prefix = "__MISSING_REF__:"
                     _rs_desc = str(e)
-                    if _rs_desc.startswith(_missing_ref_prefix):
-                        ref_name = _rs_desc[len(_missing_ref_prefix) :]
+                    if _rs_desc.startswith(MISSING_REF_PREFIX):
+                        ref_name = _rs_desc[len(MISSING_REF_PREFIX) :]
                         dialect_obj = self.config.get("dialect_obj")
                         # If ref() doesn't raise, the name exists in Python but
                         # was dropped from Rust's codegen tables - a bug.

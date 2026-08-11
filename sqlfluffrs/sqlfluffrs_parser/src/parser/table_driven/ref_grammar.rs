@@ -10,17 +10,21 @@ use crate::parser::{
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
 
+/// Sentinel prefix for an unresolvable Ref's [`ParseError`] message. The
+/// Python side (`rust_parser.py`) recognises this prefix and re-raises
+/// through the dialect's own `ref()`, so the resulting RuntimeError matches
+/// the pure-Python parser. Exported to Python via the `sqlfluffrs` module so
+/// both sides read the same constant instead of duplicating the literal.
+pub const MISSING_REF_PREFIX: &str = "__MISSING_REF__:";
+
 impl Parser<'_> {
     // ========================================================================
     // Table-Driven Ref Handlers
     // ========================================================================
 
-    /// Build the sentinel [`ParseError`] for an unresolvable Ref. The Python
-    /// side (`rust_parser.py`) recognises the `__MISSING_REF__:` prefix and
-    /// re-raises through the dialect's own `ref()`, so the resulting
-    /// RuntimeError matches the pure-Python parser.
+    /// Build the sentinel [`ParseError`] for an unresolvable Ref.
     fn missing_ref_error(rule_name: &str, pos: usize) -> ParseError {
-        ParseError::with_context(format!("__MISSING_REF__:{rule_name}"), Some(pos), None)
+        ParseError::with_context(format!("{MISSING_REF_PREFIX}{rule_name}"), Some(pos), None)
     }
 
     /// Handle Ref Initial state using table-driven approach
