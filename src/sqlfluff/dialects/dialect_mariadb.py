@@ -1030,7 +1030,8 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
                 Ref("EqualsSegment", optional=True),
                 OneOf(
                     Ref("QuotedLiteralSegment"),
-                    Ref("NakedIdentifierSegment"),
+                    Ref("CharacterSetSegment"),
+                    "BINARY",
                     "DEFAULT",
                 ),
             ),

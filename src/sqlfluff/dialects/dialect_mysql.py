@@ -369,7 +369,41 @@ mysql_dialect.add(
         "DUAL", IdentifierSegment, type="naked_identifier"
     ),
     CharsetGrammar=OneOf(Sequence("CHARACTER", "SET"), "CHARSET"),
+    # A character set *name* (e.g. ``ascii``, ``utf8mb4``, ``latin1``).
+    # Matched as its own ``character_set`` type rather than a ``naked_identifier``
+    # so that rule RF04 (keywords used as identifiers) does not flag charset names
+    # that happen to be unreserved keywords -- ``ascii`` being the common case.
+    # Reserved keywords are excluded here (so ``CHARACTER SET DEFAULT`` still
+    # parses ``DEFAULT`` as a keyword); the one reserved keyword that is a valid
+    # charset name, ``BINARY``, is offered explicitly at each usage site.
+    CharacterSetSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            CodeSegment,
+            type="character_set",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
+        )
+    ),
 )
+
+
+class CollationReferenceSegment(ansi.CollationReferenceSegment):
+    """A reference to a collation.
+
+    MySQL and MariaDB accept the reserved keyword ``BINARY`` as a collation name
+    (the ``binary`` collation), which the ANSI identifier-only grammar rejects.
+    Offering it as a keyword (rather than a naked identifier) also keeps rule RF04
+    from flagging it. Other collation names are never keywords, so they keep the
+    inherited identifier grammar.
+    """
+
+    type = "collation_reference"
+    match_grammar: Matchable = OneOf(
+        Ref.keyword("BINARY"),
+        ansi.CollationReferenceSegment.match_grammar,
+    )
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
@@ -1184,6 +1218,11 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
         Sequence(
             Ref("CharsetGrammar"),
             OneOf(
+                # Bare charset name -> ``character_set`` (kept ahead of the
+                # identifier grammar so unquoted names win this type); the
+                # identifier grammar still covers back-tick-quoted names.
+                Ref("CharacterSetSegment"),
+                "BINARY",
                 Ref("SingleIdentifierGrammar"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedIdentifierSegment"),
@@ -1840,7 +1879,8 @@ class TableOptionsSegment(BaseSegment):
                 Ref("EqualsSegment", optional=True),
                 OneOf(
                     Ref("QuotedLiteralSegment"),
-                    Ref("NakedIdentifierSegment"),
+                    Ref("CharacterSetSegment"),
+                    "BINARY",
                     "DEFAULT",
                 ),
             ),
@@ -3590,6 +3630,8 @@ class AlterOptionSegment(BaseSegment):
                 Ref("CharsetGrammar"),
                 Ref("EqualsSegment", optional=True),
                 OneOf(
+                    Ref("CharacterSetSegment"),
+                    "BINARY",
                     Ref("SingleIdentifierGrammar"),
                     Ref("SingleQuotedIdentifierSegment"),
                     Ref("DoubleQuotedIdentifierSegment"),
