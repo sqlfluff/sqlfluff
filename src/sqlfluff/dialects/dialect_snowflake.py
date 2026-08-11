@@ -8884,7 +8884,7 @@ class AlterTaskSpecialSetClauseSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Ref("TaskIdentifierValuedParameterGrammar", optional=True),
+            AnyNumberOf(Ref("TaskIdentifierValuedParameterGrammar")),
             min_times=1,
         ),
     )
@@ -8906,13 +8906,16 @@ class AlterTaskSetClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "SET",
         Delimited(
-            Sequence(
-                Ref("ParameterNameSegment"),
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("BooleanLiteralGrammar"),
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
+            OneOf(
+                Ref("TaskIdentifierValuedParameterGrammar"),
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("BooleanLiteralGrammar"),
+                        Ref("QuotedLiteralSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
                 ),
             ),
         ),

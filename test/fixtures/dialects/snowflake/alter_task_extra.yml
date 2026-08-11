@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e190c7ca5732eb0e601c1841826a09e7e354f61b720c120f74f35c73d855f583
+_hash: 4401eb94f72c0e28713bc36f1c7b04b8554f503b8becd8be106e828453bf8970
 file:
 - statement:
     alter_task_statement:
@@ -300,4 +300,48 @@ file:
     - keyword: RUN
     - keyword: GROUP
     - quoted_literal: "'abc-123'"
+- statement_terminator: ;
+- statement:
+    alter_task_statement:
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: t1
+    - alter_task_special_set_clause:
+      - keyword: SET
+      - keyword: ERROR_INTEGRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: err_int
+      - keyword: SUCCESS_INTEGRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: ok_int
+- statement_terminator: ;
+- statement:
+    alter_task_statement:
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: t1
+    - alter_task_set_clause:
+      - keyword: SET
+      - keyword: ERROR_INTEGRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: err_int
+      - comma: ','
+      - keyword: FINALIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: root_task
+      - comma: ','
+      - parameter: USER_TASK_TIMEOUT_MS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '100'
 - statement_terminator: ;
