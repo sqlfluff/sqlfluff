@@ -6281,14 +6281,27 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 Ref("AlterOrReplaceGrammar", optional=True),
                 AnySetOf(
                     "SECURE",
-                    "RECURSIVE",
                     # INTERACTIVE is only valid for materialized views.
                     "INTERACTIVE",
                 ),
-                Ref("TemporaryGrammar", optional=True),
                 # RECURSIVE follows the temporary keywords in the documented
-                # syntax, but is also accepted before them.
-                Ref.keyword("RECURSIVE", optional=True),
+                # syntax, but is also accepted before them. The two positions
+                # are exclusive so the keyword cannot appear twice.
+                OneOf(
+                    Sequence("RECURSIVE", Ref("TemporaryGrammar", optional=True)),
+                    Sequence(
+                        OneOf("LOCAL", "GLOBAL", optional=True),
+                        OneOf(
+                            Sequence(
+                                OneOf("TEMP", "TEMPORARY"),
+                                Ref.keyword("VOLATILE", optional=True),
+                            ),
+                            "VOLATILE",
+                        ),
+                        Ref.keyword("RECURSIVE", optional=True),
+                    ),
+                    optional=True,
+                ),
                 Sequence("MATERIALIZED", optional=True),
                 "VIEW",
                 Ref("IfNotExistsGrammar", optional=True),
@@ -6351,14 +6364,12 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
             ),
-            # CLUSTER BY is only valid for materialized views.
+            # CLUSTER BY is only valid for materialized views, and it
+            # requires the parenthesised expression list.
             Sequence(
                 "CLUSTER",
                 "BY",
-                OneOf(
-                    Ref("FunctionSegment"),
-                    Bracketed(Delimited(Ref("ExpressionSegment"))),
-                ),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence("COPY", "GRANTS"),
             Ref("CommentEqualsClauseSegment"),
