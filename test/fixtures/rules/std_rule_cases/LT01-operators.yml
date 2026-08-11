@@ -181,3 +181,30 @@ fail_oracle_modulo_still_spaced:
   configs:
     core:
       dialect: oracle
+
+pass_composite_operator_spacing_within_override:
+  # https://github.com/sqlfluff/sqlfluff/issues/5818
+  # `||`, `>=` and `<>` are each a single segment holding two raw symbols,
+  # matched with `allow_gaps=False`. `spacing_within` must not apply inside
+  # them, otherwise this raises a violation which cannot be fixed without
+  # making the file unparsable.
+  pass_str: SELECT 'a' || 'b' AS s, 1 >= 2 AS g, 3 <> 4 AS n FROM t
+  configs:
+    layout:
+      type:
+        binary_operator:
+          spacing_within: single
+        comparison_operator:
+          spacing_within: single
+
+fail_composite_operator_outer_spacing_still_enforced:
+  # The same override must still enforce spacing *around* those operators.
+  fail_str: SELECT 'a'||'b' AS s, 3<>4 AS n FROM t
+  fix_str: SELECT 'a' || 'b' AS s, 3 <> 4 AS n FROM t
+  configs:
+    layout:
+      type:
+        binary_operator:
+          spacing_within: single
+        comparison_operator:
+          spacing_within: single

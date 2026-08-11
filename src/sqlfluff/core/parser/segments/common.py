@@ -99,10 +99,22 @@ class BinaryOperatorSegment(CodeSegment):
     type = "binary_operator"
 
 
-class CompositeBinaryOperatorSegment(BaseSegment):
+class CompositeOperatorSegment(BaseSegment):
+    """An operator made up of more than one raw symbol.
+
+    The grammars of these segments match their parts with ``allow_gaps=False``,
+    so whitespace can never legally appear between them. The
+    ``composite_operator`` type records that for the layout engine, so it knows
+    not to place spacing within them.
+    """
+
+    type = "composite_operator"
+
+
+class CompositeBinaryOperatorSegment(CompositeOperatorSegment):
     """A composite binary operator segment.
 
-    Defined here for type inheritance. Inherits from BaseSegment.
+    Defined here for type inheritance. Inherits from CompositeOperatorSegment.
     """
 
     type = "binary_operator"
@@ -117,10 +129,10 @@ class ComparisonOperatorSegment(CodeSegment):
     type = "comparison_operator"
 
 
-class CompositeComparisonOperatorSegment(BaseSegment):
+class CompositeComparisonOperatorSegment(CompositeOperatorSegment):
     """A comparison operator segment.
 
-    Defined here for type inheritance. Inherits from BaseSegment.
+    Defined here for type inheritance. Inherits from CompositeOperatorSegment.
     """
 
     type = "comparison_operator"

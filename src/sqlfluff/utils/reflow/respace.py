@@ -181,7 +181,17 @@ def determine_constraints(
         # so it doesn't matter whether we get it from prev_block or next_block.
         idx = prev_block.depth_info.stack_hashes.index(common[-1])
 
-        within_constraint = prev_block.stack_spacing_configs.get(common[-1], None)
+        within_constraint: Optional[str]
+        if "composite_operator" in prev_block.depth_info.stack_class_types[idx]:
+            # Operators such as `||`, `>=` and `<>` are parsed as a single
+            # segment containing their raw symbols, matched with
+            # `allow_gaps=False`. Whitespace can therefore never legally sit
+            # between those symbols, so any configured `spacing_within` would
+            # raise a violation that cannot be fixed without making the file
+            # unparsable. Treat them as `touch` regardless of configuration.
+            within_constraint = "touch"
+        else:
+            within_constraint = prev_block.stack_spacing_configs.get(common[-1], None)
         if within_constraint:
             within_spacing, strip_newlines = _unpack_constraint(
                 within_constraint, strip_newlines

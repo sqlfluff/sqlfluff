@@ -772,6 +772,13 @@ available:
       :code:`my_schema.my_table` which uses `touch:inline` or other clauses
       where we want to force some elements to be on the same line.
 
+   *  A few operators are made up of more than one symbol which SQL does not
+      allow to be separated, such as :code:`||`, :code:`>=` and :code:`<>`.
+      The :code:`spacing_within` setting does not apply *inside* those
+      operators, because any spacing there would not be valid SQL. Spacing
+      *around* them is still governed by :code:`spacing_before` and
+      :code:`spacing_after` as normal.
+
 *  **Line Position**: set using the :code:`line_position` option. By default
    this is unset, which implies no particular line position requirements. The
    available options are:
