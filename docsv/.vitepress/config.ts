@@ -1,5 +1,7 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { defineConfig } from 'vitepress'
-import type { DefaultTheme } from 'vitepress'
+import type { DefaultTheme, HeadConfig } from 'vitepress'
 
 // Auto-generated sidebar and redirect configurations
 import sidebarRules from './sidebar-rules.json'
@@ -7,6 +9,7 @@ import sidebarCli from './sidebar-cli.json'
 import sidebarApi from './sidebar-api.json'
 import sidebarDialects from './sidebar-dialects.json'
 import { normalizeBase, withDocsBase } from './path-utils'
+import { DESIGN_SOURCE, assertDesignPackage } from '../scripts/sync-design.mjs'
 
 const GUIDE: DefaultTheme.NavItemWithLink[] = [
     { text: 'Introduction', link: '/guide/' },
@@ -75,8 +78,30 @@ const REFERENCES: DefaultTheme.NavItemWithLink[] = [
 const docsBase = normalizeBase(process.env.SQLFLUFF_DOCS_BASE, '/sqlfluff/')
 const noIndex = process.env.SQLFLUFF_DOCS_NOINDEX === '1'
 
-const head: [string, Record<string, string>][] = [
-    ['link', { rel: 'icon', href: withDocsBase(docsBase, 'favicon.ico') }],
+assertDesignPackage()
+
+/**
+ * Inlined rather than linked so the theme is applied before first paint without
+ * a render-blocking request. Read from the installed package, which is the
+ * source of truth; `design:sync` copies the rest of the package into `public/`.
+ */
+const themeBootstrap = readFileSync(join(DESIGN_SOURCE, 'js/theme.js'), 'utf-8')
+
+const designAsset = (path: string) => withDocsBase(docsBase, `sqlfluff-design/${path}`)
+
+const head: HeadConfig[] = [
+    // The shared favicon set, so the docs and sqlfluff.com show the same mark
+    // in a tab and move together when it changes.
+    ['link', { rel: 'icon', href: designAsset('img/favicon.ico'), sizes: 'any' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: designAsset('img/favicon-32x32.png') }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: designAsset('img/favicon-16x16.png') }],
+    ['link', { rel: 'apple-touch-icon', href: designAsset('img/apple-touch-icon.png') }],
+    // The bootstrap rewrites this to match the resolved theme.
+    ['meta', { name: 'theme-color', content: '#f7f8f8' }],
+    ['script', {}, themeBootstrap],
+    ['link', { rel: 'stylesheet', href: designAsset('css/tokens.css') }],
+    ['link', { rel: 'stylesheet', href: designAsset('css/base.css') }],
+    ['link', { rel: 'stylesheet', href: designAsset('css/components.css') }],
 ]
 
 if (noIndex) {
@@ -92,8 +117,24 @@ export default defineConfig({
 
     head,
 
+    // The shared design script is the single owner of the theme signals, so
+    // VitePress must not also manage them. This drops its inline dark-mode
+    // script and its own two-state toggle, which the shared three-state control
+    // replaces. `useData().isDark` becomes inert; nothing in the default theme
+    // reads it apart from the toggle being replaced, and VitePress dark styling
+    // keys off the `dark` class which the shared script sets.
+    appearance: false,
+
     themeConfig: {
-        logo: '/logo.svg',
+        // The shared wordmark, matching what sqlfluff.com shows in the same
+        // position. VitePress applies the docs base to this itself. The alt
+        // text carries the accessible name for the home link, since the site
+        // title below is hidden.
+        logo: { src: '/sqlfluff-design/img/sqlfluff-wide.png', alt: 'SQLFluff' },
+
+        // The wordmark already reads "SQLfluff", so the adjacent title would
+        // repeat it. sqlfluff.com shows the mark alone for the same reason.
+        siteTitle: false,
 
         nav: [
             { text: 'Guide', items: GUIDE },
