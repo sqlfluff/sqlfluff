@@ -36,6 +36,13 @@ IgnoreSpecRecord = tuple[str, str, IgnoreSpec]
 IgnoreSpecRecords = list[IgnoreSpecRecord]
 
 
+def _normalize_ignore_case(value: str) -> str:
+    """Normalize ignore matching case on case-insensitive filesystems."""
+    if os.path.normcase("A") == os.path.normcase("a"):
+        return value.casefold()
+    return value
+
+
 def _check_ignore_specs(
     absolute_filepath: str, ignore_specs: IgnoreSpecRecords
 ) -> Optional[str]:
@@ -45,7 +52,8 @@ def _check_ignore_specs(
         The path of an ignorefile if found, None otherwise.
     """
     for dirname, filename, spec in ignore_specs:
-        if spec.match_file(os.path.relpath(absolute_filepath, dirname)):
+        relative_path = os.path.relpath(absolute_filepath, dirname)
+        if spec.match_file(_normalize_ignore_case(relative_path)):
             return os.path.join(dirname, filename)
     return None
 
@@ -56,7 +64,8 @@ def _load_specs_from_lines(lines: Iterable[str], logging_reference: str) -> Igno
     Raises SQLFluffUserError if unparsable for any reason.
     """
     try:
-        return pathspec.PathSpec.from_lines("gitignore", lines)
+        normalized_lines = (_normalize_ignore_case(line) for line in lines)
+        return pathspec.PathSpec.from_lines("gitignore", normalized_lines)
     except Exception:
         _error_msg = f"Error parsing ignore patterns in {logging_reference}"
         # If the iterable is a Sequence type, then include the patterns.
