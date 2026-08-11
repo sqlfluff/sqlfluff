@@ -207,11 +207,11 @@ class DeleteStatementSegment(BaseSegment):
     type = "delete_statement"
     match_grammar = Sequence(
         "DELETE",
-        Ref.keyword("LOW_PRIORITY", optional=True),
-        Ref.keyword("QUICK", optional=True),
-        Ref.keyword("IGNORE", optional=True),
         OneOf(
-            # System-versioned tables: purge history rows.
+            # System-versioned tables: purge history rows. Per the MariaDB docs
+            # this is a distinct form that does NOT take LOW_PRIORITY/QUICK/
+            # IGNORE, so it sits ahead of the standard branch (which owns those
+            # modifiers) rather than sharing them.
             # DELETE HISTORY FROM tbl [PARTITION (...)]
             #   [BEFORE SYSTEM_TIME [TIMESTAMP|TRANSACTION] expression]
             # https://mariadb.com/kb/en/delete/
@@ -228,32 +228,41 @@ class DeleteStatementSegment(BaseSegment):
                     optional=True,
                 ),
             ),
+            # Standard DELETE, which alone carries the optional modifiers.
             Sequence(
-                "FROM",
-                Delimited(
-                    Ref("DeleteTargetTableSegment"),
-                    terminators=["USING"],
+                Ref.keyword("LOW_PRIORITY", optional=True),
+                Ref.keyword("QUICK", optional=True),
+                Ref.keyword("IGNORE", optional=True),
+                OneOf(
+                    Sequence(
+                        "FROM",
+                        Delimited(
+                            Ref("DeleteTargetTableSegment"),
+                            terminators=["USING"],
+                        ),
+                        Ref("DeleteUsingClauseSegment"),
+                        Ref("WhereClauseSegment", optional=True),
+                    ),
+                    Sequence(
+                        Delimited(
+                            Ref("DeleteTargetTableSegment"),
+                            terminators=["FROM"],
+                        ),
+                        Ref("FromClauseSegment"),
+                        Ref("WhereClauseSegment", optional=True),
+                    ),
+                    Sequence(
+                        Ref("FromClauseSegment"),
+                        # Application-time:
+                        # DELETE ... FOR PORTION OF period FROM x TO y
+                        Ref("ForPortionOfSegment", optional=True),
+                        Ref("SelectPartitionClauseSegment", optional=True),
+                        Ref("WhereClauseSegment", optional=True),
+                        Ref("OrderByClauseSegment", optional=True),
+                        Ref("LimitClauseSegment", optional=True),
+                        Ref("ReturningClauseSegment", optional=True),
+                    ),
                 ),
-                Ref("DeleteUsingClauseSegment"),
-                Ref("WhereClauseSegment", optional=True),
-            ),
-            Sequence(
-                Delimited(
-                    Ref("DeleteTargetTableSegment"),
-                    terminators=["FROM"],
-                ),
-                Ref("FromClauseSegment"),
-                Ref("WhereClauseSegment", optional=True),
-            ),
-            Sequence(
-                Ref("FromClauseSegment"),
-                # Application-time: DELETE ... FOR PORTION OF period FROM x TO y
-                Ref("ForPortionOfSegment", optional=True),
-                Ref("SelectPartitionClauseSegment", optional=True),
-                Ref("WhereClauseSegment", optional=True),
-                Ref("OrderByClauseSegment", optional=True),
-                Ref("LimitClauseSegment", optional=True),
-                Ref("ReturningClauseSegment", optional=True),
             ),
         ),
     )

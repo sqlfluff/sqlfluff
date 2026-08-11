@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0f92eab802f098ad28a10f360f034f45bb44a511365a491f3b084f5f46b2b0b4
+_hash: 4c706a6ecab6ac4f4edb0a1da9bb0744c20fe9d1dae8da1fecf6d3bd9df48887
 file:
 - statement:
     delete_statement:
@@ -119,4 +119,26 @@ file:
       - keyword: TO
       - expression:
           quoted_literal: "'2018-01-01'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: LOW_PRIORITY
+    - keyword: QUICK
+    - keyword: IGNORE
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
 - statement_terminator: ;

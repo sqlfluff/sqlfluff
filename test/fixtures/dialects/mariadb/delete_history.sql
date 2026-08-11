@@ -17,3 +17,8 @@ DELETE HISTORY FROM t PARTITION (p0, p1) BEFORE SYSTEM_TIME NOW();
 -- Regression: ordinary DELETE forms must still parse unchanged.
 DELETE FROM t WHERE a = 1;
 DELETE FROM t FOR PORTION OF date_period FROM '2001-01-01' TO '2018-01-01';
+
+-- The LOW_PRIORITY/QUICK/IGNORE modifiers still apply to ordinary DELETE.
+-- They are NOT valid with DELETE HISTORY (see the unparsable cases in
+-- test/dialects/dialects_test.py).
+DELETE LOW_PRIORITY QUICK IGNORE FROM t WHERE a = 1;
