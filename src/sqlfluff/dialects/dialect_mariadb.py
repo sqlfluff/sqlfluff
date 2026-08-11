@@ -211,6 +211,23 @@ class DeleteStatementSegment(BaseSegment):
         Ref.keyword("QUICK", optional=True),
         Ref.keyword("IGNORE", optional=True),
         OneOf(
+            # System-versioned tables: purge history rows.
+            # DELETE HISTORY FROM tbl [PARTITION (...)]
+            #   [BEFORE SYSTEM_TIME [TIMESTAMP|TRANSACTION] expression]
+            # https://mariadb.com/kb/en/delete/
+            Sequence(
+                "HISTORY",
+                "FROM",
+                Ref("TableReferenceSegment"),
+                Ref("SelectPartitionClauseSegment", optional=True),
+                Sequence(
+                    "BEFORE",
+                    "SYSTEM_TIME",
+                    OneOf("TIMESTAMP", "TRANSACTION", optional=True),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
             Sequence(
                 "FROM",
                 Delimited(

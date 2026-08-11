@@ -1,0 +1,122 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0f92eab802f098ad28a10f360f034f45bb44a511365a491f3b084f5f46b2b0b4
+file:
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: HISTORY
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: HISTORY
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: t
+    - keyword: BEFORE
+    - keyword: SYSTEM_TIME
+    - expression:
+        quoted_literal: "'2020-01-01 00:00:00'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: HISTORY
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: t
+    - keyword: BEFORE
+    - keyword: SYSTEM_TIME
+    - keyword: TIMESTAMP
+    - expression:
+        quoted_literal: "'2020-01-01 00:00:00'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: HISTORY
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: t
+    - keyword: BEFORE
+    - keyword: SYSTEM_TIME
+    - keyword: TRANSACTION
+    - expression:
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: HISTORY
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: t
+    - partition_clause:
+        keyword: PARTITION
+        bracketed:
+        - start_bracket: (
+        - object_reference:
+            naked_identifier: p0
+        - comma: ','
+        - object_reference:
+            naked_identifier: p1
+        - end_bracket: )
+    - keyword: BEFORE
+    - keyword: SYSTEM_TIME
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: NOW
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      for_portion_of_clause:
+      - keyword: FOR
+      - keyword: PORTION
+      - keyword: OF
+      - naked_identifier: date_period
+      - keyword: FROM
+      - expression:
+          quoted_literal: "'2001-01-01'"
+      - keyword: TO
+      - expression:
+          quoted_literal: "'2018-01-01'"
+- statement_terminator: ;
