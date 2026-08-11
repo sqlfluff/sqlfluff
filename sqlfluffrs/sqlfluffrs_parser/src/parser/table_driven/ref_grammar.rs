@@ -63,17 +63,16 @@ impl Parser<'_> {
         let exclude_id_opt = self.grammar_ctx.exclude(grammar_id);
         if let Some(exclude_id) = exclude_id_opt {
             self.pos = start_pos;
-            if let Ok(exclude_mr) =
-                self.parse_table_iterative_match_result(exclude_id, &frame.table_terminators)
-            {
-                self.pos = start_pos;
-                if !exclude_mr.is_empty() {
-                    vdebug!(
-                        "Ref[table]: exclude grammar matched at pos {}, returning Empty",
-                        frame.pos
-                    );
-                    return Ok(stack.complete_frame_empty(&frame));
-                }
+            // Try matching exclude grammar, otherwise raise RuntimeError
+            let exclude_mr =
+                self.parse_table_iterative_match_result(exclude_id, &frame.table_terminators)?;
+            self.pos = start_pos;
+            if !exclude_mr.is_empty() {
+                vdebug!(
+                    "Ref[table]: exclude grammar matched at pos {}, returning Empty",
+                    frame.pos
+                );
+                return Ok(stack.complete_frame_empty(&frame));
             }
             vdebug!("Ref[table]: exclude grammar did not match, continuing");
         }
