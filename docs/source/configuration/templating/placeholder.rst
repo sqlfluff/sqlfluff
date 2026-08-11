@@ -78,6 +78,21 @@ above. Notice that the value needs to be escaped as it will be replaced as a
 string during parsing. When the sample values aren't provided, the templater
 will use parameter names themselves by default.
 
+Multiple styles can be combined using a comma-separated value:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:placeholder]
+    param_style = colon, pyformat
+
+When configuring SQLFluff in :code:`pyproject.toml`, the styles can instead be
+provided as an array:
+
+.. code-block:: toml
+
+    [tool.sqlfluff.templater.placeholder]
+    param_style = ["colon", "pyformat"]
+
 When parameters are positional, like `question_mark`, then their name is
 simply the order in which they appear, starting with `1`.
 

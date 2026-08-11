@@ -3,6 +3,7 @@
 import pytest
 
 from sqlfluff.core import FluffConfig
+from sqlfluff.core.config import load_config_file
 from sqlfluff.core.templaters import PlaceholderTemplater
 
 
@@ -403,6 +404,102 @@ def test__templater_param_style(instr, expected_outstr, param_style, values):
     assert str(outstr) == expected_outstr
 
 
+@pytest.mark.parametrize(
+    "config_filename,config_string",
+    [
+        (
+            ".sqlfluff",
+            """[sqlfluff]
+dialect = ansi
+templater = placeholder
+
+[sqlfluff:templater:placeholder]
+param_style = colon, pyformat
+user_id = 42
+start_date = '2021-10-01'
+""",
+        ),
+        (
+            "pyproject.toml",
+            """[tool.sqlfluff.core]
+dialect = "ansi"
+templater = "placeholder"
+
+[tool.sqlfluff.templater.placeholder]
+param_style = ["colon", "pyformat"]
+user_id = "42"
+start_date = "'2021-10-01'"
+""",
+        ),
+    ],
+    ids=["comma_separated_ini", "toml_list"],
+)
+def test__templater_multiple_param_styles(tmp_path, config_filename, config_string):
+    """Test combining named parameter styles from supported config formats."""
+    (tmp_path / config_filename).write_text(config_string, encoding="utf-8")
+    config = FluffConfig(configs=load_config_file(str(tmp_path), config_filename))
+    t = PlaceholderTemplater()
+    outstr, _ = t.process(
+        in_str="SELECT :user_id, %(start_date)s",
+        fname="test",
+        config=config,
+    )
+    assert str(outstr) == "SELECT 42, '2021-10-01'"
+
+
+def test__templater_multiple_param_styles_with_positional_parameters():
+    """Test positional numbering across multiple unnamed parameter styles."""
+    t = PlaceholderTemplater(
+        override_context={
+            "param_style": "colon, question_mark, percent",
+            "named": "named_value",
+            "1": "first_value",
+            "2": "second_value",
+        }
+    )
+    outstr, _ = t.process(
+        in_str="SELECT :named, ?, %s",
+        fname="test",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    assert str(outstr) == "SELECT named_value, first_value, second_value"
+
+
+@pytest.mark.parametrize(
+    "param_style,instr,values,expected_outstr",
+    [
+        (
+            "dollar, dollar_surround, flyway_var",
+            "SELECT $plain, $surrounded$, ${flyway:schema}",
+            {
+                "plain": "plain_value",
+                "surrounded": "surrounded_value",
+                "flyway:schema": "schema_value",
+            },
+            "SELECT plain_value, surrounded_value, schema_value",
+        ),
+        (
+            "colon, colon_optional_quotes",
+            "SELECT :plain, :'quoted'",
+            {"plain": "plain_value", "quoted": "quoted_value"},
+            "SELECT plain_value, 'quoted_value'",
+        ),
+    ],
+    ids=["longest_match", "optional_capture"],
+)
+def test__templater_multiple_param_styles_overlap(
+    param_style, instr, values, expected_outstr
+):
+    """Test overlapping styles prefer complete matches and optional captures."""
+    t = PlaceholderTemplater(override_context={**values, "param_style": param_style})
+    outstr, _ = t.process(
+        in_str=instr,
+        fname="test",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    assert str(outstr) == expected_outstr
+
+
 def test__templater_custom_regex():
     """Test custom regex templating."""
     t = PlaceholderTemplater(
@@ -441,4 +538,12 @@ def test__templater_styles():
     """Test the exception raised when parameter style is unknown."""
     t = PlaceholderTemplater(override_context=dict(param_style="pperccent"))
     with pytest.raises(ValueError, match=r"Unknown param_style"):
+        t.process(in_str="SELECT 2+2", fname="test")
+
+
+@pytest.mark.parametrize("param_style", ["colon, invalid", ["colon", "invalid"]])
+def test__templater_multiple_param_styles_unknown(param_style):
+    """Test the exception raised when one parameter style is unknown."""
+    t = PlaceholderTemplater(override_context={"param_style": param_style})
+    with pytest.raises(ValueError, match=r'Unknown param_style "invalid"'):
         t.process(in_str="SELECT 2+2", fname="test")
