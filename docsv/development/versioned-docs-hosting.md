@@ -61,8 +61,8 @@ Implemented in the repo so far:
   condition, which is what lets the manual path reuse them.
 - `workflow_dispatch` accepts `version`, `refresh_stable`, `prerelease`, and
   `published_at`, so a release tag can be rebuilt and `stable` repointed without
-  reissuing a release. Refreshing `stable` from a prerelease is refused, matching
-  the release path and the channel policy below.
+  reissuing a release. Refreshing `stable` from a prerelease is refused,
+  matching the release path and the channel policy below.
 - `docsv/scripts/smoke-check-assembled-site.py` validates the assembled tree
   before it is uploaded: the manifest parses, every version it advertises has a
   real index page, the root redirect points at a published default, and the
@@ -71,6 +71,17 @@ Implemented in the repo so far:
   now carries an existing release's `published_at` forward when one is not
   supplied. Without that, a manual rebuild would silently erase the date that
   the version picker displays.
+- The VitePress theme carries the version picker and the stale version notice,
+  both reading `/en/versions.json` at runtime. They are described under Version
+  Picker Design below, and both degrade to naming the current version when the
+  manifest cannot be reached.
+- The docs base defaults to `/en/latest/` rather than an unversioned path, so a
+  local run matches the published layout. The picker reads the current version
+  out of the base, so an unversioned base cannot show it at all.
+- Because the manifest lives at the language root, above any single version's
+  base, the dev server cannot serve it from `public/`. A dev-only Vite plugin
+  serves `.vitepress/dev-versions.json` at that path so both components can be
+  worked on locally.
 
 Validated locally so far:
 
@@ -94,6 +105,11 @@ Still not confirmed from this repository alone:
 
 - Release-driven `/en/<version>/` and `/en/stable/` publishing.
 - A live rollback or rebuild flow using the assembled snapshot in R2.
+- The manual rebuild path. The dispatch inputs and the publish-target logic have
+  been tested in isolation, but no run has yet rebuilt a real tag or repointed
+  `stable` against the live site.
+- The version picker and notice against more than one published version. Both
+  have only been exercised locally, where the manifest comes from a fixture.
 
 ## Architecture
 
@@ -268,14 +284,47 @@ The exact schema can evolve, but a practical initial contract is:
 
 ### Picker Behavior
 
-The initial picker behavior should stay simple:
+The plan was to switch to the selected version root first and preserve the
+current page path only once redirect parity was good enough. The shipped picker
+preserves the page path from the outset: a reader switching version stays on the
+page they were reading, and if that page does not exist in the target version
+they get that version's own 404.
 
-1. First rollout: switch to the selected version root.
-2. Later enhancement: attempt to preserve the current relative page path, with
-  fallback to the selected version root if the page does not exist.
+That trade was taken deliberately. Losing your place on every version switch is
+a certain cost on every use, where a missing page is a possible cost on some.
+It is worth revisiting for mixed VitePress and Sphinx path compatibility, where
+the paths differ structurally rather than occasionally.
 
-Root-only switching is the default until redirect parity and mixed VitePress or
-Sphinx path compatibility are good enough to justify a smarter switch.
+Two details are easy to break and worth knowing before changing this:
+
+- Cross-version links must carry a `target` attribute. VitePress intercepts
+  every same-origin link for client-side routing, which would resolve another
+  version's page against the current build; a link with a `target` is skipped.
+- The page path is taken from the current route rather than read once on mount,
+  so it stays correct after a client-side navigation.
+
+The picker is a disclosure of links rather than a `select` or a `role="menu"`
+widget. A native `select` cannot style its popup, so the closed control and the
+open list could not be made to match. Links, rather than a change handler, keep
+middle-click and open-in-new-tab working, and a list of links after the trigger
+is already reachable with Tab, which avoids reimplementing arrow-key movement
+and typeahead.
+
+### Stale Version Notice
+
+Readers usually arrive from a search engine, which favours whichever version has
+accumulated links rather than the current one, so the picker alone does not help
+someone who does not know they need it. Published docs therefore also carry a
+notice naming the version being read, with a link to the same page in the
+recommended version:
+
+- `latest` is flagged as development documentation, since it tracks `main`.
+- A release which is not the newest is flagged as superseded.
+- Nothing is shown when there is nowhere better to go, which also keeps the
+  notice off a single-channel deployment.
+
+The notice is driven by the same manifest as the picker, so it depends on
+`published_at` and on the ordering that `assemble-site.py` writes.
 
 ### Shared Runtime Assets
 
@@ -355,8 +404,12 @@ sufficient.
 
 - Final releases should publish `/en/<version>/` and automatically refresh
   `/en/stable/`.
-- Prereleases may be published at their direct version URLs, but should be
-  hidden from the version picker.
+- Prereleases are published at their direct version URLs and are listed in the
+  version picker, marked as prereleases rather than hidden. Hiding them was the
+  original intent, but a version a reader can reach by URL and cannot find in
+  the picker is harder to explain than one which is labelled, and the label is
+  what stops it being mistaken for a final release. They are still kept off
+  `/en/stable/`, which only ever points at a final release.
 - `latest` is the only channel where edit links are important. Other channels
   may either omit edit links or point to `main`; version-accurate edit links
   are not required for the first rollout.
@@ -393,7 +446,8 @@ Deliverables:
 - Wire `docs.beta.sqlfluff.com`
 - Add repository secrets
 - Set the first VitePress-native release tag to `4.2.0`
-- Decide whether prereleases appear in the picker
+- Decide whether prereleases appear in the picker — decided: they appear,
+  marked as prereleases. See the release channel policy above.
 
 Stopping point:
 
@@ -420,15 +474,18 @@ Stopping point:
 
 ### Stage 2: Manifest And Initial Version Picker
 
-Status: partially complete. The minimal shared manifest is now live, but the
-runtime version picker UI has not been added yet.
+Status: complete for VitePress. The shared manifest is live and the picker reads
+it at runtime, alongside the stale version notice described above. Only the
+cross-builder work in Stage 5 remains before older Sphinx versions can use it.
 
 Deliverables:
 
-- Define the `versions.json` schema
-- Add a basic picker to the VitePress theme
-- Read version data from the shared manifest at runtime
-- Keep initial switching behavior simple by targeting version roots only
+- Define the `versions.json` schema — done
+- Add a basic picker to the VitePress theme — done
+- Read version data from the shared manifest at runtime — done
+- Keep initial switching behavior simple by targeting version roots only —
+  superseded; the picker preserves the current page path instead, for the
+  reasons under Picker Behavior above
 
 Stopping point:
 
@@ -463,10 +520,11 @@ immutable snapshot archives are still outstanding.
 Deliverables:
 
 - Add `workflow_dispatch` for rebuilding a chosen version tag — done
-- Validate the tag exists before build — done implicitly; the tag is the checkout
-  ref, so a tag which does not exist fails the run before anything is built
-- Rebuild only the requested version subtree — done; the existing tree is pulled
-  from R2 first, so only the rebuilt subtree is replaced
+- Validate the tag exists before build — done implicitly; the tag is the
+  checkout ref, so a tag which does not exist fails the run before anything is
+  built
+- Rebuild only the requested version subtree — done; the existing tree is
+  pulled from R2 first, so only the rebuilt subtree is replaced
 - Support importing an archived static snapshot when rebuilding is not practical
 - Keep immutable assembled snapshots so rollback and manual imports use the same
   artifact model
@@ -516,7 +574,9 @@ Deliverables:
 - Preserve or replace important `.html`, permalink, and declared redirect
   routes
 - Add or refine Netlify redirects where needed
-- Improve picker behavior to preserve current page paths where possible
+- Confirm page-path preservation on version switch holds up against the redirect
+  set, and decide how it should behave across the VitePress and Sphinx boundary
+  where paths differ structurally
 - Review edit links, 404 behavior, and search behavior across versions
 
 Stopping point:
@@ -581,13 +641,16 @@ The following can be revisited after the initial beta proof:
 
 When resuming this work on another machine, the next high-value checks are:
 
-1. Add the initial runtime version picker in VitePress, backed by the live
-  `/en/versions.json` manifest.
-2. Add the release-triggered publish path for `/en/<version>/` and `/en/stable/`.
-3. Teach the assembly flow to merge an existing R2 snapshot instead of always
-  rebuilding a latest-only tree.
-4. Prove one historical rebuild path, either from a VitePress-native release or
-  from a controlled Sphinx-hosted version.
+1. Prove one historical rebuild path end to end, either from a VitePress-native
+  release or from a controlled Sphinx-hosted version. The manual dispatch path
+  exists but has not yet been exercised against a real tag.
+2. Confirm release-driven `/en/<version>/` and `/en/stable/` publishing against
+  a real release, which has still only been reasoned about rather than
+  observed.
+3. Add the snapshot import and immutable snapshot archives left open in Stage 4,
+  so rollback and manual imports share the artifact model.
+4. Move the picker and notice onto shared assets under `/en/shared/` (Stage 5)
+  so older published versions do not need rebuilding to learn about new ones.
 
 ## Success Criteria
 
@@ -597,7 +660,8 @@ The plan should be considered successful when:
 - each release automatically publishes to `/en/<version>/`
 - the newest final release is available at `/en/stable/`
 - the picker lists available versions from a shared manifest
-- prereleases can be published directly without appearing in the picker
+- prereleases can be published directly and are listed in the picker as
+  prereleases, without ever becoming `stable`
 - rebuilding a historical version does not require rebuilding every other version
 - documentation URLs emitted by SQLFluff `2.0.0` and later continue to resolve
 - pre-cutover versions can still be hosted under the same beta domain
