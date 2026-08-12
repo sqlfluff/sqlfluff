@@ -70,7 +70,42 @@ mariadb_dialect.replace(
             ),
         ),
     ),
+    # Allow the MariaDB sequence value expressions `NEXT VALUE FOR seq` and
+    # `PREVIOUS VALUE FOR seq` anywhere an expression is valid (SELECT, VALUES).
+    # The dedicated segment is tried first so a leading NEXT/PREVIOUS is not
+    # consumed as a column reference.
+    Expression_C_Grammar=OneOf(
+        Ref("SequenceValueForSegment"),
+        mysql_dialect.get_grammar("Expression_C_Grammar"),
+    ),
+    # A column DEFAULT may use a sequence value expression, either bare
+    # (`DEFAULT NEXT VALUE FOR seq`) or bracketed (`DEFAULT (NEXT VALUE FOR
+    # seq)`) -- both are accepted by MariaDB. The base column-default grammar
+    # only allows literals/functions, so it does not cover this.
+    ColumnConstraintDefaultGrammar=OneOf(
+        Ref("SequenceValueForSegment"),
+        Bracketed(Ref("SequenceValueForSegment")),
+        mysql_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
+    ),
 )
+
+
+class SequenceValueForSegment(BaseSegment):
+    """A MariaDB ``NEXT VALUE FOR`` / ``PREVIOUS VALUE FOR`` sequence expression.
+
+    ``NEXT VALUE FOR seq`` is equivalent to ``NEXTVAL(seq)`` and
+    ``PREVIOUS VALUE FOR seq`` to ``LASTVAL(seq)``.
+
+    https://mariadb.com/kb/en/sequence-overview/
+    """
+
+    type = "sequence_value_for_expression"
+    match_grammar: Matchable = Sequence(
+        OneOf("NEXT", "PREVIOUS"),
+        "VALUE",
+        "FOR",
+        Ref("SequenceReferenceSegment"),
+    )
 
 
 class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
