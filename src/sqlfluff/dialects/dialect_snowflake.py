@@ -2198,31 +2198,40 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             # N.B. Since SEARCH and OPTIMIZATION are unreserved keywords
             # we move this above AlterTableTableColumnActionSegment
             # in order to avoid matching these as columns.
-            Sequence(
-                OneOf(
-                    "ADD",
-                    "DROP",
-                ),
-                "SEARCH",
-                "OPTIMIZATION",
-            ),
+            Ref("SearchOptimizationActionSegment"),
             Ref("AlterTableClusteringActionSegment"),
             Ref("AlterTableConstraintActionSegment"),
-            # @TODO: constraintAction
             # @TODO: extTableColumnAction
             # SET Table options
             # @TODO: Restrict the list of parameters supported per Snowflake doc.
             Sequence(
                 Ref.keyword("SET"),
-                OneOf(
-                    Ref("ParameterNameSegment"),
-                    Ref.keyword("COMMENT"),
-                ),
-                Ref("EqualsSegment", optional=True),
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Ref("NakedIdentifierSegment"),
-                    Ref("QuotedLiteralSegment"),
+                Delimited(
+                    OneOf(
+                        # CONTACT <purpose> = <contact_name> [ , ... ]
+                        Sequence(
+                            "CONTACT",
+                            Delimited(
+                                Sequence(
+                                    Ref("PurposeGrammar"),
+                                    Ref("EqualsSegment"),
+                                    Ref("ObjectReferenceSegment"),
+                                ),
+                            ),
+                        ),
+                        Sequence(
+                            OneOf(
+                                Ref("ParameterNameSegment"),
+                                Ref.keyword("COMMENT"),
+                            ),
+                            Ref("EqualsSegment", optional=True),
+                            OneOf(
+                                Ref("LiteralGrammar"),
+                                Ref("NakedIdentifierSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                        ),
+                    ),
                 ),
             ),
             # @TODO: add more constraint actions
@@ -2470,6 +2479,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                                     Ref("DatatypeSegment"),
                                 ),
                                 Ref("CommentClauseSegment"),
+                                Sequence("UNSET", "COMMENT"),
                             ),
                         ),
                         Sequence(
@@ -2611,22 +2621,50 @@ class AlterTableConstraintActionSegment(BaseSegment):
             "ADD",
             Ref("OutOfLineConstraintPropertiesSegment"),
         ),
+        # DROP { CONSTRAINT <name> | PRIMARY KEY | UNIQUE | FOREIGN KEY }
+        #      ( <col_name> [ , ... ] ) [ CASCADE | RESTRICT ]
         Sequence(
             "DROP",
-            Sequence("CONSTRAINT", Ref("NakedIdentifierSegment"), optional=True),
             OneOf(
+                Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar")),
+                Sequence(
+                    OneOf(
+                        Ref("PrimaryKeyGrammar"),
+                        Ref("ForeignKeyGrammar"),
+                        Ref("UniqueKeyGrammar"),
+                    ),
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                ),
+            ),
+            OneOf("CASCADE", "RESTRICT", optional=True),
+        ),
+        # { ALTER | MODIFY } { CONSTRAINT <name> | PRIMARY KEY | UNIQUE
+        #                    | FOREIGN KEY } ( <col_name> [ , ... ] )
+        #     [ [ NOT ] ENFORCED ] [ VALIDATE | NOVALIDATE ] [ RELY | NORELY ]
+        Sequence(
+            OneOf("ALTER", "MODIFY"),
+            OneOf(
+                Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar")),
                 Ref("PrimaryKeyGrammar"),
                 Ref("ForeignKeyGrammar"),
                 Ref("UniqueKeyGrammar"),
             ),
-            Delimited(Ref("ColumnReferenceSegment")),
+            Bracketed(
+                Delimited(Ref("ColumnReferenceSegment")),
+                optional=True,
+            ),
+            AnySetOf(
+                Sequence(Ref.keyword("NOT", optional=True), "ENFORCED"),
+                OneOf("VALIDATE", "NOVALIDATE"),
+                OneOf("RELY", "NORELY"),
+            ),
         ),
         Sequence(
             "RENAME",
             "CONSTRAINT",
-            Ref("NakedIdentifierSegment"),
+            Ref("SingleIdentifierGrammar"),
             "TO",
-            Ref("NakedIdentifierSegment"),
+            Ref("SingleIdentifierGrammar"),
         ),
     )
 
@@ -2664,8 +2702,8 @@ class SearchOptimizationActionSegment(BaseSegment):
                             Ref.keyword("EQUALITY", optional=True),
                         )
                     ),
+                    optional=True,
                 ),
-                optional=True,
             ),
         ),
     )
@@ -4674,6 +4712,11 @@ class OutOfLineConstraintPropertiesSegment(BaseSegment):
                 ),
                 Ref("ForeignKeyConstraintGrammar", optional=True),
             ),
+            # outoflineCH
+            Sequence(
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+            ),
         ),
         Ref("InlineConstraintGrammar", optional=True),
     )
@@ -4768,6 +4811,8 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             Ref("ColumnReferenceSegment"),
             # Foreign columns making up FOREIGN KEY constraint
             Ref("BracketedColumnReferenceListGrammar", optional=True),
+            Ref("ForeignKeyConstraintGrammar", optional=True),
+            Ref("InlineConstraintGrammar", optional=True),
         ),
     )
 
@@ -5283,7 +5328,19 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             Sequence(
                 "CREATE",
                 Ref("AlterOrReplaceGrammar", optional=True),
-                Ref("TemporaryTransientGrammar", optional=True),
+                OneOf(
+                    "TRANSIENT",
+                    # READ ONLY is only valid for temporary tables cloning
+                    # another table, so it requires the TEMP keyword.
+                    Sequence(
+                        OneOf("LOCAL", "GLOBAL", optional=True),
+                        OneOf("TEMP", "TEMPORARY"),
+                        Ref.keyword("VOLATILE", optional=True),
+                        Sequence("READ", "ONLY", optional=True),
+                    ),
+                    Ref("TemporaryGrammar"),
+                    optional=True,
+                ),
                 Ref.keyword("DYNAMIC", optional=True),
                 Ref.keyword("HYBRID", optional=True),
                 Ref.keyword("ICEBERG", optional=True),
@@ -5314,10 +5371,12 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                     Bracketed(
                                         Anything(), optional=True
                                     ),  # For types like VARCHAR(100)
+                                    Sequence("GENERATED", "ALWAYS", optional=True),
                                     "AS",
                                     OptionallyBracketed(
                                         Ref("ExpressionSegment"),
                                     ),
+                                    Ref.keyword("VIRTUAL", optional=True),
                                 ),
                             ),
                             Ref("TagBracketedEqualsSegment", optional=True),
@@ -5367,7 +5426,31 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 optional=True,
             ),
             Sequence(
+                "ENABLE_SCHEMA_EVOLUTION",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "ERROR_LOGGING",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "ROW_TIMESTAMP",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
                 "DEFAULT_DDL_COLLATION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "ICEBERG_DEFAULT_DDL_COLLATION",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
                 optional=True,
