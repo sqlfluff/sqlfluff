@@ -56,6 +56,21 @@ Implemented in the repo so far:
   `aws-actions/configure-aws-credentials` action.
 - The workflow currently triggers on pushes to `main`, pushes to
   `ac/docsdeploy`, and `workflow_dispatch`.
+- The three trigger paths now resolve through a single `Determine docs publish
+  target` step rather than repeating the release semantics in each step
+  condition, which is what lets the manual path reuse them.
+- `workflow_dispatch` accepts `version`, `refresh_stable`, `prerelease`, and
+  `published_at`, so a release tag can be rebuilt and `stable` repointed without
+  reissuing a release. Refreshing `stable` from a prerelease is refused, matching
+  the release path and the channel policy below.
+- `docsv/scripts/smoke-check-assembled-site.py` validates the assembled tree
+  before it is uploaded: the manifest parses, every version it advertises has a
+  real index page, the root redirect points at a published default, and the
+  Netlify `_headers` file exists.
+- `assemble-site.py` rebuilds a manifest entry from scratch on each run, so it
+  now carries an existing release's `published_at` forward when one is not
+  supplied. Without that, a manual rebuild would silently erase the date that
+  the version picker displays.
 
 Validated locally so far:
 
@@ -441,15 +456,22 @@ Stopping point:
 
 ### Stage 4: Manual Rebuild Workflow
 
+Status: mostly complete. A chosen tag can be rebuilt from `workflow_dispatch`,
+and `stable` can be repointed, both validated before upload. Snapshot import and
+immutable snapshot archives are still outstanding.
+
 Deliverables:
 
-- Add `workflow_dispatch` for rebuilding a chosen version tag
-- Validate the tag exists before build
-- Rebuild only the requested version subtree
+- Add `workflow_dispatch` for rebuilding a chosen version tag — done
+- Validate the tag exists before build — done implicitly; the tag is the checkout
+  ref, so a tag which does not exist fails the run before anything is built
+- Rebuild only the requested version subtree — done; the existing tree is pulled
+  from R2 first, so only the rebuilt subtree is replaced
 - Support importing an archived static snapshot when rebuilding is not practical
 - Keep immutable assembled snapshots so rollback and manual imports use the same
   artifact model
-- Optionally refresh `stable` in controlled cases
+- Optionally refresh `stable` in controlled cases — done, and refused for
+  prereleases
 
 Stopping point:
 
