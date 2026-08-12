@@ -1856,7 +1856,7 @@ class ChangesClauseSegment(BaseSegment):
         Sequence(
             "END",
             Bracketed(
-                OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+                OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
                 Ref("ParameterAssignerSegment"),
                 Ref("ExpressionSegment"),
                 parse_mode=ParseMode.GREEDY,
@@ -1873,7 +1873,7 @@ class FromAtExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         "AT",
         Bracketed(
-            OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+            OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
             Ref("ParameterAssignerSegment"),
             Ref("ExpressionSegment"),
         ),
@@ -1887,7 +1887,7 @@ class FromBeforeExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         "BEFORE",
         Bracketed(
-            OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+            OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
             Ref("ParameterAssignerSegment"),
             Ref("ExpressionSegment"),
             parse_mode=ParseMode.GREEDY,
@@ -3569,6 +3569,7 @@ class CreateCloneStatementSegment(BaseSegment):
             Ref("FromBeforeExpressionSegment"),
             optional=True,
         ),
+        Sequence("COPY", "GRANTS", optional=True),
     )
 
 
@@ -7993,15 +7994,21 @@ class CreateStreamStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         "STREAM",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
+        Ref("TagBracketedEqualsSegment", optional=True),
         Sequence("COPY", "GRANTS", optional=True),
         "ON",
         OneOf(
             Sequence(
-                OneOf("TABLE", "VIEW", Sequence("DYNAMIC", "TABLE")),
+                OneOf(
+                    "TABLE",
+                    "VIEW",
+                    Sequence("DYNAMIC", "TABLE"),
+                    Sequence("EVENT", "TABLE"),
+                ),
                 Ref("ObjectReferenceSegment"),
                 OneOf(
                     Ref("FromAtExpressionSegment"),
