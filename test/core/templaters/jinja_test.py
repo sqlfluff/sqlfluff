@@ -2087,10 +2087,7 @@ def test__templater_jinja_dotted_context_config():
 
 
 def test__templater_jinja_custom_variable_delimiters():
-    """Test custom variable delimiters (e.g. Snowflake CLI <% var %>).
-
-    See issue #7598: Snowflake CLI uses <% varname %> instead of {{ varname }}.
-    """
+    """Test custom variable delimiters (e.g. Snowflake CLI <% var %>)."""
     config = FluffConfig.from_string(
         "[sqlfluff]\n"
         "dialect = snowflake\n"
@@ -2107,10 +2104,7 @@ def test__templater_jinja_custom_variable_delimiters():
 
 
 def test__templater_jinja_custom_block_delimiters():
-    """Test custom block delimiters for control flow.
-
-    See issue #7598: users may want to override {% %} delimiters too.
-    """
+    """Test custom block delimiters for control flow."""
     config = FluffConfig.from_string(
         "[sqlfluff]\n"
         "dialect = ansi\n"
@@ -2129,13 +2123,7 @@ def test__templater_jinja_custom_block_delimiters():
 
 
 def test__templater_jinja_custom_block_delimiters_variants():
-    """Test that variant generation respects custom block delimiters.
-
-    See issue #7598: variant generation in _handle_unreached_code() must
-    use the configured delimiters when building override tags, otherwise
-    custom-delimiter templates with unreached conditional branches
-    produce invalid variants.
-    """
+    """Test variant generation respects custom block delimiters."""
     config = FluffConfig.from_string(
         "[sqlfluff]\n"
         "dialect = ansi\n"
@@ -2151,12 +2139,7 @@ def test__templater_jinja_custom_block_delimiters_variants():
     variants = list(
         t.process_with_variants(in_str=instr, fname="test.sql", config=config)
     )
-    # First variant: flag is False, so SELECT 2
     assert str(variants[0][0]) == "SELECT 2"
-    # A variant should be generated that forces the unreached True branch,
-    # producing SELECT 1. This proves the override tag used the configured
-    # <% %> delimiters — if it had used default {% %}, the variant would
-    # fail to parse and no SELECT 1 variant would appear.
     variant_outputs = {str(v[0]) for v in variants}
     assert "SELECT 1" in variant_outputs
     assert "SELECT 2" in variant_outputs
