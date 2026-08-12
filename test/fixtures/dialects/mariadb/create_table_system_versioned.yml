@@ -1,0 +1,85 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a9963c030cc07bc7dca40ee4a28c48b043235d8fde70fb72d5033490daa3b459
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_explicit
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: start_timestamp
+          keyword: TIMESTAMP
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '6'
+              end_bracket: )
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: ROW
+          - keyword: START
+      - comma: ','
+      - column_definition:
+          naked_identifier: end_timestamp
+          keyword: TIMESTAMP
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '6'
+              end_bracket: )
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: ROW
+          - keyword: END
+      - comma: ','
+      - table_constraint:
+          period_segment:
+          - keyword: PERIOD
+          - keyword: FOR
+          - keyword: SYSTEM_TIME
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: start_timestamp
+            - comma: ','
+            - column_reference:
+                naked_identifier: end_timestamp
+            - end_bracket: )
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+- statement_terminator: ;
