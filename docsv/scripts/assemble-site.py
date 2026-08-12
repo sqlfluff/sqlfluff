@@ -114,6 +114,15 @@ def upsert_manifest_entry(
     stable_release: str | None,
 ) -> dict[str, Any]:
     """Insert or update a manifest entry for the published channel."""
+    previous = next(
+        (
+            existing
+            for existing in manifest.get("versions", [])
+            if existing.get("key") == channel
+        ),
+        None,
+    )
+
     entry: dict[str, Any] = {
         "key": channel,
         "label": channel,
@@ -124,8 +133,19 @@ def upsert_manifest_entry(
         "prerelease": prerelease,
     }
 
-    if published_at and kind == "release":
-        entry["published_at"] = published_at
+    # The entry is rebuilt from scratch rather than merged, so anything not
+    # passed in is dropped. That is fine for values this script is told on every
+    # run, but a release's publication date is only known to the release event
+    # which first published it. Rebuilding an existing release without repeating
+    # `--published-at` would silently erase the date, which the version picker
+    # displays. So an explicit value wins, and otherwise an existing one is
+    # carried forward. A brand new release with no date simply has none.
+    resolved_published_at = published_at or (
+        previous.get("published_at") if previous else None
+    )
+
+    if resolved_published_at and kind == "release":
+        entry["published_at"] = resolved_published_at
 
     versions = [
         existing
