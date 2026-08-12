@@ -1,12 +1,16 @@
+import { existsSync, readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
-import type { DefaultTheme } from 'vitepress'
+import type { DefaultTheme, HeadConfig } from 'vitepress'
 
 // Auto-generated sidebar and redirect configurations
 import sidebarRules from './sidebar-rules.json'
 import sidebarCli from './sidebar-cli.json'
 import sidebarApi from './sidebar-api.json'
 import sidebarDialects from './sidebar-dialects.json'
-import { normalizeBase, withDocsBase } from './path-utils'
+import { manifestPath, normalizeBase, withDocsBase } from './path-utils'
+import { DESIGN_SOURCE, assertDesignPackage } from '../scripts/sync-design.mjs'
 
 const GUIDE: DefaultTheme.NavItemWithLink[] = [
     { text: 'Introduction', link: '/guide/' },
@@ -75,12 +79,81 @@ const REFERENCES: DefaultTheme.NavItemWithLink[] = [
 const docsBase = normalizeBase(process.env.SQLFLUFF_DOCS_BASE, '/sqlfluff/')
 const noIndex = process.env.SQLFLUFF_DOCS_NOINDEX === '1'
 
-const head: [string, Record<string, string>][] = [
-    ['link', { rel: 'icon', href: withDocsBase(docsBase, 'favicon.ico') }],
+assertDesignPackage()
+
+/**
+ * Inlined rather than linked so the theme is applied before first paint without
+ * a render-blocking request. Read from the installed package, which is the
+ * source of truth; `design:sync` copies the rest of the package into `public/`.
+ */
+const themeBootstrap = readFileSync(join(DESIGN_SOURCE, 'js/theme.js'), 'utf-8')
+
+const designAsset = (path: string) => withDocsBase(docsBase, `sqlfluff-design/${path}`)
+
+const head: HeadConfig[] = [
+    // The shared favicon set, so the docs and sqlfluff.com show the same mark
+    // in a tab and move together when it changes.
+    ['link', { rel: 'icon', href: designAsset('img/favicon.ico'), sizes: 'any' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: designAsset('img/favicon-32x32.png') }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: designAsset('img/favicon-16x16.png') }],
+    ['link', { rel: 'apple-touch-icon', href: designAsset('img/apple-touch-icon.png') }],
+    // The bootstrap rewrites this to match the resolved theme.
+    ['meta', { name: 'theme-color', content: '#f7f8f8' }],
+    ['script', {}, themeBootstrap],
+    ['link', { rel: 'stylesheet', href: designAsset('css/tokens.css') }],
+    ['link', { rel: 'stylesheet', href: designAsset('css/base.css') }],
+    ['link', { rel: 'stylesheet', href: designAsset('css/components.css') }],
 ]
 
 if (noIndex) {
     head.push(['meta', { name: 'robots', content: 'noindex,nofollow' }])
+}
+
+/**
+ * Serve the versions manifest during local development.
+ *
+ * In production `scripts/assemble-site.py` writes the manifest at the language
+ * root, one level above this build's base, so that every published version reads
+ * the same file. The dev server only serves `public/` beneath its own base, which
+ * puts that path out of reach: the request 404s, and the version picker correctly
+ * degrades to a static label. That made the picker and the version notice
+ * impossible to work on locally, so this serves `dev-versions.json` at the same
+ * path the deployed site uses.
+ *
+ * The fixture is read per request, so editing it to try a different set of
+ * versions only needs a browser reload. Deleting it exercises the degraded path.
+ * The release entries it names are not built locally, so following one of those
+ * links in dev lands on the dev server's own 404.
+ *
+ * A versioned base is required for any of this to appear, since the picker takes
+ * the current version from the base:
+ *
+ *   SQLFLUFF_DOCS_BASE=/en/latest/ pnpm docs:dev
+ *
+ * `apply: 'serve'` keeps this out of production builds, and registering the
+ * middleware directly in `configureServer` runs it ahead of Vite's own base
+ * handling, which would otherwise reject the path first.
+ */
+const devVersionsFixture = join(dirname(fileURLToPath(import.meta.url)), 'dev-versions.json')
+
+const serveDevVersions = {
+    name: 'sqlfluff-dev-versions',
+    apply: 'serve' as const,
+    configureServer(server: { middlewares: { use: (path: string, fn: unknown) => void } }) {
+        server.middlewares.use(
+            manifestPath(docsBase),
+            (_req: unknown, res: { statusCode: number; setHeader: (k: string, v: string) => void; end: (body?: string) => void }) => {
+                if (!existsSync(devVersionsFixture)) {
+                    res.statusCode = 404
+                    res.end()
+                    return
+                }
+
+                res.setHeader('Content-Type', 'application/json')
+                res.end(readFileSync(devVersionsFixture, 'utf-8'))
+            }
+        )
+    },
 }
 
 export default defineConfig({
@@ -92,8 +165,24 @@ export default defineConfig({
 
     head,
 
+    // The shared design script is the single owner of the theme signals, so
+    // VitePress must not also manage them. This drops its inline dark-mode
+    // script and its own two-state toggle, which the shared three-state control
+    // replaces. `useData().isDark` becomes inert; nothing in the default theme
+    // reads it apart from the toggle being replaced, and VitePress dark styling
+    // keys off the `dark` class which the shared script sets.
+    appearance: false,
+
     themeConfig: {
-        logo: '/logo.svg',
+        // The shared wordmark, matching what sqlfluff.com shows in the same
+        // position. VitePress applies the docs base to this itself. The alt
+        // text carries the accessible name for the home link, since the site
+        // title below is hidden.
+        logo: { src: '/sqlfluff-design/img/sqlfluff-wide.png', alt: 'SQLFluff' },
+
+        // The wordmark already reads "SQLfluff", so the adjacent title would
+        // repeat it. sqlfluff.com shows the mark alone for the same reason.
+        siteTitle: false,
 
         nav: [
             { text: 'Guide', items: GUIDE },
@@ -149,5 +238,9 @@ export default defineConfig({
             dark: 'github-dark'
         },
         lineNumbers: false
+    },
+
+    vite: {
+        plugins: [serveDevVersions]
     }
 })
