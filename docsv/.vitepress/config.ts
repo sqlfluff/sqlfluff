@@ -76,7 +76,14 @@ const REFERENCES: DefaultTheme.NavItemWithLink[] = [
     { text: 'Release Notes', link: '/reference/release-notes' },
 ]
 
-const docsBase = normalizeBase(process.env.SQLFLUFF_DOCS_BASE, '/sqlfluff/')
+/**
+ * Defaults to the layout the site is actually published under, so a local build
+ * matches production without being told to. `/sqlfluff/` matched nothing that is
+ * deployed, and because the version picker reads the current version out of the
+ * base, an unversioned default meant the picker and the version notice could not
+ * appear locally at all. Every publishing path sets this explicitly.
+ */
+const docsBase = normalizeBase(process.env.SQLFLUFF_DOCS_BASE, '/en/latest/')
 const noIndex = process.env.SQLFLUFF_DOCS_NOINDEX === '1'
 
 assertDesignPackage()
@@ -125,10 +132,9 @@ if (noIndex) {
  * The release entries it names are not built locally, so following one of those
  * links in dev lands on the dev server's own 404.
  *
- * A versioned base is required for any of this to appear, since the picker takes
- * the current version from the base:
- *
- *   SQLFLUFF_DOCS_BASE=/en/latest/ pnpm docs:dev
+ * The picker takes the current version from the base, so this only resolves to
+ * anything under a versioned base. That is now the default, and
+ * `SQLFLUFF_DOCS_BASE` overrides it to preview another version.
  *
  * `apply: 'serve'` keeps this out of production builds, and registering the
  * middleware directly in `configureServer` runs it ahead of Vite's own base
