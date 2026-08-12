@@ -1,0 +1,66 @@
+{
+  "_comment": "Local development fixture for the version picker and version notice. Served only by the dev server; the deployed manifest is written by scripts/assemble-site.py. Edit freely to try other states, or delete to see how the picker degrades when no manifest is reachable.",
+  "default": "latest",
+  "latest": "latest",
+  "stable": "3.4.2",
+  "versions": [
+    {
+      "key": "latest",
+      "label": "latest",
+      "title": "Latest (main)",
+      "path": "/en/latest/",
+      "kind": "channel",
+      "builder": "vitepress",
+      "prerelease": false
+    },
+    {
+      "key": "stable",
+      "label": "stable",
+      "title": "Stable (3.4.2)",
+      "path": "/en/stable/",
+      "kind": "channel",
+      "builder": "vitepress",
+      "prerelease": false
+    },
+    {
+      "key": "3.4.2",
+      "label": "3.4.2",
+      "title": "3.4.2",
+      "path": "/en/3.4.2/",
+      "kind": "release",
+      "builder": "vitepress",
+      "prerelease": false,
+      "published_at": "2026-07-14"
+    },
+    {
+      "key": "3.4.1",
+      "label": "3.4.1",
+      "title": "3.4.1",
+      "path": "/en/3.4.1/",
+      "kind": "release",
+      "builder": "vitepress",
+      "prerelease": false,
+      "published_at": "2026-06-02"
+    },
+    {
+      "key": "3.4.0",
+      "label": "3.4.0",
+      "title": "3.4.0",
+      "path": "/en/3.4.0/",
+      "kind": "release",
+      "builder": "vitepress",
+      "prerelease": false,
+      "published_at": "2026-05-11"
+    },
+    {
+      "key": "3.3.1",
+      "label": "3.3.1",
+      "title": "3.3.1",
+      "path": "/en/3.3.1/",
+      "kind": "release",
+      "builder": "vitepress",
+      "prerelease": false,
+      "published_at": "2026-03-20"
+    }
+  ]
+}

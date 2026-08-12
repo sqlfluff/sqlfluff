@@ -17,7 +17,7 @@ from functools import cache
 from typing import Optional
 
 from sqlfluff.core.config.ini import load_ini_string
-from sqlfluff.core.config.toml import load_toml_file_config
+from sqlfluff.core.config.toml import PYPROJECT_FILENAME, load_toml_file_config
 from sqlfluff.core.config.validate import validate_config_dict
 from sqlfluff.core.helpers.string import (
     split_comma_separated_string,
@@ -38,7 +38,7 @@ OPAQUE_SECTION_KEY_PATH = ("templater", "jinja", "context")
 def _load_raw_file_as_dict(filepath: str) -> ConfigMappingType:
     """Loads the raw dict object from file without interpolation."""
     filename = os.path.basename(filepath)
-    if filename == "pyproject.toml":
+    if filename == PYPROJECT_FILENAME:
         return load_toml_file_config(filepath)
     # If it's not a pyproject file, assume that it's an ini file.
     with open(filepath, mode="r") as file:
