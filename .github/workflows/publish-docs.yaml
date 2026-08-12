@@ -210,6 +210,14 @@ jobs:
           --kind channel
           --stable-release ${{ steps.docs-target.outputs.version }}
 
+      # Runs after every assemble step and before anything leaves the runner, so
+      # a tree which would 404 or advertise a version it did not build fails the
+      # run instead of reaching R2 and Netlify.
+      - name: Smoke check assembled site
+        run: >-
+          python docsv/scripts/smoke-check-assembled-site.py
+          --site-dir ${{ env.DOCS_SITE_DIR }}
+
       - name: ⬆️ Upload assembled site artifact
         uses: actions/upload-artifact@v4
         with:
