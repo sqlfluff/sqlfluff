@@ -1,5 +1,6 @@
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
 import type { DefaultTheme, HeadConfig } from 'vitepress'
 
@@ -8,7 +9,7 @@ import sidebarRules from './sidebar-rules.json'
 import sidebarCli from './sidebar-cli.json'
 import sidebarApi from './sidebar-api.json'
 import sidebarDialects from './sidebar-dialects.json'
-import { normalizeBase, withDocsBase } from './path-utils'
+import { manifestPath, normalizeBase, withDocsBase } from './path-utils'
 import { DESIGN_SOURCE, assertDesignPackage } from '../scripts/sync-design.mjs'
 
 const GUIDE: DefaultTheme.NavItemWithLink[] = [
@@ -108,6 +109,53 @@ if (noIndex) {
     head.push(['meta', { name: 'robots', content: 'noindex,nofollow' }])
 }
 
+/**
+ * Serve the versions manifest during local development.
+ *
+ * In production `scripts/assemble-site.py` writes the manifest at the language
+ * root, one level above this build's base, so that every published version reads
+ * the same file. The dev server only serves `public/` beneath its own base, which
+ * puts that path out of reach: the request 404s, and the version picker correctly
+ * degrades to a static label. That made the picker and the version notice
+ * impossible to work on locally, so this serves `dev-versions.json` at the same
+ * path the deployed site uses.
+ *
+ * The fixture is read per request, so editing it to try a different set of
+ * versions only needs a browser reload. Deleting it exercises the degraded path.
+ * The release entries it names are not built locally, so following one of those
+ * links in dev lands on the dev server's own 404.
+ *
+ * A versioned base is required for any of this to appear, since the picker takes
+ * the current version from the base:
+ *
+ *   SQLFLUFF_DOCS_BASE=/en/latest/ pnpm docs:dev
+ *
+ * `apply: 'serve'` keeps this out of production builds, and registering the
+ * middleware directly in `configureServer` runs it ahead of Vite's own base
+ * handling, which would otherwise reject the path first.
+ */
+const devVersionsFixture = join(dirname(fileURLToPath(import.meta.url)), 'dev-versions.json')
+
+const serveDevVersions = {
+    name: 'sqlfluff-dev-versions',
+    apply: 'serve' as const,
+    configureServer(server: { middlewares: { use: (path: string, fn: unknown) => void } }) {
+        server.middlewares.use(
+            manifestPath(docsBase),
+            (_req: unknown, res: { statusCode: number; setHeader: (k: string, v: string) => void; end: (body?: string) => void }) => {
+                if (!existsSync(devVersionsFixture)) {
+                    res.statusCode = 404
+                    res.end()
+                    return
+                }
+
+                res.setHeader('Content-Type', 'application/json')
+                res.end(readFileSync(devVersionsFixture, 'utf-8'))
+            }
+        )
+    },
+}
+
 export default defineConfig({
     title: 'SQLFluff',
     description: 'The SQL Linter for Humans',
@@ -190,5 +238,9 @@ export default defineConfig({
             dark: 'github-dark'
         },
         lineNumbers: false
+    },
+
+    vite: {
+        plugins: [serveDevVersions]
     }
 })
