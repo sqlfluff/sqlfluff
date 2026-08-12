@@ -226,6 +226,14 @@ def test__config__from_string():
     assert cfg.get("dialect") == "mysql"
 
 
+def test__config__deprecated_max_line_length_is_applied():
+    """A deprecated `sqlfluff:rules:max_line_length` should still take effect."""
+    cfg = FluffConfig.from_string(
+        "[sqlfluff]\ndialect = ansi\n\n[sqlfluff:rules]\nmax_line_length = 30\n"
+    )
+    assert cfg.get("max_line_length") == 30
+
+
 def test__config_missing_dialect():
     """Verify an exception is thrown if no dialect was specified."""
     with pytest.raises(SQLFluffUserError) as e:

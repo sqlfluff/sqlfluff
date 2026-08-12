@@ -352,6 +352,17 @@ snowflake_dialect.add(
             type="initialize_type",
         )
     ),
+    # CREATE/ALTER TASK parameters whose value is an identifier rather than a
+    # literal, so they are not covered by the generic <param> = <value> rule.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-task
+    TaskIdentifierValuedParameterGrammar=Sequence(
+        OneOf("ERROR_INTEGRATION", "SUCCESS_INTEGRATION", "FINALIZE"),
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("ObjectReferenceSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    ),
     CompressionType=OneOf(
         MultiStringParser(
             snowflake_dialect.sets("compression_types"),
@@ -1904,7 +1915,7 @@ class ChangesClauseSegment(BaseSegment):
         Sequence(
             "END",
             Bracketed(
-                OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+                OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
                 Ref("ParameterAssignerSegment"),
                 Ref("ExpressionSegment"),
                 parse_mode=ParseMode.GREEDY,
@@ -1921,7 +1932,7 @@ class FromAtExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         "AT",
         Bracketed(
-            OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+            OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
             Ref("ParameterAssignerSegment"),
             Ref("ExpressionSegment"),
         ),
@@ -1935,7 +1946,7 @@ class FromBeforeExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         "BEFORE",
         Bracketed(
-            OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+            OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
             Ref("ParameterAssignerSegment"),
             Ref("ExpressionSegment"),
             parse_mode=ParseMode.GREEDY,
@@ -3653,6 +3664,7 @@ class CreateCloneStatementSegment(BaseSegment):
             Ref("FromBeforeExpressionSegment"),
             optional=True,
         ),
+        Sequence("COPY", "GRANTS", optional=True),
     )
 
 
@@ -5523,6 +5535,20 @@ class CreateTaskSegment(BaseSegment):
         Indent,
         # https://docs.snowflake.com/en/sql-reference/sql/create-task#optional-parameters
         Ref("TagBracketedEqualsSegment", optional=True),
+        Sequence(
+            "WITH",
+            "CONTACT",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("PurposeGrammar"),
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    )
+                )
+            ),
+            optional=True,
+        ),
         AnyNumberOf(
             OneOf(
                 Sequence(
@@ -5557,6 +5583,12 @@ class CreateTaskSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("NumericLiteralSegment"),
             ),
+            Sequence(
+                "OVERLAP_POLICY",
+                Ref("EqualsSegment"),
+                OneOf("NO_OVERLAP", "ALLOW_CHILD_OVERLAP", "ALLOW_ALL_OVERLAP"),
+            ),
+            Ref("TaskIdentifierValuedParameterGrammar"),
             Delimited(
                 Sequence(
                     Ref("ParameterNameSegment"),
@@ -5578,6 +5610,13 @@ class CreateTaskSegment(BaseSegment):
         Sequence(
             "AFTER",
             Delimited(Ref("ObjectReferenceSegment")),
+            optional=True,
+        ),
+        Sequence(
+            "EXECUTE",
+            "AS",
+            "USER",
+            Ref("ObjectReferenceSegment"),
             optional=True,
         ),
         Dedent,
@@ -8056,15 +8095,21 @@ class CreateStreamStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         "STREAM",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
+        Ref("TagBracketedEqualsSegment", optional=True),
         Sequence("COPY", "GRANTS", optional=True),
         "ON",
         OneOf(
             Sequence(
-                OneOf("TABLE", "VIEW", Sequence("DYNAMIC", "TABLE")),
+                OneOf(
+                    "TABLE",
+                    "VIEW",
+                    Sequence("DYNAMIC", "TABLE"),
+                    Sequence("EVENT", "TABLE"),
+                ),
                 Ref("ObjectReferenceSegment"),
                 OneOf(
                     Ref("FromAtExpressionSegment"),
@@ -8873,12 +8918,20 @@ class AlterTaskStatementSegment(BaseSegment):
             Ref("AlterTaskSpecialSetClauseSegment"),
             Ref("AlterTaskSetClauseSegment"),
             Ref("AlterTaskUnsetClauseSegment"),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
             Sequence(
                 "MODIFY",
                 "AS",
-                ansi.ExplainStatementSegment.explainable_stmt,
+                OneOf(
+                    ansi.ExplainStatementSegment.explainable_stmt,
+                    # The task body may also be a Snowflake Scripting block or
+                    # any other statement accepted by CREATE TASK.
+                    Ref("StatementSegment"),
+                ),
             ),
-            Sequence("MODIFY", "WHEN", Ref("BooleanLiteralGrammar")),
+            Sequence("MODIFY", "WHEN", Ref("TaskExpressionSegment")),
+            Sequence("REMOVE", "WHEN"),
         ),
     )
 
@@ -8910,7 +8963,10 @@ class AlterTaskSpecialSetClauseSegment(BaseSegment):
             Sequence(
                 "SCHEDULE",
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("ReferencedVariableNameSegment"),
+                ),
                 optional=True,
             ),
             Sequence(
@@ -8919,6 +8975,24 @@ class AlterTaskSpecialSetClauseSegment(BaseSegment):
                 Ref("BooleanLiteralGrammar"),
                 optional=True,
             ),
+            Sequence(
+                "OVERLAP_POLICY",
+                Ref("EqualsSegment"),
+                OneOf("NO_OVERLAP", "ALLOW_CHILD_OVERLAP", "ALLOW_ALL_OVERLAP"),
+                optional=True,
+            ),
+            Sequence(
+                "CONTACT",
+                Delimited(
+                    Sequence(
+                        Ref("PurposeGrammar"),
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            AnyNumberOf(Ref("TaskIdentifierValuedParameterGrammar")),
             min_times=1,
         ),
     )
@@ -8940,13 +9014,16 @@ class AlterTaskSetClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "SET",
         Delimited(
-            Sequence(
-                Ref("ParameterNameSegment"),
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("BooleanLiteralGrammar"),
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
+            OneOf(
+                Ref("TaskIdentifierValuedParameterGrammar"),
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("BooleanLiteralGrammar"),
+                        Ref("QuotedLiteralSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
                 ),
             ),
         ),
@@ -9019,7 +9096,9 @@ class ExecuteTaskClauseSegment(BaseSegment):
     """Snowflake's EXECUTE TASK clause.
 
     ```
-        EXECUTE TASK <name>
+        EXECUTE TASK <name> [ USING CONFIG = <configuration_string> ]
+        EXECUTE TASK <name> RETRY LAST
+        EXECUTE TASK <name> RETRY GRAPH RUN GROUP '<graph_run_group_id>'
     ```
 
     https://docs.snowflake.com/en/sql-reference/sql/execute-task
@@ -9030,6 +9109,26 @@ class ExecuteTaskClauseSegment(BaseSegment):
         "EXECUTE",
         "TASK",
         Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "USING",
+                "CONFIG",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DollarQuotedUDFBody"),
+                ),
+            ),
+            Sequence("RETRY", "LAST"),
+            Sequence(
+                "RETRY",
+                "GRAPH",
+                "RUN",
+                "GROUP",
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
     )
 
 

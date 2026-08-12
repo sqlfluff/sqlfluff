@@ -5,14 +5,19 @@
     "type": "module",
     "scripts": {
         "docs:prebuild": "python scripts/generate-all-docs.py",
-        "docs:dev": "vitepress dev",
-        "docs:build": "python scripts/generate-all-docs.py && vitepress build",
+        "design:sync": "node scripts/sync-design.mjs",
+        "docs:dev": "node scripts/sync-design.mjs && vitepress dev",
+        "docs:build": "node scripts/sync-design.mjs && python scripts/generate-all-docs.py && vitepress build",
         "docs:preview": "vitepress preview"
     },
     "devDependencies": {
         "@azure/static-web-apps-cli": "^2.0.9",
+        "@sqlfluff/design": "github:sqlfluff/sqlfluff-design#design-v0.1.0",
         "vitepress": "^1.6.4",
         "vue": "^3.5.34"
+    },
+    "engines": {
+        "pnpm": ">=9"
     },
     "keywords": [
         "sqlfluff",
