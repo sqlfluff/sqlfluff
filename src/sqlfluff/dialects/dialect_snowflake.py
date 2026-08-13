@@ -6516,9 +6516,27 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 Ref("AlterOrReplaceGrammar", optional=True),
                 AnySetOf(
                     "SECURE",
-                    "RECURSIVE",
+                    # INTERACTIVE is only valid for materialized views.
+                    "INTERACTIVE",
                 ),
-                Ref("TemporaryGrammar", optional=True),
+                # RECURSIVE follows the temporary keywords in the documented
+                # syntax, but is also accepted before them. The two positions
+                # are exclusive so the keyword cannot appear twice.
+                OneOf(
+                    Sequence("RECURSIVE", Ref("TemporaryGrammar", optional=True)),
+                    Sequence(
+                        OneOf("LOCAL", "GLOBAL", optional=True),
+                        OneOf(
+                            Sequence(
+                                OneOf("TEMP", "TEMPORARY"),
+                                Ref.keyword("VOLATILE", optional=True),
+                            ),
+                            "VOLATILE",
+                        ),
+                        Ref.keyword("RECURSIVE", optional=True),
+                    ),
+                    optional=True,
+                ),
                 Sequence("MATERIALIZED", optional=True),
                 "VIEW",
                 Ref("IfNotExistsGrammar", optional=True),
@@ -6528,6 +6546,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 AnySetOf(
                     "SECURE",
                     "RECURSIVE",
+                    "INTERACTIVE",
                 ),
                 Sequence("MATERIALIZED", optional=True),
                 "VIEW",
@@ -6579,6 +6598,13 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 "CHANGE_TRACKING",
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
+            ),
+            # CLUSTER BY is only valid for materialized views, and it
+            # requires the parenthesised expression list.
+            Sequence(
+                "CLUSTER",
+                "BY",
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence("COPY", "GRANTS"),
             Ref("CommentEqualsClauseSegment"),
@@ -6698,11 +6724,37 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
             "SUSPEND",
             "RESUME",
             Sequence(
-                OneOf("SET", "UNSET"),
-                OneOf(
+                "SET",
+                AnySetOf(
                     "SECURE",
                     Ref("CommentEqualsClauseSegment"),
                     Ref("TagEqualsSegment"),
+                    Sequence(
+                        "CONTACT",
+                        Delimited(
+                            Sequence(
+                                Ref("PurposeGrammar"),
+                                Ref("EqualsSegment"),
+                                Ref("ObjectReferenceSegment"),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        "DATA_METRIC_SCHEDULE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    "SECURE",
+                    "COMMENT",
+                    "DATA_METRIC_SCHEDULE",
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
+                    Sequence("CONTACT", Ref("PurposeGrammar")),
                 ),
             ),
         ),
