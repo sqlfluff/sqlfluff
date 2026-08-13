@@ -263,6 +263,30 @@ def extract_function_info(func: Callable, module_name: str) -> dict[str, Any]:
     }
 
 
+def params_table_rows(params: list[dict]) -> list[str]:
+    """Render a 4-column parameter table wrapped in a .params-table div.
+
+    The div enables CSS to apply min-widths on wide viewports and a stacked
+    definition-list layout on narrow ones, without touching other tables.
+    """
+    if not params:
+        return []
+    lines = [
+        "**Parameters:**\n",
+        '<div class="params-table">\n',
+        "| Parameter | Type | Default | Description |",
+        "|:----------|:-----|:--------|:------------|",
+    ]
+    for param in params:
+        name = f"`{param['name']}`"
+        ptype = f"`{param['type']}`" if param.get("type") else " "
+        default = f"`{param['default']}`" if param.get("default") else " "
+        desc = param.get("description", "").replace("\n", " ").strip() or " "
+        lines.append(f"| {name} | {ptype} | {default} | {desc} |")
+    lines.append("\n</div>\n")
+    return lines
+
+
 def format_type_hint(hint: Any) -> str:
     """Format a type hint for display.
 
@@ -431,16 +455,7 @@ def generate_module_markdown(
                 lines.append(f"{cls_info['description']}\n")
 
             if cls_info["params"]:
-                lines.append("**Parameters:**\n")
-                lines.append("| Parameter | Type | Default | Description |")
-                lines.append("|-----------|------|---------|-------------|")
-                for param in cls_info["params"]:
-                    name = f"`{param['name']}`"
-                    ptype = f"`{param['type']}`" if param["type"] else "—"
-                    default = f"`{param['default']}`" if param["default"] else "—"
-                    desc = param["description"].replace("\n", " ").strip()
-                    lines.append(f"| {name} | {ptype} | {default} | {desc} |")
-                lines.append("")
+                lines.extend(params_table_rows(cls_info["params"]))
 
             # Add methods section
             if cls_info.get("methods"):
@@ -475,18 +490,7 @@ def generate_module_markdown(
 
                     # Parameters table
                     if method_info["params"]:
-                        lines.append("**Parameters:**\n")
-                        lines.append("| Parameter | Type | Default | Description |")
-                        lines.append("|-----------|------|---------|-------------|")
-                        for param in method_info["params"]:
-                            name = f"`{param['name']}`"
-                            ptype = f"`{param['type']}`" if param["type"] else "—"
-                            default = (
-                                f"`{param['default']}`" if param["default"] else "—"
-                            )
-                            desc = param["description"].replace("\n", " ").strip()
-                            lines.append(f"| {name} | {ptype} | {default} | {desc} |")
-                        lines.append("")
+                        lines.extend(params_table_rows(method_info["params"]))
 
                     # Returns
                     if method_info["returns"] or method_info["return_type"]:
@@ -555,16 +559,7 @@ def generate_module_markdown(
 
             # Parameters table
             if func_info["params"]:
-                lines.append("**Parameters:**\n")
-                lines.append("| Parameter | Type | Default | Description |")
-                lines.append("|-----------|------|---------|-------------|")
-                for param in func_info["params"]:
-                    name = f"`{param['name']}`"
-                    ptype = f"`{param['type']}`" if param["type"] else "—"
-                    default = f"`{param['default']}`" if param["default"] else "—"
-                    desc = param["description"].replace("\n", " ").strip()
-                    lines.append(f"| {name} | {ptype} | {default} | {desc} |")
-                lines.append("")
+                lines.extend(params_table_rows(func_info["params"]))
 
             # Returns
             if func_info["returns"] or func_info["return_type"]:

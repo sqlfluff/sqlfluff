@@ -8,6 +8,7 @@ import sidebarRules from './sidebar-rules.json'
 import sidebarCli from './sidebar-cli.json'
 import sidebarApi from './sidebar-api.json'
 import sidebarDialects from './sidebar-dialects.json'
+import sidebarInternals from './sidebar-internals.json'
 import { normalizeBase, withDocsBase } from './path-utils'
 import { DESIGN_SOURCE, assertDesignPackage } from '../scripts/sync-design.mjs'
 
@@ -18,6 +19,7 @@ const GUIDE: DefaultTheme.NavItemWithLink[] = [
     { text: 'Custom Usage', link: '/guide/custom-usage' },
     { text: 'Why SQLFluff?', link: '/guide/why' },
     { text: 'Vision', link: '/guide/vision' },
+    { text: 'SQLFluff in the Wild', link: '/guide/in-the-wild' },
 ]
 
 const TEMPLATING: DefaultTheme.SidebarItem = {
@@ -51,6 +53,8 @@ const CONFIGURATION_NAV: DefaultTheme.NavItemWithLink[] = [
 
 const USAGE_GUIDES: DefaultTheme.NavItemWithLink[] = [
     { text: 'Production Usage', link: '/usage/' },
+    { text: 'CLI Exit Codes', link: '/usage/cli' },
+    { text: 'Security', link: '/usage/security' },
     { text: 'Team Rollout', link: '/usage/team-rollout' },
     { text: 'CI/CD Integration', link: '/usage/ci-cd' },
     { text: 'Pre-commit', link: '/usage/pre-commit' },
@@ -65,6 +69,7 @@ const DEVELOPMENT: DefaultTheme.NavItemWithLink[] = [
     { text: 'Plugins', link: '/development/plugins' },
     { text: 'Custom Rules', link: '/development/custom-rules' },
     { text: 'Documentation', link: '/development/documentation' },
+    { text: 'Using Git', link: '/development/git' },
 ]
 
 const REFERENCES: DefaultTheme.NavItemWithLink[] = [
@@ -155,6 +160,7 @@ export default defineConfig({
                     sidebarApi,
                     sidebarDialects,
                     { text: 'Release Notes', link: '/reference/release-notes' },
+                    sidebarInternals,
                 ]
             },
         ],
