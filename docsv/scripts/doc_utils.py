@@ -176,16 +176,16 @@ def params_table_rows(params: list[dict]) -> list[str]:
         "|:----------|:-----|:--------|:------------|",
     ]
     for param in params:
-        name = f"`{param['name']}`"
-        ptype = f"`{param['type']}`" if param.get("type") else " "
-        default = f"`{param['default']}`" if param.get("default") else " "
-        # Escape bare pipes in plain-text description to avoid breaking the
-        # table structure. Type/default are backtick-wrapped, so their pipes
-        # are handled correctly by the parser without escaping.
-        desc = (
-            param.get("description", "").replace("\n", " ").strip().replace("|", "\\|")
-            or " "
-        )
+        # Escape pipes in all cell values: markdown-it's table block parser splits
+        # on `|` before inline parsing, so pipes inside backtick spans are treated
+        # as cell delimiters without escaping. `\|` renders correctly as `|`.
+        def _cell(v: str) -> str:
+            return v.replace("|", "\\|")
+
+        name = f"`{_cell(param['name'])}`"
+        ptype = f"`{_cell(param['type'])}`" if param.get("type") else " "
+        default = f"`{_cell(param['default'])}`" if param.get("default") else " "
+        desc = _cell(param.get("description", "").replace("\n", " ").strip()) or " "
         lines.append(f"| {name} | {ptype} | {default} | {desc} |")
     lines.append("\n</div>\n")
     return lines
