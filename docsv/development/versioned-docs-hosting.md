@@ -73,8 +73,10 @@ Implemented in the repo so far:
   the version picker displays.
 - The VitePress theme carries the version picker and the stale version notice,
   both reading `/en/versions.json` at runtime. They are described under Version
-  Picker Design below, and both degrade to naming the current version when the
-  manifest cannot be reached.
+  Picker Design below. When the manifest cannot be reached they degrade
+  differently: the picker falls back to naming the current version as plain
+  text, with nothing to switch to, while the notice renders nothing at all,
+  since it cannot know whether a better version exists.
 - The docs base defaults to `/en/latest/` rather than an unversioned path, so a
   local run matches the published layout. The picker reads the current version
   out of the base, so an unversioned base cannot show it at all.
@@ -323,8 +325,14 @@ recommended version:
 - Nothing is shown when there is nowhere better to go, which also keeps the
   notice off a single-channel deployment.
 
-The notice is driven by the same manifest as the picker, so it depends on
-`published_at` and on the ordering that `assemble-site.py` writes.
+The notice is driven by the same manifest as the picker, and decides from the
+manifest's *ordering* rather than from any date: `version_sort_key` in
+`assemble-site.py` sorts releases newest-first by version number, and a release
+which is not the first is treated as superseded. `published_at` is only used by
+the picker, to label each entry.
+
+That means the ordering is load-bearing. A change to how releases are sorted
+changes which versions readers are warned about.
 
 ### Shared Runtime Assets
 

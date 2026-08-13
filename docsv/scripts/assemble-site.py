@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 from pathlib import Path
 from textwrap import dedent
@@ -60,6 +61,24 @@ def parse_args() -> argparse.Namespace:
         help="Release version that the stable channel should point to.",
     )
     return parser.parse_args()
+
+
+def assert_safe_segment(value: str, name: str) -> None:
+    """Reject a path segment which would escape the tree it is joined into.
+
+    `channel` and `language` become directory names under the output directory,
+    and the channel is deleted and rewritten on every run. Since a manual publish
+    takes the channel from an operator-supplied version, a value containing a
+    separator or `..` would place that delete outside the assembled site.
+    """
+    if not value or value != value.strip():
+        raise ValueError(f"{name} must not be empty or padded: {value!r}")
+
+    if value in {os.curdir, os.pardir} or set(value) & {"/", "\\", os.sep}:
+        raise ValueError(f"{name} must be a single path segment: {value!r}")
+
+    if os.pardir in Path(value).parts or Path(value).is_absolute():
+        raise ValueError(f"{name} must be a relative path segment: {value!r}")
 
 
 def write_text(path: Path, content: str) -> None:
@@ -230,6 +249,9 @@ def assemble_site(
     """Merge one built docs channel into the assembled site tree."""
     if not vitepress_dist.is_dir():
         raise FileNotFoundError(f"VitePress dist directory not found: {vitepress_dist}")
+
+    assert_safe_segment(language, "language")
+    assert_safe_segment(channel, "channel")
 
     target_dir = output_dir / language / channel
     target_dir.parent.mkdir(parents=True, exist_ok=True)

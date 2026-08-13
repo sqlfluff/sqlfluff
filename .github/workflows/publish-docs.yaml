@@ -80,15 +80,45 @@ jobs:
                   build_stable=true
               fi
           elif [ -n "${DISPATCH_VERSION}" ]; then
+              # `version` is free text typed into the dispatch form, and it
+              # becomes a directory name, a manifest path, and a docs base. Pin
+              # it to the shape of a tag before any of that: no separators, no
+              # traversal, and nothing a shell would treat as syntax.
+              case "${DISPATCH_VERSION}" in
+                  *[!A-Za-z0-9._-]* | *..* | .* | -*)
+                      echo "::error::version must be a release tag made up of" \
+                          "letters, digits, dots, underscores and hyphens," \
+                          "got '${DISPATCH_VERSION}'." >&2
+                      exit 1
+                      ;;
+              esac
+
               # The release path refuses to promote a prerelease to stable, and
               # versioned-docs-hosting.md keeps prereleases off that channel, so
-              # a manual run must not be able to do it either. Fail loudly rather
-              # than quietly ignoring one of the two inputs.
-              if [ "${DISPATCH_PRERELEASE}" = "true" ] \
-                  && [ "${DISPATCH_REFRESH_STABLE}" = "true" ]; then
-                  echo "::error::refresh_stable cannot be used with prerelease:" \
-                      "/en/stable/ must point at a final release." >&2
-                  exit 1
+              # a manual run must not be able to do it either.
+              #
+              # The `prerelease` input alone cannot enforce that: it defaults to
+              # false and nothing checks it against the tag, so `4.0.0a1` with the
+              # box left unticked would repoint stable at a prerelease. Require
+              # the tag itself to look like a final release instead, which does not
+              # depend on the operator having classified it correctly.
+              if [ "${DISPATCH_REFRESH_STABLE}" = "true" ]; then
+                  if [ "${DISPATCH_PRERELEASE}" = "true" ]; then
+                      echo "::error::refresh_stable cannot be used with" \
+                          "prerelease: /en/stable/ must point at a final" \
+                          "release." >&2
+                      exit 1
+                  fi
+
+                  case "${DISPATCH_VERSION}" in
+                      *[!0-9.]*)
+                          echo "::error::refresh_stable needs a final release" \
+                              "version such as 3.4.2, got" \
+                              "'${DISPATCH_VERSION}'. /en/stable/ must point at" \
+                              "a final release." >&2
+                          exit 1
+                          ;;
+                  esac
               fi
 
               version="${DISPATCH_VERSION}"
@@ -98,6 +128,15 @@ jobs:
               build_release=true
               build_stable="${DISPATCH_REFRESH_STABLE}"
           else
+              # There is no version for stable to point at on this path, and
+              # publishing `latest` while ignoring the request would look like it
+              # had worked.
+              if [ "${DISPATCH_REFRESH_STABLE}" = "true" ]; then
+                  echo "::error::refresh_stable needs a version to point" \
+                      "/en/stable/ at." >&2
+                  exit 1
+              fi
+
               version=latest
               prerelease=false
               published_at=
@@ -179,17 +218,34 @@ jobs:
         working-directory: docsv
         run: corepack pnpm run docs:build
 
+      # The version and the timestamp originate as free text on the dispatch
+      # path, so they are passed through `env` and quoted rather than pasted into
+      # the command by expression substitution, which the shell would evaluate
+      # before the script ran.
       - name: Assemble release site
         if: ${{ steps.docs-target.outputs.build_release == 'true' }}
-        run: >-
-          python docsv/scripts/assemble-site.py
-          --vitepress-dist docsv/.vitepress/dist
-          --output-dir ${{ env.DOCS_SITE_DIR }}
-          --channel ${{ steps.docs-target.outputs.version }}
-          --title ${{ steps.docs-target.outputs.version }}
-          --kind release
-          ${{ steps.docs-target.outputs.published_at && format('--published-at {0}', steps.docs-target.outputs.published_at) || '' }}
-          ${{ steps.docs-target.outputs.prerelease == 'true' && '--prerelease' || '' }}
+        env:
+          VERSION: ${{ steps.docs-target.outputs.version }}
+          PUBLISHED_AT: ${{ steps.docs-target.outputs.published_at }}
+          PRERELEASE: ${{ steps.docs-target.outputs.prerelease }}
+        run: |
+          args=(
+              --vitepress-dist docsv/.vitepress/dist
+              --output-dir "${DOCS_SITE_DIR}"
+              --channel "${VERSION}"
+              --title "${VERSION}"
+              --kind release
+          )
+
+          if [ -n "${PUBLISHED_AT}" ]; then
+              args+=(--published-at "${PUBLISHED_AT}")
+          fi
+
+          if [ "${PRERELEASE}" = "true" ]; then
+              args+=(--prerelease)
+          fi
+
+          python docsv/scripts/assemble-site.py "${args[@]}"
 
       - name: ⚒️ Build VitePress stable docs
         if: ${{ steps.docs-target.outputs.build_stable == 'true' }}
@@ -201,14 +257,16 @@ jobs:
 
       - name: Assemble stable site
         if: ${{ steps.docs-target.outputs.build_stable == 'true' }}
-        run: >-
-          python docsv/scripts/assemble-site.py
-          --vitepress-dist docsv/.vitepress/dist
-          --output-dir ${{ env.DOCS_SITE_DIR }}
-          --channel stable
-          --title Stable
-          --kind channel
-          --stable-release ${{ steps.docs-target.outputs.version }}
+        env:
+          VERSION: ${{ steps.docs-target.outputs.version }}
+        run: |
+          python docsv/scripts/assemble-site.py \
+              --vitepress-dist docsv/.vitepress/dist \
+              --output-dir "${DOCS_SITE_DIR}" \
+              --channel stable \
+              --title Stable \
+              --kind channel \
+              --stable-release "${VERSION}"
 
       # Runs after every assemble step and before anything leaves the runner, so
       # a tree which would 404 or advertise a version it did not build fails the

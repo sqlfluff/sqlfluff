@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 
@@ -44,9 +44,28 @@ def load_manifest(site_dir: Path, language: str) -> dict[str, Any]:
 
 
 def assert_path_exists(site_dir: Path, url_path: str, description: str) -> None:
-    """Assert a published URL path maps to an existing file or directory."""
+    """Assert a published URL path maps to a file inside the assembled tree.
+
+    The path is confined to `site_dir` before it is used. A manifest entry is
+    only as trustworthy as whatever produced it, and one containing `..` would
+    otherwise let this check pass by finding a real file outside the tree — which
+    would vouch for a version that was never published.
+    """
     relative_path = url_path.strip("/")
+
+    if not relative_path:
+        raise ValueError(f"Empty path for {description}")
+
+    if PurePosixPath(relative_path).is_absolute() or ".." in relative_path.split("/"):
+        raise ValueError(f"Unsafe path for {description}: {url_path!r}")
+
     path = site_dir / relative_path
+
+    # Resolve both sides so a symlink cannot point out of the tree either.
+    if not path.resolve().is_relative_to(site_dir.resolve()):
+        raise ValueError(
+            f"Path escapes the site directory for {description}: {url_path!r}"
+        )
 
     if path.is_dir():
         path = path / "index.html"

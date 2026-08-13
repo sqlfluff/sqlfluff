@@ -105,6 +105,64 @@ def test_published_at_is_not_applied_to_channels(assemble_site):
     assert "published_at" not in _entry(result, "latest")
 
 
+@pytest.mark.parametrize(
+    "channel",
+    [
+        "..",
+        "../outside",
+        "en/../../outside",
+        "a/b",
+        "/absolute",
+        "",
+        " padded ",
+    ],
+)
+def test_unsafe_channels_are_rejected(assemble_site, channel):
+    """A channel is a directory name which gets deleted and rewritten.
+
+    A manual publish takes it from an operator-supplied version, so a separator
+    or a `..` would move that delete outside the assembled site.
+    """
+    with pytest.raises(ValueError):
+        assemble_site.assert_safe_segment(channel, "channel")
+
+
+@pytest.mark.parametrize(
+    "channel", ["latest", "stable", "3.4.2", "4.0.0a1", "1.2.3-rc.1"]
+)
+def test_real_channels_are_accepted(assemble_site, channel):
+    """The names actually published must not be caught by the guard."""
+    assemble_site.assert_safe_segment(channel, "channel")
+
+
+def test_assemble_site_refuses_to_escape_the_output_dir(assemble_site, tmp_path):
+    """The guard is wired into the destructive path, not just available."""
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "index.html").write_text("<html></html>", encoding="utf-8")
+
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "keep.txt").write_text("sentinel", encoding="utf-8")
+
+    with pytest.raises(ValueError):
+        assemble_site.assemble_site(
+            vitepress_dist=dist,
+            output_dir=tmp_path / "site",
+            language="en",
+            channel="../../outside",
+            title="evil",
+            kind="release",
+            prerelease=False,
+            published_at=None,
+            stable_release=None,
+        )
+
+    assert (outside / "keep.txt").is_file(), (
+        "content outside the output dir was removed"
+    )
+
+
 def test_rebuild_leaves_other_versions_untouched(assemble_site):
     """Only the rebuilt entry changes."""
     manifest = assemble_site.default_manifest()
