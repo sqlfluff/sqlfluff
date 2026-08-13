@@ -11,171 +11,17 @@ This script:
 
 import inspect
 import json
-import re
 from pathlib import Path
 from typing import Any, Callable, get_type_hints
 
+from doc_utils import (
+    format_type_hint,
+    params_table_rows,
+    parse_google_docstring,
+)
+
 from sqlfluff.api import info, simple
 from sqlfluff.core import Lexer, Linter, Parser
-
-
-def clean_rst_markup(text: str) -> str:
-    """Remove RST-style markup from text.
-
-    Args:
-        text: Text containing RST markup
-
-    Returns:
-        Cleaned text
-    """
-    if not text:
-        return text
-
-    # Remove :obj:`type` -> type
-    text = re.sub(r":obj:`([^`]+)`", r"\1", text)
-    # Remove :class:`type` -> type
-    text = re.sub(r":class:`([^`]+)`", r"\1", text)
-    # Remove :func:`func` -> func
-    text = re.sub(r":func:`([^`]+)`", r"\1", text)
-    # Remove :meth:`method` -> method
-    text = re.sub(r":meth:`([^`]+)`", r"\1", text)
-    # Remove :attr:`attr` -> attr
-    text = re.sub(r":attr:`([^`]+)`", r"\1", text)
-    # Remove :mod:`module` -> module
-    text = re.sub(r":mod:`([^`]+)`", r"\1", text)
-
-    return text
-
-
-def parse_param_list(text: str) -> list[dict[str, str]]:
-    """Parse parameter list from Google-style docstring.
-
-    Args:
-        text: Text containing parameter descriptions
-
-    Returns:
-        List of dicts with keys: name, type, description
-    """
-    if not text.strip():
-        return []
-
-    params = []
-    # Pattern: name (type, optional): description
-    # or: name (:obj:`type`, optional): description
-    # or: name: description
-    param_pattern = r"^\s*(\w+)\s*(?:\(([^)]+)\))?\s*:\s*(.+)$"
-
-    lines = text.split("\n")
-    current_param = None
-
-    for line in lines:
-        # Try to match a parameter definition
-        match = re.match(param_pattern, line)
-        if match:
-            # Save previous parameter if exists
-            if current_param:
-                params.append(current_param)
-
-            # Start new parameter
-            name = match.group(1)
-            param_type = match.group(2) or ""
-            description = match.group(3).strip()
-
-            # Clean up RST markup
-            param_type = clean_rst_markup(param_type)
-            description = clean_rst_markup(description)
-
-            current_param = {
-                "name": name,
-                "type": param_type,
-                "description": description,
-            }
-        elif current_param and line.strip():
-            # Continuation of previous parameter description
-            current_param["description"] += " " + clean_rst_markup(line.strip())
-
-    # Save last parameter
-    if current_param:
-        params.append(current_param)
-
-    return params
-
-
-def parse_google_docstring(docstring: str) -> dict[str, Any]:
-    """Parse a Google-style docstring into structured sections.
-
-    Args:
-        docstring: The raw docstring text
-
-    Returns:
-        Dictionary with keys: description, args, returns, raises, examples, note
-    """
-    if not docstring:
-        return {}
-
-    # Clean the docstring
-    cleaned = inspect.cleandoc(docstring)
-
-    # Initialize sections
-    sections = {
-        "description": "",
-        "args": [],
-        "returns": "",
-        "raises": [],
-        "examples": "",
-        "note": "",
-    }
-
-    # Split into sections based on Google-style headers
-    # Match "Args:", "Returns:", "Raises:", "Examples:", "Note:", etc.
-    section_pattern = r"^(Args?|Returns?|Raises?|Examples?|Note):\s*$"
-
-    lines = cleaned.split("\n")
-    current_section = "description"
-    current_content = []
-
-    for line in lines:
-        # Check if this line is a section header
-        match = re.match(section_pattern, line.strip())
-        if match:
-            # Save previous section content
-            if current_section == "description":
-                sections["description"] = clean_rst_markup(
-                    "\n".join(current_content).strip()
-                )
-            elif current_section in ("args", "raises"):
-                # Parse parameter list
-                sections[current_section] = parse_param_list("\n".join(current_content))
-            elif current_section in ("returns", "examples", "note"):
-                sections[current_section] = clean_rst_markup(
-                    "\n".join(current_content).strip()
-                )
-
-            # Start new section
-            current_section = (
-                match.group(1).lower().rstrip("s")
-            )  # Normalize to singular
-            if current_section == "arg":
-                current_section = "args"
-            elif current_section == "return":
-                current_section = "returns"
-            elif current_section == "raise":
-                current_section = "raises"
-            elif current_section == "example":
-                current_section = "examples"
-            current_content = []
-        else:
-            current_content.append(line)
-
-    # Save final section
-    if current_section == "description":
-        sections["description"] = clean_rst_markup("\n".join(current_content).strip())
-    elif current_section in ("args", "raises"):
-        sections[current_section] = parse_param_list("\n".join(current_content))
-    elif current_section in ("returns", "examples", "note"):
-        sections[current_section] = clean_rst_markup("\n".join(current_content).strip())
-
-    return sections
 
 
 def extract_function_info(func: Callable, module_name: str) -> dict[str, Any]:
@@ -261,57 +107,6 @@ def extract_function_info(func: Callable, module_name: str) -> dict[str, Any]:
         "examples": parsed_doc.get("examples", ""),
         "note": parsed_doc.get("note", ""),
     }
-
-
-def params_table_rows(params: list[dict]) -> list[str]:
-    """Render a 4-column parameter table wrapped in a .params-table div.
-
-    The div enables CSS to apply min-widths on wide viewports and a stacked
-    definition-list layout on narrow ones, without touching other tables.
-    """
-    if not params:
-        return []
-    lines = [
-        "**Parameters:**\n",
-        '<div class="params-table">\n',
-        "| Parameter | Type | Default | Description |",
-        "|:----------|:-----|:--------|:------------|",
-    ]
-    for param in params:
-        name = f"`{param['name']}`"
-        ptype = f"`{param['type']}`" if param.get("type") else " "
-        default = f"`{param['default']}`" if param.get("default") else " "
-        desc = param.get("description", "").replace("\n", " ").strip() or " "
-        lines.append(f"| {name} | {ptype} | {default} | {desc} |")
-    lines.append("\n</div>\n")
-    return lines
-
-
-def format_type_hint(hint: Any) -> str:
-    """Format a type hint for display.
-
-    Args:
-        hint: Type hint object
-
-    Returns:
-        Formatted string representation
-    """
-    if hint is None or hint is type(None):
-        return "None"
-
-    # Handle string annotations
-    if isinstance(hint, str):
-        return hint
-
-    # Get the string representation
-    hint_str = str(hint)
-
-    # Clean up common patterns
-    hint_str = hint_str.replace("typing.", "")
-    hint_str = hint_str.replace("<class '", "").replace("'>", "")
-    hint_str = re.sub(r"sqlfluff\.core\.\w+\.", "", hint_str)
-
-    return hint_str
 
 
 def extract_class_info(cls: type, module_name: str) -> dict[str, Any]:
