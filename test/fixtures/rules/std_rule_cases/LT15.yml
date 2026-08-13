@@ -351,3 +351,62 @@ test_fail_minimum_pads_a_whitespace_only_gap:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 2
+
+test_fail_minimum_statements_sharing_a_line:
+  # the run-based check can only fire where a newline exists, so two statements
+  # on one line used to be accepted whatever the minimum was set to
+  fail_str: SELECT a FROM tab; SELECT b FROM tab;
+  fix_str: |-
+    SELECT a FROM tab;
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_two_statements_sharing_a_line_higher_minimum:
+  fail_str: SELECT a FROM tab; SELECT b FROM tab;
+  fix_str: |-
+    SELECT a FROM tab;
+
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 2
+
+test_pass_minimum_zero_leaves_shared_line_alone:
+  # the default must stay a no-op, so a shared line is not touched
+  pass_str: SELECT a FROM tab; SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 0
+
+test_pass_minimum_trailing_terminator_at_end_of_file:
+  # nothing follows the last terminator, so there is no gap to pad
+  pass_str: |
+    SELECT a FROM tab;
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_template_block_tags:
+  # the newlines around a jinja block tag are not a gap between two statements;
+  # padding them would put blank lines around the tag instead
+  pass_str: |
+    SELECT a FROM tab;
+    {% for _ in range(2) %}
+    {% endfor %}
+    SELECT b FROM tab;
+  configs:
+    core:
+      templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1

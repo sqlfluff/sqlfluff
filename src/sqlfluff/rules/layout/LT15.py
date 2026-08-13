@@ -66,7 +66,12 @@ class Rule_LT15(BaseRule):
         "maximum_empty_lines_between_batches",
         "minimum_empty_lines_between_statements",
     ]
-    crawl_behaviour = SegmentSeekerCrawler(types={"newline"}, provide_raw_stack=True)
+    # Statement terminators are sought as well as newlines: a minimum between
+    # statements has to be enforceable when the statements share a line, where
+    # there is no newline to crawl at all.
+    crawl_behaviour = SegmentSeekerCrawler(
+        types={"newline", "statement_terminator"}, provide_raw_stack=True
+    )
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
@@ -76,6 +81,11 @@ class Rule_LT15(BaseRule):
         self.maximum_empty_lines_between_batches: int
         self.minimum_empty_lines_between_statements: int
         context_seg = context.segment
+
+        # Terminators are only sought for the same-line minimum check; none of the
+        # maximum logic below applies to them.
+        if context_seg.is_type("statement_terminator"):
+            return self._check_minimum_same_line(context)
 
         # A minimum only makes sense between statements, so it is checked where we
         # are not inside one. It runs first because the two cannot both fire on the
@@ -157,11 +167,33 @@ class Rule_LT15(BaseRule):
         ):
             return None
 
+        # A template block start/end sits in the gap as a placeholder meta. The
+        # newlines either side of it are not a gap between two statements, so
+        # padding them puts blank lines around the tag rather than between the
+        # statements, and the tag is not the user's line to move.
+        for seg in reversed(context.siblings_pre):
+            if seg.is_code:
+                break
+            if seg.is_type("placeholder"):
+                return None
+        for seg in context.siblings_post:
+            if seg.is_code:
+                break
+            if seg.is_type("placeholder"):
+                return None
+
         # Count the run of newlines ending at this one. Two newlines are one blank
         # line, so the blank count is one less than the run length.
         run = 1
         for raw_seg in reversed(context.raw_stack):
             if raw_seg.is_type("newline"):
+                # A templated newline is not ours to count. The maximum branch
+                # already bails on one; counting it here would let a jinja loop
+                # that emits blank lines satisfy the minimum with lines the user
+                # cannot see or edit, so the two directions would disagree about
+                # what the gap is.
+                if raw_seg.is_templated:
+                    return None
                 run += 1
             elif raw_seg.is_type("whitespace"):
                 continue
@@ -184,6 +216,67 @@ class Rule_LT15(BaseRule):
                 description=(
                     f"Expected at least {minimum} blank line(s) between statements, "
                     f"found {blank_lines}."
+                ),
+            )
+        ]
+
+    def _check_minimum_same_line(
+        self, context: RuleContext
+    ) -> Optional[List[LintResult]]:
+        """Enforce the minimum when two statements share a line.
+
+        ``_check_minimum`` measures a run of newlines, so it can only fire where a
+        newline exists. ``SELECT a; SELECT b;`` has none between the statements, so
+        the gap was accepted however the minimum was configured. Here the break
+        itself is missing, and the fix has to create it as well as the blank lines.
+        """
+        minimum = self.minimum_empty_lines_between_statements
+        if not minimum:
+            return None
+
+        if context.segment.is_templated:
+            return None
+
+        following = [
+            seg for seg in context.siblings_post if not seg.is_type("dedent", "indent")
+        ]
+        # A newline already separates the statements, so the run-based check owns
+        # this gap. Leading whitespace is skipped so a trailing space before the
+        # line break does not hide it.
+        for seg in following:
+            if seg.is_type("whitespace"):
+                continue
+            if seg.is_type("newline"):
+                return None
+            break
+
+        # Nothing but the end of the file follows, so there is no gap to pad.
+        if not any(seg.is_code for seg in following):
+            return None
+
+        # No line break at all, so every required blank line is missing and the
+        # break that ends this statement's line is missing too.
+        fixes = [
+            LintFix.create_after(
+                context.segment,
+                [NewlineSegment() for _ in range(minimum + 1)],
+            )
+        ]
+        # Drop the space that separated the statements; it would otherwise be left
+        # indenting the statement now starting the line.
+        for seg in following:
+            if seg.is_type("whitespace"):
+                fixes.append(LintFix.delete(seg))
+            else:
+                break
+
+        return [
+            LintResult(
+                anchor=context.segment,
+                fixes=fixes,
+                description=(
+                    f"Expected at least {minimum} blank line(s) between statements, "
+                    "found 0 (statements share a line)."
                 ),
             )
         ]
