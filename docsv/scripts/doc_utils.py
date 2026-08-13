@@ -175,13 +175,13 @@ def params_table_rows(params: list[dict]) -> list[str]:
         "| Parameter | Type | Default | Description |",
         "|:----------|:-----|:--------|:------------|",
     ]
-    for param in params:
-        # Escape pipes in all cell values: markdown-it's table block parser splits
-        # on `|` before inline parsing, so pipes inside backtick spans are treated
-        # as cell delimiters without escaping. `\|` renders correctly as `|`.
-        def _cell(v: str) -> str:
-            return v.replace("|", "\\|")
+    # Escape pipes in all cell values: markdown-it's table block parser splits on
+    # `|` before inline parsing, so pipes inside backtick spans are treated as
+    # cell delimiters without escaping. `\|` renders correctly as `|`.
+    def _cell(v: str) -> str:
+        return v.replace("|", "\\|")
 
+    for param in params:
         name = f"`{_cell(param['name'])}`"
         ptype = f"`{_cell(param['type'])}`" if param.get("type") else " "
         default = f"`{_cell(param['default'])}`" if param.get("default") else " "
