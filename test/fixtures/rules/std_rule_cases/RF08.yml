@@ -152,3 +152,48 @@ test_pass_create_table_like_has_no_local_columns:
   configs:
     core:
       dialect: databricks
+
+test_pass_backtick_quoted_reference_matches_bare_definition:
+  # _name_of strips the quoting before comparing, so the two spellings match
+  pass_str: |
+    CREATE TABLE my_table (
+        col_a INT,
+        col_b INT
+    )
+    CLUSTER BY (`col_a`, col_b);
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_backtick_quoted_definition_matches_bare_reference:
+  # and the same in the other direction, since either side may be quoted
+  pass_str: |
+    CREATE TABLE my_table (
+        `col_a` INT,
+        col_b INT
+    )
+    CLUSTER BY (col_a);
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_both_sides_backtick_quoted:
+  pass_str: |
+    CREATE TABLE my_table (
+        `col_a` INT
+    )
+    CLUSTER BY (`col_a`);
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_backtick_quoted_column_is_still_undefined:
+  # stripping the quotes must not turn an undefined column into a match
+  fail_str: |
+    CREATE TABLE my_table (
+        col_a INT
+    )
+    CLUSTER BY (`col_typo`);
+  configs:
+    core:
+      dialect: databricks
