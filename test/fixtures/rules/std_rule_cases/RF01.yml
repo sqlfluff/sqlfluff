@@ -910,3 +910,41 @@ test_pass_mysql_comma_multi_table_update_alias_correlated_subquery:
   configs:
     core:
       dialect: mysql
+
+test_pass_trino_row_field_access_if_single_table:
+  # https://github.com/sqlfluff/sqlfluff/issues/5519
+  # Trino ROW columns expose their named fields via dot access, which is
+  # indistinguishable from a table reference.
+  pass_str: |
+    select
+        metadata.sub_column,
+        metadata.nested.sub_column
+    from sch.t1
+  configs:
+    core:
+      dialect: trino
+
+test_fail_trino_row_field_access_if_single_table_and_force_enable:
+  fail_str: |
+    select
+        metadata.sub_column,
+        metadata.nested.sub_column
+    from sch.t1
+  configs:
+    core:
+      dialect: trino
+    rules:
+      references.from:
+        force_enable: true
+
+test_fail_trino_row_field_access_if_multiple_tables:
+  fail_str: |
+    select
+        metadata.sub_column,
+        metadata.nested.sub_column
+    from sch.table1 as t1
+    left join sch.table2 as t2
+    on t1.id = t2.id
+  configs:
+    core:
+      dialect: trino
