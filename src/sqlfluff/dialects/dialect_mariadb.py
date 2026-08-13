@@ -1268,7 +1268,7 @@ class DropIndexStatementSegment(mysql.DropIndexStatementSegment):
         before=Ref("IndexReferenceSegment"),
     )
 
-    
+
 class CreateViewStatementSegment(mysql.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
