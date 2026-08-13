@@ -751,3 +751,112 @@ test_fail_bigquery_procedure_missing_semicolon:
     rules:
       convention.terminator:
         require_final_semicolon: true
+
+# Statements which run straight into the following statement. Dialects with
+# batches (e.g. Oracle & T-SQL) parse these successfully, so the missing
+# terminator has to be flagged by this rule.
+# https://github.com/sqlfluff/sqlfluff/issues/5987
+test_fail_oracle_intermediate_statement_missing_semicolon:
+  fail_str: |
+    DELETE FROM code_detail
+    INSERT INTO code_head(code_type) VALUES('PLTQ');
+  fix_str: |
+    DELETE FROM code_detail;
+    INSERT INTO code_head(code_type) VALUES('PLTQ');
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_intermediate_statement_missing_semicolon_multiline:
+  fail_str: |
+    DELETE
+      FROM code_detail
+     WHERE code_type IN ('PLTQ',
+                         'PLTM')
+    --
+    -- Plot quality
+    INSERT INTO code_head(code_type, code_desc)
+    VALUES('PLTQ', 'Plot Quality');
+  fix_str: |
+    DELETE
+      FROM code_detail
+     WHERE code_type IN ('PLTQ',
+                         'PLTM')
+    ;
+    --
+    -- Plot quality
+    INSERT INTO code_head(code_type, code_desc)
+    VALUES('PLTQ', 'Plot Quality')
+    ;
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_oracle_intermediate_statement_missing_semicolon_require_final:
+  fail_str: |
+    DELETE FROM code_detail
+    INSERT INTO code_head(code_type) VALUES('PLTQ')
+  fix_str: |
+    DELETE FROM code_detail;
+    INSERT INTO code_head(code_type) VALUES('PLTQ');
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_oracle_intermediate_statement_missing_semicolon_inline_comment:
+  fail_str: |
+    DELETE
+      FROM code_detail -- trailing comment
+    INSERT INTO code_head(code_type) VALUES('PLTQ');
+  fix_str: |
+    DELETE
+      FROM code_detail -- trailing comment
+    ;
+    INSERT INTO code_head(code_type) VALUES('PLTQ');
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_tsql_intermediate_statement_missing_semicolon:
+  fail_str: |
+    CREATE SCHEMA staging
+    CREATE TABLE test (id INT);
+  fix_str: |
+    CREATE SCHEMA staging;
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_go_terminates_statement:
+  # `GO` delimits the batch, so the preceding statement isn't run into the
+  # following one and doesn't need a semi-colon.
+  pass_str: |
+    CREATE SCHEMA staging
+    GO
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_oracle_slash_terminates_statement:
+  # Oracle's `/` delimits the batch in the same way that `GO` does for T-SQL.
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;
+    /
+    SELECT 1 FROM dual;
+  configs:
+    core:
+      dialect: oracle
