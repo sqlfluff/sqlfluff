@@ -219,3 +219,20 @@ def test_tsql_cursor_rejects_disallowed_select_clauses(sql: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        # `FOR` is mandatory (real MariaDB rejects `NEXT VALUE OF s`).
+        "SELECT NEXT VALUE OF s;",
+        # The sequence name is mandatory.
+        "SELECT NEXT VALUE FOR;",
+    ],
+)
+def test_mariadb_sequence_value_for_requires_sequence(sql: str) -> None:
+    """`NEXT/PREVIOUS VALUE FOR` needs the `FOR` keyword and a sequence name."""
+    parsed = Linter(dialect="mariadb").parse_string(sql)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
