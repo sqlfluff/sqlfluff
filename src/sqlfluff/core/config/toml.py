@@ -15,7 +15,7 @@ from sqlfluff.core.helpers.dict import (
     iter_records_from_nested_dict,
     records_to_nested_dict,
 )
-from sqlfluff.core.types import ConfigMappingType
+from sqlfluff.core.types import ConfigListItemType, ConfigMappingType
 
 T = TypeVar("T")
 
@@ -35,6 +35,20 @@ def _condense_rule_record(record: NestedDictRecord[T]) -> NestedDictRecord[T]:
     return key, value
 
 
+def _validate_list(raw_list: list[Any]) -> list[ConfigListItemType]:
+    """Helper function to narrow the types of a list found in a toml config.
+
+    Any mappings within the list keep their structure, so that nested
+    values (e.g. a jinja templater context) survive loading. Anything
+    else is coerced to a string, to be in line with the behaviour of
+    ini configs.
+    """
+    return [
+        _validate_structure(item) if isinstance(item, dict) else str(item)
+        for item in raw_list
+    ]
+
+
 def _validate_structure(raw_config: dict[str, Any]) -> ConfigMappingType:
     """Helper function to narrow types for use by SQLFluff.
 
@@ -45,9 +59,7 @@ def _validate_structure(raw_config: dict[str, Any]) -> ConfigMappingType:
         if isinstance(value, dict):
             validated_config[key] = _validate_structure(value)
         elif isinstance(value, list):
-            # Coerce all list items to strings, to be in line
-            # with the behaviour of ini configs.
-            validated_config[key] = [str(item) for item in value]
+            validated_config[key] = _validate_list(value)
         elif isinstance(value, (str, int, float, bool)) or value is None:
             validated_config[key] = value
         else:  # pragma: no cover

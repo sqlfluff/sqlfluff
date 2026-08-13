@@ -8,13 +8,16 @@ from colorama import Fore
 from sqlfluff.core.helpers.dict import NestedDictRecord, NestedStringDict
 
 ConfigValueType = Union[int, float, bool, None, str]
-# NOTE: We allow lists in the config types, but only lists
-# of strings. Lists of other things are not allowed and should
-# be rejected on load (or converted to strings). Given most
-# config loading starts as strings, it's more likely that we
-# just don't _try_ to convert lists from anything other than
-# strings.
-ConfigValueOrListType = Union[ConfigValueType, list[str]]
+# NOTE: We allow lists in the config types, but only lists of
+# strings or of nested sections. Lists of other things are not
+# allowed and should be rejected on load (or converted to strings).
+# Given most config loading starts as strings, it's more likely that
+# we just don't _try_ to convert lists from anything other than
+# strings. Nested sections are only reachable from formats which
+# support them natively (i.e. toml), where they're preserved so that
+# structures like jinja templater contexts survive loading.
+ConfigListItemType = Union[str, "ConfigMappingType"]
+ConfigValueOrListType = Union[ConfigValueType, list[ConfigListItemType]]
 ConfigMappingType = NestedStringDict[ConfigValueOrListType]
 ConfigRecordType = NestedDictRecord[ConfigValueOrListType]
 

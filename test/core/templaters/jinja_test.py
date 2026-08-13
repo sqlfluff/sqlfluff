@@ -762,6 +762,36 @@ def test__templater_jinja_fast_path_library_path_error(tmp_path):
         )
 
 
+def test__templater_jinja_nested_context_from_toml(tmp_path):
+    """Nested context values from a pyproject.toml keep their structure.
+
+    https://github.com/sqlfluff/sqlfluff/issues/6508
+    """
+    (tmp_path / "pyproject.toml").write_text(
+        "[tool.sqlfluff.core]\n"
+        'dialect = "ansi"\n'
+        'templater = "jinja"\n'
+        "\n"
+        "[tool.sqlfluff.templater.jinja.context]\n"
+        "bundle = { metrics = ["
+        "{ name = 'logged_days', definition = 'COUNT(*)' }] }\n",
+        encoding="utf-8",
+    )
+
+    outstr, vs = JinjaTemplater().process(
+        in_str=(
+            "select\n"
+            "{% for metric in bundle.metrics %}"
+            "    {{ metric.definition }} as {{ metric.name }}\n"
+            "{% endfor %}"
+        ),
+        fname="test.sql",
+        config=FluffConfig.from_path(str(tmp_path)),
+    )
+    assert str(outstr) == "select\n    COUNT(*) as logged_days\n"
+    assert not vs
+
+
 def test__templater_jinja_lint_empty():
     """Check that parsing a file which renders to an empty string.
 

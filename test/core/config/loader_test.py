@@ -373,6 +373,38 @@ def test__config__toml_list_config():
     assert cfg.get("rules") == ["LT03", "LT09"]
 
 
+def test__config__toml_nested_list_config(tmp_path):
+    """Test that sections nested within TOML lists keep their structure.
+
+    Values in the jinja context are arbitrary user data, so nested
+    structures (which only toml configs can express natively) must
+    survive loading. https://github.com/sqlfluff/sqlfluff/issues/6508
+    """
+    pyproject_path = tmp_path / "pyproject.toml"
+    pyproject_path.write_text(
+        "[tool.sqlfluff.core]\n"
+        'dialect = "ansi"\n'
+        "\n"
+        "[tool.sqlfluff.templater.jinja.context]\n"
+        "bundle = { name = 'foo', metrics = ["
+        "{ name = 'bar', definition = 'COUNT(*)' }] }\n",
+        encoding="utf-8",
+    )
+
+    try:
+        cfg = load_config_file(str(tmp_path), "pyproject.toml")
+    finally:
+        clear_config_caches()
+        pyproject_path.unlink(missing_ok=True)
+
+    assert cfg["templater"]["jinja"]["context"] == {
+        "bundle": {
+            "name": "foo",
+            "metrics": [{"name": "bar", "definition": "COUNT(*)"}],
+        }
+    }
+
+
 def test__config__load_toml_invalid_syntax(tmp_path):
     """Invalid TOML should raise a SQLFluff user error with location info."""
     pyproject_path = tmp_path / "pyproject.toml"
