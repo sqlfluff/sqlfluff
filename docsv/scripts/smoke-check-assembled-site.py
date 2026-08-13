@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
 
 
@@ -51,12 +51,14 @@ def assert_path_exists(site_dir: Path, url_path: str, description: str) -> None:
     otherwise let this check pass by finding a real file outside the tree — which
     would vouch for a version that was never published.
     """
+    # Stripping the slashes makes a rooted URL path relative, so there is no
+    # absolute case left to test for here; traversal is what remains.
     relative_path = url_path.strip("/")
 
     if not relative_path:
         raise ValueError(f"Empty path for {description}")
 
-    if PurePosixPath(relative_path).is_absolute() or ".." in relative_path.split("/"):
+    if ".." in relative_path.split("/"):
         raise ValueError(f"Unsafe path for {description}: {url_path!r}")
 
     path = site_dir / relative_path

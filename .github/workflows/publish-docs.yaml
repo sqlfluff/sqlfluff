@@ -93,6 +93,20 @@ jobs:
                       ;;
               esac
 
+              # `published_at` reaches `$GITHUB_OUTPUT`, which is a list of
+              # `key=value` lines, so a newline in it writes further keys. Those
+              # land after the ones set above and would take precedence over
+              # them, which is enough to restore a `version` this validation has
+              # just rejected. Restrict it to the characters a timestamp needs;
+              # that excludes newlines by construction.
+              case "${DISPATCH_PUBLISHED_AT}" in
+                  *[!0-9TZ:.+-]*)
+                      echo "::error::published_at must be a timestamp such as" \
+                          "2026-07-14 or 2026-07-14T09:30:00Z." >&2
+                      exit 1
+                      ;;
+              esac
+
               # The release path refuses to promote a prerelease to stable, and
               # versioned-docs-hosting.md keeps prereleases off that channel, so
               # a manual run must not be able to do it either.
@@ -110,10 +124,25 @@ jobs:
                       exit 1
                   fi
 
-                  case "${DISPATCH_VERSION}" in
+                  # A post-release is a final release: `4.0.1.post1` is a real
+                  # tag here. Set it aside before requiring digits and dots, so
+                  # the check still rejects the prerelease form this project
+                  # uses, `4.0.0a1`, without also rejecting a post-release.
+                  final_version="${DISPATCH_VERSION}"
+                  case "${final_version}" in
+                      *.post*)
+                          post_segment="${final_version##*.post}"
+                          case "${post_segment}" in
+                              "" | *[!0-9]*) ;;
+                              *) final_version="${final_version%.post*}" ;;
+                          esac
+                          ;;
+                  esac
+
+                  case "${final_version}" in
                       *[!0-9.]*)
                           echo "::error::refresh_stable needs a final release" \
-                              "version such as 3.4.2, got" \
+                              "version such as 3.4.2 or 4.0.1.post1, got" \
                               "'${DISPATCH_VERSION}'. /en/stable/ must point at" \
                               "a final release." >&2
                           exit 1

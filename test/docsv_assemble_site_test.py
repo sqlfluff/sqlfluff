@@ -6,7 +6,7 @@ imported; its filename is not a valid module name.
 """
 
 import importlib.util
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from types import ModuleType
 
 import pytest
@@ -127,11 +127,29 @@ def test_unsafe_channels_are_rejected(assemble_site, channel):
         assemble_site.assert_safe_segment(channel, "channel")
 
 
+def test_drive_qualified_channels_are_rejected(assemble_site):
+    """`C:foo` is neither absolute nor separated, but does relocate a path.
+
+    Checked with the Windows flavour explicitly, since the value is harmless on
+    the POSIX runner that publishes today but not on a maintainer's Windows
+    machine, where these scripts have been run before.
+    """
+    assert PureWindowsPath("C:foo").is_absolute() is False, "premise of the test"
+    assert PureWindowsPath("C:foo").drive == "C:"
+
+    with pytest.raises(ValueError):
+        assemble_site.assert_safe_segment("C:foo", "channel")
+
+
 @pytest.mark.parametrize(
-    "channel", ["latest", "stable", "3.4.2", "4.0.0a1", "1.2.3-rc.1"]
+    "channel",
+    ["latest", "stable", "3.4.2", "4.0.0a1", "4.0.1.post1", "1.2.3-rc.1"],
 )
 def test_real_channels_are_accepted(assemble_site, channel):
-    """The names actually published must not be caught by the guard."""
+    """The names actually published must not be caught by the guard.
+
+    `4.0.0a1` and `4.0.1.post1` are both real tags in this repository.
+    """
     assemble_site.assert_safe_segment(channel, "channel")
 
 

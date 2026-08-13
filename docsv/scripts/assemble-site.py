@@ -7,7 +7,7 @@ import argparse
 import json
 import os
 import shutil
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from textwrap import dedent
 from typing import Any
 
@@ -70,15 +70,27 @@ def assert_safe_segment(value: str, name: str) -> None:
     and the channel is deleted and rewritten on every run. Since a manual publish
     takes the channel from an operator-supplied version, a value containing a
     separator or `..` would place that delete outside the assembled site.
+
+    Both path flavours are checked rather than only the running one, so the answer
+    does not depend on the platform. A drive-qualified value such as ``C:foo`` is
+    neither absolute nor separated, and relocates a path only on Windows — but the
+    Linux runner which publishes the site is exactly where we would want to find
+    out, rather than on a maintainer's machine.
     """
     if not value or value != value.strip():
         raise ValueError(f"{name} must not be empty or padded: {value!r}")
 
-    if value in {os.curdir, os.pardir} or set(value) & {"/", "\\", os.sep}:
-        raise ValueError(f"{name} must be a single path segment: {value!r}")
+    if value in {os.curdir, os.pardir}:
+        raise ValueError(f"{name} must not be a relative reference: {value!r}")
 
-    if os.pardir in Path(value).parts or Path(value).is_absolute():
-        raise ValueError(f"{name} must be a relative path segment: {value!r}")
+    for flavour in (PurePosixPath, PureWindowsPath):
+        candidate = flavour(value)
+
+        if candidate.drive or candidate.is_absolute():
+            raise ValueError(f"{name} must be a relative path segment: {value!r}")
+
+        if len(candidate.parts) != 1 or os.pardir in candidate.parts:
+            raise ValueError(f"{name} must be a single path segment: {value!r}")
 
 
 def write_text(path: Path, content: str) -> None:
