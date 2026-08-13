@@ -1340,6 +1340,20 @@ def test__cli__command_rules():
     invoke_assert_code(args=[rules])
 
 
+def test__cli__command_rules_output_line_length(tmpdir, monkeypatch):
+    """Check the rules command respects the configured `output_line_length`."""
+    with open(str(tmpdir / ".sqlfluff"), "w") as f:
+        print("[sqlfluff]\noutput_line_length = 140", file=f)
+    # TRICKY: Switch current directory to the one with the config file. The
+    # `rules` command has no path argument, so nested config isn't an option.
+    monkeypatch.chdir(str(tmpdir))
+    result = invoke_assert_code(args=[rules])
+    # The first line is the header, the rest is the table of rules.
+    table_lines = result.stdout.splitlines()[1:]
+    assert table_lines
+    assert max(len(line) for line in table_lines) == 140
+
+
 def test__cli__command_dialects():
     """Check dialects command for exceptions."""
     invoke_assert_code(args=[dialects])
