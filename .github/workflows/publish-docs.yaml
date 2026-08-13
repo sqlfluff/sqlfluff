@@ -97,12 +97,25 @@ jobs:
               # `key=value` lines, so a newline in it writes further keys. Those
               # land after the ones set above and would take precedence over
               # them, which is enough to restore a `version` this validation has
-              # just rejected. Restrict it to the characters a timestamp needs;
-              # that excludes newlines by construction.
+              # just rejected.
+              #
+              # Matched against the shapes a timestamp actually takes rather than
+              # a permitted character set. A character set stops the injection,
+              # but it also accepts `+++`, which would be written into
+              # versions.json and shown to readers by the picker. The accepted
+              # forms are a plain date and the `published_at` format the release
+              # event supplies, so a value can be copied from a release.
               case "${DISPATCH_PUBLISHED_AT}" in
-                  *[!0-9TZ:.+-]*)
-                      echo "::error::published_at must be a timestamp such as" \
-                          "2026-07-14 or 2026-07-14T09:30:00Z." >&2
+                  "") ;;
+                  [0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]) ;;
+                  [0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-6][0-9]Z) ;;
+                  [0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-6][0-9]) ;;
+                  [0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-6][0-9][+-][0-2][0-9]:[0-5][0-9]) ;;
+                  *)
+                      echo "::error::published_at must be a date such as" \
+                          "2026-07-14, or a timestamp such as" \
+                          "2026-07-14T09:30:00Z, got" \
+                          "'${DISPATCH_PUBLISHED_AT}'." >&2
                       exit 1
                       ;;
               esac

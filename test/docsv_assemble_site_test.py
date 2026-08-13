@@ -115,6 +115,17 @@ def test_published_at_is_not_applied_to_channels(assemble_site):
         "/absolute",
         "",
         " padded ",
+        # Parsing drops `.` components, so these look like a single segment
+        # afterwards while still naming a different directory.
+        ".",
+        "./foo",
+        "foo/.",
+        "a/",
+        # Rooted without being absolute on Windows, which would put the delete
+        # at the drive root.
+        "\\",
+        "/",
+        "back\\slash",
     ],
 )
 def test_unsafe_channels_are_rejected(assemble_site, channel):

@@ -80,16 +80,29 @@ def assert_safe_segment(value: str, name: str) -> None:
     if not value or value != value.strip():
         raise ValueError(f"{name} must not be empty or padded: {value!r}")
 
+    # Separators are rejected on the raw string, before any parsing. Parsing
+    # normalises `.` away — `PurePath("foo/.").parts` is `("foo",)` — so a value
+    # containing a separator can otherwise look like a single segment while
+    # naming a directory the manifest does not record. Both separators are
+    # listed regardless of platform, for the same reason the flavours below are.
+    if set(value) & {"/", "\\"}:
+        raise ValueError(f"{name} must be a single path segment: {value!r}")
+
     if value in {os.curdir, os.pardir}:
         raise ValueError(f"{name} must not be a relative reference: {value!r}")
 
     for flavour in (PurePosixPath, PureWindowsPath):
         candidate = flavour(value)
 
-        if candidate.drive or candidate.is_absolute():
+        # `root` as well as `drive` and `is_absolute`: on Windows a lone `\` is
+        # rooted without being absolute, which would put the delete below at the
+        # drive root.
+        if candidate.drive or candidate.root or candidate.is_absolute():
             raise ValueError(f"{name} must be a relative path segment: {value!r}")
 
-        if len(candidate.parts) != 1 or os.pardir in candidate.parts:
+        # Parsing must round-trip to exactly the value as one component. This
+        # catches `C:foo`, which Windows splits into a drive and a name.
+        if candidate.parts != (value,):
             raise ValueError(f"{name} must be a single path segment: {value!r}")
 
 
