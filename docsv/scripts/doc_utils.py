@@ -116,8 +116,16 @@ def parse_google_docstring(docstring: str) -> dict[str, Any]:
         text = "\n".join(content).strip()
         if section == "description":
             sections["description"] = clean_rst_markup(text)
-        elif section in ("args", "raises"):
+        elif section == "args":
             sections[section] = parse_param_list(text)
+        elif section == "raises":
+            # Google-style Raises entries are "ExceptionType: description".
+            # parse_param_list puts the exception name in the `name` field;
+            # remap it to `type` so renderers can use a consistent key.
+            sections[section] = [
+                {"type": p["name"], "description": p["description"]}
+                for p in parse_param_list(text)
+            ]
         else:
             sections[section] = clean_rst_markup(text)
 
@@ -171,7 +179,13 @@ def params_table_rows(params: list[dict]) -> list[str]:
         name = f"`{param['name']}`"
         ptype = f"`{param['type']}`" if param.get("type") else " "
         default = f"`{param['default']}`" if param.get("default") else " "
-        desc = param.get("description", "").replace("\n", " ").strip() or " "
+        # Escape bare pipes in plain-text description to avoid breaking the
+        # table structure. Type/default are backtick-wrapped, so their pipes
+        # are handled correctly by the parser without escaping.
+        desc = (
+            param.get("description", "").replace("\n", " ").strip().replace("|", "\\|")
+            or " "
+        )
         lines.append(f"| {name} | {ptype} | {default} | {desc} |")
     lines.append("\n</div>\n")
     return lines

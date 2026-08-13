@@ -258,7 +258,7 @@ git merge upstream/main
 git push
 ```
 
-If there were merge conflicts, Git will pause and ask you to resolve them before the merge commits automatically. Once you've resolved them and `git add`'d the affected files, run `git commit` to complete the merge, then `git push`.
+If there were merge conflicts, Git will pause and ask you to resolve them. Once you've resolved the conflicts and staged the affected files with `git add`, run `git commit` to complete the merge, then `git push`.
 
 ### Switching between branches
 
