@@ -1,0 +1,399 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 65cfbac3e6833323a5c50a8b160db679fe0a24c90797d1a363fe631a2f136c0c
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_schema_evolution
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: c
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: ENABLE_SCHEMA_EVOLUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_schema_evolution_off
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: c
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: ENABLE_SCHEMA_EVOLUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_row_timestamp
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: ROW_TIMESTAMP
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_error_logging
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: ERROR_LOGGING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_iceberg_collation
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: ICEBERG_DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-ci'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_many_params
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: ENABLE_SCHEMA_EVOLUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '5'
+    - keyword: CHANGE_TRACKING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: ROW_TIMESTAMP
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'lots of parameters'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_generated
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - naked_identifier: b
+      - data_type:
+          data_type_identifier: INT
+      - keyword: GENERATED
+      - keyword: ALWAYS
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: a
+            binary_operator: +
+            numeric_literal: '1'
+          end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_generated_virtual
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - naked_identifier: b
+      - data_type:
+          data_type_identifier: NUMBER
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '10'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+      - keyword: GENERATED
+      - keyword: ALWAYS
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: a
+            binary_operator: '*'
+            numeric_literal: '2'
+          end_bracket: )
+      - keyword: VIRTUAL
+      - comma: ','
+      - naked_identifier: c
+      - data_type:
+          data_type_identifier: STRING
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: TO_VARCHAR
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
+          end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: READ
+    - keyword: ONLY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_read_only_clone
+    - keyword: CLONE
+    - table_reference:
+        naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: READ
+    - keyword: ONLY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_read_only_temporary
+    - keyword: CLONE
+    - table_reference:
+        naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: LOCAL
+    - keyword: TEMP
+    - keyword: READ
+    - keyword: ONLY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_read_only_local
+    - keyword: CLONE
+    - table_reference:
+        naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_check_out_of_line
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: chk_a
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '100'
+            end_bracket: )
+      - comma: ','
+      - constraint_properties_segment:
+          keyword: CHECK
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: b
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_check_enable_validate
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        comma: ','
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: chk_a
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '100'
+            end_bracket: )
+        - keyword: ENABLE
+        - keyword: VALIDATE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_inline_references
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - column_reference:
+              naked_identifier: other_table
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: x
+              end_bracket: )
+          - keyword: MATCH
+          - keyword: FULL
+          - keyword: 'ON'
+          - keyword: DELETE
+          - keyword: CASCADE
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - column_reference:
+              naked_identifier: other_table
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: y
+              end_bracket: )
+          - keyword: MATCH
+          - keyword: SIMPLE
+          - keyword: 'ON'
+          - keyword: UPDATE
+          - keyword: SET
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - column_reference:
+              naked_identifier: other_table
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: z
+              end_bracket: )
+          - keyword: NOT
+          - keyword: ENFORCED
+          - keyword: RELY
+      - end_bracket: )
+- statement_terminator: ;

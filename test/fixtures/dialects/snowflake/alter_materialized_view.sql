@@ -8,4 +8,4 @@ alter materialized view my_mv drop clustering key;
 alter materialized view mv1 set secure;
 alter materialized view mv1 set comment = 'Sample view';
 alter materialized view mv1 set tag my_tag = 'my tag';
-alter materialized view mv1 unset tag my_tag = 'not my tag anymore';
+alter materialized view mv1 unset tag my_tag;

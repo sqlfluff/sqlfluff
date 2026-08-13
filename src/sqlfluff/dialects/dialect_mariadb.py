@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_mariadb_keywords import (
     mariadb_reserved_keywords,
@@ -70,7 +71,42 @@ mariadb_dialect.replace(
             ),
         ),
     ),
+    # Allow the MariaDB sequence value expressions `NEXT VALUE FOR seq` and
+    # `PREVIOUS VALUE FOR seq` anywhere an expression is valid (SELECT, VALUES).
+    # The dedicated segment is tried first so a leading NEXT/PREVIOUS is not
+    # consumed as a column reference.
+    Expression_C_Grammar=OneOf(
+        Ref("SequenceValueForSegment"),
+        mysql_dialect.get_grammar("Expression_C_Grammar"),
+    ),
+    # A column DEFAULT may use a sequence value expression, either bare
+    # (`DEFAULT NEXT VALUE FOR seq`) or bracketed (`DEFAULT (NEXT VALUE FOR
+    # seq)`) -- both are accepted by MariaDB. The base column-default grammar
+    # only allows literals/functions, so it does not cover this.
+    ColumnConstraintDefaultGrammar=OneOf(
+        Ref("SequenceValueForSegment"),
+        Bracketed(Ref("SequenceValueForSegment")),
+        mysql_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
+    ),
 )
+
+
+class SequenceValueForSegment(BaseSegment):
+    """A MariaDB ``NEXT VALUE FOR`` / ``PREVIOUS VALUE FOR`` sequence expression.
+
+    ``NEXT VALUE FOR seq`` is equivalent to ``NEXTVAL(seq)`` and
+    ``PREVIOUS VALUE FOR seq`` to ``LASTVAL(seq)``.
+
+    https://mariadb.com/kb/en/sequence-overview/
+    """
+
+    type = "sequence_value_for_expression"
+    match_grammar: Matchable = Sequence(
+        OneOf("NEXT", "PREVIOUS"),
+        "VALUE",
+        "FOR",
+        Ref("SequenceReferenceSegment"),
+    )
 
 
 class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
@@ -1341,6 +1377,20 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
     )
 
 
+class DropIndexStatementSegment(mysql.DropIndexStatementSegment):
+    """A `DROP INDEX` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause between ``INDEX`` and the index name.
+    MySQL does not support it, so the change is confined to the MariaDB dialect.
+    https://mariadb.com/kb/en/drop-index/
+    """
+
+    match_grammar = mysql.DropIndexStatementSegment.match_grammar.copy(
+        insert=[Ref("IfExistsGrammar", optional=True)],
+        before=Ref("IndexReferenceSegment"),
+    )
+
+
 class CreateViewStatementSegment(mysql.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
@@ -1352,4 +1402,53 @@ class CreateViewStatementSegment(mysql.CreateViewStatementSegment):
     match_grammar = mysql.CreateViewStatementSegment.match_grammar.copy(
         insert=[Ref("IfNotExistsGrammar", optional=True)],
         before=Ref("TableReferenceSegment"),
+    )
+
+
+class CreateSequenceStatementSegment(ansi.CreateSequenceStatementSegment):
+    """A `CREATE SEQUENCE` statement.
+
+    Adds MariaDB's ``IF NOT EXISTS`` clause. MySQL/ANSI do not support it, so
+    the change is confined to the MariaDB dialect.
+    https://mariadb.com/kb/en/create-sequence/
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SEQUENCE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
+    )
+
+
+class AlterSequenceStatementSegment(ansi.AlterSequenceStatementSegment):
+    """An `ALTER SEQUENCE` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause. MariaDB only.
+    https://mariadb.com/kb/en/alter-sequence/
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("AlterSequenceOptionsSegment")),
+    )
+
+
+class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
+    """A `DROP SEQUENCE` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause and comma-separated name list.
+    MariaDB only.
+    https://mariadb.com/kb/en/drop-sequence/
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("SequenceReferenceSegment")),
     )
