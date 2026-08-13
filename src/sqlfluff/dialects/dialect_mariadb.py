@@ -1376,6 +1376,20 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
     )
 
 
+class DropIndexStatementSegment(mysql.DropIndexStatementSegment):
+    """A `DROP INDEX` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause between ``INDEX`` and the index name.
+    MySQL does not support it, so the change is confined to the MariaDB dialect.
+    https://mariadb.com/kb/en/drop-index/
+    """
+
+    match_grammar = mysql.DropIndexStatementSegment.match_grammar.copy(
+        insert=[Ref("IfExistsGrammar", optional=True)],
+        before=Ref("IndexReferenceSegment"),
+    )
+
+
 class CreateViewStatementSegment(mysql.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
