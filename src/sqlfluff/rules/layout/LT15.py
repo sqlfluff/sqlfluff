@@ -167,6 +167,11 @@ class Rule_LT15(BaseRule):
         ):
             return None
 
+        # This also covers the templated case the maximum branch guards against
+        # separately: a gap whose newlines come from a template has the template's
+        # own placeholder in it, so it is skipped here before the run is counted
+        # and templated lines can never satisfy the minimum.
+        #
         # A template block start/end sits in the gap as a placeholder meta. The
         # newlines either side of it are not a gap between two statements, so
         # padding them puts blank lines around the tag rather than between the
@@ -187,13 +192,6 @@ class Rule_LT15(BaseRule):
         run = 1
         for raw_seg in reversed(context.raw_stack):
             if raw_seg.is_type("newline"):
-                # A templated newline is not ours to count. The maximum branch
-                # already bails on one; counting it here would let a jinja loop
-                # that emits blank lines satisfy the minimum with lines the user
-                # cannot see or edit, so the two directions would disagree about
-                # what the gap is.
-                if raw_seg.is_templated:
-                    return None
                 run += 1
             elif raw_seg.is_type("whitespace"):
                 continue

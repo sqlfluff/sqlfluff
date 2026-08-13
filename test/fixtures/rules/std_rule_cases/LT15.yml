@@ -410,3 +410,16 @@ test_pass_minimum_ignores_template_block_tags:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_templated_terminator:
+  # the terminator itself comes from the template, so the break after it is not
+  # the user's line to insert
+  pass_str: |
+    {% set semi = ";" %}
+    SELECT a FROM tab{{ semi }} SELECT b FROM tab;
+  configs:
+    core:
+      templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
