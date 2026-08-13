@@ -175,6 +175,7 @@ def params_table_rows(params: list[dict]) -> list[str]:
         "| Parameter | Type | Default | Description |",
         "|:----------|:-----|:--------|:------------|",
     ]
+
     # Escape pipes in all cell values: markdown-it's table block parser splits on
     # `|` before inline parsing, so pipes inside backtick spans are treated as
     # cell delimiters without escaping. `\|` renders correctly as `|`.
