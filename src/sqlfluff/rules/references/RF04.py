@@ -21,6 +21,11 @@ class Rule_RF04(BaseRule):
        Note that `reserved` keywords cannot be used as unquoted identifiers
        and will cause parsing errors and so are not covered by this rule.
 
+    .. note::
+       The name given to a common table expression is treated as a table
+       alias, and so is covered by the ``aliases`` and ``table_aliases``
+       identifier policies.
+
     **Anti-pattern**
 
     In this example, ``SUM`` (built-in function) is used as an alias.

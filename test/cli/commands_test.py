@@ -2195,7 +2195,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 25 if write_file else 34
+        assert payload_length == 27 if write_file else 36
     elif serialize == "none":
         assert payload_length == 1  # There will be a single newline.
     elif serialize == "json":
@@ -2229,7 +2229,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 16
+        assert len(result) == 17
     else:
         raise Exception
 
@@ -2774,7 +2774,7 @@ L:  44 | P:  12 | ST09 | Joins should list the table referenced earlier first.
 Are you sure you wish to attempt to fix these? [Y/n] ...
 Invalid input, please enter 'Y' or 'N'
 Aborting...
-  [4 unfixable linting violations found]
+  [5 unfixable linting violations found]
 """
 
 
@@ -2855,7 +2855,7 @@ def test__cli__fix_multiple_errors_show_errors():
         ],
     )
     # We should get a readout of what the error was
-    check_a = "4 unfixable linting violations found"
+    check_a = "5 unfixable linting violations found"
     assert check_a in result.stdout
     # Finally check the WHOLE output to make sure that unexpected newlines are not
     # added. The replace command just accounts for cross platform testing.

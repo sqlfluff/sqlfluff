@@ -22,11 +22,14 @@ def identifiers_policy_applicable(
     is_alias = parent_stack and parent_stack[-1].is_type(
         "alias_expression", "column_definition", "with_compound_statement"
     )
-    if policy == "aliases" and is_alias:
+    # The name given to a CTE isn't parsed as an `alias_expression`, but it
+    # names a table-like object and so is treated as a table alias here.
+    is_cte_name = parent_stack and parent_stack[-1].is_type("common_table_expression")
+    if policy == "aliases" and (is_alias or is_cte_name):
         return True
     is_inside_from = any(p.is_type("from_clause") for p in parent_stack)
     if policy == "column_aliases" and is_alias and not is_inside_from:
         return True
-    if policy == "table_aliases" and is_alias and is_inside_from:
+    if policy == "table_aliases" and (is_cte_name or (is_alias and is_inside_from)):
         return True
     return False

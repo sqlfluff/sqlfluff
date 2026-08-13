@@ -115,6 +115,48 @@ test_fail_keyword_as_quoted_identifier_column_alias_config:
     core:
       dialect: tsql
 
+test_fail_keyword_as_cte_name:
+  # A CTE name is effectively a table alias, so the default `aliases` policy
+  # should flag it.
+  fail_str: |
+    WITH sum AS (SELECT 1 AS test_rf04)
+
+    SELECT sum.test_rf04
+    FROM sum
+
+test_pass_keyword_as_cte_name_column_alias_config:
+  pass_str: |
+    WITH sum AS (SELECT 1 AS test_rf04)
+
+    SELECT sum.test_rf04
+    FROM sum
+  configs:
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: column_aliases
+
+test_fail_keyword_as_cte_name_table_alias_config:
+  fail_str: |
+    WITH sum AS (SELECT 1 AS test_rf04)
+
+    SELECT sum.test_rf04
+    FROM sum
+  configs:
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: table_aliases
+
+test_fail_keyword_as_quoted_cte_name:
+  fail_str: |
+    WITH "sum" AS (SELECT 1 AS test_rf04)
+
+    SELECT "sum".test_rf04
+    FROM "sum"
+  configs:
+    rules:
+      references.keywords:
+        quoted_identifiers_policy: aliases
+
 test_pass_ignore_word1:
   pass_str: CREATE TABLE artist(create TEXT)
   configs:
