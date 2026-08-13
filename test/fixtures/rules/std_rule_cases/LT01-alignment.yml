@@ -252,6 +252,57 @@ test_excess_space_with_align_alias_tsql_mixed:
     FROM foo
   configs: *tsql_align_alias
 
+test_align_alias_leading_commas:
+  # Leading commas shouldn't disrupt the alignment of the aliases.
+  # https://github.com/sqlfluff/sqlfluff/issues/8256
+  fail_str: |
+    SELECT
+        'a' AS first_column
+        , 'bb' AS second_column
+        , 'c' AS third_column
+    FROM foo
+  fix_str: |
+    SELECT
+        'a'    AS first_column
+        , 'bb' AS second_column
+        , 'c'  AS third_column
+    FROM foo
+  configs: *align_alias
+
+test_align_alias_leading_commas_tsql:
+  # As above, but with the tsql `=` syntax, where the aligned
+  # `alias_expression` starts with the column name rather than a keyword.
+  # The first column is preceded by a newline rather than by a comma, so it
+  # shouldn't push the other columns to the right.
+  # https://github.com/sqlfluff/sqlfluff/issues/8256
+  fail_str: |
+    SELECT
+        first_column = a
+        , second_column = b
+        , third_column = c
+    FROM foo
+  fix_str: |
+    SELECT
+        first_column    = a
+        , second_column = b
+        , third_column  = c
+    FROM foo
+  configs:
+    core:
+      dialect: tsql
+    layout:
+      type:
+        comma:
+          line_position: leading
+        alias_operator:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
+
 test_align_multiple_a:
   # https://github.com/sqlfluff/sqlfluff/issues/4023
   fail_str: |

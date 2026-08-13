@@ -463,6 +463,17 @@ def _determine_aligned_inline_spacing(
                     )
                 else:
                     loc = last_code.pos_marker.working_loc_after(last_code.raw)
+                # If the preceding code is on a different line, then this sibling
+                # is the first thing on its own line. The whitespace before it is
+                # indentation (handled by the reindent routines and not here), so
+                # including it would inflate the alignment target with a position
+                # from an unrelated line.
+                if loc[0] != _pos_line(sibling.pos_marker, use_source_positions):
+                    reflow_logger.debug(
+                        "    Skipping %s for alignment. Preceded by a newline.",
+                        sibling,
+                    )
+                    continue
                 reflow_logger.debug(
                     "    loc for %s: %s from %s",
                     sibling,
