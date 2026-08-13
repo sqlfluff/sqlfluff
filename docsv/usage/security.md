@@ -59,11 +59,16 @@ from sqlfluff.core import FluffConfig, Linter
 config = FluffConfig(
     overrides={
         "dialect": "snowflake",
-        # NOTE: We explicitly set the string "none" here rather than a
-        # None literal so that it overrides any config set by config files.
+        # Pass the string "none" rather than Python None: a None value
+        # would not override a library_path set in a config file on disk,
+        # whereas a string override takes unconditional precedence.
         "library_path": "none",
     }
 )
 
 linted_file = Linter(config=config).lint_string(sql)
 ```
+
+::: info
+The CLI converts `--library-path none` into an explicit `None` internally, which stops library loading cleanly. The Python API override uses the string `"none"` instead — this prevents any config-file `library_path` from being picked up and, in practice, no libraries are loaded because no directory named `"none"` typically exists. If you want an unconditional guarantee, pass the path to an empty directory rather than relying on `"none"`.
+:::

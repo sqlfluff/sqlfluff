@@ -116,7 +116,9 @@ def main():
     print(f"  - Sidebar config (CLI): {docs_dir / '.vitepress' / 'sidebar-cli.json'}")
     print(f"  - Sidebar config (API): {docs_dir / '.vitepress' / 'sidebar-api.json'}")
     print(f"  - Internal API docs: {docs_dir / 'reference' / 'internals'}")
-    print(f"  - Sidebar config (internals): {docs_dir / '.vitepress' / 'sidebar-internals.json'}")
+    print(
+        f"  - Sidebar config (internals): {docs_dir / '.vitepress' / 'sidebar-internals.json'}"
+    )
 
     return 0
 
