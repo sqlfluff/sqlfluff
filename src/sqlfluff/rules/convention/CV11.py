@@ -184,7 +184,17 @@ class Rule_CV11(BaseRule):
         convert_arg_2: BaseSegment,
         later_types=None,
     ) -> list[LintFix]:
-        """Generate list of fixes to convert CAST and ShorthandCast to CONVERT."""
+        """Generate list of fixes to convert CAST and ShorthandCast to CONVERT.
+
+        Returns no fixes on the dialects whose CONVERT takes its arguments the
+        other way round. The rewrite below emits the T-SQL order, so applying it
+        there would turn CAST(b AS SIGNED) into convert(SIGNED, b): valid SQL
+        that means something else. The violation is still reported by the caller,
+        it just cannot be auto-fixed.
+        """
+        if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+            return []
+
         convert_function = cls._build_function(
             "convert",
             [
@@ -253,18 +263,6 @@ class Rule_CV11(BaseRule):
         # TODO: add additional dialects that only support a single option here.
         # TODO: add a tier list for dialects support multiples, but not all.
         if context.dialect.name in ("teradata", "athena", "trino"):
-            return None
-
-        # Writing CONVERT on these dialects is as wrong as reading it: the rule
-        # emits the T-SQL argument order, so CAST(b AS SIGNED) would become
-        # convert(SIGNED, b). When CONVERT is the target style there is no safe
-        # rewrite left to make, since every violation would be fixed into that
-        # order, so the rule is skipped entirely for this config. The other
-        # preferred styles are unaffected and still lint CAST and :: normally.
-        if (
-            self.preferred_type_casting_style == "convert"
-            and context.dialect.name in _REVERSED_CONVERT_DIALECTS
-        ):
             return None
 
         # If we're in a templated section, don't consider the current location.
