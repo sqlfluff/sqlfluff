@@ -1,6 +1,6 @@
 """Implementation of Rule CV06."""
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from typing import NamedTuple, Optional, cast
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment, RawSegment, SymbolSegment
@@ -76,6 +76,20 @@ class Rule_CV06(BaseRule):
         # If no direct statement found, look recursively (e.g., T-SQL batch structure)
         statements = list(file_segment.recursive_crawl("statement"))
         return statements[-1] if statements else None
+
+    @staticmethod
+    def _iter_top_level_segments(file_segment: BaseSegment) -> Iterator[BaseSegment]:
+        """Iterate the top level segments of a file, unpacking any batches.
+
+        Some dialects (e.g. Oracle & T-SQL) group statements into ``batch``
+        segments, so they need unpacking to see all of the statements in a
+        file in the order they appear.
+        """
+        for seg in file_segment.segments:
+            if seg.is_type("batch"):
+                yield from seg.segments
+            else:
+                yield seg
 
     def _has_final_non_semicolon_terminator(self, file_segment: BaseSegment) -> bool:
         """Check if a statement has a non-semicolon terminator at the end."""
@@ -375,8 +389,12 @@ class Rule_CV06(BaseRule):
             last_statement.raw_segments
         ) and self._is_segment_semicolon(last_statement.raw_segments[-1])
 
+        # NOTE: We look across the whole file (unpacking any batches) rather
+        # than just within the statement container, because a terminator which
+        # this rule has already created will be a sibling of the container
+        # rather than a child of it.
         found_last_statement = False
-        for seg in statement_container.segments:
+        for seg in self._iter_top_level_segments(parent_segment):
             if seg is last_statement:
                 found_last_statement = True
             elif found_last_statement:
@@ -464,6 +482,74 @@ class Rule_CV06(BaseRule):
             )
         return None  # pragma: no cover
 
+    def _handle_missing_terminator(
+        self, statement: BaseSegment, parent_segment: BaseSegment
+    ) -> LintResult:
+        """Create a fix for a statement which isn't followed by a semi-colon."""
+        # Anchor on the last code segment of the statement.
+        anchor_segment: BaseSegment = (
+            Segments(*statement.raw_segments).reversed().select(sp.is_code())[0]
+        )
+        is_one_line = not any(statement.recursive_crawl("newline"))
+        semicolon_newline = self.multiline_newline if not is_one_line else False
+
+        create_segments: list[BaseSegment] = [
+            SymbolSegment(raw=";", type="statement_terminator")
+        ]
+        if semicolon_newline:
+            # Don't move any trailing inline comment as it could contain noqa
+            # instructions. Insert the semi-colon after it instead.
+            anchor_segment = self._handle_trailing_inline_comments(
+                parent_segment, anchor_segment
+            )
+            create_segments.insert(0, NewlineSegment())
+
+        return LintResult(
+            anchor=anchor_segment,
+            fixes=[
+                LintFix.create_after(
+                    self._choose_anchor_segment(
+                        parent_segment,
+                        "create_after",
+                        anchor_segment,
+                        filter_meta=True,
+                    ),
+                    create_segments,
+                )
+            ],
+        )
+
+    def _ensure_intermediate_semicolons(
+        self, file_segment: BaseSegment
+    ) -> list[LintResult]:
+        """Find statements which aren't separated from the next by a semi-colon.
+
+        In dialects which support batches (e.g. Oracle & T-SQL) consecutive
+        statements can parse successfully without any terminator between them,
+        so they need flagging explicitly.
+
+        NOTE: The final statement of the file is deliberately not handled here.
+        Whether it requires a terminator is governed by the
+        ``require_final_semicolon`` config option and is handled by
+        :meth:`_ensure_final_semicolon`.
+        """
+        results: list[LintResult] = []
+        unterminated: Optional[BaseSegment] = None
+        for seg in self._iter_top_level_segments(file_segment):
+            if not seg.is_code:
+                continue
+            if seg.is_type("statement"):
+                if unterminated is not None:
+                    results.append(
+                        self._handle_missing_terminator(unterminated, file_segment)
+                    )
+                unterminated = seg
+            else:
+                # Any other code (e.g. a terminator, or a batch delimiter such
+                # as Oracle's `/` or T-SQL's `GO`) closes off the statement.
+                unterminated = None
+        return results
+
     def _eval(self, context: RuleContext) -> list[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
@@ -472,7 +558,9 @@ class Rule_CV06(BaseRule):
 
         # We should only be dealing with a root segment
         assert context.segment.is_type("file")
-        results = []
+        # Statements which run straight into the next one are always missing a
+        # terminator, regardless of the configured conventions.
+        results = self._ensure_intermediate_semicolons(context.segment)
 
         # Process file segments and any batch segments (for T-SQL)
         # Collect all containers that should be processed
