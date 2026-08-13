@@ -61,11 +61,76 @@
 /* The shared theme control is placed in the nav bar and nav screen slots in
    place of VitePress's own two-state toggle. Only spacing is set here; the
    control's appearance comes from the shared components stylesheet. */
+
+/* The version picker and the theme control are one group: both describe how the
+   reader is viewing the docs rather than where they are in it. The separator
+   therefore belongs before the picker, and the theme control drops the one it
+   carries by default so the pair are not split from each other. */
+.VPNavBar .version-picker {
+  margin-left: 0.5rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--vp-c-divider);
+}
+
 .VPNavBar .sqlfluff-theme-control {
   margin-left: 0.5rem;
+  padding-left: 0;
+  border-left: 0;
+}
+
+/*
+ * Below the hamburger breakpoint the nav screen renders its own copies of both
+ * controls, so the nav bar copies would be duplicates. They also overflowed:
+ * at 420px the theme control ended at 433px and pushed the wordmark out of the
+ * viewport. The default theme hides its own nav-bar extras the same way.
+ *
+ * The threshold is 768px rather than the 1280px the default theme uses for
+ * social links and its appearance toggle. Those two stay reachable between the
+ * breakpoints through the `...` menu, but that menu is VitePress's own and
+ * cannot be extended, so hiding these at 1280px would put the version picker
+ * out of reach on every window between 768px and 1280px. The block below
+ * carves out the one band where that budget does not stretch to both controls.
+ */
+@media (max-width: 767px) {
+  .VPNavBar .version-picker,
+  .VPNavBar .sqlfluff-theme-control {
+    display: none;
+  }
+}
+
+/*
+ * Between the hamburger breakpoint and 880px the nav bar cannot hold the
+ * default theme's inline menu, its search field at minimum width, and both of
+ * these controls: at 768px they overflow the viewport by 112px, which is why
+ * the wordmark used to be clipped there.
+ *
+ * The nav screen is not an escape hatch in this band — `useNav` hard-codes the
+ * 768px threshold in JavaScript, so moving the collapse point in CSS alone would
+ * leave a hamburger which closes itself on resize.
+ *
+ * So the band gives up two things. The theme control yields because it sets a
+ * preference rather than a destination, the preference survives in a cookie
+ * across SQLFluff sites, and it is still reachable on either side of this band.
+ * The default theme's `...` menu yields because with `appearance: false` and a
+ * single locale it holds nothing but the social links, which the footer also
+ * carries. The version picker keeps its place because it is navigation.
+ */
+@media (min-width: 768px) and (max-width: 879px) {
+  .VPNavBar .sqlfluff-theme-control,
+  .VPNavBar .VPNavBarExtra {
+    display: none;
+  }
 }
 
 .VPNavScreen .sqlfluff-theme-control {
+  /* Full width so the separator above it spans the screen, rather than only the
+     three buttons, which `inline-flex` would limit it to. The shared stylesheet
+     right-aligns the control at this width for its own header layout, which
+     full width makes visible; the nav screen stacks everything else from the
+     left, including the version picker directly above. */
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
   margin-left: 0;
   padding-left: 0;
   border-left: 0;

@@ -1,0 +1,104 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 03f118a1cad5f59f8cd53a45caf03f5e861832c5195cb9e9607b7b3c49319da0
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: market_hours_source
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          quoted_identifier: '`timestamp_utc`'
+          data_type:
+            keyword: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`market`'
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`market_open_flag`'
+          data_type:
+            data_type_identifier: BOOLEAN
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'kafka'"
+      - comma: ','
+      - quoted_literal: "'topic'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'data-ops-market-hours'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: market_hours_source
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          quoted_identifier: '`timestamp_utc`'
+          data_type:
+            keyword: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`market`'
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`market_open_flag`'
+          data_type:
+            data_type_identifier: BOOLEAN
+      - comma: ','
+      - naked_identifier: proc_time
+      - keyword: AS
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: PROCTIME
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'kafka'"
+      - comma: ','
+      - quoted_literal: "'topic'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'data-ops-market-hours'"
+      - end_bracket: )
+- statement_terminator: ;

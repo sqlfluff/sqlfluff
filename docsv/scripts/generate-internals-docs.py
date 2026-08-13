@@ -13,12 +13,15 @@ import textwrap
 from pathlib import Path
 from typing import Any, Callable, get_type_hints
 
-# ── imports ──────────────────────────────────────────────────────────────────
-from sqlfluff.core.config.fluffconfig import FluffConfig
 from sqlfluff.core.config import loader as config_loader
+from sqlfluff.core.config.fluffconfig import FluffConfig
 from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.context import RuleContext
-from sqlfluff.core.rules.crawlers import BaseCrawler, RootOnlyCrawler, SegmentSeekerCrawler
+from sqlfluff.core.rules.crawlers import (
+    BaseCrawler,
+    RootOnlyCrawler,
+    SegmentSeekerCrawler,
+)
 from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.utils.functional import raw_file_slice_predicates, segment_predicates
 from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
@@ -124,16 +127,24 @@ def clean_rst_markup(text: str) -> str:
     text = re.sub(r":py:[a-z]+:`([^`]+)`", r"`\1`", text)
     text = re.sub(r":ref:`([^`]+)`", r"\1", text)
     text = re.sub(r":code:`([^`]+)`", r"`\1`", text)
+
     # RST code blocks  →  fenced Markdown
     def _code_block(m: re.Match) -> str:
         lang = (m.group(1) or "").strip()
-        lang = {"py3": "python", "py": "python", "cfg": "ini", "bash": "bash",
-                "sql": "sql", "text": ""}.get(lang, lang)
+        lang = {
+            "py3": "python",
+            "py": "python",
+            "cfg": "ini",
+            "bash": "bash",
+            "sql": "sql",
+            "text": "",
+        }.get(lang, lang)
         # Extract indented body
         body_lines = []
         for line in m.group(2).splitlines():
             body_lines.append(line[4:] if line.startswith("    ") else line)
         return f"```{lang}\n" + "\n".join(body_lines).strip() + "\n```"
+
     text = re.sub(
         r"\.\.\s+code-block::\s*(\w*)\n\n((?:    .+\n?|\n)+)",
         _code_block,
@@ -278,16 +289,25 @@ def _sig_params(obj: Any) -> list[dict]:
         for name, param in sig.parameters.items():
             if name == "self":
                 continue
-            ptype = format_type_hint(hints[name]) if name in hints else (
-                format_type_hint(param.annotation)
-                if param.annotation is not inspect.Parameter.empty
-                else ""
+            ptype = (
+                format_type_hint(hints[name])
+                if name in hints
+                else (
+                    format_type_hint(param.annotation)
+                    if param.annotation is not inspect.Parameter.empty
+                    else ""
+                )
             )
             default = ""
             if param.default is not inspect.Parameter.empty:
-                default = "None" if param.default is None else (
-                    f'"{param.default}"' if isinstance(param.default, str)
-                    else str(param.default)
+                default = (
+                    "None"
+                    if param.default is None
+                    else (
+                        f'"{param.default}"'
+                        if isinstance(param.default, str)
+                        else str(param.default)
+                    )
                 )
             result.append({"name": name, "type": ptype, "default": default})
         return result
@@ -345,7 +365,9 @@ def render_function(name: str, obj: Callable, heading: str = "###") -> list[str]
     # Build signature string
     parts = []
     for p in sig_params:
-        parts.append(f"    {p['name']}={p['default']}" if p["default"] else f"    {p['name']}")
+        parts.append(
+            f"    {p['name']}={p['default']}" if p["default"] else f"    {p['name']}"
+        )
     sig = f"{name}(\n" + ",\n".join(parts) + "\n)" if parts else f"{name}()"
     if ret:
         sig += f" → {ret}"
@@ -365,7 +387,9 @@ def render_function(name: str, obj: Callable, heading: str = "###") -> list[str]
     if doc.get("raises"):
         lines.append("**Raises:**\n")
         for exc in doc["raises"]:
-            lines.append(f"- `{exc.get('type', 'Exception')}`: {exc.get('description', '')}")
+            lines.append(
+                f"- `{exc.get('type', 'Exception')}`: {exc.get('description', '')}"
+            )
         lines.append("")
 
     if doc.get("examples"):
@@ -379,7 +403,9 @@ def render_function(name: str, obj: Callable, heading: str = "###") -> list[str]
     return lines
 
 
-def render_class(cls: type, heading: str = "##", method_heading: str = "###") -> list[str]:
+def render_class(
+    cls: type, heading: str = "##", method_heading: str = "###"
+) -> list[str]:
     """Render a class (constructor + public methods) as Markdown."""
     doc = parse_google_docstring(inspect.getdoc(cls) or "")
     lines: list[str] = [f"{heading} `{cls.__name__}`\n"]
@@ -454,7 +480,9 @@ def build_functional_page() -> str:
         "Predicate functions for use with `RawFileSlices.select()`, mirroring "
         "the role of `segment_predicates` for the raw slice layer.\n"
     )
-    for fname, fobj in inspect.getmembers(raw_file_slice_predicates, inspect.isfunction):
+    for fname, fobj in inspect.getmembers(
+        raw_file_slice_predicates, inspect.isfunction
+    ):
         if not fname.startswith("_"):
             lines.extend(render_function(fname, fobj, heading="###"))
 
@@ -472,8 +500,15 @@ def build_reflow_page() -> str:
 def build_rules_page() -> str:
     """Build reference/internals/rules.md."""
     lines: list[str] = [PAGE_INTROS["rules"]]
-    for cls in [BaseRule, LintResult, LintFix, RuleContext,
-                BaseCrawler, SegmentSeekerCrawler, RootOnlyCrawler]:
+    for cls in [
+        BaseRule,
+        LintResult,
+        LintFix,
+        RuleContext,
+        BaseCrawler,
+        SegmentSeekerCrawler,
+        RootOnlyCrawler,
+    ]:
         lines.extend(render_class(cls, heading="##", method_heading="###"))
     return "\n".join(lines)
 
@@ -514,6 +549,7 @@ is recommended.
 
 
 def build_sidebar() -> dict[str, Any]:
+    """Build the VitePress sidebar configuration for the internals section."""
     return {
         "text": "Internal API",
         "collapsed": True,
@@ -531,6 +567,7 @@ def build_sidebar() -> dict[str, Any]:
 
 
 def main() -> int:
+    """Generate all internal API Markdown pages and the sidebar config."""
     script_dir = Path(__file__).parent
     docs_dir = script_dir.parent
     output_dir = docs_dir / "reference" / "internals"
