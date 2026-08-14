@@ -902,6 +902,20 @@ snowflake_dialect.add(
         ),
     ),
     CopyTagsGrammar=Sequence("COPY", "TAGS"),
+    # SET MASKING POLICY <name> [ USING ( <col_name> [ , ... ] ) ], as used
+    # by the column level governance actions of ALTER statements. The USING
+    # clause takes column references per the documentation.
+    # https://docs.snowflake.com/en/sql-reference/sql/alter-table-column
+    MaskingPolicyGrammar=Sequence(
+        "MASKING",
+        "POLICY",
+        Ref("FunctionNameSegment"),
+        Sequence(
+            "USING",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -2985,6 +2999,39 @@ class TableColumnCommentActionSegment(BaseSegment):
     )
 
 
+class AlterDynamicTableColumnActionSegment(BaseSegment):
+    """The column level `dataGovnPolicyTagAction` of `ALTER DYNAMIC TABLE`.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-dynamic-table
+    """
+
+    type = "alter_dynamic_table_column_action"
+
+    match_grammar = Sequence(
+        OneOf("ALTER", "MODIFY"),
+        Ref.keyword("COLUMN", optional=True),
+        Ref("ColumnReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("MaskingPolicyGrammar"),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence("UNSET", "MASKING", "POLICY"),
+            Sequence(
+                "SET",
+                "PROJECTION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence("UNSET", "PROJECTION", "POLICY"),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+        ),
+    )
+
+
 class AlterDynamicTableStatementSegment(BaseSegment):
     """An `ALTER DYNAMIC TABLE` Statement.
 
@@ -3015,8 +3062,7 @@ class AlterDynamicTableStatementSegment(BaseSegment):
             Sequence("REFRESH", Sequence("COPY", "SESSION", optional=True)),
             Ref("AlterTableClusteringActionSegment"),
             Ref("TableColumnCommentActionSegment"),
-            # TODO: Masking policy:
-            # This might go under the DataGovernancePolicyTagActionSegment
+            Ref("AlterDynamicTableColumnActionSegment"),
             Ref("DataGovernancePolicyTagActionSegment"),
             Ref("SearchOptimizationActionSegment"),
             Sequence(
