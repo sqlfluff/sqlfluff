@@ -56,6 +56,12 @@ def get_configs_info() -> dict[str, ConfigInfo]:
             "validation": ["consistent", "shorthand", "convert", "cast"],
             "definition": ("The expectation for using sql type casting"),
         },
+        "preferred_boolean_comparison_style": {
+            "validation": ["consistent", "implicit", "explicit"],
+            "definition": (
+                "The style for boolean comparisons. Defaults to ``implicit``."
+            ),
+        },
     }
 
 
@@ -78,6 +84,7 @@ def get_rules() -> list[type[BaseRule]]:
     from sqlfluff.rules.convention.CV10 import Rule_CV10
     from sqlfluff.rules.convention.CV11 import Rule_CV11
     from sqlfluff.rules.convention.CV12 import Rule_CV12
+    from sqlfluff.rules.convention.CV13 import Rule_CV13
 
     return [
         Rule_CV01,
@@ -92,4 +99,5 @@ def get_rules() -> list[type[BaseRule]]:
         Rule_CV10,
         Rule_CV11,
         Rule_CV12,
+        Rule_CV13,
     ]

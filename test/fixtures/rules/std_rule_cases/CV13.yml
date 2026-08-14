@@ -1,0 +1,270 @@
+rule: CV13
+
+test_pass_direct_boolean:
+  pass_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active
+
+test_pass_not_boolean:
+  pass_str: |
+    SELECT a
+    FROM foo
+    WHERE NOT is_active
+
+test_pass_numeric_comparison:
+  pass_str: |
+    SELECT a
+    FROM foo
+    WHERE a = 1 AND b != 2
+
+test_pass_string_comparison:
+  pass_str: |
+    SELECT a
+    FROM foo
+    WHERE status = 'ACTIVE'
+
+test_equals_true_simple:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active = TRUE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active
+
+test_equals_false_simple:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active = FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE NOT is_active
+
+test_not_equals_true:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active != TRUE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE NOT is_active
+
+test_not_equals_false:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active != FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active
+
+test_ansi_not_equals_true:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active <> TRUE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE NOT is_active
+
+test_ansi_not_equals_false:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active <> FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active
+
+test_true_equals_variable:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE TRUE = is_active
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active
+
+test_false_equals_variable:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE FALSE = is_active
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE NOT is_active
+
+test_is_true:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active IS TRUE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active
+
+test_is_false:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active IS FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE NOT is_active
+
+test_is_not_true:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active IS NOT TRUE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE NOT is_active
+
+test_is_not_false:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active IS NOT FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active
+
+test_compound_and_condition:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active = TRUE AND is_deleted = FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active AND NOT is_deleted
+
+test_compound_or_condition:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_admin = TRUE OR is_staff = TRUE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_admin OR is_staff
+
+test_parenthesized_expression_equals_true:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE (a > 5) = TRUE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE (a > 5)
+
+test_parenthesized_expression_equals_false:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE (a > 5) = FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE NOT (a > 5)
+
+test_double_not_elimination:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE NOT is_active = FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active
+
+test_lowercase_literal_fix:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active = true AND is_deleted = false
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active AND not is_deleted
+
+test_postgres_dialect:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active = TRUE AND is_deleted IS FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active AND NOT is_deleted
+  configs:
+    core:
+      dialect: postgres
+
+test_snowflake_dialect:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active = TRUE AND is_deleted = FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active AND NOT is_deleted
+  configs:
+    core:
+      dialect: snowflake
+
+test_bigquery_dialect:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active = TRUE AND is_deleted = FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active AND NOT is_deleted
+  configs:
+    core:
+      dialect: bigquery
+
+test_duckdb_dialect:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active = TRUE AND is_deleted = FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active AND NOT is_deleted
+  configs:
+    core:
+      dialect: duckdb
+
+test_mysql_dialect:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active = TRUE AND is_deleted = FALSE
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE is_active AND NOT is_deleted
+  configs:
+    core:
+      dialect: mysql
