@@ -83,7 +83,7 @@ From here, there are several more things to explore.
 * To find out more about configuring *SQLFluff* and what other options
   are available, see [Configuration](/configuration/).
 * Once you're ready to start using *SQLFluff* on a project or with the
-  rest of your team, check out [Production Usage](/usage/index).
+  rest of your team, check out [Team Rollout](/usage/team-rollout).
 
 If you encounter a bug or unexpected behaviour, the best place to report
 it is [GitHub Issues](https://github.com/sqlfluff/sqlfluff/issues).
