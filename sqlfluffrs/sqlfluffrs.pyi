@@ -238,6 +238,13 @@ class RsParseError(Exception):
 
     pos: int
 
+MISSING_REF_PREFIX: str
+"""Sentinel prefix on an ``RsParseError`` message for an unresolvable Ref.
+
+Shared with the Rust side (``ref_grammar.rs``) so both sides of the pyo3
+boundary read the same constant instead of duplicating the literal.
+"""
+
 class RsParser:
     """Rust-based SQL parser."""
 
