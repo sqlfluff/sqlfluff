@@ -53,7 +53,6 @@ const CONFIGURATION_NAV: DefaultTheme.NavItemWithLink[] = [
 ]
 
 const USAGE_GUIDES: DefaultTheme.NavItemWithLink[] = [
-    { text: 'Production Usage', link: '/usage/' },
     { text: 'CLI Exit Codes', link: '/usage/cli' },
     { text: 'Security', link: '/usage/security' },
     { text: 'Team Rollout', link: '/usage/team-rollout' },
