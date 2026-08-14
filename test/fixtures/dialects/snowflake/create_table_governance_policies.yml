@@ -1,0 +1,493 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: aa9f2a9d658d1fa695e101ffe60e731c1d4a6a12e40f2e5c780167ac8aec30a1
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_agg
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: INT
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_agg_entity
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: INT
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_agg_policy
+    - keyword: ENTITY
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_agg_no_with
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+    - keyword: ENTITY
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: a
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_join
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: INT
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: JOIN
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_join_policy
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_join_keys
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: INT
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: JOIN
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_join_policy
+    - keyword: ALLOWED
+    - keyword: JOIN
+    - keyword: KEYS
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_projection
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: c1
+          data_type:
+            data_type_identifier: STRING
+          column_constraint_segment:
+          - keyword: WITH
+          - keyword: PROJECTION
+          - keyword: POLICY
+          - object_reference:
+              naked_identifier: my_projection_policy
+      - comma: ','
+      - column_definition:
+          naked_identifier: c2
+          data_type:
+            data_type_identifier: STRING
+          column_constraint_segment:
+          - keyword: PROJECTION
+          - keyword: POLICY
+          - object_reference:
+            - naked_identifier: my_db
+            - dot: .
+            - naked_identifier: my_schema
+            - dot: .
+            - naked_identifier: other_policy
+      - comma: ','
+      - column_definition:
+          naked_identifier: c3
+          data_type:
+            data_type_identifier: STRING
+          column_constraint_segment:
+          - keyword: WITH
+          - keyword: MASKING
+          - keyword: POLICY
+          - function_name:
+              function_name_identifier: my_masking_policy
+          - keyword: WITH
+          - keyword: PROJECTION
+          - keyword: POLICY
+          - object_reference:
+              naked_identifier: my_projection_policy
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_storage_lifecycle
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: ts
+          data_type:
+            data_type_identifier: TIMESTAMP_NTZ
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_slc_policy
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: ts
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_storage_lifecycle_no_with
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: ts
+          data_type:
+            data_type_identifier: TIMESTAMP_NTZ
+      - end_bracket: )
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_slc_policy
+    - keyword: 'ON'
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: ts
+      - comma: ','
+      - column_reference:
+          naked_identifier: a
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_contact
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+        start_bracket: (
+        keyword: STEWARD
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: my_contact
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_contacts
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+      - start_bracket: (
+      - keyword: STEWARD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: steward_contact
+      - comma: ','
+      - keyword: SUPPORT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: support_contact
+      - comma: ','
+      - keyword: ACCESS_APPROVAL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: approver_contact
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_copy_tags
+    - keyword: CLONE
+    - table_reference:
+        naked_identifier: source_table
+    - keyword: COPY
+    - keyword: TAGS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_copy_grants_and_tags
+    - keyword: CLONE
+    - table_reference:
+        naked_identifier: source_table
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: COPY
+    - keyword: TAGS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_all_policies
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: email
+          data_type:
+            data_type_identifier: STRING
+          column_constraint_segment:
+          - keyword: WITH
+          - keyword: MASKING
+          - keyword: POLICY
+          - function_name:
+              function_name_identifier: email_mask
+      - comma: ','
+      - column_definition:
+          naked_identifier: secret
+          data_type:
+            data_type_identifier: STRING
+          column_constraint_segment:
+          - keyword: WITH
+          - keyword: PROJECTION
+          - keyword: POLICY
+          - object_reference:
+              naked_identifier: no_project
+      - end_bracket: )
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: COPY
+    - keyword: TAGS
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_rap
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - keyword: WITH
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg
+    - keyword: ENTITY
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - keyword: WITH
+    - keyword: JOIN
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_join
+    - keyword: ALLOWED
+    - keyword: JOIN
+    - keyword: KEYS
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - dynamic_table_options:
+        tag_bracketed_equals:
+        - keyword: WITH
+        - keyword: TAG
+        - bracketed:
+            start_bracket: (
+            tag_reference:
+              naked_identifier: cost_center
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'sales'"
+            end_bracket: )
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+        start_bracket: (
+        keyword: STEWARD
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: data_steward
+        end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'table with the full governance surface'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: email
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: secret
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
