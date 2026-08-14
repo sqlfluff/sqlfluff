@@ -86,6 +86,15 @@ def main():
         print("\n❌ Build failed at API documentation generation")
         return exit_code
 
+    # Step 5: Generate internal API documentation
+    internals_script = script_dir / "generate-internals-docs.py"
+    exit_code = run_command(
+        [sys.executable, str(internals_script)], "Generating internal API documentation"
+    )
+    if exit_code != 0:
+        print("\n❌ Build failed at internal API documentation generation")
+        return exit_code
+
     # Summary
     print("\n" + "╔" + "=" * 58 + "╗")
     print("║" + " " * 20 + "Build Summary" + " " * 25 + "║")
@@ -106,6 +115,10 @@ def main():
     print(f"    {docs_dir / '.vitepress' / 'sidebar-dialects.json'}")
     print(f"  - Sidebar config (CLI): {docs_dir / '.vitepress' / 'sidebar-cli.json'}")
     print(f"  - Sidebar config (API): {docs_dir / '.vitepress' / 'sidebar-api.json'}")
+    print(f"  - Internal API docs: {docs_dir / 'reference' / 'internals'}")
+    print(
+        f"  - Sidebar config (internals): {docs_dir / '.vitepress' / 'sidebar-internals.json'}"
+    )
 
     return 0
 
