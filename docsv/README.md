@@ -86,12 +86,9 @@ Then open http://localhost:5173 in your browser.
 #### Working on the version picker
 
 The version picker and the "you are reading an old version" notice both read the
-versions manifest, and both take the current version from the site base. Neither
-appears under the default unversioned base, so serve a versioned one:
-
-```bash
-SQLFLUFF_DOCS_BASE=/en/latest/ pnpm run docs:dev
-```
+versions manifest, and both take the current version from the site base. The base
+defaults to `/en/latest/`, matching what is published, so `pnpm run docs:dev`
+shows both without further setup.
 
 In production the manifest is written at the language root by
 `scripts/assemble-site.py`, above any single version's base. The dev server

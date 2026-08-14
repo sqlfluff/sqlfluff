@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from textwrap import dedent
 from typing import Any
 
@@ -62,6 +63,49 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def assert_safe_segment(value: str, name: str) -> None:
+    """Reject a path segment which would escape the tree it is joined into.
+
+    `channel` and `language` become directory names under the output directory,
+    and the channel is deleted and rewritten on every run. Since a manual publish
+    takes the channel from an operator-supplied version, a value containing a
+    separator or `..` would place that delete outside the assembled site.
+
+    Both path flavours are checked rather than only the running one, so the answer
+    does not depend on the platform. A drive-qualified value such as ``C:foo`` is
+    neither absolute nor separated, and relocates a path only on Windows — but the
+    Linux runner which publishes the site is exactly where we would want to find
+    out, rather than on a maintainer's machine.
+    """
+    if not value or value != value.strip():
+        raise ValueError(f"{name} must not be empty or padded: {value!r}")
+
+    # Separators are rejected on the raw string, before any parsing. Parsing
+    # normalises `.` away — `PurePath("foo/.").parts` is `("foo",)` — so a value
+    # containing a separator can otherwise look like a single segment while
+    # naming a directory the manifest does not record. Both separators are
+    # listed regardless of platform, for the same reason the flavours below are.
+    if set(value) & {"/", "\\"}:
+        raise ValueError(f"{name} must be a single path segment: {value!r}")
+
+    if value in {os.curdir, os.pardir}:
+        raise ValueError(f"{name} must not be a relative reference: {value!r}")
+
+    for flavour in (PurePosixPath, PureWindowsPath):
+        candidate = flavour(value)
+
+        # `root` as well as `drive` and `is_absolute`: on Windows a lone `\` is
+        # rooted without being absolute, which would put the delete below at the
+        # drive root.
+        if candidate.drive or candidate.root or candidate.is_absolute():
+            raise ValueError(f"{name} must be a relative path segment: {value!r}")
+
+        # Parsing must round-trip to exactly the value as one component. This
+        # catches `C:foo`, which Windows splits into a drive and a name.
+        if candidate.parts != (value,):
+            raise ValueError(f"{name} must be a single path segment: {value!r}")
+
+
 def write_text(path: Path, content: str) -> None:
     """Write UTF-8 text content with a trailing newline."""
     path.write_text(content.rstrip() + "\n", encoding="utf-8")
@@ -114,6 +158,15 @@ def upsert_manifest_entry(
     stable_release: str | None,
 ) -> dict[str, Any]:
     """Insert or update a manifest entry for the published channel."""
+    previous = next(
+        (
+            existing
+            for existing in manifest.get("versions", [])
+            if existing.get("key") == channel
+        ),
+        None,
+    )
+
     entry: dict[str, Any] = {
         "key": channel,
         "label": channel,
@@ -124,8 +177,19 @@ def upsert_manifest_entry(
         "prerelease": prerelease,
     }
 
-    if published_at and kind == "release":
-        entry["published_at"] = published_at
+    # The entry is rebuilt from scratch rather than merged, so anything not
+    # passed in is dropped. That is fine for values this script is told on every
+    # run, but a release's publication date is only known to the release event
+    # which first published it. Rebuilding an existing release without repeating
+    # `--published-at` would silently erase the date, which the version picker
+    # displays. So an explicit value wins, and otherwise an existing one is
+    # carried forward. A brand new release with no date simply has none.
+    resolved_published_at = published_at or (
+        previous.get("published_at") if previous else None
+    )
+
+    if resolved_published_at and kind == "release":
+        entry["published_at"] = resolved_published_at
 
     versions = [
         existing
@@ -210,6 +274,9 @@ def assemble_site(
     """Merge one built docs channel into the assembled site tree."""
     if not vitepress_dist.is_dir():
         raise FileNotFoundError(f"VitePress dist directory not found: {vitepress_dist}")
+
+    assert_safe_segment(language, "language")
+    assert_safe_segment(channel, "channel")
 
     target_dir = output_dir / language / channel
     target_dir.parent.mkdir(parents=True, exist_ok=True)
