@@ -6740,14 +6740,6 @@ class AlterViewStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
             ),
             Ref("CommentEqualsClauseSegment"),
-            Sequence(
-                "UNSET",
-                "COMMENT",
-            ),
-            Sequence(
-                OneOf("SET", "UNSET"),
-                "SECURE",
-            ),
             Sequence("SET", Ref("TagEqualsSegment")),
             Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
             # ALTER VIEW ... SET <view_property> [ <view_property> ... ]
@@ -6786,13 +6778,23 @@ class AlterViewStatementSegment(BaseSegment):
             # Aggregation and join policies
             Sequence(
                 "SET",
-                Ref("AggregationPolicyGrammar"),
+                "AGGREGATION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "ENTITY",
+                    "KEY",
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    optional=True,
+                ),
                 Ref.keyword("FORCE", optional=True),
             ),
             Sequence("UNSET", "AGGREGATION", "POLICY"),
             Sequence(
                 "SET",
-                Ref("JoinPolicyGrammar"),
+                "JOIN",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
                 Ref.keyword("FORCE", optional=True),
             ),
             Sequence("UNSET", "JOIN", "POLICY"),
@@ -6840,7 +6842,9 @@ class AlterViewStatementSegment(BaseSegment):
                                 Sequence("UNSET", "MASKING", "POLICY"),
                                 Sequence(
                                     "SET",
-                                    Ref("ProjectionPolicyGrammar"),
+                                    "PROJECTION",
+                                    "POLICY",
+                                    Ref("ObjectReferenceSegment"),
                                     Ref.keyword("FORCE", optional=True),
                                 ),
                                 Sequence("UNSET", "PROJECTION", "POLICY"),
