@@ -2928,8 +2928,9 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_EXCLUDE_list.html
     """
 
-    # Inherit Postgres select-clause terminators via copy(). Replace only the
-    # inner select list so EXCLUDE can terminate it without a trailing comma.
+    # Inherit Postgres terminators via copy(). EXCLUDE terminates the select
+    # list only after the first item, so `SELECT EXCLUDE` still parses as a
+    # column while `SELECT *, a, EXCLUDE x` is rejected.
     match_grammar = postgres.SelectClauseSegment.match_grammar.copy(
         insert=[
             OneOf(
@@ -2941,11 +2942,20 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
                     ),
                     Ref("ExcludeClauseSegment"),
                 ),
-                Delimited(
-                    Ref("SelectClauseElementSegment"),
-                    optional=True,
-                    allow_trailing=True,
+                Sequence(
+                    Ref("SelectClauseElementSegment", optional=True),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Delimited(
+                            Ref("SelectClauseElementSegment"),
+                            optional=True,
+                            allow_trailing=True,
+                            terminators=[Ref.keyword("EXCLUDE")],
+                        ),
+                        optional=True,
+                    ),
                 ),
+                optional=True,
             ),
         ],
         before=Dedent,
@@ -2962,23 +2972,15 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """Select-list element for Redshift.
 
-    Prevent bare ``EXCLUDE`` from being treated as an implicit column alias,
-    and prevent unbracketed ``EXCLUDE col`` from being treated as an
-    expression so the select-list terminator can reject a comma before
-    ``EXCLUDE``. ``EXCLUDE(...)`` function calls and ``AS EXCLUDE`` aliases
-    remain valid.
+    Prevent bare ``EXCLUDE`` from being treated as an implicit column alias so
+    the select-clause-level ``ExcludeClauseSegment`` can match. This does not
+    restrict ``EXCLUDE(...)`` expressions or ``AS EXCLUDE`` aliases.
     """
 
     match_grammar = OneOf(
         Ref("WildcardExpressionSegment"),
         Sequence(
-            Ref(
-                "BaseExpressionElementGrammar",
-                exclude=Sequence(
-                    "EXCLUDE",
-                    Delimited(Ref("SingleIdentifierGrammar")),
-                ),
-            ),
+            Ref("BaseExpressionElementGrammar"),
             Ref(
                 "AliasExpressionSegment",
                 exclude=Ref.keyword("EXCLUDE"),

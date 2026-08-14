@@ -29,6 +29,10 @@ def _violations(sql: str) -> list:
             "SELECT col1, EXCLUDE col2 FROM tbl;",
             id="comma_before_unbracketed_exclude_no_star",
         ),
+        pytest.param(
+            "SELECT col1, EXCLUDE (col2) FROM tbl;",
+            id="comma_before_bracketed_exclude",
+        ),
     ],
 )
 def test_select_exclude_rejects_comma_before_clause(sql: str) -> None:
