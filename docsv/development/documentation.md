@@ -99,8 +99,12 @@ pnpm run docs:build
 pnpm run docs:preview
 ```
 
-Or for a live-reloading dev server during writing:
+For a live-reloading dev server during writing, you must generate the auto-generated reference
+pages first — otherwise all `/reference/...` links will 404:
 
 ```bash
-pnpm run docs:dev
+pnpm run docs:prebuild   # generates rules, CLI, dialect, and API pages
+pnpm run docs:dev        # then start the hot-reloading server
 ```
+
+If you edit any Python source or docstrings, re-run `docs:prebuild` to update the reference pages.
