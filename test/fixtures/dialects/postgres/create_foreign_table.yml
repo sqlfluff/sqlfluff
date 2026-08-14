@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cdcbe24329fb7f0e321e4ad584f94a5d6e918340c17cc53d61af8dedc57a473d
+_hash: 4f1734f630ee47d7a045af95feeabe73761863f3bcf3815ace163a70b26ef29b
 file:
 - statement:
     create_foreign_table_statement:
@@ -100,15 +100,14 @@ file:
         - keyword: GENERATED
         - keyword: ALWAYS
         - keyword: AS
-        - expression:
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: simple_column
-                binary_operator: '*'
-                numeric_literal: '2'
-              end_bracket: )
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: simple_column
+              binary_operator: '*'
+              numeric_literal: '2'
+            end_bracket: )
         - keyword: STORED
       - comma: ','
       - column_reference:
@@ -802,15 +801,14 @@ file:
         - keyword: GENERATED
         - keyword: ALWAYS
         - keyword: AS
-        - expression:
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: simple_column
-                binary_operator: '*'
-                numeric_literal: '2'
-              end_bracket: )
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: simple_column
+              binary_operator: '*'
+              numeric_literal: '2'
+            end_bracket: )
         - keyword: STORED
       - comma: ','
       - column_reference:
