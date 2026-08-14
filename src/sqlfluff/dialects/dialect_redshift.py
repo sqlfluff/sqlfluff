@@ -2928,26 +2928,57 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_EXCLUDE_list.html
     """
 
-    # Keep the Postgres select-clause structure and terminators; only attach
-    # EXCLUDE after the delimited select list.
+    # Inherit Postgres select-clause terminators via copy(). Replace only the
+    # inner select list so EXCLUDE can terminate it without a trailing comma.
     match_grammar = postgres.SelectClauseSegment.match_grammar.copy(
-        insert=[Ref("ExcludeClauseSegment", optional=True)],
+        insert=[
+            OneOf(
+                Sequence(
+                    Delimited(
+                        Ref("SelectClauseElementSegment"),
+                        allow_trailing=False,
+                        terminators=[Ref.keyword("EXCLUDE")],
+                    ),
+                    Ref("ExcludeClauseSegment"),
+                ),
+                Delimited(
+                    Ref("SelectClauseElementSegment"),
+                    optional=True,
+                    allow_trailing=True,
+                ),
+            ),
+        ],
         before=Dedent,
+        remove=[
+            Delimited(
+                Ref("SelectClauseElementSegment"),
+                optional=True,
+                allow_trailing=True,
+            ),
+        ],
     )
 
 
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """Select-list element for Redshift.
 
-    Prevent bare ``EXCLUDE`` from being treated as an implicit column alias so
-    the select-clause-level ``ExcludeClauseSegment`` can match. This does not
-    restrict ``EXCLUDE(...)`` expressions or ``AS EXCLUDE`` aliases.
+    Prevent bare ``EXCLUDE`` from being treated as an implicit column alias,
+    and prevent unbracketed ``EXCLUDE col`` from being treated as an
+    expression so the select-list terminator can reject a comma before
+    ``EXCLUDE``. ``EXCLUDE(...)`` function calls and ``AS EXCLUDE`` aliases
+    remain valid.
     """
 
     match_grammar = OneOf(
         Ref("WildcardExpressionSegment"),
         Sequence(
-            Ref("BaseExpressionElementGrammar"),
+            Ref(
+                "BaseExpressionElementGrammar",
+                exclude=Sequence(
+                    "EXCLUDE",
+                    Delimited(Ref("SingleIdentifierGrammar")),
+                ),
+            ),
             Ref(
                 "AliasExpressionSegment",
                 exclude=Ref.keyword("EXCLUDE"),
