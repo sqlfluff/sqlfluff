@@ -64,7 +64,7 @@ version number.
 
 ```bash
 sqlfluff version
-3.5.0
+4.3.0
 ```
 
 ## Going further
@@ -85,9 +85,5 @@ From here, there are several more things to explore.
 * Once you're ready to start using *SQLFluff* on a project or with the
   rest of your team, check out [Production Usage](/usage/index).
 
-One last thing to note is that *SQLFluff* is a relatively new project
-and you may find bugs or strange things while using it. If you do find
-anything, the most useful thing you can do is to [post the issue on
-GitHub](https://github.com/sqlfluff/sqlfluff/issues) where the maintainers of the project can work out what to do with
-it. The project is in active development and so updates and fixes may
-come out regularly.
+If you encounter a bug or unexpected behaviour, the best place to report
+it is [GitHub Issues](https://github.com/sqlfluff/sqlfluff/issues).
