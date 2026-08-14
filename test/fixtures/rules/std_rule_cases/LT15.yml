@@ -423,3 +423,51 @@ test_pass_minimum_ignores_templated_terminator:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_trailing_comment_does_not_hide_the_newline:
+  # the statements are already on separate lines; stopping the scan at the
+  # comment reported a shared line and tore the comment off its statement
+  pass_str: |
+    SELECT a FROM tab; -- x
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_templated_newlines_in_the_run:
+  # a jinja expression expanding to newlines leaves no placeholder behind, so
+  # the placeholder skip cannot see it; without the is_templated guard those
+  # lines are counted as part of the gap even though they are not in the source
+  pass_str: "SELECT a FROM tab;{{ \"\\n\\n\" }}\nSELECT b FROM tab;"
+  configs:
+    core:
+      templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 3
+
+test_pass_minimum_ignores_semicolons_inside_a_compound_statement:
+  # a semicolon delimiting inner statements of a procedural body is not a gap
+  # between top-level statements
+  pass_str: |
+    CREATE PROCEDURE p AS BEGIN SELECT 1; SELECT 2; END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_a_template_tag_between_same_line_statements:
+  # the tag is not a statement sharing the line, and the whitespace either side
+  # of it is the template's, not the user's, so it must not be rewritten
+  pass_str: |
+    SELECT a FROM tab; {% if true %}{% endif %} SELECT b FROM tab;
+  configs:
+    core:
+      templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1

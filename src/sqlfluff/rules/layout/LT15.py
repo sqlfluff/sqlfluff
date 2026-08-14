@@ -83,8 +83,12 @@ class Rule_LT15(BaseRule):
         context_seg = context.segment
 
         # Terminators are only sought for the same-line minimum check; none of the
-        # maximum logic below applies to them.
+        # maximum logic below applies to them. The same outer-statement guard as
+        # the newline path applies: a semicolon delimiting inner statements of a
+        # compound or procedural body is not a gap between top-level statements.
         if context_seg.is_type("statement_terminator"):
+            if any(seg.is_type("statement") for seg in context.parent_stack):
+                return None
             return self._check_minimum_same_line(context)
 
         # A minimum only makes sense between statements, so it is checked where we
@@ -167,11 +171,6 @@ class Rule_LT15(BaseRule):
         ):
             return None
 
-        # This also covers the templated case the maximum branch guards against
-        # separately: a gap whose newlines come from a template has the template's
-        # own placeholder in it, so it is skipped here before the run is counted
-        # and templated lines can never satisfy the minimum.
-        #
         # A template block start/end sits in the gap as a placeholder meta. The
         # newlines either side of it are not a gap between two statements, so
         # padding them puts blank lines around the tag rather than between the
@@ -192,6 +191,13 @@ class Rule_LT15(BaseRule):
         run = 1
         for raw_seg in reversed(context.raw_stack):
             if raw_seg.is_type("newline"):
+                # Only block tags leave a placeholder behind. A variable or macro
+                # expanding to text containing newlines produces plain newline
+                # segments with no placeholder, so the skip above does not see it
+                # and this is the only guard against counting lines that are not
+                # in the source. The maximum branch bails on the same condition.
+                if raw_seg.is_templated:
+                    return None
                 run += 1
             elif raw_seg.is_type("whitespace"):
                 continue
@@ -239,12 +245,18 @@ class Rule_LT15(BaseRule):
             seg for seg in context.siblings_post if not seg.is_type("dedent", "indent")
         ]
         # A newline already separates the statements, so the run-based check owns
-        # this gap. Leading whitespace is skipped so a trailing space before the
-        # line break does not hide it.
+        # this gap. Whitespace and trailing comments are skipped rather than
+        # treated as the end of the search: `SELECT a; -- x` still ends its line
+        # at the newline after the comment, and stopping at the comment would
+        # report a shared line that is not shared and tear the comment off it.
         for seg in following:
-            if seg.is_type("whitespace"):
+            if seg.is_type("whitespace", "comment", "inline_comment", "block_comment"):
                 continue
             if seg.is_type("newline"):
+                return None
+            # A template tag in the gap is not a statement sharing the line, and
+            # its surrounding whitespace is not the user's to rewrite.
+            if seg.is_type("placeholder"):
                 return None
             break
 
