@@ -771,6 +771,20 @@ snowflake_dialect.add(
         ),
     ),
     CopyTagsGrammar=Sequence("COPY", "TAGS"),
+    # SET MASKING POLICY <name> [ USING ( <col_name> [ , ... ] ) ], as used
+    # by the column level governance actions of ALTER statements. The USING
+    # clause takes column references per the documentation.
+    # https://docs.snowflake.com/en/sql-reference/sql/alter-table-column
+    MaskingPolicyGrammar=Sequence(
+        "MASKING",
+        "POLICY",
+        Ref("FunctionNameSegment"),
+        Sequence(
+            "USING",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -2868,27 +2882,15 @@ class AlterDynamicTableColumnActionSegment(BaseSegment):
         OneOf(
             Sequence(
                 "SET",
-                "MASKING",
-                "POLICY",
-                Ref("FunctionNameSegment"),
-                Sequence(
-                    "USING",
-                    Bracketed(
-                        Delimited(
-                            OneOf(
-                                Ref("ColumnReferenceSegment"),
-                                Ref("ExpressionSegment"),
-                            )
-                        ),
-                    ),
-                    optional=True,
-                ),
+                Ref("MaskingPolicyGrammar"),
                 Ref.keyword("FORCE", optional=True),
             ),
             Sequence("UNSET", "MASKING", "POLICY"),
             Sequence(
                 "SET",
-                Ref("ProjectionPolicyGrammar"),
+                "PROJECTION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
                 Ref.keyword("FORCE", optional=True),
             ),
             Sequence("UNSET", "PROJECTION", "POLICY"),
