@@ -20,6 +20,11 @@ from sqlfluff.dialects.dialect_ansi import (
 )
 from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
+# MySQL spells this CONVERT(expr, type), the opposite way round from the
+# T-SQL CONVERT(type, expr) that this rule assumes. mariadb, doris and
+# starrocks all inherit the mysql dialect and so inherit the order too.
+_REVERSED_CONVERT_DIALECTS = ("mysql", "mariadb", "doris", "starrocks")
+
 
 class Rule_CV11(BaseRule):
     """Enforce consistent type casting style.
@@ -31,6 +36,14 @@ class Rule_CV11(BaseRule):
         This rule is disabled by default for Teradata because it supports different
         type casting apart from CONVERT and ::
         e.g DATE '2007-01-01', '9999-12-31' (DATE).
+
+    .. note::
+        MySQL and the dialects that inherit it (MariaDB, Doris, StarRocks) take
+        ``CONVERT(expr, type)``, the opposite way round from the
+        ``CONVERT(type, expr)`` this rule rewrites. ``CONVERT`` is therefore left
+        alone there, and when ``preferred_type_casting_style`` is ``convert`` the
+        rule is skipped entirely on those dialects, since every rewrite it could
+        make would emit the wrong argument order.
 
     **Anti-pattern**
 
@@ -171,7 +184,17 @@ class Rule_CV11(BaseRule):
         convert_arg_2: BaseSegment,
         later_types=None,
     ) -> list[LintFix]:
-        """Generate list of fixes to convert CAST and ShorthandCast to CONVERT."""
+        """Generate list of fixes to convert CAST and ShorthandCast to CONVERT.
+
+        Returns no fixes on the dialects whose CONVERT takes its arguments the
+        other way round. The rewrite below emits the T-SQL order, so applying it
+        there would turn CAST(b AS SIGNED) into convert(SIGNED, b): valid SQL
+        that means something else. The violation is still reported by the caller,
+        it just cannot be auto-fixed.
+        """
+        if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+            return []
+
         convert_function = cls._build_function(
             "convert",
             [
@@ -260,6 +283,13 @@ class Rule_CV11(BaseRule):
             elif function_name.raw_upper == "CAST":
                 current_type_casting_style = "cast"
             elif function_name.raw_upper == "CONVERT":
+                # On those dialects the two arguments are the other way round,
+                # so rewriting to CAST swaps them and produces valid SQL that
+                # means something else: CONVERT(b, SIGNED) would become
+                # cast(SIGNED as b). Leave CONVERT alone there rather than
+                # corrupt it silently. CAST and :: are still linted as usual.
+                if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+                    return None
                 current_type_casting_style = "convert"
             else:
                 current_type_casting_style = None

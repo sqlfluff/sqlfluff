@@ -5,6 +5,7 @@ reference/dialects/*.md
 reference/rules/*.md
 reference/cli/*.md
 reference/api/*.md
+reference/internals/*.md
 .vitepress/sidebar-*.json
 
 # Copied from the installed @sqlfluff/design package by `design:sync`.

@@ -1,0 +1,278 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2a62276bf4a732163ac1701d0219f0a08824e4fe4c629bade623e8f4268adfd2
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_governance_policy_tag_action_segment:
+      - keyword: ADD
+      - keyword: STORAGE
+      - keyword: LIFECYCLE
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_slc_policy
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: ts
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_governance_policy_tag_action_segment:
+      - keyword: ADD
+      - keyword: STORAGE
+      - keyword: LIFECYCLE
+      - keyword: POLICY
+      - object_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_slc_policy
+      - keyword: 'ON'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: ts
+        - comma: ','
+        - column_reference:
+            naked_identifier: created_at
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_governance_policy_tag_action_segment:
+      - keyword: DROP
+      - keyword: STORAGE
+      - keyword: LIFECYCLE
+      - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: t
+    - data_governance_policy_tag_action_segment:
+      - keyword: ADD
+      - keyword: STORAGE
+      - keyword: LIFECYCLE
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_slc_policy
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: ts
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c6
+      - data_type:
+          data_type_identifier: STRING
+      - keyword: WITH
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_projection_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c7
+      - data_type:
+          data_type_identifier: STRING
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_projection_policy
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'projected column'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c8
+      - data_type:
+          data_type_identifier: STRING
+      - keyword: WITH
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: my_mask
+      - keyword: WITH
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_projection_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: SET
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_projection_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: SET
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - object_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_projection_policy
+      - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: UNSET
+      - keyword: PROJECTION
+      - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: UNSET
+      - keyword: PROJECTION
+      - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_governance_policy_tag_action_segment:
+      - keyword: SET
+      - keyword: AGGREGATION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_agg_policy
+      - keyword: ENTITY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_governance_policy_tag_action_segment:
+      - keyword: UNSET
+      - keyword: AGGREGATION
+      - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_governance_policy_tag_action_segment:
+      - keyword: SET
+      - keyword: JOIN
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_join_policy
+      - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_governance_policy_tag_action_segment:
+      - keyword: UNSET
+      - keyword: JOIN
+      - keyword: POLICY
+- statement_terminator: ;

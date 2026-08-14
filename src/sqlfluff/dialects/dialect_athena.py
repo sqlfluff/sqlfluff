@@ -511,6 +511,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("PrepareStatementSegment"),
             Ref("ExecuteStatementSegment"),
             Ref("ShowStatementSegment"),
+            Ref("UsingExternalFunctionSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -978,4 +979,29 @@ class ShowStatementSegment(BaseSegment):
                 Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
             ),
         ),
+    )
+
+
+class UsingExternalFunctionSegment(BaseSegment):
+    """A query that declares one or more Athena UDFs before a query.
+
+    https://docs.aws.amazon.com/athena/latest/ug/querying-udf.html
+    """
+
+    type = "using_external_function_statement"
+    match_grammar = Sequence(
+        "USING",
+        Delimited(
+            Sequence(
+                "EXTERNAL",
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar"),
+                "RETURNS",
+                Ref("DatatypeSegment"),
+                "LAMBDA",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        Ref("SelectableGrammar"),
     )

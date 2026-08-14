@@ -1,0 +1,297 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d0f6262da11c7f149bcf83bc4a442240f231bd3ea718e259d0aa2f0e761efbf9
+file:
+- statement:
+    using_external_function_statement:
+    - keyword: USING
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: simple
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: input
+          data_type:
+            primitive_type:
+              keyword: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: VARCHAR
+    - keyword: LAMBDA
+    - quoted_literal: "'some-name'"
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: simple
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: bar
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    using_external_function_statement:
+    - keyword: USING
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: first
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: input
+          data_type:
+            primitive_type:
+              keyword: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: VARCHAR
+    - keyword: LAMBDA
+    - quoted_literal: "'some-name'"
+    - comma: ','
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: second
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: input
+          data_type:
+            primitive_type:
+              keyword: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: VARCHAR
+    - keyword: LAMBDA
+    - quoted_literal: "'some-name'"
+    - comma: ','
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: third
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: input
+          data_type:
+            primitive_type:
+              keyword: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: VARCHAR
+    - keyword: LAMBDA
+    - quoted_literal: "'some-name'"
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: first
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: bar
+                  end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: second
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: bar
+                  end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: third
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: bar
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    using_external_function_statement:
+    - keyword: USING
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: complex_types
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: input
+          data_type:
+            array_type:
+              keyword: ARRAY
+              array_type_schema:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    primitive_type:
+                      keyword: VARCHAR
+                  end_bracket: )
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        array_type:
+          keyword: ARRAY
+          array_type_schema:
+            bracketed:
+              start_bracket: (
+              data_type:
+                primitive_type:
+                  keyword: VARCHAR
+              end_bracket: )
+    - keyword: LAMBDA
+    - quoted_literal: "'some-name'"
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: complex_types
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    typed_array_literal:
+                      array_type:
+                        keyword: ARRAY
+                      array_literal:
+                        start_square_bracket: '['
+                        quoted_literal: "'foo'"
+                        end_square_bracket: ']'
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    using_external_function_statement:
+    - keyword: USING
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: no_args
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INTEGER
+    - keyword: LAMBDA
+    - quoted_literal: "'some-name'"
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: no_args
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    using_external_function_statement:
+    - keyword: USING
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: multi_args
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: first_input
+        - data_type:
+            primitive_type:
+              keyword: VARCHAR
+        - comma: ','
+        - parameter: second_input
+        - data_type:
+            primitive_type:
+              keyword: INTEGER
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: VARCHAR
+    - keyword: LAMBDA
+    - quoted_literal: "'some-name'"
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: multi_args
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: bar
+                - comma: ','
+                - expression:
+                    numeric_literal: '1'
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: foo
+- statement_terminator: ;
