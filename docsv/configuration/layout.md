@@ -273,11 +273,6 @@ FROM indented_the_same_as_select
 
 ### Comment Indents
 
-::: tip NOTE
-The notes here about block comments are not implemented prior
-to 2.0.x. They should be coming in that release or soon after.
-:::
-
 **Comments** are dealt with differently, depending on whether they're
 *block* comments (`/* like this */`), which might optionally
 include newlines, or *inline* comments (`-- like this`) which
