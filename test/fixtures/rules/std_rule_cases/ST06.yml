@@ -492,3 +492,17 @@ test_fail_fix_comment_nested_inside_target:
         a,
         (SELECT max(x) /* inner note */ FROM t2) AS c
     FROM tbl
+
+test_fail_no_fix_trailing_comment_inside_cte:
+  # Inside a bracketed CTE the final target's trailing comment sits beside the
+  # closing bracket, further out than the select clause's own parent.
+  fail_str: |
+    WITH defaults AS (
+        SELECT
+            (1 + 1) AS calc_default,
+            0 AS simple_default -- fallback value used when no match is found
+    )
+    SELECT t.id, COALESCE(t.val, d.calc_default) AS val
+    FROM my_table AS t
+    CROSS JOIN defaults AS d
+  line_numbers: [2]

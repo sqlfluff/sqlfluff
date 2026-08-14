@@ -14,6 +14,15 @@ from sqlfluff.core.rules import (
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
+def _segments_after(parent: BaseSegment, child: BaseSegment) -> Iterator[BaseSegment]:
+    """Yield ``parent``'s children that follow ``child``."""
+    segments = iter(parent.segments)
+    for seg in segments:
+        if seg is child:
+            break
+    yield from segments
+
+
 class Rule_ST06(BaseRule):
     """Select wildcards then simple targets before calculations and aggregates.
 
@@ -122,19 +131,19 @@ class Rule_ST06(BaseRule):
         if any(seg.is_type("comment") for seg in context.segment.segments):
             return True
         # A comment trailing the *final* target is outside the select clause,
-        # in its parent, because it follows the clause's closing dedent. Scan
-        # forward from the clause and stop at the end of that line.
-        if not context.parent_stack:
-            return False  # pragma: no cover
-        after_select_clause = False
-        for seg in context.parent_stack[-1].segments:
-            if seg is context.segment:
-                after_select_clause = True
-            elif after_select_clause:
+        # because it follows the clause's closing dedent. How far outside varies:
+        # in a plain select it lands in the clause's own parent, but inside a
+        # bracketed CTE it sits beside the closing bracket, one or more levels
+        # further up. Walk outwards until the line ends, whichever level that
+        # happens on.
+        child = context.segment
+        for parent in reversed(context.parent_stack):
+            for seg in _segments_after(parent, child):
                 if seg.is_type("newline"):
-                    break
+                    return False
                 if seg.is_type("comment"):
                     return True
+            child = parent
         return False
 
     def _validate(self, i: int, segment: BaseSegment) -> None:
