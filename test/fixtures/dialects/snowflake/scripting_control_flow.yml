@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ed23a7a10b255a981489593c2b03986b6c92efbeb0d29980c13407260bd8fef5
+_hash: 185d45bc97a2b8034c691b01c45159cab87270797c6fd9779931644e527a486f
 file:
 - statement:
     scripting_block_statement:
@@ -582,6 +582,354 @@ file:
           expression:
             column_reference:
               naked_identifier: total
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_let_statement:
+          keyword: LET
+          variable: x
+          data_type:
+            data_type_identifier: INTEGER
+          assignment_operator: :=
+          expression:
+            numeric_literal: '0'
+    - statement_terminator: ;
+    - statement:
+        while_loop_statement:
+        - keyword: WHILE
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: x
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '10'
+            end_bracket: )
+        - keyword: DO
+        - statement:
+            scripting_let_statement:
+              variable: x
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: x
+                binary_operator: +
+                numeric_literal: '1'
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: WHILE
+        - naked_identifier: my_while_label
+    - statement_terminator: ;
+    - statement:
+        return_statement:
+          keyword: RETURN
+          expression:
+            column_reference:
+              naked_identifier: x
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_let_statement:
+          keyword: LET
+          variable: total
+          data_type:
+            data_type_identifier: INTEGER
+          assignment_operator: :=
+          expression:
+            numeric_literal: '0'
+    - statement_terminator: ;
+    - statement:
+        for_in_statement:
+        - keyword: FOR
+        - variable: i
+        - keyword: IN
+        - expression:
+            numeric_literal: '1'
+        - keyword: TO
+        - expression:
+            numeric_literal: '3'
+        - keyword: DO
+        - statement:
+            scripting_let_statement:
+              variable: total
+              assignment_operator: :=
+              expression:
+              - column_reference:
+                  naked_identifier: total
+              - binary_operator: +
+              - column_reference:
+                  naked_identifier: i
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: FOR
+        - naked_identifier: counter_label
+    - statement_terminator: ;
+    - statement:
+        return_statement:
+          keyword: RETURN
+          expression:
+            column_reference:
+              naked_identifier: total
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_let_statement:
+          keyword: LET
+          variable: c
+          data_type:
+            data_type_identifier: INTEGER
+          assignment_operator: :=
+          expression:
+            numeric_literal: '0'
+    - statement_terminator: ;
+    - statement:
+        loop_statement:
+        - keyword: LOOP
+        - statement:
+            scripting_let_statement:
+              variable: c
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: c
+                binary_operator: +
+                numeric_literal: '1'
+        - statement_terminator: ;
+        - statement:
+            scripting_if_statement:
+            - keyword: IF
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: c
+                  comparison_operator:
+                    raw_comparison_operator: <
+                  numeric_literal: '5'
+                end_bracket: )
+            - keyword: THEN
+            - statement:
+                scripting_break_statement:
+                  keyword: ITERATE
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: IF
+        - statement_terminator: ;
+        - statement:
+            scripting_break_statement:
+              keyword: BREAK
+              naked_identifier: my_loop_label
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: LOOP
+        - naked_identifier: my_loop_label
+    - statement_terminator: ;
+    - statement:
+        return_statement:
+          keyword: RETURN
+          expression:
+            column_reference:
+              naked_identifier: c
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_let_statement:
+          keyword: LET
+          variable: c
+          data_type:
+            data_type_identifier: INTEGER
+          assignment_operator: :=
+          expression:
+            numeric_literal: '0'
+    - statement_terminator: ;
+    - statement:
+        loop_statement:
+        - keyword: LOOP
+        - statement:
+            scripting_let_statement:
+              variable: c
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: c
+                binary_operator: +
+                numeric_literal: '1'
+        - statement_terminator: ;
+        - statement:
+            scripting_if_statement:
+            - keyword: IF
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: c
+                  comparison_operator:
+                    raw_comparison_operator: <
+                  numeric_literal: '5'
+                end_bracket: )
+            - keyword: THEN
+            - statement:
+                scripting_break_statement:
+                  keyword: CONTINUE
+                  naked_identifier: my_loop_label
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: IF
+        - statement_terminator: ;
+        - statement:
+            scripting_break_statement:
+              keyword: BREAK
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: LOOP
+        - naked_identifier: my_loop_label
+    - statement_terminator: ;
+    - statement:
+        return_statement:
+          keyword: RETURN
+          expression:
+            column_reference:
+              naked_identifier: c
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_let_statement:
+          keyword: LET
+          variable: v
+          data_type:
+            data_type_identifier: VARCHAR
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'b'"
+    - statement_terminator: ;
+    - statement:
+        scripting_let_statement:
+          keyword: LET
+          variable: result
+          data_type:
+            data_type_identifier: VARCHAR
+          assignment_operator: :=
+          expression:
+            quoted_literal: "''"
+    - statement_terminator: ;
+    - statement:
+        scripting_let_statement:
+          keyword: LET
+          variable: hits
+          data_type:
+            data_type_identifier: INTEGER
+          assignment_operator: :=
+          expression:
+            numeric_literal: '0'
+    - statement_terminator: ;
+    - statement:
+        scripting_case_statement:
+        - keyword: CASE
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: v
+            end_bracket: )
+        - keyword: WHEN
+        - expression:
+            quoted_literal: "'a'"
+        - keyword: THEN
+        - statement:
+            scripting_let_statement:
+              variable: result
+              assignment_operator: :=
+              expression:
+                quoted_literal: "'was a'"
+        - statement_terminator: ;
+        - statement:
+            scripting_let_statement:
+              variable: hits
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: hits
+                binary_operator: +
+                numeric_literal: '1'
+        - statement_terminator: ;
+        - keyword: WHEN
+        - expression:
+            quoted_literal: "'b'"
+        - keyword: THEN
+        - statement:
+            scripting_let_statement:
+              variable: result
+              assignment_operator: :=
+              expression:
+                quoted_literal: "'was b'"
+        - statement_terminator: ;
+        - statement:
+            scripting_let_statement:
+              variable: hits
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: hits
+                binary_operator: +
+                numeric_literal: '1'
+        - statement_terminator: ;
+        - statement:
+            scripting_let_statement:
+              variable: result
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: result
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                quoted_literal: "'!'"
+        - statement_terminator: ;
+        - keyword: ELSE
+        - statement:
+            scripting_let_statement:
+              variable: result
+              assignment_operator: :=
+              expression:
+                quoted_literal: "'other'"
+        - statement_terminator: ;
+        - statement:
+            scripting_let_statement:
+              variable: hits
+              assignment_operator: :=
+              expression:
+                numeric_literal: '0'
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: CASE
+    - statement_terminator: ;
+    - statement:
+        return_statement:
+          keyword: RETURN
+          expression:
+            column_reference:
+              naked_identifier: result
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;

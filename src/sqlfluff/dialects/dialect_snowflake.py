@@ -10539,6 +10539,27 @@ class AlterMaskingPolicySegment(BaseSegment):
     )
 
 
+def _scripting_loop_body(terminator) -> tuple:
+    """The statement list shared by the Snowflake Scripting loop segments.
+
+    The loop segments differ only in their opening and closing keywords, so
+    they share the body: one or more delimited statements, terminated by the
+    closing keywords of the given loop type.
+    """
+    return (
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
+                Ref("StatementSegment"),
+            ),
+            terminators=[terminator],
+        ),
+        # There must be a trailing semicolon
+        Ref("DelimiterGrammar"),
+        Dedent,
+    )
+
+
 class ForInLoopSegment(BaseSegment):
     """FOR...IN...DO...END FOR statement.
 
@@ -10571,18 +10592,9 @@ class ForInLoopSegment(BaseSegment):
             Indent,
             Ref("StatementSegment"),
         ),
-        AnyNumberOf(
-            Sequence(
-                Ref("DelimiterGrammar"),
-                Ref("StatementSegment"),
-            ),
-            terminators=[
-                Sequence(Ref("DelimiterGrammar"), "END", OneOf("FOR", "LOOP")),
-            ],
+        *_scripting_loop_body(
+            Sequence(Ref("DelimiterGrammar"), "END", OneOf("FOR", "LOOP"))
         ),
-        # There must be a trailing semicolon
-        Ref("DelimiterGrammar"),
-        Dedent,
         "END",
         OneOf("FOR", "LOOP"),
         Ref("ScriptingLoopLabelGrammar", optional=True),
@@ -10602,24 +10614,16 @@ class ScriptingWhileLoopSegment(BaseSegment):
         Sequence(
             Sequence(
                 "WHILE",
-                OptionallyBracketed(Ref("ExpressionSegment")),
+                # The documented syntax requires the parenthesised condition.
+                Bracketed(Ref("ExpressionSegment")),
                 OneOf("DO", "LOOP"),
             ),
             Indent,
             Ref("StatementSegment"),
         ),
-        AnyNumberOf(
-            Sequence(
-                Ref("DelimiterGrammar"),
-                Ref("StatementSegment"),
-            ),
-            terminators=[
-                Sequence(Ref("DelimiterGrammar"), "END", OneOf("WHILE", "LOOP")),
-            ],
+        *_scripting_loop_body(
+            Sequence(Ref("DelimiterGrammar"), "END", OneOf("WHILE", "LOOP"))
         ),
-        # There must be a trailing semicolon
-        Ref("DelimiterGrammar"),
-        Dedent,
         "END",
         OneOf("WHILE", "LOOP"),
         Ref("ScriptingLoopLabelGrammar", optional=True),
@@ -10641,18 +10645,7 @@ class ScriptingLoopSegment(BaseSegment):
             Indent,
             Ref("StatementSegment"),
         ),
-        AnyNumberOf(
-            Sequence(
-                Ref("DelimiterGrammar"),
-                Ref("StatementSegment"),
-            ),
-            terminators=[
-                Sequence(Ref("DelimiterGrammar"), "END", "LOOP"),
-            ],
-        ),
-        # There must be a trailing semicolon
-        Ref("DelimiterGrammar"),
-        Dedent,
+        *_scripting_loop_body(Sequence(Ref("DelimiterGrammar"), "END", "LOOP")),
         "END",
         "LOOP",
         Ref("ScriptingLoopLabelGrammar", optional=True),
@@ -10674,20 +10667,10 @@ class ScriptingRepeatLoopSegment(BaseSegment):
             Indent,
             Ref("StatementSegment"),
         ),
-        AnyNumberOf(
-            Sequence(
-                Ref("DelimiterGrammar"),
-                Ref("StatementSegment"),
-            ),
-            terminators=[
-                Sequence(Ref("DelimiterGrammar"), "UNTIL"),
-            ],
-        ),
-        # There must be a trailing semicolon
-        Ref("DelimiterGrammar"),
-        Dedent,
+        *_scripting_loop_body(Sequence(Ref("DelimiterGrammar"), "UNTIL")),
         "UNTIL",
-        OptionallyBracketed(Ref("ExpressionSegment")),
+        # The documented syntax requires the parenthesised condition.
+        Bracketed(Ref("ExpressionSegment")),
         "END",
         "REPEAT",
         Ref("ScriptingLoopLabelGrammar", optional=True),
@@ -10730,10 +10713,18 @@ class ScriptingCaseStatementSegment(BaseSegment):
                 Ref("ExpressionSegment"),
                 "THEN",
                 Indent,
-                Delimited(
-                    Ref("StatementSegment"),
-                    delimiter=Ref("DelimiterGrammar"),
-                    terminators=[OneOf("WHEN", "ELSE", "END")],
+                Ref("StatementSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("DelimiterGrammar"),
+                        Ref("StatementSegment"),
+                    ),
+                    terminators=[
+                        Sequence(
+                            Ref("DelimiterGrammar"),
+                            OneOf("WHEN", "ELSE", "END"),
+                        ),
+                    ],
                 ),
                 Ref("DelimiterGrammar"),
                 Dedent,
@@ -10745,10 +10736,15 @@ class ScriptingCaseStatementSegment(BaseSegment):
         Sequence(
             "ELSE",
             Indent,
-            Delimited(
-                Ref("StatementSegment"),
-                delimiter=Ref("DelimiterGrammar"),
-                terminators=["END"],
+            Ref("StatementSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DelimiterGrammar"),
+                    Ref("StatementSegment"),
+                ),
+                terminators=[
+                    Sequence(Ref("DelimiterGrammar"), "END"),
+                ],
             ),
             Ref("DelimiterGrammar"),
             Dedent,

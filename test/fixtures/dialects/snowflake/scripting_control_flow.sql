@@ -105,3 +105,63 @@ BEGIN
     END FOR;
     RETURN total;
 END;
+
+-- Closing labels, ITERATE and multi-statement CASE branches
+BEGIN
+    LET x INTEGER := 0;
+    WHILE (x < 10) DO
+        x := x + 1;
+    END WHILE my_while_label;
+    RETURN x;
+END;
+
+BEGIN
+    LET total INTEGER := 0;
+    FOR i IN 1 TO 3 DO
+        total := total + i;
+    END FOR counter_label;
+    RETURN total;
+END;
+
+BEGIN
+    LET c INTEGER := 0;
+    LOOP
+        c := c + 1;
+        IF (c < 5) THEN
+            ITERATE;
+        END IF;
+        BREAK my_loop_label;
+    END LOOP my_loop_label;
+    RETURN c;
+END;
+
+BEGIN
+    LET c INTEGER := 0;
+    LOOP
+        c := c + 1;
+        IF (c < 5) THEN
+            CONTINUE my_loop_label;
+        END IF;
+        BREAK;
+    END LOOP my_loop_label;
+    RETURN c;
+END;
+
+BEGIN
+    LET v VARCHAR := 'b';
+    LET result VARCHAR := '';
+    LET hits INTEGER := 0;
+    CASE (v)
+        WHEN 'a' THEN
+            result := 'was a';
+            hits := hits + 1;
+        WHEN 'b' THEN
+            result := 'was b';
+            hits := hits + 1;
+            result := result || '!';
+        ELSE
+            result := 'other';
+            hits := 0;
+    END CASE;
+    RETURN result;
+END;
