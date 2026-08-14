@@ -13,9 +13,10 @@ from sqlfluff.core.parser.lexer import LexerType
 def generate_use():
     """Generates the `use` statements."""
     print("use once_cell::sync::Lazy;")
-    print("use sqlfluffrs_types::LexMatcher;")
+    print("use sqlfluffrs_types::{LexMatcher, LexMatcherConfig};")
     print("use sqlfluffrs_types::{Token, RegexModeGroup};")
     print("use sqlfluffrs_types::token::CaseFold;")
+    print("use sqlfluffrs_types::{BracketPairEntry, BracketPairSet};")
 
 
 def segment_to_token_name(s: str):
@@ -37,6 +38,40 @@ def generate_lexer(dialect: str):
     for matcher in loaded_dialect.get_lexer_matchers():
         print(f"{_as_rust_lexer_matcher(matcher, dialect.capitalize())},")
     print("]});")
+
+
+def generate_bracket_pairs(dialect: str):
+    """Generate the dialect's BracketPairEntry set.
+
+    Used by the Rust lexer/parser for bracket matching, stray-closing-bracket
+    detection, and Anything-grammar bracket recursion. `persists` is whether
+    the matched span is kept as a structured `bracketed` node vs flattened
+    to raw siblings.
+    """
+    loaded_dialect = dialect_selector(dialect)
+    print(
+        f"pub static {dialect.upper()}_BRACKET_PAIRS:"
+        " Lazy<BracketPairSet>"
+        " = Lazy::new(|| { BracketPairSet(vec!["
+    )
+    for _bracket_type, start_ref, end_ref, persists in sorted(
+        loaded_dialect.bracket_sets("bracket_pairs")
+    ):
+        start_seg = loaded_dialect.ref(start_ref)
+        end_seg = loaded_dialect.ref(end_ref)
+        start_template = start_seg.template
+        end_template = end_seg.template
+        # The segment type the parser assigns to the matched bracket, e.g.
+        # "start_bracket" / "start_exclude_bracket" (matches Python's
+        # StartBracketSegment / StartExcludeBracketSegment instance_types).
+        start_type = (start_seg._instance_types or (start_seg.raw_class.type,))[0]
+        end_type = (end_seg._instance_types or (end_seg.raw_class.type,))[0]
+        print(
+            f'    BracketPairEntry {{ open: "{start_template}", '
+            f'close: "{end_template}", start_type: "{start_type}", '
+            f'end_type: "{end_type}", persists: {str(bool(persists)).lower()} }},'
+        )
+    print("]) });")
 
 
 def generate_reserved_keyword_list(dialect: str):
@@ -172,69 +207,45 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
             )
 
     if escape_replacements:
-        escape_replacement = escape_replacements[0]
-        escape_replacement = (
-            f'r#"{escape_replacement[0]}"#',
-            f'r#"{escape_replacement[1]}"#',
-        )
-        if escape_replacement[0] == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
-            escape_replacement = (
-                r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#',
-                escape_replacement[1],
-            )
-        if escape_replacement[1] == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
-            escape_replacement = (
-                escape_replacement[0],
-                r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#',
-            )
-        escape_replacement = (
-            f"Some(({escape_replacement[0]}.to_string(),"
-            f" {escape_replacement[1]}.to_string()))"
+        # Plural: emit every pair, not just the first - Python applies each
+        # escape_replacements pair in order (RawSegment._get_normalized_value,
+        # segments/raw.py), so dropping any but the first silently changes what
+        # a token normalizes to on the Rust side.
+        rust_pairs = []
+        for pattern, replacement in escape_replacements:
+            pattern, replacement = f'r#"{pattern}"#', f'r#"{replacement}"#'
+            if pattern == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
+                pattern = r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#'
+            if replacement == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
+                replacement = r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#'
+            rust_pairs.append(f"({pattern}.to_string(), {replacement}.to_string())")
+        escape_replacements_rust = (
+            "Some(std::sync::Arc::new(vec![" + ", ".join(rust_pairs) + "]))"
         )
     else:
-        escape_replacement = None
+        escape_replacements_rust = None
 
-    # Generate a closure that uses TokenConfig
-    token_closure = _generate_token_closure(
-        segment_name,
-    )
+    # TokenGenerator is `fn(String, PositionMarker, TokenConfig) -> Token`, which
+    # every `Token::{kind}_token` constructor already matches directly.
+    token_fn = f"Token::{segment_name}"
+
+    config = f"""LexMatcherConfig {{
+        subdivider: {subdivider},
+        trim_post_subdivide: {trim_post_subdivide},
+        trim_start: {trim_start},
+        trim_chars: {trim_chars},
+        quoted_value: {quoted_value},
+        escape_replacements: {escape_replacements_rust},
+        casefold: {casefold_rust},
+        kwarg_type: {kwarg_type},
+    }}"""
 
     return f"""
     LexMatcher::{rust_fn}(
         "{lexer_matcher.name}",
-        {template},{token_closure},
-        {subdivider},
-        {trim_post_subdivide},
-        {trim_start},
-        {trim_chars},
-        {quoted_value},
-        {escape_replacement},
-        {casefold_rust},{fallback}{is_match_valid}
-        {kwarg_type},
+        {template},{token_fn},{fallback}{is_match_valid}
+        {config},
     )"""
-
-
-def _generate_token_closure(
-    segment_name: str,
-) -> str:
-    """Generate a closure that constructs a token with TokenConfig.
-
-    This generates a closure matching the TokenGenerator signature that
-    internally uses the new TokenConfig-based API.
-
-    Uses Rust's struct field shorthand syntax for cleaner code generation.
-
-    Note: The closure still accepts Option<fn(&str) -> str> for casefold
-    to maintain compatibility with the compat layer, which converts it to
-    the CaseFold enum internally.
-    """
-    return f"""
-        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
-         quoted_value, escape_replacement, casefold| {{
-            Token::{segment_name}_compat(raw, pos_marker, class_types,
-                instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold)
-        }}"""
 
 
 def generate_extract_nested_block_comments(dialect: str):
@@ -269,5 +280,7 @@ if __name__ == "__main__":
     generate_reserved_keyword_list(args.dialect)
     print()
     generate_lexer(args.dialect)
+    print()
+    generate_bracket_pairs(args.dialect)
     print()
     generate_extract_nested_block_comments(args.dialect)

@@ -433,19 +433,34 @@ class LintedFile(NamedTuple):
             if stat.S_ISREG(status.st_mode):
                 mode = stat.S_IMODE(status.st_mode)
         dirname, basename = os.path.split(output_path)
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding=encoding,
-            newline="",  # NOTE: No newline conversion. Write as read.
-            prefix=basename,
-            dir=dirname,
-            suffix=os.path.splitext(output_path)[1],
-            delete=False,
-        ) as tmp:
-            tmp.file.write(write_buff)
-            tmp.flush()
-            os.fsync(tmp.fileno())
-        # Once the temp file is safely written, replace the existing file.
-        if mode is not None:
-            os.chmod(tmp.name, mode)
-        shutil.move(tmp.name, output_path)
+        # NOTE: The temp file is created with ``delete=False`` so it survives the
+        # ``with`` block, which means we're responsible for removing it if a
+        # later step fails. Track its name and clean it up on error so a failed
+        # write, chmod or move never leaves an orphaned temp file next to the
+        # user's file (which, sharing the .sql suffix, looks like a real one).
+        tmp_name: Optional[str] = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding=encoding,
+                newline="",  # NOTE: No newline conversion. Write as read.
+                prefix=basename,
+                dir=dirname,
+                suffix=os.path.splitext(output_path)[1],
+                delete=False,
+            ) as tmp:
+                tmp_name = tmp.name
+                tmp.file.write(write_buff)
+                tmp.flush()
+                os.fsync(tmp.fileno())
+            # Once the temp file is safely written, replace the existing file.
+            if mode is not None:
+                os.chmod(tmp_name, mode)
+            shutil.move(tmp_name, output_path)
+        except BaseException:
+            # The ``with`` block above has already closed the file descriptor by
+            # the time we get here, so removing the temp file is safe on every
+            # platform (including Windows, where an open file cannot be removed).
+            if tmp_name is not None and os.path.exists(tmp_name):
+                os.remove(tmp_name)
+            raise

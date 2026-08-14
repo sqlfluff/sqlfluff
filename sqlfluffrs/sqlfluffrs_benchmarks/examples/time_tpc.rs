@@ -36,24 +36,29 @@ struct RunStats {
     complete_match_early_exits: usize,
     terminator_checks: usize,
     terminator_hits: usize,
+    terminal_fast_path_hits: usize,
+    terminal_fast_path_misses: usize,
 }
 
 impl RunStats {
     fn capture(duration: Duration, parser: &Parser) -> Self {
-        let (hits, misses, _) = parser.table_cache.stats();
+        let (hits, misses, _) = parser.cache_stats();
+        let m = parser.metrics();
         RunStats {
             duration_secs: duration.as_secs_f64(),
             cache_hits: hits,
             cache_misses: misses,
-            cache_entries: parser.table_cache.len(),
-            pruning_calls: parser.pruning_calls.get(),
-            pruning_total: parser.pruning_total.get(),
-            pruning_kept: parser.pruning_kept.get(),
-            match_attempts: parser.match_attempts.get(),
-            match_successes: parser.match_successes.get(),
-            complete_match_early_exits: parser.complete_match_early_exits.get(),
-            terminator_checks: parser.terminator_checks.get(),
-            terminator_hits: parser.terminator_hits.get(),
+            cache_entries: parser.cache_entries(),
+            pruning_calls: m.pruning_calls.get(),
+            pruning_total: m.pruning_total.get(),
+            pruning_kept: m.pruning_kept.get(),
+            match_attempts: m.match_attempts.get(),
+            match_successes: m.match_successes.get(),
+            complete_match_early_exits: m.complete_match_early_exits.get(),
+            terminator_checks: m.terminator_checks.get(),
+            terminator_hits: m.terminator_hits.get(),
+            terminal_fast_path_hits: m.terminal_fast_path_hits.get(),
+            terminal_fast_path_misses: m.terminal_fast_path_misses.get(),
         }
     }
 }
@@ -72,6 +77,8 @@ struct Avg {
     early_exits: f64,
     term_checks: f64,
     term_hit_pct: f64,
+    fast_path_hits: f64,
+    fast_path_hit_pct: f64,
 }
 
 fn avg(runs: &[RunStats]) -> Avg {
@@ -82,7 +89,7 @@ fn avg(runs: &[RunStats]) -> Avg {
         .map(|r| (r.duration_secs - mean).powi(2))
         .sum::<f64>()
         / n;
-    let stat = |f: fn(&RunStats) -> usize| runs.iter().map(|r| f(r)).sum::<usize>() as f64 / n;
+    let stat = |f: fn(&RunStats) -> usize| runs.iter().map(&f).sum::<usize>() as f64 / n;
     let hits = stat(|r| r.cache_hits);
     let misses = stat(|r| r.cache_misses);
     let kept = stat(|r| r.pruning_kept);
@@ -91,6 +98,8 @@ fn avg(runs: &[RunStats]) -> Avg {
     let successes = stat(|r| r.match_successes);
     let t_checks = stat(|r| r.terminator_checks);
     let t_hits = stat(|r| r.terminator_hits);
+    let fp_hits = stat(|r| r.terminal_fast_path_hits);
+    let fp_misses = stat(|r| r.terminal_fast_path_misses);
     Avg {
         mean,
         min: runs
@@ -116,6 +125,12 @@ fn avg(runs: &[RunStats]) -> Avg {
         term_checks: t_checks,
         term_hit_pct: if t_checks > 0.0 {
             t_hits / t_checks * 100.0
+        } else {
+            0.0
+        },
+        fast_path_hits: fp_hits,
+        fast_path_hit_pct: if (fp_hits + fp_misses) > 0.0 {
+            fp_hits / (fp_hits + fp_misses) * 100.0
         } else {
             0.0
         },
@@ -146,6 +161,10 @@ fn print_avg(label: &str, a: &Avg) {
     println!(
         "    Terminators   {:.0} checks  {:.1}% hit",
         a.term_checks, a.term_hit_pct,
+    );
+    println!(
+        "    Fast path     {:.0} hits  {:.1}% of terminal-inline probes",
+        a.fast_path_hits, a.fast_path_hit_pct,
     );
 }
 
@@ -193,21 +212,26 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
             let mut early_exits = 0;
             let mut term_checks = 0;
             let mut term_hits = 0;
+            let mut fast_path_hits = 0;
+            let mut fast_path_misses = 0;
             for tokens in all_tokens {
                 let mut p = Parser::new(tokens, Dialect::Ansi, hashbrown::HashMap::new());
                 p.call_rule_as_root().expect("Parse failed");
-                let (h, m, _) = p.table_cache.stats();
+                let (h, miss, _) = p.cache_stats();
                 cache_hits += h;
-                cache_misses += m;
-                cache_entries += p.table_cache.len();
-                pruning_calls += p.pruning_calls.get();
-                pruning_total += p.pruning_total.get();
-                pruning_kept += p.pruning_kept.get();
-                match_attempts += p.match_attempts.get();
-                match_successes += p.match_successes.get();
-                early_exits += p.complete_match_early_exits.get();
-                term_checks += p.terminator_checks.get();
-                term_hits += p.terminator_hits.get();
+                cache_misses += miss;
+                cache_entries += p.cache_entries();
+                let m = p.metrics();
+                pruning_calls += m.pruning_calls.get();
+                pruning_total += m.pruning_total.get();
+                pruning_kept += m.pruning_kept.get();
+                match_attempts += m.match_attempts.get();
+                match_successes += m.match_successes.get();
+                early_exits += m.complete_match_early_exits.get();
+                term_checks += m.terminator_checks.get();
+                term_hits += m.terminator_hits.get();
+                fast_path_hits += m.terminal_fast_path_hits.get();
+                fast_path_misses += m.terminal_fast_path_misses.get();
             }
             RunStats {
                 duration_secs: t0.elapsed().as_secs_f64(),
@@ -222,6 +246,8 @@ fn timed_suite_runs(all_tokens: &[Vec<Token>]) -> Vec<RunStats> {
                 complete_match_early_exits: early_exits,
                 terminator_checks: term_checks,
                 terminator_hits: term_hits,
+                terminal_fast_path_hits: fast_path_hits,
+                terminal_fast_path_misses: fast_path_misses,
             }
         })
         .collect()

@@ -34,7 +34,7 @@ impl Parser<'_> {
             &frame.table_terminators,
             reset_terminators,
         );
-        let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
+        let all_children: &[GrammarId] = self.grammar_ctx.children_ids_slice(grammar_id);
         vdebug!(
             "Bracketed[table] children count={}, children={:?}",
             all_children.len(),
@@ -120,7 +120,7 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         // Work with MatchResult directly (Python parity)
         let child_is_empty = child_match.is_empty();
-        let all_children: Vec<GrammarId> = self.grammar_ctx.children(frame.grammar_id).collect();
+        let all_children: &[GrammarId] = self.grammar_ctx.children_ids_slice(frame.grammar_id);
         let (start_bracket_idx, end_bracket_idx) =
             self.grammar_ctx.bracketed_config(frame.grammar_id);
         let close_bracket_id = all_children[end_bracket_idx];
@@ -210,25 +210,23 @@ impl Parser<'_> {
         *content_ids = content_ids_local; // Move instead of clone
         *content_idx = 0;
 
-        // Consume any leading Meta content elements inline.
+        // Consume any leading Meta content elements inline, WITHOUT emitting them.
         // Meta grammar elements must not be pushed as child frames - handle them directly
         // so the parser never hits the "Meta grammar should be consumed by a sequence or
         // bracketed" warning path in iterative.rs.
+        // Python parity: Bracketed.match (sequence.py) matches its content via
+        // Sequence.match and then propagates only `content_match.child_matches`,
+        // DROPPING the content sequence's top-level `insert_segments` — so
+        // Indent/Dedent/Conditional elements that are direct children of a
+        // Bracketed never appear in the native tree (e.g. sparksql
+        // PivotClauseSegment's `Bracketed(Indent, ..., Dedent)`).
         while *content_idx < content_ids.len()
             && self.grammar_ctx.variant(content_ids[*content_idx]) == GrammarVariant::Meta
         {
             vdebug!(
-                "Bracketed[table]: consuming leading Meta at content_idx={} inline",
+                "Bracketed[table]: dropping leading Meta at content_idx={} (Python parity)",
                 *content_idx
             );
-            if let Some(meta_seg) = self.grammar_id_to_meta_segment(content_ids[*content_idx]) {
-                let meta_match = MatchResult {
-                    matched_slice: self.pos..self.pos,
-                    insert_segments: vec![(self.pos, meta_seg)],
-                    ..Default::default()
-                };
-                child_matches.push(Arc::new(meta_match));
-            }
             *content_idx += 1;
         }
 
@@ -298,7 +296,7 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         // Work with MatchResult directly (Python parity)
         let child_is_empty = child_match.is_empty();
-        let all_children: Vec<GrammarId> = self.grammar_ctx.children(frame.grammar_id).collect();
+        let all_children: &[GrammarId] = self.grammar_ctx.children_ids_slice(frame.grammar_id);
         let FrameContext::Bracketed(BracketedState {
             grammar_id,
             phase: bracket_state,
@@ -351,28 +349,33 @@ impl Parser<'_> {
                 self.tokens.len()
             );
 
+        // Only an optional element may fail and let the loop advance to the
+        // next one; a required element failing must stop advancing here (not
+        // let a later element match at its still-unclaimed position), but we
+        // fall through rather than return so the gap-check below still
+        // produces the right unparsable span.
+        let current_required_failed = child_is_empty
+            && !self
+                .grammar_ctx
+                .inst(content_ids[*content_idx])
+                .is_optional();
+
         // CRITICAL: Check if there are more content elements to parse
         // Continue parsing even if current element returned Empty (optional elements)
-        if *content_idx + 1 < content_ids.len() {
+        if !current_required_failed && *content_idx + 1 < content_ids.len() {
             // More content elements remain - parse the next one
             *content_idx += 1;
 
-            // Consume consecutive Meta elements inline, same reasoning as above.
+            // Consume consecutive Meta elements inline, same reasoning (and same
+            // Python-parity DROP — see the leading-Meta comment above) as in
+            // `handle_bracketed_open_result`.
             while *content_idx < content_ids.len()
                 && self.grammar_ctx.variant(content_ids[*content_idx]) == GrammarVariant::Meta
             {
                 vdebug!(
-                    "Bracketed[table]: consuming Meta at content_idx={} inline",
+                    "Bracketed[table]: dropping Meta at content_idx={} (Python parity)",
                     *content_idx
                 );
-                if let Some(meta_seg) = self.grammar_id_to_meta_segment(content_ids[*content_idx]) {
-                    let meta_match = MatchResult {
-                        matched_slice: self.pos..self.pos,
-                        insert_segments: vec![(self.pos, meta_seg)],
-                        ..Default::default()
-                    };
-                    child_matches.push(Arc::new(meta_match));
-                }
                 *content_idx += 1;
             }
 
@@ -421,28 +424,57 @@ impl Parser<'_> {
                 stack.push(frame);
                 Ok(TableFrameResult::Done)
             } else {
-                // GREEDY mode: Create parse error result for unclosed bracket
-                // Python parity: raises SQLParseError which gets caught and converted to violation
+                // GREEDY mode should hard-raise here, matching Python's
+                // Bracketed.match() (resolve_bracket in match_algorithms.py) and
+                // this module's own greedy_match. The error propagates through
+                // root_parse to RsParseError, which rust_parser.py converts back
+                // into the same SQLParseError Python raises.
                 vdebug!(
-                        "Bracketed[table] GREEDY mode: No closing bracket found at EOF, creating parse error result"
+                        "Bracketed[table] GREEDY mode: No closing bracket found at EOF, raising parse error"
                     );
 
-                // Create error result with position at opening bracket
-                // PYTHON PARITY: Message must match Python's SQLParseError message exactly
-                let error_match = MatchResult::with_error(
-                    frame.pos,
-                    self.pos,
+                Err(ParseError::with_context(
                     "Couldn't find closing bracket for opening bracket.".to_string(),
-                    frame.pos, // Error at opening bracket position
-                );
-
-                stack.insert_result(frame.frame_id, error_match, self.pos);
-                Ok(TableFrameResult::Done)
+                    Some(frame.pos), // Error at opening bracket position
+                    None,
+                ))
             }
         } else {
             // STRICT mode check: All content elements must end at the closing bracket position
             // This check should only happen AFTER all content elements have been processed.
             let check_pos = self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
+
+            // A required element failing after some content already matched
+            // is a genuine partial match: STRICT must fail here rather than
+            // let the gap check below match the closing bracket over it.
+            // Gated on `last_matched_end > content_start` so a required
+            // element failing with nothing consumed - an empty bracket `()` -
+            // still succeeds. Content starts at the end of the opening
+            // bracket, always the first recorded child match.
+            let content_start = child_matches
+                .first()
+                .map(|m| m.matched_slice.end)
+                .unwrap_or(check_pos);
+            let last_matched_end = child_matches
+                .iter()
+                .map(|m| m.matched_slice.end)
+                .max()
+                .unwrap_or(content_start);
+            if current_required_failed
+                && parse_mode == ParseMode::Strict
+                && last_matched_end > content_start
+            {
+                vdebug!(
+                    "Bracketed[table] STRICT mode: required content element failed after a partial match, returning Empty. frame_id={}, frame.pos={}",
+                    frame.frame_id, frame.pos
+                );
+                self.pos = frame.pos;
+                frame.end_pos = Some(frame.pos);
+                frame.state = FrameState::Combining;
+                stack.push(frame);
+                return Ok(TableFrameResult::Done);
+            }
+
             if let Some(expected_close_pos) = *bracket_max_idx {
                 if check_pos != expected_close_pos {
                     if parse_mode == ParseMode::Strict {
@@ -455,23 +487,97 @@ impl Parser<'_> {
                         return Ok(TableFrameResult::Done);
                     } else {
                         // GREEDY mode: Create unparsable section for tokens between content end and closing bracket
-                        vdebug!(
-                                "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {})",
-                                check_pos, expected_close_pos, check_pos, expected_close_pos
-                            );
+                        //
+                        // PYTHON PARITY: trim trailing non-code and comments off
+                        // the unparsable span (via `skip_stop_index_backward_to_code`,
+                        // the code-only variant), matching Python's Bracketed.match. Any
+                        // trimmed gap stays as untouched, raw sibling content
+                        // between here and the closing bracket.
+                        let unparsable_stop =
+                            self.skip_stop_index_backward_to_code(expected_close_pos, check_pos);
 
-                        // Create an UnparsableSegment for the tokens we couldn't parse
-                        let unparsable_match = MatchResult {
-                            matched_slice: check_pos..expected_close_pos,
-                            matched_class: Some(MatchedClass::unparsable(
-                                "Nothing here.",
-                                expected_close_pos,
-                            )),
-                            ..Default::default()
-                        };
-                        child_matches.push(Arc::new(unparsable_match));
+                        // Guard against a zero-length span (mirrors sequence.rs's
+                        // analogous GREEDY-leftover handling in
+                        // handle_sequence_combining, `if _stop_idx > _idx`):
+                        // MatchResult::apply panics on a zero-length matched_slice
+                        // with matched_class set, so only create the unparsable
+                        // child when there's actually code left to wrap.
+                        if unparsable_stop > check_pos {
+                            // This gap means one of two things: a required
+                            // element genuinely failed (message names the
+                            // expected grammar and found token), or every
+                            // required element matched and this is just
+                            // trailing content ("Nothing here."). Gate on
+                            // `current_required_failed`, not `child_is_empty`,
+                            // so a failed *optional* element gets the generic
+                            // message, not the specific one.
+                            let specific_message = if current_required_failed {
+                                content_ids.get(*content_idx).map(|&gid| {
+                                    let element_desc = self.grammar_ctx.grammar_repr(gid);
+                                    // Fallback when check_pos is out of range: "start
+                                    // of input" for the "to start sequence" branch,
+                                    // "end of input" for the "after X" branch.
+                                    let found_token = |fallback: &str| {
+                                        self.tokens
+                                            .get(check_pos)
+                                            .map(|t| format!("{}", t))
+                                            .unwrap_or_else(|| fallback.to_string())
+                                    };
+                                    // Branch on whether any position was consumed,
+                                    // not child count: a zero-length insert-only
+                                    // match bumps the count but not the position.
+                                    if last_matched_end <= content_start {
+                                        format!(
+                                            "{} to start sequence. Found {}",
+                                            element_desc,
+                                            found_token("start of input")
+                                        )
+                                    } else {
+                                        // Use the last matched token, not
+                                        // tokens[check_pos - 1]: check_pos skipped
+                                        // forward over any gap and would otherwise
+                                        // name the intervening whitespace.
+                                        let last_matched_token = self
+                                            .tokens
+                                            .get(last_matched_end.saturating_sub(1))
+                                            .map(|t| format!("{}", t))
+                                            .unwrap_or_else(|| "start of input".to_string());
+                                        format!(
+                                            "{} after {}. Found {}",
+                                            element_desc,
+                                            last_matched_token,
+                                            found_token("end of input")
+                                        )
+                                    }
+                                })
+                            } else {
+                                None
+                            };
+                            let error_message =
+                                specific_message.unwrap_or_else(|| "Nothing here.".to_string());
 
-                        // Move position to the closing bracket
+                            vdebug!(
+                                    "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {}): {}",
+                                    check_pos, unparsable_stop, check_pos, expected_close_pos, error_message
+                                );
+
+                            // Create an UnparsableSegment for the tokens we couldn't parse
+                            let unparsable_match = MatchResult {
+                                matched_slice: check_pos..unparsable_stop,
+                                matched_class: Some(MatchedClass::unparsable(
+                                    &error_message,
+                                    unparsable_stop,
+                                )),
+                                ..Default::default()
+                            };
+                            child_matches.push(Arc::new(unparsable_match));
+                        }
+
+                        // Move position to the closing bracket. Any gap between
+                        // unparsable_stop and expected_close_pos (the trimmed
+                        // trailing non-code) is left uncovered by any child here
+                        // and is filled in as raw, untouched content when the
+                        // tree is materialized.
                         self.pos = expected_close_pos;
                     }
                 } else {
@@ -540,25 +646,20 @@ impl Parser<'_> {
                 stack.push(frame);
                 return Ok(TableFrameResult::Done);
             } else {
-                // GREEDY mode: Closing bracket not found - raise parse error
-                // PYTHON PARITY: This matches Python's behavior where Bracketed.match()
-                // raises SQLParseError("Couldn't find closing bracket for opening bracket.")
+                // GREEDY mode should hard-raise here too, for the same reason as
+                // the sibling GREEDY-EOF branch in
+                // handle_bracketed_content_result above.
                 vdebug!(
                         "Bracketed[table] GREEDY mode: Couldn't find closing bracket for opening bracket at pos {}, frame_id={}",
                         frame.pos,
                         frame.frame_id
                     );
 
-                // Create error result with position at opening bracket
-                let error_match = MatchResult::with_error(
-                    frame.pos,
-                    self.pos,
+                return Err(ParseError::with_context(
                     "Couldn't find closing bracket for opening bracket.".to_string(),
-                    frame.pos, // Error at opening bracket position
-                );
-
-                stack.insert_result(frame.frame_id, error_match, self.pos);
-                return Ok(TableFrameResult::Done);
+                    Some(frame.pos), // Error at opening bracket position
+                    None,
+                ));
             }
         } else {
             child_matches.push(Arc::clone(child_match));

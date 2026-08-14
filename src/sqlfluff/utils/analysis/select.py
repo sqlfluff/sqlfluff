@@ -65,13 +65,56 @@ def _get_struct_alias_refs(segment: BaseSegment) -> set[int]:
                 # Collect all object_reference descendants - they are alias
                 # names, not real column references.
                 for ref in seg.recursive_crawl("object_reference"):
-                    struct_alias_ids.add(id(ref))
+                    struct_alias_ids.add(ref.uuid)
                 prev_was_index = False
     return struct_alias_ids
 
 
+def _get_select_except_refs(segment: BaseSegment) -> set[int]:
+    """Get the ids of object references inside a SELECT * EXCEPT clause.
+
+    Dialects like Databricks, SparkSQL, and ClickHouse support
+    ``SELECT t.* EXCEPT (col1, col2)`` where the excluded columns are listed
+    inside an ``EXCEPT (...)`` clause. Those columns name what to drop from the
+    star expansion, so they don't need to be qualified and shouldn't be treated
+    as ordinary column references by rules like RF02.
+    See: https://github.com/sqlfluff/sqlfluff/issues/5764
+    """
+    except_ref_ids: set[int] = set()
+    for except_clause in segment.recursive_crawl(
+        "select_except_clause",
+        no_recursive_seg_type=["select_statement", "merge_statement"],
+    ):
+        for ref in except_clause.recursive_crawl("object_reference"):
+            except_ref_ids.add(ref.uuid)
+    return except_ref_ids
+
+
+def _get_hint_refs(segment: BaseSegment) -> set[int]:
+    """Get the ids of object references inside a query hint.
+
+    Dialects like SparkSQL support optimizer hints such as
+    ``SELECT /*+ BROADCAST(t1) */ ...`` where the hint arguments name tables or
+    aliases for the planner. Those names are not column references in the select
+    and shouldn't be treated as ordinary references by rules like RF02.
+    See: https://github.com/sqlfluff/sqlfluff/issues/6771
+    """
+    hint_ref_ids: set[int] = set()
+    for hint in segment.recursive_crawl(
+        "select_hint",
+        no_recursive_seg_type=["select_statement", "merge_statement"],
+    ):
+        for ref in hint.recursive_crawl("object_reference"):
+            hint_ref_ids.add(ref.uuid)
+    return hint_ref_ids
+
+
 def _get_object_references(
     segment: BaseSegment,
+    # Segment uuids to exclude (hint/struct-alias/except refs). Keyed by uuid,
+    # not id(): the RsSegment arena façade yields a fresh wrapper per crawl, so
+    # object identity isn't stable across the two crawls — uuid is (and it's
+    # exact per node on the native path too).
     exclude_ids: Optional[set[int]] = None,
 ) -> list[ObjectReferenceSegment]:
     return list(
@@ -84,7 +127,7 @@ def _get_object_references(
         # but should not be treated as column/table references for linting purposes
         if not _seg.is_type("collation_reference")
         # Exclude references that are aliases inside STRUCT() functions
-        and (exclude_ids is None or id(_seg) not in exclude_ids)
+        and (exclude_ids is None or _seg.uuid not in exclude_ids)
     )
 
 
@@ -110,8 +153,16 @@ def get_select_statement_info(
     # Identify references that are aliases inside STRUCT() functions so we can
     # exclude them. These are alias definitions, not real column references.
     # See: https://github.com/sqlfluff/sqlfluff/issues/6919
-    struct_alias_ids = _get_struct_alias_refs(sc)
-    reference_buffer = _get_object_references(sc, exclude_ids=struct_alias_ids)
+    # Also identify columns listed in a SELECT * EXCEPT (...) clause; those name
+    # columns to drop from the star expansion and don't need qualification.
+    # See: https://github.com/sqlfluff/sqlfluff/issues/5764
+    # Also identify object references inside a query hint (e.g.
+    # ``/*+ BROADCAST(t1) */``); those name tables/aliases for the planner, not
+    # columns in the select. See: https://github.com/sqlfluff/sqlfluff/issues/6771
+    exclude_ref_ids = (
+        _get_struct_alias_refs(sc) | _get_select_except_refs(sc) | _get_hint_refs(sc)
+    )
+    reference_buffer = _get_object_references(sc, exclude_ids=exclude_ref_ids)
     table_reference_buffer = []
     for potential_clause in (
         "where_clause",
@@ -197,7 +248,9 @@ def get_aliases_from_select(
     if not fc:
         # If there's no from clause then just abort.
         return None, None
-    assert isinstance(fc, (FromClauseSegment, JoinClauseSegment))
+    # Duck-type-safe check: works for both a native ``BaseSegment`` and the
+    # Rust-arena ``RsSegment`` façade (which is not an instance of these classes).
+    assert fc.is_type(FromClauseSegment.type, JoinClauseSegment.type)
     dialect_name = dialect.name if dialect else None
     aliases = get_from_clause_aliases(fc, dialect_name)
 

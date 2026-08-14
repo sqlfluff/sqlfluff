@@ -9,6 +9,7 @@
 
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
+use std::borrow::Cow;
 use std::fmt::Display;
 use std::ops::Range;
 use std::sync::Arc;
@@ -37,7 +38,7 @@ pub struct SegmentKwargs {
     pub trim_chars: Option<Vec<String>>,
     pub casefold: CaseFold,
     pub quoted_value: Option<(String, RegexModeGroup)>,
-    pub escape_replacement: Option<(String, String)>,
+    pub escape_replacements: Option<Arc<Vec<(String, String)>>>,
     pub parse_error: Option<(String, usize)>,
 }
 
@@ -49,7 +50,7 @@ impl Default for SegmentKwargs {
             trim_chars: None,
             casefold: CaseFold::None,
             quoted_value: None,
-            escape_replacement: None,
+            escape_replacements: None,
             parse_error: None,
         }
     }
@@ -57,16 +58,16 @@ impl Default for SegmentKwargs {
 
 #[derive(Debug, Clone, Default)]
 pub struct MatchedClass {
-    pub class_name: String,
-    pub segment_type: Option<String>,
+    pub class_name: Cow<'static, str>,
+    pub segment_type: Option<Cow<'static, str>>,
     pub segment_kwargs: SegmentKwargs,
 }
 
 impl MatchedClass {
     pub fn root() -> Self {
         MatchedClass {
-            class_name: "Root".to_string(),
-            segment_type: Some("file".to_string()),
+            class_name: Cow::Borrowed("Root"),
+            segment_type: Some(Cow::Borrowed("file")),
             segment_kwargs: SegmentKwargs {
                 class_types: Some(vec!["base".to_string(), "file".to_string()]),
                 ..Default::default()
@@ -76,8 +77,8 @@ impl MatchedClass {
 
     pub fn unparsable(message: &str, error_pos: usize) -> Self {
         MatchedClass {
-            class_name: "UnparsableSegment".to_string(),
-            segment_type: Some("unparsable".to_string()),
+            class_name: Cow::Borrowed("UnparsableSegment"),
+            segment_type: Some(Cow::Borrowed("unparsable")),
             segment_kwargs: SegmentKwargs {
                 parse_error: Some((message.to_string(), error_pos)),
                 class_types: Some(vec!["base".to_string(), "unparsable".to_string()]),
@@ -238,8 +239,8 @@ impl MatchResult {
         // When bracket_persists is true (parentheses), wrap in BracketedSegment.
         let matched_class = if bracket_persists {
             Some(MatchedClass {
-                class_name: "BracketedSegment".to_string(),
-                segment_type: Some("bracketed".to_string()),
+                class_name: Cow::Borrowed("BracketedSegment"),
+                segment_type: Some(Cow::Borrowed("bracketed")),
                 segment_kwargs: SegmentKwargs {
                     class_types: Some(vec!["base".to_string(), "bracketed".to_string()]),
                     ..Default::default()
@@ -475,7 +476,7 @@ impl MatchResult {
             trigger_map
                 .entry(*idx)
                 .or_default()
-                .push(TriggerItem::Meta(meta_type.clone()));
+                .push(TriggerItem::Meta(*meta_type));
         }
 
         // Add child matches — store Arc directly, avoid deep clone
@@ -581,15 +582,15 @@ impl MatchResult {
                         .unwrap_or_default();
                     if instance_types.is_empty() {
                         if let Some(seg_type) = &match_class.segment_type {
-                            instance_types.push(seg_type.clone());
+                            instance_types.push(seg_type.to_string());
                         }
                     }
 
-                    let effective_segment_type = match_class
+                    let effective_segment_type: Cow<'static, str> = match_class
                         .segment_type
                         .clone()
-                        .or_else(|| instance_types.first().cloned())
-                        .unwrap_or_else(|| "raw".to_string());
+                        .or_else(|| instance_types.first().map(|s| Cow::Owned(s.clone())))
+                        .unwrap_or(Cow::Borrowed("raw"));
 
                     let raw_class_ct = match_class.segment_kwargs.class_types.unwrap_or_default();
 
@@ -604,10 +605,7 @@ impl MatchResult {
                                 };
                                 (pattern, group_str)
                             });
-                    let escape_replacements = match_class
-                        .segment_kwargs
-                        .escape_replacement
-                        .map(|(pattern, replacement)| vec![(pattern, replacement)]);
+                    let escape_replacements = match_class.segment_kwargs.escape_replacements;
 
                     return vec![Node::new_raw_with_class_types(
                         match_class.class_name,
@@ -617,7 +615,7 @@ impl MatchResult {
                         instance_types,
                         &raw_class_ct,
                         RawSegmentKwargs {
-                            trim_chars: match_class.segment_kwargs.trim_chars,
+                            trim_chars: match_class.segment_kwargs.trim_chars.map(Arc::new),
                             quoted_value,
                             escape_replacements,
                         },
@@ -692,7 +690,7 @@ impl MatchResult {
             if !leading.is_empty() {
                 let leading_nodes: Vec<Node> = leading.iter().map(token_to_node).collect();
                 let mut new_children = leading_nodes;
-                new_children.extend(children.drain(..));
+                new_children.append(children);
                 *children = new_children;
             }
             // The original match didn't cover the prepended leading / appended
@@ -740,9 +738,15 @@ pub fn segment_kwargs_from_token(
 ) -> SegmentKwargs {
     SegmentKwargs {
         instance_types: instance_types.or_else(|| Some(vec![token_type.to_string()])),
-        casefold: casefold.unwrap_or_else(|| tok.casefold.clone()),
-        trim_chars: tok.trim_chars.clone(),
-        escape_replacement: tok.escape_replacement().cloned(),
+        casefold: casefold.unwrap_or_else(|| tok.casefold()),
+        // PYTHON PARITY: RawSegment.from_result_segments inherits only
+        // quoted_value / escape_replacements / casefold from the source
+        // token (_get_raw_segment_kwargs) - NOT trim_chars. A parser match
+        // creates a fresh segment, so lexer-level trim_chars must not leak
+        // into it; grammar-configured trim_chars are applied by the parser
+        // handlers on top of these kwargs where present.
+        trim_chars: None,
+        escape_replacements: tok.escape_replacements_arc(),
         quoted_value: tok.quoted_value().cloned(),
         ..Default::default()
     }
@@ -792,13 +796,13 @@ fn node_pos_marker(node: &Node) -> Option<PositionMarker> {
 /// determine the variant.  All other tokens become `Node::Raw`.
 fn token_to_node(tok: &Token) -> Node {
     if tok.is_meta {
-        let meta_type = match tok.token_type.as_str() {
+        let meta_type = match tok.token_type.as_ref() {
             "end_of_file" => MetaType::EndOfFile,
             "indent" => MetaType::Indent { is_implicit: false },
             "dedent" => MetaType::Dedent { is_implicit: false },
             "template_loop" => MetaType::TemplateLoop,
             _ => MetaType::Template {
-                source_str: tok.raw(),
+                source_str: tok.raw().to_owned(),
                 block_type: tok.block_type().expect("block_type for template"),
             },
         };
@@ -816,15 +820,15 @@ fn token_to_node(tok: &Token) -> Node {
         // In Rust, tok.token_type holds the class-level type (e.g. "raw") while
         // tok.instance_types holds the per-instance override (e.g. ["double_quote"]).
         // Use instance_types[0] as the segment_type to match Python's behavior.
-        let segment_type = tok
+        let segment_type: Cow<'static, str> = tok
             .instance_types
             .first()
-            .cloned()
+            .map(|s| Cow::Owned(s.clone()))
             .unwrap_or_else(|| tok.token_type.clone());
         Node::new_raw_with_class_types(
             tok.class_name.clone(),
             segment_type,
-            tok.raw.to_string(),
+            tok.raw().to_owned(),
             tok.pos_marker.clone(),
             tok.instance_types.clone(),
             &raw_class_ct,

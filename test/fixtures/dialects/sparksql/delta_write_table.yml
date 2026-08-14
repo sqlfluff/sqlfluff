@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3701321590713305bb67b6c867b1d19318a4f46c706df55d2269bfdf8e1ae68b
+_hash: a3e42c2db69bcd8b6e6118c98258304ea0604ff99c3cd2d3c93be01c4c3c9c69
 file:
 - statement:
     insert_statement:
@@ -67,7 +67,8 @@ file:
       - properties_naked_identifier: userMetadata
       comparison_operator:
         raw_comparison_operator: '='
-      quoted_literal: '"overwritten-for-fixing-incorrect-data"'
+      set_config_value:
+        quoted_literal: '"overwritten-for-fixing-incorrect-data"'
 - statement_terminator: ;
 - statement:
     insert_statement:

@@ -83,6 +83,28 @@ pnpm run docs:dev
 
 Then open http://localhost:5173 in your browser.
 
+#### Working on the version picker
+
+The version picker and the "you are reading an old version" notice both read the
+versions manifest, and both take the current version from the site base. The base
+defaults to `/en/latest/`, matching what is published, so `pnpm run docs:dev`
+shows both without further setup.
+
+In production the manifest is written at the language root by
+`scripts/assemble-site.py`, above any single version's base. The dev server
+cannot serve that path out of `public/`, so it comes from the fixture at
+`.vitepress/dev-versions.json` instead — edit it to try other sets of versions,
+or delete it to see how the picker behaves when no manifest is reachable. The
+releases it names are not built locally, so following one of those links in dev
+lands on the dev server's 404.
+
+To see the outdated-version notice rather than the development one, serve a base
+which is not the newest release:
+
+```bash
+SQLFLUFF_DOCS_BASE=/en/3.4.1/ pnpm run docs:dev
+```
+
 ### Build for Production
 
 Build static HTML for deployment:

@@ -25,6 +25,29 @@ test_noop_crossjoin:
   pass_str: |
     SELECT foo.a, bar.b FROM foo CROSS JOIN bar WHERE bar.x > 3
 
+test_noop_natural_join:
+  # A NATURAL JOIN cannot take an ON clause, so there is nothing to move
+  # the WHERE condition into.
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo NATURAL JOIN bar WHERE bar.x > 3
+
+test_fail_natural_join_mixed_with_later_join:
+  # The NATURAL JOIN is skipped, but its predicate (a.k = b.k) must not be
+  # hoisted into the following LEFT JOIN's ON clause: only conditions that
+  # reference the joined table itself may be moved.
+  fail_str: |
+    SELECT * FROM a NATURAL JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+  fix_str: |
+    SELECT * FROM a NATURAL JOIN b LEFT JOIN c ON a.m = c.m WHERE a.k = b.k
+
+test_fail_cross_join_mixed_with_later_join:
+  # Same as above for a skipped CROSS JOIN: a.k = b.k references neither the
+  # LEFT JOIN's table nor an ON-able join, so it stays in the WHERE clause.
+  fail_str: |
+    SELECT * FROM a CROSS JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+  fix_str: |
+    SELECT * FROM a CROSS JOIN b LEFT JOIN c ON a.m = c.m WHERE a.k = b.k
+
 test_noop_using:
   pass_str: |
     SELECT foo.id, bar.id FROM foo LEFT JOIN bar USING (id)
@@ -132,3 +155,52 @@ test_pass_left_join_unnest_where_unaliased:
       UNNEST(t.purchases)
     WHERE
       t.user_id != 1
+
+test_pass_templated_join_clause_not_fixed:
+  # https://github.com/sqlfluff/sqlfluff/issues/8230
+  # Moving the condition into an ON clause rewrites the whole join clause. When
+  # that clause is templated the resulting patch can't be mapped back to the
+  # source and is dropped, but the (literal) WHERE rewrite still applied - which
+  # deleted the join condition altogether.
+  pass_str: |
+    select a.id, b.id as b_id
+    from table_a as a
+    left join {{ ref('table_b') }} as b
+    where a.region = b.region
+  configs:
+    core:
+      dialect: snowflake
+      templater: jinja
+
+test_pass_templated_join_clause_keeps_other_filters:
+  # The join condition used to disappear while the unrelated filter survived,
+  # so the fix looked successful but silently changed the query's meaning.
+  pass_str: |
+    select a.id
+    from table_a as a
+    left join {{ ref('table_b') }} as b
+    where a.region = b.region and a.x = 1
+  configs:
+    core:
+      dialect: snowflake
+      templater: jinja
+
+test_fail_templated_join_alongside_literal_join:
+  # Only the non-templated join is rewritten; the templated join's condition
+  # stays put in the WHERE clause.
+  fail_str: |
+    select a.id
+    from table_a as a
+    left join {{ ref('table_b') }} as b
+    left join table_c as c
+    where a.region = b.region and a.k = c.k
+  fix_str: |
+    select a.id
+    from table_a as a
+    left join {{ ref('table_b') }} as b
+    left join table_c as c ON a.k = c.k
+    where a.region = b.region
+  configs:
+    core:
+      dialect: snowflake
+      templater: jinja

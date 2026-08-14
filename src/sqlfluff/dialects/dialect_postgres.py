@@ -211,6 +211,26 @@ postgres_dialect.insert_lexer_matchers(
             LiteralSegment,
         ),
         RegexLexer(
+            # Matches a `COPY ... FROM STDIN;` command followed by an inline data
+            # block terminated by a line containing only `\.` (the format emitted
+            # by pg_dump / psql). The raw data rows are not SQL, so the whole
+            # construct is lexed as a single token to keep it out of the parser.
+            # The pattern is self-anchored on the `COPY ... FROM STDIN;` prefix,
+            # so it stays context-free; a `COPY ... FROM STDIN` without a trailing
+            # `\.` data block does not match and parses as a normal statement.
+            # The header may span multiple lines (e.g. a column list or `WITH`
+            # options on their own lines). The scan toward the terminating `;`
+            # must also skip over quoted string literals so option values like
+            # `DELIMITER ';'` do not prematurely end the match. This still keeps
+            # the match bounded to one statement, so it cannot absorb a preceding
+            # statement to reach a later `FROM STDIN`.
+            # Approach originally proposed in #7759 by @RedZapdos123.
+            "postgres_copy_stdin_data_block",
+            r"(?i)COPY\b(?:[^;']|'(?:[^']|'')*')*?\bFROM\b\s+STDIN\b(?:[^;']|'(?:[^']|'')*')*?;[ \t]*\r?\n"
+            r"(?:[^\r\n]*\r?\n)*?\\\.[ \t]*(?=\r?\n|$)",
+            CodeSegment,
+        ),
+        RegexLexer(
             # Matches the psql \copy meta-command, including the form with a
             # parenthesized query that can span multiple lines.
             # https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-COPY
@@ -251,7 +271,7 @@ postgres_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--")},
+            segment_kwargs={"trim_start": ("--",)},
         ),
         # In Postgres, the only escape character is ' for single quote strings
         RegexLexer(
@@ -360,6 +380,13 @@ postgres_dialect.sets("reserved_keywords").difference_update(
 postgres_dialect.sets("unreserved_keywords").difference_update(
     get_keywords(postgres_keywords, "not-keyword")
 )
+
+# `SOURCE` and `TARGET` are not PostgreSQL keywords in general, but the
+# `MERGE ... WHEN NOT MATCHED BY {SOURCE,TARGET}` clauses (added in PostgreSQL
+# 17) need them. Register them as unreserved so they remain usable as ordinary
+# identifiers (e.g. a table aliased `AS source`) while the merge grammar can
+# still match them.
+postgres_dialect.sets("unreserved_keywords").update(["SOURCE", "TARGET"])
 
 # Add datetime units
 postgres_dialect.sets("datetime_units").update(
@@ -499,11 +526,24 @@ postgres_dialect.add(
     CreateForeignTableGrammar=Sequence("CREATE", "FOREIGN", "TABLE"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
+    # Colon prefix for psql variables (:var, :'var', :"var"). Distinct from
+    # ColonSegment so the global `spacing_before = touch` on type "colon"
+    # doesn't collapse the space before the variable (e.g. in
+    # `status = :status`, only the space *within* the variable should be
+    # removed, not the one before it).
+    PsqlVariableColonSegment=StringParser(
+        ":", SymbolSegment, type="psql_variable_colon"
+    ),
     MetaCommandQueryBufferSegment=TypedParser(
         "meta_command_query_buffer", SymbolSegment, type="meta_command"
     ),
     PsqlCopyMetaCommandSegment=TypedParser(
         "psql_copy_command", CodeSegment, type="psql_copy_command"
+    ),
+    PostgresCopyStdinDataSegment=TypedParser(
+        "postgres_copy_stdin_data_block",
+        CodeSegment,
+        type="postgres_copy_stdin_data_statement",
     ),
     PsqlSetMetaCommandSegment=TypedParser(
         "psql_set_command", CodeSegment, type="psql_set_command"
@@ -962,10 +1002,13 @@ class PsqlVariableGrammar(BaseSegment):
 
     match_grammar = Sequence(
         OptionallyBracketed(
-            Ref("ColonSegment"),
-            OneOf(
-                Ref("ParameterNameSegment"),
-                Ref("QuotedLiteralSegment"),
+            Sequence(
+                Ref("PsqlVariableColonSegment"),
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                allow_gaps=False,
             ),
         )
     )
@@ -1144,11 +1187,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         ),
         # array types
         OneOf(
-            AnyNumberOf(
-                Bracketed(
-                    Ref("ExpressionSegment", optional=True), bracket_type="square"
-                )
-            ),
+            AnyNumberOf(Ref("ArrayTypeSuffixSegment")),
             Ref("ArrayTypeSegment"),
             Ref("SizedArrayTypeSegment"),
             optional=True,
@@ -1161,6 +1200,20 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
     type = "array_type"
     match_grammar = Ref.keyword("ARRAY")
+
+
+class ArrayTypeSuffixSegment(BaseSegment):
+    """The ``[]`` suffix that turns a scalar type into an array type.
+
+    e.g. the ``[]`` in ``int[]``. It's its own segment so that layout rule
+    LT01 keeps it touching the preceding type name rather than spacing it
+    like a standalone square bracket (see issue #5005).
+    """
+
+    type = "array_type_suffix"
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment", optional=True), bracket_type="square"
+    )
 
 
 class IndexAccessMethodSegment(BaseSegment):
@@ -1417,7 +1470,10 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
                                 Ref("DatatypeSegment"),
                                 Sequence(
                                     Ref("ColumnReferenceSegment"),
-                                    Ref("DatatypeSegment"),
+                                    OneOf(
+                                        Ref("DatatypeSegment"),
+                                        Ref("ColumnTypeReferenceSegment"),
+                                    ),
                                 ),
                             ),
                         )
@@ -1653,6 +1709,45 @@ class OffsetClauseSegment(ansi.OffsetClauseSegment):
             Ref("NumericLiteralSegment"),
             # An arbitrary expression
             Ref("ExpressionSegment"),
+        ),
+        Dedent,
+    )
+
+
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """An `ORDER BY` clause.
+
+    Adds PostgreSQL's ``USING operator`` sort option, which selects an
+    explicit ordering operator instead of ``ASC``/``DESC``.
+    https://www.postgresql.org/docs/current/queries-order.html
+    """
+
+    type = "orderby_clause"
+    match_grammar: Matchable = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf(
+                    "ASC",
+                    "DESC",
+                    # PostgreSQL allows an explicit sort operator, e.g.
+                    # `ORDER BY a USING <` or `ORDER BY a USING OPERATOR(schema.<)`.
+                    Sequence("USING", Ref("ComparisonOperatorGrammar")),
+                    optional=True,
+                ),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                Ref("WithFillSegment", optional=True),
+            ),
+            terminators=[Ref("LimitClauseSegment"), Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )
@@ -3935,7 +4030,13 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Bracketed(Ref("ExpressionSegment")),
+                OneOf("STORED", "VIRTUAL", optional=True),
+            ),
             Sequence(
                 "GENERATED",
                 OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
@@ -4020,8 +4121,14 @@ class ForeignTableColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            # GENERATED ALWAYS AS ( generation_expr ) STORED
-            Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
+            # GENERATED ALWAYS AS ( generation_expr ) [ STORED | VIRTUAL ]
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Bracketed(Ref("ExpressionSegment")),
+                OneOf("STORED", "VIRTUAL", optional=True),
+            ),
         ),
     )
 
@@ -5446,6 +5553,56 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     )
 
 
+class MergeMatchedClauseSegment(ansi.MergeMatchedClauseSegment):
+    """The `WHEN MATCHED` clause within a `MERGE` statement.
+
+    Overriding ANSI to allow `DO NOTHING`, which Postgres accepts as a merge
+    action alongside `UPDATE` and `DELETE`.
+    https://www.postgresql.org/docs/current/sql-merge.html
+    """
+
+    type = "merge_when_matched_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+            Sequence("DO", "NOTHING"),
+        ),
+        Dedent,
+    )
+
+
+class MergeNotMatchedClauseSegment(ansi.MergeNotMatchedClauseSegment):
+    """The `WHEN NOT MATCHED [BY TARGET]` clause within a `MERGE` statement.
+
+    Overriding ANSI to allow the optional `BY TARGET` qualifier (a PostgreSQL 17
+    synonym for the plain `WHEN NOT MATCHED`) and `DO NOTHING`, which Postgres
+    accepts as a merge action alongside `INSERT`.
+    https://www.postgresql.org/docs/current/sql-merge.html
+    """
+
+    type = "merge_when_not_matched_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        Sequence("BY", "TARGET", optional=True),
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeInsertClauseSegment"),
+            Sequence("DO", "NOTHING"),
+        ),
+        Dedent,
+    )
+
+
 class DropTypeStatementSegment(ansi.DropTypeStatementSegment):
     """Drop Type Statement.
 
@@ -5853,7 +6010,12 @@ class CopyStatementSegment(BaseSegment):
     type = "copy_statement"
 
     _target_subset = OneOf(
-        Ref("QuotedLiteralSegment"), Sequence("PROGRAM", Ref("QuotedLiteralSegment"))
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "PROGRAM",
+            OneOf(Ref("QuotedLiteralSegment"), Ref("PsqlVariableGrammar")),
+        ),
+        Ref("PsqlVariableGrammar"),
     )
 
     _table_definition = Sequence(
@@ -5995,6 +6157,7 @@ class CopyStatementSegment(BaseSegment):
                 "FROM",
                 OneOf(
                     Ref("QuotedLiteralSegment"),
+                    Ref("PsqlVariableGrammar"),
                     Sequence("STDIN"),
                 ),
                 _postgres9_compatible_stdin_options,
@@ -6013,6 +6176,7 @@ class CopyStatementSegment(BaseSegment):
                 "TO",
                 OneOf(
                     Ref("QuotedLiteralSegment"),
+                    Ref("PsqlVariableGrammar"),
                     Sequence("STDOUT"),
                 ),
                 _postgres9_compatible_stdout_options,
@@ -7006,6 +7170,21 @@ class PsqlSetMetaCommandStatementSegment(BaseSegment):
     )
 
 
+class PostgresCopyStdinDataStatementSegment(BaseSegment):
+    r"""A `COPY ... FROM STDIN` command with an inline data block.
+
+    The command line and the raw data rows terminated by ``\.`` (as emitted by
+    ``pg_dump`` / ``psql``) are lexed as a single token, so the non-SQL data
+    does not surface as an unparsable section.
+    """
+
+    type = "postgres_copy_stdin_data_statement"
+
+    match_grammar = Sequence(
+        Ref("PostgresCopyStdinDataSegment"),
+    )
+
+
 class DropForeignTableStatement(BaseSegment):
     """A `DROP FOREIGN TABLE` Statement.
 
@@ -7280,6 +7459,51 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class MergeMatchSegment(ansi.MergeMatchSegment):
+    """Contains PostgreSQL specific merge operations.
+
+    PostgreSQL 17 added a ``WHEN NOT MATCHED BY SOURCE`` clause (and made
+    ``BY TARGET`` an accepted synonym for the plain ``WHEN NOT MATCHED``) in
+    addition to the standard matched / not matched clauses.
+
+    https://www.postgresql.org/docs/17/sql-merge.html
+    """
+
+    match_grammar: Matchable = AnyNumberOf(
+        Ref("MergeMatchedClauseSegment"),
+        Ref("MergeNotMatchedClauseSegment"),
+        Ref("MergeNotMatchedBySourceClauseSegment"),
+        min_times=1,
+    )
+
+
+class MergeNotMatchedBySourceClauseSegment(BaseSegment):
+    """The ``WHEN NOT MATCHED BY SOURCE`` clause within a ``MERGE`` statement.
+
+    A ``NOT MATCHED BY SOURCE`` clause combines with an ``UPDATE``, ``DELETE`` or
+    ``DO NOTHING`` rather than an ``INSERT``, so it is closer to a matched clause
+    than to the standard not matched clause.
+    """
+
+    type = "merge_when_not_matched_by_source_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        "BY",
+        "SOURCE",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+            Sequence("DO", "NOTHING"),
+        ),
+        Dedent,
+    )
+
+
 class FileSegment(BaseFileSegment):
     r"""A segment representing a whole file or script.
 
@@ -7292,6 +7516,7 @@ class FileSegment(BaseFileSegment):
     """
 
     match_grammar = AnyNumberOf(
+        Ref("PostgresCopyStdinDataStatementSegment"),
         Ref("PsqlCopyMetaCommandStatementSegment"),
         Ref("PsqlSetMetaCommandStatementSegment"),
         Delimited(

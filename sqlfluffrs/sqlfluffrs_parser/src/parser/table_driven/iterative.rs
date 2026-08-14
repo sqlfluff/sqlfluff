@@ -1,6 +1,7 @@
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
 use sqlfluffrs_types::GrammarId;
+use sqlfluffrs_types::ParseMode;
 // Only the verbose-debug tracing blocks in this module reference GrammarVariant directly;
 // the default build's uses live behind function-local imports. cfg-gating avoids an
 // unused-import warning in non-verbose builds.
@@ -250,9 +251,9 @@ impl Parser<'_> {
                 iteration_count
             );
         }
-        vdebug!("DEBUG: Main loop ended. Stack has {} frames left. Results has {} entries. Looking for frame_id={}",
+        vdebug!("DEBUG: Main loop ended. Stack has {} frames left. Result pending: {}. Looking for frame_id={}",
             stack.len(),
-            stack.results.len(),
+            stack.result_pending(),
             initial_frame_id
         );
 
@@ -306,12 +307,11 @@ impl Parser<'_> {
         }
 
         vdebug!(
-            "Main loop ended. Stack empty. Results has {} entries. Looking for frame_id={}",
-            stack.results.len(),
+            "Main loop ended. Stack empty. Result pending: {}. Looking for frame_id={}",
+            stack.result_pending(),
             initial_frame_id
         );
-        if let Some((match_result, end_pos, _element_key)) = stack.results.remove(&initial_frame_id)
-        {
+        if let Some((match_result, end_pos, _element_key)) = stack.take_pending(initial_frame_id) {
             vdebug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
                 initial_frame_id,
@@ -354,9 +354,9 @@ impl Parser<'_> {
         } else {
             // Parse error - don't cache errors for now (to keep it simple)
             let error = ParseError::new(format!(
-                "Iterative parse produced no result (initial_frame_id={}, stack.results has {} entries)",
+                "Iterative parse produced no result (initial_frame_id={}, result_pending={})",
                 initial_frame_id,
-                stack.results.len()
+                stack.result_pending()
             ));
             Err(error)
         }
@@ -479,7 +479,7 @@ impl Parser<'_> {
             }
         };
 
-        let child = stack.results.remove(&child_frame_id);
+        let child = stack.take_pending(child_frame_id);
         vdebug!(
             "[RESULT GET] parent_frame_id={}, child_frame_id={}, child_found={}",
             frame.frame_id,
@@ -744,26 +744,85 @@ impl Parser<'_> {
         if !parity::is_frame_cacheable(self.grammar_ctx.variant(frame.grammar_id)) {
             return Ok(None);
         }
+        // PYTHON PARITY: skip caching GREEDY-family frames. They trim on their
+        // *inherited* terminators internally, so the same (pos, grammar_id,
+        // max_idx) key can map to different results by context; Python never
+        // caches them either. A STRICT `Ref` forwarding a GREEDY-family target
+        // (e.g. `Ref("SelectClauseSegment")`) inherits the same dependence.
+        let parse_mode =
+            parity::effective_parse_mode(frame, self.grammar_ctx.inst(frame.grammar_id));
+        if self.is_greedy_family_for_cache(frame, parse_mode) {
+            return Ok(None);
+        }
         // Prefer the handler-calculated max_idx; fall back to computing it the same way the
         // handler would (CRITICAL: honour parse_mode_override for Bracketed inheritance).
         let max_idx = match frame.calculated_max_idx {
             Some(calc_max) => calc_max,
-            None => {
-                let parse_mode =
-                    parity::effective_parse_mode(frame, self.grammar_ctx.inst(frame.grammar_id));
-                self.calculate_max_idx(
-                    frame.pos,
-                    &frame.table_terminators,
-                    parse_mode,
-                    frame.parent_max_idx,
-                )?
-            }
+            None => self.calculate_max_idx(
+                frame.pos,
+                &frame.table_terminators,
+                parse_mode,
+                frame.parent_max_idx,
+            )?,
         };
         Ok(Some(TableCacheKey::new(
             frame.pos,
             frame.grammar_id,
             max_idx,
         )))
+    }
+
+    /// Whether `frame` is (or, for a `Ref`, forwards) a GREEDY-family frame and
+    /// so must not be cached. A `Ref` is itself STRICT but forwards its target's
+    /// match, so we resolve and inspect the target's parse mode.
+    #[inline]
+    fn is_greedy_family_for_cache(
+        &mut self,
+        frame: &TableParseFrame,
+        parse_mode: ParseMode,
+    ) -> bool {
+        // Own mode (already accounts for parse_mode_override) is cheap; check it.
+        if matches!(parse_mode, ParseMode::Greedy | ParseMode::GreedyOnceStarted) {
+            return true;
+        }
+        // Else: a STRICT `Ref` forwarding a GREEDY target. Inspect the resolved
+        // target's parse mode; resolution is memoized in `ref_child_cache`, so this
+        // is O(1) on the hot path after the first hit per Ref.
+        if self.grammar_ctx.variant(frame.grammar_id) != sqlfluffrs_types::GrammarVariant::Ref {
+            return false;
+        }
+        match self.resolve_ref_target(frame.grammar_id) {
+            Some(child_id) => matches!(
+                self.grammar_ctx.inst(child_id).parse_mode,
+                ParseMode::Greedy | ParseMode::GreedyOnceStarted
+            ),
+            None => false,
+        }
+    }
+
+    /// Resolve a `Ref` grammar to the grammar it matches against, mirroring the
+    /// resolution in `handle_ref_initial`: an explicit element child if present,
+    /// otherwise the segment grammar looked up by the ref's name in the dialect.
+    /// Backed by `ref_child_cache` (shared with `handle_ref_initial`) so the
+    /// by-name dialect lookup runs at most once per Ref.
+    #[inline]
+    pub(crate) fn resolve_ref_target(&mut self, grammar_id: GrammarId) -> Option<GrammarId> {
+        if let Some(&cached) = self.ref_child_cache.get(&grammar_id.0) {
+            return cached.map(GrammarId);
+        }
+        let resolved = self
+            .grammar_ctx
+            .element_children(grammar_id)
+            .next()
+            .or_else(|| {
+                let rule_name = self.grammar_ctx.ref_name(grammar_id);
+                self.dialect
+                    .get_segment_grammar(rule_name)
+                    .map(|root| root.grammar_id)
+            });
+        self.ref_child_cache
+            .insert(grammar_id.0, resolved.map(|g| g.0));
+        resolved
     }
 
     /// Checks the cache for a frame and handles cache hits. Returns FrameResult indicating what to do next.
@@ -812,7 +871,7 @@ impl Parser<'_> {
         vdebug!("ERROR: Exceeded max iterations ({})", max_iterations);
         vdebug!("Last frame: {:?}", _frame.grammar_id);
         vdebug!("Stack depth: {}", _stack.len());
-        vdebug!("Results count: {}", _stack.results.len());
+        vdebug!("Result pending: {}", _stack.result_pending());
 
         // Print last 20 frames on stack for diagnosis
         vdebug!("\n=== Last 20 frames on stack ===");

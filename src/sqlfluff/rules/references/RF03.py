@@ -33,7 +33,7 @@ class Rule_RF03(BaseRule):
     """Column references should be qualified consistently in single table statements.
 
     .. note::
-        For BigQuery, Hive and Redshift this rule is disabled by default.
+        For Athena, BigQuery, Hive and Redshift this rule is disabled by default.
         This is due to historical false positives associated with STRUCT data types.
         This default behaviour may be changed in the future.
         The rule can be enabled with the ``force_enable = True`` flag.
@@ -82,7 +82,11 @@ class Rule_RF03(BaseRule):
     # because they will more accurately process any internal references.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
     _is_struct_dialect = False
-    _dialects_with_structs = ["bigquery", "hive", "redshift"]
+    # Dialects with STRUCT-like data types accessed via dot syntax (e.g.
+    # `col.field.subfield`), which can be misread as table-qualified column
+    # references (`table.column`) in single table SELECTs.
+    # https://docs.aws.amazon.com/athena/latest/ug/filtering-with-dot.html
+    _dialects_with_structs = ["athena", "bigquery", "hive", "redshift"]
     # This could be turned into an option
     _fix_inconsistent_to = "qualified"
     is_fix_compatible = True
@@ -202,6 +206,16 @@ def _check_references(
         # :colname that get rendered as bare identifiers by the templater). These
         # are not real column references and should not be qualified or flagged.
         if this_ref_type == "unqualified" and ref.is_templated:
+            continue
+        # Skip whole-row references: a bare reference matching the single table's
+        # own alias/name (e.g. ``tbl ->> 'k'`` in postgres, or ``SELECT tbl FROM
+        # tbl``) refers to the whole row, not a column. It neither needs
+        # qualification nor counts towards single-table consistency, so qualifying
+        # it as ``tbl.tbl`` would be invalid.
+        if (
+            this_ref_type == "unqualified"
+            and ref.raw_normalized(casefold=False) == table_ref_str
+        ):
             continue
         if this_ref_type == "qualified" and is_struct_dialect:
             # If this col appears "qualified" check if it is more logically a struct.

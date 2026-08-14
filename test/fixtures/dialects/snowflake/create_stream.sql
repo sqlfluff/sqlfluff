@@ -38,3 +38,8 @@ ON VIEW view_name
 APPEND_ONLY = FALSE
 SHOW_INITIAL_ROWS = FALSE
 COMMENT = 'amazing comment';
+
+CREATE STREAM IF NOT EXISTS dynamic_table_stream
+ON DYNAMIC TABLE dynamic_table_name
+APPEND_ONLY = FALSE
+COMMENT = 'amazing comment';

@@ -75,6 +75,8 @@ db2_dialect.replace(
         insert=[
             Ref("ReadOnlyClauseSegment"),
             Ref("IsolationClauseSegment"),
+            Ref("RowMovementClauseSegment"),
+            Ref("ViewCheckOptionClauseSegment"),
         ],
     ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
@@ -84,6 +86,8 @@ db2_dialect.replace(
             Ref.keyword("OFFSET"),
             Ref("ReadOnlyClauseSegment"),
             Ref("IsolationClauseSegment"),
+            Ref("RowMovementClauseSegment"),
+            Ref("ViewCheckOptionClauseSegment"),
         ],
     ),
     WhereClauseTerminatorGrammar=ansi_dialect.get_grammar(
@@ -93,6 +97,8 @@ db2_dialect.replace(
             Ref.keyword("OFFSET"),
             Ref("ReadOnlyClauseSegment"),
             Ref("IsolationClauseSegment"),
+            Ref("RowMovementClauseSegment"),
+            Ref("ViewCheckOptionClauseSegment"),
         ],
     ),
     GroupByClauseTerminatorGrammar=ansi_dialect.get_grammar(
@@ -102,6 +108,8 @@ db2_dialect.replace(
             Ref.keyword("OFFSET"),
             Ref("ReadOnlyClauseSegment"),
             Ref("IsolationClauseSegment"),
+            Ref("RowMovementClauseSegment"),
+            Ref("ViewCheckOptionClauseSegment"),
         ],
     ),
     HavingClauseTerminatorGrammar=ansi_dialect.get_grammar(
@@ -111,6 +119,8 @@ db2_dialect.replace(
             Ref.keyword("OFFSET"),
             Ref("ReadOnlyClauseSegment"),
             Ref("IsolationClauseSegment"),
+            Ref("RowMovementClauseSegment"),
+            Ref("ViewCheckOptionClauseSegment"),
         ],
     ),
     OrderByClauseTerminators=ansi_dialect.get_grammar("OrderByClauseTerminators").copy(
@@ -118,6 +128,8 @@ db2_dialect.replace(
             Ref.keyword("OFFSET"),
             Ref("ReadOnlyClauseSegment"),
             Ref("IsolationClauseSegment"),
+            Ref("RowMovementClauseSegment"),
+            Ref("ViewCheckOptionClauseSegment"),
         ],
     ),
     Expression_C_Grammar=OneOf(
@@ -157,7 +169,7 @@ db2_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--")},
+            segment_kwargs={"trim_start": ("--",)},
         ),
         # In Db2, the only escape character is ' for single quote strings
         RegexLexer(
@@ -667,12 +679,143 @@ class WithinGroupClauseSegment(BaseSegment):
     )
 
 
+class CommentOnStatementSegment(BaseSegment):
+    """A `COMMENT ON` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-comment
+    """
+
+    type = "comment_clause"
+
+    match_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        OneOf(
+            Sequence(
+                OneOf(
+                    Sequence("COLUMN", Ref("ColumnReferenceSegment")),
+                    Sequence("INDEX", Ref("IndexReferenceSegment")),
+                    Sequence("SCHEMA", Ref("SchemaReferenceSegment")),
+                    Sequence(
+                        OneOf(
+                            "ALIAS",
+                            "FUNCTION",
+                            "PACKAGE",
+                            "PROCEDURE",
+                            "ROLE",
+                            "SEQUENCE",
+                            "TABLE",
+                            "TABLESPACE",
+                            "TRIGGER",
+                            "TYPE",
+                            "VARIABLE",
+                            "VIEW",
+                        ),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                "IS",
+                Ref("QuotedLiteralSegment"),
+            ),
+            # The multi-column form takes a bare table name, e.g.
+            # COMMENT ON my_table (col1 IS 'a', col2 IS 'b')
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            "IS",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class AccessTargetSegment(ansi.AccessTargetSegment):
+    """An access target.
+
+    Db2 allows the ``USER``/``GROUP``/``ROLE`` qualifier to be repeated for
+    each grantee in the list, and ``PUBLIC`` to be mixed in with them.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-grant-table-view-nickname-privileges
+    """
+
+    match_grammar = OneOf(
+        Delimited(
+            OneOf(
+                Sequence("USER", Ref("UserReferenceSegment")),
+                Sequence("GROUP", Ref("ObjectReferenceSegment")),
+                Sequence("ROLE", Ref("RoleReferenceSegment")),
+                "PUBLIC",
+                Ref("RoleReferenceSegment"),
+            ),
+        ),
+        Delimited(Ref("FunctionSegment")),
+    )
+
+
+class RowMovementClauseSegment(BaseSegment):
+    """A `WITH [NO] ROW MOVEMENT` clause of a `CREATE VIEW` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-view
+    """
+
+    type = "row_movement_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        Ref.keyword("NO", optional=True),
+        "ROW",
+        "MOVEMENT",
+    )
+
+
+class ViewCheckOptionClauseSegment(BaseSegment):
+    """A `WITH [CASCADED|LOCAL] CHECK OPTION` clause of a `CREATE VIEW` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-view
+    """
+
+    type = "check_option_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        OneOf("CASCADED", "LOCAL", optional=True),
+        "CHECK",
+        "OPTION",
+    )
+
+
+class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
+    """A `CREATE VIEW` statement.
+
+    Db2 allows a trailing row movement or check option clause.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-view
+    """
+
+    match_grammar = ansi.CreateViewStatementSegment.match_grammar.copy(
+        insert=[
+            OneOf(
+                Ref("RowMovementClauseSegment"),
+                Ref("ViewCheckOptionClauseSegment"),
+                optional=True,
+            ),
+        ],
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """An element in the targets of a select statement."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CallStoredProcedureSegment"),
+            Ref("CommentOnStatementSegment"),
             Ref("DeclareGlobalTempTableSegment"),
         ]
     )
@@ -710,6 +853,8 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         terminators=[
             Ref("ReadOnlyClauseSegment"),
             Ref("IsolationClauseSegment"),
+            Ref("RowMovementClauseSegment"),
+            Ref("ViewCheckOptionClauseSegment"),
         ]
     )
 
@@ -721,7 +866,11 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
         insert=[
             Ref("ReadOnlyClauseSegment", optional=True),
             Ref("IsolationClauseSegment", optional=True),
-        ]
+        ],
+        terminators=[
+            Ref("RowMovementClauseSegment"),
+            Ref("ViewCheckOptionClauseSegment"),
+        ],
     )
 
 
@@ -732,5 +881,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         insert=[
             Ref("ReadOnlyClauseSegment", optional=True),
             Ref("IsolationClauseSegment", optional=True),
-        ]
+        ],
+        terminators=[
+            Ref("RowMovementClauseSegment"),
+            Ref("ViewCheckOptionClauseSegment"),
+        ],
     )

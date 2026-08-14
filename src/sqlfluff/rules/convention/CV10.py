@@ -4,7 +4,7 @@ from typing import Optional
 
 import regex
 
-from sqlfluff.core.parser import LiteralSegment, PositionMarker
+from sqlfluff.core.parser import LiteralSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, rsp
@@ -111,8 +111,10 @@ class Rule_CV10(BaseRule):
         )
         for raw_slice in templated_raw_slices:
             pos_marker = context.segment.pos_marker
-            # This is to make mypy happy.
-            assert isinstance(pos_marker, PositionMarker)
+            # Narrow Optional[PositionMarker] to non-None (for mypy). Use `is not
+            # None` rather than isinstance so it also holds for the RsSegment
+            # arena façade, whose pos_marker is a duck-typed marker object.
+            assert pos_marker is not None
 
             # Check whether the quote characters are inside the template.
             # For the leading quote we need to account for string prefix characters.
@@ -252,6 +254,22 @@ class Rule_CV10(BaseRule):
         escaped_new_quote = regex.compile(rf"([^\\]|^)\\((?:\\\\)*){new_quote}")
         escaped_orig_quote = regex.compile(rf"([^\\]|^)\\((?:\\\\)*){orig_quote}")
         body = s[first_quote_pos + len(orig_quote) : -len(orig_quote)]
+
+        if len(orig_quote) == 1 and regex.search(
+            rf"(?:[^\\]|^)(?:\\\\)*{regex.escape(orig_quote)}", body
+        ):
+            # SQL escapes an embedded quote by doubling it (``''`` / ``""``), but
+            # this normaliser (adapted from Black) only understands backslash
+            # escapes. A bare orig_quote in the body is therefore a doubled
+            # quote; re-quoting would copy it through unchanged and silently
+            # alter the literal's value. Leave it untouched, as the raw-string
+            # branch below already does when it cannot convert safely.
+            self.logger.debug(
+                "Body of %s uses quote-doubling escapes that this rule cannot "
+                "safely re-encode. Skipping.",
+                s,
+            )
+            return s
 
         if "r" in prefix.lower():
             if unescaped_new_quote.search(body):

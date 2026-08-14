@@ -3,6 +3,7 @@
 use hashbrown::HashSet;
 use serde_yaml_ng::{Mapping, Value};
 use sqlfluffrs_types::{GrammarId, PositionMarker};
+use std::borrow::Cow;
 
 /// Helper enum for tuple serialization, similar to Python's TupleSerialisedSegment.
 #[derive(Debug, Clone, PartialEq)]
@@ -31,9 +32,12 @@ pub enum MetaType {
 /// Additional segment properties for Raw segments
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RawSegmentKwargs {
-    pub trim_chars: Option<Vec<String>>,
+    /// `Arc`-wrapped, like `escape_replacements` below, so PyO3 getters on the
+    /// arena-backed `RsHandle` can clone the handle under the arena lock and
+    /// build the Python tuple only after dropping the guard.
+    pub trim_chars: Option<std::sync::Arc<Vec<String>>>,
     pub quoted_value: Option<(String, String)>,
-    pub escape_replacements: Option<Vec<(String, String)>>,
+    pub escape_replacements: Option<std::sync::Arc<Vec<(String, String)>>>,
 }
 
 /// AST Node - represents parsed SQL structure
@@ -41,9 +45,9 @@ pub struct RawSegmentKwargs {
 pub enum Node {
     /// Leaf: Raw token/segment from lexer (RawSegment, KeywordSegment, etc.)
     Raw {
-        segment_class: String, // "KeywordSegment", "LiteralSegment"
-        segment_type: String,  // "keyword", "literal", "whitespace"
-        raw: String,           // Actual text
+        segment_class: Cow<'static, str>, // "KeywordSegment", "LiteralSegment"
+        segment_type: Cow<'static, str>,  // "keyword", "literal", "whitespace"
+        raw: String,                      // Actual text
         pos_marker: Option<PositionMarker>,
         instance_types: Vec<String>, // ["keyword"], ["numeric_literal", "literal"]
         /// Full class type hierarchy (mirrors Python's ``class_types`` property).
@@ -56,8 +60,8 @@ pub enum Node {
 
     /// Container: Parsed segment with children (BaseSegment subclasses)
     Segment {
-        segment_class: String,        // "SelectStatementSegment"
-        segment_type: Option<String>, // "select_statement"
+        segment_class: Cow<'static, str>,        // "SelectStatementSegment"
+        segment_type: Option<Cow<'static, str>>, // "select_statement"
         pos_marker: Option<PositionMarker>,
         /// Python parity: mirrors ``BaseSegment._class_types`` (static, computed
         /// from the class inheritance chain).  Populated from codegen aux_data
@@ -95,13 +99,15 @@ impl Node {
     /// class_types`` are available, call ``new_raw_with_class_types``
     /// instead.
     pub fn new_raw(
-        segment_class: String,
-        segment_type: String,
+        segment_class: impl Into<Cow<'static, str>>,
+        segment_type: impl Into<Cow<'static, str>>,
         raw: String,
         pos_marker: Option<PositionMarker>,
         instance_types: Vec<String>,
         segment_kwargs: RawSegmentKwargs,
     ) -> Self {
+        let segment_class = segment_class.into();
+        let segment_type = segment_type.into();
         let class_types = Self::build_class_types(&segment_type, &instance_types, &[]);
         Node::Raw {
             segment_class,
@@ -120,14 +126,16 @@ impl Node {
     /// ``class_types`` is computed as
     /// ``instance_types ∪ {segment_type} ∪ raw_class_class_types``.
     pub fn new_raw_with_class_types(
-        segment_class: String,
-        segment_type: String,
+        segment_class: impl Into<Cow<'static, str>>,
+        segment_type: impl Into<Cow<'static, str>>,
         raw: String,
         pos_marker: Option<PositionMarker>,
         instance_types: Vec<String>,
         raw_class_class_types: &[String],
         segment_kwargs: RawSegmentKwargs,
     ) -> Self {
+        let segment_class = segment_class.into();
+        let segment_type = segment_type.into();
         let class_types =
             Self::build_class_types(&segment_type, &instance_types, raw_class_class_types);
         Node::Raw {
@@ -207,13 +215,13 @@ impl Node {
 
                 // Filter in code_only mode (except comments which stay)
                 if code_only && !is_code {
-                    return NodeTupleValue::Tuple(segment_type.clone(), vec![]);
+                    return NodeTupleValue::Tuple(segment_type.to_string(), vec![]);
                 }
 
                 if show_raw {
-                    NodeTupleValue::Raw(segment_type.clone(), raw.clone())
+                    NodeTupleValue::Raw(segment_type.to_string(), raw.clone())
                 } else {
-                    NodeTupleValue::Tuple(segment_type.clone(), vec![])
+                    NodeTupleValue::Tuple(segment_type.to_string(), vec![])
                 }
             }
             Node::Meta { meta_type, .. } => {
@@ -395,7 +403,7 @@ impl Node {
                     )
                 });
                 let non_code_by_type = segment_type.contains("comment")
-                    || matches!(segment_type.as_str(), "whitespace" | "newline");
+                    || matches!(segment_type.as_ref(), "whitespace" | "newline");
                 // Also check class_types for "comment" — this covers non-standard
                 // comment types like obevo_annotation, prompt_command, notebook_start
                 // whose segment_type doesn't literally contain "comment" but whose
@@ -432,8 +440,10 @@ impl Node {
     /// Get the type of this node based on its variant
     pub fn get_type(&self) -> String {
         match self {
-            Node::Raw { segment_type, .. } => segment_type.clone(),
-            Node::Segment { segment_type, .. } => segment_type.clone().unwrap_or_default(),
+            Node::Raw { segment_type, .. } => segment_type.to_string(),
+            Node::Segment { segment_type, .. } => {
+                segment_type.as_deref().unwrap_or_default().to_string()
+            }
             Node::Meta { meta_type, .. } => match meta_type {
                 MetaType::Indent { .. } => "indent".to_string(),
                 MetaType::Dedent { .. } => "dedent".to_string(),
@@ -537,8 +547,8 @@ mod tests {
     #[test]
     fn test_segment_node_as_record_empty() {
         let node = Node::Segment {
-            segment_class: "StatementSegment".to_string(),
-            segment_type: Some("statement".to_string()),
+            segment_class: "StatementSegment".into(),
+            segment_type: Some("statement".into()),
             pos_marker: None,
             class_types: vec![],
             children: vec![],
@@ -555,8 +565,8 @@ mod tests {
     #[test]
     fn test_segment_node_as_record_merge() {
         let node = Node::Segment {
-            segment_class: "StatementSegment".to_string(),
-            segment_type: Some("statement".to_string()),
+            segment_class: "StatementSegment".into(),
+            segment_type: Some("statement".into()),
             pos_marker: None,
             class_types: vec![],
             children: vec![
@@ -709,8 +719,8 @@ mod tests {
             RawSegmentKwargs::default(),
         );
         let node = Node::Segment {
-            segment_class: "StatementSegment".to_string(),
-            segment_type: Some("statement".to_string()),
+            segment_class: "StatementSegment".into(),
+            segment_type: Some("statement".into()),
             pos_marker: None,
             class_types: vec![],
             children: vec![child1, child2],

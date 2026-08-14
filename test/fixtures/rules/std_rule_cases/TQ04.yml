@@ -1,0 +1,81 @@
+# TQ04 tests for opt-in ANSI-style aliasing in T-SQL SELECT clauses.
+rule: TQ04
+
+test_pass_default_disabled:
+  pass_str: |
+    SELECT
+        help3 = 'hello',
+        help4 = CASE WHEN help = 'apple' THEN 'hello' END
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_prefer_as_alias:
+  fail_str: |
+    SELECT
+        help3 = 'hello',
+        help4 = CASE WHEN help = 'apple' THEN 'hello' END
+  fix_str: |
+    SELECT
+        'hello' AS help3,
+        CASE WHEN help = 'apple' THEN 'hello' END AS help4
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.prefer_as_alias:
+        force_enable: true
+
+test_fail_prefer_as_alias_no_spaces:
+  fail_str: |
+    SELECT alias1=col1
+  fix_str: |
+    SELECT col1 AS alias1
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.prefer_as_alias:
+        force_enable: true
+
+test_fail_prefer_as_alias_with_comment:
+  fail_str: |
+    SELECT a = /* keep me */ 1
+  fix_str: |
+    SELECT /* keep me */ 1 AS a
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.prefer_as_alias:
+        force_enable: true
+
+test_pass_select_variable_assignment:
+  pass_str: |
+    SELECT @help3 = 'hello'
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.prefer_as_alias:
+        force_enable: true
+
+test_pass_implicit_alias_without_equals:
+  pass_str: |
+    SELECT 1 x
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.prefer_as_alias:
+        force_enable: true
+
+test_pass_force_enable_non_tsql_dialect:
+  pass_str: |
+    SELECT 1 x
+  configs:
+    core:
+      dialect: ansi
+    rules:
+      tsql.prefer_as_alias:
+        force_enable: true

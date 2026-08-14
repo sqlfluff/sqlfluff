@@ -143,16 +143,41 @@ class Rule_ST02(BaseRule):
     @staticmethod
     def _column_only_fix_list(
         context: RuleContext,
-        column_reference_segment: BaseSegment,
+        replacement_segment: BaseSegment,
     ) -> list[LintFix]:
-        """Generate list of fixes to reduce CASE statement to a single column."""
+        """Generate fixes to reduce CASE to the complete matched expression."""
         fixes = [
             LintFix.replace(
                 context.segment,
-                [column_reference_segment],
+                [replacement_segment],
             )
         ]
         return fixes
+
+    @staticmethod
+    def _segment_identity(segment: BaseSegment) -> tuple[object, ...]:
+        """Build a dialect-aware identity while preserving segment boundaries."""
+        if segment.segments:
+            return (
+                segment.get_type(),
+                tuple(
+                    Rule_ST02._segment_identity(child)
+                    for child in segment.segments
+                    if not child.is_whitespace and not child.is_meta
+                ),
+            )
+        return segment.get_type(), segment.raw_normalized()
+
+    @staticmethod
+    def _expression_identity(
+        expression: BaseSegment,
+    ) -> tuple[tuple[object, ...], ...]:
+        """Build identity for an expression's non-whitespace top-level segments."""
+        return tuple(
+            Rule_ST02._segment_identity(segment)
+            for segment in expression.segments
+            if not segment.is_whitespace and not segment.is_meta
+        )
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary CASE statement."""
@@ -227,25 +252,61 @@ class Rule_ST02(BaseRule):
                     .children(sp.is_type("column_reference"))
                     .get()
                 )
-                array_accessor_segment = (
-                    Segments(condition_expression)
-                    .children(sp.is_type("array_accessor"))
-                    .get()
-                )
-
                 # Return None if none found (this condition does not apply to functions)
                 if not column_reference_segment:
                     return None
 
-                if array_accessor_segment:
-                    column_reference_segment_raw_upper = (
-                        column_reference_segment.raw_upper
-                        + array_accessor_segment.raw_upper
-                    )
+                is_segment_index = next(
+                    index
+                    for index, segment in enumerate(condition_expression.segments)
+                    if segment.raw_upper == "IS"
+                )
+                condition_operand_segments = tuple(
+                    segment
+                    for segment in condition_expression.segments[:is_segment_index]
+                    if not segment.is_whitespace and not segment.is_meta
+                )
+                if not condition_operand_segments or any(
+                    not segment.is_type("column_reference", "array_accessor")
+                    for segment in condition_operand_segments
+                ):
+                    return None
+
+                comparison_segments = tuple(
+                    segment
+                    for segment in condition_expression.segments[is_segment_index + 1 :]
+                    if not segment.is_whitespace and not segment.is_meta
+                )
+                if (
+                    len(comparison_segments) == 1
+                    and comparison_segments[0].raw_upper == "NULL"
+                ):
+                    is_not_prefix = False
+                elif (
+                    len(comparison_segments) == 2
+                    and comparison_segments[0].raw_upper == "NOT"
+                    and comparison_segments[1].raw_upper == "NULL"
+                ):
+                    is_not_prefix = True
                 else:
-                    column_reference_segment_raw_upper = (
-                        column_reference_segment.raw_upper
+                    return None
+
+                if any(
+                    child.is_code
+                    and (
+                        child.is_type("parameter")
+                        or not child.is_type("array_accessor", "symbol", "literal")
                     )
+                    for segment in condition_operand_segments
+                    if segment.is_type("array_accessor")
+                    for child in segment.recursive_crawl_all()
+                ):
+                    return None
+
+                condition_operand_identity = tuple(
+                    self._segment_identity(segment)
+                    for segment in condition_operand_segments
+                )
 
                 if else_clauses:
                     else_expression = else_clauses.children(sp.is_type("expression"))[0]
@@ -253,15 +314,15 @@ class Rule_ST02(BaseRule):
                     # function.
                     if (
                         not is_not_prefix
-                        and column_reference_segment_raw_upper
-                        == else_expression.raw_upper
+                        and condition_operand_identity
+                        == self._expression_identity(else_expression)
                     ):
                         coalesce_arg_1 = else_expression
                         coalesce_arg_2 = then_expression
                     elif (
                         is_not_prefix
-                        and column_reference_segment_raw_upper
-                        == then_expression.raw_upper
+                        and condition_operand_identity
+                        == self._expression_identity(then_expression)
                     ):
                         coalesce_arg_1 = then_expression
                         coalesce_arg_2 = else_expression
@@ -275,7 +336,7 @@ class Rule_ST02(BaseRule):
                             anchor=condition_expression,
                             fixes=self._column_only_fix_list(
                                 context,
-                                column_reference_segment,
+                                coalesce_arg_1,
                             ),
                             description="Unnecessary CASE statement. "
                             f"Just use column '{column_reference_segment.raw}'.",
@@ -291,7 +352,11 @@ class Rule_ST02(BaseRule):
                         description="Unnecessary CASE statement. "
                         "Use COALESCE function instead.",
                     )
-                elif column_reference_segment.raw_upper == then_expression.raw_upper:
+                elif (
+                    is_not_prefix
+                    and condition_operand_identity
+                    == self._expression_identity(then_expression)
+                ):
                     # Can just specify the column on it's own
                     # rather than using a COALESCE function.
                     # In this case no ELSE statement is equivalent to ELSE NULL.
@@ -299,7 +364,7 @@ class Rule_ST02(BaseRule):
                         anchor=condition_expression,
                         fixes=self._column_only_fix_list(
                             context,
-                            column_reference_segment,
+                            then_expression,
                         ),
                         description="Unnecessary CASE statement. "
                         f"Just use column '{column_reference_segment.raw}'.",

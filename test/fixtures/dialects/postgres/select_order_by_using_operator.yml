@@ -1,0 +1,119 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 66ed80b038ab6cb88f387b938a63be2c96f016823d66efd1eb2e411f05b7763b
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: a
+      - keyword: USING
+      - comparison_operator:
+          raw_comparison_operator: <
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: a
+      - keyword: USING
+      - comparison_operator:
+          raw_comparison_operator: '>'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: a
+      - keyword: USING
+      - comparison_operator:
+          raw_comparison_operator: <
+      - keyword: NULLS
+      - keyword: FIRST
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - keyword: USING
+      - comparison_operator:
+          raw_comparison_operator: '>'
+      - keyword: NULLS
+      - keyword: LAST
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: a
+      - keyword: USING
+      - qualified_operator:
+          keyword: OPERATOR
+          bracketed:
+            start_bracket: (
+            naked_identifier: pg_catalog
+            dot: .
+            operator: <
+            end_bracket: )
+- statement_terminator: ;

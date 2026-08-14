@@ -344,13 +344,24 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
 
 class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
-    """Prefix for array literals specifying the type."""
+    """Data type segment of the array.
+
+    Athena supports ARRAY<DATA_TYPE> in DDL and ARRAY(DATA_TYPE) in queries.
+    https://docs.aws.amazon.com/athena/latest/ug/data-types.html
+    """
 
     type = "array_type_schema"
-    match_grammar = Bracketed(
-        Ref("DatatypeSegment"),
-        bracket_pairs_set="angle_bracket_pairs",
-        bracket_type="angle",
+    match_grammar = OneOf(
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_pairs_set="angle_bracket_pairs",
+            bracket_type="angle",
+        ),
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_pairs_set="bracket_pairs",
+            bracket_type="round",
+        ),
     )
 
 
@@ -365,17 +376,33 @@ class MapTypeSegment(BaseSegment):
 
 
 class MapTypeSchemaSegment(BaseSegment):
-    """Expression to construct the schema of a MAP datatype."""
+    """Expression to construct the schema of a MAP datatype.
+
+    Athena supports MAP<KEY_TYPE, VALUE_TYPE> in DDL and
+    MAP(KEY_TYPE, VALUE_TYPE) in queries.
+    https://docs.aws.amazon.com/athena/latest/ug/data-types.html
+    """
 
     type = "map_type_schema"
-    match_grammar = Bracketed(
-        Sequence(
-            Ref("PrimitiveTypeSegment"),
-            Ref("CommaSegment"),
-            Ref("DatatypeSegment"),
+    match_grammar = OneOf(
+        Bracketed(
+            Sequence(
+                Ref("PrimitiveTypeSegment"),
+                Ref("CommaSegment"),
+                Ref("DatatypeSegment"),
+            ),
+            bracket_pairs_set="angle_bracket_pairs",
+            bracket_type="angle",
         ),
-        bracket_pairs_set="angle_bracket_pairs",
-        bracket_type="angle",
+        Bracketed(
+            Sequence(
+                Ref("PrimitiveTypeSegment"),
+                Ref("CommaSegment"),
+                Ref("DatatypeSegment"),
+            ),
+            bracket_pairs_set="bracket_pairs",
+            bracket_type="round",
+        ),
     )
 
 
@@ -484,6 +511,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("PrepareStatementSegment"),
             Ref("ExecuteStatementSegment"),
             Ref("ShowStatementSegment"),
+            Ref("UsingExternalFunctionSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -951,4 +979,29 @@ class ShowStatementSegment(BaseSegment):
                 Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
             ),
         ),
+    )
+
+
+class UsingExternalFunctionSegment(BaseSegment):
+    """A query that declares one or more Athena UDFs before a query.
+
+    https://docs.aws.amazon.com/athena/latest/ug/querying-udf.html
+    """
+
+    type = "using_external_function_statement"
+    match_grammar = Sequence(
+        "USING",
+        Delimited(
+            Sequence(
+                "EXTERNAL",
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar"),
+                "RETURNS",
+                Ref("DatatypeSegment"),
+                "LAMBDA",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        Ref("SelectableGrammar"),
     )

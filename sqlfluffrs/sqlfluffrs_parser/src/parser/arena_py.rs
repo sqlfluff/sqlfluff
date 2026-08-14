@@ -17,8 +17,12 @@
 use std::sync::{Arc, Mutex};
 
 use pyo3::prelude::*;
+use pyo3::types::{PyList, PyTuple};
 
 use sqlfluffrs_python::marker::PyPositionMarker;
+use sqlfluffrs_python::pyo3_helpers::{
+    pylist_of_str_pairs, pylist_of_strs, pylist_of_strs_iter, pytuple_of_strs,
+};
 
 use super::arena::{Arena, NodeId};
 
@@ -48,6 +52,16 @@ impl PyTree {
             inner: self.inner.clone(),
             node,
         }
+    }
+
+    /// Run a closure with read access to the underlying arena.
+    ///
+    /// This is the bridge for out-of-crate consumers (e.g. the rules crate's
+    /// PyO3 bindings): it locks the arena once and hands a `&Arena` to `f`,
+    /// keeping the `Arc<Mutex<…>>` encapsulated here.
+    pub fn with_arena<R>(&self, f: impl FnOnce(&Arena) -> R) -> R {
+        let guard = self.inner.lock().unwrap();
+        f(&guard)
     }
 }
 
@@ -147,12 +161,19 @@ impl PyHandle {
         seg_type.iter().any(|t| a.is_type(self.node, t))
     }
 
-    fn class_types(&self) -> Vec<String> {
-        self.inner.lock().unwrap().class_types(self.node)
+    fn class_types<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
+        // Clone the cached `Arc` under the lock, then drop the guard before
+        // building the Python list.
+        let arc = self.inner.lock().unwrap().class_types(self.node);
+        pylist_of_strs(py, &arc)
     }
 
-    fn instance_types(&self) -> Vec<String> {
-        self.inner.lock().unwrap().instance_types(self.node)
+    fn instance_types<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
+        // Clone the `Arc` under the lock (a refcount bump), then drop the
+        // guard before building the Python list — the arena lock is never
+        // held across a Python allocation.
+        let arc = self.inner.lock().unwrap().instance_types_arc(self.node);
+        pylist_of_strs(py, &arc)
     }
 
     /// `is_implicit` flag for Indent/Dedent metas (`None` for non-metas).
@@ -160,16 +181,26 @@ impl PyHandle {
         self.inner.lock().unwrap().is_implicit(self.node)
     }
 
-    fn trim_chars(&self) -> Option<Vec<String>> {
-        self.inner.lock().unwrap().trim_chars(self.node)
+    fn trim_chars<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyTuple>>> {
+        // Clone the `Arc` under the lock, then drop the guard before
+        // building the Python tuple.
+        let arc = self.inner.lock().unwrap().trim_chars_arc(self.node);
+        arc.map(|v| pytuple_of_strs(py, &v)).transpose()
     }
 
     fn quoted_value(&self) -> Option<(String, String)> {
         self.inner.lock().unwrap().quoted_value(self.node)
     }
 
-    fn escape_replacements(&self) -> Option<Vec<(String, String)>> {
-        self.inner.lock().unwrap().escape_replacements(self.node)
+    fn escape_replacements<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
+        // Clone the `Arc` under the lock, then drop the guard before
+        // building the Python list.
+        let arc = self
+            .inner
+            .lock()
+            .unwrap()
+            .escape_replacements_arc(self.node);
+        arc.map(|pairs| pylist_of_str_pairs(py, &pairs)).transpose()
     }
 
     #[getter]
@@ -177,14 +208,9 @@ impl PyHandle {
         self.inner.lock().unwrap().segment_class(self.node)
     }
 
-    fn descendant_type_set(&self) -> Vec<String> {
-        self.inner
-            .lock()
-            .unwrap()
-            .descendant_type_set(self.node)
-            .iter()
-            .cloned()
-            .collect()
+    fn descendant_type_set<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
+        let set = self.inner.lock().unwrap().descendant_type_set(self.node);
+        pylist_of_strs_iter(py, set.iter().map(String::as_str))
     }
 
     #[getter]

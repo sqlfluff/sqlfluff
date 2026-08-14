@@ -1,0 +1,4 @@
+WITH cte AS NOT MATERIALIZED (
+    SELECT col FROM t
+)
+SELECT col FROM cte

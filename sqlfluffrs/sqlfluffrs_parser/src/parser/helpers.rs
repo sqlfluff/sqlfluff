@@ -139,7 +139,9 @@ impl<'a> Parser<'a> {
     /// Move an index backward through tokens until tokens[index - 1] is code or comment.
     /// Returns the index after the last code/comment token, or min_idx if none found.
     /// IMPORTANT: Comments are NOT skipped - they should be collected like code tokens!
-    pub(crate) fn skip_stop_index_backward_to_code(
+    /// Note: this keeps comments, unlike Python's `skip_stop_index_backward_to_code`,
+    /// so the name spells out what it actually keeps.
+    pub(crate) fn skip_stop_index_backward_to_code_or_comment(
         &self,
         stop_idx: usize,
         min_idx: usize,
@@ -147,6 +149,30 @@ impl<'a> Parser<'a> {
         for _idx in (min_idx..stop_idx).rev() {
             let tok = &self.tokens[_idx];
             if tok.is_code() || tok.is_comment() {
+                return _idx + 1;
+            }
+        }
+        min_idx
+    }
+
+    /// Move an index backward through tokens until tokens[index - 1] is code,
+    /// trimming trailing comments too. Matches Python's canonical
+    /// `skip_stop_index_backward_to_code` (src/sqlfluff/core/parser/
+    /// match_algorithms.py), which checks only `segments[_idx - 1].is_code`.
+    /// Use this (rather than `skip_stop_index_backward_to_code_or_comment` above,
+    /// which keeps comments for `calculate_max_idx`) when trimming a GREEDY-mode
+    /// "leftover content" span before wrapping it as UnparsableSegment (e.g.
+    /// Bracketed.match's gap/leftover handling): a trailing comment there
+    /// should stay outside the unparsable span as its own sibling, the same
+    /// as trailing whitespace.
+    /// Returns the index after the last code token, or `min_idx` if none found.
+    pub(crate) fn skip_stop_index_backward_to_code(
+        &self,
+        stop_idx: usize,
+        min_idx: usize,
+    ) -> usize {
+        for _idx in (min_idx..stop_idx).rev() {
+            if self.tokens[_idx].is_code() {
                 return _idx + 1;
             }
         }
@@ -175,15 +201,14 @@ impl<'a> Parser<'a> {
             return None;
         }
 
-        // Validate the token at matching_idx is actually the expected closing bracket
+        // Validate the token at matching_idx is actually the expected closing bracket.
         let close_tok = self.tokens.get(matching_idx)?;
         let open_raw = open_tok.raw();
-        let expected_close = match open_raw.as_str() {
-            "(" => ")",
-            "[" => "]",
-            "{" => "}",
-            _ => return None, // Not an opening bracket
-        };
+        let expected_close = self
+            .dialect
+            .get_bracket_pairs()
+            .find_by_open(open_raw)
+            .map(|p| p.close)?;
 
         if close_tok.raw() == expected_close {
             Some(matching_idx)
@@ -249,7 +274,7 @@ impl<'a> Parser<'a> {
 
         // Trim backward to last code token
         if max_idx > 0 {
-            max_idx = self.skip_stop_index_backward_to_code(max_idx, start_idx);
+            max_idx = self.skip_stop_index_backward_to_code_or_comment(max_idx, start_idx);
         }
 
         // Apply parent's constraint
@@ -304,6 +329,11 @@ impl<'a> Parser<'a> {
         let tables = Some(self.grammar_ctx.tables());
 
         for &opt_id in options {
+            // Skip the NONCODE sentinel (not a real grammar id; handled by
+            // `is_terminated`). Indexing the grammar tables with it would panic.
+            if opt_id == GrammarId::NONCODE {
+                continue;
+            }
             // Try to get simple hint for this grammar from tables
             if let Some(tables) = tables {
                 if let Some(hint) = tables.get_simple_hint_for_grammar(opt_id) {
@@ -542,29 +572,16 @@ impl<'a> Parser<'a> {
                 continue;
             }
 
-            // Cache miss - do full parse
-            let check_pos = self.pos;
-            self.pos = saved_pos;
-
-            if let Ok(mr) = self.parse_table_iterative_match_result(*term_id, &[]) {
-                let is_empty = mr.is_empty();
-                self.pos = check_pos;
-
-                // Cache the result
-                self.terminator_match_cache.insert(cache_key, !is_empty);
-
-                if !is_empty {
-                    vdebug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
-                    self.pos = init_pos;
-                    self.metrics
-                        .terminator_hits
-                        .set(self.metrics.terminator_hits.get() + 1);
-                    return true;
-                }
-            } else {
-                self.pos = check_pos;
-                // Cache the failure
-                self.terminator_match_cache.insert(cache_key, false);
+            // Cache miss - probe the terminator (frame-free for terminals).
+            let matched = self.terminator_matches_at(*term_id, saved_pos, &[]);
+            self.terminator_match_cache.insert(cache_key, matched);
+            if matched {
+                vdebug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
+                self.pos = init_pos;
+                self.metrics
+                    .terminator_hits
+                    .set(self.metrics.terminator_hits.get() + 1);
+                return true;
             }
             vdebug!("  Terminator did not match (table-driven): {:?}", term_id);
         }
@@ -572,6 +589,35 @@ impl<'a> Parser<'a> {
         vdebug!("  NOTERM No terminators matched");
         self.pos = init_pos;
         false
+    }
+
+    /// Check whether a single terminator grammar matches at `pos`.
+    ///
+    /// Terminal terminators (keywords, symbols, typed/token matchers - the
+    /// overwhelming majority) are evaluated frame-free via
+    /// `try_terminal_inline`; compound terminators fall back to a full
+    /// sub-parse through `try_match_grammar`. The parser position is
+    /// restored afterwards. A probe that errors counts as "no match",
+    /// matching the previous call sites' behaviour.
+    #[inline]
+    pub(crate) fn terminator_matches_at(
+        &mut self,
+        term_id: GrammarId,
+        pos: usize,
+        sub_terminators: &[GrammarId],
+    ) -> bool {
+        let saved = self.pos;
+        self.pos = pos;
+        let matched = match self.try_terminal_inline(term_id, None) {
+            Ok(Some(mr)) => !mr.is_empty(),
+            Ok(None) => self
+                .try_match_grammar(term_id, pos, sub_terminators)
+                .map(|end_pos| end_pos > pos)
+                .unwrap_or(false),
+            Err(_) => false,
+        };
+        self.pos = saved;
+        matched
     }
 
     /// Prune terminators for table-driven parsing based on simple matchers.
@@ -614,7 +660,7 @@ impl<'a> Parser<'a> {
                 grammar_name,
                 start_idx
             );
-            if let Ok(_m) = self.try_match_grammar(*term, start_idx, &[]) {
+            if self.terminator_matches_at(*term, start_idx, &[]) {
                 vdebug!(
                     "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) matched immediately at idx={}, returning start_idx={}",
                     term,

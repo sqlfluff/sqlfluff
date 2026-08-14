@@ -1,0 +1,116 @@
+name: AgentScan
+
+# pull_request_target runs the workflow definition from the base branch with a
+# write-capable token, and is never held for first-time-contributor approval —
+# which is what lets the scan run before a maintainer has looked at the PR.
+# That is only safe because this workflow never checks out or executes code
+# from the PR. Do NOT add actions/checkout of the PR head (or any step that
+# runs PR-controlled code) to this file.
+on:
+  pull_request_target:
+    types:
+      - opened
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: agent-scan-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run AgentScan classification
+        id: agentscan
+        uses: MatteoGabriele/agentscan-action@c7d61446e7aece6bdd3edcee4558bbfc0392615e # v2.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          mode: "silent"
+          trusted-author-associations: "owner, member"
+
+      - name: Handle flagged PR
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          CLASSIFICATION: ${{ steps.agentscan.outputs.classification }}
+          COMMUNITY_FLAGGED: ${{ steps.agentscan.outputs.community-flagged }}
+        with:
+          script: |
+            const commentSentinel = "<!-- agentscan:possible-bot-comment:v1 -->";
+            const prNumber = context.payload.pull_request.number;
+            const allowedClassifications = ["organic", "mixed", "automation"];
+            const classification = allowedClassifications.includes(process.env.CLASSIFICATION)
+              ? process.env.CLASSIFICATION
+              : "organic";
+            const communityFlagged = process.env.COMMUNITY_FLAGGED === "true";
+            const shouldAct = ["automation", "mixed"].includes(classification) || communityFlagged;
+            const shouldClose = classification === "automation" || communityFlagged;
+
+            if (!shouldAct) {
+              core.info("PR not flagged. Nothing to do.");
+              return;
+            }
+
+            const { data: issue } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+
+            const labels = issue.labels?.map(label => label.name) || [];
+            if (!labels.includes("possible bot")) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ["possible bot"],
+              });
+            }
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              per_page: 100,
+            });
+
+            const alreadyCommented = comments.some(
+              comment =>
+                comment.user.login === "github-actions[bot]" &&
+                comment.body.includes(commentSentinel)
+            );
+
+            if (!alreadyCommented) {
+              const closingNote = shouldClose
+                ? "We're closing this for now as the account looks automated. If we got that wrong, please just reopen the PR and we'll take another look."
+                : "If this was flagged in error, we apologise! Just let us know.";
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: [
+                  commentSentinel,
+                  "We've flagged this as a potential contribution without a human behind it. We welcome the thoughtful use of AI tools when contributing to SQLFluff, but ask all contributors to follow two core principles:",
+                  "",
+                  "1. The contributor remains responsible for the final pull request.",
+                  "2. If AI tools were used in a material way, disclose this in the pull request.",
+                  "",
+                  "Please review our [AI-assisted contribution guidelines](https://github.com/sqlfluff/sqlfluff/blob/main/CONTRIBUTING.md#ai-assisted-contributions) and update this contribution if needed.",
+                  "",
+                  closingNote,
+                ].join("\n"),
+              });
+            }
+
+            if (shouldClose && issue.state === "open") {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                state: "closed",
+              });
+            }

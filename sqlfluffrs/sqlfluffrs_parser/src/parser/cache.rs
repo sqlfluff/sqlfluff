@@ -45,10 +45,10 @@ use crate::vdebug;
 /// - grammar_id: The GrammarId being matched (simple u32)
 /// - max_idx: Maximum index to parse up to (encodes terminator effects)
 ///
-/// PYTHON PARITY: Python's cache key is (raw, loc, type, max_idx).
-/// Terminators are NOT in the cache key! Instead, terminators affect max_idx
-/// calculation via trim_to_terminator(), so their effect is already captured.
-/// This dramatically improves cache hit rates.
+/// PYTHON PARITY: key is (pos, grammar_id, max_idx); terminators are not in the
+/// key (their effect rides in via max_idx). GREEDY-family frames, which trim on
+/// *inherited* terminators internally, are simply not cached (see
+/// `frame_cache_key`), so the key is always sufficient.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TableCacheKey {
     pub pos: usize,
@@ -58,10 +58,6 @@ pub struct TableCacheKey {
 
 impl TableCacheKey {
     /// Create a new cache key.
-    ///
-    /// PYTHON PARITY: terminators and terminator_hash_cache parameters are now
-    /// ignored - we only use (pos, grammar_id, max_idx) just like Python uses
-    /// (raw, loc, type, max_idx). The max_idx already encodes terminator effects.
     pub fn new(pos: usize, grammar_id: GrammarId, max_idx: usize) -> Self {
         TableCacheKey {
             pos,
@@ -90,6 +86,16 @@ impl TableParseCache {
     pub fn new() -> Self {
         TableParseCache {
             cache: HashMap::new(),
+            hits: 0,
+            misses: 0,
+        }
+    }
+
+    /// Pre-size the cache. The frame cache grows to several times the token
+    /// count during a parse; reserving up front avoids repeated rehashing.
+    pub fn with_capacity(cap: usize) -> Self {
+        TableParseCache {
+            cache: HashMap::with_capacity(cap),
             hits: 0,
             misses: 0,
         }
@@ -145,18 +151,8 @@ impl TableParseCache {
         (self.hits, self.misses, self.hit_rate())
     }
 
-    pub fn clear(&mut self) {
-        self.cache.clear();
-        self.hits = 0;
-        self.misses = 0;
-    }
-
     pub fn len(&self) -> usize {
         self.cache.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.cache.is_empty()
     }
 
     /// Iterate over cache entries (for analysis/debugging)

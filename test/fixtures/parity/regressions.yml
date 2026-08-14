@@ -1,0 +1,243 @@
+# Parity test cases - data for test/core/parser/parity/cases_test.py.
+# See test/fixtures/parity/README.md for the schema and strictness contract.
+
+anything_dialect_exclude_bracket:
+  sql: CREATE TABLE t (c VARCHAR({- 1 -}) AS y)
+  dialect: snowflake
+  expect: tree
+  pins: Dialect-specific bracket (snowflake's exclude bracket '{-'/'-}')
+    reached via the Anything-grammar bracket path (core.rs
+    match_bracket_recursively) - was a leaf typing and nested-node wrapping
+    gap, fixed alongside the dialect bracket-pairs work; see
+    anything_dialect_exclude_bracket_unclosed for the crossed/unclosed
+    variant of the same path.
+anything_dialect_exclude_bracket_unclosed:
+  sql: CREATE TABLE t (c NUMBER({- x) AS y)
+  dialect: snowflake
+  expect: error
+  pins: Crossed/unclosed variant of anything_dialect_exclude_bracket - Rust
+    now raises like Python does, fixed alongside the crossed-bracket
+    detection work. Unlike anything_crossed_ascii_bracket_raises, this is
+    scoped to snowflake's dialect-specific '{-'/'-}' exclude bracket, not a
+    universal ASCII closer.
+anything_crossed_ascii_bracket_raises:
+  sql: CREATE TABLE t (col VARCHAR(x ( y ] z )))
+  expect: error
+  pins: "ASCII-bracket variant of the crossed-bracket detection gap fixed alongside
+    materialize_curly_cross_silent_recovery - core.rs's match_bracket_recursively
+    now raises on any wrong-type ASCII closing bracket crossed inside an Anything()
+    region, matching Python's resolve_bracket SQLParseError (\"Found unexpected end
+    bracket!, was expecting <StringParser: ')'>, but got <StringParser: ']'>\")."
+bracketed_required_content_fails_at_close_bracket:
+  sql: select CAST(5);
+  dialect: tsql
+  expect: tree
+  pins: A STRICT Bracketed must fail (return empty) when a required content
+    element fails *after earlier content already matched* - a genuine partial
+    match - even when that failure lands exactly on the closing bracket, rather
+    than matching the close bracket over the partial content. CastFunctionContents
+    is Bracketed(Expression, "AS", Datatype); on CAST(5) Expression matches '5',
+    the required "AS" fails at ')', and Rust used to fabricate a function node
+    with just the expression where Python rejects the CAST and falls back to a
+    column_reference with the rest unparsable. The fix is gated on content having
+    actually matched (last_matched_end > content_start) so a required element
+    failing with nothing consumed - a valid empty bracket `()`, e.g. a tsql table
+    hint bracket on empty parens - is left untouched.
+bracketed_optional_content_failure_nothing_here:
+  sql: SELECT SUM(a) OVER (1 2 3) FROM t
+  expect: tree
+  pins: Bracketed content-failure message must match Python's Sequence.match -
+    a failed *optional* content element yields "Nothing here.", not the specific
+    "<elem> to start sequence/after X" message reserved for required failures.
+ansi_grant_all_masking_policies:
+  sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
+  expect: error
+  xfail:
+    python_vs_rust: "Ansi grammar references the POLICIES keyword without registering it - Python's Ref raises RuntimeError the moment the branch is attempted, while Rust resolves the missing name to Empty and silently fails the branch."
+  pins: ansi grammar references the POLICIES keyword without registering it.
+ansi_grant_future_masking_policies:
+  sql: GRANT SELECT ON FUTURE MASKING POLICIES IN SCHEMA s TO r
+  expect: error
+  xfail:
+    python_vs_rust: 'FUTURE variant of the same POLICIES keyword gap.'
+  pins: FUTURE variant of the POLICIES keyword gap.
+ansi_grant_all_file_formats:
+  sql: GRANT SELECT ON ALL FILE FORMATS IN SCHEMA s TO r
+  expect: error
+  xfail:
+    python_vs_rust: 'Ansi grammar references the FORMATS keyword without registering it, the same dangling-ref class as the POLICIES gap.'
+  pins: ansi grammar references the FORMATS keyword without registering it.
+mysql_exchange_partition_table_reference:
+  sql: ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2 WITH VALIDATION
+  dialect: mysql
+  expect: error
+  xfail:
+    python_vs_rust: "Mysql EXCHANGE PARTITION grammar has Ref('TableReference') - a typo for TableReferenceSegment."
+  pins: mysql EXCHANGE PARTITION dangling-ref typo (TableReference vs TableReferenceSegment).
+postgres_alter_foreign_table_column_keyword:
+  sql: ALTER FOREIGN TABLE ft ALTER COLUMN c OPTIONS (ADD opt 'v')
+  dialect: postgres
+  expect: error
+  xfail:
+    python_vs_rust: 'Postgres ALTER FOREIGN TABLE ... ALTER COLUMN grammar has a dangling keyword reference.'
+  pins: "postgres ALTER FOREIGN TABLE has Ref('COLUMN') - a segment ref where the
+    COLUMN keyword was intended."
+parser_created_segments_drop_token_trim_chars:
+  sql: SET @errmsg = 'x';
+  dialect: mysql
+  expect: quoted_kwargs
+  pins: Parser-created segments inherit only quoted_value/escape_replacements/casefold from
+    the lexed token - NOT trim_chars - matching RawSegment.from_result_segments; Rust forwards
+    the token's trim_chars ('@',).
+partial_match_failure_keeps_children:
+  sql: SELECT CASE
+  pins: GREEDY_ONCE_STARTED Sequence failing partway must keep the already-matched children
+    typed (the SELECT keyword), wrapping only the unmatched tail as unparsable - the Rust
+    side used to drop accumulated child_matches/insert_segments in its error MatchResult,
+    crashing rule ST05 (#8116).
+stray_closing_bracket_dialect_bracket_set:
+  sql: SELECT 1 -} FROM t
+  dialect: snowflake
+  expect: tree
+  pins: 'Rust''s bracket-matching (the lexer''s matching_bracket_idx pre-computation
+    in sqlfluffrs_lexer and sqlfluffrs_parser/python.rs, plus greedy_match''s
+    stray-closing-bracket abort in match_algorithms.rs) only recognised the
+    universal round/square/curly brackets by hardcoded ASCII text, so it missed
+    dialect-specific entries in a dialect''s bracket_pairs set - here snowflake''s
+    MATCH_RECOGNIZE exclude bracket ''{-''/''-}'' - and kept scanning past the stray
+    ''-}'' instead of aborting the terminator search there like Python''s
+    next_ex_bracket_match/resolve_bracket do. Fixed by generating each dialect''s
+    full bracket_pairs set (Dialect::get_bracket_pairs, from utils/build_lexers.py)
+    and threading it through both the lexer''s bracket pre-computation and
+    greedy_match''s bracket checks, instead of a hardcoded three-pair list.'
+int_typed_indentation_config:
+  sql: SELECT a FROM t JOIN u USING (a)
+  configs:
+    indentation.indented_joins: 1
+  expect: tree
+  xfail:
+    python_vs_rust: With indentation.indented_joins set to the int 1 rather than the bool
+      True, Rust adds an extra indent/dedent pair around join_clause that Python's tree does
+      not produce.
+  pins: Int-typed vs bool indentation.indented_joins config value diverges.
+found_token_class_name:
+  sql: SELECT ] FROM t
+  dialect: flink
+  pins: Rust's code-matched tokens carried class_name RawSegment, so the "Found <...>" unparsable
+    message named the found token's class as RawSegment where Python names it CodeSegment
+    (fixed by giving Token::code_token its own CodeSegment class_name instead of reusing
+    raw_token's).
+found_token_repr_quoting:
+  sql: SELECT '
+  pins: Rust rendered a found token's raw with Rust's escape_debug quoting instead of Python's
+    repr() quote-selection rules (prefer single quotes, switch to double quotes only when
+    the content has a single quote and no double quote) - fixed by giving Token's Display
+    its own py_repr helper that follows Python's str repr() rules.
+expected_message_curtailment:
+  sql: SELECT AS x
+  dialect: databricks
+  pins: Rust rendered grammar reprs in full in "Expected:" unparsable messages, where Python's
+    BaseGrammar.__repr__ curtails each element to 40 characters and the joined list to 100
+    (helpers/string.py curtail_string) - fixed by porting the same two-level truncation into
+    GrammarContext::grammar_repr.
+sequence_found_message_no_trailing_period:
+  sql: SELECT STRUCT<a INT64(1)
+  dialect: bigquery
+  pins: Canonical case for the Found-message trailing-period gap (fixed by dropping the
+    trailing period from the Sequence "to start sequence"/"after ..." error-message formats
+    in sequence.rs).
+sqlite_nothing_here_expected_message:
+  sql: "WITH cte AS (\n t\n)\nSELECT"
+  dialect: sqlite
+  expect: tree
+  pins: Bracketed content matching (bracketed.rs) always blamed a content/closing-bracket
+    gap on the generic GREEDY-leftover fallback ('Nothing here.'), even when the gap was
+    actually caused by the sole content element (here, SelectableGrammar inside the CTE's
+    parens) failing to match at all - fixed by tracking how many child matches existed
+    before content parsing began, so a content element that never got off the ground is
+    reported with Python's specific "to start sequence"/"after X" message instead.
+materialize_curly_cross_silent_recovery:
+  sql: COPY t FROM STDIN (FORMAT {-
+  dialect: materialize
+  expect: error
+  pins: The Rust Anything() grammar (core.rs match_bracket_recursively, used for the
+    COPY ... options content) reached end-of-input inside an unresolved nested bracket
+    of a different type (materialize's COPY FORMAT '{' crossed with the outer, also
+    unclosed, '(') and silently treated wherever it stopped as the closing bracket,
+    instead of raising like Python's resolve_bracket does whenever a bracket it opened
+    is never closed - fixed by making match_bracket_recursively return an error in that
+    case instead of a fabricated match.
+tsql_cast_structure:
+  sql: select CAST(0X0 uniqueidentifier);
+  dialect: tsql
+  expect: tree
+  pins: 'CastFunctionContentsSegment requires "AS" between the expression and the
+    data_type (Bracketed(ExpressionSegment, "AS", DatatypeSegment)), and this SQL
+    omits it, so the reference (Python) correctly rejects the CAST call and falls
+    back to a bare column_reference with the rest unparsable. bracketed.rs''s content
+    loop used to march on to the next content element even after a required
+    (non-optional) one failed to match, so with "AS" missing it let DatatypeSegment
+    try - and succeed - matching "uniqueidentifier" in the position "AS" should have
+    occupied, fabricating a function call Python never accepts. Fixed by stopping the
+    content loop the moment a required element fails, exactly like Python''s
+    Sequence.match.'
+materialize_webhook_overlapping_matches:
+  sql: "(\n ) ( );\nCREATE SOURCE my_webhook_source IN CLUSTER my_cluster FROM WEBHOOK\n BODY\
+    \ FORMAT JSON\n (\n (\n my_webhook_share"
+  dialect: materialize
+  expect: error
+  pins: 'Same root cause as materialize_curly_cross_silent_recovery - core.rs''s
+    match_bracket_recursively silently fabricated a close for deeply crossed/unmatched
+    brackets instead of raising, and downstream the resulting malformed match ended up
+    with overlapping child matches, tripping the Python-side builder''s invariant check
+    (ValueError). Fixed by the same change: an unresolved bracket now raises immediately
+    instead of ever reaching the builder.'
+depth_guard_error_position:
+  sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1
+    THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE
+    WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1
+    THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN 0 END END END END
+    END END END END END END END END END END END END END END END END END END END END END END
+    END END END END END END END END END END END END END END
+  xfail:
+    python_vs_rust: Both engines raise SQLParseError 'Maximum parse depth exceeded (limit
+      600)...' for this deeply nested CASE expression, but Python attaches the real source
+      position (line 1, position 630) while Rust's exception defaults to (0, 0).
+  pins: Missing position marker on Rust's max-parse-depth exception.
+nested_case_unclosed:
+  sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1
+    THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN
+    CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE
+    WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
+    1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN 0
+  xfail:
+    python_vs_rust: For this deeply nested, unclosed CASE expression, Python parses through
+      to a complete tree, while Rust raises a PanicException (parser exceeded maximum iteration
+      limit of 3000000), hitting a different guard than the max-parse-depth guard and producing
+      an exception where Python produces none.
+  pins: Rust iteration-limit panic vs Python full parse on unclosed deep CASE nesting.
+raw_block_survives:
+  sql: '{% raw %}SELECT {{ not_a_var }}{% endraw %} FROM t'
+  templater: jinja
+  context:
+    col: a
+    table: t
+  pins: Found-segment class name inside a jinja raw block that survives templating unexpanded
+    (fixed by the same Token::code_token CodeSegment fix as found_token_class_name).
+postgres_eszett_function_name:
+  sql: SELECT straße(1)
+  dialect: postgres
+  expect: clean_tree
+  xfail:
+    python_vs_rust: Python's RegexParser matches case-insensitively against raw.upper()
+      - FULL unicode case mapping (eszett straße -> STRASSE) - while Rust's regex crate
+      only does simple case folding, under which the eszett never matches [A-Z]. The
+      word token 'straße' fails FunctionNameIdentifierSegment's template on the Rust
+      side only, so it parses as a bare column_reference there instead of a function
+      call.
+  pins: Unicode full-vs-simple case folding gap in RegexParser accept decisions.

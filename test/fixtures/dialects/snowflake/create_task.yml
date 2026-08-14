@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6ffa5a8e74bb9b7f048568b335d5f8d05e9b7ec2ae044ad88391c1c96d63f863
+_hash: c18ac771488b0e0f07705544697da2498251c1298ef601737f4cfe42f92c3359
 file:
 - statement:
     create_task_statement:
@@ -499,13 +499,17 @@ file:
     - numeric_literal: '10800000'
     - keyword: WHEN
     - snowflake_task_expression_segment:
-        system_function_name: SYSTEM$STREAM_HAS_DATA
-        bracketed:
-          start_bracket: (
-          quoted_literal: "'SCH.MY_STREAM'"
-          end_bracket: )
-        binary_operator: AND
         expression:
+        - function:
+            function_name:
+              system_function_name: SYSTEM$STREAM_HAS_DATA
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'SCH.MY_STREAM'"
+                end_bracket: )
+        - binary_operator: AND
         - numeric_literal: '1'
         - comparison_operator:
             raw_comparison_operator: '='
@@ -655,4 +659,77 @@ file:
         - table_reference:
             naked_identifier: foo
         - keyword: REFRESH
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: GLOBAL_SANDBOX
+      - dot: .
+      - naked_identifier: SHARED_PLAYGROUND
+      - dot: .
+      - naked_identifier: SELECT_ONE_TASK
+    - tag_bracketed_equals:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
+          start_bracket: (
+          tag_reference:
+          - naked_identifier: GLOBAL_SANDBOX
+          - dot: .
+          - naked_identifier: SHARED_PLAYGROUND
+          - dot: .
+          - naked_identifier: data_owner
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'data_team'"
+          end_bracket: )
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 0 0 1 1 * UTC'"
+    - keyword: AS
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask
+    - tag_bracketed_equals:
+        keyword: TAG
+        bracketed:
+        - start_bracket: (
+        - tag_reference:
+            naked_identifier: cost_center
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'finance'"
+        - comma: ','
+        - tag_reference:
+            naked_identifier: env
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'prod'"
+        - end_bracket: )
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'5 MINUTE'"
+    - keyword: AS
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
 - statement_terminator: ;

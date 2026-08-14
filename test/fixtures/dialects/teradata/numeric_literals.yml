@@ -1,0 +1,63 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b87f19964e9d15523f51c97b56a73541af9a14d587d1af693fd6793d25ed67eb
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: 1E10
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: 1.5e3
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: 1E+10
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1.5E-3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '.5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1.'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '3.14'
+- statement_terminator: ;

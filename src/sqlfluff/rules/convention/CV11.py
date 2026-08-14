@@ -10,9 +10,20 @@ from sqlfluff.core.parser import (
     WhitespaceSegment,
     WordSegment,
 )
+from sqlfluff.core.parser.segments.bracketed import BracketedSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.dialects.dialect_ansi import (
+    FunctionContentsSegment,
+    FunctionNameSegment,
+    FunctionSegment,
+)
 from sqlfluff.utils.functional import FunctionalContext, Segments, sp
+
+# MySQL spells this CONVERT(expr, type), the opposite way round from the
+# T-SQL CONVERT(type, expr) that this rule assumes. mariadb, doris and
+# starrocks all inherit the mysql dialect and so inherit the order too.
+_REVERSED_CONVERT_DIALECTS = ("mysql", "mariadb", "doris", "starrocks")
 
 
 class Rule_CV11(BaseRule):
@@ -25,6 +36,14 @@ class Rule_CV11(BaseRule):
         This rule is disabled by default for Teradata because it supports different
         type casting apart from CONVERT and ::
         e.g DATE '2007-01-01', '9999-12-31' (DATE).
+
+    .. note::
+        MySQL and the dialects that inherit it (MariaDB, Doris, StarRocks) take
+        ``CONVERT(expr, type)``, the opposite way round from the
+        ``CONVERT(type, expr)`` this rule rewrites. ``CONVERT`` is therefore left
+        alone there, and when ``preferred_type_casting_style`` is ``convert`` the
+        rule is skipped entirely on those dialects, since every rewrite it could
+        make would emit the wrong argument order.
 
     **Anti-pattern**
 
@@ -85,91 +104,123 @@ class Rule_CV11(BaseRule):
         )
 
     @staticmethod
+    def _build_function(name: str, contents: list[BaseSegment]) -> FunctionSegment:
+        """Construct a parse-shaped ``function`` segment.
+
+        The nesting (``function > function_name`` and ``function >
+        function_contents > bracketed``) must mirror how the same SQL would
+        parse. The fix loop doesn't reparse between rule passes, so a flat
+        sequence of raw tokens here would present a different shape to
+        later rules in the same pass — reflow spacing (LT01) keys "touch"
+        off the ``function_name``/``function_contents`` containers and would
+        wrongly insert a space after the function name (which the next,
+        freshly-parsed run would then remove again: a non-convergent fix).
+        """
+        start = SymbolSegment("(", type="start_bracket")
+        end = SymbolSegment(")", type="end_bracket")
+        return FunctionSegment(
+            segments=(
+                FunctionNameSegment(
+                    segments=(WordSegment(name, type="function_name_identifier"),)
+                ),
+                FunctionContentsSegment(
+                    segments=(
+                        BracketedSegment(
+                            segments=(start, *contents, end),
+                            start_bracket=(start,),
+                            end_bracket=(end,),
+                        ),
+                    )
+                ),
+            )
+        )
+
+    @classmethod
     def _cast_fix_list(
+        cls,
         context: RuleContext,
         cast_arg_1: Iterable[BaseSegment],
         cast_arg_2: BaseSegment,
         later_types: Optional[Segments] = None,
     ) -> list[LintFix]:
         """Generate list of fixes to convert CONVERT and ShorthandCast to CAST."""
-        # Add cast and opening parenthesis.
-        edits = (
-            [
-                WordSegment("cast", type="function_name_identifier"),
-                SymbolSegment("(", type="start_bracket"),
-            ]
-            + list(cast_arg_1)
+        cast_function = cls._build_function(
+            "cast",
+            list(cast_arg_1)
             + [
                 WhitespaceSegment(),
                 KeywordSegment("as"),
                 WhitespaceSegment(),
                 cast_arg_2,
-                SymbolSegment(")", type="end_bracket"),
-            ]
+            ],
         )
 
         if later_types:
-            pre_edits: list[BaseSegment] = [
-                WordSegment("cast", type="function_name_identifier"),
-                SymbolSegment("(", type="start_bracket"),
-            ]
-            in_edits: list[BaseSegment] = [
-                WhitespaceSegment(),
-                KeywordSegment("as"),
-                WhitespaceSegment(),
-            ]
-            post_edits: list[BaseSegment] = [
-                SymbolSegment(")", type="end_bracket"),
-            ]
             for _type in later_types:
-                edits = pre_edits + edits + in_edits + [_type] + post_edits
+                cast_function = cls._build_function(
+                    "cast",
+                    [
+                        cast_function,
+                        WhitespaceSegment(),
+                        KeywordSegment("as"),
+                        WhitespaceSegment(),
+                        _type,
+                    ],
+                )
 
         fixes = [
             LintFix.replace(
                 context.segment,
-                edits,
+                [cast_function],
             )
         ]
         return fixes
 
-    @staticmethod
+    @classmethod
     def _convert_fix_list(
+        cls,
         context: RuleContext,
         convert_arg_1: BaseSegment,
         convert_arg_2: BaseSegment,
         later_types=None,
     ) -> list[LintFix]:
-        """Generate list of fixes to convert CAST and ShorthandCast to CONVERT."""
-        # Add convert and opening parenthesis.
-        edits = [
-            WordSegment("convert", type="function_name_identifier"),
-            SymbolSegment("(", type="start_bracket"),
-            convert_arg_1,
-            SymbolSegment(",", type="comma"),
-            WhitespaceSegment(),
-            convert_arg_2,
-            SymbolSegment(")", type="end_bracket"),
-        ]
+        """Generate list of fixes to convert CAST and ShorthandCast to CONVERT.
 
-        if later_types:
-            pre_edits: list[BaseSegment] = [
-                WordSegment("convert", type="function_name_identifier"),
-                SymbolSegment("(", type="start_bracket"),
-            ]
-            in_edits: list[BaseSegment] = [
+        Returns no fixes on the dialects whose CONVERT takes its arguments the
+        other way round. The rewrite below emits the T-SQL order, so applying it
+        there would turn CAST(b AS SIGNED) into convert(SIGNED, b): valid SQL
+        that means something else. The violation is still reported by the caller,
+        it just cannot be auto-fixed.
+        """
+        if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+            return []
+
+        convert_function = cls._build_function(
+            "convert",
+            [
+                convert_arg_1,
                 SymbolSegment(",", type="comma"),
                 WhitespaceSegment(),
-            ]
-            post_edits: list[BaseSegment] = [
-                SymbolSegment(")", type="end_bracket"),
-            ]
+                convert_arg_2,
+            ],
+        )
+
+        if later_types:
             for _type in later_types:
-                edits = pre_edits + [_type] + in_edits + edits + post_edits
+                convert_function = cls._build_function(
+                    "convert",
+                    [
+                        _type,
+                        SymbolSegment(",", type="comma"),
+                        WhitespaceSegment(),
+                        convert_function,
+                    ],
+                )
 
         fixes = [
             LintFix.replace(
                 context.segment,
-                edits,
+                [convert_function],
             )
         ]
         return fixes
@@ -232,6 +283,13 @@ class Rule_CV11(BaseRule):
             elif function_name.raw_upper == "CAST":
                 current_type_casting_style = "cast"
             elif function_name.raw_upper == "CONVERT":
+                # On those dialects the two arguments are the other way round,
+                # so rewriting to CAST swaps them and produces valid SQL that
+                # means something else: CONVERT(b, SIGNED) would become
+                # cast(SIGNED as b). Leave CONVERT alone there rather than
+                # corrupt it silently. CAST and :: are still linted as usual.
+                if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+                    return None
                 current_type_casting_style = "convert"
             else:
                 current_type_casting_style = None

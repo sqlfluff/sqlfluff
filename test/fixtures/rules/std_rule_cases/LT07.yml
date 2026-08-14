@@ -43,6 +43,12 @@ test_pass_with_clause_closing_oneline:
   # with statement oneline
   pass_str: with cte as (select 1) select * from cte
 
+test_pass_with_clause_closing_oneline_multiple_targets:
+  # A genuinely single-line CTE (even with multiple select targets) has no
+  # newline between its brackets, so the closing bracket rule must not fire.
+  # Guards against the same-line detection over-firing on single-line CTEs.
+  pass_str: with cte as (select a, b from t) select * from cte
+
 test_pass_with_clause_closing_misaligned_indentation:
   # Fix with statement indentation
   pass_str: |

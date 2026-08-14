@@ -187,6 +187,28 @@ def test_mysql_family_dual_cannot_be_qualified(dialect: str) -> None:
 @pytest.mark.parametrize(
     "sql",
     [
+        "DELETE LOW_PRIORITY HISTORY FROM t BEFORE SYSTEM_TIME '2020-01-01';",
+        "DELETE QUICK HISTORY FROM t BEFORE SYSTEM_TIME '2020-01-01';",
+        "DELETE IGNORE HISTORY FROM t BEFORE SYSTEM_TIME '2020-01-01';",
+    ],
+)
+def test_mariadb_delete_history_rejects_delete_modifiers(sql: str) -> None:
+    """`DELETE HISTORY` does not accept LOW_PRIORITY/QUICK/IGNORE.
+
+    The purge-only ``BEFORE SYSTEM_TIME`` syntax cannot attach to a standard
+    ``DELETE`` (which is what a modifier forces), so these are parse errors.
+    (Bare ``DELETE QUICK HISTORY FROM t`` remains valid: there ``history`` is
+    just an ordinary target table name.)
+    """
+    parsed = Linter(dialect="mariadb").parse_string(sql)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
         "DECLARE cur_into CURSOR FOR SELECT 1 INTO dbo.t;",
         "DECLARE cur_browse CURSOR FOR SELECT 1 FOR BROWSE;",
     ],
@@ -194,6 +216,23 @@ def test_mysql_family_dual_cannot_be_qualified(dialect: str) -> None:
 def test_tsql_cursor_rejects_disallowed_select_clauses(sql: str) -> None:
     """Cursor declarations should reject documented invalid SELECT clauses."""
     parsed = Linter(dialect="tsql").parse_string(sql)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        # `FOR` is mandatory (real MariaDB rejects `NEXT VALUE OF s`).
+        "SELECT NEXT VALUE OF s;",
+        # The sequence name is mandatory.
+        "SELECT NEXT VALUE FOR;",
+    ],
+)
+def test_mariadb_sequence_value_for_requires_sequence(sql: str) -> None:
+    """`NEXT/PREVIOUS VALUE FOR` needs the `FOR` keyword and a sequence name."""
+    parsed = Linter(dialect="mariadb").parse_string(sql)
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors

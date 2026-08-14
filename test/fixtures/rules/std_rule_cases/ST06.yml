@@ -379,3 +379,70 @@ test_fail_create_view_without_explicit_columns_tsql:
       e.department,
       TRY_CAST(e.id AS INT) AS employee_id
     FROM employees e
+
+test_pass_create_view_with_explicit_columns_bigquery:
+  configs:
+    core:
+      dialect: bigquery
+  pass_str: |
+    CREATE VIEW v (nm, i, d) AS
+    SELECT
+      e.name,
+      TRY_CAST(e.id AS INT) AS eid,
+      e.dept
+    FROM employees e
+
+test_pass_create_view_with_explicit_columns_clickhouse:
+  configs:
+    core:
+      dialect: clickhouse
+  pass_str: |
+    CREATE VIEW v (nm, i, d) AS
+    SELECT
+      e.name,
+      TRY_CAST(e.id AS INT) AS eid,
+      e.dept
+    FROM employees e
+
+test_pass_create_view_with_explicit_quoted_columns_clickhouse:
+  configs:
+    core:
+      dialect: clickhouse
+  pass_str: |
+    CREATE VIEW v (`nm`, `i`, `d`) AS
+    SELECT
+      e.name,
+      TRY_CAST(e.id AS INT) AS eid,
+      e.dept
+    FROM employees e
+
+test_fail_fix_qualified_reference_with_parameterised_cast_snowflake:
+  # Regression test for #7192. The existing `::` cases cover simple targets
+  # (`b::int`, `'a'::varchar`); this pins the combination that was reported as
+  # unfixable: a function call wrapping a qualified reference, cast to a
+  # parameterised type.
+  configs:
+    core:
+      dialect: snowflake
+  fail_str: |
+    select
+      de.a,
+      de.ordered,
+      *,
+      case when b > 0 then 'pos' else 'non_pos' end as b_label,
+      coalesce(b, 0) as b_coalesced,
+      COALESCE(de.ordered, 0)::NUMBER(38, 4) AS ordered,
+      c
+    from tbl
+  line_numbers: [1]
+
+  fix_str: |
+    select
+      *,
+      de.a,
+      de.ordered,
+      c,
+      case when b > 0 then 'pos' else 'non_pos' end as b_label,
+      coalesce(b, 0) as b_coalesced,
+      COALESCE(de.ordered, 0)::NUMBER(38, 4) AS ordered
+    from tbl

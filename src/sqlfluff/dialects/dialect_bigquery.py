@@ -395,11 +395,17 @@ bigquery_dialect.replace(
     NaturalJoinKeywordsGrammar=Nothing(),
     UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     MergeIntoLiteralGrammar=Sequence("MERGE", Ref.keyword("INTO", optional=True)),
-    AccessorGrammar=AnyNumberOf(
-        Ref("ArrayAccessorSegment"),
-        Ref("ChainedFunctionCallSegment"),
-        # Add in semi structured expressions
-        Ref("SemiStructuredAccessorSegment"),
+    AccessorGrammar=Sequence(
+        AnyNumberOf(
+            Ref("ArrayAccessorSegment"),
+            Ref("ChainedFunctionCallSegment"),
+            # Add in semi structured expressions
+            Ref("SemiStructuredAccessorSegment"),
+        ),
+        # A wildcard terminates the accessor chain, so it sits outside the
+        # repeating part above - nothing may be chained after it.
+        Ref("SemiStructuredWildcardAccessorSegment", optional=True),
+        allow_gaps=True,
     ),
     BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
     NotEnforcedGrammar=Sequence("NOT", "ENFORCED"),
@@ -755,7 +761,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropAssignmentStatementSegment"),
             Ref("DropTableFunctionStatementSegment"),
             Ref("CreateTableFunctionStatementSegment"),
-            Ref("PipeStatementSegment"),
         ],
     )
 
@@ -1308,6 +1313,11 @@ class FunctionSegment(ansi.FunctionSegment):
                 # Functions returning STRUCTs in BigQuery can have the fields
                 # elements referenced (e.g. ".a"), including wildcards (e.g. ".*")
                 # or multiple nested fields (e.g. ".a.b", or ".a.b.c")
+                # Note the wildcard form is deliberately *not* matched here. It is
+                # left to `AccessorGrammar`, which is applied after the function and
+                # is the single place that enforces the wildcard being terminal.
+                # Matching it here would let the outer grammar chain a further
+                # accessor after the star (e.g. `f(a).b.*.z`).
                 Ref("SemiStructuredAccessorSegment", optional=True),
                 Ref("PostFunctionGrammar", optional=True),
             ),
@@ -1725,23 +1735,58 @@ class NamedArgumentSegment(BaseSegment):
 
 
 class SemiStructuredAccessorSegment(BaseSegment):
-    """A semi-structured data accessor segment."""
+    """A semi-structured data accessor segment.
+
+    This covers the non-wildcard part of an accessor chain (e.g. `.a`, `.a.b`,
+    `.a[0].b`). A wildcard is handled separately by
+    :class:`SemiStructuredWildcardAccessorSegment` so that it can only appear as
+    the final element of the chain.
+    """
 
     type = "semi_structured_expression"
     match_grammar = Sequence(
         AnyNumberOf(
             Sequence(
                 Ref("DotSegment"),
-                OneOf(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("StarSegment"),
-                ),
+                Ref("SingleIdentifierGrammar"),
                 allow_gaps=True,
             ),
             Ref("ArrayAccessorSegment", optional=True),
             allow_gaps=True,
             min_times=1,
         ),
+        allow_gaps=True,
+    )
+
+
+class SemiStructuredWildcardAccessorSegment(BaseSegment):
+    """A wildcard terminating a semi-structured accessor chain.
+
+    A wildcard is only valid as the *final* element of an accessor chain, and it
+    may carry the EXCEPT/REPLACE modifiers, e.g. `results[0].* EXCEPT (cola)`.
+    Keeping it out of the repeating part of ``AccessorGrammar`` is what stops
+    invalid mid-chain forms such as `a.b.*.c` from parsing.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_except
+    """
+
+    type = "semi_structured_expression"
+    match_grammar = Sequence(
+        # Any fields preceding the wildcard are part of the same accessor, so
+        # that `.b.*` stays a single segment rather than being split in two.
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar"),
+                allow_gaps=True,
+            ),
+            Ref("ArrayAccessorSegment", optional=True),
+            allow_gaps=True,
+        ),
+        Ref("DotSegment"),
+        Ref("StarSegment"),
+        Ref("ExceptClauseSegment", optional=True),
+        Ref("ReplaceClauseSegment", optional=True),
         allow_gaps=True,
     )
 
@@ -3638,7 +3683,7 @@ class DropAssignmentStatementSegment(BaseSegment):
 
 
 class PipeStatementSegment(BaseSegment):
-    """A `PIPE` statement.
+    """A pipe query: a base query followed by pipe operators.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax
     """
@@ -3651,11 +3696,34 @@ class PipeStatementSegment(BaseSegment):
             AnyNumberOf(Ref("PipeOperatorClauseSegment")),
         ),
         Sequence(
-            Ref("SelectableGrammar"),
+            OneOf(
+                OptionallyBracketed(Ref("SelectStatementSegment")),
+                Ref("SetExpressionSegment"),
+                Bracketed(Ref("SelectableGrammar")),
+            ),
             Ref("AliasExpressionSegment", optional=True),
             AnyNumberOf(Ref("PipeOperatorClauseSegment"), min_times=1),
         ),
     )
+
+
+bigquery_dialect.replace(
+    NonWithSelectableGrammar=OneOf(
+        Ref("SetExpressionSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("NonSetSelectableGrammar"),
+        Ref("PipeStatementSegment"),
+    ),
+    NonSetSelectableGrammar=OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("UnorderedSelectStatementSegment"),
+        Bracketed(Ref("SelectStatementSegment")),
+        Bracketed(Ref("WithCompoundStatementSegment")),
+        Bracketed(Ref("NonSetSelectableGrammar")),
+        Bracketed(Ref("PipeStatementSegment")),
+        Ref("BracketedSetExpressionGrammar"),
+    ),
+)
 
 
 class PipeOperatorClauseSegment(BaseSegment):
@@ -3699,12 +3767,14 @@ class ExtendClauseSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "EXTEND",
+        Indent,
         Delimited(
             Sequence(
                 Ref("BaseExpressionElementGrammar"),
                 Ref("AliasExpressionSegment", optional=True),
             ),
         ),
+        Dedent,
     )
 
 
@@ -3794,6 +3864,7 @@ class AggregateClauseSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "AGGREGATE",
+        Indent,
         Delimited(
             Sequence(
                 Ref("BaseExpressionElementGrammar"),
@@ -3805,6 +3876,7 @@ class AggregateClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        Dedent,
         Ref("GroupAndOrderByClauseSegment", optional=True),
     )
 
@@ -3850,24 +3922,6 @@ class UnpivotOperatorSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("FromUnpivotExpressionSegment"),
         Ref("AliasExpressionSegment", optional=True),
-    )
-
-
-class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
-    """A CTE Definition from a WITH statement.
-
-    BigQuery allows FROM clauses directly in CTEs without requiring SELECT statements.
-    This extends the ANSI definition to support this pipe syntax.
-    """
-
-    match_grammar = Sequence(
-        Ref("SingleIdentifierGrammar"),
-        Ref("CTEColumnList", optional=True),
-        Ref.keyword("AS", optional=True),
-        Bracketed(
-            OneOf(Ref("SelectableGrammar"), Ref("PipeStatementSegment")),
-            parse_mode=ParseMode.GREEDY,
-        ),
     )
 
 

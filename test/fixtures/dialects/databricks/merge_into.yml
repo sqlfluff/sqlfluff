@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd1d2ac61d2e5112a678d93d35976e01448dd14e63b3f0774e89a8285bbfb4b7
+_hash: 044ceb415c03af02b4a55903cab890dbadc739f7c381de57284232a5d2488c5d
 file:
 - statement:
     merge_statement:
@@ -436,8 +436,9 @@ file:
         - merge_update_clause:
           - keyword: update
           - keyword: set
-          - wildcard_identifier:
-              star: '*'
+          - wildcard_expression:
+              wildcard_identifier:
+                star: '*'
         merge_when_not_matched_clause:
         - keyword: when
         - keyword: not
@@ -445,8 +446,9 @@ file:
         - keyword: then
         - merge_insert_clause:
             keyword: insert
-            wildcard_identifier:
-              star: '*'
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
 - statement_terminator: ;
 - statement:
     merge_statement:
@@ -550,3 +552,65 @@ file:
                 comparison_operator:
                   raw_comparison_operator: '='
                 boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: merge
+    - keyword: into
+    - table_reference:
+        naked_identifier: t
+    - keyword: using
+    - table_reference:
+        naked_identifier: u
+    - join_on_condition:
+        keyword: 'on'
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: key
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: key
+          end_bracket: )
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: when
+        - keyword: matched
+        - keyword: then
+        - merge_update_clause:
+          - keyword: update
+          - keyword: set
+          - wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+              select_except_clause:
+                keyword: except
+                bracketed:
+                  start_bracket: (
+                  column_reference:
+                    naked_identifier: last_updated
+                  end_bracket: )
+        merge_when_not_matched_clause:
+        - keyword: when
+        - keyword: not
+        - keyword: matched
+        - keyword: then
+        - merge_insert_clause:
+            keyword: insert
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+              select_except_clause:
+                keyword: except
+                bracketed:
+                  start_bracket: (
+                  column_reference:
+                    naked_identifier: last_updated
+                  end_bracket: )
+- statement_terminator: ;

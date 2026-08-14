@@ -105,6 +105,15 @@ impl PyPositionMarker {
         self.0.to_source_dict()
     }
 
+    // `from_child_markers`, `from_point`, and `from_points` below all end up
+    // in `RsPositionMarker`'s counterparts, which check that combined markers
+    // share one `Arc<TemplatedFile>` first by pointer, then fall back to a
+    // value comparison (see sqlfluffrs_types/src/marker.rs). Across the
+    // Python/Rust boundary, pointer identity is only guaranteed because
+    // `PySqlFluffTemplatedFile` extraction is normalized through
+    // `PY_TEMPLATED_FILE_CACHE`; the value-comparison fallback is what keeps
+    // markers built from a `TemplatedFile` that bypassed that cache from
+    // panicking, as long as its content still matches.
     #[classmethod]
     #[pyo3(signature = (markers))]
     pub fn from_child_markers(

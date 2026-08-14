@@ -43,10 +43,12 @@ teradata_dialect = ansi_dialect.copy_as(
 
 teradata_dialect.patch_lexer_matchers(
     [
-        # so it also matches 1.
+        # Match the ansi numeric literal form so scientific notation
+        # (1E10, 1.5e3) and leading-dot decimals (.5) lex as one token,
+        # while still matching a trailing dot (1.).
         RegexLexer(
             "numeric_literal",
-            r"([0-9]+(\.[0-9]*)?)",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             CodeSegment,
         ),
     ]
@@ -66,8 +68,6 @@ teradata_dialect.sets("unreserved_keywords").update(
     [
         "AUTOINCREMENT",
         "ACTIVITYCOUNT",
-        "CASESPECIFIC",
-        "CS",
         "DAYS",
         "DEL",
         "DUAL",
@@ -103,13 +103,25 @@ teradata_dialect.sets("unreserved_keywords").update(
         "STATISTICS",
         "SUMMARY",
         "THRESHOLD",
-        "UC",
-        "UPPERCASE",
     ]
 )
 
 teradata_dialect.sets("reserved_keywords").update(
-    ["LOCKING", "UNION", "REPLACE", "TIMESTAMP"]
+    [
+        "LOCKING",
+        "UNION",
+        "REPLACE",
+        "TIMESTAMP",
+        # The data-type attribute keywords are reserved words in Teradata.
+        # Keeping them reserved also ensures that an attribute postfix such as
+        # `col (UPPERCASE)` or `col (NOT CS)` is parsed as an expression with a
+        # data-type attribute, rather than as a function call `col(...)` with
+        # a column argument named UPPERCASE/CS.
+        "CASESPECIFIC",
+        "CS",
+        "UC",
+        "UPPERCASE",
+    ]
 )
 
 teradata_dialect.sets("bare_functions").update(["DATE"])
@@ -123,6 +135,11 @@ teradata_dialect.replace(
         ),
         OneOf("UPPERCASE", "UC"),
     ),
+    # A Teradata data-type attribute can be applied to an expression as a
+    # parenthesised postfix, e.g. 'TEST' (CASESPECIFIC), col (NOT CS),
+    # 'x' (UPPERCASE). This behaves like COLLATE in standard SQL, binding to
+    # the operand, so it works on either side of a comparison.
+    CollateGrammar=Bracketed(Ref("CharCharacterSetGrammar")),
     FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
         insert=[
             Sequence(
@@ -149,6 +166,7 @@ teradata_dialect.replace(
         Ref("NotEqualToSegment_b"),
         Ref("NotEqualToSegment_c"),
         Ref("LikeOperatorSegment"),
+        Ref("OverlapsOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
@@ -168,6 +186,10 @@ teradata_dialect.add(
     NotEqualToSegment_a=StringParser("NE", ComparisonOperatorSegment),
     NotEqualToSegment_b=StringParser("NOT=", ComparisonOperatorSegment),
     NotEqualToSegment_c=StringParser("^=", ComparisonOperatorSegment),
+    # Unlike the ANSI `overlaps_clause`, this binds two operands, so it also
+    # works where a boolean is expected (e.g. inside CASE WHEN).
+    # https://docs.teradata.com/r/kmuOwjp1zEYg98JsB8fu_A/3VIgdwHNVU~tsnNiIR1aEw
+    OverlapsOperatorSegment=StringParser("OVERLAPS", ComparisonOperatorSegment),
 )
 
 
@@ -212,6 +234,24 @@ class BteqKeyWordSegment(BaseSegment):
     )
 
 
+class BteqFilePathSegment(BaseSegment):
+    """An unquoted file path used by BTEQ commands such as ``.RUN FILE=``.
+
+    BTEQ accepts bare file paths (e.g. ``POSTING``, ``reports/out.sql``,
+    ``../posting.sql``) as well as quoted ones. Model the unquoted form from
+    existing tokens rather than lexing paths as a single token.
+    """
+
+    type = "bteq_file_path"
+    match_grammar = AnyNumberOf(
+        Ref("SingleIdentifierGrammar"),
+        Ref("DotSegment"),
+        Ref("SlashSegment"),
+        min_times=1,
+        allow_gaps=False,
+    )
+
+
 class BteqStatementSegment(BaseSegment):
     """Bteq statements start with a dot, followed by a Keyword.
 
@@ -220,6 +260,7 @@ class BteqStatementSegment(BaseSegment):
     # BTEQ commands
     .if errorcode > 0 then .quit 2
     .IF ACTIVITYCOUNT = 0 THEN .QUIT
+    .RUN FILE=POSTING
     """
 
     type = "bteq_statement"
@@ -228,6 +269,12 @@ class BteqStatementSegment(BaseSegment):
         Ref("BteqKeyWordSegment"),
         AnyNumberOf(
             Ref("BteqKeyWordSegment"),
+            # FILE=<path> argument, e.g. `.RUN FILE=POSTING`.
+            Sequence(
+                "FILE",
+                Ref("EqualsSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("BteqFilePathSegment")),
+            ),
             # if ... then: the ...
             Sequence(
                 Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar"), optional=True
@@ -444,7 +491,18 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(  # FORMAT 'YYYY-MM-DD',
             "FORMAT", Ref("QuotedLiteralSegment"), optional=True
         ),
-        Ref("CharCharacterSetGrammar", optional=True),
+        # Data attributes may be combined, in any order, e.g.
+        # VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC.
+        # AnySetOf allows each attribute at most once, so duplicates such as
+        # UPPERCASE UPPERCASE or repeated CHARACTER SET clauses are rejected.
+        AnySetOf(
+            Sequence("CHARACTER", "SET", Ref("SingleIdentifierGrammar")),
+            Sequence(
+                Ref.keyword("NOT", optional=True),
+                OneOf("CASESPECIFIC", "CS"),
+            ),
+            OneOf("UPPERCASE", "UC"),
+        ),
     )
 
 
@@ -512,21 +570,22 @@ class ColumnDefinitionSegment(BaseSegment):
 class TdColumnConstraintSegment(BaseSegment):
     """Teradata specific column attributes.
 
-    e.g. CHARACTER SET LATIN | [NOT] (CASESPECIFIC|CS) | (UPPERCASE|UC)
+    e.g. COMPRESS [(1.,3.) | 3. | NULL]
+
+    The character data-type attributes (CHARACTER SET, [NOT] CASESPECIFIC/CS,
+    UPPERCASE/UC) are handled by ``DatatypeSegment`` so that each attribute can
+    appear at most once; modelling them here as well would let them repeat.
     """
 
     type = "td_column_attribute_constraint"
     match_grammar = Sequence(
-        OneOf(
-            Ref("CharCharacterSetGrammar"),
-            Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
-                "COMPRESS",
-                OneOf(
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
-                    Ref("LiteralGrammar"),
-                    "NULL",
-                    optional=True,
-                ),
+        Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
+            "COMPRESS",
+            OneOf(
+                Bracketed(Delimited(Ref("LiteralGrammar"))),
+                Ref("LiteralGrammar"),
+                "NULL",
+                optional=True,
             ),
         ),
     )

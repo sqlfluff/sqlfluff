@@ -14,12 +14,13 @@ import functools
 import logging
 import os
 import time
-from typing import TYPE_CHECKING, Any, Optional
+from collections import defaultdict
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_result import MatchResult, _get_point_pos_at_idx
 from sqlfluff.core.parser.segments import (
     BaseFileSegment,
     BaseSegment,
@@ -82,6 +83,30 @@ def get_parse_profile() -> dict[str, float]:
         apply_as_tree  - building the Rust arena tree (_rs_tree)
     """
     return dict(_PARSE_PROFILE)
+
+
+# --- Native AST construction (experimental) ------------------------------------
+# Today parse() rebuilds the Rust match tree as Python MatchResult objects
+# (_convert_rs_match_result) and then walks that again to build the BaseSegment
+# tree (MatchResult.apply) - two full traversals plus a throwaway intermediate
+# tree. The "native AST" path fuses these into a single pass that instantiates
+# BaseSegments directly from the RsMatchResult (_apply_rs_match_result),
+# eliminating the intermediate MatchResult tree (the profiler's "convert" stage).
+#
+# OFF by default while we validate parity against the proven convert+apply path.
+# Toggle via the SQLFLUFF_RS_NATIVE_AST env var or set_native_ast(True).
+_NATIVE_AST_ENABLED = bool(os.environ.get("SQLFLUFF_RS_NATIVE_AST"))
+
+
+def set_native_ast(enabled: bool) -> None:
+    """Enable or disable the fused (native) BaseSegment builder at runtime."""
+    global _NATIVE_AST_ENABLED
+    _NATIVE_AST_ENABLED = enabled
+
+
+def get_native_ast() -> bool:
+    """Return whether the fused (native) BaseSegment builder is enabled."""
+    return _NATIVE_AST_ENABLED
 
 
 try:
@@ -240,37 +265,47 @@ try:
                         e, segments[_start_idx:_end_idx]
                     ) from e
 
-                # Convert RsMatchResult to Python MatchResult
-                # This also checks for embedded parse errors and raises them
-                if _prof is not None:
-                    _ts = time.perf_counter()
-                match = self._convert_rs_match_result(
-                    rs_match, segments[_start_idx:_end_idx]
-                )
-                if _prof is not None:
-                    _prof["convert"] = time.perf_counter() - _ts
-                parser_logger.info("Root Match:\n%s", match)
+                # Build the BaseSegment tree from the Rust match result.
+                # PYTHON PARITY: only the code portion (segments[_start_idx:_end_idx])
+                # is passed, since match-result indices are relative to it.
+                code_segments = segments[_start_idx:_end_idx]
+                if _NATIVE_AST_ENABLED:
+                    # Fused path: instantiate segments directly from rs_match in a
+                    # single pass (no intermediate Python MatchResult tree).
+                    if _prof is not None:
+                        _ts = time.perf_counter()
+                    _matched = self._apply_rs_match_result(
+                        rs_match, code_segments, parse_context
+                    )
+                    if _prof is not None:
+                        _prof["apply"] = time.perf_counter() - _ts
+                else:
+                    # Legacy path: rebuild a Python MatchResult, then apply it.
+                    if _prof is not None:
+                        _ts = time.perf_counter()
+                    match = self._convert_rs_match_result(rs_match, code_segments)
+                    if _prof is not None:
+                        _prof["convert"] = time.perf_counter() - _ts
+                    parser_logger.info("Root Match:\n%s", match)
 
-                # Apply the match result to construct the BaseSegment tree
-                # PYTHON PARITY: Pass only the code portion (segments[_start_idx:_end_idx])
-                # because match result indices are relative to this trimmed array
-                if _prof is not None:
-                    _ts = time.perf_counter()
-                _matched = match.apply(
-                    segments[_start_idx:_end_idx], parse_context=parse_context
-                )
-                if _prof is not None:
-                    _prof["apply"] = time.perf_counter() - _ts
+                    if _prof is not None:
+                        _ts = time.perf_counter()
+                    _matched = match.apply(code_segments, parse_context=parse_context)
+                    if _prof is not None:
+                        _prof["apply"] = time.perf_counter() - _ts
 
-                # PYTHON PARITY: Add back any unmatched segments after the match
-                # (relative to the _start_idx:_end_idx range)
-                matched_stop = _start_idx + match.matched_slice.stop
+                # PYTHON PARITY: Add back any unmatched segments after the match.
+                # matched_slice/truthiness are read from rs_match so both build
+                # paths agree (mirrors MatchResult.matched_slice / __bool__).
+                _m_start, _m_stop = rs_match.matched_slice
+                _match_truthy = _m_stop > _m_start or bool(rs_match.insert_segments)
+                matched_stop = _start_idx + _m_stop
                 _unmatched = segments[matched_stop:_end_idx]
 
                 # PYTHON PARITY: If there are unmatched code segments, wrap them in
                 # UnparsableSegment. This matches the logic in FileSegment.root_parse()
                 content: tuple[BaseSegment, ...]
-                if not match:
+                if not _match_truthy:
                     parse_context.increment_parse_nodes()
                     content = (
                         UnparsableSegment(
@@ -402,46 +437,24 @@ try:
             # Not a valid segment class - return None for grammar names
             return None  # pragma: no cover
 
-        def _convert_rs_match_result(
-            self,
-            rs_match: "RsMatchResult",
-            segments: tuple["BaseSegment", ...],
-            depth: int = 0,
-        ) -> MatchResult:
-            """Convert Rust MatchResult to Python MatchResult.
+        def _rs_match_fields(
+            self, rs_match: "RsMatchResult"
+        ) -> tuple[
+            Optional[type["BaseSegment"]],
+            dict[str, Any],
+            tuple[tuple[int, type], ...],
+        ]:
+            """Extract (matched_class, segment_kwargs, insert_segments) from a match.
 
-            Args:
-                rs_match: RsMatchResult from Rust parser
-                segments: Segment array for error reporting
-                depth: Current recursion depth for debugging
-
-            Returns:
-                Python MatchResult with equivalent structure
-
+            Shared by both tree-building paths: _convert_rs_match_result (the
+            MatchResult-based path) and _apply_rs_match_result (the fused path).
             """
-            # Get the matched slice
-            start, stop = rs_match.matched_slice
-            matched_slice = slice(start, stop)
-
-            # Determine matched_class
-            # The Rust parser now includes actual Python class names (from codegen)
-            # in matched_class, so we can use them directly without conversion.
+            # Determine matched_class. The Rust parser includes the actual Python
+            # class names (from codegen) in matched_class, so we use them directly.
             matched_class: Optional[type["BaseSegment"]] = (
                 self._get_segment_class_by_name(rs_match.matched_class)
                 if rs_match.matched_class
                 else None
-            )
-
-            # Convert child matches recursively
-            # Note: Transparent grammar nodes are now flattened on the Rust side,
-            # so we don't need to do it here anymore
-            child_matches = (
-                tuple(
-                    self._convert_rs_match_result(child, segments, depth + 1)
-                    for child in rs_match.child_matches
-                )
-                if rs_match.child_matches
-                else ()
             )
 
             # Build segment_kwargs - optimize by checking first if we need any
@@ -465,18 +478,17 @@ try:
                 elif rs_match.casefold == "lower":
                     segment_kwargs["casefold"] = str.lower
 
-            # Set quoted_value and escape_replacement for normalization
+            # Set quoted_value and escape_replacements for normalization
             if rs_match.quoted_value:  # pragma: no cover
                 segment_kwargs["quoted_value"] = rs_match.quoted_value
-            if rs_match.escape_replacement:  # pragma: no cover
-                segment_kwargs["escape_replacements"] = [rs_match.escape_replacement]
+            if rs_match.escape_replacements:  # pragma: no cover
+                segment_kwargs["escape_replacements"] = rs_match.escape_replacements
 
-            # Extract insert_segments (Indent/Dedent meta segments)
-            # Note: These are now pre-flattened on the Rust side
+            # Extract insert_segments (Indent/Dedent meta segments).
+            # rs_match.insert_segments contains (idx, seg_type, is_implicit) tuples;
+            # these are pre-flattened on the Rust side.
             insert_segments: tuple[tuple[int, type], ...] = ()
             if rs_match.insert_segments:
-                # rs_match.insert_segments now contains
-                # (idx, seg_type, is_implicit) tuples
                 insert_segments = tuple(
                     (
                         idx,
@@ -489,13 +501,154 @@ try:
                     for idx, seg_type, is_implicit in rs_match.insert_segments
                 )
 
+            return matched_class, segment_kwargs, insert_segments
+
+        def _convert_rs_match_result(
+            self,
+            rs_match: "RsMatchResult",
+            segments: tuple["BaseSegment", ...],
+            depth: int = 0,
+        ) -> MatchResult:
+            """Convert Rust MatchResult to Python MatchResult.
+
+            Args:
+                rs_match: RsMatchResult from Rust parser
+                segments: Segment array for error reporting
+                depth: Current recursion depth for debugging
+
+            Returns:
+                Python MatchResult with equivalent structure
+
+            """
+            start, stop = rs_match.matched_slice
+            matched_class, segment_kwargs, insert_segments = self._rs_match_fields(
+                rs_match
+            )
+
+            # Convert child matches recursively
+            # Note: Transparent grammar nodes are now flattened on the Rust side,
+            # so we don't need to do it here anymore
+            #
+            # NOTE: Keep this a plain loop rather than a generator expression:
+            # a genexpr would add its own stack frame per nesting level on top
+            # of this recursive call, which halves the safe recursion depth.
+            # Matches _apply_rs_match_result's plain for loop below, so both
+            # AST-building paths tolerate the same nesting depth.
+            child_matches_list = []
+            for child in rs_match.child_matches:
+                child_matches_list.append(
+                    self._convert_rs_match_result(child, segments, depth + 1)
+                )
+            child_matches = tuple(child_matches_list)
+
             return MatchResult(
-                matched_slice=matched_slice,
+                matched_slice=slice(start, stop),
                 matched_class=matched_class,
                 child_matches=child_matches,
                 segment_kwargs=segment_kwargs,
                 insert_segments=insert_segments,
             )
+
+        def _apply_rs_match_result(
+            self,
+            rs_match: "RsMatchResult",
+            segments: tuple["BaseSegment", ...],
+            parse_context: ParseContext,
+        ) -> tuple["BaseSegment", ...]:
+            """Build BaseSegments directly from an RsMatchResult in a single pass.
+
+            This fuses _convert_rs_match_result and MatchResult.apply: instead of
+            rebuilding the whole match tree as Python MatchResult objects and then
+            walking it again, it walks the RsMatchResult once and instantiates the
+            BaseSegment tree directly.
+
+            The algorithm mirrors MatchResult.apply() exactly (including the
+            parse-node accounting), so it produces an identical tree.
+            """
+            start, stop = rs_match.matched_slice
+            matched_class, segment_kwargs, insert_segments = self._rs_match_fields(
+                rs_match
+            )
+
+            # NOTE: Accumulate into a list and build the tuple once at the end.
+            # `tuple += ...` looks equivalent but isn't: tuples are immutable,
+            # so each `+=` allocates a new tuple and copies everything
+            # accumulated so far, making a loop of N appends O(N^2). A list
+            # amortises appends/extends to O(N), which matters here since this
+            # runs at every level of a potentially large tree (e.g. long
+            # column/UNION/IN lists produce nodes with many trigger locations).
+            result_segments_list: list[BaseSegment] = []
+
+            # Zero-length match: only meta inserts are valid (mirrors apply()).
+            # NOTE: Unreachable in practice since the Rust parser stopped
+            # emitting zero-length meta child matches (Bracketed now drops
+            # direct-child metas for Python parity). Kept as the defensive
+            # mirror of apply()'s zero-length branch, including its
+            # parse-node accounting.
+            if start == stop:  # pragma: no cover
+                for idx, seg in insert_segments:
+                    assert idx == start, (
+                        f"Tried to insert @{idx} outside of matched "
+                        f"slice {(start, stop)}"
+                    )
+                    _pos = _get_point_pos_at_idx(segments, idx)
+                    parse_context.increment_parse_nodes()
+                    result_segments_list.append(seg(pos_marker=_pos))
+                return tuple(result_segments_list)
+
+            # Merge inserts (added first) and child matches into trigger locations.
+            trigger_locs: defaultdict[int, list[Union["RsMatchResult", type]]] = (
+                defaultdict(list)
+            )
+            for idx, seg in insert_segments:
+                trigger_locs[idx].append(seg)
+            for child in rs_match.child_matches:
+                trigger_locs[child.matched_slice[0]].append(child)
+
+            max_idx = start
+            for idx in sorted(trigger_locs):
+                # Include any untouched segments before this trigger.
+                if idx > max_idx:
+                    result_segments_list.extend(segments[max_idx:idx])
+                    max_idx = idx
+                elif idx < max_idx:  # pragma: no cover
+                    # An outer match contains overlapping child matches: the
+                    # Rust parser emitted inconsistent ranges (mirrors apply()).
+                    raise ValueError(
+                        "Segment skip ahead error. An outer match contains "
+                        "overlapping child matches. This MatchResult was "
+                        "wrongly constructed."
+                    )
+                for trigger in trigger_locs[idx]:
+                    if isinstance(trigger, type):
+                        # A meta segment class (Indent/Dedent/ImplicitIndent).
+                        # NOTE: apply() does not count meta inserts here (only in
+                        # the zero-length branch above), so neither do we.
+                        _pos = _get_point_pos_at_idx(segments, idx)
+                        result_segments_list.append(trigger(pos_marker=_pos))
+                    else:
+                        # A child match - recurse and advance past it.
+                        result_segments_list.extend(
+                            self._apply_rs_match_result(
+                                trigger, segments, parse_context
+                            )
+                        )
+                        max_idx = trigger.matched_slice[1]
+
+            # Anything left after the last trigger.
+            if max_idx < stop:
+                result_segments_list.extend(segments[max_idx:stop])
+
+            result_segments = tuple(result_segments_list)
+
+            if not matched_class:
+                return result_segments
+
+            new_seg = matched_class.from_result_segments(
+                result_segments, segment_kwargs
+            )
+            parse_context.increment_parse_nodes()
+            return (new_seg,)
 
         @staticmethod
         def _template_segment_to_rstoken(segment: TemplateSegment) -> "RsToken":

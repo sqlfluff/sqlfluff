@@ -5,6 +5,11 @@ use crate::slice::Slice;
 
 use super::fileslice::{RawFileSlice, TemplatedFileSlice};
 
+// `PartialEq` here is a full structural comparison across every field,
+// including `source_str` and `templated_str`. Callers holding an
+// `Arc<TemplatedFile>` should compare with `Arc::ptr_eq` instead of `==`
+// wherever the two markers are expected to originate from the same parse;
+// see `PositionMarker::from_points` in sqlfluffrs_types/src/marker.rs.
 #[derive(Debug, PartialEq, Clone, Hash)]
 pub struct TemplatedFile {
     pub source_str: String,
@@ -224,9 +229,9 @@ impl TemplatedFile {
 
         // Update starting position based on insertion point
         let mut ts_start_sf_start = ts_start_sf_start;
-        if insertion_point.is_some() {
+        if let Some(insertion_point) = insertion_point {
             for elem in self.sliced_file.iter().skip(ts_start_sf_start) {
-                if elem.source_codepoint_slice.start == insertion_point.unwrap() {
+                if elem.source_codepoint_slice.start == insertion_point {
                     break;
                 }
                 ts_start_sf_start += 1;
@@ -746,20 +751,23 @@ mod tests {
         }
     }
 
+    /// `(fname, source_str, templated_str, in_slice, out_slice, is_literal, sliced_file, raw_sliced)`
+    type TemplatedSliceToSourceSliceCase = (
+        String,
+        String,
+        Option<String>,
+        Slice,
+        Slice,
+        bool,
+        Vec<TemplatedFileSlice>,
+        Vec<RawFileSlice>,
+    );
+
     #[test]
     fn test_templated_file_templated_slice_to_source_slice() {
         let complex_file_kwargs = complex_file_kwargs();
         let simple_file_kwargs = simple_file_kwargs();
-        let test_cases: Vec<(
-            String,
-            String,
-            Option<String>,
-            Slice,
-            Slice,
-            bool,
-            Vec<TemplatedFileSlice>,
-            Vec<RawFileSlice>,
-        )> = vec![
+        let test_cases: Vec<TemplatedSliceToSourceSliceCase> = vec![
             // Simple example
             (
                 "foo.sql".to_string(),

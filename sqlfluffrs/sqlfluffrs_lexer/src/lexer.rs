@@ -4,10 +4,10 @@ use log::debug;
 
 use sqlfluffrs_types::{
     marker::PositionMarker,
-    matcher::{LexMatcher, LexedElement},
+    matcher::{BracketPairEntry, BracketPairSet, LexMatcher, LexMatcherConfig, LexedElement},
     slice::Slice,
     templater::{fileslice::TemplatedFileSlice, templatefile::TemplatedFile},
-    token::{CaseFold, Token},
+    token::{python_repr, Token},
 };
 
 use hashbrown::{HashMap, HashSet};
@@ -217,10 +217,40 @@ impl SQLLexError {
     }
 }
 
+/// The universal ASCII bracket pairs every dialect has (round/square/curly),
+/// used unless a dialect-specific set is supplied via [`Lexer::with_bracket_pairs`].
+/// PYTHON PARITY: matches `Dialect`'s base `bracket_pairs` set (dialect_ansi.py)
+/// before any dialect-specific additions. `persists` is whether the matched
+/// span is kept as a structured `BracketedSegment` node vs flattened inline.
+const DEFAULT_BRACKET_PAIRS: &[BracketPairEntry] = &[
+    BracketPairEntry {
+        open: "(",
+        close: ")",
+        start_type: "start_bracket",
+        end_type: "end_bracket",
+        persists: true,
+    },
+    BracketPairEntry {
+        open: "[",
+        close: "]",
+        start_type: "start_square_bracket",
+        end_type: "end_square_bracket",
+        persists: false,
+    },
+    BracketPairEntry {
+        open: "{",
+        close: "}",
+        start_type: "start_curly_bracket",
+        end_type: "end_curly_bracket",
+        persists: false,
+    },
+];
+
 #[derive(Clone)]
 pub struct Lexer {
     last_resort_lexer: LexMatcher,
     matchers: Vec<LexMatcher>,
+    bracket_pairs: BracketPairSet,
 }
 
 impl Lexer {
@@ -230,23 +260,25 @@ impl Lexer {
                 // dialect,
                 "<unlexable>",
                 r#"[^\t\n\ ]*"#,
-                Token::unlexable_token_compat,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                CaseFold::None,
+                Token::unlexable_token,
                 None,
                 |_| true,
-                None,
+                LexMatcherConfig::default(),
             )
         });
         Self {
             last_resort_lexer,
             matchers,
+            bracket_pairs: BracketPairSet(DEFAULT_BRACKET_PAIRS.to_vec()),
         }
+    }
+
+    /// Override the bracket-pairs set used for `matching_bracket_idx`
+    /// pre-computation, e.g. with a dialect's full `bracket_pairs` set
+    /// (round/square/curly plus any dialect-specific additions).
+    pub fn with_bracket_pairs(mut self, bracket_pairs: BracketPairSet) -> Self {
+        self.bracket_pairs = bracket_pairs;
+        self
     }
 
     pub fn lex_string<'a>(&'a self, mut input: &'a str) -> Vec<LexedElement<'a>> {
@@ -366,55 +398,18 @@ impl Lexer {
             self.elements_to_tokens(&templated_buffer, &template, template_blocks_indent);
 
         // OPTIMIZATION: Pre-compute bracket pairs for O(1) lookup during parsing
-        Self::compute_bracket_pairs(&mut tokens);
+        self.compute_bracket_pairs(&mut tokens);
 
         let violations = Lexer::violations_from_tokens(&tokens);
         (tokens, violations)
     }
 
-    /// Pre-compute matching bracket indices for all bracket tokens.
-    /// This allows O(1) bracket lookup during parsing instead of O(n) scanning.
-    fn compute_bracket_pairs(tokens: &mut [Token]) {
-        // Stack to track opening brackets: (index, bracket_char)
-        let mut bracket_stack: Vec<(usize, char)> = Vec::new();
-
-        for idx in 0..tokens.len() {
-            // Only code tokens can be brackets. Skipping non-code tokens (notably
-            // comments) prevents bracket characters inside a block/inline comment -
-            // e.g. `min(` / `)` - from being paired with real brackets in the SQL.
-            if !tokens[idx].is_code() {
-                continue;
-            }
-
-            let raw = tokens[idx].raw();
-
-            // Check if this is an opening bracket
-            if let Some(open_char) = match raw.as_str() {
-                "(" => Some('('),
-                "[" => Some('['),
-                "{" => Some('{'),
-                _ => None,
-            } {
-                bracket_stack.push((idx, open_char));
-            }
-            // Check if this is a closing bracket
-            else if let Some(expected_open) = match raw.as_str() {
-                ")" => Some('('),
-                "]" => Some('['),
-                "}" => Some('{'),
-                _ => None,
-            } {
-                // Try to match with the most recent opening bracket of the same type
-                if let Some(pos) = bracket_stack.iter().rposition(|(_, c)| *c == expected_open) {
-                    let (open_idx, _) = bracket_stack.remove(pos);
-                    // Set bidirectional pointers
-                    tokens[open_idx].matching_bracket_idx = Some(idx);
-                    tokens[idx].matching_bracket_idx = Some(open_idx);
-                }
-                // If no matching opening bracket, leave as None (syntax error)
-            }
-        }
-        // Any remaining opening brackets on the stack are unmatched - leave as None
+    /// Pre-compute matching bracket indices for all bracket tokens, for O(1)
+    /// lookup during parsing instead of O(n) scanning. Bracket identity is by
+    /// raw text against `self.bracket_pairs` (a dialect's full set - see
+    /// `Dialect::get_bracket_pairs` - not a hardcoded ASCII trio).
+    fn compute_bracket_pairs(&self, tokens: &mut [Token]) {
+        self.bracket_pairs.compute_matching_indices(tokens);
     }
 
     fn violations_from_tokens(tokens: &[Token]) -> Vec<SQLLexError> {
@@ -425,7 +420,7 @@ impl Lexer {
                 SQLLexError::new(
                     Some(format!(
                         "Unable to lex characters: {}",
-                        token.raw.chars().take(10).collect::<String>()
+                        python_repr(&truncate_like_python(token.raw()))
                     )),
                     token.pos_marker.clone(),
                     None,
@@ -437,6 +432,16 @@ impl Lexer {
             })
             .collect()
     }
+}
+
+/// Truncates to match Python's `segment.raw[:10] + "..." if
+/// len(segment.raw) > 9 else segment.raw` (lexer.py's
+/// `violations_from_segments`), counting and slicing by Unicode codepoint
+/// so multi-byte characters truncate the same way Python's `len` and
+/// slicing do.
+fn truncate_like_python(raw: &str) -> String {
+    // lexer.py keeps 10 codepoints once the raw is longer than 9.
+    sqlfluffrs_types::string::ellipsize(raw, 10, 9)
 }
 
 fn iter_tokens(
@@ -933,7 +938,10 @@ pub mod python {
                 panic!("Lexer does not support setting both `config` and `dialect`.")
             }
             let dialect = cfg_dialect.unwrap_or_else(|| in_dialect.expect("Dialect not defined"));
-            Self(Lexer::new(None, dialect.get_lexers().to_vec()))
+            Self(
+                Lexer::new(None, dialect.get_lexers().to_vec())
+                    .with_bracket_pairs(dialect.get_bracket_pairs().clone()),
+            )
         }
 
         #[pyo3(signature = (input, template_blocks_indent = true))]

@@ -1,0 +1,193 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ab9746607ec199495cee4edb146f5718d7029b7780c4763f2fc577323eac5495
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: array_sort
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          quoted_literal: "'bc'"
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'ab'"
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'dc'"
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: left
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: right
+                  - end_bracket: )
+                  binary_operator: ->
+                  case_expression:
+                  - keyword: case
+                  - when_clause:
+                    - keyword: when
+                    - expression:
+                      - column_reference:
+                          naked_identifier: left
+                      - keyword: is
+                      - null_literal: 'null'
+                      - binary_operator: and
+                      - column_reference:
+                          naked_identifier: right
+                      - keyword: is
+                      - null_literal: 'null'
+                    - keyword: then
+                    - expression:
+                        numeric_literal: '0'
+                  - when_clause:
+                    - keyword: when
+                    - expression:
+                        column_reference:
+                          naked_identifier: left
+                        keyword: is
+                        null_literal: 'null'
+                    - keyword: then
+                    - expression:
+                        numeric_literal:
+                          sign_indicator: '-'
+                          numeric_literal: '1'
+                  - when_clause:
+                    - keyword: when
+                    - expression:
+                        column_reference:
+                          naked_identifier: right
+                        keyword: is
+                        null_literal: 'null'
+                    - keyword: then
+                    - expression:
+                        numeric_literal: '1'
+                  - when_clause:
+                    - keyword: when
+                    - expression:
+                      - column_reference:
+                          naked_identifier: left
+                      - comparison_operator:
+                          raw_comparison_operator: <
+                      - column_reference:
+                          naked_identifier: right
+                    - keyword: then
+                    - expression:
+                        numeric_literal: '1'
+                  - when_clause:
+                    - keyword: when
+                    - expression:
+                      - column_reference:
+                          naked_identifier: left
+                      - comparison_operator:
+                          raw_comparison_operator: '>'
+                      - column_reference:
+                          naked_identifier: right
+                    - keyword: then
+                    - expression:
+                        numeric_literal:
+                          sign_indicator: '-'
+                          numeric_literal: '1'
+                  - else_clause:
+                      keyword: else
+                      expression:
+                        numeric_literal: '0'
+                  - keyword: end
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: array_sort
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: my_arr
+              - comma: ','
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: left
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: right
+                  - end_bracket: )
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: left
+                - binary_operator: '-'
+                - column_reference:
+                    naked_identifier: right
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: transform
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: my_arr
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: left
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: left
+                - binary_operator: +
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: left
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: right
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;

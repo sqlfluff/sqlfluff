@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_mariadb_keywords import (
     mariadb_reserved_keywords,
@@ -51,7 +52,61 @@ mariadb_dialect.replace(
         "VERSIONING",
     ),
     TriggerOrReplaceGrammar=Sequence("OR", "REPLACE"),
+    # Extend key-part lists (UNIQUE / PRIMARY KEY) with the MariaDB
+    # application-time `WITHOUT OVERLAPS` modifier. The clause is optional, so
+    # previously valid key lists parse identically.
+    BracketedKeyPartListGrammar=Bracketed(
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("IndexColumnPrefixLengthSegment"),
+                    ),
+                    Bracketed(Ref("ExpressionSegment")),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                Sequence("WITHOUT", "OVERLAPS", optional=True),
+            ),
+        ),
+    ),
+    # Allow the MariaDB sequence value expressions `NEXT VALUE FOR seq` and
+    # `PREVIOUS VALUE FOR seq` anywhere an expression is valid (SELECT, VALUES).
+    # The dedicated segment is tried first so a leading NEXT/PREVIOUS is not
+    # consumed as a column reference.
+    Expression_C_Grammar=OneOf(
+        Ref("SequenceValueForSegment"),
+        mysql_dialect.get_grammar("Expression_C_Grammar"),
+    ),
+    # A column DEFAULT may use a sequence value expression, either bare
+    # (`DEFAULT NEXT VALUE FOR seq`) or bracketed (`DEFAULT (NEXT VALUE FOR
+    # seq)`) -- both are accepted by MariaDB. The base column-default grammar
+    # only allows literals/functions, so it does not cover this.
+    ColumnConstraintDefaultGrammar=OneOf(
+        Ref("SequenceValueForSegment"),
+        Bracketed(Ref("SequenceValueForSegment")),
+        mysql_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
+    ),
 )
+
+
+class SequenceValueForSegment(BaseSegment):
+    """A MariaDB ``NEXT VALUE FOR`` / ``PREVIOUS VALUE FOR`` sequence expression.
+
+    ``NEXT VALUE FOR seq`` is equivalent to ``NEXTVAL(seq)`` and
+    ``PREVIOUS VALUE FOR seq`` to ``LASTVAL(seq)``.
+
+    https://mariadb.com/kb/en/sequence-overview/
+    """
+
+    type = "sequence_value_for_expression"
+    match_grammar: Matchable = Sequence(
+        OneOf("NEXT", "PREVIOUS"),
+        "VALUE",
+        "FOR",
+        Ref("SequenceReferenceSegment"),
+    )
 
 
 class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
@@ -65,7 +120,191 @@ class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
             Bracketed(Ref("ExpressionSegment")),
             OneOf("PERSISTENT", "STORED", "VIRTUAL", optional=True),
         ),
+        # System-versioned period columns:
+        #   col TIMESTAMP(6) GENERATED ALWAYS AS ROW {START|END}
+        # Here `GENERATED ALWAYS` is required (unlike the expression variant).
+        Sequence(
+            "GENERATED",
+            "ALWAYS",
+            "AS",
+            "ROW",
+            OneOf("START", "END"),
+        ),
     )
+
+
+class TemporalQuerySegment(BaseSegment):
+    """A ``FOR SYSTEM_TIME`` clause for querying system-versioned tables.
+
+    Fills the ANSI `TemporalQuerySegment` hook (``Nothing()`` by default), so the
+    clause sits right after the table and before any alias — the position MariaDB
+    documents. MySQL has no such clause, so this is confined to MariaDB.
+
+    https://mariadb.com/kb/en/system-versioned-tables/
+    """
+
+    type = "temporal_query"
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        "SYSTEM_TIME",
+        OneOf(
+            "ALL",
+            Sequence("AS", "OF", Ref("ExpressionSegment")),
+            # `Expression_B_Grammar` for the lower bound stops the parse from
+            # swallowing the `AND` (same guard ANSI uses for BETWEEN).
+            Sequence(
+                "BETWEEN",
+                Ref("Expression_B_Grammar"),
+                "AND",
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                "FROM",
+                Ref("ExpressionSegment"),
+                "TO",
+                Ref("ExpressionSegment"),
+            ),
+        ),
+    )
+
+
+class ForPortionOfSegment(BaseSegment):
+    """A ``FOR PORTION OF`` clause for application-time period DML.
+
+    Used by `DELETE` and `UPDATE` on tables with an application-time period.
+    MariaDB-only.
+
+    https://mariadb.com/kb/en/application-time-periods/
+    """
+
+    type = "for_portion_of_clause"
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        "PORTION",
+        "OF",
+        Ref("SingleIdentifierGrammar"),
+        "FROM",
+        Ref("ExpressionSegment"),
+        "TO",
+        Ref("ExpressionSegment"),
+    )
+
+
+class PeriodSegment(BaseSegment):
+    """A ``PERIOD FOR`` table element in `CREATE TABLE`.
+
+    Covers both the system-time period (``PERIOD FOR SYSTEM_TIME(...)``) and
+    application-time periods (``PERIOD FOR period_name(...)``). MariaDB-only.
+
+    https://mariadb.com/kb/en/system-versioned-tables/
+    https://mariadb.com/kb/en/application-time-periods/
+    """
+
+    type = "period_segment"
+    match_grammar: Matchable = Sequence(
+        "PERIOD",
+        "FOR",
+        OneOf("SYSTEM_TIME", Ref("SingleIdentifierGrammar")),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+    )
+
+
+class TableConstraintSegment(mysql.TableConstraintSegment):
+    """A table constraint, extended with the MariaDB ``PERIOD FOR`` element.
+
+    `CREATE TABLE` routes both table constraints and column definitions through
+    one `OneOf`, so adding `PeriodSegment` here lets `PERIOD FOR ...` appear as a
+    table element without recopying the whole `CREATE TABLE` grammar.
+    """
+
+    match_grammar = mysql.TableConstraintSegment.match_grammar.copy(
+        insert=[Ref("PeriodSegment")],
+    )
+
+
+class SystemTimePartitionSegment(BaseSegment):
+    """A ``PARTITION BY SYSTEM_TIME`` clause for system-versioned tables.
+
+    Rotates history rows into separate partitions, either by time
+    (``INTERVAL n unit``) or by size (``LIMIT n``), optionally automatically
+    (``AUTO``). MariaDB-only.
+
+    https://mariadb.com/kb/en/partitioning-and-system-versioning/
+    """
+
+    type = "system_time_partition"
+    match_grammar: Matchable = Sequence(
+        "PARTITION",
+        "BY",
+        "SYSTEM_TIME",
+        OneOf(
+            Sequence(
+                "INTERVAL",
+                Ref("NumericLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+                Sequence("STARTS", Ref("ExpressionSegment"), optional=True),
+            ),
+            Sequence("LIMIT", Ref("NumericLiteralSegment")),
+            optional=True,
+        ),
+        Ref.keyword("AUTO", optional=True),
+        Sequence("PARTITIONS", Ref("NumericLiteralSegment"), optional=True),
+        # Optional subpartitioning of the history partitions.
+        Sequence(
+            "SUBPARTITION",
+            "BY",
+            Ref.keyword("LINEAR", optional=True),
+            OneOf(
+                Sequence("HASH", Bracketed(Ref("ExpressionSegment"))),
+                Sequence("KEY", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
+            ),
+            Sequence("SUBPARTITIONS", Ref("NumericLiteralSegment"), optional=True),
+            optional=True,
+        ),
+        # Optional explicit partition list:
+        # (PARTITION p0 HISTORY, ..., PARTITION pn CURRENT)
+        Bracketed(
+            Delimited(
+                Sequence(
+                    "PARTITION",
+                    Ref("SingleIdentifierGrammar"),
+                    OneOf("HISTORY", "CURRENT"),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+def _create_table_grammar_with_system_time() -> Sequence:
+    """Build the MariaDB `CREATE TABLE` grammar.
+
+    MySQL's `CREATE TABLE` gathers table options (``ENGINE=``,
+    ``WITH SYSTEM VERSIONING``, ``PARTITION BY HASH/KEY/RANGE/LIST``, ...) in a
+    single trailing ``AnyNumberOf``. ``PARTITION BY SYSTEM_TIME`` must be a
+    sibling alternative *inside* that block: appending it after the block does
+    not work, because the generic ``option = value`` alternative would greedily
+    consume ``PARTITION``/``BY``/``SYSTEM_TIME`` as bare option tokens first.
+    Inserting it as the first alternative lets the longest-match pick it up.
+    """
+    grammar = mysql.CreateTableStatementSegment.match_grammar.copy()
+    table_options = grammar._elements[-1].copy(
+        insert=[Ref("SystemTimePartitionSegment", optional=True)], at=0
+    )
+    grammar._elements = [*grammar._elements[:-1], table_options]
+    return grammar
+
+
+class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
+    """`CREATE TABLE`, extended with MariaDB ``PARTITION BY SYSTEM_TIME``.
+
+    MySQL's own ``PARTITION BY`` (HASH/KEY/RANGE/LIST) is left unchanged; the
+    system-time partition clause is added as an additional alternative.
+
+    https://mariadb.com/kb/en/partitioning-and-system-versioning/
+    """
+
+    match_grammar = _create_table_grammar_with_system_time()
 
 
 class CreateUserStatementSegment(mysql.CreateUserStatementSegment):
@@ -89,34 +328,62 @@ class DeleteStatementSegment(BaseSegment):
     type = "delete_statement"
     match_grammar = Sequence(
         "DELETE",
-        Ref.keyword("LOW_PRIORITY", optional=True),
-        Ref.keyword("QUICK", optional=True),
-        Ref.keyword("IGNORE", optional=True),
         OneOf(
+            # System-versioned tables: purge history rows. Per the MariaDB docs
+            # this is a distinct form that does NOT take LOW_PRIORITY/QUICK/
+            # IGNORE, so it sits ahead of the standard branch (which owns those
+            # modifiers) rather than sharing them.
+            # DELETE HISTORY FROM tbl [PARTITION (...)]
+            #   [BEFORE SYSTEM_TIME [TIMESTAMP|TRANSACTION] expression]
+            # https://mariadb.com/kb/en/delete/
             Sequence(
+                "HISTORY",
                 "FROM",
-                Delimited(
-                    Ref("DeleteTargetTableSegment"),
-                    terminators=["USING"],
-                ),
-                Ref("DeleteUsingClauseSegment"),
-                Ref("WhereClauseSegment", optional=True),
-            ),
-            Sequence(
-                Delimited(
-                    Ref("DeleteTargetTableSegment"),
-                    terminators=["FROM"],
-                ),
-                Ref("FromClauseSegment"),
-                Ref("WhereClauseSegment", optional=True),
-            ),
-            Sequence(
-                Ref("FromClauseSegment"),
+                Ref("TableReferenceSegment"),
                 Ref("SelectPartitionClauseSegment", optional=True),
-                Ref("WhereClauseSegment", optional=True),
-                Ref("OrderByClauseSegment", optional=True),
-                Ref("LimitClauseSegment", optional=True),
-                Ref("ReturningClauseSegment", optional=True),
+                Sequence(
+                    "BEFORE",
+                    "SYSTEM_TIME",
+                    OneOf("TIMESTAMP", "TRANSACTION", optional=True),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+            # Standard DELETE, which alone carries the optional modifiers.
+            Sequence(
+                Ref.keyword("LOW_PRIORITY", optional=True),
+                Ref.keyword("QUICK", optional=True),
+                Ref.keyword("IGNORE", optional=True),
+                OneOf(
+                    Sequence(
+                        "FROM",
+                        Delimited(
+                            Ref("DeleteTargetTableSegment"),
+                            terminators=["USING"],
+                        ),
+                        Ref("DeleteUsingClauseSegment"),
+                        Ref("WhereClauseSegment", optional=True),
+                    ),
+                    Sequence(
+                        Delimited(
+                            Ref("DeleteTargetTableSegment"),
+                            terminators=["FROM"],
+                        ),
+                        Ref("FromClauseSegment"),
+                        Ref("WhereClauseSegment", optional=True),
+                    ),
+                    Sequence(
+                        Ref("FromClauseSegment"),
+                        # Application-time:
+                        # DELETE ... FOR PORTION OF period FROM x TO y
+                        Ref("ForPortionOfSegment", optional=True),
+                        Ref("SelectPartitionClauseSegment", optional=True),
+                        Ref("WhereClauseSegment", optional=True),
+                        Ref("OrderByClauseSegment", optional=True),
+                        Ref("LimitClauseSegment", optional=True),
+                        Ref("ReturningClauseSegment", optional=True),
+                    ),
+                ),
             ),
         ),
     )
@@ -465,6 +732,375 @@ class CreateIndexStatementSegment(mysql.CreateIndexStatementSegment):
     )
 
 
+class AlterTableConstraintSegment(mysql.TableConstraintSegment):
+    """A table constraint as used by ``ALTER TABLE ... ADD``.
+
+    This is the MySQL ``TableConstraintSegment`` with MariaDB's ``IF NOT EXISTS``
+    conditional clause added on each index/constraint variant. It is kept
+    separate from the shared ``TableConstraintSegment`` (used by ``CREATE
+    TABLE``) on purpose: ``IF NOT EXISTS`` is only valid on the ``ADD`` action of
+    ``ALTER TABLE``, so ``CREATE TABLE`` still rejects it. The clause is strictly
+    optional, so every ``ALTER TABLE`` that parsed before still parses
+    identically.
+
+    https://mariadb.com/docs/server/reference/sql-statements/data-definition/alter/alter-table
+    """
+
+    type = "table_constraint"
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(  # [ CONSTRAINT <Constraint name> ]
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment", optional=True),
+                optional=True,
+            ),
+            OneOf(
+                # UNIQUE [INDEX | KEY] [IF NOT EXISTS] [index_name] [index_type]
+                # (key_part,...) [index_option] ...
+                Sequence(
+                    "UNIQUE",
+                    OneOf("INDEX", "KEY", optional=True),
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("IndexReferenceSegment", optional=True),
+                    Ref("IndexTypeGrammar", optional=True),
+                    Ref("BracketedKeyPartListGrammar"),
+                    Ref("IndexOptionsSegment", optional=True),
+                ),
+                # PRIMARY KEY [IF NOT EXISTS] [index_type] (key_part,...)
+                # [index_option] ...
+                Sequence(
+                    Ref("PrimaryKeyGrammar"),
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("IndexTypeGrammar", optional=True),
+                    # Columns making up PRIMARY KEY constraint
+                    Ref("BracketedKeyPartListGrammar"),
+                    Ref("IndexOptionsSegment", optional=True),
+                ),
+                # FOREIGN KEY [IF NOT EXISTS] [index_name] (col_name,...)
+                # reference_definition
+                Sequence(
+                    # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                    Ref("ForeignKeyGrammar"),
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("IndexReferenceSegment", optional=True),
+                    # Local columns making up FOREIGN KEY constraint
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    "REFERENCES",
+                    Ref("ColumnReferenceSegment"),
+                    # Foreign columns making up FOREIGN KEY constraint
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    AnyNumberOf(
+                        Sequence(
+                            "ON",
+                            OneOf("DELETE", "UPDATE"),
+                            OneOf(
+                                "RESTRICT",
+                                "CASCADE",
+                                Sequence("SET", "NULL"),
+                                Sequence("NO", "ACTION"),
+                                Sequence("SET", "DEFAULT"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
+                # CHECK (expr) [[NOT] ENFORCED]
+                Sequence(
+                    "CHECK",
+                    Bracketed(Ref("ExpressionSegment")),
+                    OneOf(
+                        "ENFORCED",
+                        Sequence("NOT", "ENFORCED"),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+        # {INDEX | KEY} [IF NOT EXISTS] [index_name] [index_type] (key_part,...)
+        # [index_option] ...
+        Sequence(
+            OneOf("INDEX", "KEY"),
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("IndexReferenceSegment", optional=True),
+            Ref("IndexTypeGrammar", optional=True),
+            Ref("BracketedKeyPartListGrammar"),
+            Ref("IndexOptionsSegment", optional=True),
+        ),
+        # {FULLTEXT | SPATIAL} [INDEX | KEY] [IF NOT EXISTS] [index_name]
+        # (key_part,...) [index_option] ...
+        Sequence(
+            OneOf("FULLTEXT", "SPATIAL"),
+            OneOf("INDEX", "KEY", optional=True),
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("IndexReferenceSegment", optional=True),
+            Ref("BracketedKeyPartListGrammar"),
+            Ref("IndexOptionsSegment", optional=True),
+        ),
+    )
+
+
+class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
+    """An `ALTER TABLE` statement.
+
+    Overriding MySQL to add MariaDB extensions:
+    - Table-level ``IF EXISTS`` (between ``TABLE`` and table reference)
+    - Column-level ``IF [NOT] EXISTS`` on ``ADD`` / ``DROP`` / ``CHANGE`` /
+      ``MODIFY`` / ``ALTER {INDEX|KEY}`` actions (the ``ADD`` index/constraint
+      clauses pick up ``IF NOT EXISTS`` via the ALTER-only
+      `AlterTableConstraintSegment`; the remaining actions are handled here)
+    - Partition-level ``DROP PARTITION IF EXISTS`` with comma-separated name list
+
+    Every added clause is strictly optional, so previously valid statements parse
+    identically. MySQL does not support these clauses, so the change is confined
+    to the MariaDB dialect.
+
+    https://mariadb.com/docs/server/reference/sql-statements/data-definition/alter/alter-table
+    """
+
+    type = "alter_table_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Delimited(
+            OneOf(
+                # Table options
+                Ref("TableOptionsSegment"),
+                # Online DDL options
+                Ref("AlterTableOnlineDDLOptionSegment"),
+                # Dialect-specific ALTER TABLE actions.
+                Ref("AddDropSystemVersioningGrammar"),
+                # Add an application-time period.
+                Sequence(
+                    "ADD",
+                    "PERIOD",
+                    Ref("IfNotExistsGrammar", optional=True),
+                    "FOR",
+                    Ref("SingleIdentifierGrammar"),
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                ),
+                # Drop an application-time period.
+                Sequence(
+                    "DROP",
+                    "PERIOD",
+                    Ref("IfExistsGrammar", optional=True),
+                    "FOR",
+                    Ref("SingleIdentifierGrammar"),
+                ),
+                # Add column
+                Sequence(
+                    "ADD",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        "FIRST",
+                        Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                        # Bracketed Version of the same
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        optional=True,
+                    ),
+                ),
+                # Alter Column
+                Sequence(
+                    "ALTER",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    AnySetOf(
+                        OneOf(
+                            Sequence(
+                                "SET",
+                                "DEFAULT",
+                                OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
+                            ),
+                            Sequence("DROP", "DEFAULT"),
+                        ),
+                        Sequence("SET", OneOf("INVISIBLE", "VISIBLE")),
+                        min_times=1,
+                    ),
+                ),
+                # Modify Column
+                Sequence(
+                    "MODIFY",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        "FIRST",
+                        Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                        # Bracketed Version of the same
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        optional=True,
+                    ),
+                ),
+                # Add constraint. Uses an ALTER-only constraint grammar so that
+                # `IF NOT EXISTS` is accepted here but not in CREATE TABLE.
+                Sequence(
+                    "ADD",
+                    Ref("AlterTableConstraintSegment"),
+                ),
+                # Change column
+                Sequence(
+                    "CHANGE",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        Sequence(
+                            OneOf(
+                                "FIRST",
+                                Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                # Drop column
+                Sequence(
+                    "DROP",
+                    OneOf(
+                        Sequence(
+                            Ref.keyword("COLUMN", optional=True),
+                            Ref("IfExistsGrammar", optional=True),
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                        Sequence(
+                            OneOf("INDEX", "KEY", optional=True),
+                            Ref("IfExistsGrammar", optional=True),
+                            Ref("IndexReferenceSegment"),
+                        ),
+                        Ref("PrimaryKeyGrammar"),
+                        Sequence(
+                            Ref("ForeignKeyGrammar"),
+                            Ref("IfExistsGrammar", optional=True),
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                        Sequence(
+                            OneOf("CHECK", "CONSTRAINT"),
+                            Ref("IfExistsGrammar", optional=True),
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                    ),
+                ),
+                # Alter constraint
+                Sequence(
+                    "ALTER",
+                    OneOf("CHECK", "CONSTRAINT"),
+                    Ref("ObjectReferenceSegment"),
+                    OneOf(
+                        "ENFORCED",
+                        Sequence("NOT", "ENFORCED"),
+                    ),
+                ),
+                # Alter index
+                Sequence(
+                    "ALTER",
+                    OneOf("INDEX", "KEY"),
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("IndexReferenceSegment"),
+                    OneOf(
+                        "VISIBLE",
+                        "INVISIBLE",
+                        "IGNORED",
+                        Sequence("NOT", "IGNORED"),
+                    ),
+                ),
+                # Rename
+                Sequence(
+                    "RENAME",
+                    OneOf(
+                        # Rename table
+                        Sequence(
+                            OneOf("AS", "TO", optional=True),
+                            Ref("TableReferenceSegment"),
+                        ),
+                        # Rename index
+                        Sequence(
+                            OneOf("INDEX", "KEY"),
+                            Ref("IndexReferenceSegment"),
+                            "TO",
+                            Ref("IndexReferenceSegment"),
+                        ),
+                        # Rename column
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "TO",
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                ),
+                # Enable/Disable updating nonunique indexes
+                Sequence(
+                    OneOf("DISABLE", "ENABLE"),
+                    "KEYS",
+                ),
+                # CONVERT TO CHARACTER SET charset_name [COLLATE collation_name]
+                Sequence("CONVERT", "TO", AnyNumberOf(Ref("AlterOptionSegment"))),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            OneOf(
+                # MariaDB: DROP PARTITION [IF EXISTS] p1[, p2 ...]
+                # `IF EXISTS` and the comma-separated name list are MariaDB
+                # extensions kept on the DROP verb only, so ADD/TRUNCATE/etc.
+                # do not pick up the conditional. Only ``PARTITION`` is valid
+                # here (``DROP PARTITIONING`` is not MariaDB syntax; removing
+                # partitioning uses ``REMOVE PARTITIONING``).
+                Sequence(
+                    "DROP",
+                    "PARTITION",
+                    Ref("IfExistsGrammar", optional=True),
+                    Delimited(Ref("SingleIdentifierGrammar")),
+                ),
+                # All other partition actions (unchanged behaviour).
+                Sequence(
+                    OneOf(
+                        "ADD",
+                        "DISCARD",
+                        "IMPORT",
+                        "TRUNCATE",
+                        "COALESCE",
+                        "REORGANIZE",
+                        "EXCHANGE",
+                        "ANALYZE",
+                        "CHECK",
+                        "OPTIMIZE",
+                        "REBUILD",
+                        "REPAIR",
+                        "REMOVE",
+                    ),
+                    OneOf("PARTITION", "PARTITIONING"),
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("NumericLiteralSegment"),
+                        "ALL",
+                        Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                    ),
+                ),
+            ),
+            Ref.keyword("TABLESPACE", optional=True),
+            Sequence(
+                "WITH",
+                "TABLE",
+                Ref("TableReference"),
+                OneOf("WITH", "WITHOUT"),
+                "VALIDATION",
+                optional=True,
+            ),
+            Sequence(
+                "INTO",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
 class CreateProcedureStatementSegment(mysql.CreateProcedureStatementSegment):
     """A `CREATE PROCEDURE` statement.
 
@@ -486,6 +1122,22 @@ class CreateFunctionStatementSegment(mysql.CreateFunctionStatementSegment):
     match_grammar = mysql.CreateFunctionStatementSegment.match_grammar.copy(
         insert=[Ref("OrReplaceGrammar", optional=True)],
         before=Ref("FunctionKeywordSegment"),
+    )
+
+
+class UpdateStatementSegment(mysql.UpdateStatementSegment):
+    """An `UPDATE` statement, extended with `FOR PORTION OF` (application-time).
+
+    ``UPDATE t FOR PORTION OF period FROM x TO y SET ...``. The clause is
+    optional, so previously valid UPDATE statements parse identically.
+    MariaDB-only.
+
+    https://mariadb.com/kb/en/application-time-periods/
+    """
+
+    match_grammar: Matchable = mysql.UpdateStatementSegment.match_grammar.copy(
+        insert=[Ref("ForPortionOfSegment", optional=True)],
+        before=Ref("SetClauseListSegment"),
     )
 
 
@@ -525,7 +1177,8 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
                 Ref("EqualsSegment", optional=True),
                 OneOf(
                     Ref("QuotedLiteralSegment"),
-                    Ref("NakedIdentifierSegment"),
+                    Ref("CharacterSetSegment"),
+                    "BINARY",
                     "DEFAULT",
                 ),
             ),
@@ -721,4 +1374,81 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
                 "VERSIONING",
             ),
         ),
+    )
+
+
+class DropIndexStatementSegment(mysql.DropIndexStatementSegment):
+    """A `DROP INDEX` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause between ``INDEX`` and the index name.
+    MySQL does not support it, so the change is confined to the MariaDB dialect.
+    https://mariadb.com/kb/en/drop-index/
+    """
+
+    match_grammar = mysql.DropIndexStatementSegment.match_grammar.copy(
+        insert=[Ref("IfExistsGrammar", optional=True)],
+        before=Ref("IndexReferenceSegment"),
+    )
+
+
+class CreateViewStatementSegment(mysql.CreateViewStatementSegment):
+    """A `CREATE VIEW` statement.
+
+    Adds MariaDB's ``IF NOT EXISTS`` clause after the ``VIEW`` keyword. MySQL
+    does not support it, so the change is confined to the MariaDB dialect.
+    https://mariadb.com/kb/en/create-view/
+    """
+
+    match_grammar = mysql.CreateViewStatementSegment.match_grammar.copy(
+        insert=[Ref("IfNotExistsGrammar", optional=True)],
+        before=Ref("TableReferenceSegment"),
+    )
+
+
+class CreateSequenceStatementSegment(ansi.CreateSequenceStatementSegment):
+    """A `CREATE SEQUENCE` statement.
+
+    Adds MariaDB's ``IF NOT EXISTS`` clause. MySQL/ANSI do not support it, so
+    the change is confined to the MariaDB dialect.
+    https://mariadb.com/kb/en/create-sequence/
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SEQUENCE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
+    )
+
+
+class AlterSequenceStatementSegment(ansi.AlterSequenceStatementSegment):
+    """An `ALTER SEQUENCE` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause. MariaDB only.
+    https://mariadb.com/kb/en/alter-sequence/
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("AlterSequenceOptionsSegment")),
+    )
+
+
+class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
+    """A `DROP SEQUENCE` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause and comma-separated name list.
+    MariaDB only.
+    https://mariadb.com/kb/en/drop-sequence/
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("SequenceReferenceSegment")),
     )

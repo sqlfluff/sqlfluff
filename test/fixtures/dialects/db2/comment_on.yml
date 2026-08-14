@@ -1,0 +1,170 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7fa03b3967bac0c3472f157eb26c78b0fd9290fc90f4edc1d4335133313904af
+file:
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTABLE
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTABLE
+      - dot: .
+      - naked_identifier: MYCOLUMN
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: column
+    - column_reference:
+      - naked_identifier: schema1
+      - dot: .
+      - naked_identifier: table1
+      - dot: .
+      - naked_identifier: column1
+    - keyword: is
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ALIAS
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYALIAS
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: INDEX
+    - index_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYINDEX
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: MYSCHEMA
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TRIGGER
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTRIGGER
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTYPE
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: VARIABLE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYVARIABLE
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SEQUENCE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYSEQUENCE
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLESPACE
+    - object_reference:
+        naked_identifier: MYTABLESPACE
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: VIEW
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYVIEW
+    - keyword: IS
+    - quoted_literal: "'hello world'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTABLE
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: COL1
+      - keyword: IS
+      - quoted_literal: "'first column'"
+      - comma: ','
+      - naked_identifier: COL2
+      - keyword: IS
+      - quoted_literal: "'second column'"
+      - end_bracket: )
+- statement_terminator: ;

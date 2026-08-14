@@ -1,0 +1,216 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d12b2a30076f05aa50456a63a6344d332267b8d17f9b98605458628a4d097779
+file:
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - comma: ','
+    - table_reference:
+        naked_identifier: t2
+    - comma: ','
+    - table_reference:
+        naked_identifier: t3
+    - keyword: REFRESH
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: t1
+    - comma: ','
+    - table_reference:
+        naked_identifier: t2
+    - keyword: REFRESH
+    - keyword: COPY
+    - keyword: SESSION
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: SCHEDULER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: SCHEDULER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ENABLE
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: INITIALIZATION_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: wh
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: UNSET
+    - keyword: INITIALIZATION_WAREHOUSE
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: USER
+    - object_reference:
+        naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: USER
+    - object_reference:
+        naked_identifier: my_user
+    - keyword: USE
+    - keyword: SECONDARY
+    - keyword: ROLES
+    - keyword: NONE
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: UNSET
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: USER
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: ROW_TIMESTAMP
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: UNSET
+    - keyword: ROW_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: FROZEN
+    - keyword: WHERE
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: ts
+          comparison_operator:
+            raw_comparison_operator: <
+          quoted_literal: "'2020-01-01'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: UNSET
+    - keyword: FROZEN
+    - keyword: WHERE
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: UNSET
+    - keyword: DCM
+    - keyword: PROJECT
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'10 minutes'"
+    - comma: ','
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: wh
+- statement_terminator: ;

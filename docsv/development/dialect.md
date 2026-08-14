@@ -31,46 +31,38 @@ this:
 ```python
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
+
     type = "select_clause"
-    match_grammar = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
-        terminator=OneOf(
-            "FROM",
-            "WHERE",
-            "ORDER",
-            "LIMIT",
-            "OVERLAPS",
-            Ref("SetOperatorSegment"),
+    match_grammar: Matchable = Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            allow_trailing=True,
         ),
-        enforce_whitespace_preceding_terminator=True,
+        Dedent,
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
-    parse_grammar = Ref("SelectClauseSegmentGrammar")
 ```
 
-This says the `SelectClauseSegment` starts with `SELECT` or
-`SELECT *` and ends when it encounters a `FROM`, `WHERE`,
-`ORDER`...etc. line.
+This says the `SelectClauseSegment` starts with `SELECT`, contains a
+delimited list of select elements, and ends when it encounters a `FROM`,
+`WHERE`, `ORDER BY`...etc. clause (the terminators).
 
-The `match_grammar` is what is used primarily to try to match and parse
-the statement. It can be relatively simple (as in this case), to quickly match
-just the start and terminating clauses. If that is the case, then a
-`parse_grammar` is needed to actually delve into the statement itself
-with all the clauses and parts it is made up of. The `parse_grammar`
-can be fully defined in the class or, like above example, reference another
-class with the definition.
+The `match_grammar` is what is used to match and parse the statement. The
+`terminators` tell the parser where this segment ends: parsing can be quite
+intensive and complicated as the parser tries various combinations of classes
+and segments to match the SQL, so knowing where a segment stops (here at the
+start of the next clause, such as `FROM` or `WHERE`) helps it match efficiently.
+The `parse_mode` of `ParseMode.GREEDY_ONCE_STARTED` tells the parser to greedily
+claim everything up to a terminator once it has matched the start of the
+segment, which lets any unexpected content surface as an `unparsable` section
+rather than silently failing the whole match.
 
-The `match_grammar` is used to quickly identify the start and end of
-this block, as parsing can be quite intensive and complicated as the parser
-tries various combinations of classes and segments to match the SQL
-(particularly optional ones like the `WildcardExpressionSegment` above,
-or when there is a choice of statements that could be used).
-
-For some statements a quick match is not needed, and so we can delve straight
-into the full grammar definition. In that case the `match_grammar` will
-be sufficient and we don't need the optional `parse_grammar`.
-
-Here's another statement, which only uses the `match_grammar` and doesn't
-have (or need!) an optional `parse_grammar`:
+Here's another statement, which uses a plain `match_grammar` with no
+terminators or greedy parse mode, because it is short and unambiguous:
 
 ```python
 class JoinOnConditionSegment(BaseSegment):
@@ -107,7 +99,7 @@ make up of a SQL statement. Here's the `DeleteStatementSegment`
 definition:
 
 ```python
-parse_grammar = Sequence(
+match_grammar = Sequence(
     "DELETE",
     Ref("FromClauseSegment"),
     Ref("WhereClauseSegment", optional=True),
@@ -125,7 +117,7 @@ to define SQL syntax.
 
 A Segment is a piece of the syntax which defines a `type` (which can
 be useful to reference later in rules or parse trees). This can be through
-one of the functions that creates a Segment (e.g. `NamedParser`,
+one of the functions that creates a Segment (e.g. `TypedParser`,
 `SegmentGenerator`...etc.) or through a class.
 
 A Grammar is a section of syntax that can be used in a Segment. Typically
@@ -384,7 +376,7 @@ This was in the `postgres` dialect, so I had a look at
 [dialect_postgres.py](https://github.com/sqlfluff/sqlfluff/blob/main/src/sqlfluff/dialects/dialect_postgres.py) and found the code in `CreateFunctionStatementSegment` which had the following:
 
 ```python
-parse_grammar = Sequence(
+match_grammar = Sequence(
     "CREATE",
     Sequence("OR", "REPLACE", optional=True),
     Ref("TemporaryGrammar", optional=True),
@@ -424,7 +416,7 @@ Fixing the issue was as simple as adding the `SETOF` structure as
 another return option:
 
 ```python
-parse_grammar = Sequence(
+match_grammar = Sequence(
     "CREATE",
     Sequence("OR", "REPLACE", optional=True),
     Ref("TemporaryGrammar", optional=True),
@@ -775,14 +767,12 @@ corresponding SQLFluff grammar in a similar top-down way:
 `postgres.SelectStatementSegment` --> we see it's mostly a copy of
 the ANSI select statement, so --> `ansi.SelectStatementSegment` -->
 remember `Ref` always picks the dialect-specific grammar first -->
-`postgres.SelectClauseSegment` -->
-`ansi.SelectClauseSegment.parse_grammar` -->
-`postgres.SelectClauseSegmentGrammar` -->
+`postgres.SelectClauseSegment.match_grammar` -->
 `ansi.SelectClauseElementSegment` -->
 `ansi.BaseExpressionElementGrammar` -->
 `ansi.ExpressionSegment` --> `ansi.Expression_A_Grammar` -->
 `ansi.Expression_C_Grammar` --> `ansi.Expression_D_Grammar` -->
-notice this at the end of the sequence --> `postgres.Accessor_Grammar`
+notice this at the end of the sequence --> `postgres.AccessorGrammar`
 --> `postgres.ArrayAccessorSegment`. As you navigate, always remember to
 check for dialect-specific grammar before falling back to the inherited grammar
 (e.g. ANSI). Finally, we have found the part of the grammar that corresponds to

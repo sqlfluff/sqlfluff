@@ -216,6 +216,30 @@ test_pass_table_expression_function_6558:
     core:
       dialect: bigquery
 
+test_pass_unnest_deeply_nested_struct_6997:
+  # An UNNEST alias referenced only through several levels of struct access is
+  # still a reference. The UNNEST chain and deep struct access are each covered
+  # above; this pins the combination reported in issue #6997.
+  pass_str: |
+    WITH test_table AS (
+        SELECT
+            1 AS id,
+            ARRAY<
+                STRUCT<repeated_structs STRUCT<nested_struct STRUCT<generic_field STRING>>>
+            >[
+                STRUCT(STRUCT(STRUCT('abc' AS generic_field)))
+            ] AS generic_array
+    )
+
+    SELECT
+        test_table.id,
+        g.repeated_structs.nested_struct.generic_field
+    FROM test_table
+    LEFT JOIN UNNEST(test_table.generic_array) AS g
+  configs:
+    core:
+      dialect: bigquery
+
 test_mysql_identifier_with_backticks_should_not_except:
   pass_str: |
     SELECT `f`.`bar`, `g`.`baz` FROM `foo` AS `f` LEFT JOIN `foobar` AS `g`;

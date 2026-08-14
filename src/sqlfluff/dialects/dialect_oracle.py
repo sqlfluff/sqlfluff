@@ -107,7 +107,11 @@ oracle_dialect.patch_lexer_matchers(
         ),
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<!\.)|(?=\b))",
+            # Like ANSI, but no bare leading-dot form (.\d+). Allow trailing-dot
+            # numerics (1.) via \d+\.(?![\.\w]), keep (?=\b) for digit/identifier
+            # splits, and also allow Oracle size suffixes (256K / 10P / 10E)
+            # matching SizeClauseGrammar's K/M/G/T/P/E (case-insensitive) (#8110).
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b)|(?=[KMGTPEkmgtpe]\b))",
             LiteralSegment,
         ),
     ]
@@ -120,9 +124,37 @@ oracle_dialect.insert_lexer_matchers(
             r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
             CommentSegment,
         ),
+        RegexLexer(
+            "accept_command",
+            (
+                r"[aA][cC][cC](?:[eE][pP][tT])?"
+                r"[^\S\r\n]+(?:'(?:[^']|'')*'|[^;(\r\n)])*((?=\n)|(?=\r\n)|$)"
+            ),
+            CommentSegment,
+        ),
+        RegexLexer(
+            "remark_command",
+            (
+                r"[rR][eE][mM](?:[aA][rR][kK])?"
+                r"(?:[^\S\r\n]+"
+                r"(?:'(?:[^']|'')*'|[^;(\r\n)])*)?((?=\n)|(?=\r\n)|$)"
+            ),
+            CommentSegment,
+        ),
         StringLexer("at_sign", "@", CodeSegment),
     ],
     before="word",
+)
+
+oracle_dialect.insert_lexer_matchers(
+    [
+        # Positional SQL*Plus substitution variables (&1, &&1) are lexed as a
+        # single token so that a trailing "." terminator (e.g. `&&1.`) is left
+        # as a separate segment rather than being absorbed into a numeric
+        # literal (`1.`), which would lose the substitution-variable boundary.
+        RegexLexer("substitution_variable", r"&&?\d+", CodeSegment),
+    ],
+    before="ampersand",
 )
 
 oracle_dialect.insert_lexer_matchers(
@@ -161,6 +193,12 @@ oracle_dialect.add(
         ),
     ),
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
+    # `%` as an attribute indicator (%TYPE, %ROWTYPE, %FOUND, ...). Distinct
+    # from ModuloSegment so the global `spacing_within = touch` on
+    # "binary_operator" doesn't force spaces around it as if it were arithmetic.
+    AttributeIndicatorSegment=StringParser(
+        "%", SymbolSegment, type="attribute_indicator"
+    ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     # Colon prefix for bind variables (:var) and trigger pseudorecords
     # (:NEW, :OLD). Distinct from ColonSegment so the global
@@ -309,6 +347,7 @@ oracle_dialect.add(
     ),
     IterationBoundsGrammar=OneOf(
         Ref("NumericLiteralSegment"),
+        Ref("FunctionSegment"),
         Ref("SingleIdentifierGrammar"),
         Sequence(
             Ref("SingleIdentifierGrammar"),
@@ -388,7 +427,7 @@ oracle_dialect.add(
     ),
     ImplicitCursorAttributesGrammar=Sequence(
         Ref("SingleIdentifierGrammar"),
-        Ref("ModuloSegment"),
+        Ref("AttributeIndicatorSegment"),
         OneOf(
             "ISOPEN",
             "FOUND",
@@ -452,7 +491,16 @@ oracle_dialect.add(
         ),
     ),
     ForUpdateGrammar=Sequence(
-        "FOR", "UPDATE", Sequence("OF", Ref("TableReferenceSegment"), optional=True)
+        "FOR",
+        "UPDATE",
+        Sequence("OF", Ref("TableReferenceSegment"), optional=True),
+        # Locking behaviour: NOWAIT | WAIT integer | SKIP LOCKED
+        OneOf(
+            "NOWAIT",
+            Sequence("WAIT", Ref("NumericLiteralSegment")),
+            Sequence("SKIP", "LOCKED"),
+            optional=True,
+        ),
     ),
     CompileClauseGrammar=Sequence(
         "COMPILE",
@@ -691,6 +739,22 @@ oracle_dialect.replace(
         Ref.keyword("TEMPORARY"),
         optional=True,
     ),
+    TimeWithTZGrammar=OneOf(
+        Sequence(
+            "TIMESTAMP",
+            Ref("BracketedArguments", optional=True),
+            OneOf(
+                Sequence("WITH", "LOCAL", "TIME", "ZONE"),
+                Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "TIME",
+            Ref("BracketedArguments", optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+    ),
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
     ),
@@ -886,6 +950,49 @@ oracle_dialect.replace(
 )
 
 
+class IntervalDataTypeSegment(BaseSegment):
+    """An INTERVAL data type segment for Oracle.
+
+    Handles the two Oracle interval types:
+    - INTERVAL YEAR [(year_precision)] TO MONTH
+    - INTERVAL DAY [(day_precision)] TO SECOND [(fractional_seconds_precision)]
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html#GUID-C8C6D1D4-7B68-4A6A-BD77-DA8B5578B35C
+    """
+
+    type = "interval_data_type"
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            Sequence(
+                "YEAR",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                "TO",
+                "MONTH",
+            ),
+            Sequence(
+                "DAY",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                "TO",
+                "SECOND",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            ),
+        ),
+    )
+
+
+class DatatypeSegment(ansi.DatatypeSegment):
+    """A data type segment for Oracle.
+
+    Extends the ANSI data type segment to include Oracle-specific interval types.
+    """
+
+    match_grammar: Matchable = OneOf(
+        Ref("IntervalDataTypeSegment"),
+        ansi.DatatypeSegment.match_grammar,
+    )
+
+
 class MultisetOperatorSegment(BaseSegment):
     """A MULTISET operator (MULTISET EXCEPT/INTERSECT/UNION [ALL|DISTINCT]).
 
@@ -1053,7 +1160,10 @@ class AlterTableConstraintClauses(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             "ADD",
-            Ref("TableConstraintSegment"),
+            OneOf(
+                Ref("TableConstraintSegment"),
+                Bracketed(Delimited(Ref("TableConstraintSegment"))),
+            ),
         ),
         # @TODO MODIFY
         # @TODO DROP
@@ -1347,7 +1457,10 @@ class BatchSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Delimited(
-                Ref("StatementSegment"),
+                OneOf(
+                    Ref("SqlplusSetStatementSegment"),
+                    Ref("StatementSegment"),
+                ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
                 allow_gaps=True,
                 allow_trailing=True,
@@ -1363,6 +1476,16 @@ class SlashBufferExecutorSegment(BaseSegment):
 
     type = "slash_buffer_executor"
     match_grammar = Ref("SlashSegment")
+
+
+class SqlplusSetStatementSegment(BaseSegment):
+    """A SQL*Plus `SET` command."""
+
+    type = "sqlplus_set_statement"
+
+    match_grammar = Sequence(
+        "SET", StringParser("SCAN", WordSegment, type="keyword"), OneOf("ON", "OFF")
+    )
 
 
 class CommentStatementSegment(BaseSegment):
@@ -1919,17 +2042,28 @@ class FunctionNameSegment(BaseSegment):
 
 
 class SubstitutionVariableSegment(BaseSegment):
-    """SQL*Plus substitution variable (&var, &&var).
+    """SQL*Plus substitution variable (&var, &&var, &1, &&1).
+
+    Substitution variables are referenced either by name (``&var``, ``&&var``)
+    or by position (``&1``, ``&&1``), the latter being substituted from the
+    arguments passed to the calling script.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/using-substitution-variables-sqlplus.html
     """
 
     type = "substitution_variable"
 
-    match_grammar = Sequence(
-        Ref("AmpersandSegment"),
-        Ref("AmpersandSegment", optional=True),
-        Ref("SingleIdentifierGrammar"),
+    match_grammar = OneOf(
+        # Positional (&1, &&1): lexed as a single token so the trailing "."
+        # terminator is not swallowed into a numeric literal.
+        TypedParser("substitution_variable", CodeSegment),
+        # Named (&var, &&var).
+        Sequence(
+            Ref("AmpersandSegment"),
+            Ref("AmpersandSegment", optional=True),
+            Ref("SingleIdentifierGrammar"),
+            allow_gaps=False,
+        ),
     )
 
 
@@ -2030,6 +2164,43 @@ class JsonTableFunctionNameSegment(BaseSegment):
     )
 
 
+class XmlAttributesFunctionNameSegment(BaseSegment):
+    """XMLATTRIBUTES function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "XMLATTRIBUTES", WordSegment, type="function_name_identifier"
+    )
+
+
+class XmlAttributesFunctionContentsSegment(BaseSegment):
+    """XMLATTRIBUTES function contents.
+
+    Each attribute takes an optional alias, either a static ``[AS] c_alias`` or a
+    dynamic ``AS EVALNAME value_expr``. The generic function contents grammar
+    rejects both because it only allows ``AS <datatype>``.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/XMLATTRIBUTES.html
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("ExpressionSegment"),
+                OneOf(
+                    Sequence("AS", "EVALNAME", Ref("ExpressionSegment")),
+                    Ref("AliasExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function with Oracle-specific JSON_TABLE support."""
 
@@ -2038,6 +2209,10 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 Ref("JsonTableFunctionNameSegment"),
                 Ref("JsonTableFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("XmlAttributesFunctionNameSegment"),
+                Ref("XmlAttributesFunctionContentsSegment"),
             ),
         ],
         at=0,
@@ -2514,7 +2689,7 @@ class ColumnTypeReferenceSegment(BaseSegment):
     type = "column_type_reference"
 
     match_grammar = Sequence(
-        Ref("ColumnReferenceSegment"), Ref("ModuloSegment"), "TYPE"
+        Ref("ColumnReferenceSegment"), Ref("AttributeIndicatorSegment"), "TYPE"
     )
 
 
@@ -2527,7 +2702,7 @@ class RowTypeReferenceSegment(BaseSegment):
     type = "row_type_reference"
 
     match_grammar = Sequence(
-        Ref("TableReferenceSegment"), Ref("ModuloSegment"), "ROWTYPE"
+        Ref("TableReferenceSegment"), Ref("AttributeIndicatorSegment"), "ROWTYPE"
     )
 
 
@@ -2718,7 +2893,11 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar", optional=True),
         "RETURN",
-        Ref("DatatypeSegment"),
+        OneOf(
+            Ref("ColumnTypeReferenceSegment"),
+            Ref("RowTypeReferenceSegment"),
+            Ref("DatatypeSegment"),
+        ),
         Ref("SharingClauseGrammar", optional=True),
         AnyNumberOf(
             Ref("DefaultCollationClauseGrammar"),
@@ -3677,7 +3856,11 @@ class IntoClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "INTO",
-        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment"))),
+        Delimited(
+            Ref("SingleIdentifierGrammar"),
+            Ref("ObjectReferenceSegment"),
+            Ref("BindVariableSegment"),
+        ),
     )
 
 

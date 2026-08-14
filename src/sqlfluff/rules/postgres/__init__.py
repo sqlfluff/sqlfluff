@@ -18,5 +18,6 @@ def get_rules() -> list[type[BaseRule]]:
     when rules aren't used.
     """
     from sqlfluff.rules.postgres.PG01 import Rule_PG01
+    from sqlfluff.rules.postgres.PG02 import Rule_PG02
 
-    return [Rule_PG01]
+    return [Rule_PG01, Rule_PG02]

@@ -86,7 +86,12 @@ class Rule_AL01(BaseRule):
 
             elif self.aliasing != "implicit":
                 self.logger.debug("Inserting AS keyword and respacing.")
-                for identifier in context.segment.raw_segments:
+                # Anchor on the first code *child* rather than the first code
+                # raw segment. Some aliases (e.g. a bare column list like
+                # `(a, b)`) wrap their content in a `bracketed` segment, and
+                # anchoring on the nested bracket would insert the `AS` inside
+                # it, where the `alias_operator` check above can't see it.
+                for identifier in context.segment.segments:
                     if identifier.is_code:
                         break
                 else:  # pragma: no cover
@@ -98,9 +103,9 @@ class Rule_AL01(BaseRule):
                 )
                 # if the pre sibling has already a leading whitespace at it's tail
                 # we do not need an additional leading whitespace
-                has_leading_whitespace = context.siblings_pre and isinstance(
-                    context.siblings_pre[-1], WhitespaceSegment
-                )
+                has_leading_whitespace = bool(
+                    context.siblings_pre
+                ) and context.siblings_pre[-1].is_type("whitespace")
                 if has_leading_whitespace:
                     edit_segments = [as_alias_operator_segment, WhitespaceSegment()]
                 else:

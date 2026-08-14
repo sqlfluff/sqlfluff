@@ -27,6 +27,7 @@ from sqlfluff.core.parser.parsers import (
 )
 from sqlfluff.core.parser.segments.base import BaseSegment, SegmentMetaclass
 from sqlfluff.core.parser.segments.meta import MetaSegment
+from sqlfluff.core.parser.segments.raw import RawSegment
 
 
 @dataclass
@@ -77,6 +78,7 @@ class TableBuilder:
     FLAG_HAS_SIMPLE_HINT = 1 << 5
     FLAG_HAS_EXCLUDE = 1 << 6
     FLAG_IS_CONDITIONAL = 1 << 8  # For Meta - whether it's a Conditional Meta
+    FLAG_CASE_SENSITIVE = 1 << 9  # For RegexParser: Python ignore_case=False
 
     def __init__(self):
         # Core tables
@@ -117,10 +119,15 @@ class TableBuilder:
         self.regex_to_id: Dict[str, int] = {}
         self.grammar_to_id: Dict[int, int] = {}  # Python id() -> GrammarId
 
-        # Keep references to synthetic grammars to prevent garbage collection.
-        # Python may reuse memory addresses for new objects after GC, which
-        # would cause incorrect cache hits in grammar_to_id when using id().
-        self._synthetic_grammars: List = []
+        # Keep a reference to every grammar object we cache in grammar_to_id.
+        # Python may reuse a garbage-collected object's memory address for a
+        # later, unrelated grammar; without pinning, that new grammar would
+        # silently inherit the freed object's cached GrammarId - wiring a
+        # semantically wrong subgrammar into the emitted tables. Pin every
+        # cached grammar (dialect-defined or synthetic, e.g. the OneOf
+        # _handle_delimited builds for multi-element Delimited grammars) for
+        # the builder's lifetime so no id() is ever reused while cached.
+        self._cached_grammars: List = []
         self.hint_to_id: Dict[Tuple[Tuple[str, ...], Tuple[str, ...]], int] = {}
 
     def _add_string(self, s: str) -> int:
@@ -233,6 +240,11 @@ class TableBuilder:
             flags |= self.FLAG_OPTIONAL_DELIMITER
         if getattr(grammar, "exclude", None) is not None:
             flags |= self.FLAG_HAS_EXCLUDE
+        # Python `RegexParser(ignore_case=False)`: The Rust RegexParser matcher
+        # defaults to case-insensitive, so flag the exceptions; only that handler
+        # reads this bit. Non-regex grammars have no `ignore_case` (default True).
+        if not getattr(grammar, "ignore_case", True):
+            flags |= self.FLAG_CASE_SENSITIVE
         return flags
 
     def _get_parse_mode(self, grammar) -> str:
@@ -266,6 +278,9 @@ class TableBuilder:
         # instruction will end up at the wrong index!
         grammar_id = len(self.instructions)
         self.grammar_to_id[python_id] = grammar_id
+        # Pin the object so its id() cannot be reused by a different grammar
+        # while the cache entry is live (see _cached_grammars in __init__).
+        self._cached_grammars.append(grammar)
         self.instructions.append(None)  # Reserve slot - will be replaced below
         # Reserve a slot for the segment_type offset (default: no type)
         self.segment_type_offsets.append(0xFFFFFFFF)
@@ -773,8 +788,6 @@ class TableBuilder:
                 allow_gaps=grammar.allow_gaps,
                 optional=True,  # Elements in Delimited are implicitly optional
             )
-            # Keep reference to prevent GC and id() reuse
-            self._synthetic_grammars.append(elements_oneof)
             elements_id = self.flatten_grammar(elements_oneof, parse_context)
             comment = f"Delimited({len(grammar._elements)} elements via OneOf)"
         else:
@@ -1292,8 +1305,33 @@ class TableBuilder:
         )
 
     def _handle_token(self, grammar, parse_context) -> GrammarInstData:
-        """Convert Token (BaseSegment without match_grammar) to GrammarInst."""
+        """Convert Token (BaseSegment without match_grammar) to GrammarInst.
+
+        Aux block: ``[type_id, class_name_id, flags, ct_count, ct_ids...]``.
+        A bare class matches iff the token is already an ``isinstance`` (kept
+        unchanged), reproduced as ``_class_types`` ⊆ the token's class chain
+        plus, for RawSegment subclasses, ``is_code``/``is_comment``/
+        ``is_whitespace`` equality (flags word: bit3 = raw-target valid,
+        bit0/1/2 = is_code/is_comment/is_whitespace). The flags are needed
+        because ``CodeSegment``'s chain is only ``{base, raw}``.
+        """
         type_id = self._add_string(grammar.type)
+        class_id = self._add_string(grammar.__name__)
+        class_types = sorted(getattr(grammar, "_class_types", frozenset()))
+        flags = 0
+        if issubclass(grammar, RawSegment):
+            flags = (
+                0b1000
+                | (0b0001 if grammar._is_code else 0)
+                | (0b0010 if grammar._is_comment else 0)
+                | (0b0100 if grammar._is_whitespace else 0)
+            )
+        aux_offset = len(self.aux_data)
+        self.aux_data.append(type_id)
+        self.aux_data.append(class_id)
+        self.aux_data.append(flags)
+        self.aux_data.append(len(class_types))
+        self.aux_data.extend(self._add_string(t) for t in class_types)
         return GrammarInstData(
             variant="Token",
             flags=0,
@@ -1303,7 +1341,7 @@ class TableBuilder:
             min_times=0,
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
-            aux_data_offset=type_id,
+            aux_data_offset=aux_offset,
             simple_hint_idx=0,
             comment=f'Token("{grammar.type}")',
         )

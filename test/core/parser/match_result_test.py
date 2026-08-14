@@ -5,6 +5,7 @@ NOTE: This is all experimental for now.
 
 import pytest
 
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments import BaseSegment, Dedent, Indent
 
@@ -96,3 +97,29 @@ def test__parser__matchresult2_apply(
     # Test that _every_ segment (including metas) has a position marker already.
     for seg in out_segments:
         _recursive_assert_pos(seg)
+
+
+def test__parser__matchresult2_apply_zero_length_with_context(
+    generate_test_segments,
+):
+    """Test parse-node accounting when applying a zero-length match.
+
+    Meta inserts on a zero-length match are counted against the
+    parse-node limit when a ParseContext is provided (unlike in the
+    main trigger loop, where metas are deliberately not counted).
+    """
+    input_segments = generate_test_segments(["a"])
+    match_result = MatchResult(
+        matched_slice=slice(0, 0),
+        insert_segments=((0, Dedent),),
+    )
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
+    assert ctx.current_parse_nodes == 0
+
+    out_segments = match_result.apply(input_segments, parse_context=ctx)
+
+    assert ctx.current_parse_nodes == 1
+    serialised = tuple(
+        seg.to_tuple(show_raw=True, include_meta=True) for seg in out_segments
+    )
+    assert serialised == (("dedent", ""),)

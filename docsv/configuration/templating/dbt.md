@@ -1,16 +1,5 @@
 # `dbt` templater
 
-::: tip NOTE
-From sqlfluff version 0.7.0 onwards, the dbt templater has been moved
-to a separate plugin and python package. Projects that were already using
-the dbt templater may initially fail after an upgrade to 0.7.0+. See the
-installation instructions below to install the dbt templater.
-
-dbt templating is still a relatively new feature added in 0.4.0 and
-is still in very active development! If you encounter an issue, please
-let us know in a GitHub issue or on the SQLFluff slack workspace.
-:::
-
 `dbt` is not the default templater for *SQLFluff* (it is `jinja`).
 `dbt` is a complex tool, so using the default `jinja` templater
 will be simpler. You should be aware when using the `dbt` templater that
@@ -66,7 +55,18 @@ In *.sqlfluff*:
 ```ini
 [sqlfluff]
 templater = dbt
+encoding = utf-8
 ```
+
+::: tip
+Setting `encoding = utf-8` is recommended for dbt projects where *SQLFluff*
+may write files, for example when running `sqlfluff fix`.
+The dbt templater uses dbt to read project files during compilation, while
+*SQLFluff* writes fixed files using its configured encoding. Setting the
+encoding explicitly avoids relying on autodetection and can prevent
+`UnicodeDecodeError` failures when dbt reads files after they have been
+fixed by *SQLFluff*.
+:::
 
 In *.sqlfluffignore*:
 

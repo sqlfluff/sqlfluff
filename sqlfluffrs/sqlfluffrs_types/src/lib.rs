@@ -8,6 +8,7 @@ pub mod matcher;
 pub mod parser;
 pub mod regex;
 pub mod slice;
+pub mod string;
 pub mod templater;
 pub mod token;
 pub use config::fluffconfig::FluffConfig;
@@ -17,7 +18,7 @@ pub use grammar_tables::{
     ChildrenIter, GrammarInstExt, GrammarTables, SimpleHintData, TableMemoryStats, TerminatorsIter,
 };
 pub use marker::PositionMarker;
-pub use matcher::LexMatcher;
+pub use matcher::{BracketPairEntry, BracketPairSet, LexMatcher, LexMatcherConfig};
 pub use parser::{ParseMode, RootGrammar, SimpleHint};
 pub use regex::{RegexMode, RegexModeGroup};
 pub use slice::Slice;
