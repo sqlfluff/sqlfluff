@@ -9,6 +9,7 @@ import sidebarRules from './sidebar-rules.json'
 import sidebarCli from './sidebar-cli.json'
 import sidebarApi from './sidebar-api.json'
 import sidebarDialects from './sidebar-dialects.json'
+import sidebarInternals from './sidebar-internals.json'
 import { manifestPath, normalizeBase, withDocsBase } from './path-utils'
 import { DESIGN_SOURCE, assertDesignPackage } from '../scripts/sync-design.mjs'
 
@@ -19,6 +20,7 @@ const GUIDE: DefaultTheme.NavItemWithLink[] = [
     { text: 'Custom Usage', link: '/guide/custom-usage' },
     { text: 'Why SQLFluff?', link: '/guide/why' },
     { text: 'Vision', link: '/guide/vision' },
+    { text: 'SQLFluff in the Wild', link: '/guide/in-the-wild' },
 ]
 
 const TEMPLATING: DefaultTheme.SidebarItem = {
@@ -51,7 +53,8 @@ const CONFIGURATION_NAV: DefaultTheme.NavItemWithLink[] = [
 ]
 
 const USAGE_GUIDES: DefaultTheme.NavItemWithLink[] = [
-    { text: 'Production Usage', link: '/usage/' },
+    { text: 'CLI Exit Codes', link: '/usage/cli' },
+    { text: 'Security', link: '/usage/security' },
     { text: 'Team Rollout', link: '/usage/team-rollout' },
     { text: 'CI/CD Integration', link: '/usage/ci-cd' },
     { text: 'Pre-commit', link: '/usage/pre-commit' },
@@ -66,6 +69,7 @@ const DEVELOPMENT: DefaultTheme.NavItemWithLink[] = [
     { text: 'Plugins', link: '/development/plugins' },
     { text: 'Custom Rules', link: '/development/custom-rules' },
     { text: 'Documentation', link: '/development/documentation' },
+    { text: 'Using Git', link: '/development/git' },
 ]
 
 const REFERENCES: DefaultTheme.NavItemWithLink[] = [
@@ -76,7 +80,14 @@ const REFERENCES: DefaultTheme.NavItemWithLink[] = [
     { text: 'Release Notes', link: '/reference/release-notes' },
 ]
 
-const docsBase = normalizeBase(process.env.SQLFLUFF_DOCS_BASE, '/sqlfluff/')
+/**
+ * Defaults to the layout the site is actually published under, so a local build
+ * matches production without being told to. `/sqlfluff/` matched nothing that is
+ * deployed, and because the version picker reads the current version out of the
+ * base, an unversioned default meant the picker and the version notice could not
+ * appear locally at all. Every publishing path sets this explicitly.
+ */
+const docsBase = normalizeBase(process.env.SQLFLUFF_DOCS_BASE, '/en/latest/')
 const noIndex = process.env.SQLFLUFF_DOCS_NOINDEX === '1'
 
 assertDesignPackage()
@@ -125,10 +136,9 @@ if (noIndex) {
  * The release entries it names are not built locally, so following one of those
  * links in dev lands on the dev server's own 404.
  *
- * A versioned base is required for any of this to appear, since the picker takes
- * the current version from the base:
- *
- *   SQLFLUFF_DOCS_BASE=/en/latest/ pnpm docs:dev
+ * The picker takes the current version from the base, so this only resolves to
+ * anything under a versioned base. That is now the default, and
+ * `SQLFLUFF_DOCS_BASE` overrides it to preview another version.
  *
  * `apply: 'serve'` keeps this out of production builds, and registering the
  * middleware directly in `configureServer` runs it ahead of Vite's own base
@@ -203,6 +213,7 @@ export default defineConfig({
                     sidebarApi,
                     sidebarDialects,
                     { text: 'Release Notes', link: '/reference/release-notes' },
+                    sidebarInternals,
                 ]
             },
         ],
