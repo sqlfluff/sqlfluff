@@ -9,14 +9,14 @@ Documentation takes two forms:
 
 1. Embedded documentation found in function and module [docstrings](https://en.wikipedia.org/wiki/Docstring).
 
-2. The free-standing documentation which you're reading now, and hosted
-   at [docs.sqlfluff.com](https://docs.sqlfluff.com) (built using `sphinx` and [ReadtheDocs](https://about.readthedocs.com/)).
+2. The free-standing documentation which you're reading now, hosted at
+   [docs.sqlfluff.com](https://docs.sqlfluff.com) and built using [VitePress](https://vitepress.dev/).
 
-The two are somewhat blurred by the use of [autodoc](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) (and some other custom
-integrations), where documentation is generated directly off [docstrings](https://en.wikipedia.org/wiki/Docstring)
-within the codebase, for example the [Rules Reference](/reference/rules/index), [CLI Reference](/reference/cli/index) and
-[Dialect Reference](/reference/dialects/index). To understand more about how the custom integrations
-we use to generate these docs, see the [generate-auto-docs.py](https://github.com/sqlfluff/sqlfluff/blob/main/docs/generate-auto-docs.py) file.
+The two are somewhat blurred by a set of custom generation scripts that emit Markdown pages
+directly from [docstrings](https://en.wikipedia.org/wiki/Docstring) in the codebase — for example the
+[Rules Reference](/reference/rules/index), [CLI Reference](/reference/cli/index),
+[Dialect Reference](/reference/dialects/index), and [Internal API Reference](/reference/internals/index).
+All generation is orchestrated by [`docsv/scripts/generate-all-docs.py`](https://github.com/sqlfluff/sqlfluff/blob/main/docsv/scripts/generate-all-docs.py).
 
 For the active beta-docs migration and deployment work, see the
 [Versioned Beta Docs Hosting Plan](/development/versioned-docs-hosting).
@@ -31,74 +31,76 @@ that docstrings are present and correctly formatted using the
 [pydocstyle rules for ruff](https://docs.astral.sh/ruff/rules/#pydocstyle-d), which we have configured to enforce the
 [google style of docstrings](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
 
-## Sphinx Docs
+## VitePress Docs
 
-The main documentation (which you're reading now), is build using [sphinx](https://www.sphinx-doc.org/en/master/),
-and written using [reStructuredText](https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html) (files ending with `.rst`). The
-[sphinx](https://www.sphinx-doc.org/en/master/) project offers a [reStructuredText primer](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html) for people who are new
-to the syntax (and the SQLFluff project uses [doc8](https://github.com/PyCQA/doc8) in the CI process to try
-and catch any issues early).
+The free-standing documentation is written in [Markdown](https://www.markdownguide.org/) (files ending
+with `.md`) and built with [VitePress](https://vitepress.dev/). Source files live under `docsv/`.
 
-On top of those docs, there are a few areas worth highlighting for new (or
-returning) users, which are either specific to the SQLFluff project, or not
-particularly clear in the sphinx docs:
+### Writing Markdown
 
-* [reStructuredText](https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html) is very similar to, but differs from (the somewhat more
-  well known) [Markdown](https://www.markdownguide.org/) syntax. Importantly:
+VitePress uses standard [CommonMark](https://commonmark.org/) Markdown with some extensions:
 
-  * `*text with single asterisks*` renders as *italics*. Use
-    `**double asterisks**` for **bold text**.
+- `*single asterisks*` or `_underscores_` render as *italics*; `**double asterisks**` for **bold**.
+- Inline code uses single backticks: `` `code` ``. Fenced code blocks use triple backticks with an
+  optional language tag for syntax highlighting:
 
-  * `code snippets` are created using the |codesnippet|
-    directive, rather than just lone backticks (|backquotes|) as found in
-    most [Markdown](https://www.markdownguide.org/).
+  ````md
+  ```sql
+  SELECT 1;
+  ```
+  ````
 
-* To create links to other parts of the documentation (i.e.
-  [Cross-referencing](https://www.sphinx-doc.org/en/master/usage/referencing.html)), use either the `:ref:` syntax.
+- VitePress supports custom containers for callouts:
 
-  * Docs for all the SQL dialects are auto generated with associated anchors
-    to use for referencing. For example to link to the
-    `:ref:postgres_dialect_ref` dialect docs, you can use the |postgresref|.
-    Replace the `postgres` portion with the `name` of the
-    dialect you want to link to.
+  ```md
+  ::: tip
+  A helpful tip.
+  :::
 
-  * Docs for all the bundled rules and handled using a customer [sphinx](https://www.sphinx-doc.org/en/master/)
-    plugin, which means you can refer to them using their name or `code:
-    |LT01ref|` resolves to [LT01](/reference/rules/layout#lt01) and `|layoutspacingref|`
-    resolves to [layout.spacing](/reference/rules/layout#lt01).
+  ::: warning
+  A warning.
+  :::
 
-  * Docs for any of the python classes and modules handled using [autodoc](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html)
-    can be referenced as per their docs, so the
-    `sqlfluff.core.rules.base.BaseRule` class can be referenced
-    with |baseruleref|. You can also use the `~` prefix (i.e.
-    |shortbaseruleref|) so that it just renders as
-    `~sqlfluff.core.rules.base.BaseRule`. See the docs for
-    [Cross-referencing](https://www.sphinx-doc.org/en/master/usage/referencing.html) for more details.
+  ::: info
+  An informational note.
+  :::
+  ```
 
-```html
-    <code class="code docutils literal notranslate">`...`</code>
+### Linking between pages
+
+Use standard Markdown links with root-relative paths (no `.md` extension needed):
+
+```md
+See [Configuration](/configuration/) for details.
+See [LT01](/reference/rules/layout#lt01) for the rule reference.
 ```
 
-```html
-    <code class="code docutils literal notranslate">`...`</code>
+### Auto-generated pages
+
+Several reference sections are generated automatically by scripts in `docsv/scripts/` and
+should **not** be edited by hand — your changes will be overwritten on the next build:
+
+| Section | Script |
+|---|---|
+| [Rules Reference](/reference/rules/index) | `generate-rules-docs.py` |
+| [CLI Reference](/reference/cli/index) | `generate-cli-docs.py` |
+| [Dialect Reference](/reference/dialects/index) | `generate-dialects-docs.py` |
+| [Internal API Reference](/reference/internals/index) | `generate-internals-docs.py` |
+
+To update auto-generated content, edit the relevant docstrings in the Python source and
+re-run `python docsv/scripts/generate-all-docs.py`.
+
+### Building the docs locally
+
+```bash
+cd docsv
+pnpm install
+pnpm run docs:build
+pnpm run docs:preview
 ```
 
-```html
-    <code class="code docutils literal notranslate">:ref:`postgres_dialect_ref`</code>
-```
+Or for a live-reloading dev server during writing:
 
-```html
-    <code class="code docutils literal notranslate">:sqlfluff:ref:`LT01`</code>
-```
-
-```html
-    <code class="code docutils literal notranslate">:sqlfluff:ref:`layout.spacing`</code>
-```
-
-```html
-    <code class="code docutils literal notranslate">`sqlfluff.core.rules.base.BaseRule`</code>
-```
-
-```html
-    <code class="code docutils literal notranslate">`~sqlfluff.core.rules.base.BaseRule`</code>
+```bash
+pnpm run docs:dev
 ```
