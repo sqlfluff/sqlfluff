@@ -49,6 +49,19 @@ class Rule_CV06(BaseRule):
         SELECT
             a
         FROM foo;
+
+    .. note::
+
+       Configure this rule under ``[sqlfluff:rules:convention.terminator]``.
+       The option that places the terminator on its own line after a multi-line
+       statement is ``multiline_newline`` (not ``semicolon_newline``, which was
+       an older L052 name and is ignored if still present in config files):
+
+       .. code-block:: cfg
+
+          [sqlfluff:rules:convention.terminator]
+          multiline_newline = True
+          require_final_semicolon = False
     """
 
     name = "convention.terminator"
