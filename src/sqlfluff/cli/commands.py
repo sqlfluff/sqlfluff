@@ -668,6 +668,23 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
         click.echo(payload)
 
 
+def _gha_escape_data(value: str) -> str:
+    """Escape the message body of a GitHub Actions workflow command.
+
+    https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands
+    """
+    # NOTE: '%' must be replaced first, or the escapes get double encoded.
+    return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+
+
+def _gha_escape_property(value: str) -> str:
+    """Escape a property value of a GitHub Actions workflow command.
+
+    Properties additionally escape ':' and ',', which delimit the property block.
+    """
+    return _gha_escape_data(value).replace(":", "%3A").replace(",", "%2C")
+
+
 @cli.command()
 @common_options
 @core_options
@@ -884,7 +901,7 @@ def lint(
 
             # Add a group, titled with the filename
             if record["violations"]:
-                github_result_native.append(f"::group::{filepath}")
+                github_result_native.append(f"::group::{_gha_escape_data(filepath)}")
 
             for violation in record["violations"]:
                 # NOTE: The output format is designed for GitHub action:
@@ -898,7 +915,7 @@ def lint(
                 line = "::notice " if violation["warning"] else f"::{annotation_level} "
 
                 line += "title=SQLFluff,"
-                line += f"file={filepath},"
+                line += f"file={_gha_escape_property(filepath)},"
                 line += f"line={violation['start_line_no']},"
                 line += f"col={violation['start_line_pos']}"
                 if "end_line_no" in violation:
@@ -906,9 +923,10 @@ def lint(
                 if "end_line_pos" in violation:
                     line += f",endColumn={violation['end_line_pos']}"
                 line += "::"
-                line += f"{violation['code']}: {violation['description']}"
+                message = f"{violation['code']}: {violation['description']}"
                 if violation["name"]:
-                    line += f" [{violation['name']}]"
+                    message += f" [{violation['name']}]"
+                line += _gha_escape_data(message)
 
                 github_result_native.append(line)
 

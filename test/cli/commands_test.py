@@ -2427,6 +2427,30 @@ def test__cli__command_lint_serialize_github_annotation_native(
     assert result.stdout == expected_output.format(filename=fpath_normalised)
 
 
+def test__cli__command_lint_serialize_github_annotation_native_escaping(tmp_path):
+    """Test that a comma in a filename is escaped in the annotation properties."""
+    sql_file = tmp_path / "we,ird.sql"
+    sql_file.write_text("SELECT 1 from t\n")
+
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                str(sql_file),
+                "--dialect",
+                "ansi",
+                "--format",
+                "github-annotation-native",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    # An unescaped comma would terminate the `file=` property early.
+    assert f"file={str(sql_file).replace(',', '%2C')}," in result.stdout
+    assert f"file={sql_file}," not in result.stdout
+
+
 @pytest.mark.parametrize("serialize", ["github-annotation", "github-annotation-native"])
 def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
     serialize,
