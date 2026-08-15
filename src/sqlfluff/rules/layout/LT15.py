@@ -83,18 +83,16 @@ class Rule_LT15(BaseRule):
         context_seg = context.segment
 
         # Terminators are only sought for the same-line minimum check; none of the
-        # maximum logic below applies to them. The same outer-statement guard as
-        # the newline path applies: a semicolon delimiting inner statements of a
-        # compound or procedural body is not a gap between top-level statements.
+        # maximum logic below applies to them.
         if context_seg.is_type("statement_terminator"):
-            if any(seg.is_type("statement") for seg in context.parent_stack):
+            if not self._in_between_statements_scope(context):
                 return None
             return self._check_minimum_same_line(context)
 
-        # A minimum only makes sense between statements, so it is checked where we
-        # are not inside one. It runs first because the two cannot both fire on the
-        # same gap: one wants newlines added, the other wants them removed.
-        if not any(seg.is_type("statement") for seg in context.parent_stack):
+        # A minimum only makes sense in the between-statements scope. It runs
+        # first because the two cannot both fire on the same gap: one wants
+        # newlines added, the other wants them removed.
+        if self._in_between_statements_scope(context):
             minimum_result = self._check_minimum(context)
             if minimum_result:
                 return minimum_result
@@ -137,6 +135,29 @@ class Rule_LT15(BaseRule):
             )
         ]
 
+    def _in_between_statements_scope(self, context: RuleContext) -> bool:
+        """Whether this position is the scope the maximum calls between-statements.
+
+        The maximum resolves three scopes and picks a limit for each: inside a
+        statement, between statements within a batch, and between batches at file
+        level. ``minimum_empty_lines_between_statements`` names exactly one of
+        them, so it has to be resolved the same way rather than firing anywhere
+        outside a statement.
+        """
+        if any(seg.is_type("statement") for seg in context.parent_stack):
+            return False
+        if any(seg.is_type("batch") for seg in context.parent_stack):
+            return True
+        # File level. Dialects with batch grammar (T-SQL, Oracle) wrap their
+        # statements in batch nodes, so a gap out here separates batches, which
+        # is the maximum's third scope and not this setting's business. Tested
+        # structurally rather than by dialect name so a dialect that gains batch
+        # grammar later is handled without a code change.
+        return not any(
+            seg.is_type("batch")
+            for seg in (*context.siblings_pre, *context.siblings_post)
+        )
+
     def _check_minimum(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Require at least ``minimum_empty_lines_between_statements`` blank lines.
 
@@ -158,16 +179,21 @@ class Rule_LT15(BaseRule):
         if following and following[0].is_type("newline"):
             return None
 
-        # A gap needs a statement on both sides. Without the preceding check, a
-        # file that opens with a blank line or a comment is treated as a gap
-        # before its first statement and padded, which is a false positive.
-        if not any(seg.is_code for seg in context.siblings_pre):
+        # A gap needs a statement on both sides, tested on the statement type
+        # rather than on any code. Without the preceding check, a file that opens
+        # with a blank line or a comment is treated as a gap before its first
+        # statement and padded. Without the following check, a batch delimiter
+        # (T-SQL `GO`, Oracle `/`) reads as the next statement and the rule
+        # demands a blank line in front of it; those are `go_statement` and
+        # `slash_buffer_executor`, not statements, and they end a batch rather
+        # than starting one.
+        if not any(seg.is_type("statement") for seg in context.siblings_pre):
             return None
 
-        # Skip when nothing but the end of the file follows, so there is no gap to
-        # pad, and when the newline is templated, since that is not ours to rewrite.
+        # Skip when no further statement follows, so there is no gap to pad, and
+        # when the newline is templated, since that is not ours to rewrite.
         if context.segment.is_templated or not any(
-            seg.is_code for seg in context.siblings_post
+            seg.is_type("statement") for seg in context.siblings_post
         ):
             return None
 
@@ -260,8 +286,9 @@ class Rule_LT15(BaseRule):
                 return None
             break
 
-        # Nothing but the end of the file follows, so there is no gap to pad.
-        if not any(seg.is_code for seg in following):
+        # No further statement follows, so there is no gap to pad. A batch
+        # delimiter is not a statement and does not open one.
+        if not any(seg.is_type("statement") for seg in following):
             return None
 
         # No line break at all, so every required blank line is missing and the

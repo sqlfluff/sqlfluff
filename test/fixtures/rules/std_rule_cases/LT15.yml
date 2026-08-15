@@ -471,3 +471,70 @@ test_pass_minimum_ignores_a_template_tag_between_same_line_statements:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_does_not_apply_between_batches_tsql:
+  # the maximum resolves three scopes and only the middle one is "between
+  # statements"; a file-level gap in a batch dialect separates batches, which
+  # maximum_empty_lines_between_batches governs, not this setting
+  pass_str: |
+    SELECT 1;
+
+    SELECT 2;
+    GO
+    SELECT 3;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_applies_between_statements_inside_a_batch_tsql:
+  # inside a batch it is still a gap between statements, so it still applies
+  fail_str: |
+    SELECT 1;
+    SELECT 2;
+    GO
+  fix_str: |
+    SELECT 1;
+
+    SELECT 2;
+    GO
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_does_not_apply_between_batches_oracle:
+  # oracle has the same batch grammar, delimited by '/'
+  pass_str: |
+    SELECT 1 FROM dual;
+
+    SELECT 2 FROM dual;
+    /
+    SELECT 3 FROM dual;
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_applies_between_statements_inside_a_batch_oracle:
+  fail_str: |
+    SELECT 1 FROM dual;
+    SELECT 2 FROM dual;
+    /
+  fix_str: |
+    SELECT 1 FROM dual;
+
+    SELECT 2 FROM dual;
+    /
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
