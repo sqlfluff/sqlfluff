@@ -279,6 +279,47 @@ test_pass_indented_using_on_merge_statment_false:
     indentation:
       indented_using_on: false
 
+test_pass_indented_joins_lateral_subquery:
+  # Regression test for #8345: `CROSS JOIN LATERAL (` should stay on
+  # the same line even when a second sibling join follows, rather than
+  # forcing a line break before the `LATERAL` keyword of the first join.
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS id
+    ) t
+        CROSS JOIN LATERAL (
+            SELECT 1 AS x
+        ) a
+        CROSS JOIN LATERAL (
+            SELECT 1 AS y
+        ) b
+  configs:
+    core:
+      dialect: postgres
+    indentation:
+      indented_joins: true
+
+test_pass_indented_joins_function_subquery:
+  # As above, but where the join element starts with a function call
+  # which wraps over multiple lines via its own brackets.
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS id
+    ) t
+        CROSS JOIN my_func(
+            a,
+            b
+        ) AS x
+        CROSS JOIN my_func(
+            c,
+            d
+        ) AS y
+  configs:
+    indentation:
+      indented_joins: true
+
 test_pass_indented_on_contents_default:
   # Test indented_on_contents when default (true)
   pass_str: |

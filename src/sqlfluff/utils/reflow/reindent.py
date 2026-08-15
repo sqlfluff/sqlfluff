@@ -1054,6 +1054,46 @@ def _crawl_indent_points(
             )
 
 
+def _leads_to_bracket(elements: ReflowSequenceType, start_idx: int) -> bool:
+    """Check whether the element at ``start_idx`` begins a bracketed expression.
+
+    Given the index of the first element *after* an untaken indent point,
+    return whether that element leads into a bracketed expression on the
+    same line, i.e. a ``start_bracket`` appears before any line break.
+    This is used to extend the bracket special case (see issue #4234) to
+    layouts like ``JOIN LATERAL (`` or ``JOIN my_func(`` where the untaken
+    indent is followed by a keyword rather than the bracket directly.
+    """
+    for elem in elements[start_idx:]:
+        if isinstance(elem, ReflowPoint):
+            # A line break before the bracket means the indent leads into
+            # a line, not a bracketed expression.
+            if elem.num_newlines() > 0:
+                return False
+            continue
+        if "start_bracket" in elem.class_types:
+            return True
+    return False
+
+
+def _in_join_clause(block: ReflowBlock) -> bool:
+    """Check whether a reflow block belongs to a ``join_clause``.
+
+    The reflow elements carry no grammar context of their own, but the
+    segments they wrap retain their parent pointers from the parse tree,
+    so we walk up the tree to determine whether this element is part of
+    a join clause.
+    """
+    seg = block.segments[0]
+    parent = seg.get_parent()
+    while parent is not None:
+        parent_seg, _ = parent
+        if parent_seg.type == "join_clause":
+            return True
+        parent = parent_seg.get_parent()
+    return False
+
+
 def _map_line_buffers(
     elements: ReflowSequenceType, implicit_indents: str = "forbid"
 ) -> tuple[list[_IndentLine], list[int], set[int]]:
@@ -1186,8 +1226,25 @@ def _map_line_buffers(
                 # NOTE: We can safely "look ahead" here because we know all files
                 # end with an IndentBlock, and we know here that `loc` refers to
                 # an IndentPoint.
-                if "start_bracket" in elements[loc + 1].class_types:
-                    continue
+                #
+                # We also apply this protection where the untaken indent leads
+                # into a bracketed expression on the same line *within a join
+                # clause* (e.g. `JOIN LATERAL (` or `JOIN my_func(`). Keeping
+                # the element on the same line as the join keyword is common
+                # practice there (see issue #8345), so the untaken indent
+                # should not be forced. We scope this to join clauses so that
+                # the "hanger" correction for other elements (e.g. a `SELECT`
+                # element which wraps around a function call) is preserved.
+                if _leads_to_bracket(elements, loc + 1):
+                    if "start_bracket" in elements[loc + 1].class_types:
+                        # The original special case: the element starts with
+                        # the bracket directly (e.g. `WHERE (`).
+                        continue
+                    if _in_join_clause(elements[loc + 1]):
+                        # The element starts with a keyword (or function
+                        # name) which leads into a bracket, e.g. `JOIN
+                        # LATERAL (`.
+                        continue
 
                 # If the location was in the line we're just closing. That's
                 # not a problem because it's an untaken indent which is closed
