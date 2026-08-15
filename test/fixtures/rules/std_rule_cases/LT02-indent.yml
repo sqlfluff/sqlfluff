@@ -168,6 +168,27 @@ test_fail_indented_joins_false_fix:
     indentation:
       indented_joins: false
 
+# https://github.com/sqlfluff/sqlfluff/issues/8345
+test_pass_indented_joins_true_lateral:
+  # Multiple CROSS JOIN LATERAL clauses should stay on one line,
+  # regardless of how many there are.
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS id
+    ) t
+        CROSS JOIN LATERAL (
+            SELECT 1 AS x
+        ) a
+        CROSS JOIN LATERAL (
+            SELECT 1 AS y
+        ) b
+  configs:
+    core:
+      dialect: postgres
+    indentation:
+      indented_joins: true
+
 test_pass_indented_using_on_default:
   # Configurable using_on indents work.
   # 2.a) default

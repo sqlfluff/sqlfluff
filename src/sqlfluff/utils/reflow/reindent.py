@@ -1054,6 +1054,33 @@ def _crawl_indent_points(
             )
 
 
+def _has_start_bracket_before_line_break(
+    elements: ReflowSequenceType, idx: int
+) -> bool:
+    """Check whether a keyword-prefixed bracket opens after an untaken indent.
+
+    If an untaken indent is followed on the same line by a bracket which
+    opens directly after keywords (e.g. ``JOIN LATERAL (``), then the
+    bracket content picks up the indent at its first line break, and
+    forcing a line break at the indent position would be wrong.
+
+    NOTE: Any other content before the bracket (e.g. a function name in
+    ``SELECT coalesce(``) means the bracket opens mid-content, and the
+    untaken indent should still be forced.
+    """
+    for elem in elements[idx + 1 :]:
+        if isinstance(elem, ReflowPoint):
+            # A point with a newline closes the lookahead window.
+            if elem.num_newlines():
+                return False
+            continue
+        if "start_bracket" in elem.class_types:
+            return True
+        if "keyword" not in elem.class_types:
+            return False
+    return False
+
+
 def _map_line_buffers(
     elements: ReflowSequenceType, implicit_indents: str = "forbid"
 ) -> tuple[list[_IndentLine], list[int], set[int]]:
@@ -1186,7 +1213,14 @@ def _map_line_buffers(
                 # NOTE: We can safely "look ahead" here because we know all files
                 # end with an IndentBlock, and we know here that `loc` refers to
                 # an IndentPoint.
-                if "start_bracket" in elements[loc + 1].class_types:
+                # NOTE: The bracket doesn't need to be the *immediate* next
+                # element for the same logic to apply. An opening bracket
+                # preceded by keywords on the same line (e.g. `JOIN LATERAL (`)
+                # still absorbs the untaken indent at the first line break
+                # within the bracket, so we shouldn't force a line break at
+                # the indent itself.
+                # https://github.com/sqlfluff/sqlfluff/issues/8345
+                if _has_start_bracket_before_line_break(elements, loc):
                     continue
 
                 # If the location was in the line we're just closing. That's
