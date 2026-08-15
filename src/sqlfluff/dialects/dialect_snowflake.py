@@ -712,6 +712,137 @@ snowflake_dialect.add(
         ),
     ),
     PurposeGrammar=OneOf("STEWARD", "SUPPORT", "ACCESS_APPROVAL"),
+    # The option list shared by CREATE PROCEDURE and the anonymous
+    # procedures introduced by WITH ... AS PROCEDURE ... CALL.
+    ProcedureDefinitionOptionsGrammar=AnySetOf(
+        Sequence(Ref.keyword("NOT", optional=True), "NULL", optional=True),
+        Sequence(
+            "LANGUAGE",
+            OneOf(
+                "JAVA",
+                "JAVASCRIPT",
+                "PYTHON",
+                "SCALA",
+                "SQL",
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Sequence("CALLED", "ON", "NULL", "INPUT"),
+            Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+            "STRICT",
+            optional=True,
+        ),
+        OneOf("VOLATILE", "IMMUTABLE", optional=True),
+        Sequence(
+            "RUNTIME_VERSION",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        Sequence(
+            "IMPORTS",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            optional=True,
+        ),
+        Sequence(
+            "SECRETS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    Delimited(
+                        Sequence(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("EqualsSegment"),
+                            AnyNumberOf(
+                                Sequence(
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref("DotSegment"),
+                                    optional=True,
+                                ),
+                            ),
+                            Ref("SingleIdentifierGrammar"),
+                        )
+                    )
+                )
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "EXTERNAL_ACCESS_INTEGRATIONS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("SingleIdentifierGrammar"),
+                                Ref("DotSegment"),
+                                optional=True,
+                            )
+                        ),
+                        Ref("SingleIdentifierGrammar"),
+                    )
+                )
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "PACKAGES",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            optional=True,
+        ),
+        Sequence(
+            "HANDLER",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "TARGET_PATH",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "ARTIFACT_REPOSITORY",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("ObjectReferenceSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("EXECUTE", "AS", Ref("ProcedureCallerGrammar"), optional=True),
+        optional=True,
+    ),
+    # Stored procedure arguments may declare a direction, unlike function
+    # arguments.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-procedure
+    ProcedureParameterGrammar=Sequence(
+        OneOf(
+            Ref("DatatypeSegment"),
+            Sequence(
+                Ref("ParameterNameSegment"),
+                OneOf("IN", "INPUT", "OUT", "OUTPUT", optional=True),
+                Ref("DatatypeSegment"),
+            ),
+        ),
+        Sequence(
+            "DEFAULT",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+    ),
+    # EXECUTE AS { CALLER | OWNER | RESTRICTED CALLER }
+    ProcedureCallerGrammar=OneOf(
+        "CALLER",
+        "OWNER",
+        Sequence("RESTRICTED", "CALLER"),
+    ),
     # Data governance clauses which are shared between the CREATE and ALTER
     # statements of tables, views, materialized views and dynamic tables.
     # https://docs.snowflake.com/en/sql-reference/sql/create-table
@@ -771,6 +902,20 @@ snowflake_dialect.add(
         ),
     ),
     CopyTagsGrammar=Sequence("COPY", "TAGS"),
+    # SET MASKING POLICY <name> [ USING ( <col_name> [ , ... ] ) ], as used
+    # by the column level governance actions of ALTER statements. The USING
+    # clause takes column references per the documentation.
+    # https://docs.snowflake.com/en/sql-reference/sql/alter-table-column
+    MaskingPolicyGrammar=Sequence(
+        "MASKING",
+        "POLICY",
+        Ref("FunctionNameSegment"),
+        Sequence(
+            "USING",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -1582,6 +1727,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
+            Ref("CallWithAnonymousProcedureSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("ScriptingLetStatementSegment"),
             Ref("ScriptingDeclareStatementSegment"),
@@ -2853,6 +2999,39 @@ class TableColumnCommentActionSegment(BaseSegment):
     )
 
 
+class AlterDynamicTableColumnActionSegment(BaseSegment):
+    """The column level `dataGovnPolicyTagAction` of `ALTER DYNAMIC TABLE`.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-dynamic-table
+    """
+
+    type = "alter_dynamic_table_column_action"
+
+    match_grammar = Sequence(
+        OneOf("ALTER", "MODIFY"),
+        Ref.keyword("COLUMN", optional=True),
+        Ref("ColumnReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("MaskingPolicyGrammar"),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence("UNSET", "MASKING", "POLICY"),
+            Sequence(
+                "SET",
+                "PROJECTION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence("UNSET", "PROJECTION", "POLICY"),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+        ),
+    )
+
+
 class AlterDynamicTableStatementSegment(BaseSegment):
     """An `ALTER DYNAMIC TABLE` Statement.
 
@@ -2883,8 +3062,7 @@ class AlterDynamicTableStatementSegment(BaseSegment):
             Sequence("REFRESH", Sequence("COPY", "SESSION", optional=True)),
             Ref("AlterTableClusteringActionSegment"),
             Ref("TableColumnCommentActionSegment"),
-            # TODO: Masking policy:
-            # This might go under the DataGovernancePolicyTagActionSegment
+            Ref("AlterDynamicTableColumnActionSegment"),
             Ref("DataGovernancePolicyTagActionSegment"),
             Ref("SearchOptimizationActionSegment"),
             Sequence(
@@ -3304,6 +3482,21 @@ class LogLevelEqualsSegment(BaseSegment):
             "ERROR",
             "FATAL",
             "OFF",
+            # The documented form quotes the level; only the documented
+            # values are accepted.
+            MultiStringParser(
+                [
+                    "'TRACE'",
+                    "'DEBUG'",
+                    "'INFO'",
+                    "'WARN'",
+                    "'ERROR'",
+                    "'FATAL'",
+                    "'OFF'",
+                ],
+                CodeSegment,
+                type="quoted_literal",
+            ),
         ),
     )
 
@@ -3322,6 +3515,13 @@ class TraceLevelEqualsSegment(BaseSegment):
             "ALWAYS",
             "ON_EVENT",
             "OFF",
+            # The documented form quotes the level; only the documented
+            # values are accepted.
+            MultiStringParser(
+                ["'ALWAYS'", "'ON_EVENT'", "'OFF'"],
+                CodeSegment,
+                type="quoted_literal",
+            ),
         ),
     )
 
@@ -3339,6 +3539,39 @@ class MetricLevelEqualsSegment(BaseSegment):
         OneOf(
             "ALL",
             "NONE",
+            # The documented form quotes the level; only the documented
+            # values are accepted.
+            MultiStringParser(
+                ["'ALL'", "'NONE'"],
+                CodeSegment,
+                type="quoted_literal",
+            ),
+        ),
+    )
+
+
+class AutoEventLoggingEqualsSegment(BaseSegment):
+    """AUTO_EVENT_LOGGING clause.
+
+    https://docs.snowflake.com/en/sql-reference/parameters#auto-event-logging
+    """
+
+    type = "auto_event_logging_equals"
+    match_grammar = Sequence(
+        "AUTO_EVENT_LOGGING",
+        Ref("EqualsSegment"),
+        OneOf(
+            "LOGGING",
+            "TRACING",
+            "ALL",
+            "OFF",
+            # The documented form quotes the level; only the documented
+            # values are accepted.
+            MultiStringParser(
+                ["'LOGGING'", "'TRACING'", "'ALL'", "'OFF'"],
+                CodeSegment,
+                type="quoted_literal",
+            ),
         ),
     )
 
@@ -3922,10 +4155,11 @@ class CreateProcedureStatementSegment(BaseSegment):
         "CREATE",
         Ref("AlterOrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
+        Ref("TemporaryGrammar", optional=True),
         "PROCEDURE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterListGrammar"),
+        Ref("ProcedureParameterListSegment"),
         Sequence("COPY", "GRANTS", optional=True),
         "RETURNS",
         OneOf(
@@ -3935,102 +4169,7 @@ class CreateProcedureStatementSegment(BaseSegment):
                 Bracketed(Delimited(Ref("ColumnDefinitionSegment"), optional=True)),
             ),
         ),
-        AnySetOf(
-            Sequence("NOT", "NULL", optional=True),
-            Sequence(
-                "LANGUAGE",
-                OneOf(
-                    "JAVA",
-                    "JAVASCRIPT",
-                    "PYTHON",
-                    "SCALA",
-                    "SQL",
-                ),
-                optional=True,
-            ),
-            OneOf(
-                Sequence("CALLED", "ON", "NULL", "INPUT"),
-                Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
-                "STRICT",
-                optional=True,
-            ),
-            OneOf("VOLATILE", "IMMUTABLE", optional=True),
-            Sequence(
-                "RUNTIME_VERSION",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
-            Ref("CommentEqualsClauseSegment", optional=True),
-            Sequence(
-                "IMPORTS",
-                Ref("EqualsSegment"),
-                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
-                optional=True,
-            ),
-            Sequence(
-                "SECRETS",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Sequence(
-                        Delimited(
-                            Sequence(
-                                Ref("QuotedLiteralSegment"),
-                                Ref("EqualsSegment"),
-                                AnyNumberOf(
-                                    Sequence(
-                                        Ref("SingleIdentifierGrammar"),
-                                        Ref("DotSegment"),
-                                        optional=True,
-                                    ),
-                                ),
-                                Ref("SingleIdentifierGrammar"),
-                            )
-                        )
-                    )
-                ),
-                optional=True,
-            ),
-            Sequence(
-                "EXTERNAL_ACCESS_INTEGRATIONS",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            AnyNumberOf(
-                                Sequence(
-                                    Ref("SingleIdentifierGrammar"),
-                                    Ref("DotSegment"),
-                                    optional=True,
-                                )
-                            ),
-                            Ref("SingleIdentifierGrammar"),
-                        )
-                    )
-                ),
-                optional=True,
-            ),
-            Sequence(
-                "PACKAGES",
-                Ref("EqualsSegment"),
-                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
-                optional=True,
-            ),
-            Sequence(
-                "HANDLER",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
-            Sequence(
-                "TARGET_PATH",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
-            Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER"), optional=True),
-            optional=True,
-        ),
+        Ref("ProcedureDefinitionOptionsGrammar", optional=True),
         Sequence(
             "AS",
             OneOf(
@@ -4043,6 +4182,56 @@ class CreateProcedureStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class ProcedureParameterListSegment(ansi.FunctionParameterListGrammar):
+    """The parameters for a stored procedure, which may declare a direction."""
+
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Ref("ProcedureParameterGrammar"),
+            optional=True,
+        ),
+    )
+
+
+class CallWithAnonymousProcedureSegment(BaseSegment):
+    """A snowflake anonymous procedure, i.e. `WITH ... AS PROCEDURE ... CALL`.
+
+    https://docs.snowflake.com/en/sql-reference/sql/call-with
+    """
+
+    type = "call_with_anonymous_procedure"
+    match_grammar = Sequence(
+        "WITH",
+        Delimited(
+            Sequence(
+                Ref("FunctionNameSegment"),
+                "AS",
+                "PROCEDURE",
+                Ref("ProcedureParameterListSegment"),
+                "RETURNS",
+                OneOf(
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        "TABLE",
+                        Bracketed(
+                            Delimited(Ref("ColumnDefinitionSegment"), optional=True)
+                        ),
+                    ),
+                ),
+                Ref("ProcedureDefinitionOptionsGrammar", optional=True),
+                "AS",
+                OneOf(
+                    Ref("DoubleQuotedUDFBody"),
+                    Ref("SingleQuotedUDFBody"),
+                    Ref("DollarQuotedUDFBody"),
+                    Ref("ScriptingBlockStatementSegment"),
+                ),
+            ),
+        ),
+        Ref("CallStatementSegment"),
     )
 
 
@@ -4061,7 +4250,7 @@ class AlterProcedureStatementSegment(BaseSegment):
         Ref("FunctionParameterListGrammar"),
         OneOf(
             Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
-            Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER")),
+            Sequence("EXECUTE", "AS", Ref("ProcedureCallerGrammar")),
             Sequence(
                 OneOf(
                     # eg. SET LOG_LEVEL = WARN
@@ -4072,6 +4261,8 @@ class AlterProcedureStatementSegment(BaseSegment):
                             Ref("CommentEqualsClauseSegment", optional=True),
                             Ref("LogLevelEqualsSegment", optional=True),
                             Ref("TraceLevelEqualsSegment", optional=True),
+                            Ref("MetricLevelEqualsSegment", optional=True),
+                            Ref("AutoEventLoggingEqualsSegment", optional=True),
                             Ref(
                                 "ExternalAccessIntegrationsEqualsSegment", optional=True
                             ),
@@ -4087,6 +4278,8 @@ class AlterProcedureStatementSegment(BaseSegment):
                                 Ref("CommentEqualsClauseSegment", optional=True),
                                 Ref("LogLevelEqualsSegment", optional=True),
                                 Ref("TraceLevelEqualsSegment", optional=True),
+                                Ref("MetricLevelEqualsSegment", optional=True),
+                                Ref("AutoEventLoggingEqualsSegment", optional=True),
                                 Ref(
                                     "ExternalAccessIntegrationsEqualsSegment",
                                     optional=True,
@@ -9932,6 +10125,11 @@ class CallStatementSegment(BaseSegment):
         Sequence(
             Ref("FunctionNameSegment"),
             Ref("FunctionContentsSegment"),
+        ),
+        Sequence(
+            "INTO",
+            Ref("BindVariableSegment"),
+            optional=True,
         ),
     )
 
