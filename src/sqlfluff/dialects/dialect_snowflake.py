@@ -7727,7 +7727,7 @@ class CreateExternalTableSegment(BaseSegment):
                 "DELTA",
             ),
             Sequence(
-                Sequence("WITH", optional=True),
+                Ref.keyword("WITH", optional=True),
                 "ROW",
                 "ACCESS",
                 "POLICY",
