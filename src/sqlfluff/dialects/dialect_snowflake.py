@@ -1575,6 +1575,34 @@ class ConnectByClauseSegment(BaseSegment):
     )
 
 
+class GroupingSetsClauseSegment(ansi.GroupingSetsClauseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause.
+
+    Unlike the ANSI implementation, the elements of the list are matched
+    one by one, so a CUBE / ROLLUP entry mixed with ordinary grouping
+    expressions keeps its dedicated node instead of being swallowed into
+    a single grouping expression list.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/group-by
+    """
+
+    match_grammar: Matchable = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("CubeRollupClauseSegment"),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                    Bracketed(),  # Allows an empty grouping set
+                ),
+            ),
+        ),
+    )
+
+
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 

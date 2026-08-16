@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02c877e9c759c0e662b220f1a51487d14343e7c133d1a0eba5d6047bdf6e6719
+_hash: d60fb3c0621548a9a6b13505cc2c9cfb86a7823d3cd943e3642096f92519c9cf
 file:
 - statement:
     select_statement:
@@ -44,14 +44,13 @@ file:
         - keyword: SETS
         - bracketed:
             start_bracket: (
-            grouping_expression_list:
-              column_reference:
-                naked_identifier: b
-              comma: ','
-              expression:
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+            column_reference:
+              naked_identifier: b
+            comma: ','
+            expression:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -154,28 +153,25 @@ file:
         - keyword: GROUPING
         - keyword: SETS
         - bracketed:
-            start_bracket: (
-            grouping_expression_list:
-            - column_reference:
-                naked_identifier: a
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: ROLLUP
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: b
-                      end_bracket: )
-            - comma: ','
-            - expression:
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
-            end_bracket: )
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: a
+          - comma: ','
+          - cube_rollup_clause:
+              function_name:
+                function_name_identifier: ROLLUP
+              bracketed:
+                start_bracket: (
+                grouping_expression_list:
+                  column_reference:
+                    naked_identifier: b
+                end_bracket: )
+          - comma: ','
+          - expression:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
