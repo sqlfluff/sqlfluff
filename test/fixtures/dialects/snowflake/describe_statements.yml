@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2d90ff90e34181f6d5c7eda872c6ad20f6e397214b53e9f53306eb38f82f5e7b
+_hash: 9c0168e7c355c7df06f8cc8925be624509541148f33f8ce35201cb6a216dc733
 file:
 - statement:
     describe_statement:
@@ -408,6 +408,38 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: STAGE
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: EVENT
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_events
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: EVENT
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_events
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_iceberg_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_iceberg_table
 - statement_terminator: ;
 - statement:
     describe_statement:

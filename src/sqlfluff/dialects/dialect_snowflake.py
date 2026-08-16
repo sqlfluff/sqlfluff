@@ -5481,7 +5481,7 @@ class CreateEventTableStatementSegment(BaseSegment):
                 "GRANTS",
             ),
             Sequence(
-                "WITH",
+                Ref.keyword("WITH", optional=True),
                 "ROW",
                 "ACCESS",
                 "POLICY",
@@ -5490,7 +5490,7 @@ class CreateEventTableStatementSegment(BaseSegment):
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             ),
             Sequence(
-                "WITH",
+                Ref.keyword("WITH", optional=True),
                 Ref("CommentEqualsClauseSegment"),
             ),
             Ref("TagBracketedEqualsSegment"),
@@ -7646,24 +7646,29 @@ class CreateExternalTableSegment(BaseSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Columns:
-        Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("DatatypeSegment"),
-                    "AS",
-                    OptionallyBracketed(
-                        Sequence(
-                            Ref("ExpressionSegment"),
-                            Ref("InlineConstraintPropertiesSegment", optional=True),
+        OneOf(
+            # Columns:
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DatatypeSegment"),
+                        "AS",
+                        OptionallyBracketed(
                             Sequence(
-                                Ref.keyword("NOT", optional=True), "NULL", optional=True
-                            ),
-                        )
-                    ),
-                )
+                                Ref("ExpressionSegment"),
+                                Ref("InlineConstraintPropertiesSegment", optional=True),
+                                Sequence(
+                                    Ref.keyword("NOT", optional=True),
+                                    "NULL",
+                                    optional=True,
+                                ),
+                            )
+                        ),
+                    )
+                ),
             ),
+            Sequence("USING", "TEMPLATE", Ref("SelectableGrammar")),
             optional=True,
         ),
         # The use of AnySetOf is not strictly correct here, because LOCATION and
@@ -7717,11 +7722,18 @@ class CreateExternalTableSegment(BaseSegment):
                 "USER_SPECIFIED",
             ),
             Sequence(
+                "TABLE_FORMAT",
+                Ref("EqualsSegment"),
+                "DELTA",
+            ),
+            Sequence(
                 Sequence("WITH", optional=True),
                 "ROW",
                 "ACCESS",
                 "POLICY",
                 Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             ),
             Ref("TagBracketedEqualsSegment"),
             Ref("CommentEqualsClauseSegment"),
@@ -8862,8 +8874,10 @@ class ShowStatementSegment(BaseSegment):
         ),
         "SCHEMAS",
         "OBJECTS",
-        "TABLES",
-        Sequence("EXTERNAL", "TABLES"),
+        Sequence(
+            OneOf("EXTERNAL", "ICEBERG", "HYBRID", "EVENT", optional=True),
+            "TABLES",
+        ),
         "VIEWS",
         Sequence("MATERIALIZED", "VIEWS"),
         Sequence("MASKING", "POLICIES"),
@@ -9717,6 +9731,13 @@ class DescribeStatementSegment(BaseSegment):
                     OneOf("COLUMNS", "STAGE"),
                     optional=True,
                 ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-event-table
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-iceberg-table
+            Sequence(
+                OneOf("EVENT", "ICEBERG"),
+                "TABLE",
+                Ref("TableReferenceSegment"),
             ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-external-table.html
             Sequence(

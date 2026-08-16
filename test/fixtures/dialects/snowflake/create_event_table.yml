@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1ca95226f6b8602a8c8c20587b6ca025b93e3accc23b3671c261f807526275bd
+_hash: adad4aae256af7f28de0bd479b06d14126ab9caa9b02f7b2b0aefe60347a8588
 file:
 - statement:
     create_event_table_statement:
@@ -112,6 +112,51 @@ file:
       - keyword: WITH
       - keyword: TAG
       - bracketed:
+          start_bracket: (
+          tag_reference:
+            naked_identifier: cost_center
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'sales'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_event_table_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_events
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'My events table'"
+- statement_terminator: ;
+- statement:
+    create_event_table_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_events
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: sales_policy
+    - keyword: 'ON'
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: type
+      - comma: ','
+      - column_reference:
+          naked_identifier: region
+      - end_bracket: )
+    - tag_bracketed_equals:
+        keyword: TAG
+        bracketed:
           start_bracket: (
           tag_reference:
             naked_identifier: cost_center
