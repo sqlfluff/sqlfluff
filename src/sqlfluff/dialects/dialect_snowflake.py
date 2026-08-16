@@ -4648,6 +4648,7 @@ class CreateDataMetricFunctionStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("SECURE", optional=True),
         "DATA",
         "METRIC",
         "FUNCTION",

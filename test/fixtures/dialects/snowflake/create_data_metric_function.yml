@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5327d8bc7c21c9d284a4546bdc22463108185c4d43e3c445db8af4f60874085a
+_hash: 6e06b4ebdcd490cca701f0ecf9ea4d46f75070d6ef4e4454e0cb27cd70c0dafe
 file:
 - statement:
     create_data_metric_function_statement:
@@ -47,9 +47,6 @@ file:
     - keyword: DATA
     - keyword: METRIC
     - keyword: FUNCTION
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
     - function_name:
       - naked_identifier: governance
       - dot: .
@@ -132,4 +129,38 @@ file:
               data_type_identifier: TIMESTAMP_LTZ
             end_bracket: )
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_data_metric_function_statement:
+    - keyword: CREATE
+    - keyword: SECURE
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+      - naked_identifier: governance
+      - dot: .
+      - naked_identifier: dmfs
+      - dot: .
+      - function_name_identifier: null_count
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: arg_t
+          keyword: TABLE
+          bracketed:
+            start_bracket: (
+            parameter: arg_c1
+            data_type:
+              data_type_identifier: NUMBER
+            end_bracket: )
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: NUMBER
+    - keyword: AS
+    - udf_body: "'SELECT COUNT_IF(arg_c1 IS NULL) FROM arg_t'"
 - statement_terminator: ;
