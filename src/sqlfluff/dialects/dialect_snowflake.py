@@ -553,6 +553,24 @@ snowflake_dialect.add(
         Ref("DynamicTableLagIntervalSegment"),
         "DOWNSTREAM",
     ),
+    # The TABLE( ... ) argument type of data metric functions, either with
+    # named columns (CREATE) or datatypes only (the signature used by
+    # ALTER / DROP / GRANT).
+    # https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    DataMetricFunctionTableTypeGrammar=Sequence(
+        "TABLE",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+    ),
     StartExcludeBracketSegment=StringParser(
         "{-", SymbolSegment, type="start_exclude_bracket"
     ),
@@ -1105,8 +1123,15 @@ snowflake_dialect.replace(
     ),
     FunctionParameterGrammar=Sequence(
         OneOf(
+            Ref("DataMetricFunctionTableTypeGrammar"),
             Ref("DatatypeSegment"),
-            Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+            Sequence(
+                Ref("ParameterNameSegment"),
+                OneOf(
+                    Ref("DataMetricFunctionTableTypeGrammar"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
         ),
         Sequence(
             "DEFAULT",
@@ -1751,6 +1776,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSchemaStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
+            Ref("CreateDataMetricFunctionStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("CreateStageSegment"),
@@ -4512,7 +4538,8 @@ class CreateFunctionStatementSegment(BaseSegment):
             Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
         ),
         AnySetOf(
-            Sequence("NOT", "NULL", optional=True),
+            Sequence(Ref.keyword("NOT", optional=True), "NULL", optional=True),
+            Ref.keyword("MEMOIZABLE", optional=True),
             Sequence(
                 "LANGUAGE",
                 OneOf("JAVASCRIPT", "SQL", "PYTHON", "JAVA", "SCALA"),
@@ -4585,6 +4612,15 @@ class CreateFunctionStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
+            Sequence(
+                "ARTIFACT_REPOSITORY",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
             optional=True,
         ),
         Sequence(
@@ -4598,6 +4634,35 @@ class CreateFunctionStatementSegment(BaseSegment):
                 Ref("ScriptingBlockStatementSegment"),
             ),
             optional=True,
+        ),
+    )
+
+
+class CreateDataMetricFunctionStatementSegment(BaseSegment):
+    """A `CREATE DATA METRIC FUNCTION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    """
+
+    type = "create_data_metric_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "DATA",
+        "METRIC",
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        "RETURNS",
+        Ref("DatatypeSegment"),
+        Sequence(Ref.keyword("NOT", optional=True), "NULL", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        "AS",
+        OneOf(
+            Ref("DoubleQuotedUDFBody"),
+            Ref("SingleQuotedUDFBody"),
+            Ref("DollarQuotedUDFBody"),
         ),
     )
 
