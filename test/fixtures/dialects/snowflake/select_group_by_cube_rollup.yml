@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 935928ae7e17c4455f72f492823e264a5128c2ebc46d3a981db139869aba2f38
+_hash: 4818add87d4c958185d0995564609885bfd9b64656a40cc3c37a7887871985cd
 file:
 - statement:
     select_statement:
@@ -40,15 +40,18 @@ file:
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - keyword: CUBE
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            naked_identifier: name
-        - comma: ','
-        - column_reference:
-            naked_identifier: age
-        - end_bracket: )
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: CUBE
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: name
+            - comma: ','
+            - column_reference:
+                naked_identifier: age
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -85,13 +88,16 @@ file:
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - keyword: ROLLUP
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            naked_identifier: name
-        - comma: ','
-        - column_reference:
-            naked_identifier: age
-        - end_bracket: )
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: ROLLUP
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: name
+            - comma: ','
+            - column_reference:
+                naked_identifier: age
+            end_bracket: )
 - statement_terminator: ;

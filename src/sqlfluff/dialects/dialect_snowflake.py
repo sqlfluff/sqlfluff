@@ -533,6 +533,8 @@ snowflake_dialect.add(
     ),
     GroupByContentsGrammar=Delimited(
         OneOf(
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
             Ref("ColumnReferenceSegment"),
             # Can `GROUP BY 1`
             Ref("NumericLiteralSegment"),
@@ -1576,9 +1578,10 @@ class ConnectByClauseSegment(BaseSegment):
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
-    Snowflake supports Cube, Rollup, and Grouping Sets
+    Snowflake supports GROUP BY ALL, and mixing CUBE, ROLLUP and
+    GROUPING SETS with ordinary grouping expressions in one list.
 
-    https://docs.snowflake.com/en/sql-reference/constructs/group-by.html
+    https://docs.snowflake.com/en/sql-reference/constructs/group-by
     """
 
     match_grammar: Matchable = Sequence(
@@ -1586,12 +1589,6 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         "BY",
         Indent,
         OneOf(
-            Sequence(
-                OneOf("CUBE", "ROLLUP", Sequence("GROUPING", "SETS")),
-                Bracketed(
-                    Ref("GroupByContentsGrammar"),
-                ),
-            ),
             "ALL",
             Ref("GroupByContentsGrammar"),
         ),
@@ -2136,6 +2133,7 @@ class FromPivotExpressionSegment(BaseSegment):
         "PIVOT",
         Bracketed(
             Ref("FunctionSegment"),
+            Ref("AliasExpressionSegment", optional=True),
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
@@ -2159,7 +2157,10 @@ class FromPivotExpressionSegment(BaseSegment):
 
 
 class FromUnpivotExpressionSegment(BaseSegment):
-    """An UNPIVOT expression."""
+    """An UNPIVOT expression.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/unpivot
+    """
 
     type = "from_unpivot_expression"
     match_grammar = Sequence(
@@ -2170,7 +2171,14 @@ class FromUnpivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    )
+                )
+            ),
         ),
     )
 
