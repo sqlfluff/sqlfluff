@@ -9,7 +9,10 @@ WORKDIR /app
 ENV VIRTUAL_ENV=/app/.venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH=$VIRTUAL_ENV/bin:$PATH
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel pip-tools
+# Pin pip-tools >= 7.6.1: earlier versions import a removed pip internal
+# (stdlib_pkgs) on Python 3.14, which breaks the pip-compile step below
+# and the DockerHub publish (see #8316).
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel "pip-tools>=7.6.1"
 
 # N.B. we extract the requirements from pyproject.toml
 COPY pyproject.toml .
