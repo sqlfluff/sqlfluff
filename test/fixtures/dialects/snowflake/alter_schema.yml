@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c7c8f3b3a77221c8a7a0cb73d92ad964212627ef575955d5952270448f9e589
+_hash: b61a72b6ee0b1ba130b9751a71d94507e576809856e18751add7f8968cfd5985
 file:
 - statement:
     alter_schema_statement:
@@ -106,4 +106,116 @@ file:
     - comma: ','
     - tag_reference:
         naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: SET
+    - schema_object_properties:
+        log_level_equals:
+          keyword: LOG_LEVEL
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'DEBUG'"
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: SET
+    - schema_object_properties:
+      - trace_level_equals:
+          keyword: TRACE_LEVEL
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'ALWAYS'"
+      - keyword: STORAGE_SERIALIZATION_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: OPTIMIZED
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: SET
+    - schema_object_properties:
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_volume'"
+      - keyword: CATALOG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_catalog'"
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_wh
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: SET
+    - schema_object_properties:
+      - keyword: CONTACT
+      - keyword: STEWARD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: steward_contact
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: UNSET
+    - keyword: LOG_LEVEL
+    - comma: ','
+    - keyword: STORAGE_SERIALIZATION_POLICY
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: UNSET
+    - keyword: CONTACT
+    - keyword: STEWARD
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: UNSET
+    - keyword: DCM
+    - keyword: PROJECT
 - statement_terminator: ;

@@ -85,3 +85,7 @@ CREATE OR REPLACE DATABASE MY_DATABASE
     ENABLE_DATA_COMPACTION = TRUE
     WITH TAG (env = 'production', team = 'data')
     WITH CONTACT (STEWARD = my_steward, SUPPORT = my_support);
+
+CREATE DATABASE mcp_db
+    OAUTH_AUTHORIZATION_SERVER = my_external_oauth_integration
+    OAUTH_SCOPES_SUPPORTED = 'read,write';

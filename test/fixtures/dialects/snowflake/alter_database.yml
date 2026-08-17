@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aba73f0a17307dad5a72eae681e36f5e77a744171942b2fb1c3926171583130e
+_hash: 3fb88a800ee27b829025ad32c99b999f2187e9fcf6d61a51f8728c8d79029b1e
 file:
 - statement:
     alter_database_statement:
@@ -751,4 +751,111 @@ file:
     - keyword: CLASSIFICATION_PROFILE
     - comma: ','
     - keyword: ENABLE_DATA_COMPACTION
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: db1
+    - keyword: ENABLE
+    - keyword: REPLICATION
+    - keyword: TO
+    - keyword: ACCOUNTS
+    - object_reference:
+      - naked_identifier: org1
+      - dot: .
+      - naked_identifier: account1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: org1
+      - dot: .
+      - naked_identifier: account2
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: db1
+    - keyword: ENABLE
+    - keyword: REPLICATION
+    - keyword: TO
+    - keyword: ACCOUNTS
+    - object_reference:
+      - naked_identifier: org1
+      - dot: .
+      - naked_identifier: account1
+    - keyword: IGNORE
+    - keyword: EDITION
+    - keyword: CHECK
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: db1
+    - keyword: ENABLE
+    - keyword: FAILOVER
+    - keyword: TO
+    - keyword: ACCOUNTS
+    - object_reference:
+      - naked_identifier: org1
+      - dot: .
+      - naked_identifier: account1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: org1
+      - dot: .
+      - naked_identifier: account2
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: db1
+    - keyword: DISABLE
+    - keyword: REPLICATION
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: db1
+    - keyword: DISABLE
+    - keyword: REPLICATION
+    - keyword: TO
+    - keyword: ACCOUNTS
+    - object_reference:
+      - naked_identifier: org1
+      - dot: .
+      - naked_identifier: account1
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: db1
+    - keyword: DISABLE
+    - keyword: FAILOVER
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: db1
+    - keyword: REFRESH
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: db1
+    - keyword: PRIMARY
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f4e932229c42f7d8715be407ff6a3f8b6d6c78ea248aa092d91308e03a6f7f80
+_hash: 149aba3a10c6fe179e39cf281b6ed59ec4e8365b1fc5661c9261978749065273
 file:
 - statement:
     create_database_statement:
@@ -114,4 +114,48 @@ file:
           expression:
             quoted_literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: CREATE
+    - keyword: TRANSIENT
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: clone_schema
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_schema
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: clone_schema
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_schema
+    - keyword: IGNORE
+    - keyword: HYBRID
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: clone_schema
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_schema
+    - keyword: IGNORE
+    - keyword: TABLES
+    - keyword: WITH
+    - keyword: INSUFFICIENT
+    - keyword: DATA
+    - keyword: RETENTION
+    - keyword: COPY
+    - keyword: GRANTS
 - statement_terminator: ;
