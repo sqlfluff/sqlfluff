@@ -425,12 +425,19 @@ class Rule_LT09(BaseRule):
                             fixes.append(LintFix.delete(seg))
                             all_deletes.add(seg)
 
-                    if move_after_select_clause or add_newline:
+                    # The slice can contain zero-width metas, e.g. the Indent
+                    # after a select modifier, or the select clause Indent
+                    # itself on dialects which place it after the newline. A
+                    # create fix requires every edit segment to have a raw, so
+                    # drop them; reflow recalculates indentation anyway.
+                    move_edits = [seg for seg in move_after_select_clause if seg.raw]
+
+                    if move_edits or add_newline:
                         fixes.append(
                             LintFix.create_after(
                                 select_clause[0],
                                 ([NewlineSegment()] if add_newline else [])
-                                + list(move_after_select_clause),
+                                + move_edits,
                             )
                         )
 

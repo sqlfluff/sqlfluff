@@ -258,6 +258,34 @@ test_distinct_single_fail_b:
     SELECT distinct a
     FROM my_table
 
+# A create fix cannot contain zero-width segments, so an Indent meta must
+# never end up in the segments moved after the select clause. Two ways it can:
+#
+#  - any dialect, when a select modifier moves the start of the moved slice
+#    onto the modifier, which the parser follows with an Indent
+#  - sparksql/databricks, which place the select clause Indent after the
+#    newline rather than before it, so it is inside the slice regardless
+#
+# NOTE: The residual whitespace in the first two fix_str below is expected:
+# these cases isolate LT09, and LT01 removes it in a normal run.
+test_distinct_single_fail_from_same_line:
+  fail_str: "SELECT\n  distinct a FROM my_table\n"
+  fix_str: "SELECT distinct a  \n FROM my_table\n"
+
+test_top_single_fail_from_same_line:
+  fail_str: "SELECT\n  top 5 a FROM my_table\n"
+  fix_str: "SELECT top 5 a  \n FROM my_table\n"
+  configs:
+    core:
+      dialect: tsql
+
+test_sparksql_single_fail_from_same_line:
+  fail_str: "SELECT\n  SUM(x) OVER (ORDER BY t) FROM m\n"
+  fix_str: "SELECT SUM(x) OVER (ORDER BY t)\n  FROM m\n"
+  configs:
+    core:
+      dialect: sparksql
+
 test_single_select_with_no_from:
   fail_str: "SELECT\n   10000000\n"
   fix_str: "SELECT 10000000\n"
