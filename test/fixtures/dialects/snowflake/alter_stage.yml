@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 77bfa50c6c13db3e9b515cec5d088d3c4590e1fbddbf72eb2aa9ffc6c7c1c73a
+_hash: dc36e723f6cdb4fc3280c413fcb92bd11bf6c77b985787209472be91dc8d8c6d
 file:
 - statement:
     alter_stage_statement:
@@ -114,4 +114,38 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'data'"
+- statement_terminator: ;
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_stage
+    - keyword: SET
+    - keyword: DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: ENABLE
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'TRUE'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_stage
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: cost_center
+    - comma: ','
+    - tag_reference:
+        naked_identifier: team
 - statement_terminator: ;

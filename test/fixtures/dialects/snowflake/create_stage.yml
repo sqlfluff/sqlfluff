@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 773297b55de87286897d7b13bd1bdfd56341d9e4164171fdd9f1548b4faf2e4d
+_hash: 285f83eac36614792b1b06f18484319cc12b194584b6b6d395a944c5d953fc94
 file:
 - statement:
     create_stage_statement:
@@ -814,4 +814,227 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - bucket_path: "'azure://myaccount.blob.core.windows.net/load/files/'"
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_temp_stage
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_int_dir_stage
+    - keyword: DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: ENABLE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: AUTO_REFRESH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_s3_dir_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3://load/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: my_storage_int
+    - keyword: DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: ENABLE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: REFRESH_ON_CREATE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: AUTO_REFRESH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_s3gov_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3gov://govbucket/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: my_gov_int
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_s3china_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3china://cnbucket/files/'"
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_s3compat_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3compat://mybucket/files/'"
+    - stage_parameters:
+      - keyword: ENDPOINT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'mystorage.example.com'"
+      - keyword: CREDENTIALS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - keyword: AWS_KEY_ID
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'k'"
+        - keyword: AWS_SECRET_KEY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'s'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_access_point_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3://my-access-point-alias/files/'"
+    - stage_parameters:
+        keyword: AWS_ACCESS_POINT_ARN
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'arn:aws:s3:us-east-1:123456789012:accesspoint/my-ap'"
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_privatelink_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3://privatebucket/files/'"
+    - stage_parameters:
+      - keyword: STORAGE_INTEGRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_storage_int
+      - keyword: USE_PRIVATELINK_ENDPOINT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_gcs_notif_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'gcs://load/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: my_gcs_int
+    - keyword: DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: ENABLE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: AUTO_REFRESH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: NOTIFICATION_INTEGRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: my_notification_int
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_azure_notif_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'azure://myaccount.blob.core.windows.net/load/files/'"
+    - keyword: DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: ENABLE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: REFRESH_ON_CREATE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: NOTIFICATION_INTEGRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_notification_int'"
+      - end_bracket: )
 - statement_terminator: ;
