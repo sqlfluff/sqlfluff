@@ -1585,7 +1585,7 @@ class CubeRollupClauseSegment(ansi.CubeRollupClauseSegment):
     https://docs.snowflake.com/en/sql-reference/constructs/group-by
     """
 
-    match_grammar: Matchable = Sequence(
+    match_grammar = Sequence(
         OneOf("CUBE", "ROLLUP"),
         Bracketed(
             Ref("GroupingExpressionList"),
