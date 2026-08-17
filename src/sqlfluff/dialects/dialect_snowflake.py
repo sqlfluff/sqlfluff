@@ -5360,16 +5360,6 @@ class CopyOptionsSegment(BaseSegment):
         Sequence(
             "LOAD_UNCERTAIN_FILES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
         ),
-        Sequence(
-            "LOAD_MODE",
-            Ref("EqualsSegment"),
-            OneOf("FULL_INGEST", "ADD_FILES_COPY"),
-        ),
-        Sequence(
-            "CLUSTER_AT_INGEST_TIME",
-            Ref("EqualsSegment"),
-            Ref("BooleanLiteralGrammar"),
-        ),
     ]
 
     match_grammar = AnySetOf(*_copy_options_matchables)
@@ -8075,6 +8065,18 @@ class CopyIntoTableStatementSegment(BaseSegment):
                 Ref("FileFormatSegment"),
             ),
             _file_processor,
+            # Only documented for COPY INTO <table>, so they are not part of
+            # the copy options shared with COPY INTO <location> and stages.
+            Sequence(
+                "LOAD_MODE",
+                Ref("EqualsSegment"),
+                OneOf("FULL_INGEST", "ADD_FILES_COPY"),
+            ),
+            Sequence(
+                "CLUSTER_AT_INGEST_TIME",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
             # We explode the CopyOptionsSegments because the AnySetOf may appear in any
             # order for these other elements as well.
             *CopyOptionsSegment._copy_options_matchables,
