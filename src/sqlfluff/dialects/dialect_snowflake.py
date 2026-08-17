@@ -1575,6 +1575,24 @@ class ConnectByClauseSegment(BaseSegment):
     )
 
 
+class CubeRollupClauseSegment(ansi.CubeRollupClauseSegment):
+    """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause.
+
+    Snowflake treats CUBE and ROLLUP as keywords rather than as the
+    function names the ANSI dialect uses, so that keyword capitalisation
+    applies to them.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/group-by
+    """
+
+    match_grammar: Matchable = Sequence(
+        OneOf("CUBE", "ROLLUP"),
+        Bracketed(
+            Ref("GroupingExpressionList"),
+        ),
+    )
+
+
 class GroupingSetsClauseSegment(ansi.GroupingSetsClauseSegment):
     """`GROUPING SETS` clause within the `GROUP BY` clause.
 
