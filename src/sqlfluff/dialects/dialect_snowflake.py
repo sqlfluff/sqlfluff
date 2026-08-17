@@ -714,6 +714,48 @@ snowflake_dialect.add(
         ),
     ),
     PurposeGrammar=OneOf("STEWARD", "SUPPORT", "ACCESS_APPROVAL"),
+    # Building blocks shared by the integration statements.
+    # https://docs.snowflake.com/en/sql-reference/sql/alter-api-integration
+    EnabledEqualsGrammar=Sequence(
+        "ENABLED",
+        Ref("EqualsSegment"),
+        Ref("BooleanLiteralGrammar"),
+    ),
+    AllowedAuthenticationSecretsGrammar=Sequence(
+        "ALLOWED_AUTHENTICATION_SECRETS",
+        Ref("EqualsSegment"),
+        OneOf(
+            Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+            "ALL",
+            "NONE",
+        ),
+    ),
+    # Every integration type accepts these tag actions on their own.
+    IntegrationTagActionGrammar=OneOf(
+        Sequence("SET", Ref("TagEqualsSegment")),
+        Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+    ),
+    # Shared by CREATE and ALTER ... SET of external access integrations.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-external-access-integration
+    ExternalAccessIntegrationPropertiesGrammar=AnySetOf(
+        Sequence(
+            "ALLOWED_NETWORK_RULES",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+        ),
+        Sequence(
+            "ALLOWED_API_AUTHENTICATION_INTEGRATIONS",
+            Ref("EqualsSegment"),
+            OneOf(
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                "NONE",
+            ),
+        ),
+        Ref("AllowedAuthenticationSecretsGrammar"),
+        Ref("EnabledEqualsGrammar"),
+        Ref("CommentEqualsClauseSegment"),
+        min_times=1,
+    ),
     # The option list shared by CREATE PROCEDURE and the anonymous
     # procedures introduced by WITH ... AS PROCEDURE ... CALL.
     ProcedureDefinitionOptionsGrammar=AnySetOf(
@@ -1824,6 +1866,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseRoleStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterStorageIntegrationSegment"),
+            Ref("CreateExternalAccessIntegrationStatementSegment"),
+            Ref("AlterApiIntegrationStatementSegment"),
+            Ref("AlterNotificationIntegrationStatementSegment"),
+            Ref("AlterExternalAccessIntegrationStatementSegment"),
+            Ref("AlterSecurityIntegrationStatementSegment"),
+            Ref("AlterNetworkRuleStatementSegment"),
             Ref("ExecuteImmediateClauseSegment"),
             Ref("ExecuteTaskClauseSegment"),
             Ref("CreateResourceMonitorStatementSegment"),
@@ -3422,6 +3470,245 @@ class AlterStorageIntegrationSegment(BaseSegment):
                     "STORAGE_BLOCKED_LOCATIONS",
                 ),
             ),
+        ),
+    )
+
+
+class CreateExternalAccessIntegrationStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL ACCESS INTEGRATION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-external-access-integration
+    """
+
+    type = "create_external_access_integration_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "EXTERNAL",
+        "ACCESS",
+        "INTEGRATION",
+        Ref("ObjectReferenceSegment"),
+        # ALLOWED_NETWORK_RULES and ENABLED are required, but Snowflake
+        # accepts the properties in any order.
+        Ref("ExternalAccessIntegrationPropertiesGrammar"),
+    )
+
+
+class AlterApiIntegrationStatementSegment(BaseSegment):
+    """An `ALTER API INTEGRATION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-api-integration
+    """
+
+    type = "alter_api_integration_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "API",
+        "INTEGRATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Ref("IntegrationTagActionGrammar"),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "API_AWS_ROLE_ARN",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "AZURE_AD_APPLICATION_ID",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "API_KEY",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Ref("EnabledEqualsGrammar"),
+                    Sequence(
+                        "API_ALLOWED_PREFIXES",
+                        Ref("EqualsSegment"),
+                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                    ),
+                    Sequence(
+                        "API_BLOCKED_PREFIXES",
+                        Ref("EqualsSegment"),
+                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                    ),
+                    Ref("AllowedAuthenticationSecretsGrammar"),
+                    Ref("CommentEqualsClauseSegment"),
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("API_KEY", "ENABLED", "API_BLOCKED_PREFIXES", "COMMENT"),
+            ),
+        ),
+    )
+
+
+class AlterNotificationIntegrationStatementSegment(BaseSegment):
+    """An `ALTER NOTIFICATION INTEGRATION` statement.
+
+    Covers the provider specific variants (queues, email) documented under:
+    https://docs.snowflake.com/en/sql-reference/sql/alter-notification-integration
+    """
+
+    type = "alter_notification_integration_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "NOTIFICATION",
+        "INTEGRATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Ref("IntegrationTagActionGrammar"),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Ref("EnabledEqualsGrammar"),
+                    # Email specific properties:
+                    Sequence(
+                        "ALLOWED_RECIPIENTS",
+                        Ref("EqualsSegment"),
+                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                    ),
+                    Sequence(
+                        "DEFAULT_RECIPIENTS",
+                        Ref("EqualsSegment"),
+                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                    ),
+                    Sequence(
+                        "DEFAULT_SUBJECT",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    # Amazon SNS outbound queue specific properties:
+                    Sequence(
+                        "AWS_SNS_TOPIC_ARN",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "AWS_SNS_ROLE_ARN",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    "ENABLED",
+                    "ALLOWED_RECIPIENTS",
+                    "DEFAULT_RECIPIENTS",
+                    "DEFAULT_SUBJECT",
+                    "COMMENT",
+                ),
+            ),
+        ),
+    )
+
+
+class AlterExternalAccessIntegrationStatementSegment(BaseSegment):
+    """An `ALTER EXTERNAL ACCESS INTEGRATION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-external-access-integration
+    """
+
+    type = "alter_external_access_integration_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "EXTERNAL",
+        "ACCESS",
+        "INTEGRATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Ref("IntegrationTagActionGrammar"),
+            Sequence("SET", Ref("ExternalAccessIntegrationPropertiesGrammar")),
+            # Unlike the other integrations, the docs document a comma
+            # separated list here.
+            Sequence(
+                "UNSET",
+                Delimited(
+                    "ALLOWED_NETWORK_RULES",
+                    "ALLOWED_API_AUTHENTICATION_INTEGRATIONS",
+                    "ALLOWED_AUTHENTICATION_SECRETS",
+                    "COMMENT",
+                ),
+            ),
+        ),
+    )
+
+
+class AlterSecurityIntegrationStatementSegment(BaseSegment):
+    """An `ALTER SECURITY INTEGRATION` statement.
+
+    Covers the properties shared by every security integration type; the
+    type specific property sets are not modelled yet.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-security-integration
+    """
+
+    type = "alter_security_integration_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SECURITY",
+        "INTEGRATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Ref("IntegrationTagActionGrammar"),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Ref("EnabledEqualsGrammar"),
+                    Ref("CommentEqualsClauseSegment"),
+                    min_times=1,
+                ),
+            ),
+            Sequence("UNSET", OneOf("ENABLED", "COMMENT")),
+        ),
+    )
+
+
+class AlterNetworkRuleStatementSegment(BaseSegment):
+    """An `ALTER NETWORK RULE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-network-rule
+    """
+
+    type = "alter_network_rule_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "NETWORK",
+        "RULE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Sequence(
+                    "VALUE_LIST",
+                    Ref("EqualsSegment"),
+                    Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                ),
+                Ref("CommentEqualsClauseSegment", optional=True),
+            ),
+            Sequence("UNSET", OneOf("VALUE_LIST", "COMMENT")),
         ),
     )
 
@@ -5347,15 +5634,15 @@ class AlterRoleStatementSegment(BaseSegment):
 
 
 class CreateSequenceStatementSegment(BaseSegment):
-    """A `CREATE SEQUENCE` statement.
+    """A `CREATE [ OR REPLACE | OR ALTER ] SEQUENCE` statement.
 
-    https://docs.snowflake.com/en/sql-reference/sql/alter-sequence
+    https://docs.snowflake.com/en/sql-reference/sql/create-sequence
     """
 
     type = "create_sequence_statement"
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         "SEQUENCE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("SequenceReferenceSegment"),
@@ -6555,10 +6842,13 @@ class CreateStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 OneOf(
                     "IPV4",
+                    "IPV6",
                     "AWSVPCEID",
                     "AZURELINKID",
+                    "GCPPSCID",
                     "HOST_PORT",
                     "PRIVATE_HOST_PORT",
+                    "COMPUTE_POOL",
                 ),
             ),
             Sequence(
@@ -6572,6 +6862,7 @@ class CreateStatementSegment(BaseSegment):
                 OneOf(
                     "INGRESS",
                     "INTERNAL_STAGE",
+                    "SNOWFLAKE_MANAGED_STORAGE_VOLUME",
                     "EGRESS",
                 ),
             ),

@@ -1,0 +1,335 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4c15814343ebeaa020d7879c5eb7f917d6929598785e9bcfd2b578d71795e12e
+file:
+- statement:
+    alter_api_integration_statement:
+    - keyword: ALTER
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_api
+    - keyword: SET
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_api_integration_statement:
+    - keyword: ALTER
+    - keyword: API
+    - keyword: INTEGRATION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_api
+    - keyword: SET
+    - keyword: API_AWS_ROLE_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::123456789012:role/my_role'"
+    - keyword: API_ALLOWED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/'"
+        end_bracket: )
+    - keyword: API_BLOCKED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/private/'"
+        end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'my api integration'"
+- statement_terminator: ;
+- statement:
+    alter_api_integration_statement:
+    - keyword: ALTER
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_api
+    - keyword: SET
+    - keyword: ALLOWED_AUTHENTICATION_SECRETS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    alter_api_integration_statement:
+    - keyword: ALTER
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_api
+    - keyword: UNSET
+    - keyword: API_KEY
+- statement_terminator: ;
+- statement:
+    alter_api_integration_statement:
+    - keyword: ALTER
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_api
+    - keyword: UNSET
+    - keyword: API_BLOCKED_PREFIXES
+- statement_terminator: ;
+- statement:
+    alter_api_integration_statement:
+    - keyword: ALTER
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_api
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_api_integration_statement:
+    - keyword: ALTER
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_api
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: cost_center
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'sales'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: team
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'data'"
+- statement_terminator: ;
+- statement:
+    alter_api_integration_statement:
+    - keyword: ALTER
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_api
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: cost_center
+    - comma: ','
+    - tag_reference:
+        naked_identifier: team
+- statement_terminator: ;
+- statement:
+    alter_notification_integration_statement:
+    - keyword: ALTER
+    - keyword: NOTIFICATION
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_email_int
+    - keyword: SET
+    - keyword: ALLOWED_RECIPIENTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'first.last@example.com'"
+      - comma: ','
+      - quoted_literal: "'second.last@example.com'"
+      - end_bracket: )
+    - keyword: DEFAULT_RECIPIENTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'first.last@example.com'"
+        end_bracket: )
+    - keyword: DEFAULT_SUBJECT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'Snowflake alert'"
+- statement_terminator: ;
+- statement:
+    alter_notification_integration_statement:
+    - keyword: ALTER
+    - keyword: NOTIFICATION
+    - keyword: INTEGRATION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_sns_int
+    - keyword: SET
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: AWS_SNS_TOPIC_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:sns:us-west-2:001234567890:mytopic'"
+    - keyword: AWS_SNS_ROLE_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+- statement_terminator: ;
+- statement:
+    alter_notification_integration_statement:
+    - keyword: ALTER
+    - keyword: NOTIFICATION
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_email_int
+    - keyword: UNSET
+    - keyword: DEFAULT_RECIPIENTS
+- statement_terminator: ;
+- statement:
+    alter_notification_integration_statement:
+    - keyword: ALTER
+    - keyword: NOTIFICATION
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_email_int
+    - keyword: UNSET
+    - keyword: DEFAULT_SUBJECT
+- statement_terminator: ;
+- statement:
+    alter_notification_integration_statement:
+    - keyword: ALTER
+    - keyword: NOTIFICATION
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_email_int
+    - keyword: SET
+    - tag_equals:
+        keyword: TAG
+        tag_reference:
+          naked_identifier: cost_center
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'sales'"
+- statement_terminator: ;
+- statement:
+    alter_external_access_integration_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: ACCESS
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_eai
+    - keyword: SET
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_external_access_integration_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: ACCESS
+    - keyword: INTEGRATION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_eai
+    - keyword: SET
+    - keyword: ALLOWED_NETWORK_RULES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          naked_identifier: rule_1
+      - comma: ','
+      - object_reference:
+          naked_identifier: rule_2
+      - end_bracket: )
+    - keyword: ALLOWED_API_AUTHENTICATION_INTEGRATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: my_oauth_integration
+        end_bracket: )
+    - keyword: ALLOWED_AUTHENTICATION_SECRETS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: NONE
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'restricted egress'"
+- statement_terminator: ;
+- statement:
+    alter_external_access_integration_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: ACCESS
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_eai
+    - keyword: UNSET
+    - keyword: ALLOWED_API_AUTHENTICATION_INTEGRATIONS
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_security_integration_statement:
+    - keyword: ALTER
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - keyword: SET
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'custom oauth client'"
+- statement_terminator: ;
+- statement:
+    alter_security_integration_statement:
+    - keyword: ALTER
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_security_integration_statement:
+    - keyword: ALTER
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - keyword: SET
+    - tag_equals:
+        keyword: TAG
+        tag_reference:
+          naked_identifier: cost_center
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'sales'"
+- statement_terminator: ;
