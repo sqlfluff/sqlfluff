@@ -69,6 +69,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "COMPRESSION",
         "COMPRESSION_LEVEL",
         "GLOB",
+        "INSTALL",
         "MACRO",
         "MAP",
         "OVERWRITE",
@@ -1033,7 +1034,49 @@ class StatementSegment(postgres.StatementSegment):
         insert=[
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
+            Ref("InstallStatementSegment"),
+            Ref("LoadStatementSegment"),
         ]
+    )
+
+
+class InstallStatementSegment(BaseSegment):
+    """An `INSTALL` statement for DuckDB extensions.
+
+    Installs a DuckDB extension, optionally forcing a re-install and/or
+    selecting the repository to install from (an alias such as ``community``
+    or a single-quoted URL string). The extension itself is named either by a
+    bare identifier or, for a local file, a single-quoted path string.
+
+    https://duckdb.org/docs/stable/sql/statements/load_and_install
+    """
+
+    type = "install_statement"
+    match_grammar = Sequence(
+        Ref.keyword("FORCE", optional=True),
+        "INSTALL",
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+        Sequence(
+            "FROM",
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+            optional=True,
+        ),
+    )
+
+
+class LoadStatementSegment(BaseSegment):
+    """A `LOAD` statement for DuckDB extensions.
+
+    Loads an installed extension into the current session. The extension is
+    named either by a bare identifier or a single-quoted path string.
+
+    https://duckdb.org/docs/stable/sql/statements/load_and_install
+    """
+
+    type = "load_statement"
+    match_grammar = Sequence(
+        "LOAD",
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
     )
 
 
