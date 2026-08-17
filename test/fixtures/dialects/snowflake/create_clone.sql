@@ -9,3 +9,12 @@ CREATE SCHEMA mytestschema_clone_restore CLONE testschema BEFORE (TIMESTAMP => T
 CREATE TABLE orders_clone_restore CLONE orders AT (TIMESTAMP => TO_TIMESTAMP_TZ('04/05/2013 01:02:03', 'mm/dd/yyyy hh24:mi:ss'));
 
 CREATE TABLE orders_clone_restore CLONE orders BEFORE (STATEMENT => '8e5d0ca9-005e-44e6-b858-a8f5b37c5726');
+
+CREATE TRANSIENT SCHEMA clone_schema CLONE source_schema;
+
+CREATE SCHEMA clone_schema CLONE source_schema IGNORE HYBRID TABLES;
+
+CREATE OR REPLACE SCHEMA clone_schema
+    CLONE source_schema
+    IGNORE TABLES WITH INSUFFICIENT DATA RETENTION
+    COPY GRANTS;

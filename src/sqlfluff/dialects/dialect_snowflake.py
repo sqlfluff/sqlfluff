@@ -904,6 +904,12 @@ snowflake_dialect.add(
         ),
     ),
     CopyTagsGrammar=Sequence("COPY", "TAGS"),
+    # The optional IGNORE clauses accepted after CLONE.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-clone
+    CloneIgnoreOptionsGrammar=AnySetOf(
+        Sequence("IGNORE", "TABLES", "WITH", "INSUFFICIENT", "DATA", "RETENTION"),
+        Sequence("IGNORE", "HYBRID", "TABLES"),
+    ),
     # SET MASKING POLICY <name> [ USING ( <col_name> [ , ... ] ) ], as used
     # by the column level governance actions of ALTER statements. The USING
     # clause takes column references per the documentation.
@@ -4027,6 +4033,7 @@ class CreateCloneStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        Sequence("TRANSIENT", optional=True),
         OneOf(
             "DATABASE",
             "SCHEMA",
@@ -4046,6 +4053,7 @@ class CreateCloneStatementSegment(BaseSegment):
             Ref("FromBeforeExpressionSegment"),
             optional=True,
         ),
+        Ref("CloneIgnoreOptionsGrammar", optional=True),
         Sequence("COPY", "GRANTS", optional=True),
     )
 
@@ -4096,16 +4104,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
                         Ref("FromBeforeExpressionSegment"),
                         optional=True,
                     ),
-                    Sequence(
-                        "IGNORE",
-                        "TABLES",
-                        "WITH",
-                        "INSUFFICIENT",
-                        "DATA",
-                        "RETENTION",
-                        optional=True,
-                    ),
-                    Sequence("IGNORE", "HYBRID", "TABLES", optional=True),
+                    Ref("CloneIgnoreOptionsGrammar", optional=True),
                     optional=True,
                 ),
                 AnySetOf(
@@ -4172,6 +4171,16 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
                         "ENABLE_DATA_COMPACTION",
                         Ref("EqualsSegment"),
                         Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "OAUTH_AUTHORIZATION_SERVER",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "OAUTH_SCOPES_SUPPORTED",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
                     ),
                     optional=True,
                 ),
@@ -5303,6 +5312,7 @@ class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
         Sequence("WITH", "MANAGED", "ACCESS", optional=True),
         Ref("SchemaObjectParamsSegment", optional=True),
         Ref("TagBracketedEqualsSegment", optional=True),
+        Ref("ContactBracketedGrammar", optional=True),
     )
 
 
@@ -5445,7 +5455,29 @@ class AlterSchemaStatementSegment(BaseSegment):
                     Delimited(
                         "DATA_RETENTION_TIME_IN_DAYS",
                         "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                        "EXTERNAL_VOLUME",
+                        "CATALOG",
+                        "REPLACE_INVALID_CHARACTERS",
                         "DEFAULT_DDL_COLLATION",
+                        # The ALTER SCHEMA docs list these two under SET but
+                        # not under UNSET; ALTER DATABASE documents both, and
+                        # they are unset the same way.
+                        "DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU",
+                        "DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU",
+                        "LOG_LEVEL",
+                        "TRACE_LEVEL",
+                        "STORAGE_SERIALIZATION_POLICY",
+                        "CLASSIFICATION_PROFILE",
+                        "CATALOG_SYNC",
+                        "REPLICABLE_WITH_FAILOVER_GROUPS",
+                        "BASE_LOCATION_PREFIX",
+                        "DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE",
+                        "OBJECT_VISIBILITY",
+                        "ENABLE_DATA_COMPACTION",
+                        "OAUTH_AUTHORIZATION_SERVER",
+                        "OAUTH_SCOPES_SUPPORTED",
+                        Sequence("CONTACT", Ref("PurposeGrammar")),
+                        Sequence("DCM", "PROJECT"),
                         "COMMENT",
                     ),
                     Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
@@ -5477,9 +5509,96 @@ class SchemaObjectParamsSegment(BaseSegment):
             Ref("NumericLiteralSegment"),
         ),
         Sequence(
+            "EXTERNAL_VOLUME",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "CATALOG",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "REPLACE_INVALID_CHARACTERS",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
             "DEFAULT_DDL_COLLATION",
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Ref("LogLevelEqualsSegment"),
+        Ref("TraceLevelEqualsSegment"),
+        Sequence(
+            "STORAGE_SERIALIZATION_POLICY",
+            Ref("EqualsSegment"),
+            OneOf("COMPATIBLE", "OPTIMIZED"),
+        ),
+        Sequence(
+            "CLASSIFICATION_PROFILE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "CATALOG_SYNC",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "REPLICABLE_WITH_FAILOVER_GROUPS",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "BASE_LOCATION_PREFIX",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            "OBJECT_VISIBILITY",
+            Ref("EqualsSegment"),
+            OneOf("PRIVILEGED", Ref("DollarQuotedUDFBody")),
+        ),
+        Sequence(
+            "ENABLE_DATA_COMPACTION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "OAUTH_AUTHORIZATION_SERVER",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            "OAUTH_SCOPES_SUPPORTED",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "CONTACT",
+            Delimited(
+                Sequence(
+                    Ref("PurposeGrammar"),
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
         ),
         Ref("CommentEqualsClauseSegment"),
     )
@@ -10597,6 +10716,39 @@ class AlterDatabaseSegment(BaseSegment):
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
             # ALTER DATABASE [ IF EXISTS ] <name> SWAP WITH <target_db_name>
             Sequence("SWAP", "WITH", Ref("ObjectReferenceSegment")),
+            # ALTER DATABASE <name> ENABLE REPLICATION TO ACCOUNTS ...
+            Sequence(
+                "ENABLE",
+                "REPLICATION",
+                "TO",
+                "ACCOUNTS",
+                Delimited(Ref("ObjectReferenceSegment")),
+                Sequence("IGNORE", "EDITION", "CHECK", optional=True),
+            ),
+            # ALTER DATABASE <name> ENABLE FAILOVER TO ACCOUNTS ...
+            Sequence(
+                "ENABLE",
+                "FAILOVER",
+                "TO",
+                "ACCOUNTS",
+                Delimited(Ref("ObjectReferenceSegment")),
+            ),
+            # ALTER DATABASE <name> DISABLE { REPLICATION | FAILOVER }
+            # [ TO ACCOUNTS ... ]
+            Sequence(
+                "DISABLE",
+                OneOf("REPLICATION", "FAILOVER"),
+                Sequence(
+                    "TO",
+                    "ACCOUNTS",
+                    Delimited(Ref("ObjectReferenceSegment")),
+                    optional=True,
+                ),
+            ),
+            # ALTER DATABASE <name> REFRESH (refresh a secondary database)
+            "REFRESH",
+            # ALTER DATABASE <name> PRIMARY (promote to serve as primary)
+            "PRIMARY",
             # ALTER DATABASE [ IF EXISTS ] <name> SET ...
             Sequence(
                 "SET",

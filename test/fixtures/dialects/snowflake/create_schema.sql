@@ -8,3 +8,5 @@ create transient schema if not exists mytestschema default_ddl_collation = 'de_D
 CREATE SCHEMA MYDB.MYSCHEMA COMMENT = "Space for landing my data";
 CREATE SCHEMA IF NOT EXISTS MYDB.MYSCHEMA COMMENT = "Space for landing my data";
 CREATE OR ALTER SCHEMA MYDB.MYSCHEMA;
+CREATE SCHEMA governed_schema WITH CONTACT (STEWARD = my_db.my_schema.contact1, SUPPORT = contact2);
+CREATE SCHEMA modern_schema DATA_RETENTION_TIME_IN_DAYS = 5 LOG_LEVEL = 'INFO' OBJECT_VISIBILITY = PRIVILEGED;

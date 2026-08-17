@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f2bcc6cf48ab9d592fc3b42df8febd684db6cee34d0ec6b9161c42955597087
+_hash: cd831108d51379fcb21b3e63258b3d9c429d3edb8658249435912ff1fc8faaa0
 file:
 - statement:
     create_clone_statement:
@@ -165,4 +165,52 @@ file:
       - naked_identifier: MYDB
       - dot: .
       - naked_identifier: MYSCHEMA
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: governed_schema
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+      - start_bracket: (
+      - keyword: STEWARD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: contact1
+      - comma: ','
+      - keyword: SUPPORT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: contact2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: modern_schema
+    - schema_object_properties:
+      - keyword: DATA_RETENTION_TIME_IN_DAYS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '5'
+      - log_level_equals:
+          keyword: LOG_LEVEL
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'INFO'"
+      - keyword: OBJECT_VISIBILITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: PRIVILEGED
 - statement_terminator: ;
