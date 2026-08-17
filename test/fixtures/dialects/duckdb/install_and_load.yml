@@ -1,0 +1,45 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a6723fe2e0cfa9cbdde8c2c844926fa8a02aa5338f39272266ba004440176d95
+file:
+- statement:
+    install_statement:
+      keyword: INSTALL
+      naked_identifier: spatial
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: FORCE
+    - keyword: INSTALL
+    - naked_identifier: spatial
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: INSTALL
+    - naked_identifier: h3
+    - keyword: FROM
+    - naked_identifier: community
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: FORCE
+    - keyword: INSTALL
+    - naked_identifier: h3
+    - keyword: FROM
+    - naked_identifier: community
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: INSTALL
+    - naked_identifier: custom_extension
+    - keyword: FROM
+    - quoted_literal: "'https://my-custom-extension-repository'"
+- statement_terminator: ;
+- statement:
+    load_statement:
+      keyword: LOAD
+      naked_identifier: spatial
+- statement_terminator: ;
