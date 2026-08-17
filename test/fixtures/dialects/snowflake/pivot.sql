@@ -84,3 +84,20 @@ PIVOT (
     )
 )
 WHERE q1_2023_sales IS NOT NULL;
+
+-- Alias for the aggregate in PIVOT (from Snowflake's PIVOT docs)
+SELECT *
+FROM quarterly_sales
+  PIVOT(SUM(amount) AS total FOR quarter IN ('2023_Q1', '2023_Q2'))
+ORDER BY empid;
+
+SELECT *
+FROM quarterly_sales
+  PIVOT(SUM(amount) total FOR quarter IN (ANY ORDER BY quarter))
+ORDER BY empid;
+
+-- Aliases in the UNPIVOT IN-list (from Snowflake's UNPIVOT docs)
+SELECT *
+FROM monthly_sales
+  UNPIVOT(sales FOR month IN (jan AS january, feb february, mar AS 'MARCH', apr))
+ORDER BY empid;
