@@ -1591,13 +1591,11 @@ class GroupingSetsClauseSegment(ansi.GroupingSetsClauseSegment):
         "SETS",
         Bracketed(
             Delimited(
-                OneOf(
-                    Ref("CubeRollupClauseSegment"),
-                    Ref("ColumnReferenceSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("ExpressionSegment"),
-                    Bracketed(),  # Allows an empty grouping set
-                ),
+                Ref("CubeRollupClauseSegment"),
+                Ref("ColumnReferenceSegment"),
+                Ref("NumericLiteralSegment"),
+                Ref("ExpressionSegment"),
+                Bracketed(),  # Allows an empty grouping set
             ),
         ),
     )
