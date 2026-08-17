@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c15814343ebeaa020d7879c5eb7f917d6929598785e9bcfd2b578d71795e12e
+_hash: 5983496a703661c8323cdf4103200b3812ea47d18e1a0b897c563b5b07838bbc
 file:
 - statement:
     alter_api_integration_statement:
@@ -332,4 +332,38 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'sales'"
+- statement_terminator: ;
+- statement:
+    alter_notification_integration_statement:
+    - keyword: ALTER
+    - keyword: NOTIFICATION
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_azure_int
+    - keyword: SET
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: AZURE_EVENT_GRID_TOPIC_ENDPOINT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://myaccount.westus2-1.eventgrid.azure.net/api/events'"
+    - keyword: AZURE_TENANT_ID
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
+- statement_terminator: ;
+- statement:
+    alter_notification_integration_statement:
+    - keyword: ALTER
+    - keyword: NOTIFICATION
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_gcp_int
+    - keyword: SET
+    - keyword: GCP_PUBSUB_TOPIC_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'projects/my-project/topics/my-topic'"
 - statement_terminator: ;

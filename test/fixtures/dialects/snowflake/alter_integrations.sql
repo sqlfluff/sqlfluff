@@ -49,3 +49,10 @@ ALTER SECURITY INTEGRATION my_oauth_int SET ENABLED = TRUE COMMENT = 'custom oau
 ALTER SECURITY INTEGRATION IF EXISTS my_oauth_int UNSET COMMENT;
 
 ALTER SECURITY INTEGRATION my_oauth_int SET TAG cost_center = 'sales';
+
+ALTER NOTIFICATION INTEGRATION my_azure_int SET
+    ENABLED = TRUE
+    AZURE_EVENT_GRID_TOPIC_ENDPOINT = 'https://myaccount.westus2-1.eventgrid.azure.net/api/events'
+    AZURE_TENANT_ID = 'a123b4c5-1234-123a-a12b-1a23b45678c9';
+
+ALTER NOTIFICATION INTEGRATION my_gcp_int SET GCP_PUBSUB_TOPIC_NAME = 'projects/my-project/topics/my-topic';

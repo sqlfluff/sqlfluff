@@ -3601,6 +3601,23 @@ class AlterNotificationIntegrationStatementSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         Ref("QuotedLiteralSegment"),
                     ),
+                    # Azure Event Grid outbound queue specific properties:
+                    Sequence(
+                        "AZURE_EVENT_GRID_TOPIC_ENDPOINT",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "AZURE_TENANT_ID",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    # Google Pub/Sub outbound queue specific property:
+                    Sequence(
+                        "GCP_PUBSUB_TOPIC_NAME",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
                     Ref("CommentEqualsClauseSegment"),
                     min_times=1,
                 ),
