@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b61a72b6ee0b1ba130b9751a71d94507e576809856e18751add7f8968cfd5985
+_hash: f6ff5e22e22fa0fb45bd66471e3e67b0e8fc346051da81e4aa5c0319cc6a7c2a
 file:
 - statement:
     alter_schema_statement:
@@ -198,6 +198,17 @@ file:
     - keyword: STORAGE_SERIALIZATION_POLICY
     - comma: ','
     - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: UNSET
+    - keyword: DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU
+    - comma: ','
+    - keyword: DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU
 - statement_terminator: ;
 - statement:
     alter_schema_statement:

@@ -5459,6 +5459,11 @@ class AlterSchemaStatementSegment(BaseSegment):
                         "CATALOG",
                         "REPLACE_INVALID_CHARACTERS",
                         "DEFAULT_DDL_COLLATION",
+                        # The ALTER SCHEMA docs list these two under SET but
+                        # not under UNSET; ALTER DATABASE documents both, and
+                        # they are unset the same way.
+                        "DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU",
+                        "DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU",
                         "LOG_LEVEL",
                         "TRACE_LEVEL",
                         "STORAGE_SERIALIZATION_POLICY",
