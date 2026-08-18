@@ -13,3 +13,5 @@ ALTER SHARE MY_SHARE ADD ACCOUNTS = my_account_1, my_account_2 SHARE_RESTRICTION
 ALTER SHARE MY_SHARE SET ACCOUNTS = my_account_1 COMMENT = 'my_comment';
 ALTER SHARE IF EXISTS MY_SHARE SET ACCOUNTS = my_account_1, my_account_2 COMMENT = 'my_comment';
 ALTER SHARE my_share ADD ACCOUNTS = org.account;
+ALTER SHARE MY_SHARE SET COMMENT = 'shared with partners';
+ALTER SHARE IF EXISTS MY_SHARE SET COMMENT = 'shared with partners';
