@@ -1026,7 +1026,7 @@ def lint(
             "error": "critical",
         }[annotation_level]
         for record in result.as_records():
-            filepath = record["filepath"]
+            filepath = os.path.relpath(record["filepath"])
             for violation in record["violations"]:
                 gitlab_result.append(
                     {

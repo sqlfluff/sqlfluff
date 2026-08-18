@@ -2474,68 +2474,157 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
 def test__cli__command_lint_serialize_gitlab():
     """Test format of gitlab Code Quality output."""
     fpath = "test/fixtures/linter/identifier_capitalisation.sql"
-    parse_fpath = "test/fixtures/linter/parse_error.sql"
     result = invoke_assert_code(
         args=[
             lint,
             (
                 fpath,
-                parse_fpath,
                 "--format",
                 "gitlab",
+                "--annotation-level",
+                "warning",
                 "--disable-progress-bar",
             ),
         ],
         ret_code=1,
     )
-    issues = json.loads(result.stdout)
-    normalised = os.path.normpath(fpath)
-    parse_normalised = os.path.normpath(parse_fpath)
-
-    assert isinstance(issues, list)
-    assert issues
-    fingerprints = set()
-    for issue in issues:
-        assert set(issue.keys()) == {
-            "check_name",
-            "description",
-            "severity",
-            "fingerprint",
-            "location",
-        }
-        assert issue["description"].startswith(f"{issue['check_name']}: ")
-        assert issue["severity"] in {"info", "major"}
-        assert len(issue["fingerprint"]) == 32
-        assert issue["fingerprint"] not in fingerprints
-        fingerprints.add(issue["fingerprint"])
-        assert issue["location"]["path"] in {normalised, parse_normalised}
-        positions = issue["location"]["positions"]
-        assert set(positions.keys()) == {"begin", "end"}
-        for pos in (positions["begin"], positions["end"]):
-            assert set(pos.keys()) == {"line", "column"}
-            assert isinstance(pos["line"], int)
-            assert isinstance(pos["column"], int)
-
-    lint_issues = [i for i in issues if i["location"]["path"] == normalised]
-    parse_issues = [i for i in issues if i["location"]["path"] == parse_normalised]
-    assert lint_issues
-    assert parse_issues
-
-    cp01 = [i for i in lint_issues if i["check_name"] == "CP01"]
-    assert len(cp01) == 1
-    assert cp01[0]["severity"] == "info"
-    assert all(
-        i["severity"] == "major" for i in lint_issues if i["check_name"] != "CP01"
-    )
-
-    first = lint_issues[0]
-    assert first["check_name"] == "RF02"
-    assert first["description"] == (
-        "RF02: Unqualified reference 'foo' found in select with more "
-        "than one referenced table/view."
-    )
-    assert first["location"]["positions"]["begin"] == {"line": 3, "column": 5}
-    assert first["location"]["positions"]["end"] == {"line": 3, "column": 8}
+    result = json.loads(result.stdout)
+    assert result == [
+        {
+            "check_name": "RF02",
+            "description": "RF02: Unqualified reference 'foo' found in select with more than one "
+            "referenced table/view.",
+            "severity": "major",
+            "fingerprint": "ea72c87b48f117121c9dc88494e7a28c",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 3,
+                        "column": 5,
+                    },
+                    "end": {
+                        "line": 3,
+                        "column": 8,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "LT02",
+            "description": "LT02: Expected indent of 8 spaces.",
+            "severity": "major",
+            "fingerprint": "2ff34290e123cd2433e5c99851980992",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 4,
+                        "column": 1,
+                    },
+                    "end": {
+                        "line": 4,
+                        "column": 5,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "AL02",
+            "description": "AL02: Implicit/explicit aliasing of columns.",
+            "severity": "major",
+            "fingerprint": "2b77945fc8b2c5d3b272ca15017e7494",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 4,
+                        "column": 5,
+                    },
+                    "end": {
+                        "line": 4,
+                        "column": 8,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP02",
+            "description": "CP02: Unquoted identifiers must be consistently lower case.",
+            "severity": "major",
+            "fingerprint": "0e3b951371f88c7eba5527dc8391ca23",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 4,
+                        "column": 5,
+                    },
+                    "end": {
+                        "line": 4,
+                        "column": 8,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP01",
+            "description": "CP01: Keywords must be consistently lower case.",
+            "severity": "info",
+            "fingerprint": "5edaf68d9dfa280f4391b61343e4a6e8",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 5,
+                        "column": 1,
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 5,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP02",
+            "description": "CP02: Unquoted identifiers must be consistently lower case.",
+            "severity": "major",
+            "fingerprint": "f65871bbe27ff3bad777629aa7a97b24",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 5,
+                        "column": 12,
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 16,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP02",
+            "description": "CP02: Unquoted identifiers must be consistently lower case.",
+            "severity": "major",
+            "fingerprint": "a7cbc8b53f1c7ca425770b9504d6752d",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 5,
+                        "column": 18,
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 22,
+                    },
+                },
+            },
+        },
+    ]
 
 
 def test___main___help():
