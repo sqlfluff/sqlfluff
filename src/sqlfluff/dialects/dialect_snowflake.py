@@ -3818,12 +3818,13 @@ class AccessObjectSegment(ansi.AccessObjectSegment):
         # followed by an object reference:
         # https://docs.snowflake.com/en/user-guide/inherited-grants-using
         Sequence(
-            OneOf("ALL", "FUTURE"),
-            OneOf("DYNAMIC", "ICEBERG", optional=True),
+            "ALL",
             OneOf(
                 Ref("AccessSchemaPluralObjectSegment"),
                 Sequence("MATERIALIZED", "VIEWS"),
                 Sequence("EXTERNAL", "TABLES"),
+                Sequence("DYNAMIC", "TABLES"),
+                Sequence("ICEBERG", "TABLES"),
                 Sequence("FILE", "FORMATS"),
                 "SCHEMAS",
                 "WAREHOUSES",
@@ -3847,11 +3848,12 @@ class AccessObjectSegment(ansi.AccessObjectSegment):
                 Ref("AccessSchemaObjectSegment"),
                 Sequence(
                     OneOf("ALL", "FUTURE"),
-                    OneOf("DYNAMIC", "ICEBERG", optional=True),
                     OneOf(
                         Ref("AccessSchemaPluralObjectSegment"),
                         Sequence("MATERIALIZED", "VIEWS"),
                         Sequence("EXTERNAL", "TABLES"),
+                        Sequence("DYNAMIC", "TABLES"),
+                        Sequence("ICEBERG", "TABLES"),
                         Sequence("FILE", "FORMATS"),
                     ),
                     "IN",
