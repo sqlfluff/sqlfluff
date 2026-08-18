@@ -965,6 +965,16 @@ snowflake_dialect.add(
             optional=True,
         ),
     ),
+    # A Snowflake Scripting body may declare variables before its block, i.e.
+    # DECLARE ... ; BEGIN ... END. Used by the bodies of procedures and tasks,
+    # which are not written as separate statements and so keep the semicolon
+    # that separates the declarations from the block.
+    # https://docs.snowflake.com/en/developer-guide/snowflake-scripting/blocks
+    ScriptingDeclareBlockGrammar=Sequence(
+        Ref("ScriptingDeclareStatementSegment"),
+        Ref("DelimiterGrammar"),
+        Ref("ScriptingBlockStatementSegment"),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -1884,6 +1894,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropExternalVolumeStatementSegment"),
             Ref("AlterExternalVolumeStatementSegment"),
             Ref("ForInLoopSegment"),
+            Ref("ScriptingCursorStatementSegment"),
             Ref("CreateEventTableStatementSegment"),
             Ref("CreatePasswordPolicyStatementSegment"),
             Ref("AlterPasswordPolicyStatementSegment"),
@@ -4226,7 +4237,8 @@ class CreateProcedureStatementSegment(BaseSegment):
                 Ref("DoubleQuotedUDFBody"),
                 Ref("SingleQuotedUDFBody"),
                 Ref("DollarQuotedUDFBody"),
-                # ...or a SQL UDF
+                # ...or a SQL UDF, optionally declaring variables first
+                Ref("ScriptingDeclareBlockGrammar"),
                 Ref("ScriptingBlockStatementSegment"),
             ),
             optional=True,
@@ -6068,7 +6080,10 @@ class CreateTaskSegment(BaseSegment):
         Sequence(
             Ref.keyword("AS"),
             Indent,
-            Ref("StatementSegment"),
+            OneOf(
+                Ref("ScriptingDeclareBlockGrammar"),
+                Ref("StatementSegment"),
+            ),
             Dedent,
         ),
     )
@@ -10841,6 +10856,39 @@ class BindVariableSegment(BaseSegment):
         Ref("ColonPrefixSegment"),
         Ref("LocalVariableNameSegment"),
         allow_gaps=False,
+    )
+
+
+class ScriptingCursorStatementSegment(BaseSegment):
+    """The OPEN, FETCH and CLOSE statements of a Snowflake Scripting cursor.
+
+    https://docs.snowflake.com/en/developer-guide/snowflake-scripting/cursors
+    """
+
+    type = "scripting_cursor_statement"
+
+    match_grammar = OneOf(
+        Sequence(
+            "OPEN",
+            Ref("LocalVariableNameSegment"),
+            # The USING clause binds the cursor query parameters to
+            # Snowflake Scripting variables.
+            Sequence(
+                "USING",
+                Bracketed(Delimited(Ref("LocalVariableNameSegment"))),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "FETCH",
+            Ref("LocalVariableNameSegment"),
+            "INTO",
+            Delimited(Ref("LocalVariableNameSegment")),
+        ),
+        Sequence(
+            "CLOSE",
+            Ref("LocalVariableNameSegment"),
+        ),
     )
 
 
