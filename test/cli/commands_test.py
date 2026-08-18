@@ -2146,6 +2146,7 @@ def test__cli__command_lint_nocolor(
         "sarif",
         "github-annotation",
         "github-annotation-native",
+        "gitlab",
         "none",
     ],
 )
@@ -2223,6 +2224,10 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     elif serialize == "github-annotation":
         result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
+        assert len(filepaths) == 2
+    elif serialize == "gitlab":
+        result = json.loads(result_payload)
+        filepaths = {r["location"]["path"] for r in result}
         assert len(filepaths) == 2
     elif serialize == "github-annotation-native":
         result = result_payload.split("\n")
@@ -2464,6 +2469,73 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
     )
 
     assert result_error.stdout == result_failure.stdout
+
+
+def test__cli__command_lint_serialize_gitlab():
+    """Test format of gitlab Code Quality output."""
+    fpath = "test/fixtures/linter/identifier_capitalisation.sql"
+    parse_fpath = "test/fixtures/linter/parse_error.sql"
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                parse_fpath,
+                "--format",
+                "gitlab",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    issues = json.loads(result.stdout)
+    normalised = os.path.normpath(fpath)
+    parse_normalised = os.path.normpath(parse_fpath)
+
+    assert isinstance(issues, list)
+    assert issues
+    fingerprints = set()
+    for issue in issues:
+        assert set(issue.keys()) == {
+            "check_name",
+            "description",
+            "severity",
+            "fingerprint",
+            "location",
+        }
+        assert issue["description"].startswith(f"{issue['check_name']}: ")
+        assert issue["severity"] in {"info", "major"}
+        assert len(issue["fingerprint"]) == 32
+        assert issue["fingerprint"] not in fingerprints
+        fingerprints.add(issue["fingerprint"])
+        assert issue["location"]["path"] in {normalised, parse_normalised}
+        positions = issue["location"]["positions"]
+        assert set(positions.keys()) == {"begin", "end"}
+        for pos in (positions["begin"], positions["end"]):
+            assert set(pos.keys()) == {"line", "column"}
+            assert isinstance(pos["line"], int)
+            assert isinstance(pos["column"], int)
+
+    lint_issues = [i for i in issues if i["location"]["path"] == normalised]
+    parse_issues = [i for i in issues if i["location"]["path"] == parse_normalised]
+    assert lint_issues
+    assert parse_issues
+
+    cp01 = [i for i in lint_issues if i["check_name"] == "CP01"]
+    assert len(cp01) == 1
+    assert cp01[0]["severity"] == "info"
+    assert all(
+        i["severity"] == "major" for i in lint_issues if i["check_name"] != "CP01"
+    )
+
+    first = lint_issues[0]
+    assert first["check_name"] == "RF02"
+    assert first["description"] == (
+        "RF02: Unqualified reference 'foo' found in select with more "
+        "than one referenced table/view."
+    )
+    assert first["location"]["positions"]["begin"] == {"line": 3, "column": 5}
+    assert first["location"]["positions"]["end"] == {"line": 3, "column": 8}
 
 
 def test___main___help():
