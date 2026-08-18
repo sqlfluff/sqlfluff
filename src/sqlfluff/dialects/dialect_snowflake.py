@@ -1852,6 +1852,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("CreateStageSegment"),
             Ref("DefineStageSegment"),
+            Ref("DefinePipeSegment"),
             Ref("AlterStageSegment"),
             Ref("CreateStreamStatementSegment"),
             Ref("CreateStreamlitStatementSegment"),
@@ -7165,10 +7166,17 @@ class CreateFileFormatSegment(BaseSegment):
 
     type = "create_file_format_segment"
     match_grammar = Sequence(
-        "CREATE",
-        Ref("AlterOrReplaceGrammar", optional=True),
-        Sequence("FILE", "FORMAT"),
-        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                Sequence("FILE", "FORMAT"),
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            # DCM projects support DEFINE FILE FORMAT:
+            # https://docs.snowflake.com/en/user-guide/dcm-projects/dcm-projects-supported-entities
+            Sequence("DEFINE", "FILE", "FORMAT"),
+        ),
         Ref("ObjectReferenceSegment"),
         # TYPE = <FILE_FORMAT> is included in below parameter segments.
         # It is valid syntax to have TYPE = <FILE_FORMAT> after other parameters.
@@ -7542,6 +7550,55 @@ class XmlFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
         ),
+    )
+
+
+class DefinePipeSegment(BaseSegment):
+    """A Snowflake DEFINE PIPE statement (specific to DCM projects).
+
+    All pipe properties supported by CREATE PIPE are available in DEFINE PIPE:
+    https://docs.snowflake.com/en/user-guide/dcm-projects/dcm-projects-supported-entities
+    https://docs.snowflake.com/en/sql-reference/sql/create-pipe
+    """
+
+    type = "define_pipe_statement"
+
+    match_grammar = Sequence(
+        "DEFINE",
+        "PIPE",
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        Sequence(
+            "AUTO_INGEST",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        Sequence(
+            "ERROR_INTEGRATION",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "AWS_SNS_TOPIC",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "INTEGRATION",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        "AS",
+        Ref("CopyIntoTableStatementSegment"),
+        Dedent,
     )
 
 
@@ -8502,7 +8559,11 @@ class CreateStageSegment(BaseSegment):
 
 
 class DefineStageSegment(BaseSegment):
-    """A Snowflake DEFINE STAGE statement (specific to DCM projects)."""
+    """A Snowflake DEFINE STAGE statement (specific to DCM projects).
+
+    DCM projects support both internal and external stages:
+    https://docs.snowflake.com/en/user-guide/dcm-projects/dcm-projects-supported-entities
+    """
 
     type = "define_stage_statement"
 
@@ -8511,25 +8572,78 @@ class DefineStageSegment(BaseSegment):
         "STAGE",
         Ref("ObjectReferenceSegment"),
         Indent,
-        # Only internal stages supported in DCM projects currently
-        Sequence(
-            Ref("InternalStageParameters", optional=True),
+        OneOf(
+            # Internal stages
             Sequence(
-                "DIRECTORY",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Sequence(
-                        "ENABLE",
-                        Ref("EqualsSegment"),
-                        Ref("BooleanLiteralGrammar"),
-                    )
+                Ref("InternalStageParameters", optional=True),
+                Sequence(
+                    "DIRECTORY",
+                    Ref("EqualsSegment"),
+                    Bracketed(
+                        Sequence(
+                            "ENABLE",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        )
+                    ),
+                    optional=True,
                 ),
                 optional=True,
+            ),
+            # External stages
+            Sequence(
+                "URL",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("S3Path"),
+                    Ref("GCSPath"),
+                    Ref("AzureBlobStoragePath"),
+                    Ref("ReferencedVariableNameSegment"),
+                ),
+                OneOf(
+                    Ref("S3ExternalStageParameters"),
+                    Ref("GCSExternalStageParameters"),
+                    Ref("AzureBlobStorageExternalStageParameters"),
+                    optional=True,
+                ),
+                Sequence(
+                    "DIRECTORY",
+                    Ref("EqualsSegment"),
+                    Bracketed(
+                        Sequence(
+                            "ENABLE",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        ),
+                        Sequence(
+                            "AUTO_REFRESH",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "NOTIFICATION_INTEGRATION",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("NakedIdentifierSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
             ),
             optional=True,
         ),
         Sequence(
             "FILE_FORMAT", Ref("EqualsSegment"), Ref("FileFormatSegment"), optional=True
+        ),
+        Sequence(
+            "COPY_OPTIONS",
+            Ref("EqualsSegment"),
+            Bracketed(Ref("CopyOptionsSegment")),
+            optional=True,
         ),
         Ref("TagBracketedEqualsSegment", optional=True),
         Ref("CommentEqualsClauseSegment", optional=True),

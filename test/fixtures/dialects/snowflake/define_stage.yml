@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a379e475429cc7ec7ecfecadaba273749335488e5e24dfd9eff083187c19026e
+_hash: 87b540612757694e84072145b693ed4bc2e4f6a465f65c513d79c726ebeedd2c
 file:
-  statement:
+- statement:
     define_stage_statement:
     - keyword: DEFINE
     - keyword: STAGE
@@ -20,4 +20,111 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'Internal stage for uploading files'"
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    define_stage_statement:
+    - keyword: DEFINE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: gcs_events_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'gcs://my-bucket/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: my_gcs_int
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: FORMAT_NAME
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'my_db.my_schema.my_json_format'"
+          end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'events GCS stage'"
+- statement_terminator: ;
+- statement:
+    define_stage_statement:
+    - keyword: DEFINE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: s3_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3://my-bucket/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: my_s3_int
+    - keyword: DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: ENABLE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: AUTO_REFRESH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    define_stage_statement:
+    - keyword: DEFINE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: azure_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: my_azure_int
+    - keyword: DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: ENABLE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: NOTIFICATION_INTEGRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: my_notification_int
+      - end_bracket: )
+- statement_terminator: ;
