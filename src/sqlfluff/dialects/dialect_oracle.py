@@ -210,6 +210,7 @@ oracle_dialect.add(
     ),
     PowerOperatorSegment=StringParser("**", SymbolSegment, type="binary_operator"),
     ModOperatorSegment=StringParser("MOD", WordSegment, type="binary_operator"),
+    ShowOptionSegment=TypedParser("word", CodeSegment, type="show_option"),
     OnCommitGrammar=Sequence(
         "ON",
         "COMMIT",
@@ -1232,6 +1233,55 @@ class IndexTypeReferenceSegment(BaseSegment):
     match_grammar = ansi.ObjectReferenceSegment.match_grammar.copy()
 
 
+class ShowStatementSegment(BaseSegment):
+    """A SQL*Plus ``SHOW`` command.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/latest/sqpug/SHOW.html
+    """
+
+    type = "show_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            # SHOW ERRORS [object_type [schema.]name]
+            Sequence(
+                "ERRORS",
+                Sequence(
+                    OneOf(
+                        "FUNCTION",
+                        "PROCEDURE",
+                        "TRIGGER",
+                        "VIEW",
+                        "DIMENSION",
+                        Sequence("PACKAGE", Ref.keyword("BODY", optional=True)),
+                        Sequence("TYPE", Ref.keyword("BODY", optional=True)),
+                        Sequence("JAVA", OneOf("SOURCE", "CLASS")),
+                    ),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW PARAMETER[S] [name]
+            Sequence(
+                OneOf("PARAMETERS", "PARAMETER"),
+                Ref(
+                    "ParameterNameSegment",
+                    optional=True,
+                    exclude=OneOf("SHOW", "SET", "PROMPT"),
+                ),
+            ),
+            "ALL",
+            "USER",
+            # Any other single-word option, including a SET system variable.
+            Ref(
+                "ShowOptionSegment",
+                exclude=OneOf("SHOW", "SET", "PROMPT"),
+            ),
+        ),
+    )
+
+
 # Adding Oracle specific statements.
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments.
@@ -1285,6 +1335,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterSynonymStatementSegment"),
             Ref("DropProfileStatementSegment"),
             Ref("DropClusterStatementSegment"),
+            Ref("ShowStatementSegment"),
         ],
     )
 
