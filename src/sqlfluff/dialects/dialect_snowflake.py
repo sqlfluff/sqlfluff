@@ -490,6 +490,34 @@ snowflake_dialect.add(
         CodeSegment,
         type="unquoted_file_path",
     ),
+    # The parameters of an external stage: those it shares with the external
+    # locations of COPY INTO, plus the ones only stages accept.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-stage
+    S3StageParametersGrammar=Sequence(
+        # For S3-compatible storage only (s3compat:// URLs).
+        Sequence(
+            "ENDPOINT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "AWS_ACCESS_POINT_ARN",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Ref("S3ExternalStageParameters", optional=True),
+        Ref("UsePrivatelinkEndpointGrammar", optional=True),
+    ),
+    GCSStageParametersGrammar=Sequence(
+        Ref("GCSExternalStageParameters", optional=True),
+        Ref("UsePrivatelinkEndpointGrammar", optional=True),
+    ),
+    AzureStageParametersGrammar=Sequence(
+        Ref("AzureBlobStorageExternalStageParameters", optional=True),
+        Ref("UsePrivatelinkEndpointGrammar", optional=True),
+    ),
     # Accepted by the external stages of every cloud provider.
     # https://docs.snowflake.com/en/sql-reference/sql/create-stage
     UsePrivatelinkEndpointGrammar=Sequence(
@@ -8177,19 +8205,6 @@ class S3ExternalStageParameters(BaseSegment):
     type = "stage_parameters"
 
     match_grammar = Sequence(
-        # For S3-compatible storage only (s3compat:// URLs).
-        Sequence(
-            "ENDPOINT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "AWS_ACCESS_POINT_ARN",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
-            optional=True,
-        ),
         OneOf(
             Sequence(
                 "STORAGE_INTEGRATION",
@@ -8258,7 +8273,6 @@ class S3ExternalStageParameters(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("UsePrivatelinkEndpointGrammar", optional=True),
     )
 
 
@@ -8302,7 +8316,6 @@ class GCSExternalStageParameters(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("UsePrivatelinkEndpointGrammar", optional=True),
     )
 
 
@@ -8362,7 +8375,6 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("UsePrivatelinkEndpointGrammar", optional=True),
     )
 
 
@@ -8401,12 +8413,12 @@ class CreateStageSegment(BaseSegment):
                     OneOf(
                         # External S3 stage
                         Sequence(
-                            Ref("S3ExternalStageParameters", optional=True),
+                            Ref("S3StageParametersGrammar", optional=True),
                             Ref("S3DirectoryTableParamsGrammar", optional=True),
                         ),
                         # External GCS stage
                         Sequence(
-                            Ref("GCSExternalStageParameters", optional=True),
+                            Ref("GCSStageParametersGrammar", optional=True),
                             Ref(
                                 "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
@@ -8414,9 +8426,7 @@ class CreateStageSegment(BaseSegment):
                         ),
                         # External Azure Blob Storage stage
                         Sequence(
-                            Ref(
-                                "AzureBlobStorageExternalStageParameters", optional=True
-                            ),
+                            Ref("AzureStageParametersGrammar", optional=True),
                             Ref(
                                 "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
@@ -8429,12 +8439,12 @@ class CreateStageSegment(BaseSegment):
                     OneOf(
                         # External S3 stage
                         Sequence(
-                            Ref("S3ExternalStageParameters", optional=True),
+                            Ref("S3StageParametersGrammar", optional=True),
                             Ref("S3DirectoryTableParamsGrammar", optional=True),
                         ),
                         # External GCS stage
                         Sequence(
-                            Ref("GCSExternalStageParameters", optional=True),
+                            Ref("GCSStageParametersGrammar", optional=True),
                             Ref(
                                 "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
@@ -8442,9 +8452,7 @@ class CreateStageSegment(BaseSegment):
                         ),
                         # External Azure Blob Storage stage
                         Sequence(
-                            Ref(
-                                "AzureBlobStorageExternalStageParameters", optional=True
-                            ),
+                            Ref("AzureStageParametersGrammar", optional=True),
                             Ref(
                                 "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
@@ -8534,7 +8542,7 @@ class AlterStageSegment(BaseSegment):
                                     optional=True,
                                 ),
                                 Ref(
-                                    "S3ExternalStageParameters",
+                                    "S3StageParametersGrammar",
                                     optional=True,
                                 ),
                             ),
@@ -8546,7 +8554,7 @@ class AlterStageSegment(BaseSegment):
                                     optional=True,
                                 ),
                                 Ref(
-                                    "GCSExternalStageParameters",
+                                    "GCSStageParametersGrammar",
                                     optional=True,
                                 ),
                             ),
@@ -8558,7 +8566,7 @@ class AlterStageSegment(BaseSegment):
                                     optional=True,
                                 ),
                                 Ref(
-                                    "AzureBlobStorageExternalStageParameters",
+                                    "AzureStageParametersGrammar",
                                     optional=True,
                                 ),
                             ),
