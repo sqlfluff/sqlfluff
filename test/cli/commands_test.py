@@ -108,6 +108,52 @@ def test__cli__command_directed():
     assert result.stdout.replace("\\", "/").startswith(expected_output)
 
 
+@pytest.mark.parametrize("command", [lint, fix, cli_format])
+@pytest.mark.parametrize("processes", [1, 2])
+def test__cli__mixed_templaters(command, processes):
+    """CLI commands use templaters selected by nested file configuration."""
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            command,
+            [
+                "--disable-progress-bar",
+                "--processes",
+                str(processes),
+                "test/fixtures/linter/mixed_templaters/jinja.sql",
+                "test/fixtures/linter/mixed_templaters/placeholder/placeholder.sql",
+            ],
+        ],
+    )
+
+    assert "Attempt to set templater" not in result.output
+
+
+def test__cli__parse_mixed_templaters():
+    """Parse uses templaters selected by nested file configuration."""
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[parse, ["test/fixtures/linter/mixed_templaters"]],
+    )
+
+    assert result.output.count("|file:") == 2
+    assert "numeric_literal:                          '1'" in result.output
+    assert "naked_identifier:                     'value'" in result.output
+
+
+def test__cli__render_nested_templater():
+    """Render uses the templater selected by nested file configuration."""
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            render,
+            ["test/fixtures/linter/mixed_templaters/placeholder/placeholder.sql"],
+        ],
+    )
+
+    assert "SELECT value FROM my_table" in result.output
+
+
 def test__cli__command_dialect():
     """Check the script raises the right exception on an unknown dialect."""
     # The dialect is unknown should be a non-zero exit code

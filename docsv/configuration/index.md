@@ -143,7 +143,7 @@ preferred_not_equal_style = c_style
 
 ### Nesting
 
-**SQLFluff** uses **nesting** in its configuration files, with files closer *overriding* (or *patching*, if you will) values from other files. That means you'll end up with a final config which will be a patchwork of all the values from the config files loaded up to that path. The exception to this is the value for `templater`, which cannot be set in config files in subdirectories of the working directory. You don't **need** any config files to be present to make *SQLFluff* work. If you do want to override any values though SQLFluff will use files in the following locations in order, with values from later steps overriding those from earlier:
+**SQLFluff** uses **nesting** in its configuration files, with files closer *overriding* (or *patching*, if you will) values from other files. That means you'll end up with a final config which will be a patchwork of all the values from the config files loaded up to that path. Templaters, including independently configured `dbt` projects, may be selected in nested configuration files. Nested `sql_file_exts` settings also control which files are discovered below that configuration file. SQLFluff groups files by effective templater configuration and renders stateful templaters in the main process. You don't **need** any config files to be present to make *SQLFluff* work. If you do want to override any values though SQLFluff will use files in the following locations in order, with values from later steps overriding those from earlier:
 
 0. *[...and this one doesn't really count]* There's a default config as
    part of the SQLFluff package. You can find this below, in the

@@ -18,7 +18,6 @@ from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.utils.testing.cli import invoke_assert_code
 from sqlfluff.utils.testing.logging import fluff_log_catcher
-from sqlfluff_templater_dbt.templater import DbtTemplater
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir, dbt_fluff_config):
@@ -610,7 +609,7 @@ def test__templater_dbt_templating_absolute_path(
         ),
         pytest.param(
             "compile_missing_table.sql",
-            "Runtime Error",
+            'relation "this_table_does_not_exist" does not exist',
             False,
             SQLTemplaterError,
             id="dbt_skip_compilation_error",
@@ -704,7 +703,7 @@ def test__templater_dbt_handle_database_connection_failure(
             )
 
     # Clear the adapter cache to force this test to create a new connection.
-    DbtTemplater.adapters.clear()
+    dbt_templater._reset_project_state()
 
     set_relations_cache.side_effect = DbtFailedToConnectException("dummy error")
 
@@ -737,6 +736,106 @@ def test__templater_dbt_handle_database_connection_failure(
     # NB: Replace slashes to deal with different platform paths being returned.
     error_message = excinfo.value.desc().replace("\\", "/")
     assert "dbt tried to connect to the database" in error_message
+
+
+def test__templater_dbt_rejects_existing_adapter(dbt_templater):
+    """An existing dbt adapter prevents this session from claiming the factory."""
+    from dbt.adapters.factory import FACTORY
+
+    existing_adapter = mock.Mock()
+    with mock.patch.object(FACTORY, "adapters", {"postgres": existing_adapter}):
+        with pytest.raises(
+            SQLFluffUserError,
+            match="dbt adapter is already in use by another operation",
+        ):
+            _ = dbt_templater.dbt_config
+
+        assert FACTORY.adapters == {"postgres": existing_adapter}
+
+    assert dbt_templater._adapter is None
+    assert not dbt_templater._adapter_lock_acquired
+
+
+@pytest.mark.parametrize(
+    "extra_adapter, error_message",
+    [
+        (False, "dbt adapter registration was claimed by another operation"),
+        (True, "Another dbt adapter was registered during SQLFluff startup"),
+    ],
+)
+def test__templater_dbt_rejects_adapter_registration_race(
+    dbt_templater, extra_adapter, error_message
+):
+    """A dbt adapter registration race is detected and cleaned up."""
+    from dbt.adapters.factory import FACTORY
+    from dbt.config.runtime import RuntimeConfig
+
+    dbt_config = mock.Mock()
+    dbt_config.credentials.type = "postgres"
+    registered_adapter = mock.Mock()
+    registered_adapter.config = (
+        dbt_config if extra_adapter else mock.sentinel.other_config
+    )
+    other_adapter = mock.Mock()
+
+    def register_adapter(*args):
+        FACTORY.adapters["postgres"] = registered_adapter
+        if extra_adapter:
+            FACTORY.adapters["other"] = other_adapter
+
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "postgres", "templater": "dbt"},
+            "templater": {
+                "dbt": {"project_dir": "/project", "profiles_dir": "/profiles"}
+            },
+        }
+    )
+    dbt_templater.project_dir = dbt_templater._get_project_dir()
+    dbt_templater.profiles_dir = dbt_templater._get_profiles_dir()
+    with (
+        mock.patch.object(FACTORY, "adapters", {}),
+        mock.patch.object(RuntimeConfig, "from_args", return_value=dbt_config),
+        mock.patch(
+            "dbt.adapters.factory.register_adapter", side_effect=register_adapter
+        ),
+        mock.patch.object(dbt_templater, "try_silence_dbt_logs"),
+    ):
+        with pytest.raises(SQLFluffUserError, match=error_message):
+            _ = dbt_templater.dbt_config
+
+        if extra_adapter:
+            assert FACTORY.adapters == {"other": other_adapter}
+            registered_adapter.cleanup_connections.assert_called_once_with()
+        else:
+            assert FACTORY.adapters == {"postgres": registered_adapter}
+            registered_adapter.cleanup_connections.assert_not_called()
+
+    assert dbt_templater._adapter is None
+    assert not dbt_templater._adapter_lock_acquired
+
+
+def test__templater_dbt_connection_gets_uncached_adapter(dbt_templater):
+    """The connection context lazily retrieves an uncached adapter."""
+    adapter = mock.Mock()
+    dbt_config = mock.sentinel.dbt_config
+    dbt_templater._adapter_initialized = True
+
+    with (
+        mock.patch(
+            "dbt.adapters.factory.get_adapter", return_value=adapter
+        ) as get_adapter,
+        mock.patch.object(
+            type(dbt_templater),
+            "dbt_config",
+            new_callable=mock.PropertyMock,
+            return_value=dbt_config,
+        ),
+    ):
+        with dbt_templater.connection():
+            assert dbt_templater._adapter is adapter
+
+    get_adapter.assert_called_once_with(dbt_config)
 
 
 def test__project_dir_from_env(dbt_templater, project_dir, monkeypatch):
