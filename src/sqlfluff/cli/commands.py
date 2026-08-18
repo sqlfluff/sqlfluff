@@ -1030,18 +1030,23 @@ def lint(
             for violation in record["violations"]:
                 gitlab_result.append(
                     {
-                        "check_name": violation["code"],
+                        "check_name": str(violation["code"]),
                         "description": f"{violation['code']}: {violation['description']}",
                         # The annotation_level is configurable, but will only apply
                         # to any SQLFluff rules which have not been downgraded
                         # to warnings using the `warnings` config value. Any which have
                         # been set to warn rather than fail will always be given the
-                        # `notice` annotation level in the serialised result.
+                        # `info` annotation level in the serialised result.
                         "severity": severity if not violation["warning"] else "info",
                         "fingerprint": hashlib.md5(
-                            ":".join([
-                                filepath, violation["code"], str(violation["start_line_no"]),str(violation["start_line_pos"]),
-                            ]).encode("utf-8"),
+                            ":".join(
+                                [
+                                    filepath,
+                                    str(violation["code"]),
+                                    str(violation["start_line_no"]),
+                                    str(violation["start_line_pos"]),
+                                ]
+                            ).encode("utf-8"),
                             usedforsecurity=False,
                         ).hexdigest(),
                         "location": {
@@ -1052,8 +1057,12 @@ def lint(
                                     "column": violation["start_line_pos"],
                                 },
                                 "end": {
-                                    "line": violation.get("end_line_no", violation["start_line_no"]),
-                                    "column": violation.get("end_line_pos", violation["start_line_pos"]),
+                                    "line": violation.get(
+                                        "end_line_no", violation["start_line_no"]
+                                    ),
+                                    "column": violation.get(
+                                        "end_line_pos", violation["start_line_pos"]
+                                    ),
                                 },
                             },
                         },
