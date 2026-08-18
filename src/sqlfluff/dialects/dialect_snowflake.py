@@ -904,6 +904,53 @@ snowflake_dialect.add(
         ),
     ),
     CopyTagsGrammar=Sequence("COPY", "TAGS"),
+    # The SET/UNSET actions those policies share between the ALTER
+    # statements of tables, views and dynamic tables.
+    AggregationPolicyActionGrammar=OneOf(
+        Sequence(
+            "SET",
+            "AGGREGATION",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Sequence(
+                "ENTITY",
+                "KEY",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                optional=True,
+            ),
+            Ref.keyword("FORCE", optional=True),
+        ),
+        Sequence("UNSET", "AGGREGATION", "POLICY"),
+    ),
+    JoinPolicyActionGrammar=OneOf(
+        Sequence(
+            "SET",
+            "JOIN",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Ref.keyword("FORCE", optional=True),
+        ),
+        Sequence("UNSET", "JOIN", "POLICY"),
+    ),
+    # Column level masking and projection policy actions.
+    MaskingPolicyActionGrammar=OneOf(
+        Sequence(
+            "SET",
+            Ref("MaskingPolicyGrammar"),
+            Ref.keyword("FORCE", optional=True),
+        ),
+        Sequence("UNSET", "MASKING", "POLICY"),
+    ),
+    ProjectionPolicyActionGrammar=OneOf(
+        Sequence(
+            "SET",
+            "PROJECTION",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Ref.keyword("FORCE", optional=True),
+        ),
+        Sequence("UNSET", "PROJECTION", "POLICY"),
+    ),
     # SET MASKING POLICY <name> [ USING ( <col_name> [ , ... ] ) ], as used
     # by the column level governance actions of ALTER statements. The USING
     # clause takes column references per the documentation.
@@ -2595,46 +2642,8 @@ class DataGovernancePolicyTagActionSegment(BaseSegment):
             "ACCESS",
             "POLICIES",
         ),
-        Sequence(
-            "SET",
-            "AGGREGATION",
-            "POLICY",
-            Ref("ObjectReferenceSegment"),
-            Sequence(
-                "ENTITY",
-                "KEY",
-                Bracketed(
-                    Delimited(
-                        Ref("ObjectReferenceSegment"),
-                    ),
-                ),
-                optional=True,
-            ),
-            Sequence(
-                "FORCE",
-                optional=True,
-            ),
-        ),
-        Sequence(
-            "UNSET",
-            "AGGREGATION",
-            "POLICY",
-        ),
-        Sequence(
-            "SET",
-            "JOIN",
-            "POLICY",
-            Ref("ObjectReferenceSegment"),
-            Sequence(
-                "FORCE",
-                optional=True,
-            ),
-        ),
-        Sequence(
-            "UNSET",
-            "JOIN",
-            "POLICY",
-        ),
+        Ref("AggregationPolicyActionGrammar"),
+        Ref("JoinPolicyActionGrammar"),
         Sequence(
             "ADD",
             "STORAGE",
@@ -3064,20 +3073,8 @@ class AlterDynamicTableColumnActionSegment(BaseSegment):
         Ref.keyword("COLUMN", optional=True),
         Ref("ColumnReferenceSegment"),
         OneOf(
-            Sequence(
-                "SET",
-                Ref("MaskingPolicyGrammar"),
-                Ref.keyword("FORCE", optional=True),
-            ),
-            Sequence("UNSET", "MASKING", "POLICY"),
-            Sequence(
-                "SET",
-                "PROJECTION",
-                "POLICY",
-                Ref("ObjectReferenceSegment"),
-                Ref.keyword("FORCE", optional=True),
-            ),
-            Sequence("UNSET", "PROJECTION", "POLICY"),
+            Ref("MaskingPolicyActionGrammar"),
+            Ref("ProjectionPolicyActionGrammar"),
             Sequence("SET", Ref("TagEqualsSegment")),
             Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
         ),
@@ -6923,6 +6920,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                             ),
                             optional=True,
                         ),
+                        Ref("ProjectionPolicyGrammar", optional=True),
                         Ref("TagBracketedEqualsSegment", optional=True),
                         Ref("CommentClauseSegment", optional=True),
                     ),
@@ -6939,6 +6937,10 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                     Delimited(Ref("ColumnReferenceSegment")),
                 ),
             ),
+            Ref("AggregationPolicyGrammar"),
+            Ref("JoinPolicyGrammar"),
+            Ref("ContactBracketedGrammar"),
+            Ref("CopyTagsGrammar"),
             Ref("TagBracketedEqualsSegment"),
             Sequence(
                 "CHANGE_TRACKING",
@@ -6980,16 +6982,45 @@ class AlterViewStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
             ),
             Ref("CommentEqualsClauseSegment"),
-            Sequence(
-                "UNSET",
-                "COMMENT",
-            ),
-            Sequence(
-                OneOf("SET", "UNSET"),
-                "SECURE",
-            ),
             Sequence("SET", Ref("TagEqualsSegment")),
             Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            # ALTER VIEW ... SET <view_property> [ <view_property> ... ]
+            Sequence(
+                "SET",
+                AnySetOf(
+                    "SECURE",
+                    Sequence(
+                        "CHANGE_TRACKING",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "CONTACT",
+                        Delimited(
+                            Sequence(
+                                Ref("PurposeGrammar"),
+                                Ref("EqualsSegment"),
+                                Ref("ObjectReferenceSegment"),
+                            ),
+                        ),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    "SECURE",
+                    "COMMENT",
+                    Sequence("CONTACT", Ref("PurposeGrammar")),
+                    Sequence("DCM", "PROJECT"),
+                ),
+            ),
+            # Aggregation and join policies
+            Ref("AggregationPolicyActionGrammar"),
+            Ref("JoinPolicyActionGrammar"),
+            Sequence("DROP", "ALL", "ROW", "ACCESS", "POLICIES"),
             Delimited(
                 Sequence(
                     "ADD",
@@ -7016,21 +7047,8 @@ class AlterViewStatementSegment(BaseSegment):
                             Ref.keyword("COLUMN", optional=True),
                             Ref("ColumnReferenceSegment"),
                             OneOf(
-                                Sequence(
-                                    "SET",
-                                    "MASKING",
-                                    "POLICY",
-                                    Ref("FunctionNameSegment"),
-                                    Sequence(
-                                        "USING",
-                                        Bracketed(
-                                            Delimited(Ref("ColumnReferenceSegment"))
-                                        ),
-                                        optional=True,
-                                    ),
-                                    Ref.keyword("FORCE", optional=True),
-                                ),
-                                Sequence("UNSET", "MASKING", "POLICY"),
+                                Ref("MaskingPolicyActionGrammar"),
+                                Ref("ProjectionPolicyActionGrammar"),
                                 Sequence("SET", Ref("TagEqualsSegment")),
                             ),
                         ),
