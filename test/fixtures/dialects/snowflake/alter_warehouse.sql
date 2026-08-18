@@ -47,3 +47,5 @@ SET COMMENT = 'Warehouse for dbt development transformations in CI'
 ALTER WAREHOUSE LOAD_WH SET
 ENABLE_QUERY_ACCELERATION = true
 QUERY_ACCELERATION_MAX_SCALE_FACTOR = 4;
+
+alter warehouse LOAD_WH set RESOURCE_MONITOR = 'monitor_name';
