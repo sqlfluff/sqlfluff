@@ -460,6 +460,14 @@ snowflake_dialect.add(
         type="udf_body",
         trim_chars=("$",),
     ),
+    # Generic dollar-quoted string literal (e.g. the YAML specification body
+    # of CREATE MCP SERVER)
+    DollarQuotedLiteralSegment=TypedParser(
+        "dollar_quote",
+        CodeSegment,
+        type="dollar_quoted_literal",
+        trim_chars=("$",),
+    ),
     StagePath=RegexParser(
         r"(?:@[^\s;)]+|'@[^']+')",
         IdentifierSegment,
@@ -1810,6 +1818,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateStatementSegment"),
             Ref("DefineStatementSegment"),
             Ref("CreateDbtProjectStatementSegment"),
+            Ref("CreateMcpServerStatementSegment"),
             Ref("CreateDcmProjectStatementSegment"),
             Ref("CreateTaskSegment"),
             Ref("CreateUserSegment"),
@@ -3761,6 +3770,7 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         "WORKSPACE",
         Sequence("DBT", "PROJECT"),
         Sequence("DCM", "PROJECT"),
+        Sequence("MCP", "SERVER"),
         Sequence("MATERIALIZED", "VIEW"),
         Sequence("DYNAMIC", "TABLE"),
         Sequence("EXTERNAL", "TABLE"),
@@ -3792,6 +3802,7 @@ class AccessSchemaPluralObjectSegment(ansi.AccessSchemaPluralObjectSegment):
         "MODELS",
         "WORKSPACES",
         Sequence("DBT", "PROJECTS"),
+        Sequence("MCP", "SERVERS"),
         Sequence("DCM", "PROJECTS"),
     )
 
@@ -6634,6 +6645,27 @@ class DefineStatementSegment(BaseSegment):
     )
 
 
+class CreateMcpServerStatementSegment(BaseSegment):
+    """A Snowflake `CREATE MCP SERVER` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-mcp-server
+    """
+
+    type = "create_mcp_server_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "MCP",
+        "SERVER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "FROM",
+        "SPECIFICATION",
+        Ref("DollarQuotedLiteralSegment"),
+    )
+
+
 class CreateDbtProjectStatementSegment(BaseSegment):
     """A Snowflake `CREATE DBT PROJECT` statement.
 
@@ -8948,6 +8980,7 @@ class ShowStatementSegment(BaseSegment):
         "WORKSPACES",
         "DEPLOYMENTS",
         Sequence("DBT", "PROJECTS"),
+        Sequence("MCP", "SERVERS"),
         Sequence("DCM", "PROJECTS"),
         Sequence("USER", "FUNCTIONS"),
         Sequence("EXTERNAL", "FUNCTIONS"),
@@ -9911,6 +9944,12 @@ class DescribeStatementSegment(BaseSegment):
                 "PROJECT",
                 Ref("ObjectReferenceSegment"),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/create-mcp-server
+            Sequence(
+                "MCP",
+                "SERVER",
+                Ref("ObjectReferenceSegment"),
+            ),
         ),
     )
 
@@ -10329,6 +10368,7 @@ class DropObjectStatementSegment(BaseSegment):
                     "CONNECTION",
                     Sequence("CORTEX", "SEARCH", "SERVICE"),
                     Sequence("FILE", "FORMAT"),
+                    Sequence("MCP", "SERVER"),
                     Sequence(
                         OneOf(
                             "API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True
