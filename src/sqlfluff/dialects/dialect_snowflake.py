@@ -234,6 +234,37 @@ snowflake_dialect.sets("initialize_types").update(
 )
 
 snowflake_dialect.add(
+    # Pipe properties shared by CREATE PIPE and DEFINE PIPE
+    # https://docs.snowflake.com/en/sql-reference/sql/create-pipe
+    PipePropertiesGrammar=Sequence(
+        Sequence(
+            "AUTO_INGEST",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        Sequence(
+            "ERROR_INTEGRATION",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "AWS_SNS_TOPIC",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "INTEGRATION",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+    ),
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
@@ -6514,36 +6545,7 @@ class CreateStatementSegment(BaseSegment):
         ),
         # Next set are Pipe statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
-        Sequence(
-            Sequence(
-                "AUTO_INGEST",
-                Ref("EqualsSegment"),
-                Ref("BooleanLiteralGrammar"),
-                optional=True,
-            ),
-            Sequence(
-                "ERROR_INTEGRATION",
-                Ref("EqualsSegment"),
-                Ref("ObjectReferenceSegment"),
-                optional=True,
-            ),
-            Sequence(
-                "AWS_SNS_TOPIC",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
-            Sequence(
-                "INTEGRATION",
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("ObjectReferenceSegment"),
-                ),
-                optional=True,
-            ),
-            optional=True,
-        ),
+        Ref("PipePropertiesGrammar", optional=True),
         # Next are WAREHOUSE options
         # https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
         Sequence(
@@ -7568,33 +7570,7 @@ class DefinePipeSegment(BaseSegment):
         "PIPE",
         Ref("ObjectReferenceSegment"),
         Indent,
-        Sequence(
-            "AUTO_INGEST",
-            Ref("EqualsSegment"),
-            Ref("BooleanLiteralGrammar"),
-            optional=True,
-        ),
-        Sequence(
-            "ERROR_INTEGRATION",
-            Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "AWS_SNS_TOPIC",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "INTEGRATION",
-            Ref("EqualsSegment"),
-            OneOf(
-                Ref("QuotedLiteralSegment"),
-                Ref("ObjectReferenceSegment"),
-            ),
-            optional=True,
-        ),
+        Ref("PipePropertiesGrammar", optional=True),
         Ref("CommentEqualsClauseSegment", optional=True),
         "AS",
         Ref("CopyIntoTableStatementSegment"),
@@ -8590,48 +8566,100 @@ class DefineStageSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            # External stages
+            # External stages, with each cloud's parameters bound to its
+            # URL scheme (mirroring CreateStageSegment)
             Sequence(
                 "URL",
                 Ref("EqualsSegment"),
                 OneOf(
-                    Ref("S3Path"),
-                    Ref("GCSPath"),
-                    Ref("AzureBlobStoragePath"),
-                    Ref("ReferencedVariableNameSegment"),
-                ),
-                OneOf(
-                    Ref("S3ExternalStageParameters"),
-                    Ref("GCSExternalStageParameters"),
-                    Ref("AzureBlobStorageExternalStageParameters"),
-                    optional=True,
-                ),
-                Sequence(
-                    "DIRECTORY",
-                    Ref("EqualsSegment"),
-                    Bracketed(
+                    # External S3 stage
+                    Sequence(
+                        Ref("S3Path"),
+                        Ref("S3ExternalStageParameters", optional=True),
                         Sequence(
-                            "ENABLE",
+                            "DIRECTORY",
                             Ref("EqualsSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                        ),
-                        Sequence(
-                            "AUTO_REFRESH",
-                            Ref("EqualsSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                            optional=True,
-                        ),
-                        Sequence(
-                            "NOTIFICATION_INTEGRATION",
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                Ref("NakedIdentifierSegment"),
-                                Ref("QuotedLiteralSegment"),
+                            Bracketed(
+                                Sequence(
+                                    "ENABLE",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                                Sequence(
+                                    "AUTO_REFRESH",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                    optional=True,
+                                ),
                             ),
                             optional=True,
                         ),
                     ),
-                    optional=True,
+                    # External GCS stage
+                    Sequence(
+                        Ref("GCSPath"),
+                        Ref("GCSExternalStageParameters", optional=True),
+                        Sequence(
+                            "DIRECTORY",
+                            Ref("EqualsSegment"),
+                            Bracketed(
+                                Sequence(
+                                    "ENABLE",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                                Sequence(
+                                    "AUTO_REFRESH",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                    optional=True,
+                                ),
+                                Sequence(
+                                    "NOTIFICATION_INTEGRATION",
+                                    Ref("EqualsSegment"),
+                                    OneOf(
+                                        Ref("NakedIdentifierSegment"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    # External Azure Blob Storage stage
+                    Sequence(
+                        Ref("AzureBlobStoragePath"),
+                        Ref("AzureBlobStorageExternalStageParameters", optional=True),
+                        Sequence(
+                            "DIRECTORY",
+                            Ref("EqualsSegment"),
+                            Bracketed(
+                                Sequence(
+                                    "ENABLE",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                                Sequence(
+                                    "AUTO_REFRESH",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                    optional=True,
+                                ),
+                                Sequence(
+                                    "NOTIFICATION_INTEGRATION",
+                                    Ref("EqualsSegment"),
+                                    OneOf(
+                                        Ref("NakedIdentifierSegment"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    Ref("ReferencedVariableNameSegment"),
                 ),
             ),
             optional=True,
