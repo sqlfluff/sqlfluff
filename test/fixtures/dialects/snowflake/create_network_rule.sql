@@ -18,3 +18,18 @@ CREATE OR REPLACE NETWORK RULE ext_network_access_db.network_rules.azure_sql_pri
 MODE = EGRESS
 TYPE = PRIVATE_HOST_PORT
 VALUE_LIST = ('externalaccessdemo.database.windows.net');
+
+CREATE NETWORK RULE ipv6_rule
+    TYPE = IPV6
+    VALUE_LIST = ('2001:db8::/32')
+    MODE = INGRESS;
+
+CREATE NETWORK RULE psc_rule
+    TYPE = GCPPSCID
+    VALUE_LIST = ('projects/my-project/regions/us-central1/serviceAttachments/my-psc')
+    MODE = INGRESS;
+
+CREATE OR REPLACE NETWORK RULE pool_rule
+    TYPE = COMPUTE_POOL
+    MODE = SNOWFLAKE_MANAGED_STORAGE_VOLUME
+    VALUE_LIST = ('my_compute_pool');
