@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7f7351943cd4f95d2828d2d969298e1d114ab1ce6c75c10db25ebc18cc7bdb71
+_hash: 338d9cd49189d0a4c81d90bd46d116ecce046b8c95201e1af00354c45ebabd83
 file:
 - statement:
     call_segment:
@@ -61,4 +61,171 @@ file:
             expression:
               variable: $Variable1
             end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+    - keyword: CALL
+    - function_name:
+        function_name_identifier: sv_proc1
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Manitoba'"
+        - comma: ','
+        - expression:
+            numeric_literal: '127.4'
+        - end_bracket: )
+    - keyword: INTO
+    - bind_variable:
+        colon_prefix: ':'
+        variable: ret1
+- statement_terminator: ;
+- statement:
+    call_statement:
+    - keyword: CALL
+    - function_name:
+        function_name_identifier: sv_proc1
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Manitoba'"
+        - comma: ','
+        - expression:
+            numeric_literal: '127.4'
+        - end_bracket: )
+    - keyword: INTO
+    - variable: ret1
+- statement_terminator: ;
+- statement:
+    call_statement:
+    - keyword: CALL
+    - function_name:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - function_name_identifier: sv_proc1
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: INTO
+    - bind_variable:
+        colon_prefix: ':'
+        variable: result
+- statement_terminator: ;
+- statement:
+    call_statement:
+    - keyword: CALL
+    - function_name:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - function_name_identifier: sv_proc1
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: INTO
+    - variable: result
+- statement_terminator: ;
+- statement:
+    call_statement:
+    - keyword: CALL
+    - function_name:
+        function_name_identifier: sv_proc1
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - snowflake_keyword_expression:
+            parameter: a
+            parameter_assigner: =>
+            numeric_literal: '1'
+        - comma: ','
+        - snowflake_keyword_expression:
+            parameter: b
+            parameter_assigner: =>
+            quoted_literal: "'x'"
+        - end_bracket: )
+    - keyword: INTO
+    - bind_variable:
+        colon_prefix: ':'
+        variable: ret1
+- statement_terminator: ;
+- statement:
+    call_statement:
+    - keyword: CALL
+    - function_name:
+        function_name_identifier: sv_proc1
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - snowflake_keyword_expression:
+            parameter: a
+            parameter_assigner: =>
+            numeric_literal: '1'
+        - comma: ','
+        - snowflake_keyword_expression:
+            parameter: b
+            parameter_assigner: =>
+            quoted_literal: "'x'"
+        - end_bracket: )
+    - keyword: INTO
+    - variable: ret1
+- statement_terminator: ;
+- statement:
+    scripting_declare_statement:
+    - keyword: DECLARE
+    - variable: myvar
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: DEFAULT
+    - expression:
+        null_literal: 'NULL'
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        call_statement:
+        - keyword: CALL
+        - function_name:
+            function_name_identifier: myproc
+        - function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'arg'"
+              end_bracket: )
+        - keyword: INTO
+        - bind_variable:
+            colon_prefix: ':'
+            variable: myvar
+    - statement_terminator: ;
+    - statement:
+        call_statement:
+        - keyword: CALL
+        - function_name:
+            function_name_identifier: myproc
+        - function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'arg'"
+              end_bracket: )
+        - keyword: INTO
+        - variable: myvar
+    - statement_terminator: ;
+    - statement:
+        return_statement:
+          keyword: RETURN
+          expression:
+            bind_variable:
+              colon_prefix: ':'
+              variable: myvar
+    - statement_terminator: ;
+    - keyword: END
 - statement_terminator: ;
