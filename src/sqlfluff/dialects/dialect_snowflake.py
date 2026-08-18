@@ -5192,6 +5192,7 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 Ref("NakedIdentifierSegment"),
+                Ref("QuotedIdentifierSegment"),
                 Ref("QuotedLiteralSegment"),
             ),
         ),
@@ -9479,6 +9480,7 @@ class AlterAccountStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 OneOf(
                     Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
                     Ref("QuotedLiteralSegment"),
                 ),
             ),

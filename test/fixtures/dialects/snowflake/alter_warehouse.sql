@@ -50,6 +50,8 @@ QUERY_ACCELERATION_MAX_SCALE_FACTOR = 4;
 
 alter warehouse LOAD_WH set RESOURCE_MONITOR = 'monitor_name';
 
+alter warehouse LOAD_WH set RESOURCE_MONITOR = "My Monitor";
+
 -- The warehouse name can be omitted when suspending / resuming / aborting.
 ALTER WAREHOUSE SUSPEND;
 ALTER WAREHOUSE RESUME IF SUSPENDED;
