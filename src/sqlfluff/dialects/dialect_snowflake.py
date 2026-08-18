@@ -490,33 +490,156 @@ snowflake_dialect.add(
         CodeSegment,
         type="unquoted_file_path",
     ),
-    # The parameters of an external stage: those it shares with the external
-    # locations of COPY INTO, plus the ones only stages accept.
+    # The parameters an external stage shares with the external locations of
+    # COPY INTO. The stage segments add the ones only stages accept.
     # https://docs.snowflake.com/en/sql-reference/sql/create-stage
-    S3StageParametersGrammar=Sequence(
-        # For S3-compatible storage only (s3compat:// URLs).
-        Sequence(
-            "ENDPOINT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+    S3ExternalStageParamsGrammar=Sequence(
+        OneOf(
+            Sequence(
+                "STORAGE_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "CREDENTIALS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    OneOf(
+                        Sequence(
+                            "AWS_KEY_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            "AWS_SECRET_KEY",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            Sequence(
+                                "AWS_TOKEN",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        Sequence(
+                            "AWS_ROLE",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    )
+                ),
+            ),
             optional=True,
         ),
         Sequence(
-            "AWS_ACCESS_POINT_ARN",
+            "ENCRYPTION",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            Bracketed(
+                OneOf(
+                    Sequence(
+                        Sequence(
+                            "TYPE",
+                            Ref("EqualsSegment"),
+                            Ref("S3EncryptionOption"),
+                            optional=True,
+                        ),
+                        "MASTER_KEY",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence("TYPE", Ref("EqualsSegment"), Ref("S3EncryptionOption")),
+                    Sequence(
+                        "TYPE",
+                        Ref("EqualsSegment"),
+                        Ref("S3EncryptionOption"),
+                        Sequence(
+                            "KMS_KEY_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence("TYPE", Ref("EqualsSegment"), "NONE"),
+                )
+            ),
             optional=True,
         ),
-        Ref("S3ExternalStageParameters", optional=True),
-        Ref("UsePrivatelinkEndpointGrammar", optional=True),
     ),
-    GCSStageParametersGrammar=Sequence(
-        Ref("GCSExternalStageParameters", optional=True),
-        Ref("UsePrivatelinkEndpointGrammar", optional=True),
+    GCSExternalStageParamsGrammar=Sequence(
+        Sequence(
+            "STORAGE_INTEGRATION",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "ENCRYPTION",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref("GCSEncryptionOption"),
+                            Sequence(
+                                "KMS_KEY_ID",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        "NONE",
+                    ),
+                )
+            ),
+            optional=True,
+        ),
     ),
-    AzureStageParametersGrammar=Sequence(
-        Ref("AzureBlobStorageExternalStageParameters", optional=True),
-        Ref("UsePrivatelinkEndpointGrammar", optional=True),
+    AzureExternalStageParamsGrammar=Sequence(
+        OneOf(
+            Sequence(
+                "STORAGE_INTEGRATION",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"), Ref("ReferencedVariableNameSegment")
+                ),
+            ),
+            Sequence(
+                "CREDENTIALS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Sequence("AZURE_SAS_TOKEN"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("ReferencedVariableNameSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "ENCRYPTION",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref("AzureBlobStorageEncryptionOption"),
+                            Sequence(
+                                "MASTER_KEY",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        "NONE",
+                    ),
+                )
+            ),
+            optional=True,
+        ),
     ),
     # Accepted by the external stages of every cloud provider.
     # https://docs.snowflake.com/en/sql-reference/sql/create-stage
@@ -8204,76 +8327,7 @@ class S3ExternalStageParameters(BaseSegment):
     name = "s3_external_stage_parameters"
     type = "stage_parameters"
 
-    match_grammar = Sequence(
-        OneOf(
-            Sequence(
-                "STORAGE_INTEGRATION",
-                Ref("EqualsSegment"),
-                Ref("ObjectReferenceSegment"),
-            ),
-            Sequence(
-                "CREDENTIALS",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    OneOf(
-                        Sequence(
-                            "AWS_KEY_ID",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            "AWS_SECRET_KEY",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            Sequence(
-                                "AWS_TOKEN",
-                                Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegment"),
-                                optional=True,
-                            ),
-                        ),
-                        Sequence(
-                            "AWS_ROLE",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                        ),
-                    )
-                ),
-            ),
-            optional=True,
-        ),
-        Sequence(
-            "ENCRYPTION",
-            Ref("EqualsSegment"),
-            Bracketed(
-                OneOf(
-                    Sequence(
-                        Sequence(
-                            "TYPE",
-                            Ref("EqualsSegment"),
-                            Ref("S3EncryptionOption"),
-                            optional=True,
-                        ),
-                        "MASTER_KEY",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence("TYPE", Ref("EqualsSegment"), Ref("S3EncryptionOption")),
-                    Sequence(
-                        "TYPE",
-                        Ref("EqualsSegment"),
-                        Ref("S3EncryptionOption"),
-                        Sequence(
-                            "KMS_KEY_ID",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            optional=True,
-                        ),
-                    ),
-                    Sequence("TYPE", Ref("EqualsSegment"), "NONE"),
-                )
-            ),
-            optional=True,
-        ),
-    )
+    match_grammar = Ref("S3ExternalStageParamsGrammar")
 
 
 class GCSExternalStageParameters(BaseSegment):
@@ -8286,37 +8340,7 @@ class GCSExternalStageParameters(BaseSegment):
     name = "gcs_external_stage_parameters"
     type = "stage_parameters"
 
-    match_grammar = Sequence(
-        Sequence(
-            "STORAGE_INTEGRATION",
-            Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "ENCRYPTION",
-            Ref("EqualsSegment"),
-            Bracketed(
-                Sequence(
-                    "TYPE",
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        Sequence(
-                            Ref("GCSEncryptionOption"),
-                            Sequence(
-                                "KMS_KEY_ID",
-                                Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegment"),
-                                optional=True,
-                            ),
-                        ),
-                        "NONE",
-                    ),
-                )
-            ),
-            optional=True,
-        ),
-    )
+    match_grammar = Ref("GCSExternalStageParamsGrammar")
 
 
 class AzureBlobStorageExternalStageParameters(BaseSegment):
@@ -8329,52 +8353,67 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
     name = "azure_blob_storage_external_stage_parameters"
     type = "stage_parameters"
 
+    match_grammar = Ref("AzureExternalStageParamsGrammar")
+
+
+class S3StageParameters(BaseSegment):
+    """Parameters for an S3 stage, including those only stages accept.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage
+    """
+
+    name = "s3_stage_parameters"
+    type = "stage_parameters"
+
     match_grammar = Sequence(
-        OneOf(
-            Sequence(
-                "STORAGE_INTEGRATION",
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("ObjectReferenceSegment"), Ref("ReferencedVariableNameSegment")
-                ),
-            ),
-            Sequence(
-                "CREDENTIALS",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Sequence("AZURE_SAS_TOKEN"),
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        Ref("QuotedLiteralSegment"),
-                        Ref("ReferencedVariableNameSegment"),
-                    ),
-                ),
-            ),
+        # For S3-compatible storage only (s3compat:// URLs).
+        Sequence(
+            "ENDPOINT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
             optional=True,
         ),
         Sequence(
-            "ENCRYPTION",
+            "AWS_ACCESS_POINT_ARN",
             Ref("EqualsSegment"),
-            Bracketed(
-                Sequence(
-                    "TYPE",
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        Sequence(
-                            Ref("AzureBlobStorageEncryptionOption"),
-                            Sequence(
-                                "MASTER_KEY",
-                                Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegment"),
-                                optional=True,
-                            ),
-                        ),
-                        "NONE",
-                    ),
-                )
-            ),
+            Ref("QuotedLiteralSegment"),
             optional=True,
         ),
+        Ref("S3ExternalStageParamsGrammar", optional=True),
+        Ref("UsePrivatelinkEndpointGrammar", optional=True),
+    )
+
+
+class GCSStageParameters(BaseSegment):
+    """Parameters for a GCS stage, including those only stages accept.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage
+    """
+
+    name = "gcs_stage_parameters"
+    type = "stage_parameters"
+
+    match_grammar = Sequence(
+        Ref("GCSExternalStageParamsGrammar", optional=True),
+        Ref("UsePrivatelinkEndpointGrammar", optional=True),
+    )
+
+
+class AzureBlobStorageStageParameters(BaseSegment):
+    """Parameters for an Azure stage, including those only stages accept.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage
+    """
+
+    name = "azure_blob_storage_stage_parameters"
+    type = "stage_parameters"
+
+    match_grammar = Sequence(
+        Ref("AzureExternalStageParamsGrammar", optional=True),
+        Ref("UsePrivatelinkEndpointGrammar", optional=True),
     )
 
 
@@ -8413,12 +8452,12 @@ class CreateStageSegment(BaseSegment):
                     OneOf(
                         # External S3 stage
                         Sequence(
-                            Ref("S3StageParametersGrammar", optional=True),
+                            Ref("S3StageParameters", optional=True),
                             Ref("S3DirectoryTableParamsGrammar", optional=True),
                         ),
                         # External GCS stage
                         Sequence(
-                            Ref("GCSStageParametersGrammar", optional=True),
+                            Ref("GCSStageParameters", optional=True),
                             Ref(
                                 "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
@@ -8426,7 +8465,7 @@ class CreateStageSegment(BaseSegment):
                         ),
                         # External Azure Blob Storage stage
                         Sequence(
-                            Ref("AzureStageParametersGrammar", optional=True),
+                            Ref("AzureBlobStorageStageParameters", optional=True),
                             Ref(
                                 "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
@@ -8439,12 +8478,12 @@ class CreateStageSegment(BaseSegment):
                     OneOf(
                         # External S3 stage
                         Sequence(
-                            Ref("S3StageParametersGrammar", optional=True),
+                            Ref("S3StageParameters", optional=True),
                             Ref("S3DirectoryTableParamsGrammar", optional=True),
                         ),
                         # External GCS stage
                         Sequence(
-                            Ref("GCSStageParametersGrammar", optional=True),
+                            Ref("GCSStageParameters", optional=True),
                             Ref(
                                 "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
@@ -8452,7 +8491,7 @@ class CreateStageSegment(BaseSegment):
                         ),
                         # External Azure Blob Storage stage
                         Sequence(
-                            Ref("AzureStageParametersGrammar", optional=True),
+                            Ref("AzureBlobStorageStageParameters", optional=True),
                             Ref(
                                 "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
@@ -8542,7 +8581,7 @@ class AlterStageSegment(BaseSegment):
                                     optional=True,
                                 ),
                                 Ref(
-                                    "S3StageParametersGrammar",
+                                    "S3StageParameters",
                                     optional=True,
                                 ),
                             ),
@@ -8554,7 +8593,7 @@ class AlterStageSegment(BaseSegment):
                                     optional=True,
                                 ),
                                 Ref(
-                                    "GCSStageParametersGrammar",
+                                    "GCSStageParameters",
                                     optional=True,
                                 ),
                             ),
@@ -8566,7 +8605,7 @@ class AlterStageSegment(BaseSegment):
                                     optional=True,
                                 ),
                                 Ref(
-                                    "AzureStageParametersGrammar",
+                                    "AzureBlobStorageStageParameters",
                                     optional=True,
                                 ),
                             ),

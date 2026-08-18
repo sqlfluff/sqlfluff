@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dc5db5a7df5a106a6f0cd75e33d5982040294c3775eedb06da29ff34bbc1e471
+_hash: 285f83eac36614792b1b06f18484319cc12b194584b6b6d395a944c5d953fc94
 file:
 - statement:
     create_stage_statement:
@@ -917,15 +917,15 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - bucket_path: "'s3compat://mybucket/files/'"
-    - keyword: ENDPOINT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'mystorage.example.com'"
     - stage_parameters:
-        keyword: CREDENTIALS
-        comparison_operator:
+      - keyword: ENDPOINT
+      - comparison_operator:
           raw_comparison_operator: '='
-        bracketed:
+      - quoted_literal: "'mystorage.example.com'"
+      - keyword: CREDENTIALS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
         - start_bracket: (
         - keyword: AWS_KEY_ID
         - comparison_operator:
@@ -947,10 +947,11 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - bucket_path: "'s3://my-access-point-alias/files/'"
-    - keyword: AWS_ACCESS_POINT_ARN
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'arn:aws:s3:us-east-1:123456789012:accesspoint/my-ap'"
+    - stage_parameters:
+        keyword: AWS_ACCESS_POINT_ARN
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'arn:aws:s3:us-east-1:123456789012:accesspoint/my-ap'"
 - statement_terminator: ;
 - statement:
     create_stage_statement:
@@ -963,15 +964,15 @@ file:
         raw_comparison_operator: '='
     - bucket_path: "'s3://privatebucket/files/'"
     - stage_parameters:
-        keyword: STORAGE_INTEGRATION
-        comparison_operator:
+      - keyword: STORAGE_INTEGRATION
+      - comparison_operator:
           raw_comparison_operator: '='
-        object_reference:
+      - object_reference:
           naked_identifier: my_storage_int
-    - keyword: USE_PRIVATELINK_ENDPOINT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - boolean_literal: 'TRUE'
+      - keyword: USE_PRIVATELINK_ENDPOINT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
     create_stage_statement:
