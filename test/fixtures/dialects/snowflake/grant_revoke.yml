@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a67ef733b964d84d3610036aa4aec341d0204c30735fc515282c76313142c730
+_hash: be63f3bce1a9ef482c91af500bdc24f8101f5cd4623594511dfa768540dc5951
 file:
 - statement:
     access_statement:
@@ -730,8 +730,7 @@ file:
       - access_object:
         - keyword: FUTURE
         - keyword: DYNAMIC
-        - access_schema_plural_object:
-            keyword: TABLES
+        - keyword: TABLES
         - keyword: IN
         - keyword: SCHEMA
         - object_reference:
@@ -755,8 +754,7 @@ file:
       - access_object:
         - keyword: ALL
         - keyword: DYNAMIC
-        - access_schema_plural_object:
-            keyword: TABLES
+        - keyword: TABLES
         - keyword: IN
         - keyword: SCHEMA
         - object_reference:
