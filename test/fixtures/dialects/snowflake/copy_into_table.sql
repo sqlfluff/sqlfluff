@@ -91,3 +91,30 @@ MATCH_BY_COLUMN_NAME = 'case_insensitive';
 copy into mytable1
     from 's3://bucket/source'
     file_format = (type=csv MULTI_LINE=FALSE);
+
+COPY INTO t1 FROM @stage1 LOAD_MODE = ADD_FILES_COPY;
+
+COPY INTO t1 FROM @stage1 LOAD_MODE = FULL_INGEST CLUSTER_AT_INGEST_TIME = TRUE;
+
+COPY INTO doc_table
+FROM @docs_stage
+FILE_PROCESSOR = (
+    SCANNER = 'document_ai'
+    SCANNER_OPTIONS = (project_name = 'DEMO', model_name = 'my_model', model_version = 1)
+);
+
+-- The docs mix comma and space separated scanner options.
+COPY INTO doc_table
+FROM @docs_stage
+FILE_PROCESSOR = (
+    SCANNER = 'document_ai'
+    SCANNER_OPTIONS = (project_name = 'DEMO0200', model_name = 'predict' model_version = '1')
+);
+
+COPY INTO parsed_data
+FROM 'gcs://mybucket/data/files'
+STORAGE_INTEGRATION = my_gcs_int
+ENCRYPTION = (TYPE = 'GCS_SSE_KMS' KMS_KEY_ID = 'my_kms_key')
+FILE_FORMAT = (TYPE = CSV);
+
+COPY INTO t1 FROM @stage1 VALIDATION_MODE = RETURN_ROWS;

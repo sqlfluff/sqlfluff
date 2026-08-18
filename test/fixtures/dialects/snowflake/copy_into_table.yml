@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03ebb03d1607d492fc6f819c3273de3b70736a79c54de8357b6fe94c3933f4c4
+_hash: c3f0aca9ab111814d71ff69bad7a587a98076f2559479de1f1709e169cc885d7
 file:
 - statement:
     copy_into_table_statement:
@@ -517,4 +517,171 @@ file:
               raw_comparison_operator: '='
           - boolean_literal: 'FALSE'
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@stage1'
+    - keyword: LOAD_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ADD_FILES_COPY
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@stage1'
+    - keyword: LOAD_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: FULL_INGEST
+    - keyword: CLUSTER_AT_INGEST_TIME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: doc_table
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@docs_stage'
+    - keyword: FILE_PROCESSOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: SCANNER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'document_ai'"
+      - keyword: SCANNER_OPTIONS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: project_name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'DEMO'"
+        - comma: ','
+        - naked_identifier: model_name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'my_model'"
+        - comma: ','
+        - naked_identifier: model_version
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '1'
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: doc_table
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@docs_stage'
+    - keyword: FILE_PROCESSOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: SCANNER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'document_ai'"
+      - keyword: SCANNER_OPTIONS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: project_name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'DEMO0200'"
+        - comma: ','
+        - naked_identifier: model_name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'predict'"
+        - naked_identifier: model_version
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'1'"
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: parsed_data
+    - keyword: FROM
+    - storage_location:
+        bucket_path: "'gcs://mybucket/data/files'"
+    - stage_parameters:
+      - keyword: STORAGE_INTEGRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_gcs_int
+      - keyword: ENCRYPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - keyword: TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - stage_encryption_option: "'GCS_SSE_KMS'"
+        - keyword: KMS_KEY_ID
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'my_kms_key'"
+        - end_bracket: )
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          csv_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: CSV
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@stage1'
+    - keyword: VALIDATION_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - validation_mode_option: RETURN_ROWS
 - statement_terminator: ;

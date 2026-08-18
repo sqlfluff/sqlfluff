@@ -9,3 +9,7 @@ ALTER STAGE my_ext_stage3 SET
     ENCRYPTION=(TYPE='AWS_SSE_S3');
 ALTER STAGE mystage REFRESH;
 ALTER STAGE mystage REFRESH SUBPATH = 'data';
+
+ALTER STAGE my_stage SET DIRECTORY = (ENABLE = TRUE);
+
+ALTER STAGE IF EXISTS my_stage UNSET TAG cost_center, team;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c02fd954ecbeef8ceb91333221cd2c24e9620c0c181382ca0c5c25c852ec1a1c
+_hash: e614ebe5472aa443edff22dec98525cef4b842780a3e504bcae2a0ffd5939f3b
 file:
 - statement:
     create_file_format_segment:
@@ -849,4 +849,118 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - compression_type: GZIP
+- statement_terminator: ;
+- statement:
+    create_file_format_segment:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+        naked_identifier: my_temp_csv_format
+    - csv_file_format_type_parameters:
+        keyword: TYPE
+        comparison_operator:
+          raw_comparison_operator: '='
+        file_type: CSV
+- statement_terminator: ;
+- statement:
+    create_file_format_segment:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+        naked_identifier: my_temp_json_format
+    - json_file_format_type_parameters:
+        keyword: TYPE
+        comparison_operator:
+          raw_comparison_operator: '='
+        file_type: JSON
+- statement_terminator: ;
+- statement:
+    create_file_format_segment:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+        naked_identifier: my_volatile_format
+    - parquet_file_format_type_parameters:
+        keyword: TYPE
+        comparison_operator:
+          raw_comparison_operator: '='
+        file_type: PARQUET
+- statement_terminator: ;
+- statement:
+    create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+        naked_identifier: my_multiline_json_format
+    - json_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: JSON
+      - keyword: MULTI_LINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+        naked_identifier: my_avro_format
+    - avro_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: AVRO
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+        naked_identifier: my_orc_format
+    - orc_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: ORC
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+        naked_identifier: my_xml_format
+    - xml_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: XML
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
 - statement_terminator: ;

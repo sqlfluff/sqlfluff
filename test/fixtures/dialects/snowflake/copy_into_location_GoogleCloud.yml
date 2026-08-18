@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb9426b1f780352a01f874549967e4021225107d7786cf44b055a28084091c9a
+_hash: e454dcea3151b3c4a18dcdce651b8b3930ece96d2cb24d5bf060e5b34abf2704
 file:
-  statement:
+- statement:
     copy_into_location_statement:
     - keyword: copy
     - keyword: into
@@ -37,4 +37,46 @@ file:
           object_reference:
             naked_identifier: my_csv_format
           end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    copy_into_location_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - storage_location:
+        bucket_path: "'gcs://mybucket/unload/'"
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: mytable
+    - stage_parameters:
+      - keyword: STORAGE_INTEGRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_gcs_int
+      - keyword: ENCRYPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - keyword: TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - stage_encryption_option: "'GCS_SSE_KMS'"
+        - keyword: KMS_KEY_ID
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'my_kms_key'"
+        - end_bracket: )
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          parquet_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: PARQUET
+          end_bracket: )
+- statement_terminator: ;

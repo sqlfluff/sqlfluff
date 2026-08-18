@@ -421,7 +421,7 @@ snowflake_dialect.add(
         ),
     ),
     ValidationModeOptionSegment=RegexParser(
-        r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
+        r"'?RETURN_(?:(?:\d+_)?ROWS|ERRORS|ALL_ERRORS)'?",
         CodeSegment,
         type="validation_mode_option",
     ),
@@ -467,7 +467,9 @@ snowflake_dialect.add(
     ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
-        r"'s3://.*'",
+        # Also covers the s3gov / s3china government and region specific
+        # protocols and s3compat for S3-compatible storage.
+        r"'s3(?:gov|china|compat)?://.*'",
         CodeSegment,
         type="bucket_path",
     ),
@@ -487,6 +489,239 @@ snowflake_dialect.add(
         "unquoted_file_path",
         CodeSegment,
         type="unquoted_file_path",
+    ),
+    # The parameters an external stage shares with the external locations of
+    # COPY INTO. The stage segments add the ones only stages accept.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-stage
+    S3ExternalStageParamsGrammar=Sequence(
+        OneOf(
+            Sequence(
+                "STORAGE_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "CREDENTIALS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    OneOf(
+                        Sequence(
+                            "AWS_KEY_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            "AWS_SECRET_KEY",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            Sequence(
+                                "AWS_TOKEN",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        Sequence(
+                            "AWS_ROLE",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    )
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "ENCRYPTION",
+            Ref("EqualsSegment"),
+            Bracketed(
+                OneOf(
+                    Sequence(
+                        Sequence(
+                            "TYPE",
+                            Ref("EqualsSegment"),
+                            Ref("S3EncryptionOption"),
+                            optional=True,
+                        ),
+                        "MASTER_KEY",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence("TYPE", Ref("EqualsSegment"), Ref("S3EncryptionOption")),
+                    Sequence(
+                        "TYPE",
+                        Ref("EqualsSegment"),
+                        Ref("S3EncryptionOption"),
+                        Sequence(
+                            "KMS_KEY_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence("TYPE", Ref("EqualsSegment"), "NONE"),
+                )
+            ),
+            optional=True,
+        ),
+    ),
+    GCSExternalStageParamsGrammar=Sequence(
+        Sequence(
+            "STORAGE_INTEGRATION",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "ENCRYPTION",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref("GCSEncryptionOption"),
+                            Sequence(
+                                "KMS_KEY_ID",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        "NONE",
+                    ),
+                )
+            ),
+            optional=True,
+        ),
+    ),
+    AzureExternalStageParamsGrammar=Sequence(
+        OneOf(
+            Sequence(
+                "STORAGE_INTEGRATION",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"), Ref("ReferencedVariableNameSegment")
+                ),
+            ),
+            Sequence(
+                "CREDENTIALS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Sequence("AZURE_SAS_TOKEN"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("ReferencedVariableNameSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "ENCRYPTION",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref("AzureBlobStorageEncryptionOption"),
+                            Sequence(
+                                "MASTER_KEY",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        "NONE",
+                    ),
+                )
+            ),
+            optional=True,
+        ),
+    ),
+    # Accepted by the external stages of every cloud provider.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-stage
+    UsePrivatelinkEndpointGrammar=Sequence(
+        "USE_PRIVATELINK_ENDPOINT",
+        Ref("EqualsSegment"),
+        Ref("BooleanLiteralGrammar"),
+    ),
+    # The DIRECTORY = ( ... ) clauses of CREATE / ALTER STAGE. The accepted
+    # parameters depend on where the stage is hosted.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-stage
+    InternalDirectoryTableParamsGrammar=Sequence(
+        "DIRECTORY",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Sequence(
+                "ENABLE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "AUTO_REFRESH",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+        ),
+    ),
+    S3DirectoryTableParamsGrammar=Sequence(
+        "DIRECTORY",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Sequence(
+                "ENABLE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            AnySetOf(
+                Sequence(
+                    "REFRESH_ON_CREATE",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                Sequence(
+                    "AUTO_REFRESH",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+            ),
+        ),
+    ),
+    # GCS and Azure stages additionally accept NOTIFICATION_INTEGRATION.
+    NotificationDirectoryTableParamsGrammar=Sequence(
+        "DIRECTORY",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Sequence(
+                "ENABLE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            AnySetOf(
+                Sequence(
+                    "REFRESH_ON_CREATE",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                Sequence(
+                    "AUTO_REFRESH",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                Sequence(
+                    "NOTIFICATION_INTEGRATION",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+        ),
     ),
     SnowflakeEncryptionOption=MultiStringParser(
         ["'SNOWFLAKE_FULL'", "'SNOWFLAKE_SSE'"],
@@ -7135,6 +7370,7 @@ class CreateFileFormatSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("AlterOrReplaceGrammar", optional=True),
+        OneOf("TEMP", "TEMPORARY", "VOLATILE", optional=True),
         Sequence("FILE", "FORMAT"),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
@@ -7335,6 +7571,7 @@ class JsonFileFormatTypeParameters(BaseSegment):
         Sequence(
             OneOf(
                 "TRIM_SPACE",
+                "MULTI_LINE",
                 "ENABLE_OCTAL",
                 "ALLOW_DUPLICATE",
                 "STRIP_OUTER_ARRAY",
@@ -7375,7 +7612,11 @@ class AvroFileFormatTypeParameters(BaseSegment):
             ),
         ),
         Sequence("COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType")),
-        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            OneOf("TRIM_SPACE", "REPLACE_INVALID_CHARACTERS"),
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
@@ -7409,7 +7650,11 @@ class OrcFileFormatTypeParameters(BaseSegment):
                 ),
             ),
         ),
-        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            OneOf("TRIM_SPACE", "REPLACE_INVALID_CHARACTERS"),
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
@@ -7505,6 +7750,7 @@ class XmlFileFormatTypeParameters(BaseSegment):
                 "STRIP_OUTER_ELEMENT",
                 "DISABLE_SNOWFLAKE_DATA",
                 "DISABLE_AUTO_CONVERT",
+                "REPLACE_INVALID_CHARACTERS",
                 "SKIP_BYTE_ORDER_MARK",
             ),
             Ref("EqualsSegment"),
@@ -7868,6 +8114,7 @@ class CopyIntoLocationStatementSegment(BaseSegment):
         ),
         OneOf(
             Ref("S3ExternalStageParameters"),
+            Ref("GCSExternalStageParameters"),
             Ref("AzureBlobStorageExternalStageParameters"),
             optional=True,
         ),
@@ -7904,6 +8151,45 @@ class CopyIntoTableStatementSegment(BaseSegment):
 
     type = "copy_into_table_statement"
 
+    # Custom file processor, used to load unstructured data. The docs
+    # separate the scanner options with either commas or whitespace.
+    # https://docs.snowflake.com/en/user-guide/data-load-unstructured-data
+    _scanner_option = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+    )
+
+    _file_processor = Sequence(
+        "FILE_PROCESSOR",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Sequence(
+                "SCANNER",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "SCANNER_OPTIONS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    _scanner_option,
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment", optional=True),
+                            _scanner_option,
+                        ),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
     match_grammar = Sequence(
         "COPY",
         "INTO",
@@ -7919,6 +8205,7 @@ class CopyIntoTableStatementSegment(BaseSegment):
         ),
         OneOf(
             Ref("S3ExternalStageParameters"),
+            Ref("GCSExternalStageParameters"),
             Ref("AzureBlobStorageExternalStageParameters"),
             optional=True,
         ),
@@ -7945,6 +8232,19 @@ class CopyIntoTableStatementSegment(BaseSegment):
                 "FILE_FORMAT",
                 Ref("EqualsSegment"),
                 Ref("FileFormatSegment"),
+            ),
+            _file_processor,
+            # Only documented for COPY INTO <table>, so they are not part of
+            # the copy options shared with COPY INTO <location> and stages.
+            Sequence(
+                "LOAD_MODE",
+                Ref("EqualsSegment"),
+                OneOf("FULL_INGEST", "ADD_FILES_COPY"),
+            ),
+            Sequence(
+                "CLUSTER_AT_INGEST_TIME",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
             ),
             # We explode the CopyOptionsSegments because the AnySetOf may appear in any
             # order for these other elements as well.
@@ -8045,76 +8345,7 @@ class S3ExternalStageParameters(BaseSegment):
     name = "s3_external_stage_parameters"
     type = "stage_parameters"
 
-    match_grammar = Sequence(
-        OneOf(
-            Sequence(
-                "STORAGE_INTEGRATION",
-                Ref("EqualsSegment"),
-                Ref("ObjectReferenceSegment"),
-            ),
-            Sequence(
-                "CREDENTIALS",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    OneOf(
-                        Sequence(
-                            "AWS_KEY_ID",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            "AWS_SECRET_KEY",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            Sequence(
-                                "AWS_TOKEN",
-                                Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegment"),
-                                optional=True,
-                            ),
-                        ),
-                        Sequence(
-                            "AWS_ROLE",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                        ),
-                    )
-                ),
-            ),
-            optional=True,
-        ),
-        Sequence(
-            "ENCRYPTION",
-            Ref("EqualsSegment"),
-            Bracketed(
-                OneOf(
-                    Sequence(
-                        Sequence(
-                            "TYPE",
-                            Ref("EqualsSegment"),
-                            Ref("S3EncryptionOption"),
-                            optional=True,
-                        ),
-                        "MASTER_KEY",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence("TYPE", Ref("EqualsSegment"), Ref("S3EncryptionOption")),
-                    Sequence(
-                        "TYPE",
-                        Ref("EqualsSegment"),
-                        Ref("S3EncryptionOption"),
-                        Sequence(
-                            "KMS_KEY_ID",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            optional=True,
-                        ),
-                    ),
-                    Sequence("TYPE", Ref("EqualsSegment"), "NONE"),
-                )
-            ),
-            optional=True,
-        ),
-    )
+    match_grammar = Ref("S3ExternalStageParamsGrammar")
 
 
 class GCSExternalStageParameters(BaseSegment):
@@ -8127,37 +8358,7 @@ class GCSExternalStageParameters(BaseSegment):
     name = "gcs_external_stage_parameters"
     type = "stage_parameters"
 
-    match_grammar = Sequence(
-        Sequence(
-            "STORAGE_INTEGRATION",
-            Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "ENCRYPTION",
-            Ref("EqualsSegment"),
-            Bracketed(
-                Sequence(
-                    "TYPE",
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        Sequence(
-                            Ref("GCSEncryptionOption"),
-                            Sequence(
-                                "KMS_KEY_ID",
-                                Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegment"),
-                                optional=True,
-                            ),
-                        ),
-                        "NONE",
-                    ),
-                )
-            ),
-            optional=True,
-        ),
-    )
+    match_grammar = Ref("GCSExternalStageParamsGrammar")
 
 
 class AzureBlobStorageExternalStageParameters(BaseSegment):
@@ -8170,52 +8371,67 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
     name = "azure_blob_storage_external_stage_parameters"
     type = "stage_parameters"
 
+    match_grammar = Ref("AzureExternalStageParamsGrammar")
+
+
+class S3StageParameters(BaseSegment):
+    """Parameters for an S3 stage, including those only stages accept.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage
+    """
+
+    name = "s3_stage_parameters"
+    type = "stage_parameters"
+
     match_grammar = Sequence(
-        OneOf(
-            Sequence(
-                "STORAGE_INTEGRATION",
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("ObjectReferenceSegment"), Ref("ReferencedVariableNameSegment")
-                ),
-            ),
-            Sequence(
-                "CREDENTIALS",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Sequence("AZURE_SAS_TOKEN"),
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        Ref("QuotedLiteralSegment"),
-                        Ref("ReferencedVariableNameSegment"),
-                    ),
-                ),
-            ),
+        # For S3-compatible storage only (s3compat:// URLs).
+        Sequence(
+            "ENDPOINT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
             optional=True,
         ),
         Sequence(
-            "ENCRYPTION",
+            "AWS_ACCESS_POINT_ARN",
             Ref("EqualsSegment"),
-            Bracketed(
-                Sequence(
-                    "TYPE",
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        Sequence(
-                            Ref("AzureBlobStorageEncryptionOption"),
-                            Sequence(
-                                "MASTER_KEY",
-                                Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegment"),
-                                optional=True,
-                            ),
-                        ),
-                        "NONE",
-                    ),
-                )
-            ),
+            Ref("QuotedLiteralSegment"),
             optional=True,
         ),
+        Ref("S3ExternalStageParamsGrammar", optional=True),
+        Ref("UsePrivatelinkEndpointGrammar", optional=True),
+    )
+
+
+class GCSStageParameters(BaseSegment):
+    """Parameters for a GCS stage, including those only stages accept.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage
+    """
+
+    name = "gcs_stage_parameters"
+    type = "stage_parameters"
+
+    match_grammar = Sequence(
+        Ref("GCSExternalStageParamsGrammar", optional=True),
+        Ref("UsePrivatelinkEndpointGrammar", optional=True),
+    )
+
+
+class AzureBlobStorageStageParameters(BaseSegment):
+    """Parameters for an Azure stage, including those only stages accept.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage
+    """
+
+    name = "azure_blob_storage_stage_parameters"
+    type = "stage_parameters"
+
+    match_grammar = Sequence(
+        Ref("AzureExternalStageParamsGrammar", optional=True),
+        Ref("UsePrivatelinkEndpointGrammar", optional=True),
     )
 
 
@@ -8230,7 +8446,7 @@ class CreateStageSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("AlterOrReplaceGrammar", optional=True),
-        Ref.keyword("TEMPORARY", optional=True),
+        OneOf("TEMP", "TEMPORARY", optional=True),
         "STAGE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
@@ -8239,18 +8455,7 @@ class CreateStageSegment(BaseSegment):
             # Internal stages
             Sequence(
                 Ref("InternalStageParameters", optional=True),
-                Sequence(
-                    "DIRECTORY",
-                    Ref("EqualsSegment"),
-                    Bracketed(
-                        Sequence(
-                            "ENABLE",
-                            Ref("EqualsSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                        )
-                    ),
-                    optional=True,
-                ),
+                Ref("InternalDirectoryTableParamsGrammar", optional=True),
             ),
             OneOf(
                 Sequence(
@@ -8265,87 +8470,22 @@ class CreateStageSegment(BaseSegment):
                     OneOf(
                         # External S3 stage
                         Sequence(
-                            Ref("S3ExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
+                            Ref("S3StageParameters", optional=True),
+                            Ref("S3DirectoryTableParamsGrammar", optional=True),
                         ),
                         # External GCS stage
                         Sequence(
-                            Ref("GCSExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
+                            Ref("GCSStageParameters", optional=True),
+                            Ref(
+                                "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
                             ),
                         ),
                         # External Azure Blob Storage stage
                         Sequence(
+                            Ref("AzureBlobStorageStageParameters", optional=True),
                             Ref(
-                                "AzureBlobStorageExternalStageParameters", optional=True
-                            ),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
+                                "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
                             ),
                         ),
@@ -8356,87 +8496,22 @@ class CreateStageSegment(BaseSegment):
                     OneOf(
                         # External S3 stage
                         Sequence(
-                            Ref("S3ExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
+                            Ref("S3StageParameters", optional=True),
+                            Ref("S3DirectoryTableParamsGrammar", optional=True),
                         ),
                         # External GCS stage
                         Sequence(
-                            Ref("GCSExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
+                            Ref("GCSStageParameters", optional=True),
+                            Ref(
+                                "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
                             ),
                         ),
                         # External Azure Blob Storage stage
                         Sequence(
+                            Ref("AzureBlobStorageStageParameters", optional=True),
                             Ref(
-                                "AzureBlobStorageExternalStageParameters", optional=True
-                            ),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
+                                "NotificationDirectoryTableParamsGrammar",
                                 optional=True,
                             ),
                         ),
@@ -8482,18 +8557,7 @@ class DefineStageSegment(BaseSegment):
         # Only internal stages supported in DCM projects currently
         Sequence(
             Ref("InternalStageParameters", optional=True),
-            Sequence(
-                "DIRECTORY",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Sequence(
-                        "ENABLE",
-                        Ref("EqualsSegment"),
-                        Ref("BooleanLiteralGrammar"),
-                    )
-                ),
-                optional=True,
-            ),
+            Ref("InternalDirectoryTableParamsGrammar", optional=True),
             optional=True,
         ),
         Sequence(
@@ -8535,7 +8599,7 @@ class AlterStageSegment(BaseSegment):
                                     optional=True,
                                 ),
                                 Ref(
-                                    "S3ExternalStageParameters",
+                                    "S3StageParameters",
                                     optional=True,
                                 ),
                             ),
@@ -8547,7 +8611,7 @@ class AlterStageSegment(BaseSegment):
                                     optional=True,
                                 ),
                                 Ref(
-                                    "GCSExternalStageParameters",
+                                    "GCSStageParameters",
                                     optional=True,
                                 ),
                             ),
@@ -8559,8 +8623,20 @@ class AlterStageSegment(BaseSegment):
                                     optional=True,
                                 ),
                                 Ref(
-                                    "AzureBlobStorageExternalStageParameters",
+                                    "AzureBlobStorageStageParameters",
                                     optional=True,
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "DIRECTORY",
+                            Ref("EqualsSegment"),
+                            Bracketed(
+                                Sequence(
+                                    "ENABLE",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
                                 ),
                             ),
                             optional=True,
@@ -8583,6 +8659,7 @@ class AlterStageSegment(BaseSegment):
                 ),
                 Dedent,
             ),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
             Sequence(
                 "REFRESH",
                 Sequence(

@@ -136,3 +136,43 @@ CREATE STAGE mystage
     NOTIFICATION_INTEGRATION = 'MY_NOTIFICATION_INT'
   )
   URL='azure://myaccount.blob.core.windows.net/load/files/';
+
+CREATE TEMP STAGE my_temp_stage;
+
+CREATE STAGE my_int_dir_stage
+    DIRECTORY = (ENABLE = TRUE AUTO_REFRESH = TRUE);
+
+CREATE STAGE my_s3_dir_stage
+    URL = 's3://load/files/'
+    STORAGE_INTEGRATION = my_storage_int
+    DIRECTORY = (ENABLE = TRUE REFRESH_ON_CREATE = TRUE AUTO_REFRESH = FALSE);
+
+CREATE STAGE my_s3gov_stage
+    URL = 's3gov://govbucket/files/'
+    STORAGE_INTEGRATION = my_gov_int;
+
+CREATE STAGE my_s3china_stage
+    URL = 's3china://cnbucket/files/';
+
+CREATE STAGE my_s3compat_stage
+    URL = 's3compat://mybucket/files/'
+    ENDPOINT = 'mystorage.example.com'
+    CREDENTIALS = (AWS_KEY_ID = 'k' AWS_SECRET_KEY = 's');
+
+CREATE STAGE my_access_point_stage
+    URL = 's3://my-access-point-alias/files/'
+    AWS_ACCESS_POINT_ARN = 'arn:aws:s3:us-east-1:123456789012:accesspoint/my-ap';
+
+CREATE STAGE my_privatelink_stage
+    URL = 's3://privatebucket/files/'
+    STORAGE_INTEGRATION = my_storage_int
+    USE_PRIVATELINK_ENDPOINT = TRUE;
+
+CREATE STAGE my_gcs_notif_stage
+    URL = 'gcs://load/files/'
+    STORAGE_INTEGRATION = my_gcs_int
+    DIRECTORY = (ENABLE = TRUE AUTO_REFRESH = TRUE NOTIFICATION_INTEGRATION = my_notification_int);
+
+CREATE STAGE my_azure_notif_stage
+    URL = 'azure://myaccount.blob.core.windows.net/load/files/'
+    DIRECTORY = (ENABLE = TRUE REFRESH_ON_CREATE = TRUE NOTIFICATION_INTEGRATION = 'my_notification_int');
