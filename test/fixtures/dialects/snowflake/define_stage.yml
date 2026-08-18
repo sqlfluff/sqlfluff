@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 87b540612757694e84072145b693ed4bc2e4f6a465f65c513d79c726ebeedd2c
+_hash: ae93fbf87337ed896625d8901d935db4d4df00e4730d94b515a9c4ec56ccaf32
 file:
 - statement:
     define_stage_statement:
@@ -127,4 +127,40 @@ file:
           raw_comparison_operator: '='
       - naked_identifier: my_notification_int
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    define_stage_statement:
+    - keyword: DEFINE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: var_url_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: $STAGE_URL
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: my_gcs_int
+    - keyword: DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: ENABLE
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'TRUE'
+        end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'external stage with variable URL'"
 - statement_terminator: ;

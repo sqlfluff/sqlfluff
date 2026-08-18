@@ -265,6 +265,90 @@ snowflake_dialect.add(
             optional=True,
         ),
     ),
+    # Per-cloud external stage parameter blocks (cloud parameters plus the
+    # matching directory-table options), shared by CREATE STAGE and
+    # DEFINE STAGE so the two grammars cannot drift.
+    S3ExternalStageOptionsGrammar=Sequence(
+        Ref("S3ExternalStageParameters", optional=True),
+        Sequence(
+            "DIRECTORY",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "ENABLE",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                Sequence(
+                    "AUTO_REFRESH",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+    ),
+    GCSExternalStageOptionsGrammar=Sequence(
+        Ref("GCSExternalStageParameters", optional=True),
+        Sequence(
+            "DIRECTORY",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "ENABLE",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                Sequence(
+                    "AUTO_REFRESH",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+                Sequence(
+                    "NOTIFICATION_INTEGRATION",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+    ),
+    AzureBlobStorageExternalStageOptionsGrammar=Sequence(
+        Ref("AzureBlobStorageExternalStageParameters", optional=True),
+        Sequence(
+            "DIRECTORY",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "ENABLE",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                Sequence(
+                    "AUTO_REFRESH",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+                Sequence(
+                    "NOTIFICATION_INTEGRATION",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+    ),
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
@@ -8329,182 +8413,22 @@ class CreateStageSegment(BaseSegment):
                     ),
                     OneOf(
                         # External S3 stage
-                        Sequence(
-                            Ref("S3ExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("S3ExternalStageOptionsGrammar"),
                         # External GCS stage
-                        Sequence(
-                            Ref("GCSExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("GCSExternalStageOptionsGrammar"),
                         # External Azure Blob Storage stage
-                        Sequence(
-                            Ref(
-                                "AzureBlobStorageExternalStageParameters", optional=True
-                            ),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("AzureBlobStorageExternalStageOptionsGrammar"),
                         optional=True,
                     ),
                 ),
                 Sequence(
                     OneOf(
                         # External S3 stage
-                        Sequence(
-                            Ref("S3ExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("S3ExternalStageOptionsGrammar"),
                         # External GCS stage
-                        Sequence(
-                            Ref("GCSExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("GCSExternalStageOptionsGrammar"),
                         # External Azure Blob Storage stage
-                        Sequence(
-                            Ref(
-                                "AzureBlobStorageExternalStageParameters", optional=True
-                            ),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("AzureBlobStorageExternalStageOptionsGrammar"),
                         optional=True,
                     ),
                     "URL",
@@ -8575,91 +8499,31 @@ class DefineStageSegment(BaseSegment):
                     # External S3 stage
                     Sequence(
                         Ref("S3Path"),
-                        Ref("S3ExternalStageParameters", optional=True),
-                        Sequence(
-                            "DIRECTORY",
-                            Ref("EqualsSegment"),
-                            Bracketed(
-                                Sequence(
-                                    "ENABLE",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                ),
-                                Sequence(
-                                    "AUTO_REFRESH",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                    optional=True,
-                                ),
-                            ),
-                            optional=True,
-                        ),
+                        Ref("S3ExternalStageOptionsGrammar", optional=True),
                     ),
                     # External GCS stage
                     Sequence(
                         Ref("GCSPath"),
-                        Ref("GCSExternalStageParameters", optional=True),
-                        Sequence(
-                            "DIRECTORY",
-                            Ref("EqualsSegment"),
-                            Bracketed(
-                                Sequence(
-                                    "ENABLE",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                ),
-                                Sequence(
-                                    "AUTO_REFRESH",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                    optional=True,
-                                ),
-                                Sequence(
-                                    "NOTIFICATION_INTEGRATION",
-                                    Ref("EqualsSegment"),
-                                    OneOf(
-                                        Ref("NakedIdentifierSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                    ),
-                                    optional=True,
-                                ),
-                            ),
-                            optional=True,
-                        ),
+                        Ref("GCSExternalStageOptionsGrammar", optional=True),
                     ),
                     # External Azure Blob Storage stage
                     Sequence(
                         Ref("AzureBlobStoragePath"),
-                        Ref("AzureBlobStorageExternalStageParameters", optional=True),
-                        Sequence(
-                            "DIRECTORY",
-                            Ref("EqualsSegment"),
-                            Bracketed(
-                                Sequence(
-                                    "ENABLE",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                ),
-                                Sequence(
-                                    "AUTO_REFRESH",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                    optional=True,
-                                ),
-                                Sequence(
-                                    "NOTIFICATION_INTEGRATION",
-                                    Ref("EqualsSegment"),
-                                    OneOf(
-                                        Ref("NakedIdentifierSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                    ),
-                                    optional=True,
-                                ),
-                            ),
+                        Ref(
+                            "AzureBlobStorageExternalStageOptionsGrammar", optional=True
+                        ),
+                    ),
+                    # Variable URLs: the cloud is unknown, so accept any
+                    # cloud's parameter set
+                    Sequence(
+                        Ref("ReferencedVariableNameSegment"),
+                        OneOf(
+                            Ref("S3ExternalStageOptionsGrammar"),
+                            Ref("GCSExternalStageOptionsGrammar"),
+                            Ref("AzureBlobStorageExternalStageOptionsGrammar"),
                             optional=True,
                         ),
                     ),
-                    Ref("ReferencedVariableNameSegment"),
                 ),
             ),
             optional=True,
