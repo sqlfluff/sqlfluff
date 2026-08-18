@@ -4983,7 +4983,11 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
         Sequence(
             "RESOURCE_MONITOR",
             Ref("EqualsSegment"),
-            Ref("NakedIdentifierSegment"),
+            OneOf(
+                Ref("NakedIdentifierSegment"),
+                Ref("QuotedIdentifierSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
         ),
         Sequence(
             "ENABLE_QUERY_ACCELERATION",
@@ -9073,7 +9077,11 @@ class AlterAccountStatementSegment(BaseSegment):
                 "SET",
                 "RESOURCE_MONITOR",
                 Ref("EqualsSegment"),
-                Ref("NakedIdentifierSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             Sequence(
                 "SET",
@@ -9301,8 +9309,8 @@ class CreateResourceMonitorStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        Ref("IfNotExistsGrammar", optional=True),
         Sequence("RESOURCE", "MONITOR"),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         "WITH",
         Ref("ResourceMonitorOptionsSegment"),
