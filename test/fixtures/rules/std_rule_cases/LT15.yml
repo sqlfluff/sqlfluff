@@ -538,3 +538,39 @@ test_fail_minimum_applies_between_statements_inside_a_batch_oracle:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_above_maximum_is_capped_not_oscillating:
+  # both settings validate independently, so a minimum above the maximum is
+  # accepted config. enforced as written the two fixers undo each other and
+  # `fix` alternates between 2 and 5 blank lines on every run without ever
+  # converging. the minimum is capped by the maximum so the file settles.
+  fail_str: |
+    SELECT a FROM tab;
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 5
+        maximum_empty_lines_between_statements: 2
+
+test_pass_minimum_equal_to_maximum_is_satisfiable:
+  # the boundary case: exactly at the maximum must still be reachable
+  fail_str: |
+    SELECT a FROM tab;
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 2
+        maximum_empty_lines_between_statements: 2
+

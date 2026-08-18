@@ -135,6 +135,23 @@ class Rule_LT15(BaseRule):
             )
         ]
 
+    def _effective_minimum(self) -> int:
+        """The minimum actually enforced, capped by the maximum for the same scope.
+
+        Both settings validate independently, so a minimum above the maximum is
+        accepted config. Enforcing it as written makes the two fixers undo each
+        other - the minimum inserts blank lines, the maximum deletes them back -
+        and ``sqlfluff fix`` alternates between the two results on every run
+        instead of converging, leaving file contents dependent on how many times
+        the fixer happened to run. Capping keeps the fixer convergent and leaves
+        the maximum, which is the stricter and longer-standing of the two, in
+        charge of the boundary they disagree about.
+        """
+        return min(
+            self.minimum_empty_lines_between_statements,
+            self.maximum_empty_lines_between_statements,
+        )
+
     def _in_between_statements_scope(self, context: RuleContext) -> bool:
         """Whether this position is the scope the maximum calls between-statements.
 
@@ -164,7 +181,7 @@ class Rule_LT15(BaseRule):
         Fires on the last newline of a run so the whole gap is measured once, rather
         than once per newline in it.
         """
-        minimum = self.minimum_empty_lines_between_statements
+        minimum = self._effective_minimum()
         if not minimum:
             return None
 
@@ -260,7 +277,7 @@ class Rule_LT15(BaseRule):
         the gap was accepted however the minimum was configured. Here the break
         itself is missing, and the fix has to create it as well as the blank lines.
         """
-        minimum = self.minimum_empty_lines_between_statements
+        minimum = self._effective_minimum()
         if not minimum:
             return None
 
