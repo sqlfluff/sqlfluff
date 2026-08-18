@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e478027de53039ddb7fd05ec07d472b2c8d85c28c0e7d4a1e64d378f529d99c
+_hash: f9923e50b5410f95b8ee4e389b972ff69c7ebb3f3c55caae0edd9cda32049e0c
 file:
 - statement:
     alter_warehouse_statement:
@@ -480,4 +480,17 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'monitor_name'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: RESOURCE_MONITOR
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_identifier: '"My Monitor"'
 - statement_terminator: ;

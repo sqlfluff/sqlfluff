@@ -49,3 +49,5 @@ ENABLE_QUERY_ACCELERATION = true
 QUERY_ACCELERATION_MAX_SCALE_FACTOR = 4;
 
 alter warehouse LOAD_WH set RESOURCE_MONITOR = 'monitor_name';
+
+alter warehouse LOAD_WH set RESOURCE_MONITOR = "My Monitor";
