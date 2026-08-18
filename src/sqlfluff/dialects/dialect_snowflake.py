@@ -6804,6 +6804,34 @@ class CreateUserSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
             ),
+            # https://docs.snowflake.com/en/user-guide/workload-identity-federation
+            Sequence(
+                "WORKLOAD_IDENTITY",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    AnySetOf(
+                        Sequence(
+                            "TYPE",
+                            Ref("EqualsSegment"),
+                            OneOf("AWS", "AZURE", "GCP", "OIDC"),
+                        ),
+                        Sequence(
+                            "ARN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                        Sequence(
+                            "ISSUER", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                        Sequence(
+                            "SUBJECT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                        Sequence(
+                            "OIDC_AUDIENCE_LIST",
+                            Ref("EqualsSegment"),
+                            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                        ),
+                    )
+                ),
+            ),
             Sequence(
                 "DAYS_TO_EXPIRY",
                 Ref("EqualsSegment"),
@@ -9162,6 +9190,51 @@ class AlterUserStatementSegment(BaseSegment):
                 "SECURITY",
                 "INTEGRATION",
                 Ref("ObjectReferenceSegment"),
+            ),
+            # ALTER USER ... SET { AUTHENTICATION | PASSWORD | SESSION } POLICY
+            # https://docs.snowflake.com/en/sql-reference/sql/alter-user
+            Sequence(
+                "SET",
+                OneOf("AUTHENTICATION", "PASSWORD", "SESSION"),
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("AUTHENTICATION", "PASSWORD", "SESSION"),
+                "POLICY",
+            ),
+            # ALTER USER ... SET WORKLOAD_IDENTITY = ( ... ) for workload
+            # identity federation
+            # https://docs.snowflake.com/en/user-guide/workload-identity-federation
+            Sequence(
+                "SET",
+                "WORKLOAD_IDENTITY",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    AnySetOf(
+                        Sequence(
+                            "TYPE",
+                            Ref("EqualsSegment"),
+                            OneOf("AWS", "AZURE", "GCP", "OIDC"),
+                        ),
+                        Sequence(
+                            "ARN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                        Sequence(
+                            "ISSUER", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                        Sequence(
+                            "SUBJECT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                        Sequence(
+                            "OIDC_AUDIENCE_LIST",
+                            Ref("EqualsSegment"),
+                            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                        ),
+                    )
+                ),
             ),
             # Snowflake supports the SET command with space delimited parameters, but
             # it also supports using commas which is better supported by `Delimited`, so
