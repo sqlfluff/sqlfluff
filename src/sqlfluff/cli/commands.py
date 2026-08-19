@@ -1026,7 +1026,6 @@ def lint(
             "error": "critical",
         }[annotation_level]
         for record in result.as_records():
-            filepath = os.path.relpath(record["filepath"])
             for violation in record["violations"]:
                 gitlab_result.append(
                     {
@@ -1041,7 +1040,7 @@ def lint(
                         "fingerprint": hashlib.md5(
                             ":".join(
                                 [
-                                    filepath,
+                                    record["filepath"],
                                     str(violation["code"]),
                                     str(violation["start_line_no"]),
                                     str(violation["start_line_pos"]),
@@ -1050,7 +1049,7 @@ def lint(
                             usedforsecurity=False,
                         ).hexdigest(),
                         "location": {
-                            "path": filepath,
+                            "path": record["filepath"],
                             "positions": {
                                 "begin": {
                                     "line": violation["start_line_no"],
