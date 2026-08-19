@@ -573,4 +573,3 @@ test_pass_minimum_equal_to_maximum_is_satisfiable:
       layout.newlines:
         minimum_empty_lines_between_statements: 2
         maximum_empty_lines_between_statements: 2
-
