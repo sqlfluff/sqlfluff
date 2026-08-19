@@ -3,12 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f10c5e6b84f95c94af1c1ea7efd1d9152921183548a6e7ca565476859f57504b
+_hash: e5391e015a9075f664a49304b8a50b487796082d9c7edc336db9a9f300a9f381
 file:
 - statement:
     magic_cell_segment:
-      magic_start: -- MAGIC %md
-      magic_line: '-- MAGIC # Dummy Notebook'
+    - magic_start: -- MAGIC %md
+    - magic_line: '-- MAGIC # Dummy Notebook'
+    - magic_line: -- MAGIC
 - command_cell: -- COMMAND ----------
 - statement:
     select_statement:
