@@ -585,7 +585,6 @@ test_fail_oracle_file_level_gap_uses_the_between_batches_maximum:
     /
 
 
-
     SELECT b FROM tab;
     /
   fix_str: |
@@ -618,4 +617,13 @@ test_pass_oracle_inside_batch_still_uses_the_between_statements_maximum:
       layout.newlines:
         maximum_empty_lines_between_batches: 1
         maximum_empty_lines_between_statements: 4
-
+test_pass_minimum_ignores_a_templated_anchor_newline:
+  # the newline the rule anchors on is itself templated, so there is no source
+  # line to attach a fix to and the gap is declined rather than padded
+  pass_str: 'SELECT a FROM tab;{{ "\n" }}SELECT b FROM tab;'
+  configs:
+    core:
+      templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1

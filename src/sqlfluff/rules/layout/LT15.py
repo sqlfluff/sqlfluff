@@ -302,13 +302,14 @@ class Rule_LT15(BaseRule):
         if not minimum:
             return None
 
-        if context.segment.is_templated:
-            return None
-
         if not self._is_gap_between_statements(context, shares_line=shares_line):
             return None
 
         if shares_line:
+            # No run to measure, so the templated check that the counter performs
+            # for the other path has to happen here instead.
+            if context.segment.is_templated:
+                return None
             blank_lines = 0
             # One extra newline ends the first statement's line; the rest are the
             # blank lines themselves.
@@ -316,6 +317,7 @@ class Rule_LT15(BaseRule):
         else:
             counted = self._count_blank_lines(context)
             if counted is None:
+                # Templated anchor: not ours to rewrite.
                 return None
             blank_lines, touched_templated = counted
             if touched_templated or blank_lines >= minimum:
@@ -333,9 +335,9 @@ class Rule_LT15(BaseRule):
         if shares_line:
             # Drop the space that separated the statements; it would otherwise be
             # left indenting the statement now starting the line.
-            for seg in context.siblings_post:
-                if seg.is_type("dedent", "indent"):
-                    continue
+            for seg in (
+                s for s in context.siblings_post if not s.is_type("dedent", "indent")
+            ):
                 if seg.is_type("whitespace"):
                     fixes.append(LintFix.delete(seg))
                 else:
