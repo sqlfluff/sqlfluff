@@ -168,6 +168,25 @@ oracle_dialect.insert_lexer_matchers(
 
 oracle_dialect.insert_lexer_matchers(
     [
+        # A SQL*Plus slash buffer-executor is a `/` alone on its own line. Lex
+        # it as a distinct token (anchored to the end of the line) so a bare
+        # `/` division operator mid-expression stays an ordinary `divide`
+        # token and isn't mistaken for the executor. Only the end of the line
+        # can be anchored here: the lexer matches from the `/` forwards, so a
+        # `/` left dangling at the end of a line (e.g. `a /` then the operand
+        # on the next line) is still treated as the executor.
+        # https://github.com/sqlfluff/sqlfluff/issues/8373
+        RegexLexer(
+            "slash_buffer_executor",
+            r"/(?=[^\S\r\n]*(?:\r?\n|$))",
+            CodeSegment,
+        ),
+    ],
+    before="divide",
+)
+
+oracle_dialect.insert_lexer_matchers(
+    [
         StringLexer("power_operator", "**", CodeSegment),
     ],
     before="star",
@@ -1475,7 +1494,9 @@ class SlashBufferExecutorSegment(BaseSegment):
     """A `/` standalone, functioning as a batch delimiter for SQL*Plus."""
 
     type = "slash_buffer_executor"
-    match_grammar = Ref("SlashSegment")
+    # Match the distinct `slash_buffer_executor` lexer token but keep the inner
+    # segment typed as a plain `slash`, so existing parse trees are unchanged.
+    match_grammar = TypedParser("slash_buffer_executor", SymbolSegment, type="slash")
 
 
 class SqlplusSetStatementSegment(BaseSegment):
