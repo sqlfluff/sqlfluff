@@ -1,10 +1,24 @@
 """Implementation of Rule LT15."""
 
-from typing import List, Optional
+from enum import Enum
+from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+
+
+class _Scope(Enum):
+    """Where in the file a gap sits, which decides whose limit applies.
+
+    The three scopes are the ones the maximum has always distinguished; naming
+    them lets the minimum resolve the same way instead of keeping a second,
+    slightly different copy of the logic.
+    """
+
+    INSIDE_STATEMENT = "inside a statement"
+    BETWEEN_STATEMENTS = "between statements"
+    BETWEEN_BATCHES = "between batches"
 
 
 class Rule_LT15(BaseRule):
@@ -55,7 +69,19 @@ class Rule_LT15(BaseRule):
         SELECT b FROM tab;
 
     The minimum defaults to ``0``, which leaves the rule's existing behaviour
-    unchanged.
+    unchanged. It applies only between statements, never inside one or between
+    batches, matching the scope its name describes.
+
+    .. note::
+
+        ``minimum_empty_lines_between_statements`` is capped by
+        ``maximum_empty_lines_between_statements``. The two settings validate
+        independently, so a minimum above the maximum is accepted configuration,
+        but no file can satisfy both: the minimum inserts blank lines and the
+        maximum deletes them straight back, so ``sqlfluff fix`` alternates
+        between the two results on every run instead of converging. Where the
+        cap changes what would otherwise be reported, a warning is emitted
+        naming both values.
     """
 
     name = "layout.newlines"
@@ -80,139 +106,169 @@ class Rule_LT15(BaseRule):
         self.maximum_empty_lines_inside_statements: int
         self.maximum_empty_lines_between_batches: int
         self.minimum_empty_lines_between_statements: int
-        context_seg = context.segment
+
+        scope = self._resolve_scope(context)
 
         # Terminators are only sought for the same-line minimum check; none of the
         # maximum logic below applies to them.
-        if context_seg.is_type("statement_terminator"):
-            if not self._in_between_statements_scope(context):
+        if context.segment.is_type("statement_terminator"):
+            if scope is not _Scope.BETWEEN_STATEMENTS:
                 return None
-            return self._check_minimum_same_line(context)
+            return self._check_minimum(context, shares_line=True)
 
-        # A minimum only makes sense in the between-statements scope. It runs
-        # first because the two cannot both fire on the same gap: one wants
-        # newlines added, the other wants them removed.
-        if self._in_between_statements_scope(context):
-            minimum_result = self._check_minimum(context)
+        # The minimum runs first because the two cannot both fire on one gap: one
+        # wants newlines added, the other wants them removed.
+        if scope is _Scope.BETWEEN_STATEMENTS:
+            minimum_result = self._check_minimum(context, shares_line=False)
             if minimum_result:
                 return minimum_result
 
-        # Determine the appropriate maximum based on context
-        # Check if we're inside a statement first (highest priority)
-        if any(seg.is_type("statement") for seg in context.parent_stack):
-            # If directly inside a with_compound_statement (between CTEs or between
-            # the last CTE and the main query), use between_statements limit to avoid
-            # conflicts with LT08 which requires blank lines after CTEs.
-            if context.parent_stack and context.parent_stack[-1].is_type(
-                "with_compound_statement"
-            ):
-                maximum_empty_lines = self.maximum_empty_lines_between_statements
-            else:
-                maximum_empty_lines = self.maximum_empty_lines_inside_statements
-        # Check if we're inside a batch but not in a statement
-        elif any(seg.is_type("batch") for seg in context.parent_stack):
-            # Inside a batch (between statements in a batch)
-            maximum_empty_lines = self.maximum_empty_lines_between_statements
-        # At file level - check dialect to determine if between batches or statements
-        elif context.dialect.name == "tsql":
-            # In T-SQL at file level, we're between batches
-            maximum_empty_lines = self.maximum_empty_lines_between_batches
-        else:
-            # Default: between statements
-            maximum_empty_lines = self.maximum_empty_lines_between_statements
+        maximum_empty_lines = {
+            _Scope.INSIDE_STATEMENT: self.maximum_empty_lines_inside_statements,
+            _Scope.BETWEEN_STATEMENTS: self.maximum_empty_lines_between_statements,
+            _Scope.BETWEEN_BATCHES: self.maximum_empty_lines_between_batches,
+        }[scope]
 
-        if len(context.raw_stack) < maximum_empty_lines:  # pragma: no cover
+        counted = self._count_blank_lines(context)
+        if counted is None or counted[0] <= maximum_empty_lines:
             return None
-
-        for raw_seg in context.raw_stack[-maximum_empty_lines - 1 :]:
-            if raw_seg.is_templated or not raw_seg.is_type("newline"):
-                return None
 
         return [
             LintResult(
-                anchor=context_seg,
-                fixes=[LintFix.delete(context_seg)],
+                anchor=context.segment,
+                fixes=[LintFix.delete(context.segment)],
             )
         ]
 
-    def _effective_minimum(self) -> int:
-        """The minimum actually enforced, capped by the maximum for the same scope.
+    def _resolve_scope(self, context: RuleContext) -> _Scope:
+        """Which of the three scopes this position sits in.
 
-        Both settings validate independently, so a minimum above the maximum is
-        accepted config. Enforcing it as written makes the two fixers undo each
-        other - the minimum inserts blank lines, the maximum deletes them back -
-        and ``sqlfluff fix`` alternates between the two results on every run
-        instead of converging, leaving file contents dependent on how many times
-        the fixer happened to run. Capping keeps the fixer convergent and leaves
-        the maximum, which is the stricter and longer-standing of the two, in
-        charge of the boundary they disagree about.
+        Shared by the maximum's limit selection and the minimum's gate so the two
+        cannot drift apart. Batches are detected structurally rather than by
+        dialect name: the previous ``dialect.name == "tsql"`` test missed Oracle,
+        which also has batch grammar, so a file-level gap there was measured
+        against the between-statements maximum instead of the between-batches
+        one. Testing for the node itself also means a dialect that gains batch
+        grammar later needs no change here.
+        """
+        if any(seg.is_type("statement") for seg in context.parent_stack):
+            # Directly inside a with_compound_statement (between CTEs, or between
+            # the last CTE and the main query) uses the between-statements limit
+            # to avoid conflicting with LT08, which requires blank lines
+            # after CTEs.
+            if context.parent_stack[-1].is_type("with_compound_statement"):
+                return _Scope.BETWEEN_STATEMENTS
+            return _Scope.INSIDE_STATEMENT
+
+        if any(seg.is_type("batch") for seg in context.parent_stack):
+            return _Scope.BETWEEN_STATEMENTS
+
+        # File level: a gap out here separates batches in the dialects that have
+        # them, and statements everywhere else.
+        if any(
+            seg.is_type("batch")
+            for seg in (*context.siblings_pre, *context.siblings_post)
+        ):
+            return _Scope.BETWEEN_BATCHES
+        return _Scope.BETWEEN_STATEMENTS
+
+    def _count_blank_lines(self, context: RuleContext) -> Optional[Tuple[int, bool]]:
+        """Blank lines in the run of newlines ending at the current segment.
+
+        Both directions measure the gap with this, so they cannot disagree about
+        what "two blank lines" means. Two consecutive newlines bound one blank
+        line, hence the run length less one. Whitespace does not break the run,
+        so a line of spaces still counts as blank.
+
+        A templated newline ends the run rather than being counted: those lines
+        are not in the source, so neither direction may add or remove them, and
+        neither should let them stand in for lines the user wrote. Counting only
+        as far as the nearest one leaves both directions measuring the same set
+        of editable lines.
+
+        Returns the count and whether the run was cut short by templated output.
+        The maximum only ever deletes an editable newline, so the count alone is
+        enough for it. The minimum has to add lines, and padding a gap whose
+        rendered form already contains lines the source does not would be
+        guessing at the result, so it declines those gaps entirely.
+
+        Returns ``None`` when the anchor itself is templated, since there is then
+        nothing editable to anchor a fix to.
+        """
+        if context.segment.is_templated:
+            return None
+
+        run = 1
+        touched_templated = False
+        for raw_seg in reversed(context.raw_stack):
+            if raw_seg.is_type("newline"):
+                if raw_seg.is_templated:
+                    touched_templated = True
+                    break
+                run += 1
+            elif raw_seg.is_type("whitespace"):
+                continue
+            else:
+                break
+        return run - 1, touched_templated
+
+    def _effective_minimum(self) -> int:
+        """The minimum actually enforced, capped by the maximum for the scope.
+
+        See the note in the class docstring: uncapped, the two fixers undo each
+        other and ``fix`` never converges.
         """
         return min(
             self.minimum_empty_lines_between_statements,
             self.maximum_empty_lines_between_statements,
         )
 
-    def _in_between_statements_scope(self, context: RuleContext) -> bool:
-        """Whether this position is the scope the maximum calls between-statements.
+    def _is_gap_between_statements(
+        self, context: RuleContext, *, shares_line: bool
+    ) -> bool:
+        """Whether the position is a gap with a statement on each side.
 
-        The maximum resolves three scopes and picks a limit for each: inside a
-        statement, between statements within a batch, and between batches at file
-        level. ``minimum_empty_lines_between_statements`` names exactly one of
-        them, so it has to be resolved the same way rather than firing anywhere
-        outside a statement.
+        A gap needs a statement on both sides, tested on the statement type
+        rather than on any code. Without the preceding test, a file opening with
+        a blank line or a comment reads as a gap before its first statement and
+        gets padded. Without the following test, a batch delimiter (T-SQL ``GO``,
+        Oracle ``/``) reads as the next statement and the rule demands a blank
+        line in front of it; those are ``go_statement`` and
+        ``slash_buffer_executor``, and they end a batch rather than starting one.
         """
-        if any(seg.is_type("statement") for seg in context.parent_stack):
-            return False
-        if any(seg.is_type("batch") for seg in context.parent_stack):
-            return True
-        # File level. Dialects with batch grammar (T-SQL, Oracle) wrap their
-        # statements in batch nodes, so a gap out here separates batches, which
-        # is the maximum's third scope and not this setting's business. Tested
-        # structurally rather than by dialect name so a dialect that gains batch
-        # grammar later is handled without a code change.
-        return not any(
-            seg.is_type("batch")
-            for seg in (*context.siblings_pre, *context.siblings_post)
-        )
-
-    def _check_minimum(self, context: RuleContext) -> Optional[List[LintResult]]:
-        """Require at least ``minimum_empty_lines_between_statements`` blank lines.
-
-        Fires on the last newline of a run so the whole gap is measured once, rather
-        than once per newline in it.
-        """
-        minimum = self._effective_minimum()
-        if not minimum:
-            return None
-
-        # Only act on the last newline of the run; otherwise the same gap would be
-        # reported several times over. Whitespace is skipped both here and in the
-        # backward walk below, so a line of spaces still counts as blank.
         following = [
             seg
             for seg in context.siblings_post
             if not seg.is_type("dedent", "indent", "whitespace")
         ]
-        if following and following[0].is_type("newline"):
-            return None
 
-        # A gap needs a statement on both sides, tested on the statement type
-        # rather than on any code. Without the preceding check, a file that opens
-        # with a blank line or a comment is treated as a gap before its first
-        # statement and padded. Without the following check, a batch delimiter
-        # (T-SQL `GO`, Oracle `/`) reads as the next statement and the rule
-        # demands a blank line in front of it; those are `go_statement` and
-        # `slash_buffer_executor`, not statements, and they end a batch rather
-        # than starting one.
+        if shares_line:
+            # Whitespace and trailing comments are skipped rather than treated as
+            # the end of the search: `SELECT a; -- x` still ends its line at the
+            # newline after the comment, so stopping at the comment would report a
+            # shared line that is not shared and tear the comment off it.
+            for seg in following:
+                if seg.is_type("comment", "inline_comment", "block_comment"):
+                    continue
+                # A newline already separates the statements, so the run-based
+                # path owns this gap.
+                if seg.is_type("newline"):
+                    return False
+                # A template tag in the gap is not a statement sharing the line,
+                # and its surrounding whitespace is not the user's to rewrite.
+                if seg.is_type("placeholder"):
+                    return False
+                break
+        else:
+            # Only act on the last newline of the run, or the same gap is
+            # reported once per newline in it.
+            if following and following[0].is_type("newline"):
+                return False
+
         if not any(seg.is_type("statement") for seg in context.siblings_pre):
-            return None
-
-        # Skip when no further statement follows, so there is no gap to pad, and
-        # when the newline is templated, since that is not ours to rewrite.
-        if context.segment.is_templated or not any(
-            seg.is_type("statement") for seg in context.siblings_post
-        ):
-            return None
+            return False
+        if not any(seg.is_type("statement") for seg in following):
+            return False
 
         # A template block start/end sits in the gap as a placeholder meta. The
         # newlines either side of it are not a gap between two statements, so
@@ -222,60 +278,25 @@ class Rule_LT15(BaseRule):
             if seg.is_code:
                 break
             if seg.is_type("placeholder"):
-                return None
+                return False
         for seg in context.siblings_post:
             if seg.is_code:
                 break
             if seg.is_type("placeholder"):
-                return None
+                return False
 
-        # Count the run of newlines ending at this one. Two newlines are one blank
-        # line, so the blank count is one less than the run length.
-        run = 1
-        for raw_seg in reversed(context.raw_stack):
-            if raw_seg.is_type("newline"):
-                # Only block tags leave a placeholder behind. A variable or macro
-                # expanding to text containing newlines produces plain newline
-                # segments with no placeholder, so the skip above does not see it
-                # and this is the only guard against counting lines that are not
-                # in the source. The maximum branch bails on the same condition.
-                if raw_seg.is_templated:
-                    return None
-                run += 1
-            elif raw_seg.is_type("whitespace"):
-                continue
-            else:
-                break
-        blank_lines = run - 1
+        return True
 
-        if blank_lines >= minimum:
-            return None
-
-        return [
-            LintResult(
-                anchor=context.segment,
-                fixes=[
-                    LintFix.create_after(
-                        context.segment,
-                        [NewlineSegment() for _ in range(minimum - blank_lines)],
-                    )
-                ],
-                description=(
-                    f"Expected at least {minimum} blank line(s) between statements, "
-                    f"found {blank_lines}."
-                ),
-            )
-        ]
-
-    def _check_minimum_same_line(
-        self, context: RuleContext
+    def _check_minimum(
+        self, context: RuleContext, *, shares_line: bool
     ) -> Optional[List[LintResult]]:
-        """Enforce the minimum when two statements share a line.
+        """Require at least ``minimum_empty_lines_between_statements`` blank lines.
 
-        ``_check_minimum`` measures a run of newlines, so it can only fire where a
-        newline exists. ``SELECT a; SELECT b;`` has none between the statements, so
-        the gap was accepted however the minimum was configured. Here the break
-        itself is missing, and the fix has to create it as well as the blank lines.
+        Handles both shapes a too-small gap can take. Usually there is a run of
+        newlines to measure and pad. When the statements share a line
+        (``SELECT a; SELECT b;``) there is no newline to crawl at all, so the run
+        cannot be measured, the gap is zero by definition, and the fix has to
+        create the line break as well as the blank lines.
         """
         minimum = self._effective_minimum()
         if not minimum:
@@ -284,53 +305,76 @@ class Rule_LT15(BaseRule):
         if context.segment.is_templated:
             return None
 
-        following = [
-            seg for seg in context.siblings_post if not seg.is_type("dedent", "indent")
-        ]
-        # A newline already separates the statements, so the run-based check owns
-        # this gap. Whitespace and trailing comments are skipped rather than
-        # treated as the end of the search: `SELECT a; -- x` still ends its line
-        # at the newline after the comment, and stopping at the comment would
-        # report a shared line that is not shared and tear the comment off it.
-        for seg in following:
-            if seg.is_type("whitespace", "comment", "inline_comment", "block_comment"):
-                continue
-            if seg.is_type("newline"):
-                return None
-            # A template tag in the gap is not a statement sharing the line, and
-            # its surrounding whitespace is not the user's to rewrite.
-            if seg.is_type("placeholder"):
-                return None
-            break
-
-        # No further statement follows, so there is no gap to pad. A batch
-        # delimiter is not a statement and does not open one.
-        if not any(seg.is_type("statement") for seg in following):
+        if not self._is_gap_between_statements(context, shares_line=shares_line):
             return None
 
-        # No line break at all, so every required blank line is missing and the
-        # break that ends this statement's line is missing too.
+        if shares_line:
+            blank_lines = 0
+            # One extra newline ends the first statement's line; the rest are the
+            # blank lines themselves.
+            newlines_to_add = minimum + 1
+        else:
+            counted = self._count_blank_lines(context)
+            if counted is None:
+                return None
+            blank_lines, touched_templated = counted
+            if touched_templated or blank_lines >= minimum:
+                return None
+            newlines_to_add = minimum - blank_lines
+
+        self._warn_if_capped()
+
         fixes = [
             LintFix.create_after(
                 context.segment,
-                [NewlineSegment() for _ in range(minimum + 1)],
+                [NewlineSegment() for _ in range(newlines_to_add)],
             )
         ]
-        # Drop the space that separated the statements; it would otherwise be left
-        # indenting the statement now starting the line.
-        for seg in following:
-            if seg.is_type("whitespace"):
-                fixes.append(LintFix.delete(seg))
-            else:
-                break
+        if shares_line:
+            # Drop the space that separated the statements; it would otherwise be
+            # left indenting the statement now starting the line.
+            for seg in context.siblings_post:
+                if seg.is_type("dedent", "indent"):
+                    continue
+                if seg.is_type("whitespace"):
+                    fixes.append(LintFix.delete(seg))
+                else:
+                    break
+
+        description = (
+            f"Expected at least {minimum} blank line(s) between statements, "
+            f"found {blank_lines}."
+        )
+        if shares_line:
+            description = (
+                f"Expected at least {minimum} blank line(s) between statements, "
+                "found 0 (statements share a line)."
+            )
 
         return [
             LintResult(
                 anchor=context.segment,
                 fixes=fixes,
-                description=(
-                    f"Expected at least {minimum} blank line(s) between statements, "
-                    "found 0 (statements share a line)."
-                ),
+                description=description,
             )
         ]
+
+    def _warn_if_capped(self) -> None:
+        """Tell the user when the cap is what decided the reported gap.
+
+        Only fires where it changes an actual result, so a contradictory config
+        that never meets two statements stays quiet.
+        """
+        configured = self.minimum_empty_lines_between_statements
+        maximum = self.maximum_empty_lines_between_statements
+        if configured > maximum:
+            self.logger.warning(
+                "minimum_empty_lines_between_statements (%s) is greater than "
+                "maximum_empty_lines_between_statements (%s); enforcing %s. No "
+                "file can satisfy both, and applying the minimum as configured "
+                "would leave `sqlfluff fix` alternating between the two results "
+                "instead of converging.",
+                configured,
+                maximum,
+                maximum,
+            )

@@ -573,3 +573,49 @@ test_pass_minimum_equal_to_maximum_is_satisfiable:
       layout.newlines:
         minimum_empty_lines_between_statements: 2
         maximum_empty_lines_between_statements: 2
+
+test_fail_oracle_file_level_gap_uses_the_between_batches_maximum:
+  # oracle has batch grammar like t-sql, but the scope test was
+  # `dialect.name == "tsql"`, so a file-level gap here was measured against the
+  # between-statements maximum instead. resolving the scope structurally fixes
+  # it: with between_batches = 1 these three blank lines are a violation, where
+  # before the rule reported the file clean.
+  fail_str: |
+    SELECT a FROM tab;
+    /
+
+
+
+    SELECT b FROM tab;
+    /
+  fix_str: |
+    SELECT a FROM tab;
+    /
+
+    SELECT b FROM tab;
+    /
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_batches: 1
+        maximum_empty_lines_between_statements: 4
+
+test_pass_oracle_inside_batch_still_uses_the_between_statements_maximum:
+  # the control for the case above: a gap inside a batch is not a batch
+  # boundary, so the larger between-statements allowance still applies
+  pass_str: |
+    SELECT a FROM tab;
+
+
+    SELECT b FROM tab;
+    /
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_batches: 1
+        maximum_empty_lines_between_statements: 4
+
