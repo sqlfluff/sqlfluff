@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b374d03f02f5c7eb800e9262fd5075764b7775db085d5eb2fe21e78c8d5ab96d
+_hash: 07c6e891e87ea4ccbb9c0fe4cd9ba3ef478c0a6511409b6f00e0effd5d086b99
 file:
-- statement:
+  statement:
     if_then_statement:
     - keyword: if
     - expression:
@@ -19,49 +19,47 @@ file:
             numeric_literal: '0'
           end_bracket: )
     - keyword: then
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              numeric_literal: '0'
-- statement_terminator: ;
-- statement:
-    if_then_statement:
-    - keyword: if
-    - expression:
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: y
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '1'
-          end_bracket: )
-    - keyword: then
-    - statement:
-        set_statement:
-          keyword: set
-          variable: '@errmsg'
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "''"
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-    if_then_statement:
+    - if_statement_list:
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '0'
+      - statement_terminator: ;
+      - statement:
+          if_then_statement:
+          - keyword: if
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: y
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+                end_bracket: )
+          - keyword: then
+          - if_statement_list:
+            - statement:
+                set_statement:
+                  keyword: set
+                  variable: '@errmsg'
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "''"
+            - statement_terminator: ;
+            - statement:
+                select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      numeric_literal: '1'
+            - statement_terminator: ;
+          - keyword: end
+          - keyword: if
+      - statement_terminator: ;
     - keyword: end
     - keyword: if
-- statement_terminator: ;
-- statement:
-    if_then_statement:
-    - keyword: end
-    - keyword: if
-- statement_terminator: ;
+  statement_terminator: ;
