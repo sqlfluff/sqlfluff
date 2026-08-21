@@ -2450,15 +2450,17 @@ class IfStatementListSegment(BaseSegment):
 
     match_grammar = AnyNumberOf(
         Sequence(
-            Ref("StatementSegment"),
+            Ref(
+                "StatementSegment",
+                exclude=OneOf(
+                    "ELSEIF",
+                    "ELSE",
+                    Sequence("END", "IF"),
+                ),
+            ),
             Ref("DelimiterGrammar"),
         ),
-        terminators=[
-            "ELSEIF",
-            "ELSE",
-            Sequence("END", "IF"),
-        ],
-        reset_terminators=True,
+        min_times=1,
     )
 
 
@@ -2475,7 +2477,7 @@ class IfExpressionStatement(BaseSegment):
         Ref("ExpressionSegment"),
         "THEN",
         Indent,
-        Ref("IfStatementListSegment", optional=True),
+        Ref("IfStatementListSegment"),
         Dedent,
         AnyNumberOf(
             Sequence(
@@ -2483,14 +2485,14 @@ class IfExpressionStatement(BaseSegment):
                 Ref("ExpressionSegment"),
                 "THEN",
                 Indent,
-                Ref("IfStatementListSegment", optional=True),
+                Ref("IfStatementListSegment"),
                 Dedent,
             ),
         ),
         Sequence(
             "ELSE",
             Indent,
-            Ref("IfStatementListSegment", optional=True),
+            Ref("IfStatementListSegment"),
             Dedent,
             optional=True,
         ),
