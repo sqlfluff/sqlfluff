@@ -85,3 +85,10 @@ ORDER BY d
 TTL d + INTERVAL 1 MONTH DELETE,
     d + INTERVAL 1 WEEK TO VOLUME 'aaa',
     d + INTERVAL 2 WEEK TO DISK 'bbb';
+
+CREATE TABLE my_table
+(
+    name1 String,
+    CONSTRAINT constraint_name_1 ASSUME (name1 = 'test')
+)
+ENGINE = MergeTree;
