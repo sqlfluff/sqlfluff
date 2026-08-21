@@ -539,7 +539,7 @@ test_fail_minimum_applies_between_statements_inside_a_batch_oracle:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
 
-test_pass_minimum_above_maximum_is_capped_not_oscillating:
+test_fail_minimum_above_maximum_is_capped_not_oscillating:
   # both settings validate independently, so a minimum above the maximum is
   # accepted config. enforced as written the two fixers undo each other and
   # `fix` alternates between 2 and 5 blank lines on every run without ever
@@ -558,7 +558,7 @@ test_pass_minimum_above_maximum_is_capped_not_oscillating:
         minimum_empty_lines_between_statements: 5
         maximum_empty_lines_between_statements: 2
 
-test_pass_minimum_equal_to_maximum_is_satisfiable:
+test_fail_minimum_equal_to_maximum_is_satisfiable:
   # the boundary case: exactly at the maximum must still be reachable
   fail_str: |
     SELECT a FROM tab;
@@ -617,6 +617,7 @@ test_pass_oracle_inside_batch_still_uses_the_between_statements_maximum:
       layout.newlines:
         maximum_empty_lines_between_batches: 1
         maximum_empty_lines_between_statements: 4
+
 test_pass_minimum_ignores_a_templated_anchor_newline:
   # the newline the rule anchors on is itself templated, so there is no source
   # line to attach a fix to and the gap is declined rather than padded
@@ -624,6 +625,37 @@ test_pass_minimum_ignores_a_templated_anchor_newline:
   configs:
     core:
       templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_maximum_reports_only_the_final_newline_of_a_whitespace_broken_run:
+  # the maximum's windowed eligibility test suppresses the violation when the
+  # run is not purely newlines. sharing the minimum's counter here silently
+  # widened the rule, so this pins the shipped behaviour: a whitespace-only
+  # line inside the run leaves only the final newline reported
+  fail_str: "SELECT a FROM tab;\n   \n\n\nSELECT b FROM tab;\n"
+  fix_str: "SELECT a FROM tab;\n   \n\nSELECT b FROM tab;\n"
+  configs:
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_statements: 1
+        minimum_empty_lines_between_statements: 0
+
+test_fail_minimum_pads_a_comment_separated_gap_once:
+  # a comment splits the gap into two runs of newlines and both used to
+  # qualify, so one gap was padded twice. only the run that ends at the next
+  # statement is the anchor
+  fail_str: |
+    SELECT a FROM tab;
+    -- a note
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+    -- a note
+
+    SELECT b FROM tab;
+  configs:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 1

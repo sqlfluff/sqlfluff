@@ -129,9 +129,18 @@ class Rule_LT15(BaseRule):
             _Scope.BETWEEN_BATCHES: self.maximum_empty_lines_between_batches,
         }[scope]
 
-        counted = self._count_blank_lines(context)
-        if counted is None or counted[0] <= maximum_empty_lines:
+        # The maximum keeps its original windowed eligibility test rather than
+        # reusing `_count_blank_lines`. The two are not interchangeable: the
+        # counter skips whitespace and counts the editable newlines ahead of a
+        # templated one, where this check suppresses the violation outright for
+        # both. Sharing it silently widened a long-standing rule, so the shared
+        # helper stays with the minimum and this stays as it shipped.
+        if len(context.raw_stack) < maximum_empty_lines:  # pragma: no cover
             return None
+
+        for raw_seg in context.raw_stack[-maximum_empty_lines - 1 :]:
+            if raw_seg.is_templated or not raw_seg.is_type("newline"):
+                return None
 
         return [
             LintResult(
@@ -264,6 +273,16 @@ class Rule_LT15(BaseRule):
             # reported once per newline in it.
             if following and following[0].is_type("newline"):
                 return False
+            # A comment splits the gap into two runs of newlines, and both would
+            # otherwise qualify: each has a statement behind it and a statement
+            # ahead of it, so one gap gets padded twice. The run that ends at the
+            # next statement is the gap's anchor, so a run that reaches a comment
+            # first is not.
+            for seg in following:
+                if seg.is_type("comment", "inline_comment", "block_comment"):
+                    return False
+                if seg.is_type("statement"):
+                    break
 
         if not any(seg.is_type("statement") for seg in context.siblings_pre):
             return False
