@@ -11086,7 +11086,7 @@ class ScriptingRaiseStatementSegment(BaseSegment):
         "RAISE",
         # The exception name is omitted only when re-raising the exception
         # currently being handled from inside an exception handler.
-        Ref("LocalVariableNameSegment", optional=True),
+        Ref("NakedIdentifierSegment", optional=True),
     )
 
 
