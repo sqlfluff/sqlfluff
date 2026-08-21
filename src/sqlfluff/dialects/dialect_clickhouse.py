@@ -1571,9 +1571,10 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
         "CONSTRAINT",
         Ref("ObjectReferenceSegment"),
         OneOf(
-            Sequence("CHECK", Ref("ExpressionSegment")),
-            Sequence("ASSUME", Ref("ExpressionSegment")),
+            "CHECK",
+            "ASSUME",
         ),
+        Ref("ExpressionSegment"),
     )
 
 
