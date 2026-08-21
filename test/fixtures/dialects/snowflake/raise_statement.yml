@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8abbd1bbc0ff686a86549113f3c08a9359c11795b9643b583ad7b484a4cea1e7
+_hash: 9419cdea1862c77df07807eb56ac9e2d3a26e5a1c4bf9f050ead8033f2b14e43
 file:
-  statement:
+- statement:
     scripting_block_statement:
     - keyword: BEGIN
     - statement:
@@ -27,4 +27,80 @@ file:
               keyword: RAISE
     - statement_terminator: ;
     - keyword: END
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    scripting_declare_statement:
+    - keyword: DECLARE
+    - variable: MY_EXCEPTION
+    - keyword: EXCEPTION
+    - bracketed:
+        start_bracket: (
+        sign_indicator: '-'
+        exception_code: '20002'
+        comma: ','
+        quoted_literal: "'Raised MY_EXCEPTION.'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_raise_statement:
+          keyword: RAISE
+          variable: MY_EXCEPTION
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_let_statement:
+          keyword: LET
+          variable: v
+          data_type:
+            data_type_identifier: INTEGER
+          assignment_operator: :=
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      numeric_literal: '1'
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        scripting_declare_statement:
+        - keyword: DECLARE
+        - variable: e_bad
+        - keyword: EXCEPTION
+        - bracketed:
+            start_bracket: (
+            sign_indicator: '-'
+            exception_code: '20980'
+            comma: ','
+            quoted_literal: "'nope'"
+            end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        scripting_block_statement:
+        - keyword: BEGIN
+        - statement:
+            scripting_raise_statement:
+              keyword: RAISE
+              variable: e_bad
+        - statement_terminator: ;
+        - keyword: END
+    - statement_terminator: ;
+    - statement:
+        return_statement:
+          keyword: RETURN
+          expression:
+            column_reference:
+              naked_identifier: v
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
