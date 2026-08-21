@@ -1667,6 +1667,17 @@ class FromExpressionElementSegment(BaseSegment):
                 AnyNumberOf(Ref("JoinClauseSegment")),
             ),
         ),
+        # Redundant parentheses around a bracketed joined table, e.g.
+        # `((b INNER JOIN c ON TRUE))`. `min_times=1` keeps single-table
+        # nestings like `((my_table))` on the grammar path above.
+        Bracketed(
+            Bracketed(
+                Sequence(
+                    _base_from_expression_element,
+                    AnyNumberOf(Ref("JoinClauseSegment"), min_times=1),
+                ),
+            ),
+        ),
     )
 
     def get_eventual_alias(self) -> Generator[AliasInfo, None, None]:
