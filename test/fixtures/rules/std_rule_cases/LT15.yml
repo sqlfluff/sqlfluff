@@ -673,4 +673,3 @@ test_pass_minimum_counts_a_blank_line_before_an_intervening_comment:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
-
