@@ -659,3 +659,18 @@ test_fail_minimum_pads_a_comment_separated_gap_once:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_counts_a_blank_line_before_an_intervening_comment:
+  # the gap spans the comment, so a blank line on the far side of it already
+  # satisfies the minimum. stopping the count at the comment hid that and
+  # padded the same gap a second time
+  pass_str: |
+    SELECT a FROM tab;
+
+    -- a note
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+

@@ -207,6 +207,13 @@ class Rule_LT15(BaseRule):
         if context.segment.is_templated:
             return None
 
+        # Walk back to the statement that opens the gap, counting blank lines.
+        # A comment does not end the gap: `SELECT a;`, a blank line, a comment,
+        # then `SELECT b;` is one gap that already has its blank line, and
+        # stopping at the comment would hide it and pad the gap a second time.
+        # A comment does occupy a line, though, so it ends the current run of
+        # blank lines rather than being counted as one.
+        blank_lines = 0
         run = 1
         touched_templated = False
         for raw_seg in reversed(context.raw_stack):
@@ -217,9 +224,14 @@ class Rule_LT15(BaseRule):
                 run += 1
             elif raw_seg.is_type("whitespace"):
                 continue
+            elif raw_seg.is_type("comment", "inline_comment", "block_comment"):
+                # Bank the run that ended at this comment and keep walking: the
+                # blank lines on the far side of it are part of the same gap.
+                blank_lines += max(run - 1, 0)
+                run = 0
             else:
                 break
-        return run - 1, touched_templated
+        return blank_lines + max(run - 1, 0), touched_templated
 
     def _effective_minimum(self) -> int:
         """The minimum actually enforced, capped by the maximum for the scope.
