@@ -1333,3 +1333,24 @@ test_pass_tsql_nodes_method_requires_alias_unreferenced:
   configs:
     core:
       dialect: tsql
+
+test_pass_postgres_typed_table_function_alias:
+  pass_str: |
+    SELECT a FROM json_to_record('{"a": 1}') AS r(a int);
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_greenplum_typed_table_function_alias:
+  pass_str: |
+    SELECT a FROM json_to_record('{"a": 1}') AS r(a int);
+  configs:
+    core:
+      dialect: greenplum
+
+test_pass_postgres_bracketed_typed_table_function_alias:
+  pass_str: |
+    SELECT a FROM (json_to_record('{"a": 1}') AS r(a int));
+  configs:
+    core:
+      dialect: postgres
