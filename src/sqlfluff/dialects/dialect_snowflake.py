@@ -6028,6 +6028,16 @@ class CreateTaskSegment(BaseSegment):
                 ),
             ),
             Sequence(
+                "ERROR_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SUCCESS_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
                 "SCHEDULE",
                 Ref("EqualsSegment"),
                 OneOf(

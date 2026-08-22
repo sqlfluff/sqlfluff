@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c18ac771488b0e0f07705544697da2498251c1298ef601737f4cfe42f92c3359
+_hash: f07ff0dd95995f7283699ffd8c78fc0b1467ad21f87396cb13c1feec5805ab67
 file:
 - statement:
     create_task_statement:
@@ -725,6 +725,44 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'5 MINUTE'"
+    - keyword: AS
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask_with_error_integration
+    - keyword: ERROR_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: some_integration
+    - keyword: AS
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask_with_success_integration
+    - keyword: SUCCESS_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: some_integration
     - keyword: AS
     - statement:
         select_statement:

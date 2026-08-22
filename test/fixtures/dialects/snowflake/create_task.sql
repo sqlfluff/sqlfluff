@@ -129,3 +129,11 @@ CREATE TASK mytask
     SCHEDULE = '5 MINUTE'
 AS
     SELECT 1;
+
+CREATE TASK mytask_with_error_integration
+  ERROR_INTEGRATION = some_integration
+AS SELECT 1;
+
+CREATE TASK mytask_with_success_integration
+  SUCCESS_INTEGRATION = some_integration
+AS SELECT 1;
