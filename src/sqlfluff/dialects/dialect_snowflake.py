@@ -722,6 +722,10 @@ snowflake_dialect.add(
         ),
     ),
     PurposeGrammar=OneOf("STEWARD", "SUPPORT", "ACCESS_APPROVAL"),
+    # The optional label a Snowflake Scripting loop can be closed with, and
+    # which BREAK and CONTINUE can target.
+    # https://docs.snowflake.com/en/developer-guide/snowflake-scripting/loops
+    ScriptingLoopLabelGrammar=Ref("NakedIdentifierSegment"),
     # The option list shared by CREATE PROCEDURE and the anonymous
     # procedures introduced by WITH ... AS PROCEDURE ... CALL.
     ProcedureDefinitionOptionsGrammar=AnySetOf(
@@ -1893,6 +1897,11 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropExternalVolumeStatementSegment"),
             Ref("AlterExternalVolumeStatementSegment"),
             Ref("ForInLoopSegment"),
+            Ref("ScriptingWhileLoopSegment"),
+            Ref("ScriptingLoopSegment"),
+            Ref("ScriptingRepeatLoopSegment"),
+            Ref("ScriptingBreakStatementSegment"),
+            Ref("ScriptingCaseStatementSegment"),
             Ref("CreateEventTableStatementSegment"),
             Ref("CreatePasswordPolicyStatementSegment"),
             Ref("AlterPasswordPolicyStatementSegment"),
@@ -4465,9 +4474,13 @@ class ScriptingBlockStatementSegment(BaseSegment):
             terminators=[
                 OneOf(
                     Sequence(Ref("DelimiterGrammar"), "END"),
-                    # Don't terminate on an "END FOR", because that's a different
-                    # expression.
-                    exclude=Sequence(Ref("DelimiterGrammar"), "END", "FOR"),
+                    # Don't terminate on the "END" of a nested loop or CASE
+                    # statement, because those are different expressions.
+                    exclude=Sequence(
+                        Ref("DelimiterGrammar"),
+                        "END",
+                        OneOf("FOR", "WHILE", "LOOP", "REPEAT", "CASE"),
+                    ),
                 ),
             ],
             # NOTE: We can't be greedy because there may be nested loops. This
@@ -10834,8 +10847,31 @@ class AlterMaskingPolicySegment(BaseSegment):
     )
 
 
+def _scripting_loop_body(terminator) -> tuple:
+    """The statement list shared by the Snowflake Scripting loop segments.
+
+    The loop segments differ only in their opening and closing keywords, so
+    they share the body: one or more delimited statements, terminated by the
+    closing keywords of the given loop type.
+    """
+    return (
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
+                Ref("StatementSegment"),
+            ),
+            terminators=[terminator],
+        ),
+        # There must be a trailing semicolon
+        Ref("DelimiterGrammar"),
+        Dedent,
+    )
+
+
 class ForInLoopSegment(BaseSegment):
     """FOR...IN...DO...END FOR statement.
+
+    Covers both the cursor/RESULTSET loop and the counter loop.
 
     https://docs.snowflake.com/en/developer-guide/snowflake-scripting/loops#for-loop
     """
@@ -10848,23 +10884,183 @@ class ForInLoopSegment(BaseSegment):
                 "FOR",
                 Ref("LocalVariableNameSegment"),
                 "IN",
-                Ref("LocalVariableNameSegment"),
-                "DO",
-                Indent,
+                OneOf(
+                    # Counter loop: FOR <var> IN [REVERSE] <start> TO <end>
+                    Sequence(
+                        Ref.keyword("REVERSE", optional=True),
+                        Ref("ExpressionSegment"),
+                        "TO",
+                        Ref("ExpressionSegment"),
+                    ),
+                    # Cursor or RESULTSET loop
+                    Ref("LocalVariableNameSegment"),
+                ),
+                OneOf("DO", "LOOP"),
             ),
-            Delimited(
-                Ref("StatementSegment"),
-                delimiter=Ref("DelimiterGrammar"),
-            ),
-            parse_mode=ParseMode.GREEDY_ONCE_STARTED,
-            reset_terminators=True,
-            terminators=[Sequence(Ref("DelimiterGrammar"), "END", "FOR")],
+            Indent,
+            Ref("StatementSegment"),
         ),
-        # There must be a trailing semicolon
-        Ref("DelimiterGrammar"),
-        Dedent,
+        *_scripting_loop_body(
+            Sequence(Ref("DelimiterGrammar"), "END", OneOf("FOR", "LOOP"))
+        ),
         "END",
-        "FOR",
+        OneOf("FOR", "LOOP"),
+        Ref("ScriptingLoopLabelGrammar", optional=True),
+        reset_terminators=True,
+    )
+
+
+class ScriptingWhileLoopSegment(BaseSegment):
+    """WHILE...DO...END WHILE statement.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/while
+    """
+
+    type = "while_loop_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            Sequence(
+                "WHILE",
+                # The documented syntax requires the parenthesised condition.
+                Bracketed(Ref("ExpressionSegment")),
+                OneOf("DO", "LOOP"),
+            ),
+            Indent,
+            Ref("StatementSegment"),
+        ),
+        *_scripting_loop_body(
+            Sequence(Ref("DelimiterGrammar"), "END", OneOf("WHILE", "LOOP"))
+        ),
+        "END",
+        OneOf("WHILE", "LOOP"),
+        Ref("ScriptingLoopLabelGrammar", optional=True),
+        reset_terminators=True,
+    )
+
+
+class ScriptingLoopSegment(BaseSegment):
+    """LOOP...END LOOP statement.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/loop
+    """
+
+    type = "loop_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "LOOP",
+            Indent,
+            Ref("StatementSegment"),
+        ),
+        *_scripting_loop_body(Sequence(Ref("DelimiterGrammar"), "END", "LOOP")),
+        "END",
+        "LOOP",
+        Ref("ScriptingLoopLabelGrammar", optional=True),
+        reset_terminators=True,
+    )
+
+
+class ScriptingRepeatLoopSegment(BaseSegment):
+    """REPEAT...UNTIL...END REPEAT statement.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/repeat
+    """
+
+    type = "repeat_loop_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "REPEAT",
+            Indent,
+            Ref("StatementSegment"),
+        ),
+        *_scripting_loop_body(Sequence(Ref("DelimiterGrammar"), "UNTIL")),
+        "UNTIL",
+        # The documented syntax requires the parenthesised condition.
+        Bracketed(Ref("ExpressionSegment")),
+        "END",
+        "REPEAT",
+        Ref("ScriptingLoopLabelGrammar", optional=True),
+        reset_terminators=True,
+    )
+
+
+class ScriptingBreakStatementSegment(BaseSegment):
+    """BREAK / CONTINUE statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/break
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/continue
+    """
+
+    type = "scripting_break_statement"
+
+    match_grammar = Sequence(
+        OneOf("BREAK", "CONTINUE", "ITERATE"),
+        Ref("ScriptingLoopLabelGrammar", optional=True),
+    )
+
+
+class ScriptingCaseStatementSegment(BaseSegment):
+    """A `CASE` statement for SQL scripting.
+
+    Unlike the CASE expression, the branches of a CASE statement hold
+    statements rather than expressions.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/case
+    """
+
+    type = "scripting_case_statement"
+
+    match_grammar = Sequence(
+        "CASE",
+        OptionallyBracketed(Ref("ExpressionSegment"), optional=True),
+        AnyNumberOf(
+            Sequence(
+                "WHEN",
+                Ref("ExpressionSegment"),
+                "THEN",
+                Indent,
+                Ref("StatementSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("DelimiterGrammar"),
+                        Ref("StatementSegment"),
+                    ),
+                    terminators=[
+                        Sequence(
+                            Ref("DelimiterGrammar"),
+                            OneOf("WHEN", "ELSE", "END"),
+                        ),
+                    ],
+                ),
+                Ref("DelimiterGrammar"),
+                Dedent,
+            ),
+            min_times=1,
+            reset_terminators=True,
+            terminators=[OneOf("ELSE", "END")],
+        ),
+        Sequence(
+            "ELSE",
+            Indent,
+            Ref("StatementSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DelimiterGrammar"),
+                    Ref("StatementSegment"),
+                ),
+                terminators=[
+                    Sequence(Ref("DelimiterGrammar"), "END"),
+                ],
+            ),
+            Ref("DelimiterGrammar"),
+            Dedent,
+            optional=True,
+        ),
+        "END",
+        Ref.keyword("CASE", optional=True),
+        reset_terminators=True,
     )
 
 
