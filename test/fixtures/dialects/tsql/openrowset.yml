@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 52a7a08a72ad411173d5547e1d0f83859d89af746bc0edb9875e6aca8e6729db
+_hash: bc8ffc29f25fd7c55c09689285b98d24444ff151228be78b03f3b99139849fc5
 file:
 - batch:
     statement:
@@ -440,13 +440,14 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: Document
-                bracketed:
-                  start_bracket: (
-                  identifier_list:
-                  - naked_identifier: column1
-                  - comma: ','
-                  - naked_identifier: column2
-                  end_bracket: )
+                alias_column_list:
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - naked_identifier: column1
+                    - comma: ','
+                    - naked_identifier: column2
+                    end_bracket: )
     statement_terminator: ;
     go_statement:
       keyword: GO
