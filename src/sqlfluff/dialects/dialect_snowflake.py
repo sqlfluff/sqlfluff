@@ -11278,7 +11278,12 @@ class ScriptingRaiseStatementSegment(BaseSegment):
     """
 
     type = "scripting_raise_statement"
-    match_grammar = Ref.keyword("RAISE")
+    match_grammar = Sequence(
+        "RAISE",
+        # The exception name is omitted only when re-raising the exception
+        # currently being handled from inside an exception handler.
+        Ref("NakedIdentifierSegment", optional=True),
+    )
 
 
 class LambdaExpressionSegment(BaseSegment):
