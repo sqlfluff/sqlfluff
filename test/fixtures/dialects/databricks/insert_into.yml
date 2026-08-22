@@ -1,0 +1,1115 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a6ba1c9d4ce5a70a12a4591fab65d8ab1d28008fc0c736759af6016752c5a742
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: students
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'123 Park Ave'"
+        - comma: ','
+        - expression:
+            numeric_literal: '111111'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: students
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: name
+      - comma: ','
+      - column_reference:
+          naked_identifier: address
+      - comma: ','
+      - column_reference:
+          naked_identifier: student_id
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'123 Park Ave'"
+        - comma: ','
+        - expression:
+            numeric_literal: '111111'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: named_struct
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'a'"
+                - comma: ','
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    quoted_literal: "'b'"
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: s
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '0'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: n
+        - comma: ','
+        - select_clause_element:
+            quoted_literal: "'data'"
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: text
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        naked_identifier: students
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Ashua Hill'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'456 Erica Ct'"
+        - comma: ','
+        - expression:
+            numeric_literal: '111111'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        naked_identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '111111'
+        end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: address
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: persons
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: name
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'Amy Smith'"
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '222222'
+        end_bracket: )
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: address
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: persons
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: name
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'Dora Williams'"
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: sales
+    - keyword: REPLACE
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: tx_date
+        - keyword: BETWEEN
+        - quoted_literal: "'2022-10-01'"
+        - keyword: AND
+        - quoted_literal: "'2022-10-31'"
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            keyword: DATE
+            date_constructor_literal: "'2022-10-01'"
+        - comma: ','
+        - expression:
+            numeric_literal: '1237'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            keyword: DATE
+            date_constructor_literal: "'2022-10-02'"
+        - comma: ','
+        - expression:
+            numeric_literal: '2378'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: sales
+    - keyword: BY
+    - keyword: NAME
+    - keyword: REPLACE
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: tx_date
+        - keyword: BETWEEN
+        - quoted_literal: "'2022-10-01'"
+        - keyword: AND
+        - quoted_literal: "'2022-10-31'"
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            bracketed:
+              start_bracket: (
+              from_expression_element:
+                bracketed:
+                  start_bracket: (
+                  table_expression:
+                    values_clause:
+                    - keyword: VALUES
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '1237'
+                      - comma: ','
+                      - expression:
+                          keyword: DATE
+                          date_constructor_literal: "'2022-10-01'"
+                      - end_bracket: )
+                    - comma: ','
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '2378'
+                      - comma: ','
+                      - expression:
+                          keyword: DATE
+                          date_constructor_literal: "'2022-10-02'"
+                      - end_bracket: )
+                  end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - naked_identifier: amount
+                    - comma: ','
+                    - naked_identifier: tx_date
+                    end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: REPLACE
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: country
+        end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: new_students
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: BY
+    - keyword: NAME
+    - keyword: REPLACE
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: country
+        end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  values_clause:
+                  - keyword: VALUES
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: "'US'"
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'Sophie'"
+                    - end_bracket: )
+                  - comma: ','
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: "'UK'"
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'Oliver'"
+                    - end_bracket: )
+                end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: t
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                  - naked_identifier: country
+                  - comma: ','
+                  - naked_identifier: name
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: AS
+    - naked_identifier: t
+    - keyword: REPLACE
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+        - naked_identifier: t
+        - dot: .
+        - naked_identifier: name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: name
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: people
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - naked_identifier: t
+    - keyword: REPLACE
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+        - naked_identifier: t
+        - dot: .
+        - naked_identifier: name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: name
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: people
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: AS
+    - naked_identifier: t
+    - keyword: BY
+    - keyword: NAME
+    - keyword: REPLACE
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+        - naked_identifier: t
+        - dot: .
+        - naked_identifier: name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: name
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  values_clause:
+                  - keyword: VALUES
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: "'query'"
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'Bob'"
+                    - end_bracket: )
+                  - comma: ','
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: "'query'"
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'Charlie'"
+                    - end_bracket: )
+                end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: s
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                  - naked_identifier: row_origin
+                  - comma: ','
+                  - naked_identifier: name
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: AS
+    - naked_identifier: t
+    - keyword: REPLACE
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+        - naked_identifier: t
+        - dot: .
+        - naked_identifier: name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: name
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: people
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: s
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - naked_identifier: t
+    - keyword: REPLACE
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+        - naked_identifier: t
+        - dot: .
+        - naked_identifier: name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: name
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: people
+              alias_expression:
+                naked_identifier: s
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: EVOLUTION
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: new_students
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: EVOLUTION
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: named_struct
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'a'"
+                - comma: ','
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    quoted_literal: "'b'"
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: s
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '0'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: n
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: EVOLUTION
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: sales
+    - keyword: BY
+    - keyword: NAME
+    - keyword: REPLACE
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: tx_date
+        - keyword: BETWEEN
+        - quoted_literal: "'2022-10-01'"
+        - keyword: AND
+        - quoted_literal: "'2022-10-31'"
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: amount
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: tx_date
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: new_sales
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        naked_identifier: students
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: address
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: student_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: persons
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: name
+      - comma: ','
+      - column_reference:
+          naked_identifier: address
+      - comma: ','
+      - column_reference:
+          naked_identifier: student_id
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: address
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: student_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: persons
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: students
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: visiting_students
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        naked_identifier: students
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: visiting_students
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: students
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: persons
+    - keyword: SELECT
+    - column_reference:
+        naked_identifier: name
+    - comma: ','
+    - column_reference:
+        naked_identifier: address
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: qualified
+          comparison_operator:
+            raw_comparison_operator: '='
+          boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '11215017'
+        end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: address
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Hangzhou, China'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'Kent Yao Jr.'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        naked_identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '11215017'
+        end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: address
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Hangzhou, China'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'Kent Yao Jr.'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        naked_identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '222222'
+        end_bracket: )
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: address
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: persons
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '333333'
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Bob Jones'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'789 Main St'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: EVOLUTION
+    - keyword: OVERWRITE
+    - table_reference:
+        naked_identifier: students
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: new_students
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: EVOLUTION
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: BY
+    - keyword: NAME
+    - keyword: REPLACE
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: country
+        end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: new_students
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: EVOLUTION
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: AS
+    - naked_identifier: t
+    - keyword: BY
+    - keyword: NAME
+    - keyword: REPLACE
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+        - naked_identifier: t
+        - dot: .
+        - naked_identifier: name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: name
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  values_clause:
+                  - keyword: VALUES
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: "'Alice'"
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'US'"
+                    - end_bracket: )
+                  - comma: ','
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: "'Bob'"
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'UK'"
+                    - end_bracket: )
+                end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: s
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                  - naked_identifier: name
+                  - comma: ','
+                  - naked_identifier: country
+                  end_bracket: )
+- statement_terminator: ;
