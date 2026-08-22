@@ -2084,3 +2084,79 @@ def test__templater_jinja_dotted_context_config():
 
     # The template should render with the nested values
     assert str(outstr) == "SELECT * FROM `myproject.prod_test.table`"
+
+
+def test__templater_jinja_custom_variable_delimiters():
+    """Test custom variable delimiters (e.g. Snowflake CLI <% var %>).
+
+    See issue #7598: Snowflake CLI uses <% varname %> instead of {{ varname }}.
+    """
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = snowflake\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "variable_start_string = <%\n"
+        "variable_end_string = %>\n"
+    )
+    t = JinjaTemplater(override_context=dict(table_name="my_table", identifier="42"))
+    instr = "SELECT * FROM <% table_name %> WHERE id = <% identifier %>\n"
+    outstr, vs = t.process(in_str=instr, fname="test.sql", config=config)
+    assert str(outstr) == "SELECT * FROM my_table WHERE id = 42\n"
+    assert len(vs) == 0
+
+
+def test__templater_jinja_custom_block_delimiters():
+    """Test custom block delimiters for control flow.
+
+    See issue #7598: users may want to override {% %} delimiters too.
+    """
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "block_start_string = <%\n"
+        "block_end_string = %>\n"
+        "variable_start_string = <<\n"
+        "variable_end_string = >>\n"
+    )
+    t = JinjaTemplater(override_context=dict(cols=["a", "b", "c"]))
+    instr = "<% for c in cols %> << c >><% if not loop.last %>, <% endif %><% endfor %>"
+    outstr, vs = t.process(in_str=instr, fname="test.sql", config=config)
+    assert str(outstr) == " a,  b,  c"
+    assert len(vs) == 0
+
+
+def test__templater_jinja_custom_block_delimiters_variants():
+    """Test that variant generation respects custom block delimiters.
+
+    See issue #7598: variant generation in _handle_unreached_code() must
+    use the configured delimiters when building override tags, otherwise
+    custom-delimiter templates with unreached conditional branches
+    produce invalid variants.
+    """
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "block_start_string = <%\n"
+        "block_end_string = %>\n"
+        "variable_start_string = <<\n"
+        "variable_end_string = >>\n"
+    )
+    t = JinjaTemplater(override_context=dict(flag=False))
+    instr = "<% if flag %>SELECT 1<% else %>SELECT 2<% endif %>"
+    variants = list(
+        t.process_with_variants(in_str=instr, fname="test.sql", config=config)
+    )
+    # First variant: flag is False, so SELECT 2
+    assert str(variants[0][0]) == "SELECT 2"
+    # A variant should be generated that forces the unreached True branch,
+    # producing SELECT 1. This proves the override tag used the configured
+    # <% %> delimiters — if it had used default {% %}, the variant would
+    # fail to parse and no SELECT 1 variant would appear.
+    variant_outputs = {str(v[0]) for v in variants}
+    assert "SELECT 1" in variant_outputs
+    assert "SELECT 2" in variant_outputs
