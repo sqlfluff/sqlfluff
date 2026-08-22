@@ -10175,7 +10175,11 @@ class CallStatementSegment(BaseSegment):
         ),
         Sequence(
             "INTO",
-            Ref("BindVariableSegment"),
+            OneOf(
+                Ref("BindVariableSegment"),
+                Ref("LocalVariableNameSegment"),
+                Ref("SingleIdentifierGrammar"),
+            ),
             optional=True,
         ),
     )
