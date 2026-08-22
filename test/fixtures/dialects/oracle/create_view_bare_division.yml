@@ -1,0 +1,112 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 44166436eb967db4994964b4d3d24da7584635a9f1554a21a828a94d9a8cea9b
+file:
+  batch:
+  - statement:
+      create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+          naked_identifier: myview
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              expression:
+              - numeric_literal: '1'
+              - binary_operator: /
+              - numeric_literal: '100'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: z
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+          naked_identifier: ratios
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              expression:
+              - function:
+                  function_name:
+                    function_name_identifier: nvl
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: bytes
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '0'
+                    - end_bracket: )
+              - binary_operator: /
+              - numeric_literal: '1024'
+              - binary_operator: /
+              - numeric_literal: '1024'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: size_mb
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: stats
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                naked_identifier: sample_time
+            - comparison_operator:
+                raw_comparison_operator: '>'
+            - bare_function: sysdate
+            - binary_operator: '-'
+            - numeric_literal: '1'
+            - binary_operator: /
+            - numeric_literal: '24'
+  - statement_terminator: ;
+  - statement:
+      create_view_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: VIEW
+      - table_reference:
+          naked_identifier: example
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: smthng
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: smwhr
+  - slash_buffer_executor:
+      slash: /
