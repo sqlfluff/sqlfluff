@@ -1,0 +1,65 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cfd44590f03bbdbce3ff3755c38ecaaedbfa78570e534b759447ba95f7ac4149
+file:
+- statement:
+    install_statement:
+      keyword: INSTALL
+      naked_identifier: spatial
+- statement_terminator: ;
+- statement:
+    install_statement:
+      keyword: INSTALL
+      naked_identifier: httpfs
+- statement_terminator: ;
+- statement:
+    load_statement:
+      keyword: LOAD
+      naked_identifier: spatial
+- statement_terminator: ;
+- statement:
+    load_statement:
+      keyword: LOAD
+      naked_identifier: httpfs
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: FORCE
+    - keyword: INSTALL
+    - naked_identifier: spatial
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: INSTALL
+    - naked_identifier: h3
+    - keyword: FROM
+    - naked_identifier: community
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: FORCE
+    - keyword: INSTALL
+    - naked_identifier: httpfs
+    - keyword: FROM
+    - naked_identifier: core_nightly
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: INSTALL
+    - naked_identifier: spatial
+    - keyword: FROM
+    - quoted_literal: "'https://some.custom/repository'"
+- statement_terminator: ;
+- statement:
+    install_statement:
+      keyword: INSTALL
+      quoted_literal: "'path/to/spatial.duckdb_extension'"
+- statement_terminator: ;
+- statement:
+    load_statement:
+      keyword: LOAD
+      quoted_literal: "'path/to/spatial.duckdb_extension'"
+- statement_terminator: ;
