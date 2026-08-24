@@ -1231,7 +1231,7 @@ snowflake_dialect.replace(
                 "UUID",
                 # Vector data types
                 "VECTOR",
-                # Scriptiong data types
+                # Scripting data types
                 # https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables
                 "RESULTSET",
                 "CURSOR",
