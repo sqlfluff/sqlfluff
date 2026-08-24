@@ -181,3 +181,24 @@ fail_oracle_modulo_still_spaced:
   configs:
     core:
       dialect: oracle
+
+pass_consecutive_sign_indicators:
+  # Touching these would produce "--" and comment out the rest of the line, so
+  # the gap is left alone rather than reported as an unsatisfiable violation.
+  pass_str: |
+    SELECT 1 * - -5
+
+fail_consecutive_sign_indicators_outer_spacing:
+  # Only the gap which would build the comment marker is exempt - the space
+  # between the last sign indicator and its operand is still removed.
+  fail_str: |
+    SELECT 1 * - - - 5
+  fix_str: |
+    SELECT 1 * - - -5
+
+fail_consecutive_sign_indicators_trailing_code:
+  # The code after the pair must survive the fix.
+  fail_str: |
+    SELECT 1 * - - 5 AS c, 2 AS d
+  fix_str: |
+    SELECT 1 * - -5 AS c, 2 AS d
