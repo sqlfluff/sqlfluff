@@ -1663,24 +1663,20 @@ class FromExpressionElementSegment(BaseSegment):
         _base_from_expression_element,
         Bracketed(
             Sequence(
-                OneOf(
-                    _base_from_expression_element,
-                    # Redundant brackets may wrap a join used as a join target,
-                    # e.g. `LEFT JOIN ((b INNER JOIN c ON TRUE)) ON TRUE`. The
-                    # inner bracket has to carry a join of its own, so this
-                    # alternative can never compete with the plain bracketed
-                    # table above, which already parses. See #8382.
-                    Bracketed(
-                        Sequence(
-                            _base_from_expression_element,
-                            AnyNumberOf(
-                                Ref("JoinClauseSegment"),
-                                min_times=1,
-                            ),
-                        ),
-                    ),
-                ),
+                _base_from_expression_element,
                 AnyNumberOf(Ref("JoinClauseSegment")),
+            ),
+        ),
+        # Redundant brackets around a bracketed joined table used as a join
+        # target, e.g. `LEFT JOIN ((b INNER JOIN c ON TRUE)) ON TRUE`. A
+        # sibling alternative rather than a nested OneOf above, so it is only
+        # reached once the branches that already parse have failed. See #8382.
+        Bracketed(
+            Bracketed(
+                Sequence(
+                    _base_from_expression_element,
+                    AnyNumberOf(Ref("JoinClauseSegment"), min_times=1),
+                ),
             ),
         ),
     )

@@ -100,7 +100,3 @@ order by
 select 1
 from a
 left join ((b inner join c on true)) on true;
-
-select 1
-from a
-left join ((b inner join c on true) left join d on true) on true;
