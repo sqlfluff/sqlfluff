@@ -553,10 +553,10 @@ snowflake_dialect.add(
         Ref("DynamicTableLagIntervalSegment"),
         "DOWNSTREAM",
     ),
-    # The TABLE( ... ) argument type of data metric functions, either with
-    # named columns (CREATE) or datatypes only (the signature used by
-    # ALTER / DROP / GRANT).
-    # https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    # The TABLE( ... ) argument type of data metric functions as accepted in
+    # the signature positions (ALTER / DROP / GRANT), where columns may be
+    # given as datatypes only.
+    # https://docs.snowflake.com/en/sql-reference/sql/drop-function
     DataMetricFunctionTableTypeGrammar=Sequence(
         "TABLE",
         Bracketed(
@@ -566,6 +566,20 @@ snowflake_dialect.add(
                         Ref("ParameterNameSegment"),
                         Ref("DatatypeSegment"),
                     ),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+    ),
+    # The TABLE( ... ) argument type as written in CREATE DATA METRIC
+    # FUNCTION, where every column must be named.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    DataMetricFunctionNamedTableTypeGrammar=Sequence(
+        "TABLE",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
                     Ref("DatatypeSegment"),
                 ),
             ),
@@ -4668,7 +4682,7 @@ class DataMetricFunctionParameterListSegment(ansi.FunctionParameterListGrammar):
         Delimited(
             Sequence(
                 Ref("ParameterNameSegment"),
-                Ref("DataMetricFunctionTableTypeGrammar"),
+                Ref("DataMetricFunctionNamedTableTypeGrammar"),
             ),
         ),
     )
