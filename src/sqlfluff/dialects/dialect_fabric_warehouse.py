@@ -71,6 +71,7 @@ CREATE/ALTER TABLE.
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
     BaseSegment,
     Bracketed,
     Delimited,
@@ -208,6 +209,36 @@ class TableClusterByClause(BaseSegment):
 
 
 # ------------------------------------------------------------------------
+# REFERENCES clause for FOREIGN KEY.
+#
+# T-SQL's `ReferencesConstraintGrammar` also allows an optional trailing
+# `ON DELETE <action>`, `ON UPDATE <action>` and `NOT FOR REPLICATION`.
+# None of those appear in Fabric Warehouse's authoritative FK syntax
+# diagram, which ends at the optional referenced-column list:
+#
+#   FOREIGN KEY ( column [ ,...n ] )
+#       REFERENCES referenced_table_name [ ( ref_column [ ,...n ] ) ] NOT ENFORCED
+#
+# This makes sense given FK constraints in Fabric are NOT ENFORCED
+# (metadata-only) -- there's no referential action to configure since
+# nothing is ever actually enforced or cascaded. Overriding this narrows
+# it back to just the REFERENCES table/column-list.
+# ------------------------------------------------------------------------
+class ReferencesConstraintGrammar(BaseSegment):
+    """REFERENCES clause for FOREIGN KEY constraints (Fabric Warehouse).
+
+    https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+    """
+
+    type = "references_constraint_grammar"
+    match_grammar = Sequence(
+        "REFERENCES",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+    )
+
+
+# ------------------------------------------------------------------------
 # Table-level constraints.
 #
 # https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
@@ -333,6 +364,32 @@ class ColumnConstraintSegment(BaseSegment):
 
 
 # ------------------------------------------------------------------------
+# Column definitions.
+#
+# T-SQL's own `ColumnDefinitionSegment` override bundles an inline
+# `TableIndexSegment` option directly into every column definition
+# (`AnyNumberOf(Ref("ColumnConstraintSegment", optional=True),
+# Ref("TableIndexSegment", optional=True))`), independently of
+# `ColumnConstraintSegment` above -- so narrowing `ColumnConstraintSegment`
+# alone does NOT stop a column definition from accepting an inline
+# `INDEX <name> [CLUSTERED|NONCLUSTERED] (...)` clause. Fabric Warehouse
+# has no user-managed indexes at all (confirmed at
+# https://learn.microsoft.com/en-us/fabric/data-warehouse/tables), so this
+# overrides `ColumnDefinitionSegment` itself to drop the `TableIndexSegment`
+# option, leaving only `ColumnConstraintSegment`.
+# ------------------------------------------------------------------------
+class ColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE (Fabric Warehouse)."""
+
+    type = "column_definition"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        AnyNumberOf(Ref("ColumnConstraintSegment", optional=True)),
+    )
+
+
+# ------------------------------------------------------------------------
 # CREATE TABLE.
 #
 # Rebuilt directly from the authoritative Fabric Warehouse syntax diagram
@@ -342,9 +399,11 @@ class ColumnConstraintSegment(BaseSegment):
 # T-SQL's CREATE TABLE surface (inline constraints, indexes, computed
 # columns, temporal PERIOD FOR SYSTEM_TIME, filegroups/FILESTREAM, LIKE)
 # turned out not to exist in that diagram at all. Kept:
-#   * The plain column-list form, using ColumnDefinitionSegment (which
-#     picks up the narrowed ColumnConstraintSegment above) and
-#     TableClusterByClause for the optional WITH (CLUSTER BY (...)).
+#   * The plain column-list form, using the fabric_warehouse-specific
+#     ColumnDefinitionSegment above (narrowed to drop the inline
+#     TableIndexSegment option, and which itself picks up the narrowed
+#     ColumnConstraintSegment) and TableClusterByClause for the optional
+#     WITH (CLUSTER BY (...)).
 #   * The `CREATE TABLE ... AS <select>` form (see
 #     CreateTableAsSelectStatementSegment below for the CTAS-specific
 #     shape confirmed on the data-clustering page).
@@ -389,6 +448,15 @@ class CreateTableStatementSegment(BaseSegment):
 # both gone: no distribution/index clause concept any more (see
 # TableClusterByClause above), and OptionClauseSegment (query hints) has
 # no confirmed support here either, so it's dropped rather than assumed.
+#
+# The optional column list here is for *renaming* CTAS output columns
+# (e.g. `CREATE TABLE t (renamed_a, renamed_b) AS SELECT a, b FROM x`) --
+# CTAS always derives its column *types* from the SELECT, so unlike plain
+# CREATE TABLE this must be a bare identifier list, not
+# `ColumnDefinitionSegment` (name + mandatory datatype). This reuses
+# ANSI's existing `BracketedColumnReferenceListGrammar` rather than
+# hand-rolling another bracketed/delimited identifier list (it already
+# includes its own brackets, hence no extra `Bracketed(...)` wrapper here).
 # ------------------------------------------------------------------------
 class CreateTableAsSelectStatementSegment(BaseSegment):
     """A `CREATE TABLE AS SELECT` statement (Fabric Warehouse).
@@ -401,13 +469,7 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         "CREATE",
         "TABLE",
         Ref("TableReferenceSegment"),
-        Bracketed(
-            Delimited(
-                Ref("ColumnDefinitionSegment"),
-                allow_trailing=True,
-            ),
-            optional=True,
-        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
         Ref("TableClusterByClause", optional=True),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
