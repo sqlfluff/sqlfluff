@@ -1,0 +1,102 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 16f72a0afca5114daff34a4d6e761684b7bd7f21bec634793520a60b4b9fabc7
+file:
+  batch:
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+      - keyword: ADD
+      - naked_identifier: region_name
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '100'
+              end_bracket: )
+      - keyword: 'NULL'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: region_name
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+      - keyword: ADD
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: UQ_customer
+        - keyword: UNIQUE
+        - keyword: NONCLUSTERED
+        - bracketed_index_column_list_grammar:
+            bracketed:
+              start_bracket: (
+              index_column_definition:
+                naked_identifier: customer_name
+              end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: UQ_customer
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_definition:
+          naked_identifier: customer_name
+          data_type:
+            keyword: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  integer_literal: '300'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+  - statement_terminator: ;

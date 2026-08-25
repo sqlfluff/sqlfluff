@@ -1,0 +1,127 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f18bf0e7f338ae48e27b61fa40b878fbc22f866e061863b96d4b9f3b551f0246
+file:
+  batch:
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: customer_id
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: customer_name
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '200'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+      - keyword: ADD
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: PK_customer
+        - keyword: PRIMARY
+        - keyword: KEY
+        - keyword: NONCLUSTERED
+        - bracketed_index_column_list_grammar:
+            bracketed:
+              start_bracket: (
+              index_column_definition:
+                naked_identifier: customer_id
+              end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: orders
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: order_id
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: customer_id
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: orders
+      - keyword: ADD
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: FK_orders_customer
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: customer_id
+            end_bracket: )
+        - references_constraint_grammar:
+            keyword: REFERENCES
+            table_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: customer
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: customer_id
+              end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+  - statement_terminator: ;
