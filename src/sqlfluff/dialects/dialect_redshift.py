@@ -3173,7 +3173,7 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
 
 
 class AccessObjectSegment(ansi.AccessObjectSegment):
-    """An access permission segment for Redshift."""
+    """An access object segment for Redshift."""
 
     match_grammar = ansi.AccessObjectSegment.match_grammar.copy(
         insert=[Sequence("COPY", "JOBS")],
