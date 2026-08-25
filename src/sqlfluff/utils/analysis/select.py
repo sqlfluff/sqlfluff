@@ -414,7 +414,13 @@ def _get_lambda_argument_columns(
                 ),
             )
 
-            assert len(argument_segments) == 1
+            if len(argument_segments) != 1:
+                # The `->` isn't really a lambda arrow. Some dialects reuse `->`
+                # as a binary operator (e.g. duckdb/trino JSON extraction, as in
+                # `1::json -> 'a'`), where the left operand isn't a single lambda
+                # parameter. Those contribute no lambda argument columns, so skip
+                # rather than crashing the whole analyzer.
+                continue
             child_segment = argument_segments[0]
 
             if child_segment.is_type("bracketed"):
