@@ -2,11 +2,12 @@
 
 The fixture-based auto-discovery in `dialects_test.py` only covers SQL that
 is expected to parse *successfully* -- there's no fixture-file convention
-for asserting a parse failure. These three cases were found by an
-automated code review of the initial version of this dialect (each one
-was, at the time, incorrectly accepted because a segment was inherited
-unchanged from `tsql` rather than narrowed for Fabric Warehouse) and are
-pinned here as permanent regressions, following the same pattern as
+for asserting a parse failure. These four cases were found by automated
+code review of earlier versions of this dialect (each one was, at the
+time, incorrectly accepted because a segment was inherited unchanged from
+`tsql`, or reused an ANSI grammar that was too permissive, rather than
+being narrowed for Fabric Warehouse) and are pinned here as permanent
+regressions, following the same pattern as
 `test__dialect__rejects_trailing_comma_after_final_cte` above.
 """
 
@@ -28,6 +29,14 @@ from sqlfluff.core import Linter
         # though T-SQL's ReferencesConstraintGrammar allows them.
         "ALTER TABLE dbo.t ADD CONSTRAINT FK_t FOREIGN KEY (a) "
         "REFERENCES dbo.t2 (a) ON DELETE CASCADE NOT ENFORCED;",
+        # CTAS output-column renaming introduces brand-new, unqualified
+        # names for the table being created -- there is no table/schema to
+        # qualify them against, so a *qualified* rename column must not
+        # parse, even though an earlier draft's use of
+        # BracketedColumnReferenceListGrammar (built on ColumnReferenceSegment,
+        # which allows dotted names) would have accepted it.
+        "CREATE TABLE dbo.t2 (dbo.renamed_a, renamed_b) AS "
+        "SELECT a, b FROM dbo.t;",
     ],
 )
 def test__dialect__fabric_warehouse_rejects_unsupported_constructs(sql: str) -> None:

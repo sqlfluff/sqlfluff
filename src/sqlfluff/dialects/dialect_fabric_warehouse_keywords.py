@@ -21,8 +21,6 @@ repeated here to avoid two copies of the same rationale drifting apart.
 from sqlfluff.dialects.dialect_tsql_keywords import (
     FUTURE_RESERVED_KEYWORDS,
     RESERVED_KEYWORDS,
-)
-from sqlfluff.dialects.dialect_tsql_keywords import (
     UNRESERVED_KEYWORDS as _TSQL_UNRESERVED_KEYWORDS,
 )
 

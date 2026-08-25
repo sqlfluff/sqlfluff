@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4a0a790e0f28dd404fcbfb65d8384a883c5e86b3965bc395985443688968f4b6
+_hash: 6de0be9fb4ce0afad1011a79253b473218da44989587592e21808d25fd86a231
 file:
   batch:
     statement:
@@ -16,11 +16,9 @@ file:
         - naked_identifier: customer_renamed
       - bracketed:
         - start_bracket: (
-        - column_reference:
-            naked_identifier: id
+        - naked_identifier: id
         - comma: ','
-        - column_reference:
-            naked_identifier: full_name
+        - naked_identifier: full_name
         - end_bracket: )
       - table_cluster_by_clause:
           keyword: WITH

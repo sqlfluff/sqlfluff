@@ -453,10 +453,18 @@ class CreateTableStatementSegment(BaseSegment):
 # (e.g. `CREATE TABLE t (renamed_a, renamed_b) AS SELECT a, b FROM x`) --
 # CTAS always derives its column *types* from the SELECT, so unlike plain
 # CREATE TABLE this must be a bare identifier list, not
-# `ColumnDefinitionSegment` (name + mandatory datatype). This reuses
-# ANSI's existing `BracketedColumnReferenceListGrammar` rather than
-# hand-rolling another bracketed/delimited identifier list (it already
-# includes its own brackets, hence no extra `Bracketed(...)` wrapper here).
+# `ColumnDefinitionSegment` (name + mandatory datatype).
+#
+# An earlier draft reused ANSI's `BracketedColumnReferenceListGrammar`
+# (`Bracketed(Delimited(Ref("ColumnReferenceSegment")))`) here, but an
+# automated PR review caught that this was too permissive:
+# `ColumnReferenceSegment` inherits `ObjectReferenceSegment`'s dotted,
+# multi-part grammar, so it would also accept a *qualified* name like
+# `(dbo.renamed_a, renamed_b)`. A CTAS rename list only ever introduces
+# brand-new, unqualified output-column names for the table being created
+# -- there is no table/schema to qualify them against -- so this is
+# rebuilt as a dedicated bracketed, delimited list of bare
+# `SingleIdentifierGrammar` instead, which cannot accept a dotted name.
 # ------------------------------------------------------------------------
 class CreateTableAsSelectStatementSegment(BaseSegment):
     """A `CREATE TABLE AS SELECT` statement (Fabric Warehouse).
@@ -469,7 +477,10 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         "CREATE",
         "TABLE",
         Ref("TableReferenceSegment"),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Bracketed(
+            Delimited(Ref("SingleIdentifierGrammar")),
+            optional=True,
+        ),
         Ref("TableClusterByClause", optional=True),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
