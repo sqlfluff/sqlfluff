@@ -225,7 +225,7 @@ snowflake_dialect.sets("warehouse_scaling_policies").update(
 
 snowflake_dialect.sets("refreshmode_types").clear()
 snowflake_dialect.sets("refreshmode_types").update(
-    ["ADAPTIVE", "AUTO", "FULL", "INCREMENTAL"],
+    ["ADAPTIVE", "AUTO", "CUSTOM_INCREMENTAL", "FULL", "INCREMENTAL"],
 )
 
 snowflake_dialect.sets("initialize_types").clear()
@@ -2158,15 +2158,23 @@ class ChangesClauseSegment(BaseSegment):
     """A `CHANGES` clause.
 
     https://docs.snowflake.com/en/sql-reference/constructs/changes.html
+
+    Inside a custom incremental dynamic table the change interval is bound
+    automatically, so both `INFORMATION` and the `AT`/`BEFORE` time bounds
+    may be omitted (e.g. `CHANGES()`).
+    https://docs.snowflake.com/en/user-guide/dynamic-tables/custom-incrementalization
     """
 
     type = "changes_clause"
     match_grammar = Sequence(
         "CHANGES",
         Bracketed(
-            "INFORMATION",
-            Ref("ParameterAssignerSegment"),
-            OneOf("DEFAULT", "APPEND_ONLY"),
+            Sequence(
+                "INFORMATION",
+                Ref("ParameterAssignerSegment"),
+                OneOf("DEFAULT", "APPEND_ONLY"),
+                optional=True,
+            ),
             parse_mode=ParseMode.GREEDY,
         ),
         OneOf(
@@ -2188,6 +2196,7 @@ class ChangesClauseSegment(BaseSegment):
                     parse_mode=ParseMode.GREEDY,
                 ),
             ),
+            optional=True,
         ),
         Sequence(
             "END",
@@ -5684,6 +5693,23 @@ class DynamicTableOptionsSegment(BaseSegment):
                 "ROW_TIMESTAMP",
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "BACKFILL",
+                "FROM",
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "START",
+                "AT",
+                Bracketed(
+                    OneOf("STREAM", "TIMESTAMP", "STATEMENT", "OFFSET"),
+                    Ref("ParameterAssignerSegment"),
+                    Ref("ExpressionSegment"),
+                    parse_mode=ParseMode.GREEDY,
+                ),
                 optional=True,
             ),
         ),
