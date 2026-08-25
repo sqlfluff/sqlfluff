@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Run AgentScan classification
         id: agentscan
-        uses: MatteoGabriele/agentscan-action@c7d61446e7aece6bdd3edcee4558bbfc0392615e # v2.0.1
+        uses: MatteoGabriele/agentscan-action@98202262c925c508d4c1424b1dfbe17ee35b0c02 # v2.4.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           mode: "silent"
