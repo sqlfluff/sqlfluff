@@ -26,3 +26,15 @@ GRANT SELECT(cust_name, cust_phone) ON cust_profile TO user1;
 
 GRANT ROLE sample_role1 TO user1 WITH ADMIN OPTION;
 GRANT ROLE sample_role1 TO user2;
+
+-- Scoped permissions
+GRANT USAGE FOR SCHEMAS IN DATABASE "analytics" TO "dev_user";
+GRANT ALL FOR SCHEMAS IN DATABASE "analytics" TO ROLE "developers";
+GRANT ALL PRIVILEGES FOR SCHEMAS IN DATABASE "analytics" TO ROLE "developers";
+
+GRANT SELECT, UPDATE, DROP FOR TABLES IN SCHEMA "logistics" TO "dev_user";
+GRANT ALL FOR TABLES IN SCHEMA "logistics" TO "dev_user";
+GRANT ALL PRIVILEGES FOR TABLES IN DATABASE "analytics" TO "dev_user";
+
+GRANT EXECUTE FOR FUNCTIONS IN SCHEMA "logistics" TO "dev_user";
+GRANT ALL PRIVILEGES FOR FUNCTIONS IN DATABASE "analytics" TO ROLE "developers";

@@ -3161,6 +3161,14 @@ class RedshiftGroupGrantTargetSegment(BaseSegment):
     match_grammar = Sequence("GROUP", Ref("ObjectReferenceSegment"))
 
 
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """A access permission segment for Redshift."""
+
+    match_grammar = ansi.AccessPermissionSegment.match_grammar.copy(
+        insert=[Ref.keyword("DROP")],
+    )
+
+
 class GrantStatementSegment(ansi.GrantStatementSegment):
     """A `GRANT` statement.
 
@@ -3194,6 +3202,18 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
             Sequence("ROLE", Ref("RoleReferenceSegment")),
             Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
             Ref("ObjectReferenceSegment"),
+            Sequence(
+                OneOf(
+                    Ref("AccessPermissionsSegment"),
+                    "ALL",
+                    Sequence("ALL", "PRIVILEGES")
+                ),
+                "FOR",
+                Ref("AccessObjectSegment"),
+                "IN",
+                OneOf("DATABASE", "SCHEMA"),
+                Ref("ObjectReferenceSegment"),
+            ),
         ),
         OneOf(
             Sequence("TO", _group_targets),
