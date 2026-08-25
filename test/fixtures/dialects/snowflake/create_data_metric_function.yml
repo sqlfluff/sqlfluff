@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6e06b4ebdcd490cca701f0ecf9ea4d46f75070d6ef4e4454e0cb27cd70c0dafe
+_hash: 3e3e110cbe944c1be234b4acae8687597d2f24fad4b6b27b7c8574b9733f7357
 file:
 - statement:
     create_data_metric_function_statement:
@@ -163,4 +163,91 @@ file:
         data_type_identifier: NUMBER
     - keyword: AS
     - udf_body: "'SELECT COUNT_IF(arg_c1 IS NULL) FROM arg_t'"
+- statement_terminator: ;
+- statement:
+    create_data_metric_function_statement:
+    - keyword: CREATE
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: governance
+      - dot: .
+      - naked_identifier: dmfs
+      - dot: .
+      - function_name_identifier: duplicate_count
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: arg_t
+          keyword: TABLE
+          bracketed:
+            start_bracket: (
+            parameter: arg_c1
+            data_type:
+              data_type_identifier: NUMBER
+            end_bracket: )
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: NUMBER
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "'SELECT COUNT(*) - COUNT(DISTINCT arg_c1) FROM arg_t'"
+- statement_terminator: ;
+- statement:
+    create_data_metric_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SECURE
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: governance
+      - dot: .
+      - naked_identifier: dmfs
+      - dot: .
+      - function_name_identifier: multi_table
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: arg_t1
+        - keyword: TABLE
+        - bracketed:
+            start_bracket: (
+            parameter: arg_c1
+            data_type:
+              data_type_identifier: NUMBER
+            end_bracket: )
+        - comma: ','
+        - parameter: arg_t2
+        - keyword: TABLE
+        - bracketed:
+          - start_bracket: (
+          - parameter: arg_c2
+          - data_type:
+              data_type_identifier: DATE
+          - comma: ','
+          - parameter: arg_c3
+          - data_type:
+              data_type_identifier: NUMBER
+          - end_bracket: )
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: NUMBER
+    - keyword: NOT
+    - keyword: 'NULL'
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'compares two tables'"
+    - keyword: AS
+    - udf_body: "$$\n    SELECT 1\n$$"
 - statement_terminator: ;

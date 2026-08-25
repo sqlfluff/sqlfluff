@@ -26,3 +26,24 @@ CREATE SECURE DATA METRIC FUNCTION IF NOT EXISTS governance.dmfs.null_count (
 RETURNS NUMBER
 AS
 'SELECT COUNT_IF(arg_c1 IS NULL) FROM arg_t';
+
+-- LANGUAGE SQL is the only supported (and optional) language
+CREATE DATA METRIC FUNCTION governance.dmfs.duplicate_count (
+    arg_t TABLE (arg_c1 NUMBER)
+)
+RETURNS NUMBER
+LANGUAGE SQL
+AS
+'SELECT COUNT(*) - COUNT(DISTINCT arg_c1) FROM arg_t';
+
+CREATE OR REPLACE SECURE DATA METRIC FUNCTION governance.dmfs.multi_table (
+    arg_t1 TABLE (arg_c1 NUMBER),
+    arg_t2 TABLE (arg_c2 DATE, arg_c3 NUMBER)
+)
+RETURNS NUMBER NOT NULL
+LANGUAGE SQL
+COMMENT = 'compares two tables'
+AS
+$$
+    SELECT 1
+$$;
