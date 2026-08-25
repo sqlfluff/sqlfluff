@@ -3162,10 +3162,21 @@ class RedshiftGroupGrantTargetSegment(BaseSegment):
 
 
 class AccessPermissionSegment(ansi.AccessPermissionSegment):
-    """A access permission segment for Redshift."""
+    """An access permission segment for Redshift."""
 
     match_grammar = ansi.AccessPermissionSegment.match_grammar.copy(
-        insert=[Ref.keyword("DROP")],
+        insert=[
+            Ref.keyword("DROP"),
+            Ref.keyword("ALTER"),
+        ],
+    )
+
+
+class AccessObjectSegment(ansi.AccessObjectSegment):
+    """An access permission segment for Redshift."""
+
+    match_grammar = ansi.AccessObjectSegment.match_grammar.copy(
+        insert=[Sequence("COPY", "JOBS")],
     )
 
 
@@ -3206,7 +3217,7 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
                 OneOf(
                     Ref("AccessPermissionsSegment"),
                     "ALL",
-                    Sequence("ALL", "PRIVILEGES")
+                    Sequence("ALL", "PRIVILEGES"),
                 ),
                 "FOR",
                 Ref("AccessObjectSegment"),
