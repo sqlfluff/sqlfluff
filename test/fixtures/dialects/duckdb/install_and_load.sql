@@ -1,0 +1,11 @@
+INSTALL httpfs;
+INSTALL 'spatial';
+INSTALL sqlite FROM community;
+INSTALL httpfs FROM 'http://custom-repo.org';
+INSTALL 'https://example.com/path/to/extension.duckdb_extension';
+FORCE INSTALL spatial;
+FORCE INSTALL spatial FROM core_nightly;
+FORCE INSTALL 'https://example.com/path/to/extension.duckdb_extension';
+LOAD httpfs;
+LOAD 'spatial';
+LOAD '/path/to/custom_extension.duckdb_extension';

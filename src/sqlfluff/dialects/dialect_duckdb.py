@@ -68,7 +68,9 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "ASOF",
         "COMPRESSION",
         "COMPRESSION_LEVEL",
+        "FORCE",
         "GLOB",
+        "INSTALL",
         "MACRO",
         "MAP",
         "OVERWRITE",
@@ -1033,6 +1035,7 @@ class StatementSegment(postgres.StatementSegment):
         insert=[
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
+            Ref("InstallStatementSegment"),
         ]
     )
 
@@ -1431,4 +1434,45 @@ class ValuesClauseSegment(postgres.ValuesClauseSegment):
         Ref("AliasExpressionSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class LoadStatementSegment(BaseSegment):
+    """A `LOAD` statement.
+
+    https://duckdb.org/docs/extensions/overview#load
+    """
+
+    type = "load_statement"
+    match_grammar = Sequence(
+        "LOAD",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
+class InstallStatementSegment(BaseSegment):
+    """An `INSTALL` statement.
+
+    https://duckdb.org/docs/extensions/overview#install
+    """
+
+    type = "install_statement"
+    match_grammar = Sequence(
+        Sequence("FORCE", optional=True),
+        "INSTALL",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "FROM",
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
     )
