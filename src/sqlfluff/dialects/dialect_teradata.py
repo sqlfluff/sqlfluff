@@ -32,6 +32,7 @@ from sqlfluff.core.parser import (
     Sequence,
     StringParser,
     TypedParser,
+    WhitespaceSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -194,6 +195,12 @@ teradata_dialect.add(
     # A bare newline, used to terminate single-line BTEQ dot-commands so their
     # opaque arguments are not consumed across the end of the line.
     BteqNewlineGrammar=TypedParser("newline", NewlineSegment, type="newline"),
+    # Same-line whitespace (explicitly not a newline). Used to anchor a BTEQ
+    # command's arguments to its own line so a command with no arguments does
+    # not reach across the end-of-line newline into the next statement.
+    BteqInlineWhitespaceGrammar=TypedParser(
+        "whitespace", WhitespaceSegment, type="whitespace"
+    ),
     # The command word of a BTEQ dot-command that we don't model explicitly
     # (e.g. `.SET`, `.OS`, `.REMARK`, `.SHOW`). Matches any bare word.
     BteqCommandNameSegment=TypedParser(
@@ -288,27 +295,38 @@ class BteqStatementSegment(BaseSegment):
         # parse; any other command word (e.g. `.SET`, `.OS`, `.REMARK`) is
         # accepted generically so the full BTEQ command set is supported.
         OneOf(Ref("BteqKeyWordSegment"), Ref("BteqCommandNameSegment")),
-        # Structured arguments for the commands we model in detail.
-        AnyNumberOf(
-            Ref("BteqKeyWordSegment"),
-            # FILE=<path> argument, e.g. `.RUN FILE=POSTING`.
-            Sequence(
-                "FILE",
-                Ref("EqualsSegment"),
-                OneOf(Ref("QuotedLiteralSegment"), Ref("BteqFilePathSegment")),
+        # Optional arguments, anchored to the command's own line by the leading
+        # same-line whitespace. Because the outer sequence disallows gaps, a
+        # command with no arguments (e.g. `.LOGOFF`) stops here rather than
+        # skipping the end-of-line newline and absorbing the next statement.
+        Sequence(
+            Ref("BteqInlineWhitespaceGrammar"),
+            # Structured arguments for the commands we model in detail.
+            AnyNumberOf(
+                Ref("BteqKeyWordSegment"),
+                # FILE=<path> argument, e.g. `.RUN FILE=POSTING`.
+                Sequence(
+                    "FILE",
+                    Ref("EqualsSegment"),
+                    OneOf(Ref("QuotedLiteralSegment"), Ref("BteqFilePathSegment")),
+                ),
+                # if ... then: the ...
+                Sequence(Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar")),
+                optional=True,
             ),
-            # if ... then: the ...
-            Sequence(Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar")),
+            # Any remaining tokens on the line are treated as opaque command
+            # arguments, bounded by the newline (or a semicolon) so they never
+            # bleed into the following statement.
+            Anything(
+                terminators=[Ref("BteqNewlineGrammar"), Ref("SemicolonSegment")],
+                optional=True,
+            ),
+            # No gaps: the leading whitespace above must be matched explicitly
+            # (rather than skipped) to anchor the arguments to the command line.
+            allow_gaps=False,
             optional=True,
         ),
-        # Any remaining tokens on the line are treated as opaque command
-        # arguments. BTEQ commands are confined to a single line, so terminate
-        # on the newline (or a semicolon) rather than consuming the next
-        # statement.
-        Anything(
-            terminators=[Ref("BteqNewlineGrammar"), Ref("SemicolonSegment")],
-            optional=True,
-        ),
+        allow_gaps=False,
     )
 
 
