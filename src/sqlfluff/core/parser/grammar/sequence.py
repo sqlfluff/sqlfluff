@@ -512,6 +512,24 @@ class Bracketed(Sequence):
         ) as ctx:
             content_match = super().match(segments, content_start_idx, ctx)
 
+        # If the content grammar contains required (i.e. non-optional)
+        # elements, then it cannot validly match an empty bracket body.
+        # In that case a zero length content match means the content
+        # didn't match, and we shouldn't continue on to match the end
+        # bracket (which would otherwise allow empty brackets `()` to
+        # match regardless of the content grammar). By returning no
+        # match (in any parse mode), we allow any other grammars which
+        # *can* match empty brackets to be tried, or the surrounding
+        # grammar to mark the section as unparsable.
+        # https://github.com/sqlfluff/sqlfluff/issues/8368
+        if is_zero_slice(content_match.matched_slice) and any(
+            not elem.is_optional()
+            for elem in self._elements
+            if not isinstance(elem, Conditional)
+            and not (isinstance(elem, type) and issubclass(elem, Indent))
+        ):
+            return MatchResult.empty_at(idx)
+
         # Get position after content for end bracket check
         gap_start = end_bracket_idx = content_match.matched_slice.stop
 
