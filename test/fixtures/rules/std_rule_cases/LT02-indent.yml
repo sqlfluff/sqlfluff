@@ -2845,9 +2845,9 @@ test_indent_leading_segment_align_following_window_function:
         binary_operator:
           line_position: "leading:align-following"
     indentation:
-      indented_joins: True
-      allow_implicit_indents: False
-      indented_on_contents: True
+      indented_joins: true
+      allow_implicit_indents: false
+      indented_on_contents: true
 
 # Issue 6675: FROM VALUES on the same line should be acceptable
 # when implicit_indents is set to "allow".
