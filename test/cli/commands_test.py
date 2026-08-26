@@ -110,8 +110,11 @@ def test__cli__command_directed():
 
 @pytest.mark.parametrize("command", [lint, fix, cli_format])
 @pytest.mark.parametrize("processes", [1, 2])
-def test__cli__mixed_templaters(command, processes):
+def test__cli__mixed_templaters(command, processes, tmp_path):
     """CLI commands use templaters selected by nested file configuration."""
+    fixture_path = pathlib.Path("test/fixtures/linter/mixed_templaters")
+    test_path = tmp_path / "mixed_templaters"
+    shutil.copytree(fixture_path, test_path)
     result = invoke_assert_code(
         ret_code=0,
         args=[
@@ -120,8 +123,8 @@ def test__cli__mixed_templaters(command, processes):
                 "--disable-progress-bar",
                 "--processes",
                 str(processes),
-                "test/fixtures/linter/mixed_templaters/jinja.sql",
-                "test/fixtures/linter/mixed_templaters/placeholder/placeholder.sql",
+                str(test_path / "jinja.sql"),
+                str(test_path / "placeholder/placeholder.sql"),
             ],
         ],
     )
