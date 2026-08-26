@@ -63,7 +63,7 @@ jobs:
     - name: Download built wheels
       # Reuse the Linux x86_64 abi3 wheel across all supported CPython versions.
       if: ${{ inputs.with-rust == '-rust' }}
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
       with:
         path: ./dist
         name: wheels-linux-x86_64
@@ -105,7 +105,7 @@ jobs:
         for file in .coverage.*; do mv "$file" "$file.$COVSUFFIX"; done;
 
     - name: Upload coverage data (github)
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
       if: ${{ inputs.coverage }}
       with:
         name: coverage-data-py${{ inputs.python-version }}-${{ inputs.marks }}${{ inputs.with-rust }}

@@ -12,6 +12,6 @@ jobs:
     if: github.repository == 'sqlfluff/sqlfluff'
     steps:
     - name: Update release notes
-      uses: release-drafter/release-drafter@34d80673e067bdc0c24568d3af899c216adcfaa9 # v7.7.0
+      uses: release-drafter/release-drafter@34d80673e067bdc0c24568d3af899c216adcfaa9  # v7.7.0
       with:
-        token:  ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
