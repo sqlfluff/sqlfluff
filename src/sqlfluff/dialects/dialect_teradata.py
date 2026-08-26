@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     ImplicitIndent,
     Indent,
     Matchable,
+    NewlineSegment,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -190,6 +191,14 @@ teradata_dialect.add(
     # works where a boolean is expected (e.g. inside CASE WHEN).
     # https://docs.teradata.com/r/kmuOwjp1zEYg98JsB8fu_A/3VIgdwHNVU~tsnNiIR1aEw
     OverlapsOperatorSegment=StringParser("OVERLAPS", ComparisonOperatorSegment),
+    # A bare newline, used to terminate single-line BTEQ dot-commands so their
+    # opaque arguments are not consumed across the end of the line.
+    BteqNewlineGrammar=TypedParser("newline", NewlineSegment, type="newline"),
+    # The command word of a BTEQ dot-command that we don't model explicitly
+    # (e.g. `.SET`, `.OS`, `.REMARK`, `.SHOW`). Matches any bare word.
+    BteqCommandNameSegment=TypedParser(
+        "word", CodeSegment, type="bteq_key_word_segment"
+    ),
 )
 
 
@@ -255,18 +264,31 @@ class BteqFilePathSegment(BaseSegment):
 class BteqStatementSegment(BaseSegment):
     """Bteq statements start with a dot, followed by a Keyword.
 
-    Non exhaustive and maybe catching too many statements?
+    BTEQ has a large set of dot-prefixed control commands (``.LOGON``,
+    ``.SET``, ``.EXPORT``, ``.IMPORT``, ``.OS``, ``.REMARK`` ...), each
+    confined to a single line. Rather than modelling every command and its
+    arguments, we recognise the leading keyword(s) for the common control-flow
+    forms and then consume the remainder of the line as opaque arguments so the
+    command is accepted without producing an unparsable section.
+
+    https://docs.teradata.com/r/jmAxXLdiDu6NiyjT6hhk7g/TvACxJd5BGW6uUDX_l2O4g
 
     # BTEQ commands
     .if errorcode > 0 then .quit 2
     .IF ACTIVITYCOUNT = 0 THEN .QUIT
     .RUN FILE=POSTING
+    .LOGON tdpid/username,password
+    .EXPORT DATA FILE=out.dat
     """
 
     type = "bteq_statement"
     match_grammar = Sequence(
         Ref("DotSegment"),
-        Ref("BteqKeyWordSegment"),
+        # The command keyword. Known control-flow keywords keep a structured
+        # parse; any other command word (e.g. `.SET`, `.OS`, `.REMARK`) is
+        # accepted generically so the full BTEQ command set is supported.
+        OneOf(Ref("BteqKeyWordSegment"), Ref("BteqCommandNameSegment")),
+        # Structured arguments for the commands we model in detail.
         AnyNumberOf(
             Ref("BteqKeyWordSegment"),
             # FILE=<path> argument, e.g. `.RUN FILE=POSTING`.
@@ -276,9 +298,15 @@ class BteqStatementSegment(BaseSegment):
                 OneOf(Ref("QuotedLiteralSegment"), Ref("BteqFilePathSegment")),
             ),
             # if ... then: the ...
-            Sequence(
-                Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar"), optional=True
-            ),
+            Sequence(Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar")),
+            optional=True,
+        ),
+        # Any remaining tokens on the line are treated as opaque command
+        # arguments. BTEQ commands are confined to a single line, so terminate
+        # on the newline (or a semicolon) rather than consuming the next
+        # statement.
+        Anything(
+            terminators=[Ref("BteqNewlineGrammar"), Ref("SemicolonSegment")],
             optional=True,
         ),
     )
