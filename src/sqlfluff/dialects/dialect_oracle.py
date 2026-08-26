@@ -1206,7 +1206,7 @@ class IndexTypeReferenceSegment(BaseSegment):
 class ShowStatementSegment(BaseSegment):
     """A SQL*Plus ``SHOW`` command.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/latest/sqpug/SHOW.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/SHOW.html
     """
 
     type = "show_statement"
@@ -1238,7 +1238,7 @@ class ShowStatementSegment(BaseSegment):
                 Ref(
                     "ParameterNameSegment",
                     optional=True,
-                    exclude=OneOf("SHOW", "SET", "PROMPT"),
+                    exclude=OneOf("SHOW", "SET", "PROMPT", "SELECT"),
                 ),
             ),
             "ALL",
@@ -1246,7 +1246,7 @@ class ShowStatementSegment(BaseSegment):
             # Any other single-word option, including a SET system variable.
             Ref(
                 "ShowOptionSegment",
-                exclude=OneOf("SHOW", "SET", "PROMPT"),
+                exclude=OneOf("SHOW", "SET", "PROMPT", "SELECT"),
             ),
         ),
     )

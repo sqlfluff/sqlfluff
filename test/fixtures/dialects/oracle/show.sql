@@ -1,5 +1,5 @@
 -- SQL*Plus SHOW command.
--- https://docs.oracle.com/en/database/oracle/oracle-database/latest/sqpug/SHOW.html
+-- https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/SHOW.html
 
 SHOW ERRORS;
 
@@ -37,3 +37,5 @@ SHOW PARAMETERS
 SHOW USER
 SHOW PARAMETERS
 SET SCAN ON
+SHOW PARAMETERS
+SELECT 1 FROM DUAL;
