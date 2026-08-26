@@ -183,13 +183,6 @@ materialize_webhook_overlapping_matches:
     \ FORMAT JSON\n (\n (\n my_webhook_share"
   dialect: materialize
   expect: tree
-  xfail:
-    python_vs_rust: Since the Bracketed empty-body fix (required content grammars no
-      longer match empty brackets), Python no longer parses the leading "( ) ( );"
-      down a path that reaches the trailing unclosed brackets, so it now returns a
-      tree with an unparsable section instead of raising. Rust still raises for the
-      unresolved trailing brackets until the same Bracketed empty-body fix is
-      mirrored in bracketed.rs.
   pins: 'Originally pinned the same root cause as materialize_curly_cross_silent_recovery
     - core.rs''s match_bracket_recursively silently fabricated a close for deeply
     crossed/unmatched brackets instead of raising, and downstream the resulting
@@ -197,8 +190,8 @@ materialize_webhook_overlapping_matches:
     builder''s invariant check (ValueError). Fixed by the same change: an unresolved
     bracket now raises immediately instead of ever reaching the builder. The expectation
     later changed from error to tree when Bracketed stopped matching empty brackets
-    for required content grammars, which reroutes this input to a graceful unparsable
-    section on the Python side.'
+    for required content grammars (in both engines), which reroutes this input to a
+    graceful unparsable section instead of the raising path.'
 depth_guard_error_position:
   sql: SELECT CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN
     1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1 THEN CASE WHEN 1
