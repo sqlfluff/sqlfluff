@@ -1461,7 +1461,7 @@ class InstallStatementSegment(BaseSegment):
 
     type = "install_statement"
     match_grammar = Sequence(
-        Sequence("FORCE", optional=True),
+        Ref.keyword("FORCE", optional=True),
         "INSTALL",
         OneOf(
             Ref("SingleIdentifierGrammar"),
