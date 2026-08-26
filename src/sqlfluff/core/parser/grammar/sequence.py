@@ -474,9 +474,14 @@ class Bracketed(Sequence):
 
         How the grammar behaves on different content depends on the `parse_mode`:
 
-        - If the parse mode is `GREEDY`, this always returns a match if
-          the opening and closing brackets are found. Anything unexpected
-          within the brackets is marked as `unparsable`.
+        - If the parse mode is `GREEDY`, this returns a match if the
+          opening and closing brackets are found, with anything unexpected
+          within the brackets marked as `unparsable`. The exception is an
+          empty bracket body when the content grammar contains required
+          elements: that returns no match (in *any* parse mode), so that
+          any other grammars which *can* match empty brackets may be
+          tried, or so the surrounding grammar can mark the section as
+          unparsable.
         - If the parse mode is `STRICT`, then this only returns a match if
           the content of the brackets matches (and matches *completely*)
           one of the elements of the grammar. Otherwise no match.
