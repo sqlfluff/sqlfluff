@@ -108,7 +108,7 @@ jobs:
             constraints/*.txt
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@1.100
+        uses: dtolnay/rust-toolchain@1.96
         with:
           components: rustfmt, clippy
 

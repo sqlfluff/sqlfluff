@@ -8,3 +8,5 @@ updates:
       github-actions:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "dtolnay/rust-toolchain"
