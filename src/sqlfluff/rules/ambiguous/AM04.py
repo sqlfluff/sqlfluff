@@ -71,7 +71,7 @@ class Rule_AM04(BaseRule):
     # Only evaluate the outermost query.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
 
-    def _handle_alias(self, selectable, alias_info, query) -> None:
+    def _handle_alias(self, alias_info, query, anchor) -> None:
         select_info_target = next(
             query.crawl_sources(alias_info.from_expression_element, True)
         )
@@ -82,13 +82,22 @@ class Rule_AM04(BaseRule):
             self.logger.debug(
                 f"Query target {select_info_target} is external. Generating warning."
             )
-            raise RuleFailure(selectable.selectable)
+            raise RuleFailure(anchor)
         else:
             # Handle nested SELECT.
-            self._analyze_result_columns(select_info_target)
+            self._analyze_result_columns(select_info_target, anchor)
 
-    def _analyze_result_columns(self, query: Query) -> None:
-        """Given info on a list of SELECTs, determine whether to warn."""
+    def _analyze_result_columns(
+        self, query: Query, anchor: Optional[BaseSegment] = None
+    ) -> None:
+        """Given info on a list of SELECTs, determine whether to warn.
+
+        ``anchor`` is the wildcard which started the analysis, and is what any
+        resulting violation is reported against. It is threaded through the
+        recursion so that a wildcard resolving to an ambiguous CTE is still
+        reported against the wildcard the user can act on, rather than against
+        whichever nested query the walk happened to terminate in.
+        """
         # Recursively walk from the given query (select_info_list) to any
         # wildcard columns in the select targets. If every wildcard evdentually
         # resolves to a query without wildcards, all is well. Otherwise, warn.
@@ -97,6 +106,11 @@ class Rule_AM04(BaseRule):
         for selectable in query.selectables:
             self.logger.debug(f"Analyzing query: {selectable.selectable.raw}")
             for wildcard in selectable.get_wildcard_info():
+                # Anchor on the wildcard itself. It is the reason for the
+                # violation, so it is also the right thing to report against -
+                # and, for templated files, the right thing to judge the
+                # violation's actionability by.
+                wildcard_anchor = anchor or wildcard.segment
                 if wildcard.tables:
                     for wildcard_table in wildcard.tables:
                         self.logger.debug(
@@ -108,13 +122,13 @@ class Rule_AM04(BaseRule):
                         if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
-                            self._handle_alias(selectable, alias_info, query)
+                            self._handle_alias(alias_info, query, wildcard_anchor)
                         else:
                             # Not an alias. Is it a CTE?
                             cte = query.lookup_cte(wildcard_table)
                             if cte:
                                 # Wildcard refers to a CTE. Analyze it.
-                                self._analyze_result_columns(cte)
+                                self._analyze_result_columns(cte, wildcard_anchor)
                             else:
                                 # Not CTE, not table alias. Presumably an
                                 # external table. Warn.
@@ -122,19 +136,19 @@ class Rule_AM04(BaseRule):
                                     f"Query target {wildcard_table} is external. "
                                     "Generating warning."
                                 )
-                                raise RuleFailure(selectable.selectable)
+                                raise RuleFailure(wildcard_anchor)
                 else:
                     # No table was specified with the wildcard. Assume we're
                     # querying from a nested select in FROM.
                     for o in query.crawl_sources(selectable.selectable, True):
                         if isinstance(o, Query):
-                            self._analyze_result_columns(o)
+                            self._analyze_result_columns(o, wildcard_anchor)
                             return None
                     self.logger.debug(
                         f'Query target "{selectable.selectable.raw}" has no '
                         "targets. Generating warning."
                     )
-                    raise RuleFailure(selectable.selectable)
+                    raise RuleFailure(wildcard_anchor)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""

@@ -2391,6 +2391,12 @@ def test__cli__command_lint_serialize_github_annotation():
             "test/fixtures/linter/jinja_spacing.sql",
             (
                 "::group::{filename}\n"
+                # NOTE: AM04 is anchored on the wildcard, which is literal
+                # even though the table reference beside it is templated.
+                "::error title=SQLFluff,file={filename},"
+                "line=3,col=8,endLine=3,endColumn=9::AM04: "
+                "Query produces an unknown number of result columns. "
+                "[ambiguous.column_count]\n"
                 "::error title=SQLFluff,file={filename},"
                 "line=3,col=15,endLine=3,endColumn=22::JJ01: "
                 "Jinja tags should have a single whitespace on either "

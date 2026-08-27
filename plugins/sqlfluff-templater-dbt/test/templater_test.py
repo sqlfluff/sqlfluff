@@ -485,7 +485,10 @@ def test__find_node_with_symlinked_local_package(tmp_path):
 @pytest.mark.parametrize(
     "fname",
     [
-        "use_var.sql",
+        # NOTE: `use_var.sql` is deliberately not in this list. It selects a
+        # wildcard from a literal table, so it carries a genuine AM04
+        # violation which has nothing to do with its templated WHERE clause.
+        # It is covered by the test below instead.
         "incremental.sql",
         "single_trailing_newline.sql",
         "ST06_test.sql",
@@ -517,6 +520,28 @@ def test__dbt_templated_models_do_not_raise_lint_error(
 
     violations = lnt.check_tuples()
     assert len(violations) == 0
+
+
+def test__dbt_lint_error_outside_templated_section_is_reported(
+    project_dir,
+    dbt_fluff_config,
+):
+    """Violations outside a model's templated sections are still reported.
+
+    `use_var.sql` selects a wildcard from a literal table, so AM04 applies to
+    it; only its WHERE clause is templated. AM04 used to anchor the violation
+    on the whole `select_statement`, which spans the `var()` call, so the
+    violation was found and then discarded as templated - any dbt model
+    selecting a wildcard was silently exempt from the rule.
+    https://github.com/sqlfluff/sqlfluff/issues/6032
+    """
+    linter = Linter(config=FluffConfig(configs=dbt_fluff_config))
+    lnt = linter.lint_path(
+        path=os.path.join(project_dir, "models/my_new_project/use_var.sql")
+    )
+    # Line 2, position 8 is the wildcard, which is literal - not the start of
+    # the select statement, which is not.
+    assert lnt.check_tuples() == [("AM04", 2, 8)]
 
 
 def _clean_path(glob_expression):
