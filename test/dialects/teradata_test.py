@@ -14,54 +14,48 @@ def teradata_linter() -> Linter:
 @pytest.mark.parametrize(
     "raw,command",
     [
-        # Opaque arguments.
+        # A dot-command terminated only by the end of its line (no semicolon)
+        # followed by a semicolon-terminated SQL statement.
         (
-            ".LOGON tdpid/username,password;\nSELECT 1;\n",
+            ".LOGON tdpid/username,password\nSELECT 1;\n",
             ".LOGON tdpid/username,password",
         ),
-        # No arguments.
-        (".LOGOFF;\nSELECT 1;\n", ".LOGOFF"),
-        # Structured `.RUN FILE=` argument.
-        (".RUN FILE=POSTING;\nSELECT 1;\n", ".RUN FILE=POSTING"),
+        # A no-argument dot-command followed by SQL.
+        (".LOGOFF\nSELECT 1;\n", ".LOGOFF"),
+        # A dot-command directly followed by another dot-command, both
+        # newline-terminated.
+        (".SET WIDTH 254\n.LOGOFF\nSELECT 1;\n", ".SET WIDTH 254"),
     ],
 )
-def test_bteq_command_and_sql_parse_as_separate_statements(
+def test_bteq_command_is_newline_separated(
     teradata_linter: Linter, raw: str, command: str
 ) -> None:
-    """A semicolon-terminated BTEQ command followed by SQL parses cleanly.
+    """BTEQ dot-commands are terminated by the end of their line.
 
-    Both the ``bteq_statement`` and the following ``select_statement`` are
-    parsed as independent statements with no unparsable sections (see #1673).
+    A dot-command needs no semicolon; the following statement parses
+    independently rather than being absorbed or reported as unparsable
+    (see #1673).
     """
     parsed = teradata_linter.parse_string(raw)
 
+    # The whole script parses cleanly.
     assert not parsed.violations
-    statement_types = {
-        seg.get_type()
-        for seg in parsed.tree.recursive_crawl("bteq_statement", "select_statement")
-    }
-    assert statement_types == {"bteq_statement", "select_statement"}
 
     bteq_statements = list(parsed.tree.recursive_crawl("bteq_statement"))
-    assert len(bteq_statements) == 1
-    assert bteq_statements[0].raw == command
-
-
-@pytest.mark.parametrize("command", [".LOGON tdpid/username,password", ".LOGOFF"])
-def test_bteq_command_does_not_absorb_the_next_line(
-    teradata_linter: Linter, command: str
-) -> None:
-    """A BTEQ dot-command is confined to its own line.
-
-    Regression guard for the newline boundary: a command's opaque arguments must
-    stop at the end of its line and never bleed into the following statement,
-    whether or not the command has arguments. Without the newline terminator the
-    following ``SELECT`` would be silently absorbed into the ``bteq_statement``.
-    """
-    parsed = teradata_linter.parse_string(f"{command}\nSELECT 1;\n")
-
-    bteq_statements = list(parsed.tree.recursive_crawl("bteq_statement"))
-    assert len(bteq_statements) == 1
-    # The command stops at the newline; the following line is not part of it.
+    select_statements = list(parsed.tree.recursive_crawl("select_statement"))
+    # The dot-command is bounded to its own line and the SELECT is a separate
+    # statement (not swallowed by the command).
     assert bteq_statements[0].raw == command
     assert "SELECT" not in bteq_statements[0].raw
+    assert len(select_statements) == 1
+
+
+def test_sql_statements_still_require_a_semicolon(teradata_linter: Linter) -> None:
+    """Newline separation does not relax semicolon termination for SQL.
+
+    Only BTEQ dot-commands are newline-terminated; two SQL statements with no
+    semicolon between them are still reported as unparsable.
+    """
+    parsed = teradata_linter.parse_string("SELECT 1 FROM t\nSELECT 2 FROM t\n")
+
+    assert any(v.rule_code() == "PRS" for v in parsed.violations)

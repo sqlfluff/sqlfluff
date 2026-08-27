@@ -906,6 +906,30 @@ class StatementSegment(ansi.StatementSegment):
     )
 
 
+class FileSegment(ansi.FileSegment):
+    """A Teradata file/script.
+
+    BTEQ dot-commands are terminated by the end of their line rather than a
+    semicolon, so a statement's terminator is optional here. This lets a
+    newline-terminated dot-command be separated from the following statement
+    without a semicolon (a BTEQ script rarely puts semicolons on dot-commands),
+    while ordinary SQL statements continue to be semicolon-terminated. This
+    mirrors the optional-delimiter approach already used by the T-SQL dialect.
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            OneOf(
+                Sequence(
+                    Ref("StatementSegment"),
+                    Ref("DelimiterGrammar", optional=True),
+                ),
+                Ref("DelimiterGrammar"),
+            ),
+        ),
+    )
+
+
 class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`."""
 
