@@ -42,6 +42,60 @@ def test_reflow__respace_does_not_strip_newline_before_comment():
     assert new_seq.get_raw() == sql
 
 
+def test_reflow__respace_align_ignores_predecessor_on_another_line():
+    """Aligning must ignore a preceding code segment from an earlier line.
+
+    Regression test for #8256. With leading commas and the T-SQL ``=`` alias
+    syntax, the first aliased column is the first code on its line, so the
+    code preceding it is the trailing token of an *earlier* line (``SELECT``).
+    Its column bore no relation to where that alias starts, but it was still
+    counted when picking the alignment target, inflating the target column and
+    padding every *other* line to match. That produced two spaces after the
+    leading comma on aliased rows while non-aliased rows kept one.
+
+    The commas must keep a single following space; alignment is achieved by
+    padding before the ``=`` instead.
+    """
+    config = FluffConfig(
+        overrides={"dialect": "tsql"},
+        configs={
+            "layout": {
+                "type": {
+                    "comma": {"line_position": "leading"},
+                    "alias_operator": {
+                        "spacing_before": "align",
+                        "align_within": "select_clause",
+                        "align_scope": "bracketed",
+                    },
+                    "alias_expression": {
+                        "spacing_before": "align",
+                        "align_within": "select_clause",
+                        "align_scope": "bracketed",
+                    },
+                }
+            }
+        },
+    )
+    sql = (
+        "SELECT\n"
+        "    FirstCol = 'a'\n"
+        "    , SecondCol = 'b'\n"
+        "    , ThirdCol = 'c'\n"
+        "    , t.NonaliasedCol\n"
+        "FROM TestTable AS t\n"
+    )
+    linter = Linter(config=config)
+    root = linter.parse_string(sql).tree
+    seq = ReflowSequence.from_root(root, config=config)
+    result = seq.respace().get_raw()
+
+    # Every leading comma keeps exactly one following space.
+    assert ",  " not in result
+    # Alignment is still achieved, via padding before the `=`.
+    operator_columns = {line.index("=") for line in result.splitlines() if "=" in line}
+    assert len(operator_columns) == 1
+
+
 @pytest.mark.parametrize(
     "raw_sql_in,kwargs,raw_sql_out",
     [
