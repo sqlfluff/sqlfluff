@@ -80,3 +80,40 @@ def test_lint_jj01_mixed_custom_and_default_delimiters():
     result = linter.lint_string(sql)
     jj01 = [v for v in result.violations if v.rule_code() == "JJ01"]
     assert len(jj01) == 3
+
+
+def test_lint_jj01_custom_block_delimiters():
+    """Custom block delimiters are matched as pairs."""
+    sql = "((if true))SELECT 1((endif))\n"
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "rules = JJ01\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "block_start_string = ((\n"
+        "block_end_string = ))\n"
+    )
+    linter = Linter(config=config)
+    result = linter.lint_string(sql)
+    jj01 = [v for v in result.violations if v.rule_code() == "JJ01"]
+    assert len(jj01) == 2
+
+
+def test_lint_jj01_partial_delimiter_override():
+    """Only overriding the start string keeps the default end string."""
+    sql = "SELECT <<foo}} FROM tbl\n"
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "rules = JJ01\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "variable_start_string = <<\n"
+        "[sqlfluff:templater:jinja:context]\n"
+        "foo = bar\n"
+    )
+    linter = Linter(config=config)
+    result = linter.lint_string(sql)
+    jj01 = [v for v in result.violations if v.rule_code() == "JJ01"]
+    assert len(jj01) == 1
