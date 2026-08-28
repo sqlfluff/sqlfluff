@@ -135,28 +135,26 @@ class Rule_JJ01(BaseRule):
 
         # Read the configured Jinja delimiters so we can match tags
         # that use custom delimiters (e.g. Snowflake CLI's <% var %>).
-        delimiters = set()
-        for key in (
-            "variable_start_string",
-            "block_start_string",
-            "comment_start_string",
-        ):
-            val = context.config.get_section(("templater", "jinja", key))
-            if val:
-                delimiters.add(val)
-        # Default Jinja delimiters
-        open_delims = delimiters or {"{{", "{%", "{#"}
-        close_delims = set()
-        for key in (
-            "variable_end_string",
-            "block_end_string",
-            "comment_end_string",
-        ):
-            val = context.config.get_section(("templater", "jinja", key))
-            if val:
-                close_delims.add(val)
-        if not close_delims:
-            close_delims = {"}}", "%}", "#}"}
+        # Build (open, close) pairs, preserving Jinja defaults for any
+        # option that isn't explicitly overridden. This lets custom
+        # variable delimiters coexist with default block/comment tags.
+        default_pairs = {
+            "variable": ("{{", "}}"),
+            "block": ("{%", "%}"),
+            "comment": ("{#", "#}"),
+        }
+        delim_pairs: list[tuple[str, str]] = []
+        for kind, (d_open, d_close) in default_pairs.items():
+            open_val = context.config.get_section(
+                ("templater", "jinja", f"{kind}_start_string")
+            )
+            close_val = context.config.get_section(
+                ("templater", "jinja", f"{kind}_end_string")
+            )
+            delim_pairs.append((open_val or d_open, close_val or d_close))
+        # Match longest open delimiters first so a shorter prefix (e.g. "<")
+        # can't shadow a longer one (e.g. "<%") that also starts the tag.
+        delim_pairs.sort(key=lambda p: len(p[0]), reverse=True)
 
         results = []
         # Work through the templated slices
@@ -169,18 +167,14 @@ class Rule_JJ01(BaseRule):
             if not stripped:
                 continue  # pragma: no cover
 
-            # Match against any of the configured opening/closing delimiters
+            # Match the tag against a delimiter pair (open and close together)
             open_delim = None
             close_delim = None
-            for d in open_delims:
-                if stripped.startswith(d):
-                    open_delim = d
+            for d_open, d_close in delim_pairs:
+                if stripped.startswith(d_open) and stripped.endswith(d_close):
+                    open_delim = d_open
+                    close_delim = d_close
                     break
-            if open_delim:
-                for d in close_delims:
-                    if stripped.endswith(d):
-                        close_delim = d
-                        break
 
             if not open_delim or not close_delim:
                 continue  # pragma: no cover
