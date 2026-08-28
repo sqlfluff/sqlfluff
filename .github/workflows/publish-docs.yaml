@@ -246,7 +246,7 @@ jobs:
         if: ${{ steps.docs-target.outputs.build_latest == 'true' }}
         run: >-
           python docsv/scripts/assemble-site.py
-          --vitepress-dist docsv/.vitepress/dist
+          --dist docsv/.vitepress/dist
           --output-dir ${{ env.DOCS_SITE_DIR }}
           --channel latest
           --title Development
@@ -272,7 +272,7 @@ jobs:
           PRERELEASE: ${{ steps.docs-target.outputs.prerelease }}
         run: |
           args=(
-              --vitepress-dist docsv/.vitepress/dist
+              --dist docsv/.vitepress/dist
               --output-dir "${DOCS_SITE_DIR}"
               --channel "${VERSION}"
               --title "${VERSION}"
@@ -303,7 +303,7 @@ jobs:
           VERSION: ${{ steps.docs-target.outputs.version }}
         run: |
           python docsv/scripts/assemble-site.py \
-              --vitepress-dist docsv/.vitepress/dist \
+              --dist docsv/.vitepress/dist \
               --output-dir "${DOCS_SITE_DIR}" \
               --channel stable \
               --title Stable \

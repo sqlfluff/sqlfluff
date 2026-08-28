@@ -72,13 +72,27 @@ def assert_path_exists(site_dir: Path, url_path: str, description: str) -> None:
     if path.is_dir():
         path = path / "index.html"
 
+    # Netlify serves `foo.html` for `/foo`, and the permalink rules rely on it:
+    # their destinations are suffix-less so one rule can serve versions whose
+    # builds put the page in a different file. Resolving the same way here keeps
+    # the check honest about what the deployed site will do.
+    if not path.is_file() and not path.suffix:
+        path = path.with_suffix(".html")
+
     if not path.is_file():
         raise FileNotFoundError(f"Missing {description}: {path}")
+
+
+# The picker loads these from the language root, so an archived version that was
+# built once and frozen picks up later changes to them. A publish that dropped
+# them would take the picker off every archived version at once.
+SHARED_ASSETS = ("version-picker.js", "version-picker.css")
 
 
 def smoke_check(site_dir: Path, language: str) -> None:
     """Validate the important assembled docs outputs."""
     manifest = load_manifest(site_dir, language)
+    listed = 0
 
     for entry in manifest["versions"]:
         key = entry.get("key")
@@ -88,6 +102,26 @@ def smoke_check(site_dir: Path, language: str) -> None:
             raise ValueError(f"Version entry must include key and path: {entry!r}")
 
         assert_path_exists(site_dir, str(path), f"index page for {key}")
+
+        # Absent means listed, so a manifest written before the flag existed
+        # still counts.
+        if entry.get("listed", True):
+            listed += 1
+
+    # An all-unlisted manifest is a site whose picker offers nothing, which
+    # would look like the picker being broken rather than like a publishing
+    # mistake.
+    if not listed:
+        raise ValueError("At least one version entry must be listed in the picker")
+
+    # Where the versions the picker does not list stay discoverable. Without it
+    # the picker's "All versions" entry is a link to a 404.
+    assert_path_exists(site_dir, f"/{language}/versions.html", "archive index page")
+
+    for asset in SHARED_ASSETS:
+        assert_path_exists(
+            site_dir, f"/{language}/shared/{asset}", f"shared asset {asset}"
+        )
 
     redirects_path = site_dir / "_redirects"
 
@@ -103,10 +137,39 @@ def smoke_check(site_dir: Path, language: str) -> None:
 
     assert_path_exists(site_dir, default_path, "default redirect target")
 
+    # Every SQLFluff release from 2.0.0 onward prints these URLs from the CLI,
+    # and they are not files in any version — the rules are the only thing that
+    # makes them resolve, on new and already-published versions alike.
+    permalink_rules = [
+        line.split()
+        for line in redirects.splitlines()
+        if line.startswith(f"/{language}/:version/")
+    ]
+
+    if not permalink_rules:
+        raise ValueError(f"Missing permalink redirect rules for /{language}/:version/")
+
+    # Spot-checked against the channel the site root serves, which is the one a
+    # reader following a CLI link actually lands on.
+    for source, destination, *_ in permalink_rules:
+        assert_path_exists(
+            site_dir,
+            destination.replace(":version", default).split("#")[0],
+            f"permalink target for {source}",
+        )
+
     headers_path = site_dir / "_headers"
 
     if not headers_path.is_file():
         raise FileNotFoundError(f"Missing Netlify headers file: {headers_path}")
+
+    headers = headers_path.read_text(encoding="utf-8")
+
+    # The shared assets have fixed filenames rather than fingerprints, so an
+    # immutable or missing rule here is what would keep a picker fix from
+    # reaching frozen versions.
+    if f"/{language}/shared/*" not in headers:
+        raise ValueError(f"Missing cache-control rule for /{language}/shared/*")
 
 
 def main() -> int:

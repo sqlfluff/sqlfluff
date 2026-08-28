@@ -35,7 +35,9 @@ def _upsert(module: ModuleType, manifest: dict, **overrides) -> dict:
         "channel": "3.4.1",
         "title": "3.4.1",
         "kind": "release",
+        "builder": "vitepress",
         "prerelease": False,
+        "unlisted": False,
         "published_at": None,
         "stable_release": None,
     }
@@ -176,15 +178,12 @@ def test_assemble_site_refuses_to_escape_the_output_dir(assemble_site, tmp_path)
 
     with pytest.raises(ValueError):
         assemble_site.assemble_site(
-            vitepress_dist=dist,
+            dist=dist,
             output_dir=tmp_path / "site",
             language="en",
             channel="../../outside",
             title="evil",
             kind="release",
-            prerelease=False,
-            published_at=None,
-            stable_release=None,
         )
 
     assert (outside / "keep.txt").is_file(), (
@@ -208,3 +207,203 @@ def test_rebuild_leaves_other_versions_untouched(assemble_site):
 
     assert _entry(rebuilt, "3.4.2")["published_at"] == "2026-07-14"
     assert _entry(rebuilt, "3.4.1")["published_at"] == "2026-06-02"
+
+
+def _keys_in_order(module, *keys: str) -> list[str]:
+    entries = [{"key": key} for key in keys]
+    entries.sort(key=module.version_sort_key)
+    return [entry["key"] for entry in entries]
+
+
+def test_channels_sort_before_releases(assemble_site):
+    """The picker shows the moving channels first, then the pinned releases."""
+    assert _keys_in_order(assemble_site, "3.4.2", "stable", "latest") == [
+        "latest",
+        "stable",
+        "3.4.2",
+    ]
+
+
+def test_releases_sort_newest_first(assemble_site):
+    """Descending version order, which the stale notice reads as newest-first."""
+    assert _keys_in_order(assemble_site, "1.4.5", "3.4.2", "10.0.0", "3.10.0") == [
+        "10.0.0",
+        "3.10.0",
+        "3.4.2",
+        "1.4.5",
+    ]
+
+
+def test_post_release_sorts_above_the_release_it_follows(assemble_site):
+    """`4.0.1.post1` is newer than `4.0.1`, and older than `4.1.0`.
+
+    It used to fall into the non-numeric bucket below every release, including
+    `0.2.4` — which also told the stale notice that every other release was
+    newer than the newest one.
+    """
+    assert _keys_in_order(assemble_site, "4.0.1", "4.1.0", "4.0.1.post1", "4.0.2") == [
+        "4.1.0",
+        "4.0.2",
+        "4.0.1.post1",
+        "4.0.1",
+    ]
+
+
+def test_prereleases_sort_below_their_own_release(assemble_site):
+    """`4.0.0a1` leads up to `4.0.0`, so it is older than it.
+
+    `0.7.0a8` and `0.4.0a1` are real tags here, and both used to land in the
+    string bucket at the bottom of the list.
+    """
+    assert _keys_in_order(
+        assemble_site, "4.0.0", "4.0.0a1", "4.0.0a10", "4.0.0a2", "3.9.9"
+    ) == ["4.0.0", "4.0.0a10", "4.0.0a2", "4.0.0a1", "3.9.9"]
+
+
+def test_shorter_versions_sort_as_if_padded(assemble_site):
+    """`3.4` names the same release as `3.4.0`, so it sorts with it."""
+    assert _keys_in_order(assemble_site, "3.4", "3.5.0", "3.3.9") == [
+        "3.5.0",
+        "3.4",
+        "3.3.9",
+    ]
+
+
+def test_unparseable_keys_sort_last(assemble_site):
+    """A key nobody can order goes somewhere predictable rather than guessed."""
+    assert _keys_in_order(assemble_site, "0.2.4", "nightly", "latest") == [
+        "latest",
+        "0.2.4",
+        "nightly",
+    ]
+
+
+def test_builder_is_recorded_on_the_entry(assemble_site):
+    """The picker drops the page path when switching across builders."""
+    manifest = assemble_site.default_manifest()
+
+    result = _upsert(assemble_site, manifest, builder="sphinx")
+
+    assert _entry(result, "3.4.1")["builder"] == "sphinx"
+
+
+def test_entries_are_listed_by_default(assemble_site):
+    """A version is offered in the picker unless it is published unlisted."""
+    manifest = assemble_site.default_manifest()
+
+    result = _upsert(assemble_site, manifest)
+
+    assert _entry(result, "3.4.1")["listed"] is True
+
+
+def test_unlisted_entries_are_flagged(assemble_site):
+    """An unlisted version stays published; the picker just does not offer it."""
+    manifest = assemble_site.default_manifest()
+
+    result = _upsert(assemble_site, manifest, unlisted=True)
+
+    entry = _entry(result, "3.4.1")
+
+    assert entry["listed"] is False
+    assert entry["path"] == "/en/3.4.1/"
+
+
+def _dist(tmp_path: Path, name: str = "dist") -> Path:
+    dist = tmp_path / name
+    dist.mkdir()
+    (dist / "index.html").write_text("<html></html>", encoding="utf-8")
+    return dist
+
+
+def test_shared_assets_are_republished_every_run(assemble_site, tmp_path):
+    """Archived versions load the picker from here, so it must stay current.
+
+    An archived Sphinx build is produced once and frozen. It picks up picker
+    changes only because these assets live above every version and are rewritten
+    by whichever publish ran last.
+    """
+    shared = tmp_path / "shared"
+    shared.mkdir()
+    (shared / "version-picker.js").write_text("// v1", encoding="utf-8")
+
+    site = tmp_path / "site"
+    published = site / "en" / "shared" / "version-picker.js"
+
+    assemble_site.assemble_site(
+        dist=_dist(tmp_path),
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=shared,
+    )
+
+    assert published.read_text(encoding="utf-8") == "// v1"
+
+    (shared / "version-picker.js").write_text("// v2", encoding="utf-8")
+    assemble_site.assemble_site(
+        dist=_dist(tmp_path, "dist-2"),
+        output_dir=site,
+        language="en",
+        channel="3.4.2",
+        title="3.4.2",
+        kind="release",
+        builder="sphinx",
+        shared_dir=shared,
+    )
+
+    assert published.read_text(encoding="utf-8") == "// v2"
+
+
+def test_versions_page_lists_unlisted_versions(assemble_site, tmp_path):
+    """The archive page is where the versions the picker omits stay reachable."""
+    site = tmp_path / "site"
+
+    for channel, unlisted in (("3.4.2", False), ("3.4.1", True)):
+        assemble_site.assemble_site(
+            dist=_dist(tmp_path, f"dist-{channel}"),
+            output_dir=site,
+            language="en",
+            channel=channel,
+            title=channel,
+            kind="release",
+            builder="sphinx",
+            unlisted=unlisted,
+            shared_dir=tmp_path / "absent",
+        )
+
+    page = (site / "en" / "versions.html").read_text(encoding="utf-8")
+
+    assert 'href="/en/3.4.2/"' in page
+    assert 'href="/en/3.4.1/"' in page
+    assert "3.x releases" in page
+
+
+def test_versions_page_groups_releases_by_major(assemble_site):
+    """Grouped by generation, following how Docusaurus groups its own."""
+    manifest = assemble_site.default_manifest()
+    manifest = _upsert(assemble_site, manifest, channel="4.1.0", title="4.1.0")
+    manifest = _upsert(assemble_site, manifest, channel="3.4.2", title="3.4.2")
+    manifest = _upsert(
+        assemble_site,
+        manifest,
+        channel="latest",
+        title="Development",
+        kind="channel",
+    )
+
+    groups = assemble_site.release_groups(manifest)
+
+    assert [series for series, _ in groups] == ["4.x", "3.x"]
+    assert [entry["key"] for entry in groups[0][1]] == ["4.1.0"]
+
+
+def test_headers_do_not_cache_shared_assets_immutably(assemble_site):
+    """The assets have fixed filenames, so a long cache would freeze the picker."""
+    headers = assemble_site.build_global_headers("en")
+
+    shared = headers.split("/en/shared/*")[1]
+
+    assert "must-revalidate" in shared
+    assert "immutable" not in shared

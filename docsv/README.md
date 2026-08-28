@@ -25,8 +25,13 @@ docsv/
 │   ├── generate-rules-docs.py    # Extract and convert rule documentation
 │   ├── generate-dialect-docs.py  # Extract and convert dialect documentation
 │   ├── generate-cli-docs.py      # Extract and convert CLI documentation
-│   ├── extract-redirects.py      # Convert Sphinx redirects to VitePress
-│   └── generate-all-docs.py      # Master build script
+│   ├── generate-all-docs.py      # Master build script
+│   ├── inject-shared-picker.py   # Add the shared picker to Sphinx output
+│   ├── assemble-site.py          # Merge one built version into the site tree
+│   └── smoke-check-assembled-site.py  # Validate the assembled tree
+├── shared/                 # Runtime assets published at /en/shared/, above
+│                           # every version, so archived Sphinx builds pick up
+│                           # picker changes without being rebuilt
 ├── reference/
 │   ├── rules/              # Auto-generated rule docs (by bundle)
 │   ├── dialects/           # Auto-generated dialect docs

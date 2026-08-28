@@ -19,7 +19,6 @@ import { computed, onUnmounted, ref, useId, watch } from 'vue'
 import {
     isChannel,
     useVersions,
-    versionHref,
     versionTitle,
     type VersionEntry,
 } from './versions'
@@ -39,7 +38,8 @@ const props = withDefaults(
     }
 )
 
-const { entries, current, channels, releases, pagePath } = useVersions()
+const { entries, current, channels, releases, hrefFor, allVersionsHref } =
+    useVersions()
 
 const open = ref(false)
 const root = ref<HTMLElement>()
@@ -167,7 +167,7 @@ function onKeydown(event: KeyboardEvent): void {
                         :key="entry.key"
                         class="version-picker__item"
                         :class="{ 'is-current': entry.key === current.key }"
-                        :href="versionHref(entry, pagePath)"
+                        :href="hrefFor(entry)"
                         :aria-current="entry.key === current.key ? 'page' : undefined"
                         target="_self"
                         @click="close"
@@ -185,6 +185,23 @@ function onKeydown(event: KeyboardEvent): void {
                     </a>
                 </div>
             </template>
+
+            <!--
+              The way to reach the versions this list leaves out. In its own
+              group at the end, so it reads as an escape hatch rather than as
+              another version to switch to.
+            -->
+            <div v-if="allVersionsHref" class="version-picker__group">
+                <a
+                    class="version-picker__item version-picker__item--all"
+                    :href="allVersionsHref"
+                    target="_self"
+                    @click="close"
+                >
+                    <span>All versions</span>
+                    <span aria-hidden="true">&rarr;</span>
+                </a>
+            </div>
         </div>
     </div>
 </template>
@@ -325,6 +342,10 @@ function onKeydown(event: KeyboardEvent): void {
     color: var(--vp-c-text-2);
     font-size: 12px;
     font-weight: 400;
+}
+
+.version-picker__item--all {
+    color: var(--vp-c-brand-1);
 }
 
 .version-picker__tag {
