@@ -2920,14 +2920,73 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
-class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
-    """An extension of the star expression for Redshift."""
+class SelectClauseSegment(postgres.SelectClauseSegment):
+    """A Redshift `SELECT` clause.
 
-    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+    EXCLUDE follows the full select list (not a wildcard/item suffix):
+    https://docs.aws.amazon.com/redshift/latest/dg/r_SELECT_synopsis.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_EXCLUDE_list.html
+    """
+
+    # Inherit Postgres terminators via copy(). EXCLUDE terminates the select
+    # list only after the first item, so `SELECT EXCLUDE` still parses as a
+    # column while `SELECT *, a, EXCLUDE x` is rejected.
+    match_grammar = postgres.SelectClauseSegment.match_grammar.copy(
         insert=[
-            # Optional Exclude
-            Ref("ExcludeClauseSegment", optional=True),
-        ]
+            OneOf(
+                Sequence(
+                    Delimited(
+                        Ref("SelectClauseElementSegment"),
+                        allow_trailing=False,
+                        terminators=[Ref.keyword("EXCLUDE")],
+                    ),
+                    Ref("ExcludeClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SelectClauseElementSegment", optional=True),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Delimited(
+                            Ref("SelectClauseElementSegment"),
+                            optional=True,
+                            allow_trailing=True,
+                            terminators=[Ref.keyword("EXCLUDE")],
+                        ),
+                        optional=True,
+                    ),
+                ),
+                optional=True,
+            ),
+        ],
+        before=Dedent,
+        remove=[
+            Delimited(
+                Ref("SelectClauseElementSegment"),
+                optional=True,
+                allow_trailing=True,
+            ),
+        ],
+    )
+
+
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """Select-list element for Redshift.
+
+    Prevent bare ``EXCLUDE`` from being treated as an implicit column alias so
+    the select-clause-level ``ExcludeClauseSegment`` can match. This does not
+    restrict ``EXCLUDE(...)`` expressions or ``AS EXCLUDE`` aliases.
+    """
+
+    match_grammar = OneOf(
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref(
+                "AliasExpressionSegment",
+                exclude=Ref.keyword("EXCLUDE"),
+                optional=True,
+            ),
+        ),
     )
 
 
@@ -2942,7 +3001,7 @@ class ExcludeClauseSegment(BaseSegment):
         "EXCLUDE",
         OneOf(
             Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
-            Ref("SingleIdentifierGrammar"),
+            Delimited(Ref("SingleIdentifierGrammar")),
         ),
     )
 

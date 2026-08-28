@@ -19,15 +19,17 @@ from 5.0.
   `MatchResult.apply()` still builds the `BaseSegment` AST. A parallel,
   id-addressable Rust arena (`_rs_tree`, `RsTree`/`RsHandle`) is built and cached
   as the substrate for Rust-side rules (read-only to Python today).
-- **Linting rules** — mostly Python; **one experimental rule is wired end to
-  end**. CP01 detection lives in the `sqlfluffrs_rules` crate, runs over the
-  arena's public read API (`sqlfluffrs_parser::Arena`), and is dispatched by the
-  linter via `BaseRule._eval_rust` when **`core.use_rust_rules`** is enabled
-  (default `False`; also requires the Rust parser's arena, else it falls back
-  per-rule to Python). Validated at parity with stock CP01. **Fixing is still
-  Python-side** — the Rust rule returns `(leaf_index, fixed_raw)` and the linter
-  anchors a `LintFix`; Rust-side (mutating) fixing waits on the arena mutation
-  milestone. See `sqlfluffrs_rules/`, `BaseRule._eval_rust`, and PR #7984.
+- **Linting rules** — mostly Python; **three experimental rules are wired end
+  to end**. CP01, CP03 and CP04 detection lives in the `sqlfluffrs_rules` crate
+  (CP02 and CP05 remain Python-only), runs over the arena's public read API
+  (`sqlfluffrs_parser::Arena`), and is dispatched by the linter via
+  `BaseRule._eval_rust` when **`core.use_rust_rules`** is enabled (default
+  `False`; also requires the Rust parser's arena, else it falls back per-rule to
+  Python). Each is validated at parity with its stock Python rule. **Fixing is
+  still Python-side** — the Rust rule returns `(leaf_index, fixed_raw)` and the
+  linter anchors a `LintFix`; Rust-side (mutating) fixing waits on the arena
+  mutation milestone. See `sqlfluffrs_rules/`, `BaseRule._eval_rust`, and PRs
+  #7984 (CP01) and #8069 (CP03/CP04).
 
 **Not a replacement**: the Rust components work alongside Python. When
 `sqlfluffrs` is unavailable, Python falls back transparently (auto mode).
@@ -335,7 +337,7 @@ four stages so you can see where the time goes:
 - `rust_core` — the Rust parse (`parse_match_result_from_tokens`)
 - `convert` — rebuilding the result as a Python `MatchResult`
 - `apply` — building the `BaseSegment` tree (`MatchResult.apply`)
-- `apply_as_node` — building the `_rs_node` tree
+- `apply_as_tree` — building the Rust arena tree (`_rs_tree`)
 
 Enable it via the `SQLFLUFF_RS_PROFILE` env var or `set_profiling(True)`, then
 read the most recent parse with `get_parse_profile()`. The benchmark harness
@@ -478,8 +480,10 @@ tox -e py312
 
 ## Current Limitations
 
-- **Lexing and parsing only** — linting rules and the fix/format pipeline are
-  still entirely Python; the Rust node tree (`_rs_node`) has no consumers yet.
+- **Linting is mostly Python** — only the CP01/CP03/CP04 detection loops run
+  in Rust, behind `core.use_rust_rules` (default off). Every other rule, and the
+  whole fix/format pipeline, is still Python; the arena (`_rs_tree`) is
+  read-only, so Rust-side fixing waits on the arena mutation milestone.
 - **Hybrid parse** — Rust returns a `MatchResult`; Python still builds the AST.
 - **Performance gains scale with file size** — small files see little benefit
   because of the Python↔Rust crossing overhead.

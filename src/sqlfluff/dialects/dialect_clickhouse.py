@@ -1559,6 +1559,25 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint, e.g. for CREATE TABLE.
+
+    ClickHouse's CONSTRAINT clause only supports CHECK and ASSUME
+    https://clickhouse.com/docs/en/sql-reference/statements/create/table#constraints
+    """
+
+    type = "table_constraint"
+    match_grammar: Matchable = Sequence(
+        "CONSTRAINT",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "CHECK",
+            "ASSUME",
+        ),
+        Ref("ExpressionSegment"),
+    )
+
+
 class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
