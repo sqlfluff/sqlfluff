@@ -44,41 +44,41 @@ class Rule_JJ01(BaseRule):
     is_fix_compatible = True
 
     @staticmethod
-    def _get_whitespace_ends(s: str) -> tuple[str, str, str, str, str]:
+    def _get_whitespace_ends(
+        s: str, open_delim: str, close_delim: str
+    ) -> tuple[str, str, str, str, str]:
         """Remove tag ends and partition off any whitespace ends.
 
         This function assumes that we've already trimmed the string
         to just the tag, and will raise an AssertionError if not.
-        >>> Rule_JJ01._get_whitespace_ends('  {{not_trimmed}}   ')
+        >>> Rule_JJ01._get_whitespace_ends('  {{not_trimmed}}   ', '{{', '}}')
         Traceback (most recent call last):
             ...
         AssertionError
 
         In essence it divides up a tag into the end tokens, any
         leading or trailing whitespace and the inner content
-        >>> Rule_JJ01._get_whitespace_ends('{{ my_content }}')
+        >>> Rule_JJ01._get_whitespace_ends('{{ my_content }}', '{{', '}}')
         ('{{', ' ', 'my_content', ' ', '}}')
 
         It also works with block tags and more complicated content
         and end markers.
-        >>> Rule_JJ01._get_whitespace_ends('{%+if a + b is True     -%}')
+        >>> Rule_JJ01._get_whitespace_ends('{%+if a + b is True     -%}', '{%', '%}')
         ('{%+', '', 'if a + b is True', '     ', '-%}')
         """
-        assert s[0] == "{" and s[-1] == "}"
-        # Jinja tags all have a length of two. We can use slicing
-        # to remove them easily.
-        main = s[2:-2]
-        pre = s[:2]
-        post = s[-2:]
-        # Optionally Jinja tags may also have plus of minus notation
-        # https://jinja2docs.readthedocs.io/en/stable/templates.html#whitespace-control
+        assert s.startswith(open_delim) and s.endswith(close_delim)
+        pre_len = len(open_delim)
+        post_len = len(close_delim)
+        main = s[pre_len:-post_len]
+        pre = s[:pre_len]
+        post = s[-post_len:]
         modifier_chars = ["+", "-"]
         if main and main[0] in modifier_chars:
             main = main[1:]
-            pre = s[:3]
+            pre = s[: pre_len + 1]
         if main and main[-1] in modifier_chars:
             main = main[:-1]
-            post = s[-3:]
+            post = s[-(post_len + 1) :]
         inner = main.strip()
         pos = main.find(inner)
         return pre, main[:pos], inner, main[pos + len(inner) :], post
@@ -133,6 +133,29 @@ class Rule_JJ01(BaseRule):
             self.logger.debug(f"Detected non-jinja templater: {_templater_class.name}")
             return []
 
+        # Read the configured Jinja delimiters so we can match tags
+        # that use custom delimiters (e.g. Snowflake CLI's <% var %>).
+        # Build (open, close) pairs, preserving Jinja defaults for any
+        # option that isn't explicitly overridden. This lets custom
+        # variable delimiters coexist with default block/comment tags.
+        default_pairs = {
+            "variable": ("{{", "}}"),
+            "block": ("{%", "%}"),
+            "comment": ("{#", "#}"),
+        }
+        delim_pairs: list[tuple[str, str]] = []
+        for kind, (d_open, d_close) in default_pairs.items():
+            open_val = context.config.get_section(
+                ("templater", "jinja", f"{kind}_start_string")
+            )
+            close_val = context.config.get_section(
+                ("templater", "jinja", f"{kind}_end_string")
+            )
+            delim_pairs.append((open_val or d_open, close_val or d_close))
+        # Match longest open delimiters first so a shorter prefix (e.g. "<")
+        # can't shadow a longer one (e.g. "<%") that also starts the tag.
+        delim_pairs.sort(key=lambda p: len(p[0]), reverse=True)
+
         results = []
         # Work through the templated slices
         for raw_slice in context.templated_file.raw_sliced:
@@ -141,7 +164,19 @@ class Rule_JJ01(BaseRule):
                 continue
 
             stripped = raw_slice.raw.strip()
-            if not stripped or stripped[0] != "{" or stripped[-1] != "}":
+            if not stripped:
+                continue  # pragma: no cover
+
+            # Match the tag against a delimiter pair (open and close together)
+            open_delim = None
+            close_delim = None
+            for d_open, d_close in delim_pairs:
+                if stripped.startswith(d_open) and stripped.endswith(d_close):
+                    open_delim = d_open
+                    close_delim = d_close
+                    break
+
+            if not open_delim or not close_delim:
                 continue  # pragma: no cover
 
             self.logger.debug(
@@ -151,7 +186,7 @@ class Rule_JJ01(BaseRule):
             # Partition and Position
             src_idx = raw_slice.source_idx
             tag_pre, ws_pre, inner, ws_post, tag_post = self._get_whitespace_ends(
-                stripped
+                stripped, open_delim, close_delim
             )
             position = raw_slice.raw.find(stripped[0])
 

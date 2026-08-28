@@ -104,6 +104,7 @@ UNRESERVED_KEYWORDS = [
     "AS",
     "ASCENDING",
     "ASOF",
+    "ASSUME",
     "AST",
     "ASYNC",
     "ATOMIC",
