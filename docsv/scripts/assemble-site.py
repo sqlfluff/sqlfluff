@@ -661,6 +661,31 @@ frozen at the point they were published and are not updated.
 """
 
 
+def publish_not_found_page(dist: Path, output_dir: Path) -> None:
+    """Copy the published build's 404 page to the site root.
+
+    Netlify only serves a `404.html` from the publish root. It does not fall back
+    to one inside a subdirectory, so the VitePress 404 page each version builds
+    was never reached — every miss on the beta site, including inside
+    `/en/latest/`, returned Netlify's own generic page.
+
+    The root copy comes from whichever build ran last rather than being written
+    from scratch, which keeps it styled like the rest of the site and keeps it in
+    step with the fingerprinted assets it references: those are published by the
+    same run that copies this.
+
+    Skipped when the build has no 404 page, which is the Sphinx case. That leaves
+    the previous copy in place rather than removing it, so archiving a version
+    cannot take the site's 404 page away.
+    """
+    source = dist / "404.html"
+
+    if not source.is_file():
+        return
+
+    shutil.copy2(source, output_dir / "404.html")
+
+
 def publish_shared_assets(shared_dir: Path, language_dir: Path) -> None:
     """Copy the shared runtime assets to the language root.
 
@@ -735,6 +760,7 @@ def assemble_site(
     write_text(manifest_path, json.dumps(manifest, indent=2))
     write_text(language_dir / "versions.html", build_versions_page(language, manifest))
     publish_shared_assets(shared_dir, language_dir)
+    publish_not_found_page(dist, output_dir)
     write_text(
         output_dir / "_redirects", build_redirects(language, manifest, permalinks)
     )

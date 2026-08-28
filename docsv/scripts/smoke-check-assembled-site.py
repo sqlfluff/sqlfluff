@@ -118,6 +118,11 @@ def smoke_check(site_dir: Path, language: str) -> None:
     # the picker's "All versions" entry is a link to a 404.
     assert_path_exists(site_dir, f"/{language}/versions.html", "archive index page")
 
+    # Netlify only serves a 404 page from the publish root; it does not fall back
+    # to the one inside a version. Without this file every miss on the site gets
+    # Netlify's own generic page instead of ours.
+    assert_path_exists(site_dir, "/404.html", "site 404 page")
+
     for asset in SHARED_ASSETS:
         assert_path_exists(
             site_dir, f"/{language}/shared/{asset}", f"shared asset {asset}"

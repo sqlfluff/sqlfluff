@@ -407,3 +407,61 @@ def test_headers_do_not_cache_shared_assets_immutably(assemble_site):
 
     assert "must-revalidate" in shared
     assert "immutable" not in shared
+
+
+def test_the_404_page_is_published_at_the_site_root(assemble_site, tmp_path):
+    """Netlify only serves a 404 page from the publish root.
+
+    It does not fall back to one inside a subdirectory, so the 404 page each
+    VitePress version builds was never reached: every miss on the beta site,
+    including inside `/en/latest/`, returned Netlify's own generic page.
+    """
+    dist = _dist(tmp_path)
+    (dist / "404.html").write_text("<html>SQLFluff 404</html>", encoding="utf-8")
+
+    site = tmp_path / "site"
+    assemble_site.assemble_site(
+        dist=dist,
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=tmp_path / "absent",
+    )
+
+    assert (site / "404.html").read_text(
+        encoding="utf-8"
+    ) == "<html>SQLFluff 404</html>"
+
+
+def test_a_build_without_a_404_page_leaves_the_existing_one(assemble_site, tmp_path):
+    """Sphinx builds have no 404 page, and archiving one must not remove ours."""
+    site = tmp_path / "site"
+
+    vitepress = _dist(tmp_path, "vitepress")
+    (vitepress / "404.html").write_text("<html>SQLFluff 404</html>", encoding="utf-8")
+
+    assemble_site.assemble_site(
+        dist=vitepress,
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=tmp_path / "absent",
+    )
+    assemble_site.assemble_site(
+        dist=_dist(tmp_path, "sphinx"),
+        output_dir=site,
+        language="en",
+        channel="3.4.2",
+        title="3.4.2",
+        kind="release",
+        builder="sphinx",
+        shared_dir=tmp_path / "absent",
+    )
+
+    assert (site / "404.html").read_text(
+        encoding="utf-8"
+    ) == "<html>SQLFluff 404</html>"
