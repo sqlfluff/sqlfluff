@@ -2157,56 +2157,72 @@ class MatchRecognizeClauseSegment(BaseSegment):
 class ChangesClauseSegment(BaseSegment):
     """A `CHANGES` clause.
 
-    https://docs.snowflake.com/en/sql-reference/constructs/changes.html
+    Two alternatives: the bounded form, where `INFORMATION` and the
+    `AT`/`BEFORE` time bounds are required, and the unbounded form
+    (`CHANGES()` or `CHANGES(INFORMATION => ...)` with no time bounds),
+    which the grammar accepts everywhere as a syntactic superset —
+    Snowflake only allows it inside custom incremental dynamic tables,
+    where the change interval is bound automatically, and enforces that
+    restriction itself.
 
-    Inside a custom incremental dynamic table the change interval is bound
-    automatically, so both `INFORMATION` and the `AT`/`BEFORE` time bounds
-    may be omitted (e.g. `CHANGES()`).
+    https://docs.snowflake.com/en/sql-reference/constructs/changes.html
     https://docs.snowflake.com/en/user-guide/dynamic-tables/custom-incrementalization
     """
 
     type = "changes_clause"
-    match_grammar = Sequence(
-        "CHANGES",
-        Bracketed(
-            Sequence(
+    match_grammar = OneOf(
+        # Bounded form: the standard CHANGES clause.
+        Sequence(
+            "CHANGES",
+            Bracketed(
                 "INFORMATION",
                 Ref("ParameterAssignerSegment"),
                 OneOf("DEFAULT", "APPEND_ONLY"),
-                optional=True,
+                parse_mode=ParseMode.GREEDY,
             ),
-            parse_mode=ParseMode.GREEDY,
-        ),
-        OneOf(
+            OneOf(
+                Sequence(
+                    "AT",
+                    Bracketed(
+                        OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
+                        Ref("ParameterAssignerSegment"),
+                        Ref("ExpressionSegment"),
+                        parse_mode=ParseMode.GREEDY,
+                    ),
+                ),
+                Sequence(
+                    "BEFORE",
+                    Bracketed(
+                        "STATEMENT",
+                        Ref("ParameterAssignerSegment"),
+                        Ref("ExpressionSegment"),
+                        parse_mode=ParseMode.GREEDY,
+                    ),
+                ),
+            ),
             Sequence(
-                "AT",
+                "END",
                 Bracketed(
                     OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
                     Ref("ParameterAssignerSegment"),
                     Ref("ExpressionSegment"),
                     parse_mode=ParseMode.GREEDY,
                 ),
+                optional=True,
             ),
-            Sequence(
-                "BEFORE",
-                Bracketed(
-                    "STATEMENT",
-                    Ref("ParameterAssignerSegment"),
-                    Ref("ExpressionSegment"),
-                    parse_mode=ParseMode.GREEDY,
-                ),
-            ),
-            optional=True,
         ),
+        # Unbounded form: no time bounds.
         Sequence(
-            "END",
+            "CHANGES",
             Bracketed(
-                OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
-                Ref("ParameterAssignerSegment"),
-                Ref("ExpressionSegment"),
+                Sequence(
+                    "INFORMATION",
+                    Ref("ParameterAssignerSegment"),
+                    OneOf("DEFAULT", "APPEND_ONLY"),
+                    optional=True,
+                ),
                 parse_mode=ParseMode.GREEDY,
             ),
-            optional=True,
         ),
     )
 
