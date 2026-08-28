@@ -592,3 +592,52 @@ test_fail_tsql_convert_still_rewritten:
     rules:
       convention.casting_style:
         preferred_type_casting_style: cast
+
+# https://github.com/sqlfluff/sqlfluff - a `::` shorthand cast whose left
+# operand parses into more than one segment (e.g. an array subscript, which
+# is a column_reference plus one or more array_accessor children) must keep
+# the whole operand. The rewrite used to grab the operand and the target type
+# by fixed positional index, so it treated the subscript as the type.
+test_fail_shorthand_array_subscript_to_cast_consistent:
+  # consistent mode: the leading CAST makes it pick the 'cast' style
+  fail_str: SELECT CAST(z AS INT) AS zz, a[1]::INT AS y FROM t
+  fix_str: SELECT CAST(z AS INT) AS zz, cast(a[1] as INT) AS y FROM t
+
+test_fail_shorthand_array_subscript_to_convert_consistent:
+  # consistent mode: the leading CONVERT makes it pick the 'convert' style
+  fail_str: SELECT convert(INT, z) AS zz, a[1]::INT AS y FROM t
+  fix_str: SELECT convert(INT, z) AS zz, convert(INT, a[1]) AS y FROM t
+
+test_fail_shorthand_array_subscript_to_cast:
+  fail_str: SELECT a[1]::int AS y FROM t
+  fix_str: SELECT cast(a[1] as int) AS y FROM t
+  configs:
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_shorthand_array_subscript_to_convert:
+  fail_str: SELECT a[1]::int AS y FROM t
+  fix_str: SELECT convert(int, a[1]) AS y FROM t
+  configs:
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
+test_fail_shorthand_nested_array_subscript_to_convert:
+  # more than one array_accessor: the whole a[1][2] operand must survive
+  fail_str: SELECT a[1][2]::int AS y FROM t
+  fix_str: SELECT convert(int, a[1][2]) AS y FROM t
+  configs:
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
+test_fail_shorthand_multi_cast_operand_unaffected:
+  # a plain chained shorthand cast (single-segment operand) is unchanged
+  fail_str: SELECT 1::int::text AS y FROM t
+  fix_str: SELECT cast(cast(1 as int) as text) AS y FROM t
+  configs:
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
