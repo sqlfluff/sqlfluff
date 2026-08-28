@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4dee5ecad8c6d6523207b03f6b22dedb4895f60935f2b35751c5e3228b7a7fa2
+_hash: 02e93d2b4a90a471ee3fba20d90c6b29cee1a4cf6cca8a4e879dfab1a579343b
 file:
 - statement:
     create_table_statement:
@@ -608,18 +608,18 @@ file:
     - table_reference:
         naked_identifier: table_name
     - bracketed:
-      - start_bracket: (
-      - column_definition:
+        start_bracket: (
+        column_definition:
           naked_identifier: name1
           data_type:
             data_type_identifier: String
-      - comma: ','
-      - column_definition:
-          naked_identifier: CONSTRAINT
-          data_type:
-            data_type_identifier: constraint_name_1
-          column_constraint_segment:
-            keyword: CHECK
+        comma: ','
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: constraint_name_1
+        - keyword: CHECK
+        - expression:
             bracketed:
               start_bracket: (
               expression:
@@ -629,7 +629,7 @@ file:
                   raw_comparison_operator: '='
                 quoted_literal: "'test'"
               end_bracket: )
-      - end_bracket: )
+        end_bracket: )
     - engine:
         keyword: ENGINE
         comparison_operator:
@@ -792,4 +792,41 @@ file:
       - keyword: TO
       - keyword: DISK
       - quoted_literal: "'bbb'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: name1
+          data_type:
+            data_type_identifier: String
+        comma: ','
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: constraint_name_1
+        - keyword: ASSUME
+        - expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: name1
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'test'"
+              end_bracket: )
+        end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
 - statement_terminator: ;
