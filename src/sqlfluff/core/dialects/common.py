@@ -359,10 +359,22 @@ def get_from_expression_element_alias(
     """
     # Get any table expressions
     tbl_expression = segment.get_child("table_expression")
-    if not tbl_expression:  # pragma: no cover
+    if not tbl_expression:
         _bracketed = segment.get_child("bracketed")
         if _bracketed:
             tbl_expression = _bracketed.get_child("table_expression")
+            if not tbl_expression:
+                # Redundant brackets around a joined table nest another
+                # from_expression_element, under one bracket layer per
+                # redundant pair. The alias belongs to that inner element
+                # (#8382).
+                _inner = None
+                while _bracketed and not _inner:
+                    _inner = _bracketed.get_child("from_expression_element")
+                    _bracketed = _bracketed.get_child("bracketed")
+                if _inner:
+                    yield from get_from_expression_element_alias(_inner, dialect_name)
+                    return
     # For TSQL nested, bracketed tables get the first table as reference
     if tbl_expression and not tbl_expression.get_child("object_reference"):
         _bracketed = tbl_expression.get_child("bracketed")

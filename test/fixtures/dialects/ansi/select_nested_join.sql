@@ -115,3 +115,30 @@ left join ((b inner join c on true) left join d on true) on true;
 -- keep the tree they had
 select 1
 from (((a inner join b on true)));
+
+-- four layers
+select 1
+from a
+left join ((((b inner join c on true)))) on true;
+
+-- the alias inside the brackets is still the join target's alias
+select a.x
+from tbl_a as a
+inner join ((tbl_b as b inner join tbl_c as c on b.id = c.id)) on a.id = b.id;
+
+-- join forms other than LEFT ... ON
+select 1
+from a
+cross join ((b inner join c on true));
+
+select 1
+from a
+natural join ((b inner join c on true));
+
+select 1
+from a
+left join ((b inner join c on true)) using (x);
+
+select 1
+from a
+full outer join ((b inner join c on true)) on true;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3c5772b3f59e2b18bbed3250b32f71dd67f0da136ecb0f3c68e7f8a9c30b1072
+_hash: 4c2146f97b4c132fc60b7685cc5478fe42728e54effd0ce08897fd05fd8e9884
 file:
 - statement:
     select_statement:
@@ -635,4 +635,295 @@ file:
                   end_bracket: )
               end_bracket: )
             end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+          join_clause:
+          - keyword: left
+          - keyword: join
+          - from_expression_element:
+              bracketed:
+                start_bracket: (
+                bracketed:
+                  start_bracket: (
+                  bracketed:
+                    start_bracket: (
+                    bracketed:
+                      start_bracket: (
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: b
+                      join_clause:
+                      - keyword: inner
+                      - keyword: join
+                      - from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: c
+                      - join_on_condition:
+                          keyword: 'on'
+                          expression:
+                            boolean_literal: 'true'
+                      end_bracket: )
+                    end_bracket: )
+                  end_bracket: )
+                end_bracket: )
+          - join_on_condition:
+              keyword: 'on'
+              expression:
+                boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: x
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl_a
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: a
+          join_clause:
+          - keyword: inner
+          - keyword: join
+          - from_expression_element:
+              bracketed:
+                start_bracket: (
+                bracketed:
+                  start_bracket: (
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: tbl_b
+                    alias_expression:
+                      alias_operator:
+                        keyword: as
+                      naked_identifier: b
+                  join_clause:
+                  - keyword: inner
+                  - keyword: join
+                  - from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: tbl_c
+                      alias_expression:
+                        alias_operator:
+                          keyword: as
+                        naked_identifier: c
+                  - join_on_condition:
+                      keyword: 'on'
+                      expression:
+                      - column_reference:
+                        - naked_identifier: b
+                        - dot: .
+                        - naked_identifier: id
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: c
+                        - dot: .
+                        - naked_identifier: id
+                  end_bracket: )
+                end_bracket: )
+          - join_on_condition:
+              keyword: 'on'
+              expression:
+              - column_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: b
+                - dot: .
+                - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+          join_clause:
+          - keyword: cross
+          - keyword: join
+          - from_expression_element:
+              bracketed:
+                start_bracket: (
+                bracketed:
+                  start_bracket: (
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: b
+                  join_clause:
+                  - keyword: inner
+                  - keyword: join
+                  - from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: c
+                  - join_on_condition:
+                      keyword: 'on'
+                      expression:
+                        boolean_literal: 'true'
+                  end_bracket: )
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+          join_clause:
+          - keyword: natural
+          - keyword: join
+          - from_expression_element:
+              bracketed:
+                start_bracket: (
+                bracketed:
+                  start_bracket: (
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: b
+                  join_clause:
+                  - keyword: inner
+                  - keyword: join
+                  - from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: c
+                  - join_on_condition:
+                      keyword: 'on'
+                      expression:
+                        boolean_literal: 'true'
+                  end_bracket: )
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+          join_clause:
+          - keyword: left
+          - keyword: join
+          - from_expression_element:
+              bracketed:
+                start_bracket: (
+                bracketed:
+                  start_bracket: (
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: b
+                  join_clause:
+                  - keyword: inner
+                  - keyword: join
+                  - from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: c
+                  - join_on_condition:
+                      keyword: 'on'
+                      expression:
+                        boolean_literal: 'true'
+                  end_bracket: )
+                end_bracket: )
+          - keyword: using
+          - bracketed:
+              start_bracket: (
+              naked_identifier: x
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+          join_clause:
+          - keyword: full
+          - keyword: outer
+          - keyword: join
+          - from_expression_element:
+              bracketed:
+                start_bracket: (
+                bracketed:
+                  start_bracket: (
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: b
+                  join_clause:
+                  - keyword: inner
+                  - keyword: join
+                  - from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: c
+                  - join_on_condition:
+                      keyword: 'on'
+                      expression:
+                        boolean_literal: 'true'
+                  end_bracket: )
+                end_bracket: )
+          - join_on_condition:
+              keyword: 'on'
+              expression:
+                boolean_literal: 'true'
 - statement_terminator: ;

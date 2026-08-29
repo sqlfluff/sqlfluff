@@ -910,3 +910,31 @@ test_pass_mysql_comma_multi_table_update_alias_correlated_subquery:
   configs:
     core:
       dialect: mysql
+
+test_pass_redundantly_bracketed_join_target_alias:
+  # https://github.com/sqlfluff/sqlfluff/issues/8382
+  # Redundant brackets nest the joined table in a further
+  # from_expression_element, so the alias has to be read from there rather
+  # than from the bracket group.
+  pass_str: |
+    SELECT a.x
+    FROM tbl_a AS a
+    INNER JOIN ((tbl_b AS b
+        INNER JOIN tbl_c AS c
+            ON b.id = c.id))
+        ON a.id = b.id;
+
+test_pass_redundantly_bracketed_join_target_alias_snowflake:
+  # The same statement in a dialect that overrides
+  # FromExpressionElementSegment, where even one bracket layer takes the new
+  # join target route.
+  pass_str: |
+    SELECT a.x
+    FROM tbl_a AS a
+    INNER JOIN (tbl_b AS b
+        INNER JOIN tbl_c AS c
+            ON b.id = c.id)
+        ON a.id = b.id;
+  configs:
+    core:
+      dialect: snowflake
