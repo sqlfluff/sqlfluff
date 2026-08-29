@@ -100,3 +100,8 @@ order by
 select 1
 from a
 left join ((b inner join c on true)) on true;
+
+-- three redundant layers, to pin that the depth is not capped
+select 1
+from a
+left join (((b inner join c on true))) on true;

@@ -3280,7 +3280,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     Enhanced from ANSI to allow for `LATERAL VIEW` clause
     """
 
-    match_grammar = Sequence(
+    _base_from_expression_element: Matchable = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         Ref("SamplingExpressionSegment", optional=True),
@@ -3293,6 +3293,20 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
             optional=True,
         ),
         Ref("PostTableExpressionGrammar", optional=True),
+    )
+
+    # The same three alternatives ANSI offers, over this dialect's own base:
+    # replacing match_grammar outright dropped the bracketed-join branches, so
+    # even `LEFT JOIN (b INNER JOIN c ON TRUE) ON TRUE` did not parse here.
+    match_grammar: Matchable = OneOf(
+        _base_from_expression_element,
+        Bracketed(
+            Sequence(
+                _base_from_expression_element,
+                AnyNumberOf(Ref("JoinClauseSegment")),
+            ),
+        ),
+        Ref("RedundantlyBracketedJoinGrammar"),
     )
 
 
