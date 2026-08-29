@@ -1307,7 +1307,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """
 
     type = "from_expression_element"
-    _base_from_expression_element: Matchable = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         Ref(
@@ -1326,20 +1326,6 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
         Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
         Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
-    )
-
-    # The same three alternatives ANSI offers, over this dialect's own base:
-    # replacing match_grammar outright dropped the bracketed-join branches, so
-    # even `LEFT JOIN (b INNER JOIN c ON TRUE) ON TRUE` did not parse here.
-    match_grammar: Matchable = OneOf(
-        _base_from_expression_element,
-        Bracketed(
-            Sequence(
-                _base_from_expression_element,
-                AnyNumberOf(Ref("JoinClauseSegment")),
-            ),
-        ),
-        Ref("RedundantlyBracketedJoinGrammar"),
     )
 
 

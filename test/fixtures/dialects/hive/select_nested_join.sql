@@ -11,3 +11,8 @@ left join ((b inner join c on true)) on true;
 select 1
 from a
 left join (((b inner join c on true))) on true;
+
+-- redundant brackets in the FROM clause, which parsed before #8382 and must
+-- keep the tree they had
+select 1
+from ((a inner join b on true));

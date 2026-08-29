@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f29f35d92b21c74c947327a4f6e4fe138e9e8ad81376480d3ec35cb941072dbf
+_hash: 3c5772b3f59e2b18bbed3250b32f71dd67f0da136ecb0f3c68e7f8a9c30b1072
 file:
 - statement:
     select_statement:
@@ -546,4 +546,93 @@ file:
               keyword: 'on'
               expression:
                 boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+          join_clause:
+          - keyword: left
+          - keyword: join
+          - from_expression_element:
+              bracketed:
+                start_bracket: (
+                from_expression_element:
+                  bracketed:
+                    start_bracket: (
+                    table_expression:
+                      table_reference:
+                        naked_identifier: b
+                    join_clause:
+                    - keyword: inner
+                    - keyword: join
+                    - from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: c
+                    - join_on_condition:
+                        keyword: 'on'
+                        expression:
+                          boolean_literal: 'true'
+                    end_bracket: )
+                join_clause:
+                - keyword: left
+                - keyword: join
+                - from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: d
+                - join_on_condition:
+                    keyword: 'on'
+                    expression:
+                      boolean_literal: 'true'
+                end_bracket: )
+          - join_on_condition:
+              keyword: 'on'
+              expression:
+                boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            bracketed:
+              start_bracket: (
+              from_expression:
+                bracketed:
+                  start_bracket: (
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: a
+                  join_clause:
+                  - keyword: inner
+                  - keyword: join
+                  - from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: b
+                  - join_on_condition:
+                      keyword: 'on'
+                      expression:
+                        boolean_literal: 'true'
+                  end_bracket: )
+              end_bracket: )
+            end_bracket: )
 - statement_terminator: ;

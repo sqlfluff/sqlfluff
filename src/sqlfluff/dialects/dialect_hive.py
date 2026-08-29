@@ -567,27 +567,13 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """Modified from ANSI to allow for `LATERAL VIEW` clause."""
 
-    _base_from_expression_element: Matchable = (
+    match_grammar = (
         ansi.FromExpressionElementSegment._base_from_expression_element.copy(
             insert=[
                 AnyNumberOf(Ref("LateralViewClauseSegment")),
             ],
             before=Ref("PostTableExpressionGrammar", optional=True),
         )
-    )
-
-    # The same three alternatives ANSI offers, over this dialect's own base:
-    # replacing match_grammar outright dropped the bracketed-join branches, so
-    # even `LEFT JOIN (b INNER JOIN c ON TRUE) ON TRUE` did not parse here.
-    match_grammar: Matchable = OneOf(
-        _base_from_expression_element,
-        Bracketed(
-            Sequence(
-                _base_from_expression_element,
-                AnyNumberOf(Ref("JoinClauseSegment")),
-            ),
-        ),
-        Ref("RedundantlyBracketedJoinGrammar"),
     )
 
 

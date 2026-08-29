@@ -3089,14 +3089,11 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
 
     match_grammar = OneOf(
         # NB These qualifiers are optional
-        # TODO: Allow nested joins like:
-        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
-        # tab1.col1 = tab2.col1
         Sequence(
             Ref("JoinTypeKeywords", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            Ref("JoinTargetGrammar"),
             Dedent,
             Conditional(Indent, indented_using_on=True),
             # NB: this is optional
@@ -3130,7 +3127,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
             Ref("NaturalJoinKeywordsGrammar"),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            Ref("JoinTargetGrammar"),
             Dedent,
         ),
     )
@@ -3280,7 +3277,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     Enhanced from ANSI to allow for `LATERAL VIEW` clause
     """
 
-    _base_from_expression_element: Matchable = Sequence(
+    match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         Ref("SamplingExpressionSegment", optional=True),
@@ -3293,20 +3290,6 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
             optional=True,
         ),
         Ref("PostTableExpressionGrammar", optional=True),
-    )
-
-    # The same three alternatives ANSI offers, over this dialect's own base:
-    # replacing match_grammar outright dropped the bracketed-join branches, so
-    # even `LEFT JOIN (b INNER JOIN c ON TRUE) ON TRUE` did not parse here.
-    match_grammar: Matchable = OneOf(
-        _base_from_expression_element,
-        Bracketed(
-            Sequence(
-                _base_from_expression_element,
-                AnyNumberOf(Ref("JoinClauseSegment")),
-            ),
-        ),
-        Ref("RedundantlyBracketedJoinGrammar"),
     )
 
 
