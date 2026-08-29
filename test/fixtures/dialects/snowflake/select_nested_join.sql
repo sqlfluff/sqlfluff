@@ -16,3 +16,8 @@ left join (((b inner join c on true))) on true;
 -- keep the tree they had
 select 1
 from ((a inner join b on true));
+
+-- a join after the inner bracket
+select 1
+from a
+left join ((b inner join c on true) left join d on true) on true;

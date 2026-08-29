@@ -1086,7 +1086,10 @@ ansi_dialect.add(
                 Ref("FromExpressionElementSegment"),
                 AnyNumberOf(Ref("JoinClauseSegment"), min_times=1),
             ),
-            Ref("BracketedJoinTargetGrammar"),
+            Sequence(
+                Ref("BracketedJoinTargetGrammar"),
+                AnyNumberOf(Ref("JoinClauseSegment")),
+            ),
         ),
     ),
     # Only join targets get the bracketed forms. Offering them from
