@@ -427,6 +427,12 @@ class Linter:
             return True
         lexer = Lexer(config=config)
         for first, second in new_pairs:
+            # Only the boundary needs checking. Everything before it is
+            # untouched, and if the lexer stops exactly at the end of `first`
+            # then what follows is byte for byte what followed before, so it
+            # is read back the same way it already was. Checking further would
+            # mean lexing `second` out of context, which splits a block
+            # comment whose closing delimiter lives in a later segment.
             segments, _ = lexer.lex(first + second)
             if not segments or segments[0].raw != first:
                 return False
