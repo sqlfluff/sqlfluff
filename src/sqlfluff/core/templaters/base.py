@@ -603,6 +603,39 @@ class RawTemplater:
         """
         return isinstance(other, self.__class__)
 
+    def cache_fingerprint(self, config: FluffConfig) -> Optional[str]:
+        """Digest of the state this templater reads from outside the file.
+
+        The lint result cache keys each file on its own contents and its fully
+        resolved config. That is not sufficient on its own, because templating
+        can also depend on state which lives in neither: Jinja macro
+        directories, python library directories, a dbt manifest and so on. This
+        method closes that gap by returning a digest which changes whenever any
+        of that external state changes.
+
+        Returns:
+            A stable digest of the external state, ``""`` if the templater
+            reads nothing outside the file and its config, or ``None`` to
+            declare that files rendered by this templater must never be cached.
+
+        The default is ``None`` for everything except the raw templater. A
+        templater we do not control may read arbitrary external state, and
+        there is no safe way to infer what: silently caching it could hide a
+        real violation. Opting in is therefore a deliberate act by each
+        templater, and costs nothing but a missed optimisation until it is
+        taken.
+
+        Implementations do not need to memoise. The cache calls this once per
+        distinct (templater, resolved config) pair per run and reuses the
+        result for every file which shares that config.
+        """
+        # `RawTemplater` is both the base class and the raw templater itself.
+        # The raw templater does no templating at all, so it reads nothing
+        # outside the file; any subclass has to make its own declaration.
+        if type(self) is not RawTemplater:
+            return None
+        return ""
+
     def config_pairs(self) -> list[tuple[str, str]]:
         """Returns info about the given templater for output by the cli.
 
