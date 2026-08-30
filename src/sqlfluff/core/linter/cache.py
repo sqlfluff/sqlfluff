@@ -339,13 +339,17 @@ class LintCache:
             "entries": entries,
         }
         try:
-            # `exist_ok=False` on the first attempt tells us whether this
-            # directory is ours: see `_write_gitignore`.
-            created = False
-            if not os.path.isdir(self.cache_dir):
-                os.makedirs(self.cache_dir, exist_ok=True)
-                created = True
-            if created:
+            # Whether *this* run created the directory decides whether we may
+            # write a `.gitignore` into it; see `_write_gitignore`. Asking
+            # `makedirs` to fail if it already exists answers that atomically.
+            # Checking `isdir()` first and then creating would not: another
+            # process can win the race in between, and we would then claim a
+            # directory we did not make.
+            try:
+                os.makedirs(self.cache_dir, exist_ok=False)
+            except FileExistsError:
+                pass
+            else:
                 self._write_gitignore()
             # An explicit mkstemp plus os.replace is the portable way to get an
             # atomic swap: on Windows os.replace cannot act on an open handle,
