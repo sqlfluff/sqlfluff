@@ -220,6 +220,41 @@ class TestHashPathContents:
         (real / "m.sql").write_text("{% macro f() %}2{% endmacro %}", encoding="utf-8")
         assert hash_path_contents([str(search)]) != before
 
+    def test_second_link_to_an_already_walked_directory_counts(self, tmp_path):
+        """A new alias for an already-seen directory changes the digest.
+
+        The walk records each real directory once, so the second route to it
+        is pruned. Its *name* still matters: a link makes those files
+        resolvable under a new name, and `{% include "z_alias/m.sql" %}` would
+        start working without any file having changed. Sorted after `macros`
+        on purpose, so it is the pruned one.
+        """
+        root = tmp_path / "search"
+        (root / "macros").mkdir(parents=True)
+        (root / "macros" / "m.sql").write_text("x", encoding="utf-8")
+        before = hash_path_contents([str(root)])
+        try:
+            os.symlink(root / "macros", root / "z_alias", target_is_directory=True)
+        except (OSError, NotImplementedError) as err:  # pragma: no cover
+            pytest.skip(f"symlinks unavailable in this environment: {err}")
+        assert hash_path_contents([str(root)]) != before
+
+    def test_retargeting_a_link_counts(self, tmp_path):
+        """Pointing an existing alias somewhere else changes the digest."""
+        root = tmp_path / "search"
+        (root / "a").mkdir(parents=True)
+        (root / "b").mkdir(parents=True)
+        (root / "a" / "m.sql").write_text("x", encoding="utf-8")
+        (root / "b" / "m.sql").write_text("y", encoding="utf-8")
+        try:
+            os.symlink(root / "a", root / "z_alias", target_is_directory=True)
+        except (OSError, NotImplementedError) as err:  # pragma: no cover
+            pytest.skip(f"symlinks unavailable in this environment: {err}")
+        before = hash_path_contents([str(root)])
+        os.remove(root / "z_alias")
+        os.symlink(root / "b", root / "z_alias", target_is_directory=True)
+        assert hash_path_contents([str(root)]) != before
+
     def test_symlink_cycle_terminates(self, tmp_path):
         """Following links must not loop forever on a cyclic tree."""
         root = tmp_path / "root"

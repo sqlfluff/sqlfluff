@@ -472,22 +472,40 @@ class TestCheckAndRecord:
         cache.record(str(target), dict(VALID_ENTRY["statistics"]))
         assert cache._entries == {}
 
-    def test_pending_keys_are_released_for_uncacheable_files(self, project):
+    def test_pending_keys_are_released_for_uncacheable_files(
+        self, project, monkeypatch
+    ):
         """A file which will never be recorded doesn't hold its key.
 
         Regression test. `check` retains a key for every miss so that `record`
         can verify it. On a project where most files have violations -- the
         projects that get no benefit from the cache in the first place --
         holding one key per file for the whole run is wasted memory.
+
+        The assertion has to be made against the cache instance the run
+        actually used. Building a fresh one afterwards would start with an
+        empty `_pending_keys` no matter what happened, so the test could not
+        fail; it is captured here instead.
         """
+        used: list[LintCache] = []
+        original = LintCache.from_config
+
+        def _capture(config, user_rules=None):
+            cache = original(config, user_rules=user_rules)
+            if cache is not None:
+                used.append(cache)
+            return cache
+
+        monkeypatch.setattr(LintCache, "from_config", staticmethod(_capture))
+
         write(project / "clean.sql", CLEAN_SQL)
         write(project / "dirty.sql", DIRTY_SQL)
-        linter = Linter(config=make_config(project))
-        linter.lint_paths((str(project),))
-        # Both files missed, but only the clean one is kept as an entry and
-        # neither is left dangling in the pending map.
-        cache = LintCache.from_config(make_config(project))
-        assert cache is not None
+        Linter(config=make_config(project)).lint_paths((str(project),))
+
+        assert len(used) == 1
+        cache = used[0]
+        # Both files missed; only the clean one becomes an entry, and the
+        # dirty one's key was released rather than held for the whole run.
         assert len(cache._entries) == 1
         assert cache._pending_keys == {}
 

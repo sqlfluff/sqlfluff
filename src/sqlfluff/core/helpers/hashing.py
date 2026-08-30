@@ -95,7 +95,17 @@ def hash_path_contents(paths: list[str]) -> str:
             for dirpath, dirnames, filenames in os.walk(path, followlinks=True):
                 real = os.path.realpath(dirpath)
                 if real in seen:
-                    # Already walked via another route; don't recurse forever.
+                    # Reached by another route already, so its contents are in
+                    # the digest and re-walking would not terminate on a cycle.
+                    #
+                    # The *name* still has to count. A second link to an
+                    # already-walked directory makes those files resolvable
+                    # under a new name -- `{% include "z_alias/m.sql" %}` where
+                    # only `macros/m.sql` existed before -- so adding or
+                    # retargeting the link changes what Jinja can render even
+                    # though no file changed. Recording the alias and where it
+                    # points makes both of those a change of digest.
+                    hash_strings(hasher, "alias", os.path.relpath(dirpath, path), real)
                     dirnames[:] = []
                     continue
                 seen.add(real)
