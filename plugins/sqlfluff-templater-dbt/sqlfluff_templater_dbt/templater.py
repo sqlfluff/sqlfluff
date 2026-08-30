@@ -191,6 +191,24 @@ class DbtTemplater(JinjaTemplater):
         """Returns info about the given templater for output by the cli."""
         return [("templater", self.name), ("dbt", self.dbt_version)]
 
+    def cache_fingerprint(self, config):
+        """Decline to cache lint results for dbt models.
+
+        This overrides the Jinja implementation, which would otherwise be
+        inherited and would be wrong here. A dbt model's rendering depends on
+        the compiled manifest: other models it refers to, the macros and
+        packages in the project, the seeds, the profile, the environment
+        variables read by ``env_var()`` and the target selected at run time.
+        Only some of that is on disk, and none of it is reachable from the
+        model file plus its SQLFluff config.
+
+        Rather than approximate it and risk skipping a file which would now
+        report a violation, dbt projects simply do not use the cache. Making
+        them cacheable means deriving a fingerprint from the manifest itself,
+        which is a separate piece of work.
+        """
+        return None
+
     @cached_property
     def _dbt_version(self) -> "VersionSpecifier":
         """Fetches the installed dbt version.

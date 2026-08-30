@@ -29,6 +29,31 @@ class LintingRecord(TypedDict):
     timings: dict[str, float]
 
 
+def file_statistics(file: LintedFile) -> dict[str, int]:
+    """Derive the size statistics reported for a linted file.
+
+    Factored out of :meth:`LintedDir.add` so that the lint cache can store
+    exactly these values and replay them on a hit, without the two definitions
+    being able to drift apart.
+
+    These are all pure functions of the file's contents and config, which is
+    what makes them safe to replay: the same cache key implies the same
+    statistics.
+    """
+    return {
+        "source_chars": (
+            len(file.templated_file.source_str) if file.templated_file else 0
+        ),
+        "templated_chars": (
+            len(file.templated_file.templated_str) if file.templated_file else 0
+        ),
+        # These are all the segments in the tree
+        "segments": (file.tree.count_segments(raw_only=False) if file.tree else 0),
+        # These are just the "leaf" nodes of the tree
+        "raw_segments": (file.tree.count_segments(raw_only=True) if file.tree else 0),
+    }
+
+
 class LintedDir:
     """A class to store the idea of a collection of linted files at a single start path.
 
@@ -78,22 +103,7 @@ class LintedDir:
         record: LintingRecord = {
             "filepath": file.path,
             "violations": violation_records,
-            "statistics": {
-                "source_chars": (
-                    len(file.templated_file.source_str) if file.templated_file else 0
-                ),
-                "templated_chars": (
-                    len(file.templated_file.templated_str) if file.templated_file else 0
-                ),
-                # These are all the segments in the tree
-                "segments": (
-                    file.tree.count_segments(raw_only=False) if file.tree else 0
-                ),
-                # These are just the "leaf" nodes of the tree
-                "raw_segments": (
-                    file.tree.count_segments(raw_only=True) if file.tree else 0
-                ),
-            },
+            "statistics": file_statistics(file),
             "timings": {},
         }
 
@@ -137,6 +147,40 @@ class LintedDir:
         # Finally, if set to persist files, do that.
         if self.retain_files:
             self.files.append(file)
+
+    def add_cached_clean(self, path: str, statistics: dict[str, int]) -> None:
+        """Record a file which was skipped because it was cached as clean.
+
+        This is the counterpart to :meth:`add` for a file we deliberately did
+        not lint. It updates exactly the metadata that `add` would have for a
+        file with no violations, and replays the statistics recorded when the
+        file was last linted, so that serialised output (`--format json`,
+        `--persist-timing`) is unchanged by caching.
+
+        Two things are deliberately *not* replayed:
+
+        * There is no :class:`LintedFile`, and so nothing is appended to
+          ``self.files``. A cache hit means the file was never templated or
+          parsed, so there is no tree to retain. API consumers which need
+          ``.files`` or ``.tree`` should not enable the cache.
+        * Timings are empty rather than being replayed from the earlier run.
+          Reporting the cost of work which did not happen this time would make
+          `--persist-timing` output actively misleading.
+        """
+        record: LintingRecord = {
+            "filepath": path,
+            "violations": [],
+            "statistics": dict(statistics),
+            "timings": {},
+        }
+        self._records.append(record)
+        self._num_files += 1
+        self._num_clean += 1
+        # A cached file had no violations of any kind, so every violation
+        # counter is unchanged. The map is still populated because
+        # `discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors`
+        # indexes it by the filepath of every record.
+        self._unfiltered_tmp_prs_errors_map[path] = 0
 
     def check_tuples(
         self, raise_on_non_linting_violations: bool = True

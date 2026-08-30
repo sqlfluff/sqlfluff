@@ -35,6 +35,7 @@ from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.file import get_encoding
+from sqlfluff.core.helpers.hashing import hash_path_contents
 from sqlfluff.core.helpers.slice import is_zero_slice, slice_length
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -315,10 +316,7 @@ class JinjaTemplater(PythonTemplater):
         Returns:
             dict: A dictionary containing the extracted libraries.
         """
-        # If a more global library_path is set, let that take precedence.
-        library_path = config.get("library_path") or config.get_section(
-            (self.templater_selector, self.name, "library_path")
-        )
+        library_path = self._get_library_path(config)
         if not library_path:
             return {}
 
@@ -511,6 +509,54 @@ class JinjaTemplater(PythonTemplater):
                 if result:
                     return result
         return None
+
+    def _get_library_path(self, config: Optional[FluffConfig]) -> Optional[str]:
+        """Get the configured python library path, if any.
+
+        A more global ``library_path`` takes precedence over the one in the
+        templater section.
+        """
+        if not config:  # pragma: no cover
+            return None
+        library_path = config.get("library_path") or config.get_section(
+            (self.templater_selector, self.name, "library_path")
+        )
+        if not library_path:
+            return None
+        return cast(str, library_path)
+
+    def cache_fingerprint(self, config: FluffConfig) -> Optional[str]:
+        """Digest the files this templater reads from outside the SQL file.
+
+        Everything the Jinja templater renders with comes either from the file
+        itself, from config (macros defined in ``[sqlfluff:templater:jinja:
+        macros]``, the context, and the environment options -- all covered by
+        the config digest), or from one of four configured paths:
+
+        * ``loader_search_path``, searched by ``{% include %}`` / ``{% import %}``
+        * ``load_macros_from_path``, loaded as macro definitions
+        * ``exclude_macros_from_path``, which subtracts from the above
+        * ``library_path``, imported as python modules
+
+        Those four are hashed here, contents and all, so that editing a macro
+        invalidates every file which could have used it.
+
+        The paths are hashed as one ordered sequence without labelling which
+        setting each came from. That is sufficient: the config digest already
+        distinguishes a path configured as (say) ``library_path`` from the same
+        path configured as ``load_macros_from_path``, so the two cannot be
+        confused for one another.
+        """
+        library_path = self._get_library_path(config)
+        paths: list[str] = [
+            # Order matters and is preserved: Jinja resolves a template name
+            # against the search path in order.
+            *(self._get_loader_search_path(config) or []),
+            *(self._get_macros_path(config, "load_macros_from_path") or []),
+            *(self._get_macros_path(config, "exclude_macros_from_path") or []),
+            *([library_path] if library_path else []),
+        ]
+        return hash_path_contents(paths)
 
     def _get_loader_search_path(
         self, config: Optional[FluffConfig]

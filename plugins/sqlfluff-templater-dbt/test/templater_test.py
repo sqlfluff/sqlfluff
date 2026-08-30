@@ -966,3 +966,18 @@ def test__templater_dbt_threads_explicit(dbt_templater):
         },
     )
     assert dbt_templater._get_threads() == 4
+
+
+def test__templater_dbt_declines_caching(dbt_templater, dbt_fluff_config):
+    """Models are never served from the lint result cache under dbt.
+
+    The dbt templater inherits from the Jinja one, whose fingerprint covers
+    only the configured macro and library paths. That is not enough here: a
+    model's rendering depends on the compiled manifest -- other models, seeds,
+    packages, the selected target and any `env_var()` calls -- none of which is
+    reachable from the model file plus its SQLFluff config.
+
+    Returning None opts dbt out entirely, which is what stops a stale hit from
+    hiding a violation in a dbt project.
+    """
+    assert dbt_templater.cache_fingerprint(FluffConfig(dbt_fluff_config)) is None
